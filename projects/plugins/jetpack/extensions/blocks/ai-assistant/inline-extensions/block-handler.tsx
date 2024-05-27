@@ -15,7 +15,7 @@ export function getMarkdown( html: string ) {
 }
 
 export function renderHTMLContent( markdown: string, rules: RenderHTMLRules = [] ) {
-	return renderHTMLFromMarkdown( { content: markdown, rules } );
+	return renderHTMLFromMarkdown( { content: markdown, rules, extension: true } );
 }
 
 export class BlockHandler {
