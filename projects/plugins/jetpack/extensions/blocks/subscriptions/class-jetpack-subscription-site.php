@@ -9,6 +9,8 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Jetpack_Memberships;
+use WP_Block_Template;
+use WP_Post;
 
 /**
  * Jetpack_Subscription_Site class.
@@ -39,6 +41,7 @@ class Jetpack_Subscription_Site {
 	 */
 	public function handle_subscribe_block_placements() {
 		$this->handle_subscribe_block_post_end_placement();
+		$this->handle_subscribe_block_navigation_placement();
 	}
 
 	/**
@@ -86,6 +89,79 @@ class Jetpack_Subscription_Site {
 		}
 
 		return $default_attrs;
+	}
+
+	/**
+	 * Returns true if context is recognized as a header element.
+	 *
+	 * @param WP_Block_Template|WP_Post|array $context The block template, template part, or pattern the anchor block belongs to.
+	 *
+	 * @return bool
+	 */
+	protected function is_header_context( $context ) {
+		if ( $context instanceof WP_Post && $context->post_type === 'wp_navigation' ) {
+			return true;
+		}
+
+		if ( $context instanceof WP_Block_Template && $context->area === 'header' ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Handles Subscription block navigation placement.
+	 *
+	 * @return void
+	 */
+	protected function handle_subscribe_block_navigation_placement() {
+		global $wp_version;
+
+		$is_enabled = get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false );
+		if ( ! $is_enabled ) {
+			return;
+		}
+
+		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
+			return;
+		}
+
+		add_filter(
+			'hooked_block_types',
+			function ( $hooked_blocks, $relative_position, $anchor_block, $context ) {
+				if (
+					$anchor_block === 'core/navigation' &&
+					$relative_position === 'last_child' &&
+					self::is_header_context( $context )
+				) {
+					$hooked_blocks[] = 'jetpack/subscriptions';
+				}
+
+				return $hooked_blocks;
+			},
+			10,
+			4
+		);
+
+		add_filter(
+			'hooked_block_jetpack/subscriptions',
+			function ( $hooked_block, $hooked_block_type, $relative_position, $anchor_block ) {
+				$is_navigation_anchor_block = isset( $anchor_block['blockName'] ) && $anchor_block['blockName'] === 'core/navigation';
+
+				if ( $is_navigation_anchor_block ) {
+					$class_name = ( ! empty( $hooked_block['attrs'] ) && ! empty( $hooked_block['attrs']['className'] ) )
+						? $hooked_block['attrs']['className'] . ' is-style-button'
+						: 'is-style-button';
+
+					$hooked_block['attrs']['className'] = $class_name;
+				}
+
+				return $hooked_block;
+			},
+			10,
+			4
+		);
 	}
 
 	/**

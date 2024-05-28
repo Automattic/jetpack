@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Assets;
+
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -594,7 +596,19 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Enqueue the tag suggestion script.
 		 */
 		public static function enqueue_scripts() {
-			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'jquery', 'suggest' ), '20131022', true );
+			Assets::register_script(
+				'featured-content-suggest',
+				'../build/featured-content/suggest.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'suggest',
+					),
+					'in_footer'    => true,
+					'enqueue'      => true,
+				)
+			);
 		}
 
 		/**
