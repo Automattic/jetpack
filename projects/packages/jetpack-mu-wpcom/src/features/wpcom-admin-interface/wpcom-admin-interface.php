@@ -114,16 +114,20 @@ function wpcom_should_show_classic_tour() {
 		return false;
 	}
 
-	if ( ! wpcom_has_admin_interface_changed() ) {
+	$tour_completed_option = get_option( 'wpcom_classic_tour_completed' );
+	$is_tour_in_progress   = $tour_completed_option === '0';
+	$is_tour_completed     = $tour_completed_option === '1';
+
+	if ( $is_tour_completed ) {
+		return false;
+	}
+
+	if ( ! wpcom_has_admin_interface_changed() && ! $is_tour_in_progress ) {
 		return false;
 	}
 
 	// Don't show the tour to non-administrators since it highlights features that are unavailable to them.
 	if ( ! current_user_can( 'manage_options' ) ) {
-		return false;
-	}
-
-	if ( get_option( 'wpcom_classic_tour_dismissed' ) ) {
 		return false;
 	}
 
@@ -163,6 +167,8 @@ function wpcom_classic_tour_enqueue_scripts() {
 	if ( ! wpcom_should_show_classic_tour() ) {
 		return;
 	}
+
+	update_option( 'wpcom_classic_tour_completed', '0' );
 
 	wp_enqueue_style(
 		'wpcom-classic-tour',
@@ -221,7 +227,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_classic_tour_enqueue_scripts' );
  */
 function wpcom_dismiss_classic_tour() {
 	check_ajax_referer( 'wpcom_dismiss_classic_tour' );
-	update_option( 'wpcom_classic_tour_dismissed', 1 );
+	update_option( 'wpcom_classic_tour_completed', '1' );
 	wp_die();
 }
 add_action( 'wp_ajax_wpcom_dismiss_classic_tour', 'wpcom_dismiss_classic_tour' );
