@@ -135,7 +135,7 @@ class Modules_Index {
 		return array();
 	}
 
-	public function get_feature_instance_by_slug( $slug ) {
-		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ]->feature : false;
+	public function get_module_instance_by_slug( $slug ) {
+		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : false;
 	}
 }

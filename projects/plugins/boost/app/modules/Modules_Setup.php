@@ -92,11 +92,11 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_endpoints() );
 	}
 
-	public function init_modules() {
-		$this->_init_modules( $this->available_modules );
+	public function load_modules() {
+		$this->init_modules( $this->available_modules );
 	}
 
-	private function _init_modules( $modules ) {
+	private function init_modules( $modules ) {
 		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
@@ -113,7 +113,7 @@ class Modules_Setup implements Has_Setup {
 				foreach ( $submodule_list as $sub_module ) {
 					$submodule_instances[] = new Module( new $sub_module() );
 				}
-				$this->_init_modules( $submodule_instances );
+				$this->init_modules( $submodule_instances );
 			}
 
 			$this->register_endpoints( $module->feature );
@@ -127,7 +127,7 @@ class Modules_Setup implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
-		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
 
@@ -138,18 +138,17 @@ class Modules_Setup implements Has_Setup {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
-		$feature = $this->modules->get_feature_instance_by_slug( $module_slug );
+		$module = $this->modules->get_module_instance_by_slug( $module_slug );
 
-		$status = new Status( $feature );
+		$status = new Status( $module->feature );
 		$status->on_update( $is_activated );
 
-
-		if ( $is_activated && $feature instanceof Has_Activate ) {
-			$feature::activate();
+		if ( $is_activated && $module->feature instanceof Has_Activate ) {
+			$module->feature::activate();
 		}
 
-		if ( ! $is_activated && $feature instanceof Has_Deactivate ) {
-			$feature::deactivate();
+		if ( ! $is_activated && $module->feature instanceof Has_Deactivate ) {
+			$module->feature::deactivate();
 		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {
