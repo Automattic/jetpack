@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Contracts\Has_Sub_Modules;
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -62,25 +62,6 @@ class Modules_Setup implements Has_Setup {
 		return $status;
 	}
 
-	public function get_all_sub_modules_state() {
-		$sub_modules_state = array();
-		foreach ( $this->available_modules as $slug => $module ) {
-			$state = $this->get_feature_sub_modules_state( $module->feature );
-			if ( $state !== false ) {
-				$sub_modules_state[ $slug ] = $state;
-			}
-		}
-		return $sub_modules_state;
-	}
-
-	public function get_feature_sub_modules_state( $feature ) {
-		if ( ! $feature instanceof Has_Sub_Modules ) {
-			return false;
-		}
-
-		return $feature->get_sub_modules_state();
-	}
-
 	/**
 	 * Used to register endpoints that will be available even
 	 * if the module is not enabled.
@@ -112,8 +93,11 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	public function init_modules() {
+		$this->_init_modules( $this->available_modules );
+	}
 
-		foreach ( $this->available_modules as $slug => $module ) {
+	private function _init_modules( $modules ) {
+		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
 
@@ -123,7 +107,14 @@ class Modules_Setup implements Has_Setup {
 
 			Setup::add( $module->feature );
 
-			$this->setup_sub_modules( $module->feature );
+			if ( $module->feature instanceof Has_Submodules ) {
+				$submodule_list      = $module->feature->get_submodules();
+				$submodule_instances = array();
+				foreach ( $submodule_list as $sub_module ) {
+					$submodule_instances[] = new Module( new $sub_module() );
+				}
+				$this->_init_modules( $submodule_instances );
+			}
 
 			$this->register_endpoints( $module->feature );
 
@@ -138,14 +129,6 @@ class Modules_Setup implements Has_Setup {
 	public function setup() {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
-	}
-
-	public function setup_sub_modules( $feature ) {
-		if ( ! $feature instanceof Has_Sub_Modules ) {
-			return false;
-		}
-
-		$feature->setup_sub_modules();
 	}
 
 	/**

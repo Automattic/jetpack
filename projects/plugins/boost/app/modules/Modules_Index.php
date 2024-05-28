@@ -35,6 +35,8 @@ class Modules_Index {
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,
+		// Image_CDN_Liar::class,
+		// Image_CDN_Quality_Settings::class,
 		Performance_History::class,
 		Page_Cache::class,
 	);

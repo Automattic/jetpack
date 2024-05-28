@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -23,6 +24,10 @@ class Module {
 	}
 
 	public function is_enabled() {
+		if ( $this->feature instanceof Is_Always_On ) {
+			return true;
+		}
+
 		return $this->status->is_enabled();
 	}
 
