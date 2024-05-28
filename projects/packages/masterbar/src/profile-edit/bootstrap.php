@@ -2,7 +2,7 @@
 /**
  * Bootstrap the WP.com User profile edit restriction.
  *
- * @package automattic\jetpack
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

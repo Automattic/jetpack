@@ -2,7 +2,7 @@
 /**
  * Array that contains all the core dashicons.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-masterbar
  */
 
 return array(

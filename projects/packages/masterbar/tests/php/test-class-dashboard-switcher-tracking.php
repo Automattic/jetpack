@@ -2,7 +2,7 @@
 /**
  * Test file for Dashboard_Switcher_Tracking
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

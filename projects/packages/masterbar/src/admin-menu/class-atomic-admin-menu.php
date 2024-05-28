@@ -2,7 +2,7 @@
 /**
  * Atomic Admin Menu file.
  *
- * @package ajetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

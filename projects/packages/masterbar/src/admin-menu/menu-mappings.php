@@ -2,7 +2,7 @@
 /**
  * Helper mapping between WP Admin pages and WordPress.com
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-masterbar
  */
 
 $common_mappings = array(
