@@ -37,6 +37,7 @@ class Test_REST_Endpoints extends TestCase {
 	/**
 	 * Setting up the test.
 	 *
+	 * @suppress PhanNoopNew
 	 * @before
 	 */
 	public function set_up() {

@@ -932,7 +932,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 * Clean up the settings from the check_identity_crisis_return_error method.
 	 */
 	private function clean_up_check_identity_crisis_return_error() {
-		\Jetpack_Options::delete_option( 'id', 'test' );
+		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::update_option( 'blog_token', 'test' );
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
 		delete_option( 'jetpack_sync_error_idc' );
@@ -1109,38 +1109,5 @@ class Test_Identity_Crisis extends BaseTestCase {
 		foreach ( $result3 as $ip ) {
 			$this->assertNotContains( $expected_ip3, $ip );
 		}
-	}
-
-	/**
-	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
-	 * Package_Version_Tracker.
-	 */
-	public function test_send_package_version_to_tracker_empty_array() {
-		Identity_Crisis::init();
-
-		$expected = array(
-			Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION,
-		);
-
-		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', array() ) );
-	}
-
-	/**
-	 * Tests that the identity-crisis package version is added to the package versions array obtained by the
-	 * Package_Version_Tracker.
-	 */
-	public function test_send_package_version_to_tracker_existing_array() {
-		$existing_array = array(
-			'test-package-slug' => '1.0.0',
-		);
-
-		$expected = array_merge(
-			$existing_array,
-			array( Identity_Crisis::PACKAGE_SLUG => Identity_Crisis::PACKAGE_VERSION )
-		);
-
-		add_filter( 'jetpack_package_versions', 'Automattic\\Jetpack\\Identity_Crisis::send_package_version_to_tracker' );
-
-		$this->assertSame( $expected, apply_filters( 'jetpack_package_versions', $existing_array ) );
 	}
 }

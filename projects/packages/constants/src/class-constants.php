@@ -92,7 +92,7 @@ class Constants {
 	 * Sets the value of the "constant" within constants Manager.
 	 *
 	 * @param string $name The name of the constant.
-	 * @param string $value The value of the constant.
+	 * @param scalar $value The value of the constant.
 	 */
 	public static function set_constant( $name, $value ) {
 		self::$set_constants[ $name ] = $value;
