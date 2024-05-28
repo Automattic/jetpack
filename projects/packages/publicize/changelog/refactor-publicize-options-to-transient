@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Changed how social connections are cached by moving to using transients.

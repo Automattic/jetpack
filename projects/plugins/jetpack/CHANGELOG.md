@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.5-a.5 - 2024-05-27
+### Enhancements
+- AI Assistant: Move Paragraph extension to production. [#37495]
+- Newsletter: Add "From" name setting. [#37502]
+- Newsletter: Add "Reply to" name setting. [#37362]
+- Social: Add connection management to editor. [#37405]
+- Social: Add width to connection management container. [#37490]
+
+### Improved compatibility
+- Change how Jetpack social connections are stored on the local site. [#37500]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add auto-scroll to inline extension. [#37481]
+- AI Assistant: Add paragraph inline extension. [#37461]
+- AI Assistant: Fix selected block while using the AI Assistant extension on a nested block. [#37519]
+- AI Assistant: Toggle inline AI input on Ask AI Assistant button. [#37480]
+- AI Featured Image: Add site type and image model to events being tracked on the tool. [#37474]
+- Fix settings endpoint when subscription_options is not modified. [#37190]
+- Deprecated Errors class. [#37451]
+- Jetpack AI: Open upgrade paths in new tab on every upgrade entry point. [#37457]
+- Jetpack_Currencies: Fix PHP8 fatal error in format_price when passing a string in number_format [#37530]
+- Pay with PayPal: Ensure prices are correctly formatted. [#37534]
+- Sharing button: Increase performance on p2020 theme. [#37497]
+- Social: Update the initial state fields for WP.com. [#37532]
+- Subscriptions: Add name to the overlay group block. [#37574]
+- Subscriptions: Do not clear the subscriber email when current user is empty. [#37485]
+- Subscriptions: Subscription overlay fixes. [#37503]
+- Updated package dependencies. [#36964]
+
 ## 13.5-a.3 - 2024-05-20
 ### Enhancements
 - AI Assistant: Enable inline Heading extension. [#37386]

@@ -1,6 +1,6 @@
 import { Button, IconTooltip } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { useReducer } from 'react';
 import ConnectionIcon from '../connection-icon';
@@ -45,7 +45,11 @@ export function ConnectionInfo( { connection, service, onConfirmReconnect }: Con
 					className={ styles[ 'learn-more' ] }
 					variant="tertiary"
 					onClick={ togglePanel }
-					aria-label={ __( 'Learn more', 'jetpack' ) }
+					aria-label={
+						isPanelOpen
+							? __( 'Close panel', 'jetpack' )
+							: _x( 'Open panel', 'Accessibility label', 'jetpack' )
+					}
 				>
 					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
 				</Button>

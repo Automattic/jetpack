@@ -1,4 +1,5 @@
 import { ExternalLink, Spinner } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
@@ -27,5 +28,5 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 			</div>
 		);
 	}
-	return <Spinner color="black" />;
+	return <Spinner color="black" aria-label={ __( 'Loading account details', 'jetpack' ) } />;
 }
