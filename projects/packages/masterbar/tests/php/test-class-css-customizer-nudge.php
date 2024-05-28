@@ -2,7 +2,7 @@
 /**
  * Test WPCOM_CSS_Customizer_Nudge.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

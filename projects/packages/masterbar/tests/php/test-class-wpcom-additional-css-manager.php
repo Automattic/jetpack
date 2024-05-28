@@ -2,7 +2,7 @@
 /**
  * Test WPCOM_Additional_CSS_Manager.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

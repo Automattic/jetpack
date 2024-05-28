@@ -2,7 +2,7 @@
 /**
  * Tests for Posts_List_Page_Notification class.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

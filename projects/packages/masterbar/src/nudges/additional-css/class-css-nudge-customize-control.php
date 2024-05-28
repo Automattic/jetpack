@@ -3,7 +3,7 @@
  * CSS_Nudge_Customize_Control file.
  * CSS Nudge implementation for Atomic and WPCOM.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

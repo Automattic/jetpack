@@ -2,7 +2,7 @@
 /**
  * Unifies admin color scheme selection across WP.com sites.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

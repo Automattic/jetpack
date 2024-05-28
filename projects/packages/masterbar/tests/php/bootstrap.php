@@ -2,7 +2,7 @@
 /**
  * Bootstrap.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Test CSS_Nudge_Customize_Control.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

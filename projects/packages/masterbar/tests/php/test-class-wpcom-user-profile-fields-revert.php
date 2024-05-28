@@ -2,7 +2,7 @@
 /**
  * Tests for WPCOM_User_Profile_Fields_Revert class.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

@@ -3,7 +3,7 @@
  * Posts_List_Page_Notification file.
  * Disable edit_post and delete_post capabilities for Posts Pages in WP-Admin and display a notification icon.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

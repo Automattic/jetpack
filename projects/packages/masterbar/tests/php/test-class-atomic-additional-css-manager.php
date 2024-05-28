@@ -2,7 +2,7 @@
 /**
  * Test_WPORG_Additional_Css_Manager class.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

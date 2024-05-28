@@ -2,7 +2,7 @@
 /**
  * Tests for WPcom_Admin_Menu class.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

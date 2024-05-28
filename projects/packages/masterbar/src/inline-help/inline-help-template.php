@@ -2,7 +2,7 @@
 /**
  * Inline Help FAB icon template.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.

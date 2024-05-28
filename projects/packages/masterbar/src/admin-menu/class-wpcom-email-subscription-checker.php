@@ -2,7 +2,7 @@
 /**
  * A class that checks for the existence of email subscriptions for a user.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Tests for Admin_Color_Schemes class.
  *
- * @package automattic-jetpack
+ * @package automattic/jetpack-masterbar
  */
 namespace Automattic\Jetpack\Masterbar;
 

@@ -2,7 +2,7 @@
 /**
  * Fixture data for admin menu tests.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

@@ -2,7 +2,7 @@
 /**
  * WP-Admin Profile edit.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;

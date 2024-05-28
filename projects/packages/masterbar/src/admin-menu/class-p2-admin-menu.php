@@ -2,7 +2,7 @@
 /**
  * P2 Admin Menu file.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

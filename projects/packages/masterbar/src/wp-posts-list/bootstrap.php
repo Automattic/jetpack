@@ -2,7 +2,7 @@
 /**
  * WP-Admin Posts list bootstrap file.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * Tests for Admin_Menu class.
  *
- * @package automattic-jetpack
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

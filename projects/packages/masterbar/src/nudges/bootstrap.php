@@ -2,7 +2,7 @@
 /**
  * Bootstrap file for the nudges.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

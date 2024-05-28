@@ -5,7 +5,7 @@
  * Handles providing a LiveChat icon within WPAdmin until such time
  * as the full live chat experience can be run in a non-Calypso environment.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;

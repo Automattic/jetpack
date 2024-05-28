@@ -4,7 +4,7 @@
  *
  * Responsible with replacing the Core Additional CSS section with an upgrade nudge on Atomic.
  *
- * @package jetpack-masterbar
+ * @package automattic/jetpack-masterbar
  */
 
 namespace Automattic\Jetpack\Masterbar;
