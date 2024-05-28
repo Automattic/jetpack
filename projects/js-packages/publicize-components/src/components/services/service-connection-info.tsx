@@ -1,6 +1,4 @@
 import { IconTooltip, Text } from '@automattic/jetpack-components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { ConnectionName } from '../connection-management/connection-name';
@@ -13,11 +11,14 @@ import { SupportedService } from './use-supported-services';
 export type ServiceConnectionInfoProps = {
 	connection: Connection;
 	service: SupportedService;
+	isAdmin?: boolean;
 };
 
-export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectionInfoProps ) => {
-	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
-
+export const ServiceConnectionInfo = ( {
+	connection,
+	service,
+	isAdmin,
+}: ServiceConnectionInfoProps ) => {
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
