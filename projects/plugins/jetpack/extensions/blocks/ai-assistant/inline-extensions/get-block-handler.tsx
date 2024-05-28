@@ -7,6 +7,7 @@ import debugFactory from 'debug';
  */
 import { BlockHandler } from './block-handler';
 import { HeadingHandler } from './heading';
+import { JetpackFormHandler } from './jetpack-form';
 import { ListHandler } from './list';
 import { ListItemHandler } from './list-item';
 import { ParagraphHandler } from './paragraph';
@@ -23,6 +24,7 @@ const handlers = {
 	'core/paragraph': ParagraphHandler,
 	'core/list-item': ListItemHandler,
 	'core/list': ListHandler,
+	'jetpack/contact-form': JetpackFormHandler,
 };
 
 /**
