@@ -18,12 +18,6 @@ import {
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
-// Check for feature flags
-const urlParams = new URLSearchParams( window.location.search );
-const isWelcomeOverlayEnabled = urlParams.get( 'enable-welcome-overlay' ) === 'true';
-const isSubscriptionNavigationToggleEnabled =
-	urlParams.get( 'enable-subscription-navigation' ) === 'true';
-
 /**
  * Subscription settings component.
  *
@@ -175,27 +169,25 @@ function SubscriptionsSettings( props ) {
 							</span>
 						}
 					/>
-					{ isWelcomeOverlayEnabled && (
-						<ToggleControl
-							checked={ isSubscriptionsActive && isSubscribeOverlayEnabled }
-							disabled={ isDisabled }
-							toggling={ isSavingAnyOption( [ 'jetpack_subscribe_overlay_enabled' ] ) }
-							onChange={ handleSubscribeOverlayToggleChange }
-							label={
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Subscription overlay on homepage', 'jetpack' ) }
-									{ isBlockTheme && subscribeOverlayEditorUrl && (
-										<>
-											{ '. ' }
-											<ExternalLink href={ subscribeOverlayEditorUrl }>
-												{ __( 'Preview and edit', 'jetpack' ) }
-											</ExternalLink>
-										</>
-									) }
-								</span>
-							}
-						/>
-					) }
+					<ToggleControl
+						checked={ isSubscriptionsActive && isSubscribeOverlayEnabled }
+						disabled={ isDisabled }
+						toggling={ isSavingAnyOption( [ 'jetpack_subscribe_overlay_enabled' ] ) }
+						onChange={ handleSubscribeOverlayToggleChange }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Subscription overlay on homepage', 'jetpack' ) }
+								{ isBlockTheme && subscribeOverlayEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ subscribeOverlayEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
+							</span>
+						}
+					/>
 					<ToggleControl
 						checked={ isSubscriptionsActive && isStbEnabled }
 						disabled={ isDisabled }
@@ -223,29 +215,27 @@ function SubscriptionsSettings( props ) {
 					/>
 					{ isSubscriptionSiteEditSupported && (
 						<>
-							{ isSubscriptionNavigationToggleEnabled && (
-								<ToggleControl
-									checked={ isSubscriptionsActive && isSubscribeNavigationEnabled }
-									disabled={ isDisabled }
-									toggling={ isSavingAnyOption( [
-										'jetpack_subscriptions_subscribe_navigation_enabled',
-									] ) }
-									onChange={ handleSubscribeNavigationToggleChange }
-									label={
-										<span className="jp-form-toggle-explanation">
-											{ __( 'Add the Subscribe block to the navigation', 'jetpack' ) }
-											{ headerTemplateEditorUrl && (
-												<>
-													{ '. ' }
-													<ExternalLink href={ headerTemplateEditorUrl }>
-														{ __( 'Preview and edit', 'jetpack' ) }
-													</ExternalLink>
-												</>
-											) }
-										</span>
-									}
-								/>
-							) }
+							<ToggleControl
+								checked={ isSubscriptionsActive && isSubscribeNavigationEnabled }
+								disabled={ isDisabled }
+								toggling={ isSavingAnyOption( [
+									'jetpack_subscriptions_subscribe_navigation_enabled',
+								] ) }
+								onChange={ handleSubscribeNavigationToggleChange }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Add the Subscribe block to the navigation', 'jetpack' ) }
+										{ headerTemplateEditorUrl && (
+											<>
+												{ '. ' }
+												<ExternalLink href={ headerTemplateEditorUrl }>
+													{ __( 'Preview and edit', 'jetpack' ) }
+												</ExternalLink>
+											</>
+										) }
+									</span>
+								}
+							/>
 							<ToggleControl
 								checked={ isSubscriptionsActive && isLoginNavigationEnabled }
 								disabled={ isDisabled }
