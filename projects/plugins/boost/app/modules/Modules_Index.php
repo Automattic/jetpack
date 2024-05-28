@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
@@ -63,13 +64,30 @@ class Modules_Index {
 	public static function get_modules_implementing( string $interface ): array {
 		$matching_modules = array();
 
-		foreach ( self::MODULES as $module ) {
+		foreach ( self::get_all_modules() as $module ) {
 			if ( in_array( $interface, class_implements( $module ), true ) ) {
 				$matching_modules[ $module::get_slug() ] = $module;
 			}
 		}
 
 		return $matching_modules;
+	}
+
+	public static function get_all_modules() {
+		$modules = array();
+
+		foreach ( self::MODULES as $module ) {
+			$modules[]       = $module;
+			$module_instance = ( new Module( new $module() ) );
+			if ( $module_instance->feature instanceof Has_Submodules ) {
+				$submodules = $module_instance->feature->get_submodules();
+				foreach ( $submodules as $submodule ) {
+					$modules[] = $submodule;
+				}
+			}
+		}
+
+		return $modules;
 	}
 
 	public function available_modules() {

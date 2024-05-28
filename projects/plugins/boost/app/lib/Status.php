@@ -2,12 +2,14 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
-class Status {
+class Status implements Entry_Can_Get, Entry_Can_Set {
 
 	/**
 	 * Slug of the optimization module which is currently being toggled
@@ -44,6 +46,19 @@ class Status {
 				Critical_CSS::class,
 			),
 		);
+	}
+
+	public function get( $_fallback = false ) {
+		$always_on = is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
+		if ( $always_on ) {
+			return true;
+		}
+
+		return get_option( $this->option_name, false );
+	}
+
+	public function set( $value ) {
+		return $this->update( $value );
 	}
 
 	public function update( $new_status ) {

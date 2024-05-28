@@ -2,20 +2,14 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
+use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Liar implements Pluggable {
+class Liar implements Pluggable, Changes_Page_Output {
 
 	public function setup() {
-		$image_cdn_liar = $this->get_state();
-		if ( $image_cdn_liar ) {
-			add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
-		}
-	}
-
-	public function get_state() {
-		return jetpack_boost_ds_get( 'image_cdn_liar' );
+		add_action( 'wp_footer', array( $this, 'inject_image_cdn_liar_script' ) );
 	}
 
 	public static function get_slug() {
