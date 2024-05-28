@@ -5,6 +5,8 @@
  * @package automattic/jetpack-masterbar
  */
 
+namespace Automattic\Jetpack\Masterbar;
+
 /**
  * WPCOM_Email_Subscription_Checker
  */
