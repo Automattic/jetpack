@@ -17,25 +17,24 @@ import SwitchToBoost from '../switch-to-boost/switch-to-boost';
 
 type HealthProps = {
 	error?: PageCacheError;
-	setup: ReturnType< typeof usePageCacheSetup >;
+	cacheSetup: ReturnType< typeof usePageCacheSetup >;
 	setError: ( error: PageCacheError ) => void;
 };
 
-const Health = ( { setup, error, setError }: HealthProps ) => {
-	const [ , setModuleState ] = useSingleModuleState( 'page_cache', state => {
-		// Run setup if the module is being enabled
-		if ( state ) {
-			setup.mutate();
+const Health = ( { cacheSetup, error, setError }: HealthProps ) => {
+	const [ , setModuleState ] = useSingleModuleState( 'page_cache', cacheIsActivated => {
+		if ( cacheIsActivated ) {
+			cacheSetup.mutate();
 		}
 	} );
 	// Was there a problem trying to setup cache?
 	const [ doingRevert, setDoingRevert ] = useState( false );
 
 	useEffect( () => {
-		if ( setup?.isError && error && ! error.dismissed ) {
+		if ( cacheSetup?.isError && error && ! error.dismissed ) {
 			setDoingRevert( true );
 		}
-	}, [ setup?.isError, error, setDoingRevert ] );
+	}, [ cacheSetup?.isError, error, setDoingRevert ] );
 
 	useEffect( () => {
 		if ( doingRevert ) {

@@ -98,7 +98,7 @@ const PageCache = () => {
 					<Health
 						error={ pageCacheError.data }
 						setError={ pageCacheErrorMutation.mutate }
-						setup={ pageCacheSetup }
+						cacheSetup={ pageCacheSetup }
 					/>
 				</>
 			}
