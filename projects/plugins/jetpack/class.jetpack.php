@@ -2399,13 +2399,15 @@ class Jetpack {
 	/**
 	 * Catches PHP errors.  Must be used in conjunction with output buffering.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.5
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
+	 * @deprecated $$next-version$$
+	 * @see \Automattic\Jetpack\Errors
 	 */
 	public static function catch_errors( $catch ) {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.5' );
 		// @phan-suppress-next-line PhanDeprecatedClass
 		return ( new Errors() )->catch_errors( $catch );
 	}
@@ -2413,10 +2415,10 @@ class Jetpack {
 	/**
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.5
 	 */
 	public static function catch_errors_on_shutdown() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.5' );
 		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
 	}
 
@@ -5349,6 +5351,8 @@ endif;
 	 *
 	 * Data passed in with the $data parameter will be available in the
 	 * template file as $data['value']
+	 *
+	 * @html-template-var array $data
 	 *
 	 * @param string $template - Template file to load.
 	 * @param array  $data - Any data to pass along to the template.

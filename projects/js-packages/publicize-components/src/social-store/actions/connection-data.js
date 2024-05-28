@@ -97,6 +97,7 @@ export function mergeConnections( freshConnections ) {
 				...defaults,
 				...prevConnection,
 				...freshConnection,
+				shared: prevConnection?.shared,
 				is_healthy: freshConnection.test_success,
 			};
 			connections.push( connection );
@@ -215,7 +216,7 @@ export function creatingConnection( creating = true ) {
  * @returns {boolean} Whether the connection was deleted.
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
-	return async function ( { dispatch } ) {
+	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
@@ -232,6 +233,11 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 					type: 'snackbar',
 					isDismissible: true,
 				} );
+			}
+
+			// If we are on post editor, sync the connections to the post meta.
+			if ( registry.select( editorStore ).getCurrentPostId() ) {
+				dispatch( syncConnectionsToPostMeta() );
 			}
 
 			return true;
@@ -258,7 +264,7 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
  * @returns {void}
  */
 export function createConnection( data ) {
-	return async function ( { dispatch } ) {
+	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
@@ -292,6 +298,11 @@ export function createConnection( data ) {
 						isDismissible: true,
 					}
 				);
+
+				// If we are on post editor, sync the connections to the post meta.
+				if ( registry.select( editorStore ).getCurrentPostId() ) {
+					dispatch( syncConnectionsToPostMeta() );
+				}
 			}
 		} catch ( error ) {
 			let message = __( 'Error connecting account.', 'jetpack' );

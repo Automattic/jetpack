@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack_Currencies: Fix PHP8 Fatal in format_price when passing a string in number_format

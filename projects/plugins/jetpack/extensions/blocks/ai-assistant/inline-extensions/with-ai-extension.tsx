@@ -39,6 +39,8 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 const blockExtensionMapper = {
 	'core/heading': 'heading',
 	'core/paragraph': 'paragraph',
+	'core/list-item': 'list-item',
+	'core/list': 'list',
 };
 
 // Defines where the block controls should be placed in the toolbar
@@ -295,6 +297,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				dequeueAsyncRequest();
 
 				enableAutoScroll();
+
 				request( messages );
 			},
 			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
