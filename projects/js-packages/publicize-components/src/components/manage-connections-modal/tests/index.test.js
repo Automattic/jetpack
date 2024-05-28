@@ -20,7 +20,7 @@ describe( 'ManageConnectionsModal', () => {
 		render( <ManageConnectionsModal onCloseModal={ onCloseModal } /> );
 
 		expect( screen.queryByText( 'Confirmation Form' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Add a new connection to Jetpack Social' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Manage Jetpack Social connections' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders ConfirmationForm when there is a keyringResult', () => {
