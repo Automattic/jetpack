@@ -1008,10 +1008,58 @@ class Jetpack_Custom_CSS_Enhancements {
 	}
 
 	/**
+	 * Return whether the Start Fresh option of the CSS editor is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_start_fresh_option_enabled() {
+		$start_fresh = null;
+
+		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
+		// customize_changeset posts.
+		$posts = get_posts(
+			array(
+				'post_type'   => 'customize_changeset',
+				'post_status' => 'trash',
+				'order_by'    => 'post_modified',
+				'order'       => 'DESC',
+			)
+		);
+
+		// Bail as soon as we find a post that defines the `replace` option.
+		foreach ( $posts as $post ) {
+			$content = $post->post_content;
+
+			if ( empty( $content ) ) {
+				continue;
+			}
+
+			$parsed_content = json_decode( $content, true );
+
+			if ( empty( $parsed_content ) ) {
+				continue;
+			}
+
+			foreach ( $parsed_content as $key => $data ) {
+				if ( str_ends_with( $key, '::jetpack_custom_css[replace]' ) ) {
+					$start_fresh = $data['value'];
+					break;
+				}
+			}
+
+			if ( isset( $start_fresh ) ) {
+				break;
+			}
+		}
+
+		return $start_fresh;
+	}
+
+	/**
 	 * Display a deprecation warning on the frontend for site admins only
 	 */
 	public static function display_frontend_warning() {
-		if ( ! current_user_can( 'edit_themes' ) || ! current_user_can( 'edit_theme_options' ) ) {
+		if ( ! current_user_can( 'edit_themes' ) || ! current_user_can( 'edit_theme_options' ) || ! self::is_start_fresh_option_enabled() ) {
 			return;
 		}
 
@@ -1054,45 +1102,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			return;
 		}
 
-		$start_fresh = null;
-		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
-		// customize_changeset posts.
-		$posts = get_posts(
-			array(
-				'post_type'   => 'customize_changeset',
-				'post_status' => 'trash',
-				'order_by'    => 'post_modified',
-				'order'       => 'DESC',
-			)
-		);
-
-		// Bail as soon as we find a post that defines the `replace` option.
-		foreach ( $posts as $post ) {
-			$content = $post->post_content;
-
-			if ( empty( $content ) ) {
-				continue;
-			}
-
-			$parsed_content = json_decode( $content, true );
-
-			if ( empty( $parsed_content ) ) {
-				continue;
-			}
-
-			foreach ( $parsed_content as $key => $data ) {
-				if ( str_ends_with( $key, '::jetpack_custom_css[replace]' ) ) {
-					$start_fresh = $data['value'];
-					break;
-				}
-			}
-
-			if ( isset( $start_fresh ) ) {
-				break;
-			}
-		}
-
-		$val = $start_fresh ? 'true' : 'false';
+		$val = self::is_start_fresh_option_enabled() ? 'true' : 'false';
 
 		wp_add_inline_script(
 			'react-plugin',
