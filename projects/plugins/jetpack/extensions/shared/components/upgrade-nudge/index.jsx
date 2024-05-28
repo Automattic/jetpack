@@ -16,6 +16,7 @@ export const Nudge = ( {
 	goToCheckoutPage = null,
 	isRedirecting = false,
 	showButton = true,
+	target = '_top',
 } ) => {
 	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', {
 		'wp-block': context === 'editor-canvas',
@@ -44,7 +45,7 @@ export const Nudge = ( {
 					<Button
 						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ goToCheckoutPage }
-						target="_top"
+						target={ target }
 						className={ classNames( 'is-primary', {
 							'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 						} ) }
