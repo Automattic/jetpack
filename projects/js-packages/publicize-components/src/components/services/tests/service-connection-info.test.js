@@ -1,12 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { ServiceConnectionInfo } from '../service-connection-info';
-
-// Mock the dependencies and components
-jest.mock( '@automattic/jetpack-components', () => ( {
-	IconTooltip: ( { children } ) => <div>{ children }</div>,
-	Text: ( { children } ) => <div>{ children }</div>,
-} ) );
 
 jest.mock( '../../connection-management/connection-name', () => ( {
 	ConnectionName: ( { connection } ) => <div>{ connection.display_name }</div>,
@@ -82,14 +75,13 @@ describe( 'ServiceConnectionInfo', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'displays IconTooltip when hovering over MarkAsShared button', async () => {
+	test( 'does not display tooltip information without action', async () => {
 		renderComponent();
-		const markAsSharedButton = screen.getByText( 'Mark as Shared' );
-		await userEvent.hover( markAsSharedButton );
+
 		expect(
-			screen.getByText(
+			screen.queryByText(
 				'If enabled, the connection will be available to all administrators, editors, and authors.'
 			)
-		).toBeInTheDocument();
+		).not.toBeInTheDocument();
 	} );
 } );
