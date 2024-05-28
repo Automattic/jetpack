@@ -4,19 +4,19 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
-		"automattic/jetpack-plugin-deactivation": "@dev",
-		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-status": "@dev"
+		"automattic/jetpack-assets": "^2.1.11",
+		"automattic/jetpack-autoloader": "^3.0.7",
+		"automattic/jetpack-composer-plugin": "^2.0.1",
+		"automattic/jetpack-config": "^2.0.2",
+		"automattic/jetpack-connection": "^2.8.6",
+		"automattic/jetpack-identity-crisis": "^0.20.0",
+		"automattic/jetpack-plugin-deactivation": "^0.2.1",
+		"automattic/jetpack-sync": "^3.0.0",
+		"automattic/jetpack-status": "^3.2.1"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^4.2.4",
 		"automattic/wordbless": "0.4.2",
 		"brain/monkey": "2.6.1"
 	},
@@ -45,15 +45,7 @@
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
