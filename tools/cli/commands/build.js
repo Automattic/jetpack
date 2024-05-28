@@ -210,6 +210,11 @@ export async function handler( argv ) {
 					}
 				}
 			}
+			if ( ! argv.v ) {
+				console.error(
+					chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+				);
+			}
 			process.exit( err.exitCode || 1 );
 		} );
 }
