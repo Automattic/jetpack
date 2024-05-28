@@ -340,6 +340,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			parent::add_jetpack_menu();
 		}
 
+		global $submenu;
+		$backup_submenu_label = __( 'Backup', 'jetpack' );
+		$submenu_labels       = array_column( $submenu['jetpack'], 3 );
+		$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
+		$scan_position        = $backup_position !== false ? $backup_position + 1 : $this->get_submenu_item_count( 'jetpack' ) - 1;
+
+		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/history/' . $this->domain, null, $scan_position );
+
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
 		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.

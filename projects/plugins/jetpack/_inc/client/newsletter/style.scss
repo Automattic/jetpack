@@ -58,8 +58,13 @@
 .jp-form-settings-group.newsletter-group .sender-name {
 	--vertical-gutter: 8px;
 }
+
 .sender-name-example {
 	font-size: var( --font-body-small );
 	color: var( --jp-gray-20 );
 	margin-top: 8px;
+}
+
+#jp-settings-subscriptions .jp-form-fieldset:not(:first-of-type) {
+	margin-top: 24px;
 }

@@ -30,6 +30,7 @@ import AiAssistantModal from '../modal';
 import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
+const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
 
@@ -438,6 +439,7 @@ export default function FeaturedImage( {
 										  )
 										: null
 								}
+								placement={ FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT }
 								useLightNudge={ true }
 							/>
 						) }
