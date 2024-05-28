@@ -138,10 +138,12 @@ class Modules_Setup implements Has_Setup {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
-		$status = new Status( $module_slug );
+		$feature = $this->modules->get_feature_instance_by_slug( $module_slug );
+
+		$status = new Status( $feature );
 		$status->on_update( $is_activated );
 
-		$feature = $this->modules->get_feature_instance_by_slug( $module_slug );
+
 		if ( $is_activated && $feature instanceof Has_Activate ) {
 			$feature::activate();
 		}

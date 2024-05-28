@@ -2,11 +2,10 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
-use Automattic\Jetpack_Boost\Contracts\Is_Submodule;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Liar implements Pluggable, Is_Submodule {
+class Liar implements Pluggable {
 
 	public function setup() {
 		$image_cdn_liar = $this->get_state();

@@ -20,7 +20,7 @@ class Module {
 
 	public function __construct( Pluggable $feature ) {
 		$this->feature = $feature;
-		$this->status  = new Status( $feature::get_slug() );
+		$this->status  = new Status( $feature );
 	}
 
 	public function is_enabled() {

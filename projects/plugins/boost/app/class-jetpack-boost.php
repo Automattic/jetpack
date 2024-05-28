@@ -160,7 +160,7 @@ class Jetpack_Boost {
 		( new Getting_Started_Entry() )->set( true );
 		Analytics::record_user_event( 'activate_plugin' );
 
-		$page_cache_status = new Status( Page_Cache::get_slug() );
+		$page_cache_status = new Status( Page_Cache::class );
 		if ( $page_cache_status->is_enabled() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			Page_Cache_Setup::run_setup();
 		}

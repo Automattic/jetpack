@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack\IdentityCrisis\Exception;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Garbage_Collection;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -111,6 +112,7 @@ class CLI {
 	 * @param string $status      Module status.
 	 */
 	private function set_module_status( $module_slug, $status ) {
+		throw new Exception("@TODO");
 		( new Status( $module_slug ) )->update( $status );
 
 		if ( $module_slug === 'page_cache' && $status ) {
