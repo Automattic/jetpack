@@ -13,6 +13,8 @@
 
 // phpcs:disable WordPress.Security.NonceVerification -- No changes to the site here, it just redirects.
 
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$', '', esc_html__( 'Starting Jetpack 13.6, Jetpack will no longer support the Random Redirect module.', 'jetpack' ) );
+
 /**
  * Redirects to a random post on the site.
  */
