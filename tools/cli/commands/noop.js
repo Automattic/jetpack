@@ -2,7 +2,7 @@ export const command = 'noop';
 export const describe = false;
 
 /**
- * Options definition for the phan subcommand.
+ * Options definition for the noop subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
  * @returns {object} Yargs with the options defined.
