@@ -435,123 +435,55 @@ function wpcom_maybe_enable_link_manager() {
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
 
 /**
- * Add the Scheduled Updates menu item to the Plugins menu.
- *
- * Limited to sites with scheduled updates feature.
- */
-function wpcom_add_scheduled_updates_menu() {
-	// Bail on Simple sites
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return;
-	}
-
-	/**
-	 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
-	 * as they don't have access to any of the pages.
-	 */
-	if ( ! current_user_has_wpcom_account() ) {
-		return;
-	}
-
-	// Don't show on staging sites.
-	if ( get_option( 'wpcom_is_staging_site' ) ) {
-		return;
-	}
-
-	if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
-		return;
-	}
-
-	if ( ! wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES ) ) {
-		return;
-	}
-
-	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
-
-	// TODO: When looking at wordpress.com/plugins/:site on an atomic site this menu
-	// item is highlighted rather than the Plugin Marketplace
-	add_submenu_page(
-		'plugins.php',
-		esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
-		__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
-		'update_plugins',
-		esc_url( "https://wordpress.com/plugins/scheduled-updates/$domain" ),
-		null
-	);
-}
-add_action( 'admin_menu', 'wpcom_add_scheduled_updates_menu' );
-
-/**
- * Add the Plugins menu item to the admin menu
- *
- *  * Adds a Plugin Marketplace link to the Plugins menu in the admin sidebar.
- *  * Adds Installed Plugins and Add New Plugin links to the Plugins menu in the admin sidebar if they don't exist
- *  * Updates the capability of the Installed Plugins and Add New Plugin links to manage_options if they do exist
+ * Handles the Plugins menu for WP.com sites.
  */
 function wpcom_add_plugins_menu() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
-	global $menu;
 
-	$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
-	$found_plugin_menu            = false;
-	$found_plugin_install_submenu = false;
-	foreach ( $menu as &$menu_item ) {
-		if ( 'plugins.php' === $menu_item[2] ) {
-			$found_plugin_menu = true;
-			if ( $is_simple_site ) {
-				$menu_item[1] = 'manage_options';
-			}
-		}
-		if ( 'plugin-install.php' === $menu_item[2] ) {
-			$found_plugin_install_submenu = true;
-			if ( $is_simple_site ) {
-				$menu_item[1] = 'manage_options';
-			}
-		}
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		add_menu_page(
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			__( 'Plugins', 'jetpack-mu-wpcom' ),
+			'manage_options', // Roughly means "is a site admin"
+			'plugins.php',
+			null,
+			'dashicons-admin-plugins',
+			65
+		);
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+	add_submenu_page(
+		'plugins.php',
+		__( 'Plugins Marketplace', 'jetpack-mu-wpcom' ),
+		__( 'Plugins Marketplace', 'jetpack-mu-wpcom' ),
+		'manage_options', // Roughly means "is a site admin"
+		'https://wordpress.com/plugins/' . $domain,
+		null
+	);
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		if ( ! $found_plugin_menu ) {
-			// Didn't find an existing plugins menu, so add one.
-			add_menu_page(
-				__( 'Plugins', 'jetpack-mu-wpcom' ),
-				__( 'Plugins', 'jetpack-mu-wpcom' ),
-				'manage_options', // Roughly means "is a site admin"
-				'plugins.php',
-				null,
-				'dashicons-admin-plugins',
-				65
-			);
-			$found_plugin_menu = true;
-		}
-
-		if ( ! $found_plugin_install_submenu ) {
+	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+		if (
+			/**
+			 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
+			 * as they don't have access to any of the pages.
+			 */
+			current_user_has_wpcom_account() &&
+			! get_option( 'wpcom_is_staging_site' ) &&
+			function_exists( 'wpcom_site_has_feature' ) &&
+			wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES )
+		) {
 			add_submenu_page(
 				'plugins.php',
-				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
-				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
-				'manage_options', // Roughly means "is a site admin"
-				// Don't have a plugin-install.php page on Simple sites yet
-				'https://' . $domain . '/wp-admin/plugin-install.php'
+				esc_attr__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+				__( 'Scheduled Updates', 'jetpack-mu-wpcom' ),
+				'update_plugins',
+				esc_url( "https://wordpress.com/plugins/scheduled-updates/$domain" ),
+				null
 			);
 		}
-	}
-
-	if ( $found_plugin_menu ) {
-
-		add_submenu_page(
-			'plugins.php',
-			__( 'Plugin Marketplace', 'jetpack-mu-wpcom' ),
-			__( 'Plugin Marketplace', 'jetpack-mu-wpcom' ),
-			'manage_options', // Roughly means "is a site admin"
-			'https://wordpress.com/plugins/' . $domain,
-			null
-		);
 	}
 }
 add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
