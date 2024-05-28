@@ -1,5 +1,6 @@
 import { ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { cloneElement, useCallback, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -35,7 +36,9 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 
 	const title = hasKeyringResult
 		? __( 'Connection confirmation', 'jetpack' )
-		: _x( 'Add a new connection to Jetpack Social', '', 'jetpack' );
+		: _x( 'Manage Jetpack Social connections', '', 'jetpack' );
+
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
 
 	return (
 		<Modal
@@ -49,7 +52,13 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 				//Use IIFE to avoid nested ternary
 				( () => {
 					if ( hasKeyringResult ) {
-						return <ConfirmationForm keyringResult={ keyringResult } onComplete={ closeModal } />;
+						return (
+							<ConfirmationForm
+								keyringResult={ keyringResult }
+								onComplete={ closeModal }
+								isAdmin={ isAdmin }
+							/>
+						);
 					}
 
 					return <ServicesList />;

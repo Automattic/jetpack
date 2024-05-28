@@ -1,5 +1,6 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import classNames from 'classnames';
 import { store as socialStore } from '../../social-store';
@@ -32,6 +33,8 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 		};
 	}, [] );
 
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
+
 	if ( serviceConnections.length ) {
 		return (
 			<ul className={ styles[ 'service-connection-list' ] }>
@@ -43,7 +46,11 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 					return (
 						<li key={ connection.connection_id }>
 							<Disabled isDisabled={ isUpdatingOrDeleting }>
-								<ServiceConnectionInfo connection={ connection } service={ service } />
+								<ServiceConnectionInfo
+									connection={ connection }
+									service={ service }
+									isAdmin={ isAdmin }
+								/>
 							</Disabled>
 						</li>
 					);
