@@ -16,6 +16,7 @@ import styles from './style.module.scss';
 type ConfirmationFormProps = {
 	keyringResult: KeyringResult;
 	onComplete: VoidFunction;
+	isAdmin?: boolean;
 };
 
 type AccountOption = { label: string; value: string; profile_picture?: string };
@@ -50,7 +51,7 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  *
  * @returns {import('react').ReactNode} Connection confirmation component
  */
-export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFormProps ) {
+export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
 	const { existingConnections, isCreatingConnection } = useSelect( select => {
 		const store = select( socialStore );
@@ -213,22 +214,24 @@ export function ConfirmationForm( { keyringResult, onComplete }: ConfirmationFor
 							} ) }
 						</div>
 
-						<BaseControl
-							id="mark-connection-as-shared"
-							help={ `${ __(
-								'If enabled, the connection will be available to all administrators, editors, and authors.',
-								'jetpack'
-							) } ${ __( 'You can change this later.', 'jetpack' ) }` }
-						>
-							<HStack justify="flex-start" spacing={ 3 }>
-								<span>
-									<input type="checkbox" id="mark-connection-as-shared" name="shared" value="1" />
-								</span>
-								<FlexBlock as="label" htmlFor="mark-connection-as-shared">
-									{ __( 'Mark the connection as shared', 'jetpack' ) }
-								</FlexBlock>
-							</HStack>
-						</BaseControl>
+						{ isAdmin ? (
+							<BaseControl
+								id="mark-connection-as-shared"
+								help={ `${ __(
+									'If enabled, the connection will be available to all administrators, editors, and authors.',
+									'jetpack'
+								) } ${ __( 'You can change this later.', 'jetpack' ) }` }
+							>
+								<HStack justify="flex-start" spacing={ 3 }>
+									<span>
+										<input type="checkbox" id="mark-connection-as-shared" name="shared" value="1" />
+									</span>
+									<FlexBlock as="label" htmlFor="mark-connection-as-shared">
+										{ __( 'Mark the connection as shared', 'jetpack' ) }
+									</FlexBlock>
+								</HStack>
+							</BaseControl>
+						) : null }
 
 						<input type="hidden" name="keyring_connection_ID" value={ keyringResult.ID } />
 					</form>

@@ -26,11 +26,12 @@ describe( 'ServiceConnectionInfo', () => {
 		icon: () => <svg aria-label="test-svg"></svg>,
 	};
 
-	const renderComponent = ( connOverrides = {}, serviceOverrides = {} ) => {
+	const renderComponent = ( connOverrides = {}, serviceOverrides = {}, props = {} ) => {
 		render(
 			<ServiceConnectionInfo
 				connection={ { ...connection, ...connOverrides } }
 				service={ { ...service, ...serviceOverrides } }
+				{ ...props }
 			/>
 		);
 	};
@@ -59,7 +60,7 @@ describe( 'ServiceConnectionInfo', () => {
 	} );
 
 	test( 'displays MarkAsShared button if connection can be disconnected', () => {
-		renderComponent();
+		renderComponent( {}, {}, { isAdmin: true } );
 		expect( screen.getByText( 'Mark as Shared' ) ).toBeInTheDocument();
 	} );
 
