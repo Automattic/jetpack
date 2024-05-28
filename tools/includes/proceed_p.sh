@@ -41,7 +41,15 @@ function proceed_p {
 		PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
 	fi
 
-	read -s -n 1 -p "$PROMPT" OK
-	echo "${OK:-$DEF}"
-	[[ "${OK:-$DEF}" == "y" || "${OK:-$DEF}" == "Y" ]]
+	while read -r -s -n 1 -p "$PROMPT" OK; do
+		echo "${OK:-$DEF}"
+		if [[ "${OK:-$DEF}" == "y" || "${OK:-$DEF}" == "Y" ]]; then
+			return 0
+		elif [[ "${OK:-$DEF}" == "n" || "${OK:-$DEF}" == "N" ]]; then
+			return 1
+		fi
+	done
+
+	error "Aborting due to EOF"
+	return 42
 }
