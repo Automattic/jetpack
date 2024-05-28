@@ -18,7 +18,9 @@ const SwitchToBoost = ( { onSwitch }: Props ) => {
 	}, [ disableSuperCache, onSwitch ] );
 
 	return (
-		<Button onClick={ switchToBoost }>{ __( 'Switch to Boost Cache', 'jetpack-boost' ) }</Button>
+		<Button variant="secondary" onClick={ switchToBoost }>
+			{ __( 'Switch to Boost Cache', 'jetpack-boost' ) }
+		</Button>
 	);
 };
 
