@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+`AutoloadGenerator::__construct` no longer pretends `$io` is nullable. That never worked.
