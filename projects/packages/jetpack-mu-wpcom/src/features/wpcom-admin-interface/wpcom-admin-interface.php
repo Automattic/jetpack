@@ -239,10 +239,6 @@ function wpcom_show_admin_interface_notice() {
 		return;
 	}
 
-	if ( wpcom_should_show_classic_tour() ) {
-		return;
-	}
-
 	wp_admin_notice(
 		__( 'Admin interface style changed.', 'jetpack-mu-wpcom' ),
 		array(
