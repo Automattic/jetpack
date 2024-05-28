@@ -628,7 +628,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite ) {
+		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );

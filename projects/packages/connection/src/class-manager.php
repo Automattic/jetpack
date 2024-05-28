@@ -199,7 +199,10 @@ class Manager {
 		if ( ! Constants::get_constant( 'XMLRPC_REQUEST' ) ) {
 			return false;
 		}
+
 		// Display errors can cause the XML to be not well formed.
+		// This only affects Jetpack XML-RPC endpoints received from WordPress.com servers.
+		// All other XML-RPC requests are unaffected.
 		@ini_set( 'display_errors', false ); // phpcs:ignore
 
 		if ( $xmlrpc_server ) {
