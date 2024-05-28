@@ -156,7 +156,7 @@ export const AdvancedCacheForSuperCacheNotice = ( {
 			<p>
 				{ createInterpolateElement(
 					__(
-						`WP Super Cache has been detected on your site. That plugin must be deactivated before the caching feature in Jetpack Boost can be activated. To learn more, <link>click here.</link>`,
+						`This feature can't be activated because a caching system is already in place with WP Super Cache. <link>Learn more</link>`,
 						'jetpack-boost'
 					),
 					{
