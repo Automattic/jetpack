@@ -23,10 +23,20 @@ class Status {
 	 */
 	protected $status_sync_map;
 
+	/**
+	 * @var Pluggable $feature
+	 */
+	protected $feature;
+
+	/**
+	 * @var string $option_name
+	 */
+	protected $option_name;
+
 	public function __construct( $feature ) {
-		$this->feature = $feature;
-		$this->slug = $feature::get_slug();
-		$module_slug = str_replace( '_', '-', $this->slug );
+		$this->feature     = $feature;
+		$this->slug        = $feature::get_slug();
+		$module_slug       = str_replace( '_', '-', $this->slug );
 		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
 		$this->status_sync_map = array(
@@ -37,12 +47,12 @@ class Status {
 	}
 
 	public function update( $new_status ) {
-		$this->on_update( $new_status);
-		return update_option($this->option_name, $new_status);
+		$this->on_update( $new_status );
+		return update_option( $this->option_name, $new_status );
 	}
 
 	public function is_enabled() {
-		return get_option($this->option_name, false);
+		return get_option( $this->option_name, false );
 	}
 
 	public function is_available() {
@@ -68,27 +78,27 @@ class Status {
 	 * @return void
 	 */
 	protected function update_mapped_modules( $new_status ) {
-//		if ( ! isset( $this->status_sync_map[ $this->slug ] ) ) {
-//			return;
-//		}
-//
-//		$modules_instance = Setup::get_instance_of( Modules_Setup::class );
-//
-//		// The moduleInstance will be there. But check just in case.
-//		if ( $modules_instance !== null ) {
-//			// Remove the action temporarily to avoid infinite loop.
-//			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
-//		}
-//
-//		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-//			$mapped_status = new Status( $mapped_module );
-//			$mapped_status->update( $new_status );
-//		}
-//
-//		// The moduleInstance will be there. But check just in case.
-//		if ( $modules_instance !== null ) {
-//			add_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ), 10, 2 );
-//		}
+		if ( ! isset( $this->status_sync_map[ $this->slug ] ) ) {
+			return;
+		}
+
+		$modules_instance = Setup::get_instance_of( Modules_Setup::class );
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			// Remove the action temporarily to avoid infinite loop.
+			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
+		}
+
+		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
+			$mapped_status = new Status( $mapped_module );
+			$mapped_status->update( $new_status );
+		}
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			add_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ), 10, 2 );
+		}
 	}
 
 	protected function track_module_status( $status ) {

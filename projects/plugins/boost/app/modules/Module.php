@@ -23,6 +23,10 @@ class Module {
 		$this->status  = new Status( $feature );
 	}
 
+	public function update( $new_status ) {
+		return $this->status->update( $new_status );
+	}
+
 	public function is_enabled() {
 		if ( $this->feature instanceof Is_Always_On ) {
 			return true;
