@@ -1,17 +1,18 @@
 import { render, renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
-import ConnectionManagement from '..';
-import useSocialMediaConnections from '../../../hooks/use-social-media-connections';
-import { store } from '../../../social-store';
-import { useSupportedServices } from '../../services/use-supported-services';
-import { ConnectionManagementPageObject } from './pageObjects/ConnectionManagementPage';
+import ConnectionManagement from '../components/connection-management';
+import { ConnectionManagementPageObject } from '../components/connection-management/tests/pageObjects/ConnectionManagementPage';
+import { useSupportedServices } from '../components/services/use-supported-services';
+import useSocialMediaConnections from '../hooks/use-social-media-connections';
+import { store } from '../social-store';
+import { SUPPORTED_SERVICES_MOCK } from './test-constants';
 
-jest.mock( '../../../hooks/use-social-media-connections', () => ( {
+jest.mock( '../hooks/use-social-media-connections', () => ( {
 	__esModule: true,
 	default: jest.fn(),
 } ) );
 
-jest.mock( '../../services/use-supported-services', () => ( {
+jest.mock( '../components/services/use-supported-services', () => ( {
 	useSupportedServices: jest.fn(),
 } ) );
 
@@ -39,29 +40,30 @@ export const setup = ( {
 		.spyOn( storeSelect, 'getUpdatingConnections' )
 		.mockReset()
 		.mockReturnValue( getUpdatingConnections );
+	const stubGetKeyringResult = jest.spyOn( storeSelect, 'getKeyringResult' ).mockReset();
 
 	const { result: dispatch } = renderHook( () => useDispatch( store ) );
 	const stubDeleteConnectionById = jest
 		.spyOn( dispatch.current, 'deleteConnectionById' )
-		.mockReset()
-		.mockReturnValue();
+		.mockReset();
 	const stubUpdateConnectionById = jest
 		.spyOn( dispatch.current, 'updateConnectionById' )
-		.mockReset()
-		.mockReturnValue();
+		.mockReset();
+	const stubSetKeyringResult = jest.spyOn( dispatch.current, 'setKeyringResult' ).mockReset();
+	const stubCreateConnection = jest.spyOn( dispatch.current, 'createConnection' ).mockReset();
 
 	useSocialMediaConnections.mockReturnValue( {
 		refresh: jest.fn(),
 	} );
 
-	useSupportedServices.mockReturnValue( [
-		{ ID: 'twitter', name: 'Twitter' },
-		{ ID: 'facebook', name: 'Facebook' },
-	] );
+	useSupportedServices.mockReturnValue( SUPPORTED_SERVICES_MOCK );
 
 	return {
 		stubDeleteConnectionById,
 		stubUpdateConnectionById,
+		stubGetKeyringResult,
+		stubSetKeyringResult,
+		stubCreateConnection,
 	};
 };
 

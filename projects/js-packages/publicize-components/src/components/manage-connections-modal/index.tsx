@@ -36,7 +36,7 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 
 	const title = hasKeyringResult
 		? __( 'Connection confirmation', 'jetpack' )
-		: _x( 'Add a new connection to Jetpack Social', '', 'jetpack' );
+		: _x( 'Manage Jetpack Social connections', '', 'jetpack' );
 
 	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
 

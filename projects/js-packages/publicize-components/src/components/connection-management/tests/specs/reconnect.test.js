@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { setup } from '../../../../utils/test-factory';
 import { useRequestAccess } from '../../../services/use-request-access';
 import { Reconnect } from '../../reconnect';
-import { setup } from '../factory';
 
 // Mock the useRequestAccess hook
 jest.mock( '../../../services/use-request-access', () => ( {
