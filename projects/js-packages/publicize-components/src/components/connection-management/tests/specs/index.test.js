@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { getManagementPageObject, setup } from '../factory';
+import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 
 describe( 'ConnectionManagement', () => {
 	afterEach( () => {

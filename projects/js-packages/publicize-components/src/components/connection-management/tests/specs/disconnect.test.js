@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 import { Disconnect } from '../../disconnect';
-import { getManagementPageObject, setup } from '../factory';
 
 describe( 'Disconnecting a connection', () => {
 	afterEach( () => {
