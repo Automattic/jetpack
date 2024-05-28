@@ -2,13 +2,11 @@
 /**
  * Display the Pay with PayPal Form.
  *
+ * @html-template Jetpack_Simple_Payments_Widget::form
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Simple_Payments_Widget $this';
-'@phan-var-force array $instance';
-'@phan-var-force WP_Post[] $product_posts';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 <p>
@@ -146,7 +144,6 @@ if ( empty( $product_posts ) ) {
 			id="<?php echo esc_attr( $this->get_field_id( 'form_product_currency' ) ); ?>"
 			name="<?php echo esc_attr( $this->get_field_name( 'form_product_currency' ) ); ?>">
 			<?php
-			// @phan-suppress-next-line PhanAccessPropertyPrivate -- It's inside the context of Jetpack_Simple_Payments_Widget.
 			foreach ( Jetpack_Simple_Payments_Widget::$supported_currency_list as $code => $currency ) {
 				?>
 				<option value="<?php echo esc_attr( $code ); ?>"<?php selected( $instance['form_product_currency'], $code ); ?>>
