@@ -26,7 +26,6 @@ export type InternalUsagePanelProps = {
 	loading: boolean;
 	canUpgrade: boolean;
 	showContactUsCallToAction: boolean;
-	isRedirecting: boolean;
 	contactUsURL: string;
 	handleContactUsClick: ( event: React.MouseEvent< HTMLButtonElement > ) => void;
 	checkoutUrl: string;

@@ -133,7 +133,11 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
+						title={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Generate income with high-quality ads.', 'jetpack' ) }
+							</span>
+						}
 						callToAction={ upgradeLabel }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }

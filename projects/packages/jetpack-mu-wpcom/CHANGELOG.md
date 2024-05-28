@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.32.0] - 2024-05-27
+### Added
+- Add staging sites check for menus. [#37449]
+- Dashboard: Introduce the WP.com site management widget when the nav redesign is enabled. [#37569]
+
+### Changed
+- Calypsoify: Load feature from the Calypsoify package. [#37375]
+- Update import flow reference to new `/setup/hosted-site-migration` path. [#37470]
+
 ## [5.31.1] - 2024-05-20
 ### Changed
 - Untangling: Replace Hosting -> Connections with Hosting -> Marketing. [#37431]
@@ -823,6 +832,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.32.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.1...v5.32.0
 [5.31.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.0...v5.31.1
 [5.31.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.30.0...v5.31.0
 [5.30.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.29.1...v5.30.0

@@ -5,7 +5,7 @@ import {
 	useCriticalCssState,
 	useSetProviderErrorDismissedAction,
 } from '$features/critical-css/lib/stores/critical-css-state';
-import { groupErrorsByFrequency } from '$features/critical-css/lib/critical-css-errors';
+import { getPrimaryGroupedError } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
@@ -136,6 +136,15 @@ const HeadingMeta = ( { dismissedIssues, showDismissedIssues }: HeadingMetaProps
 };
 
 const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
+	if ( provider.errors && provider.errors.length === 0 ) {
+		return null;
+	}
+
+	const errorSet = getPrimaryGroupedError( provider.errors ? provider.errors : [] );
+	if ( ! errorSet ) {
+		return null;
+	}
+
 	const [ isDismissed, setIsDismissed ] = useState( provider.error_status === 'dismissed' );
 
 	const [ ref, { height } ] = useMeasure();
@@ -163,7 +172,7 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 				</h4>
 
 				<div className={ styles.problem }>
-					<CriticalCssErrorDescription errorSet={ groupErrorsByFrequency( provider )[ 0 ] } />
+					<CriticalCssErrorDescription errorSet={ errorSet } />
 				</div>
 			</div>
 		</animated.div>
