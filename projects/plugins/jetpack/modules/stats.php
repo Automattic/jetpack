@@ -423,9 +423,11 @@ function stats_reports_page( $main_chart_only = false ) {
 		exit; // @phan-suppress-current-line PhanPluginUnreachableCode -- Safer to include it even though stats_dashboard_widget_content() never returns.
 	}
 
-	$blog_id      = Stats_Options::get_option( 'blog_id' );
-	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
-	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
+	$blog_id               = Stats_Options::get_option( 'blog_id' );
+	$learn_url             = Redirect::get_url( 'jetpack-stats-learn-more' );
+	$redirect_url          = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
+	$stats_bg_url          = plugins_url( 'images/odyssey-upgrade/background.png', JETPACK__PLUGIN_FILE );
+	$stats_bg_gradient_url = plugins_url( 'images/odyssey-upgrade/gradient.png', JETPACK__PLUGIN_FILE );
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -447,6 +449,9 @@ function stats_reports_page( $main_chart_only = false ) {
 			background: white;
 			position: relative;
 		}
+		.stats-odyssey-notice--content__highlighted {
+			border-left-color: var( --jp-red );
+		}
 		.stats-odyssey-notice--content {
 			padding: 24px 0 24px 30px;
 			font-size: 2em;
@@ -463,7 +468,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			margin: 0;
 		}
 		.stats-odyssey-notice--image-container {
-			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
+			background-image: url("<?php echo esc_url( $stats_bg_url ); ?>"), url("<?php echo esc_url( $stats_bg_gradient_url ); ?>");
 			background-size: cover;
 			padding-right: 28px;
 			width: 100%;
@@ -550,7 +555,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			</h2>
 		</div>
 		<div class="wrap">
-			<div class="stats-odyssey-notice">
+			<div class="stats-odyssey-notice stats-odyssey-notice--content__highlighted">
 				<div class="stats-odyssey-notice--content">
 					<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Old Jetpack Stats experience', 'jetpack' ); ?></h2>
 					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated and will be removed soon.', 'jetpack' ); ?></p>
