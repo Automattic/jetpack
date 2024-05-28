@@ -80,10 +80,12 @@ class AutoloaderHandlerTest extends TestCase {
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
 			->method( 'read_manifests' )
-			->withConsecutive(
-				array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+			->with(
+				...with_consecutive(
+					array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+				)
 			);
 		$this->php_autoloader->expects( $this->once() )
 			->method( 'register_autoloader' );
