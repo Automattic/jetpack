@@ -1,4 +1,6 @@
 import { IconTooltip, Text } from '@automattic/jetpack-components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { ConnectionName } from '../connection-management/connection-name';
@@ -14,6 +16,8 @@ export type ServiceConnectionInfoProps = {
 };
 
 export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectionInfoProps ) => {
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
+
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
@@ -34,7 +38,7 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 
-					if ( conn.can_disconnect ) {
+					if ( isAdmin ) {
 						return (
 							<div className={ styles[ 'mark-shared-wrap' ] }>
 								<MarkAsShared connection={ conn } />
@@ -48,11 +52,11 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 						);
 					}
 
-					return (
+					return ! conn.can_disconnect ? (
 						<Text className={ styles.description }>
 							{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
 						</Text>
-					);
+					) : null;
 				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>
