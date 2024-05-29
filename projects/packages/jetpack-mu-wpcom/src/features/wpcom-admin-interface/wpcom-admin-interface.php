@@ -195,14 +195,14 @@ function wpcom_classic_tour_enqueue_scripts() {
 				'target'      => '.toplevel_page_wpcom-hosting-menu',
 				'placement'   => 'right-bottom',
 				'title'       => esc_html__( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, and Purchases.', 'jetpack-mu-wpcom' ),
+				'description' => esc_html__( 'The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more.', 'jetpack-mu-wpcom' ),
 				'position'    => 'fixed',
 			),
 			array(
 				'target'      => '.wpcom_site_management_widget__site-actions',
 				'placement'   => 'bottom',
 				'title'       => esc_html__( 'Hosting overview', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, monitoring, PHP logs, and server logs.', 'jetpack-mu-wpcom' ),
+				'description' => esc_html__( 'Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs.', 'jetpack-mu-wpcom' ),
 				'position'    => 'absolute',
 			),
 			array(
