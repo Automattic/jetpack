@@ -558,7 +558,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			<div class="stats-odyssey-notice stats-odyssey-notice--content__highlighted">
 				<div class="stats-odyssey-notice--content">
 					<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'We are deprecating the legacy Jetpack Stats experience', 'jetpack' ); ?></h2>
-					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated and will be removed soon.', 'jetpack' ); ?></p>
+					<p class="stats-odyssey-notice--content-text"><?php esc_html_e( 'The old Jetpack Stats has been deprecated and will be removed soon. Please click the button to enable the new experience.', 'jetpack' ); ?></p>
 					<div class="stats-odyssey-notice--action-bar">
 						<button class="dops-button stats-odyssey-notice--primary-button">
 							<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
