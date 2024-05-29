@@ -232,7 +232,7 @@ class Concatenate_CSS extends WP_Styles {
 				/**
 				 * Filter the style loader HTML tag for page optimize.
 				 *
-				 * @param string $tag style loader tag
+				 * @param string $style_tag style loader tag
 				 * @param array $handles handles of CSS files
 				 * @param string $href link to CSS file
 				 * @param string $media media attribute of the link.
