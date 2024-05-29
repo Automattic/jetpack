@@ -13,8 +13,6 @@
 
 // phpcs:disable WordPress.Security.NonceVerification -- No changes to the site here, it just redirects.
 
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$', '', esc_html__( 'Starting Jetpack 13.6, Jetpack will no longer support the Random Redirect module.', 'jetpack' ) );
-
 /**
  * Redirects to a random post on the site.
  */
@@ -42,6 +40,8 @@ function jetpack_matt_random_redirect() {
 	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && strstr( filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 'AppEngine-Google' ) ) {
 		wp_die( 'Please <a href="https://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
 	}
+
+	_deprecated_file( __FILE__, 'jetpack-$$next-version$$', '', esc_html__( 'Starting Jetpack 13.6, Jetpack will no longer support the Random Redirect module.', 'jetpack' ) );
 
 	$where      = array(
 		"post_password = ''",
