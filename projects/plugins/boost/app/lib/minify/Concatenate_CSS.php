@@ -244,7 +244,7 @@ class Concatenate_CSS extends WP_Styles {
 				/**
 				 * Filter the stylesheet tag. For example: making it deferred when using Critical CSS.
 				 *
-				 * @param string $tag stylesheet tag
+				 * @param string $style_tag stylesheet tag
 				 * @param array $handles handles of CSS files
 				 * @param string $href link to CSS file
 				 * @param string $media media attribute of the link.
