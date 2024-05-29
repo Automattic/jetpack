@@ -13,15 +13,34 @@ const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 } ) => (
 	<Text className={ classNames( className, 'terms-of-service' ) }>
 		{ multipleButtons ? (
-			<MultipleButtonsText />
+			<MultipleButtonsText multipleButtonsLabels={ multipleButtons } />
 		) : (
 			<SingleButtonText agreeButtonLabel={ agreeButtonLabel } />
 		) }
 	</Text>
 );
 
-const MultipleButtonsText = () =>
-	createInterpolateElement(
+const MultipleButtonsText = ( { multipleButtonsLabels } ) => {
+	if ( Array.isArray( multipleButtonsLabels ) && multipleButtonsLabels.length > 1 ) {
+		return createInterpolateElement(
+			sprintf(
+				/* translators: %1$s is button label 1 and %2$s is button label 2 */
+				__(
+					"By clicking <strong>%1$s</strong> or <strong>%2$s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
+					'jetpack'
+				),
+				multipleButtonsLabels[ 0 ],
+				multipleButtonsLabels[ 1 ]
+			),
+			{
+				strong: <strong />,
+				tosLink: <Link slug="wpcom-tos" />,
+				shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
+			}
+		);
+	}
+
+	return createInterpolateElement(
 		__(
 			"By clicking the buttons above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
 			'jetpack'
@@ -31,6 +50,7 @@ const MultipleButtonsText = () =>
 			shareDetailsLink: <Link slug="jetpack-support-what-data-does-jetpack-sync" />,
 		}
 	);
+};
 
 const SingleButtonText = ( { agreeButtonLabel } ) =>
 	createInterpolateElement(
