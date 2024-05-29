@@ -1882,10 +1882,10 @@ class Manager {
 	 *
 	 * @since 2.7.6 Added optional $from and $raw parameters.
 	 *
-	 * @param WP_User     $user     (optional) defaults to the current logged in user.
-	 * @param string      $redirect (optional) a redirect URL to use instead of the default.
-	 * @param bool|string $from     If not false, adds 'from=$from' param to the connect URL.
-	 * @param bool        $raw If true, URL will not be escaped.
+	 * @param WP_User|null $user     (optional) defaults to the current logged in user.
+	 * @param string|null  $redirect (optional) a redirect URL to use instead of the default.
+	 * @param bool|string  $from     If not false, adds 'from=$from' param to the connect URL.
+	 * @param bool         $raw If true, URL will not be escaped.
 	 *
 	 * @return string Connect URL.
 	 */

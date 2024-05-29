@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Move the functionality into the Connection package and deprecate the package.

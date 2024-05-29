@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea0720f27be9bac14e63538bec9535f0",
+    "content-hash": "c960b34b962b3def5a734fbe02e056d0",
     "packages": [],
     "packages-dev": [
         {
@@ -113,6 +113,60 @@
                 "phpcs",
                 "standards",
                 "testing"
+            ],
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-phan-plugins",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "projects/packages/phan-plugins",
+                "reference": "17f7a7b60e88906fb6efe77474cebf2214ba6b53"
+            },
+            "require": {
+                "phan/phan": "^5.4",
+                "php": ">=8.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-phan-plugins/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-phan-plugins"
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Phan plugins created for the Jetpack monorepo.",
+            "keywords": [
+                "phan",
+                "plugin",
+                "static analysis",
+                "templating"
             ],
             "transport-options": {
                 "relative": true
@@ -3023,6 +3077,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-codesniffer": 20,
+        "automattic/jetpack-phan-plugins": 20,
         "automattic/jetpack-phpcs-filter": 20
     },
     "prefer-stable": true,

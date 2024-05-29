@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.3.0 - 2024-05-29
+### Added
+- Add connect form/button for connection management [#37196]
+- Added a CTA button to create a social note [#36972]
+- Added and rendered GlobalNotices component [#37237]
+- Added feature flag for new social admin ui [#37134]
+- Added more E2E tests [#37046]
+- Added the connection modal to the editor [#37405]
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Disabled the Note config toggles while the API calls are pending [#36872]
+- Social: Added add connection modal [#37211]
+- Social Admin page: Added connection management component [#37120]
+- Social Limits: Added clarification of cycle reset [#37350]
+
+### Changed
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Remove explicit Plugin Install package dependency. [#37430]
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Social | Updated the connection test results endpoint for front-end [#37531]
+- Updated package dependencies. [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
+- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection. [#36976]
+
+### Fixed
+- Adjusted the webpack config so the social icon colours are picked up by PostCSS [#37327]
+- Fixed CSS variables not loaded for modals on Social admin page [#37391]
+- Fixed timeouts in E2E tests [#37045]
+
 ## 4.2.0 - 2024-04-11
 ### Added
 - Added functions to display share urls [#36328]

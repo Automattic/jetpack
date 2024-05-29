@@ -468,11 +468,13 @@ export async function handler( argv ) {
 							}
 							if ( json.length ) {
 								issues.push( ...json );
-								throw new Error(
+								const err = new Error(
 									json.length === 1
 										? 'Phan reported 1 issue'
 										: `Phan reported ${ json.length } issues`
 								);
+								err.isSuccessfulError = true;
+								throw err;
 							}
 						}
 					},
@@ -481,6 +483,7 @@ export async function handler( argv ) {
 				return new Listr( subtasks, {
 					concurrent: false,
 					renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+					exitOnError: true,
 				} );
 			},
 		} );
@@ -491,8 +494,10 @@ export async function handler( argv ) {
 		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 		exitOnError: false,
 	} );
-	await listr.run().catch( e => {
-		process.exitCode = e.exitCode || 1;
+	await listr.run().catch( err => {
+		for ( const e of err.errors ?? [ err ] ) {
+			process.exitCode |= e.isSuccessfulError ? 1 : 2;
+		}
 	} );
 
 	issues.sort( ( a, b ) => {
@@ -661,5 +666,17 @@ export async function handler( argv ) {
 	if ( argv.reportFile ) {
 		reportStream.end();
 		console.log( `Report written to ${ argv.reportFile }` );
+	}
+	if ( ( process.exitCode & 2 ) !== 0 ) {
+		console.error(
+			chalk.red(
+				'Errors were encountered while running Phan for one or more projects! Results may not be complete.'
+			)
+		);
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 	}
 }
