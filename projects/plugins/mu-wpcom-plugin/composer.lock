@@ -244,6 +244,68 @@
             }
         },
         {
+            "name": "automattic/jetpack-calypsoify",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/calypsoify",
+                "reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-calypsoify",
+                "textdomain": "jetpack-calypsoify",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-classic-theme-helper",
             "version": "dev-trunk",
             "dist": {
@@ -354,7 +416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "bba49ffca10ebb3868ca3db25ddbf34c5eb72120"
+                "reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -389,7 +451,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -402,7 +464,8 @@
                 "classmap": [
                     "legacy",
                     "src/",
-                    "src/webhooks"
+                    "src/webhooks",
+                    "src/identity-crisis"
                 ]
             },
             "scripts": {
@@ -530,82 +593,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A way to detect device types based on User-Agent header.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-identity-crisis",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/identity-crisis",
-                "reference": "d9497fe343e1699d6a0b3b83780850bf729134ff"
-            },
-            "require": {
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-logo": "@dev",
-                "automattic/jetpack-status": "@dev",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-identity-crisis",
-                "textdomain": "jetpack-idc",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-identity-crisis.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.20.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "NODE_ENV='production' pnpm run build"
-                ],
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "post-update-cmd": [
-                    "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Identity Crisis.",
             "transport-options": {
                 "relative": true
             }
@@ -793,11 +780,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "5567bc8d3f91f4964e55788a4b7ca7cf41080f45"
+                "reference": "6afbf5c272cdb3860f49a8bc915dfbbe1ed77ed5"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-calypsoify": "@dev",
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
@@ -823,7 +811,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.32.x-dev"
+                    "dev-trunk": "5.33.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1292,12 +1280,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "3c3e63c76d1afeaa74586eda69dd79160a100251"
+                "reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-identity-crisis": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-password-checker": "@dev",
                 "automattic/jetpack-roles": "@dev",

@@ -70,16 +70,16 @@ class Verbum_Admin {
 		$this->default_allow_blocks = true;
 
 		// Default option values.
-		$this->default_greeting = __( 'Leave a comment', 'jetpack-mu-wpcom' );
+		$this->default_greeting = __( 'Leave a Reply', 'jetpack-mu-wpcom' );
 
 		// Default color scheme.
-		$this->default_color_scheme = 'transparent';
+		$this->default_color_scheme = 'light';
 
 		// Possible color schemes.
 		$this->color_schemes = array(
-			'transparent' => __( 'Transparent', 'jetpack-mu-wpcom' ),
 			'light'       => __( 'Light', 'jetpack-mu-wpcom' ),
 			'dark'        => __( 'Dark', 'jetpack-mu-wpcom' ),
+			'transparent' => __( 'Transparent', 'jetpack-mu-wpcom' ),
 		);
 	}
 
@@ -89,6 +89,14 @@ class Verbum_Admin {
 	 * Add the Jetpack settings to WordPress's discussions page
 	 */
 	public function add_settings() {
+
+		// Create the section.
+		add_settings_section(
+			'jetpack_comment_form',
+			__( 'Comments', 'jetpack-mu-wpcom' ),
+			array( $this, 'comment_form_settings_section' ),
+			'discussion'
+		);
 
 		add_settings_field(
 			'enable_verbum_commenting',
@@ -123,7 +131,8 @@ class Verbum_Admin {
 			'highlander_comment_form_prompt',
 			__( 'Greeting Text', 'jetpack-mu-wpcom' ),
 			array( $this, 'comment_form_greeting_setting' ),
-			'discussion'
+			'discussion',
+			'jetpack_comment_form'
 		);
 
 		register_setting(
@@ -139,7 +148,8 @@ class Verbum_Admin {
 			'jetpack_comment_form_color_scheme',
 			__( 'Color Scheme', 'jetpack-mu-wpcom' ),
 			array( $this, 'comment_form_color_scheme_setting' ),
-			'discussion'
+			'discussion',
+			'jetpack_comment_form'
 		);
 
 		register_setting(

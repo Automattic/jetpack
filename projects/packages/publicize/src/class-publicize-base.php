@@ -2079,6 +2079,17 @@ abstract class Publicize_Base {
 
 		return $dismissed_notices;
 	}
+
+	/**
+	 * Whether the current user can manage a connection.
+	 *
+	 * @param array $connection_data The connection data.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage_connection( $connection_data ) {
+		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
+	}
 }
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.

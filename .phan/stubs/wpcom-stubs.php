@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit d14f975fc8b120a790a897b70ea26e01b02feccf.
+ * Stubs automatically generated from WordPress.com commit 71c7768ac036426ffc4d9fbb0363693dcd3f8aad.
  */
 
 namespace {
@@ -377,7 +377,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text')
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
         {
         }
         /**

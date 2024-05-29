@@ -1,4 +1,3 @@
-import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';

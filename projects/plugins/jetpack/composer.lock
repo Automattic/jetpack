@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "c4de042d40a5dc4fcaed151940639b73",
+	"content-hash": "2719992384ec4c57a7a89eb04ed4ebbd",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -313,7 +313,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "258e48062106a087862136ce4f13ec2f9da2683b"
+				"reference": "a2ef602b09204d9d02bd06b4cc1007d2876f50f6"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -323,7 +323,6 @@
 				"automattic/jetpack-composer-plugin": "@dev",
 				"automattic/jetpack-config": "@dev",
 				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-my-jetpack": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
@@ -728,20 +727,20 @@
 			}
 		},
 		{
-			"name": "automattic/jetpack-classic-theme-helper",
+			"name": "automattic/jetpack-calypsoify",
 			"version": "dev-trunk",
 			"dist": {
 				"type": "path",
-				"url": "../../packages/classic-theme-helper",
-				"reference": "1cdde269fafd252a18a2b62d5e0812290598e300"
+				"url": "../../packages/calypsoify",
+				"reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
 			"suggest": {
@@ -751,15 +750,15 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
+					"dev-trunk": "0.1.x-dev"
 				},
 				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
+					"link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
 				},
-				"mirror-repo": "Automattic/jetpack-classic-theme-helper",
-				"textdomain": "jetpack-classic-theme-helper",
+				"mirror-repo": "Automattic/jetpack-calypsoify",
+				"textdomain": "jetpack-calypsoify",
 				"version-constants": {
-					"::PACKAGE_VERSION": "src/class-loader.php"
+					"::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
 				}
 			},
 			"autoload": {
@@ -777,12 +776,6 @@
 				"phpunit": [
 					"./vendor/phpunit/phpunit/phpunit --colors=always"
 				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
 				"test-php": [
 					"@composer phpunit"
 				]
@@ -790,7 +783,7 @@
 			"license": [
 				"GPL-2.0-or-later"
 			],
-			"description": "Features used with classic themes",
+			"description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
 			"transport-options": {
 				"relative": true
 			}
@@ -969,7 +962,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "bba49ffca10ebb3868ca3db25ddbf34c5eb72120"
+				"reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1004,7 +997,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.8.x-dev"
+					"dev-trunk": "2.9.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1017,7 +1010,8 @@
 				"classmap": [
 					"legacy",
 					"src/",
-					"src/webhooks"
+					"src/webhooks",
+					"src/identity-crisis"
 				]
 			},
 			"scripts": {
@@ -1395,82 +1389,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "WordPress Webfonts provider for Google Fonts",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-identity-crisis",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/identity-crisis",
-				"reference": "d9497fe343e1699d6a0b3b83780850bf729134ff"
-			},
-			"require": {
-				"automattic/jetpack-assets": "@dev",
-				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-constants": "@dev",
-				"automattic/jetpack-logo": "@dev",
-				"automattic/jetpack-status": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "@dev",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-identity-crisis",
-				"textdomain": "jetpack-idc",
-				"version-constants": {
-					"::PACKAGE_VERSION": "src/class-identity-crisis.php"
-				},
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "0.20.x-dev"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"build-development": [
-					"pnpm run build"
-				],
-				"build-production": [
-					"NODE_ENV='production' pnpm run build"
-				],
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"watch": [
-					"Composer\\Config::disableProcessTimeout",
-					"pnpm run watch"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Identity Crisis.",
 			"transport-options": {
 				"relative": true
 			}
@@ -2647,12 +2565,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "3c3e63c76d1afeaa74586eda69dd79160a100251"
+				"reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-constants": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-ip": "@dev",
 				"automattic/jetpack-password-checker": "@dev",
 				"automattic/jetpack-roles": "@dev",
@@ -5943,7 +5860,7 @@
 		"automattic/jetpack-blaze": 20,
 		"automattic/jetpack-blocks": 20,
 		"automattic/jetpack-boost-speed-score": 20,
-		"automattic/jetpack-classic-theme-helper": 20,
+		"automattic/jetpack-calypsoify": 20,
 		"automattic/jetpack-compat": 20,
 		"automattic/jetpack-composer-plugin": 20,
 		"automattic/jetpack-config": 20,
@@ -5954,7 +5871,6 @@
 		"automattic/jetpack-forms": 20,
 		"automattic/jetpack-google-analytics": 20,
 		"automattic/jetpack-google-fonts-provider": 20,
-		"automattic/jetpack-identity-crisis": 20,
 		"automattic/jetpack-image-cdn": 20,
 		"automattic/jetpack-import": 20,
 		"automattic/jetpack-ip": 20,

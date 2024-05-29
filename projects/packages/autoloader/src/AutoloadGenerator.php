@@ -21,7 +21,7 @@ use Composer\Util\PackageSorter;
  */
 class AutoloadGenerator {
 
-	const VERSION = '3.0.7';
+	const VERSION = '3.0.8-alpha';
 
 	/**
 	 * IO object.
@@ -42,7 +42,7 @@ class AutoloadGenerator {
 	 *
 	 * @param IOInterface $io IO object.
 	 */
-	public function __construct( IOInterface $io = null ) {
+	public function __construct( IOInterface $io ) {
 		$this->io         = $io;
 		$this->filesystem = new Filesystem();
 	}
