@@ -97,13 +97,6 @@ class Archive_Provider extends Provider {
 		);
 		unset( $post_types['attachment'] );
 
-		/**
-		 * Filters the post types that are viewable
-		 *
-		 * @param array $post_types The array of post types to be used
-		 *
-		 * @since 1.0.0
-		 */
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
 		$provider_post_types = array();
@@ -112,6 +105,13 @@ class Archive_Provider extends Provider {
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
+		/**
+		 * Filters the post types used for Critical CSS
+		 *
+		 * @param array $post_types The array of post types to be used
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters(
 			'jetpack_boost_critical_css_post_types_archives',
 			apply_filters_deprecated(
