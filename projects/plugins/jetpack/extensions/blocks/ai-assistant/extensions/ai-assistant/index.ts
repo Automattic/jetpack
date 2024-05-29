@@ -26,6 +26,7 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
 );
 
+// The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
 const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
 
 // The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
@@ -50,14 +51,15 @@ export const JETPACK_FORM_CHILDREN_BLOCKS = [
 ] as const;
 
 // Temporarily keep track of inline extensions that have been released to production.
-const releasedInlineExtensions = [ 'core/heading', 'core/paragraph' ];
-// Temporarily keep track of inline extensions that are being worked on.
-const unreleasedInlineExtensions = [
+const releasedInlineExtensions = [
+	'core/heading',
+	'core/paragraph',
 	'core/list-item',
 	'core/list',
-	'jetpack/contact-form',
-	...JETPACK_FORM_CHILDREN_BLOCKS,
 ];
+
+// Temporarily keep track of inline extensions that are being worked on.
+const unreleasedInlineExtensions = [ 'jetpack/contact-form', ...JETPACK_FORM_CHILDREN_BLOCKS ];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...
