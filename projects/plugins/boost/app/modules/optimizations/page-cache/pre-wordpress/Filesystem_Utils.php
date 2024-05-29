@@ -106,6 +106,13 @@ class Filesystem_Utils {
 	 */
 	public static function get_request_filename( $parameters ) {
 
+		/**
+		 * Filters the components used to generate the cache key.
+		 *
+		 * @param array $parameters The array of components, url, cookies, get parameters, etc.
+		 *
+		 * @since   1.0.0
+		 */
 		$key_components = apply_filters( 'boost_cache_key_components', $parameters );
 
 		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode

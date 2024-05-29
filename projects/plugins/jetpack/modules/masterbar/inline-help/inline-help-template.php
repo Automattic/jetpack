@@ -2,11 +2,12 @@
 /**
  * Inline Help FAB icon template.
  *
+ * @html-template load_template
+ * @html-template-var array{href:string,icon:string,svg_allowed:array} $args
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force array{href:string,icon:string,svg_allowed:array} $args';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 

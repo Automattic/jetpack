@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { getManagementPageObject, setup } from '../../../../utils/test-factory';
 import { MarkAsShared } from '../../mark-as-shared';
-import { getManagementPageObject, setup } from '../factory';
 
 describe( 'Marking a connection as shared', () => {
 	afterEach( () => {

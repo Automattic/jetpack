@@ -119,6 +119,11 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		console.error( err );
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }

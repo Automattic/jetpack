@@ -189,7 +189,7 @@ jobs:
           composer install --ignore-platform-reqs
           # Remove stuff we don't need here that fails some platform reqs.
           # This will complain if we missed any.
-          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer phan/phan
+          composer remove --dev sirbrillig/phpcs-changed automattic/jetpack-codesniffer automattic/jetpack-phan-plugins phan/phan
 
       - name: Run linter
         run: |
