@@ -452,6 +452,17 @@ function wpcom_add_plugins_menu() {
 			'dashicons-admin-plugins',
 			65
 		);
+
+		if ( function_exists( 'wpcom_plugins_display_marketplace' ) ) {
+			add_submenu_page(
+				'plugins.php',
+				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
+				__( 'Add New Plugin', 'jetpack-mu-wpcom' ),
+				'manage_options', // Roughly means "is a site admin"
+				'wpcom-install-plugin',
+				'wpcom_plugins_display_marketplace'
+			);
+		}
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
