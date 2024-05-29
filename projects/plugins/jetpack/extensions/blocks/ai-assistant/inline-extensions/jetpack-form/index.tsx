@@ -128,3 +128,5 @@ export class JetpackFormHandler extends BlockHandler {
 		this.setContent( suggestion, true );
 	}
 }
+
+export { JetpackChildrenFormHandler } from './children';

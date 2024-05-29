@@ -5,9 +5,13 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import {
+	JETPACK_FORM_CHILDREN_BLOCKS,
+	type ExtendedInlineBlockProp,
+} from '../extensions/ai-assistant';
 import { BlockHandler } from './block-handler';
 import { HeadingHandler } from './heading';
-import { JetpackFormHandler } from './jetpack-form';
+import { JetpackFormHandler, JetpackChildrenFormHandler } from './jetpack-form';
 import { ListHandler } from './list';
 import { ListItemHandler } from './list-item';
 import { ParagraphHandler } from './paragraph';
@@ -15,7 +19,6 @@ import { ParagraphHandler } from './paragraph';
  * Types
  */
 import type { IBlockHandler } from './types';
-import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:get-block-handler' );
 
@@ -25,6 +28,13 @@ const handlers = {
 	'core/list-item': ListItemHandler,
 	'core/list': ListHandler,
 	'jetpack/contact-form': JetpackFormHandler,
+	...JETPACK_FORM_CHILDREN_BLOCKS.reduce(
+		( acc, blockType ) => ( {
+			...acc,
+			[ blockType ]: JetpackChildrenFormHandler,
+		} ),
+		{}
+	),
 };
 
 /**
