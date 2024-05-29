@@ -12,10 +12,10 @@ fi
 # Args:
 #  1: The situation that requires prompting.
 #  2: Optional text to replace "Proceed?" as the question.
-#  3: true or false (default false); set true to default to "Y".
+#  3: Default response, 'Y', 'N', or ''. Default 'N'.
 #
 # Returns success if "yes", failure if "no" or non-interactive.
-# Note non-interactive always aborts even if the default is "Y".
+# Note non-interactive and EOF always abort even if the default is "Y".
 function proceed_p {
 	if ! $INTERACTIVE; then
 		error "$1 Aborting"
@@ -23,12 +23,15 @@ function proceed_p {
 	fi
 	local OK YN DEF
 
-	if ${3:-false}; then
+	if [[ "${3-N}" == 'n' || "${3-N}" == 'N' ]]; then
+		YN="y/N"
+		DEF=N
+	elif [[ "${3-N}" == 'y' || "${3-N}" == 'Y' ]]; then
 		YN="Y/n"
 		DEF=Y
 	else
-		YN="y/N"
-		DEF=N
+		YN="y/n"
+		DEF=
 	fi
 
 	# Clear input before prompting
