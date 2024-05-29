@@ -137,7 +137,7 @@ export function UpgradeMessage( {
 			<span>
 				{ sprintf(
 					// translators: %1$d: number of requests remaining
-					__( 'You have %1$d free requests remaining.', 'jetpack-ai-client' ),
+					__( 'You have %1$d requests remaining.', 'jetpack-ai-client' ),
 					requestsRemaining
 				) }
 			</span>
