@@ -47,34 +47,26 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const { isRedirecting, checkoutUrl } = useAICheckout();
+	const { checkoutUrl } = useAICheckout();
 
 	return (
 		<>
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-title-optimization__header">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
-						<TitleOptimization
-							placement={ placement }
-							busy={ isRedirecting }
-							disabled={ requireUpgrade }
-						/>
+						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
 			) }
 			<PanelRow className="jetpack-ai-proofread-control__header">
 				<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
-					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+					<Proofread busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 			{ isAIFeaturedImageAvailable && (
 				<PanelRow className="jetpack-ai-featured-image-control__header">
 					<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
-						<FeaturedImage
-							busy={ isRedirecting }
-							disabled={ requireUpgrade }
-							placement={ placement }
-						/>
+						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
 				</PanelRow>
 			) }
@@ -94,7 +86,7 @@ const JetpackAndSettingsContent = ( {
 
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
-	const { isRedirecting, checkoutUrl } = useAICheckout();
+	const { checkoutUrl } = useAICheckout();
 
 	const { tracks } = useAnalytics();
 	const title = __( 'AI Assistant', 'jetpack' );
@@ -143,11 +135,11 @@ export default function AiAssistantPluginSidebar() {
 					{ isAITitleOptimizationAvailable && (
 						<TitleOptimization
 							placement={ PLACEMENT_PRE_PUBLISH }
-							busy={ isRedirecting }
+							busy={ false }
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread busy={ isRedirecting } disabled={ requireUpgrade } />
+					<Proofread busy={ false } disabled={ requireUpgrade } />
 					{ requireUpgrade && (
 						<Upgrade
 							placement={ PLACEMENT_PRE_PUBLISH }
