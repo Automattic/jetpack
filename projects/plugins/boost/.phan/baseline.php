@@ -15,7 +15,7 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanTypeMissingReturn : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
-    // PhanTypeMismatchArgument : 9 occurrences
+    // PhanTypeMismatchArgument : 8 occurrences
     // PhanParamTooMany : 7 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
@@ -51,7 +51,6 @@ return [
         'app/features/setup-prompt/Setup_Prompt.php' => ['PhanTypeMissingReturn'],
         'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable'],
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'app/lib/class-viewport.php' => ['PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/critical-css/Regenerate.php' => ['PhanParamTooMany'],
         'app/lib/critical-css/source-providers/providers/Archive_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],

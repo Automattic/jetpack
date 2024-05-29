@@ -124,6 +124,13 @@ class Singular_Post_Provider extends Provider {
 			$provider_post_types[ $post_type->name ] = $post_type->name;
 		}
 
+		/**
+		 * Filters the post types used for Critical CSS
+		 *
+		 * @param array $post_types The array of post types to be used
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters(
 			'jetpack_boost_critical_css_post_types_singular',
 			apply_filters_deprecated(
@@ -146,6 +153,13 @@ class Singular_Post_Provider extends Provider {
 	 * @return \WP_Query
 	 */
 	public static function post_type_query( $post_type ) {
+		/**
+		 * Filters the WP_Query parameters used to gather sample posts
+		 *
+		 * @param array $args The arguments that will be used by WP_Query
+		 *
+		 * @since   1.0.0
+		 */
 		$args = apply_filters(
 			'jetpack_boost_critical_css_post_type_query',
 			array(
