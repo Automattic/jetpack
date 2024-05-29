@@ -26,16 +26,6 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 	const primaryErrorSet = getPrimaryErrorSet( cssState );
 	const showLearnSection = primaryErrorSet && cssState.status === 'generated';
 
-	const firstTimeError = __(
-		'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
-		'jetpack-boost'
-	);
-
-	const secondTimeError = __(
-		"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
-		'jetpack-boost'
-	);
-
 	return (
 		<>
 			<Notice
@@ -58,50 +48,12 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 						</FoldingElement>
 					</>
 				) : (
-					<>
-						{ cssState.status_error === 'css-gen-library-failure' ? (
-							<>
-								<p>
-									{ __(
-										'Critical CSS Generator library is either not found or invalid.',
-										'jetpack-boost'
-									) }
-								</p>
-								<DocumentationSection
-									message={ __(
-										'<link>Learn how</link> to fix this by visiting our documentation.',
-										'jetpack-boost'
-									) }
-									errorType={ cssState.status_error }
-								/>
-							</>
-						) : (
-							<>
-								<p>{ showRetry ? firstTimeError : secondTimeError }</p>
-								<p>
-									{ sprintf(
-										/* translators: %s: error message */
-										__( `Error: %s`, 'jetpack-boost' ),
-										cssState.status_error
-									) }
-								</p>
-								{ showRetry ? (
-									<button className="secondary" onClick={ retry }>
-										{ __( 'Refresh', 'jetpack-boost' ) }
-									</button>
-								) : (
-									<a
-										className="button button-secondary"
-										href={ supportLink }
-										target="_blank"
-										rel="noreferrer"
-									>
-										{ __( 'Contact Support', 'jetpack-boost' ) }
-									</a>
-								) }
-							</>
-						) }
-					</>
+					<OtherErrors
+						cssState={ cssState }
+						retry={ retry }
+						showRetry={ showRetry }
+						supportLink={ supportLink }
+					/>
 				) }
 			</Notice>
 		</>
@@ -163,6 +115,65 @@ const DocumentationSection = ( {
 				),
 			} ) }
 		</p>
+	);
+};
+
+const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperErrorTypes ) => {
+	const firstTimeError = __(
+		'An unexpected error has occurred. As this error may be temporary, please try and refresh the Critical CSS.',
+		'jetpack-boost'
+	);
+
+	const secondTimeError = __(
+		"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
+		'jetpack-boost'
+	);
+
+	return (
+		<>
+			{ cssState.status_error === 'css-gen-library-failure' ? (
+				<>
+					<p>
+						{ __(
+							'Critical CSS Generator library is either not found or invalid.',
+							'jetpack-boost'
+						) }
+					</p>
+					<DocumentationSection
+						message={ __(
+							'<link>Learn how</link> to fix this by visiting our documentation.',
+							'jetpack-boost'
+						) }
+						errorType={ cssState.status_error }
+					/>
+				</>
+			) : (
+				<>
+					<p>{ showRetry ? firstTimeError : secondTimeError }</p>
+					<p>
+						{ sprintf(
+							/* translators: %s: error message */
+							__( `Error: %s`, 'jetpack-boost' ),
+							cssState.status_error
+						) }
+					</p>
+					{ showRetry ? (
+						<button className="secondary" onClick={ retry }>
+							{ __( 'Refresh', 'jetpack-boost' ) }
+						</button>
+					) : (
+						<a
+							className="button button-secondary"
+							href={ supportLink }
+							target="_blank"
+							rel="noreferrer"
+						>
+							{ __( 'Contact Support', 'jetpack-boost' ) }
+						</a>
+					) }
+				</>
+			) }
+		</>
 	);
 };
 
