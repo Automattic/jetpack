@@ -47,7 +47,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
-		add_action( 'jb_cache_moved_to_wpsc', array( $this, 'track_move_to_wpcc' ) );
+		add_action( 'jb_cache_moved_to_wpsc', array( $this, 'track_move_to_wpsc' ) );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	/**
 	 * Track when site owner moves cache to WPSC.
 	 */
-	public function track_move_to_wpcc() {
+	public function track_move_to_wpsc() {
 		Analytics::record_user_event( 'moved_cache_to_wpsc' );
 	}
 }
