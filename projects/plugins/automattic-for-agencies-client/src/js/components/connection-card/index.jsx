@@ -60,7 +60,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 				<div className={ styles[ 'terms-of-service' ] }>
 					{ createInterpolateElement(
 						__(
-							"By clicking <strong>connect this site</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site's data</shareDetailsLink> with us.",
+							'By clicking <strong>connect this site</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.',
 							'automattic-for-agencies-client'
 						),
 						{
@@ -99,7 +99,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 
 /**
  * Detail Sharing Content
- * The copy for the "sync your site's data" information linked from the TOS.
+ * The copy for the "sync your site‘s data" information linked from the TOS.
  *
  * @param {object}   props                             - Component props
  * @param {Function} props.onCloseSharingDetailsClick  - Callback to close the sharing details.

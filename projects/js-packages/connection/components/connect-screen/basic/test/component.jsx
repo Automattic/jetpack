@@ -44,7 +44,7 @@ describe( 'ConnectScreen', () => {
 
 	it( 'applies correct href to share', () => {
 		render( <ConnectScreen { ...requiredProps } /> );
-		const share = screen.getByRole( 'link', { name: "sync your site's data" } );
+		const share = screen.getByRole( 'link', { name: 'sync your site‘s data' } );
 		expect( share ).toHaveAttribute(
 			'href',
 			'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
