@@ -11,6 +11,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logg
 
 class Page_Cache_Setup {
 
+	private static $notices = array();
+
 	/**
 	 * Runs setup steps and returns whether setup was successful or not.
 	 *
@@ -62,6 +64,17 @@ class Page_Cache_Setup {
 			Analytics::record_user_event( 'page_cache_setup_succeeded' );
 		}
 		return true;
+	}
+
+	public static function get_notices() {
+		return self::$notices;
+	}
+
+	private static function add_notice( $title, $message ) {
+		self::$notices[] = array(
+			'title'   => $title,
+			'message' => $message,
+		);
 	}
 
 	private static function run_step( $step ) {
@@ -155,6 +168,11 @@ class Page_Cache_Setup {
 				if ( Super_Cache_Config_Compatibility::is_compatible() ) {
 					$deactivation = new Data_Sync_Actions\Deactivate_WPSC();
 					$deactivation->handle();
+					self::add_notice(
+						__( 'WP Super Cache Has Been Deactivated', 'jetpack-boost' ),
+						__( 'To ensure optimal performance, WP Super Cache has been automatically deactivated because Jetpack Boost\'s Cache is now active. Only one caching system can be used at a time.', 'jetpack-boost' )
+					);
+
 					Analytics::record_user_event(
 						'switch_to_boost_cache',
 						array(

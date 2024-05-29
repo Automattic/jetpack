@@ -1,18 +1,34 @@
 import Module from '$features/module/module';
 import PageCacheMeta from '$features/page-cache/meta/meta';
 import Health from '$features/page-cache/health/health';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useMutationNotice } from '$features/ui';
 import { useShowCacheEngineErrorNotice } from './lib/stores';
 import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useSingleModuleState } from '$features/module/lib/stores';
+import styles from './page-cache.module.scss';
+
+const DismissableNotice = ( { title, children }: { title: string; children: ReactNode } ) => {
+	const [ dismissed, setDismissed ] = useState( false );
+
+	if ( dismissed ) {
+		return null;
+	}
+
+	return (
+		<div className={ styles.notice }>
+			<Notice level="info" title={ title } onClose={ () => setDismissed( true ) }>
+				{ children }
+			</Notice>
+		</div>
+	);
+};
 
 const PageCache = () => {
 	const [ moduleState ] = useSingleModuleState( 'page_cache' );
-
-	const pageCacheSetup = usePageCacheSetup();
+	const [ pageCacheSetup, pageCacheSetupNotices ] = usePageCacheSetup();
 	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
 	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
 	const [ runningFreshSetup, setRunningFreshSetup ] = useState( false );
@@ -118,7 +134,16 @@ const PageCache = () => {
 				</Notice>
 			) }
 			{ ! showCacheEngineErrorNotice && ! pageCacheError.data && ! pageCacheSetup.isError && (
-				<PageCacheMeta />
+				<>
+					<PageCacheMeta />
+
+					{ pageCacheSetup.isSuccess &&
+						pageCacheSetupNotices.map( ( { title, message }, index ) => (
+							<DismissableNotice title={ title } key={ index }>
+								{ message }
+							</DismissableNotice>
+						) ) }
+				</>
 			) }
 		</Module>
 	);

@@ -17,7 +17,7 @@ import SwitchToBoost from '../switch-to-boost/switch-to-boost';
 
 type HealthProps = {
 	error?: PageCacheError;
-	cacheSetup: ReturnType< typeof usePageCacheSetup >;
+	cacheSetup: ReturnType< typeof usePageCacheSetup >[ 0 ];
 	setError: ( error: PageCacheError ) => void;
 };
 
