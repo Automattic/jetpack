@@ -10,12 +10,6 @@
 	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
-* [Module architectural overview 101](#module-architectural-overview-101)
-	* [Creating a new module](#creating-a-new-module)
-* [Hooks and filters](#hooks-and-filters)
-	* [Critical CSS](#critical-css)
-	* [Render Blocking JS](#render-blocking-js)
-	* [Enabling/disabling modules and modules availability](#enabling/disabling-modules-and-modules-availability)
 
 # Prerequisite
 
@@ -98,54 +92,4 @@ To automatically fix some JavaScript related issues, you can run:
   ```sh
   pnpm lint:fix
   ``` 
-
----
-
-
-# Module architectural overview 101
-
-The Jetpack Boost plugin implements a custom [module system](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/boost/app/modules) for optional modules.
-
-## Creating a new module
-
-To create a new module (example: `foo`) and enable it in the plugin, please follow these steps. Replace all instances of `foo` by your module name:
-
-1.  Create `/app/modules/foo/class-foo.php`.
-
-The bare-bones module template can look like:
-
-```php
-<?php
-/**
- * Implements the Foo feature.
- *
- * @link       https://automattic.com
- * @since      1.0.0
- */
-
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Foo;
-
-use Automattic\Jetpack_Boost\Features\Optimizations\State;
-
-/**
- * Class Foo
- */
-class Foo extends State {
-
-	/**
-	 * Code to run when module is started
-	 */
-	protected function on_initialize() {
-        // Add any code here
-	}
-}
-```
-
-2.  Add `foo` to the array in `AVAILABLE_MODULES_DEFAULT` method in `class-jetpack-boost.php` to make it available.
-
-3.  Add `foo` to the array in `ENABLED_MODULES_DEFAULT` method in `class-jetpack-boost.php` to make it enabled by default if wanted.
-
-Every available modules are getting [instanciated](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php#L234) in the [prepare_modules](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php#L234) method of the [Jetpack Boost class](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/class-jetpack-boost.php).
-
-Check out the inline documentation in the [Module class](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/app/modules/class-module.php) for methods you can optionally override to support extra functionality like REST API endpoints.
 
