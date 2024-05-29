@@ -500,7 +500,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		}
 		if ( $print ) {
 			$learn_link = self::get_upgrade_link( 'stats-nudges-boost-learn' );
-			$text       = __( 'Improve your site\'s performance and SEO in a few clicks with the free Jetpack Boost plugin.', 'jetpack' );
+			$text       = __( 'Improve your site‘s performance and SEO in a few clicks with the free Jetpack Boost plugin.', 'jetpack' );
 			self::print_item( __( 'Boost', 'jetpack' ), $text, 'product-jetpack-boost.svg', $link, 'boost', $learn_link, false, $label );
 		}
 		return true;
