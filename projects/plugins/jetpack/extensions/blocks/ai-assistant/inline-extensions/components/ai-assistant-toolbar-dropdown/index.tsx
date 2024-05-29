@@ -111,6 +111,11 @@ export default function AiAssistantExtensionToolbarDropdown( {
 			} }
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				const handleClick = () => {
+					if ( typeof behavior === 'function' ) {
+						behavior( { onToggle, onAskAiAssistant } );
+						return;
+					}
+
 					switch ( behavior ) {
 						case 'action':
 							handleAskAiAssistant();
