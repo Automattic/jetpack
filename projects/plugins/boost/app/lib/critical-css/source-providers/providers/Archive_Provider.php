@@ -96,6 +96,13 @@ class Archive_Provider extends Provider {
 		);
 		unset( $post_types['attachment'] );
 
+		/**
+		 * Filters the post types that are viewable
+		 *
+		 * @param array $post_types The array of post types to be used
+		 *
+		 * @since 1.0.0
+		 */
 		$post_types = array_filter( $post_types, 'is_post_type_viewable' );
 
 		/**
