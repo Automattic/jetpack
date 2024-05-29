@@ -37,9 +37,9 @@ class Main {
 
 		if ( ( new Host() )->is_woa_site() ) {
 			new Inline_Help();
-			require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
-			require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
-			require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
+			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
+			require_once __DIR__ . '/profile-edit/bootstrap.php';
+			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
 		/**
@@ -50,7 +50,7 @@ class Main {
 		 * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
 		 */
 		if ( ! $should_use_nav_redesign && apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			require_once __DIR__ . '/masterbar/admin-menu/load.php';
+			require_once __DIR__ . '/admin-menu/load.php';
 		}
 
 		/**
