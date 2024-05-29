@@ -13,6 +13,7 @@ import AiAssistantToolbarDropdownContent from '../../../components/ai-assistant-
 /*
  * Types
  */
+import { BlockBehavior } from '../../types';
 import type { OnRequestSuggestion } from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
 import type { ReactElement } from 'react';
@@ -56,6 +57,7 @@ function AiAssistantExtensionToolbarDropdownContent( {
 }
 
 type AiAssistantExtensionToolbarDropdownProps = {
+	behavior: BlockBehavior;
 	blockType: ExtendedInlineBlockProp;
 	label?: string;
 	onAskAiAssistant: () => void;
@@ -63,6 +65,7 @@ type AiAssistantExtensionToolbarDropdownProps = {
 };
 
 export default function AiAssistantExtensionToolbarDropdown( {
+	behavior,
 	blockType,
 	label = __( 'AI Assistant', 'jetpack' ),
 	onAskAiAssistant,
@@ -107,11 +110,22 @@ export default function AiAssistantExtensionToolbarDropdown( {
 				variant: 'toolbar',
 			} }
 			renderToggle={ ( { isOpen, onToggle } ) => {
+				const handleClick = () => {
+					switch ( behavior ) {
+						case 'action':
+							handleAskAiAssistant();
+							break;
+						case 'dropdown':
+							onToggle();
+							break;
+					}
+				};
+
 				return (
 					<ToolbarButton
 						className="jetpack-ai-assistant__button"
 						showTooltip
-						onClick={ onToggle }
+						onClick={ handleClick }
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						label={ label }

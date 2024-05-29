@@ -49,5 +49,6 @@ export function getBlockHandler(
 		onSuggestion: handler.onSuggestion.bind( handler ),
 		onDone: handler.onDone.bind( handler ),
 		getContent: handler.getContent.bind( handler ),
+		behavior: handler.behavior,
 	};
 }
