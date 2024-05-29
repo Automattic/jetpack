@@ -78,8 +78,6 @@ class Initializer {
 			return;
 		}
 
-		self::setup_historically_active_jetpack_modules_sync();
-
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 
