@@ -3,12 +3,15 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache;
 
 use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Config_Compatibility;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Error;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Filesystem_Utils;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Logger;
 
 class Page_Cache_Setup {
+
+	private static $notices = array();
 
 	/**
 	 * Runs setup steps and returns whether setup was successful or not.
@@ -61,6 +64,17 @@ class Page_Cache_Setup {
 			Analytics::record_user_event( 'page_cache_setup_succeeded' );
 		}
 		return true;
+	}
+
+	public static function get_notices() {
+		return self::$notices;
+	}
+
+	private static function add_notice( $title, $message ) {
+		self::$notices[] = array(
+			'title'   => $title,
+			'message' => $message,
+		);
 	}
 
 	private static function run_step( $step ) {
@@ -149,15 +163,33 @@ class Page_Cache_Setup {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
 			if ( strpos( $content, 'WP SUPER CACHE' ) !== false ) {
-				return new \WP_Error( 'advanced-cache-for-super-cache' );
-			}
+				// advanced-cache.php is already in use by WP Super Cache.
 
-			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
+				if ( Super_Cache_Config_Compatibility::is_compatible() ) {
+					$deactivation = new Data_Sync_Actions\Deactivate_WPSC();
+					$deactivation->handle();
+					self::add_notice(
+						__( 'WP Super Cache Has Been Deactivated', 'jetpack-boost' ),
+						__( 'To ensure optimal performance, WP Super Cache has been automatically deactivated because Jetpack Boost\'s Cache is now active. Only one caching system can be used at a time.', 'jetpack-boost' )
+					);
+
+					Analytics::record_user_event(
+						'switch_to_boost_cache',
+						array(
+							'type'   => 'silent',
+							'reason' => 'super_cache_compatible',
+						)
+					);
+				} else {
+					return new \WP_Error( 'advanced-cache-for-super-cache' );
+				}
+			} elseif ( strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) === false ) {
+				// advanced-cache.php is in use by another plugin.
 				return new \WP_Error( 'advanced-cache-incompatible' );
 			}
 
 			if ( strpos( $content, Page_Cache::ADVANCED_CACHE_VERSION ) !== false ) {
-				// The version and signature match, nothing needed to be changed.
+				// The advanced-cache.php file belongs to current version of Boost Cache.
 				return false;
 			}
 		}

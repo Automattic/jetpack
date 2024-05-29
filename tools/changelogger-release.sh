@@ -32,6 +32,9 @@ if [[ $# -eq 0 ]]; then
 	usage
 fi
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 # Check whether it looks like a major version bump.
 #
 # 0.x -> 0.(x+1) also counts as major.

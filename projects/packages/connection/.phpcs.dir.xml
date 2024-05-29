@@ -5,12 +5,14 @@
 		<properties>
 			<property name="text_domain" type="array">
 				<element value="jetpack-connection" />
+				<element value="jetpack-idc" />
 			</property>
 		</properties>
 	</rule>
 	<rule ref="Jetpack.Functions.I18n">
 		<properties>
 			<property name="text_domain" value="jetpack-connection" />
+			<property name="text_domain" value="jetpack-idc" />
 		</properties>
 	</rule>
 
