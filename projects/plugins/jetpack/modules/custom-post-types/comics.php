@@ -21,14 +21,6 @@ class Jetpack_Comic {
 	 * @return self
 	 */
 	public static function init() {
-		$message = sprintf(
-			// translators: %s is a link to the WordPress.org documentation.
-			__( 'Jetpack no longer supports the Comics Post Type: %s', 'jetpack' ),
-			'https://jetpack.com/support/custom-content-types/#comics'
-		);
-
-		_deprecated_hook( 'Jetpack_Comic', 'jetpack-$$next-version$$', '', esc_html( $message ) );
-
 		static $instance = false;
 
 		if ( ! $instance ) {
@@ -510,6 +502,16 @@ class Jetpack_Comic {
 		 */
 		if ( current_theme_supports( self::POST_TYPE ) ) {
 			$supports_comics = true;
+		}
+
+		if ( $supports_comics ) {
+			$message = sprintf(
+				// translators: %s is a link to the WordPress.org documentation.
+				__( 'Jetpack no longer supports the Comics Post Type: %s', 'jetpack' ),
+				'https://jetpack.com/support/custom-content-types/#comics'
+			);
+
+			_deprecated_hook( 'Jetpack_Comic', 'jetpack-$$next-version$$', '', esc_html( $message ) );
 		}
 
 		/**
