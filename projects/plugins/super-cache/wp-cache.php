@@ -3948,12 +3948,12 @@ function wpsc_post_count() {
 
 /**
  * Get the minimum interval in minutes between preload refreshes.
- * Filter the default value of 10 minutes using the `wpsc_minimum_preload` filter.
+ * Filter the default value of 10 minutes using the `wpsc_minimum_preload_interval` filter.
  *
  * @return int
  */
 function wpsc_get_minimum_preload() {
-	return apply_filters( 'wpsc_minimum_preload', 10 );
+	return apply_filters( 'wpsc_minimum_preload_interval', 10 );
 }
 
 function wpsc_preload_settings() {
