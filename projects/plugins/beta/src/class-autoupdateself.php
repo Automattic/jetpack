@@ -240,7 +240,7 @@ class AutoupdateSelf {
 	 */
 	public function upgrader_source_selection( $source, $remote_source ) {
 		global $wp_filesystem;
-		if ( is_string( $source ) && strstr( $source, '/Automattic-jetpack-beta-' ) ) {
+		if ( is_string( $source ) && str_contains( $source, '/Automattic-jetpack-beta-' ) ) {
 			$corrected_source = trailingslashit( $remote_source ) . trailingslashit( $this->config['proper_folder_name'] );
 			if ( $wp_filesystem->move( $source, $corrected_source, true ) ) {
 				return $corrected_source;
