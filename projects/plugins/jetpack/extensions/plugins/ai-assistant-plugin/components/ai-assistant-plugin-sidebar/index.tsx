@@ -47,7 +47,7 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const { autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { autosaveAndRedirect, isRedirecting, checkoutUrl } = useAICheckout();
 
 	return (
 		<>
@@ -80,7 +80,12 @@ const JetpackAndSettingsContent = ( {
 			) }
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
-					<Upgrade placement={ placement } onClick={ autosaveAndRedirect } type={ upgradeType } />
+					<Upgrade
+						placement={ placement }
+						onClick={ autosaveAndRedirect }
+						type={ upgradeType }
+						upgradeUrl={ checkoutUrl }
+					/>
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (
@@ -94,7 +99,7 @@ const JetpackAndSettingsContent = ( {
 
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
-	const { autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { autosaveAndRedirect, isRedirecting, checkoutUrl } = useAICheckout();
 
 	const { tracks } = useAnalytics();
 	const title = __( 'AI Assistant', 'jetpack' );
@@ -154,6 +159,7 @@ export default function AiAssistantPluginSidebar() {
 							onClick={ autosaveAndRedirect }
 							type={ upgradeType }
 							currentTier={ currentTier }
+							upgradeUrl={ checkoutUrl }
 						/>
 					) }
 				</>
