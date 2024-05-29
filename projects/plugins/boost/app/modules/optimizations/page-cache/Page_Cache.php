@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress\Boost_Cache_Settings;
@@ -46,6 +47,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_css_excludes', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_image_cdn_quality', array( $this, 'invalidate_cache' ) );
+		add_action( 'jb_cache_moved_to_wpsc', array( $this, 'track_move_to_wpcc' ) );
 	}
 
 	/**
@@ -105,5 +107,12 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 
 	public static function get_slug() {
 		return 'page_cache';
+	}
+
+	/**
+	 * Track when site owner moves cache to WPSC.
+	 */
+	public function track_move_to_wpcc() {
+		Analytics::record_user_event( 'moved_cache_to_wpsc' );
 	}
 }
