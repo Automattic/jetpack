@@ -13,7 +13,7 @@ use WP_Error;
  */
 class Loader {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Modules to include.
