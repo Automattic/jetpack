@@ -12,9 +12,12 @@ const SwitchToBoost = ( { onSwitch }: Props ) => {
 	const disableSuperCache = useAsyncSuperCacheAction();
 
 	const switchToBoost = useCallback( async () => {
-		await disableSuperCache.mutateAsync();
-		onSwitch();
-		recordBoostEvent( 'switch_to_boost_cache', { type: 'confirmed' } );
+		disableSuperCache.mutate( undefined, {
+			onSuccess: () => {
+				onSwitch();
+				recordBoostEvent( 'switch_to_boost_cache', { type: 'confirmed' } );
+			},
+		} );
 	}, [ disableSuperCache, onSwitch ] );
 
 	return (
