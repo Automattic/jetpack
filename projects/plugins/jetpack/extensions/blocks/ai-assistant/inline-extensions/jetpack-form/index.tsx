@@ -20,7 +20,7 @@ export class JetpackFormHandler extends BlockHandler {
 	currentListOfValidBlocks = [];
 
 	constructor( clientId: string ) {
-		super( clientId, [] );
+		super( clientId, [], 'action' );
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {
