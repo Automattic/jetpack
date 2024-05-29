@@ -2,12 +2,14 @@ import { select, dispatch } from '@wordpress/data';
 import { BlockHandler } from '../block-handler';
 import { BlockEditorDispatch } from '../types';
 export class JetpackChildrenFormHandler extends BlockHandler {
+	jetpackFormBlockName = 'jetpack/contact-form';
+
 	constructor( clientId: string ) {
-		super( clientId, [], null );
+		super( clientId, [], null, true );
 		this.behavior = this.handleBehavior;
 	}
 
-	handleBehavior = ( { onAskAiAssistant } ) => {
+	handleBehavior = ( { context } ) => {
 		const blockEditorDispatch = dispatch( 'core/block-editor' ) as BlockEditorDispatch;
 
 		const { getBlockParentsByBlockName } = select( 'core/block-editor' ) as unknown as {
@@ -16,10 +18,10 @@ export class JetpackChildrenFormHandler extends BlockHandler {
 
 		const jetpackFormClientId = getBlockParentsByBlockName(
 			this.clientId,
-			'jetpack/contact-form'
+			this.jetpackFormBlockName
 		)?.[ 0 ];
 
 		blockEditorDispatch.selectBlock( jetpackFormClientId );
-		onAskAiAssistant();
+		context?.[ this.jetpackFormBlockName ]?.handleAskAiAssistant?.();
 	};
 }
