@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createContext } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -37,6 +38,8 @@ const handlers = {
 	),
 };
 
+export const InlineExtensionsContext = createContext( {} );
+
 /**
  * Gets the block handler based on the block type.
  * The block handler is used to handle the request suggestions.
@@ -62,5 +65,6 @@ export function getBlockHandler(
 		onDone: handler.onDone.bind( handler ),
 		getContent: handler.getContent.bind( handler ),
 		behavior: handler.behavior,
+		childrenBlock: handler.childrenBlock,
 	};
 }
