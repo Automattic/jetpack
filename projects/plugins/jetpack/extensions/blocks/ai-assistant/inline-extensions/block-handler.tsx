@@ -7,7 +7,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockBehavior, BlockEditorDispatch, BlockEditorSelect } from './types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html: string ) {
@@ -22,10 +22,16 @@ export class BlockHandler {
 	public clientId: string;
 	public renderRules: RenderHTMLRules = [];
 	public firstUpdate: boolean = true;
+	public behavior: BlockBehavior = 'dropdown' as const;
 
-	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
+	constructor(
+		clientId: string,
+		renderRules: RenderHTMLRules = [],
+		behavior: BlockBehavior = 'dropdown'
+	) {
 		this.clientId = clientId;
 		this.renderRules = renderRules;
+		this.behavior = behavior;
 	}
 
 	public getBlock(): Block {
