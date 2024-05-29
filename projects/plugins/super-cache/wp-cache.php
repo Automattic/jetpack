@@ -3952,7 +3952,7 @@ function wpsc_post_count() {
  *
  * @return int
  */
-function wpsc_get_minimum_preload() {
+function wpsc_get_minimum_preload_interval() {
 	return apply_filters( 'wpsc_minimum_preload_interval', 10 );
 }
 
@@ -3976,7 +3976,7 @@ function wpsc_preload_settings() {
 		return;
 	}
 
-	$min_refresh_interval = wpsc_get_minimum_preload();
+	$min_refresh_interval = wpsc_get_minimum_preload_interval();
 
 	// Set to true if the preload interval is changed, and a reschedule is required.
 	$force_preload_reschedule = false;
