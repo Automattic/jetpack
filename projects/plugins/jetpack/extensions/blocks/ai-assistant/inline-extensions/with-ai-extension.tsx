@@ -115,6 +115,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			getContent,
 			behavior,
 			childrenBlock,
+			feature,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
@@ -269,7 +270,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onError,
 			askQuestionOptions: {
 				postId,
-				feature: 'ai-assistant',
+				feature,
 			},
 		} );
 

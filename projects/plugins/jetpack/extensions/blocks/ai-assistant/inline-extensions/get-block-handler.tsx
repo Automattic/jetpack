@@ -66,5 +66,6 @@ export function getBlockHandler(
 		getContent: handler.getContent.bind( handler ),
 		behavior: handler.behavior,
 		childrenBlock: handler.childrenBlock,
+		feature: handler.feature,
 	};
 }

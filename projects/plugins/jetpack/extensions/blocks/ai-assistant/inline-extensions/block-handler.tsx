@@ -24,17 +24,11 @@ export class BlockHandler {
 	public firstUpdate: boolean = true;
 	public behavior: BlockBehavior = 'dropdown' as const;
 	public childrenBlock: boolean = false;
+	public feature: string = 'ai-assistant';
 
-	constructor(
-		clientId: string,
-		renderRules: RenderHTMLRules = [],
-		behavior: BlockBehavior = 'dropdown',
-		childrenBlock: boolean = false
-	) {
+	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
 		this.clientId = clientId;
 		this.renderRules = renderRules;
-		this.behavior = behavior;
-		this.childrenBlock = childrenBlock;
 	}
 
 	public getBlock(): Block {

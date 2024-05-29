@@ -18,6 +18,7 @@ export interface IBlockHandler {
 	getContent: () => string;
 	behavior: BlockBehavior;
 	childrenBlock?: boolean;
+	feature: string;
 }
 
 export type BlockEditorSelect = {
