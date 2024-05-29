@@ -18,7 +18,7 @@ export default function Upgrade( {
 	upgradeUrl,
 }: {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	onClick: ( event: any ) => void;
+	onClick?: ( event: any ) => void;
 	type: string;
 	placement?: string;
 	currentTier?: TierProp;
