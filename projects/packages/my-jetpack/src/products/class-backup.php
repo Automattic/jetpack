@@ -52,6 +52,20 @@ class Backup extends Hybrid_Product {
 	public static $has_standalone_plugin = true;
 
 	/**
+	 * Whether this product has a free offering
+	 *
+	 * @var bool
+	 */
+	public static $has_free_offering = false;
+
+	/**
+	 * Whether this product requires a plan to work at all
+	 *
+	 * @var bool
+	 */
+	public static $requires_plan = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -183,7 +197,7 @@ class Backup extends Hybrid_Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		$rewind_data = static::get_state_from_wpcom();
 		if ( is_wp_error( $rewind_data ) ) {
 			return false;
@@ -223,14 +237,5 @@ class Backup extends Hybrid_Product {
 		} elseif ( static::is_jetpack_plugin_active() ) {
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
-	}
-
-	/**
-	 * Checks whether the Product is active
-	 *
-	 * @return boolean
-	 */
-	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
 	}
 }

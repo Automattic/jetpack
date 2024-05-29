@@ -1,9 +1,13 @@
-<?php // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+<?php
 /**
  * Widget for Cookies and Consent.
  *
+ * @html-template Jetpack_EU_Cookie_Law_Widget::widget
  * @package automattic/jetpack
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
 ?>
 
 <div

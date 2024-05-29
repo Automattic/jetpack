@@ -214,6 +214,7 @@ class The_Neverending_Home_Page {
 			// Otherwise, if a widget area ID or array of IDs was provided in the footer_widgets parameter, check if any contains any widgets.
 			// It is safe to use `is_active_sidebar()` before the sidebar is registered as this function doesn't check for a sidebar's existence when determining if it contains any widgets.
 			if ( function_exists( 'infinite_scroll_has_footer_widgets' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 				$settings['footer_widgets'] = (bool) infinite_scroll_has_footer_widgets();
 			} elseif ( is_array( $settings['footer_widgets'] ) ) {
 				$sidebar_ids                = $settings['footer_widgets'];

@@ -85,7 +85,9 @@ function Search( props ) {
 							slug="search"
 							toggleModule={ toggleSearchModule }
 						>
-							{ __( 'Enable Search', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable Search', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 
 						<FormFieldset>
@@ -94,7 +96,11 @@ function Search( props ) {
 								disabled={ togglingModule || ! props.hasInstantSearch }
 								toggling={ togglingInstantSearch }
 								onChange={ toggleInstantSearch }
-								label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+									</span>
+								}
 								help={
 									<span className="jp-form-setting-explanation jp-form-search-setting-explanation">
 										{ __(

@@ -17,13 +17,12 @@ require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
-/*
+/**
  * Base class for Sync tests - establishes connection between local
  * Automattic\Jetpack\Sync\Sender and dummy server implementation,
  * and registers a Replicastore and Eventstore implementation to
  * process events.
  */
-
 class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $listener;
 	protected $sender;
@@ -58,9 +57,26 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		if ( ! isset( $publicize_ui ) ) {
 			$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
 		}
-		global $publicize;
-
-		$publicize->set_refresh_wait_transient( HOUR_IN_SECONDS );
+		set_transient(
+			'jetpack_social_connections',
+			array(
+				// Globally connected tumblr.
+				'tumblr' => array(
+					'id_number' => array(
+						'connection_data' => array(
+							'user_id'       => 0,
+							'id'            => '123',
+							'token_id'      => 'test-unique-id123',
+							'connection_id' => '1230',
+							'meta'          => array(
+								'display_name' => 'test-display-name123',
+							),
+						),
+					),
+				),
+			),
+			4 * 3600
+		);
 
 		// Bind the two storage systems to the server events.
 		$this->server_replica_storage = new Jetpack_Sync_Test_Replicastore();
@@ -130,9 +146,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->assertEquals( $local->get_comments(), $remote->get_comments() );
 	}
 
-	// asserts that two objects are the same if they're both "objectified",
-	// i.e. json_encoded and then json_decoded
-	// this is useful because we json encode everything sent to the server
+	/**
+	 * Asserts that two objects are the same if they're both "objectified",
+	 * i.e. json_encoded and then json_decoded
+	 * this is useful because we json encode everything sent to the server
+	 */
 	protected function assertEqualsObject( $object_1, $object_2, $message = null ) {
 		$this->assertEquals( $this->objectify( $object_1 ), $this->objectify( $object_2 ), $message );
 	}

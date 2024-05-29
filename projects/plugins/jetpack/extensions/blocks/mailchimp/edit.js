@@ -3,9 +3,10 @@ import {
 	getBlockIconComponent,
 } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import { useCallback, useEffect, useState } from 'react';
 import metadata from './block.json';
 import Body from './body';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED, API_STATE_LOADING } from './constants';
@@ -16,13 +17,14 @@ import { UserConnectedPlaceholder, UserNotConnectedPlaceholder } from './placeho
 const icon = getBlockIconComponent( metadata );
 
 export const MailchimpSubscribeEdit = ( {
-	className,
 	attributes,
 	setAttributes,
 	notices,
 	noticeUI,
 	noticeOperations,
 } ) => {
+	const blockProps = useBlockProps();
+
 	const [ audition, setAudition ] = useState( null );
 	const [ connected, setConnected ] = useState( API_STATE_LOADING );
 	const [ connectURL, setConnectURL ] = useState( null );
@@ -69,12 +71,7 @@ export const MailchimpSubscribeEdit = ( {
 
 	if ( attributes.preview ) {
 		content = (
-			<Body
-				className={ className }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				audition={ audition }
-			/>
+			<Body attributes={ attributes } setAttributes={ setAttributes } audition={ audition } />
 		);
 	} else if ( connected === API_STATE_LOADING ) {
 		content = <Loader icon={ icon } notices={ notices } />;
@@ -102,21 +99,16 @@ export const MailchimpSubscribeEdit = ( {
 					setAttributes={ setAttributes }
 					setAudition={ setAudition }
 				/>
-				<Body
-					className={ className }
-					attributes={ attributes }
-					setAttributes={ setAttributes }
-					audition={ audition }
-				/>
+				<Body attributes={ attributes } setAttributes={ setAttributes } audition={ audition } />
 			</>
 		);
 	}
 
 	return (
-		<>
+		<div { ...blockProps }>
 			{ noticeUI }
 			{ content }
-		</>
+		</div>
 	);
 };
 

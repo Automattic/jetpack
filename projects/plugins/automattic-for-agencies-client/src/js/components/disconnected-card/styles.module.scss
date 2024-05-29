@@ -1,0 +1,74 @@
+@import '~@automattic/color-studio/dist/color-variables';
+
+.card {
+    padding: 160px 48px 48px;
+    display: flex;
+	flex-direction: column;
+	gap: 24px;
+
+    @media (max-width: 959px) {
+		padding: 16px;
+	}
+}
+
+.connection_status {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 16px;
+    line-height: 22px;
+    padding-bottom: 24px;
+}
+
+.connection_status--connected {
+    color: var( --jp-green-50 );
+}
+
+.connection_status--disconnected {
+    color: var( --jp-red-50 );
+}
+
+.disconnect_site_trigger {
+    display: flex;
+    justify-content: center;
+    padding: 32px;
+}
+
+.disconnect_modal {
+    max-width: 512px;
+}
+
+.disconnect_modal__error {
+    color: var( --jp-red-50 );
+    text-align: end;
+    margin-bottom: 0;
+}
+
+.disconnect_modal__actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+
+    :global {
+        .components-button {
+            --spacing-base: 16px;
+            --font-body-extra-small: 14px;
+        }
+    }
+}
+
+.disconnect_button {
+    min-width: 167px;
+}
+
+.connect-button-wrapper {
+	:global {
+		.components-button.is-primary {
+			min-width: 228px;
+		}
+	}
+
+    display: inline-flex;
+    flex-direction: column;
+    gap: 8px;
+}

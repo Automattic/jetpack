@@ -1,12 +1,10 @@
-import { getBlockIconProp } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, SelectControl } from '@wordpress/components';
 import { Fragment, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import metadata from './block.json';
 import Embed from './embed';
+import variations from './variations';
 
-const { variations } = metadata;
 const docsVariation = variations?.find( v => v.name === 'jetpack/google-docs' );
 const sheetsVariation = variations?.find( v => v.name === 'jetpack/google-sheets' );
 const slidesVariation = variations?.find( v => v.name === 'jetpack/google-slides' );
@@ -14,21 +12,21 @@ const slidesVariation = variations?.find( v => v.name === 'jetpack/google-slides
 const GOOGLE_DOCUMENT = {
 	type: 'document',
 	title: docsVariation?.title,
-	icon: getBlockIconProp( docsVariation ),
+	icon: docsVariation.icon,
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/document\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 
 const GOOGLE_SPREADSHEET = {
 	type: 'spreadsheets',
 	title: sheetsVariation?.title,
-	icon: getBlockIconProp( sheetsVariation ),
+	icon: sheetsVariation.icon,
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/spreadsheets\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 
 const GOOGLE_SLIDE = {
 	type: 'presentation',
 	title: slidesVariation?.title,
-	icon: getBlockIconProp( slidesVariation ),
+	icon: slidesVariation.icon,
 	patterns: [ /^(http|https):\/\/(docs\.google.com)\/presentation\/d\/([A-Za-z0-9_-]+).*?$/i ],
 };
 

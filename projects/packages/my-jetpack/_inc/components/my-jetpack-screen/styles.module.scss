@@ -82,6 +82,7 @@
 	display: flex;
 
 	& :global(.terms-of-service) {
+		font-size: var(--font-body-small);
 		color: var( --jp-gray-70 );
 	}
 

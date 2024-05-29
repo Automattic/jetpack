@@ -27,7 +27,7 @@ class Salesforce_Lead_Form {
 	 * Process Salesforce Lead forms
 	 *
 	 * @param int   $post_id - the post_id for the CPT that is created.
-	 * @param array $fields - Grunion_Contact_Form_Field array.
+	 * @param array $fields - Contact_Form_Field array.
 	 * @param bool  $is_spam - marked as spam by Akismet(?).
 	 * @param array $entry_values - extra fields added to from the contact form.
 	 *

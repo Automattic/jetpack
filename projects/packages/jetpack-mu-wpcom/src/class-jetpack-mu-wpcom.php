@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.24.0-alpha';
+	const PACKAGE_VERSION = '5.33.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -41,6 +41,8 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -77,6 +79,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
+		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
@@ -85,10 +88,15 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/calypso-locale-sync/sync-wp-admin-to-calypso.php';
+		require_once __DIR__ . '/features/calypso-locale-sync/sync-calypso-to-wp-admin.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-
+		// Only load the Calypsoify feature on WoA sites.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
@@ -287,6 +295,24 @@ class Jetpack_Mu_Wpcom {
 	public static function load_wpcom_simple_odyssey_stats() {
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+		}
+	}
+
+	/**
+	 * Load WPCOM Admin Interface.
+	 *
+	 * @return void
+	 */
+	public static function load_wpcom_admin_interface() {
+		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
+	}
+
+	/**
+	 * Load WPCOM Site Management widget.
+	 */
+	public static function load_wpcom_site_management_widget() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		}
 	}
 }

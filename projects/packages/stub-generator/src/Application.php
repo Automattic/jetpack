@@ -28,7 +28,7 @@ use Throwable;
  */
 class Application extends SingleCommandApplication {
 
-	const VERSION = '1.0.1-alpha';
+	const VERSION = '1.0.0';
 
 	/**
 	 * Exit code to use.
@@ -85,7 +85,7 @@ class Application extends SingleCommandApplication {
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
-		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Phan doesn't recognize the `is_callable()` check.
+		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		$definition = $this->loadDefinition( $input, $errout );

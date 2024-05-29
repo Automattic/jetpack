@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: Added compatibility with WooCommerce 8.9

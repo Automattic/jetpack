@@ -38,10 +38,11 @@ class Search_Widget extends \WP_Widget {
 	 */
 	const DEFAULT_SORT = 'relevance_desc';
 	/**
-	 * The Jetpack_Search instance.
+	 * Never used.
 	 *
 	 * @since 5.7.0
-	 * @var Jetpack_Search
+	 * @deprecated 0.44.5
+	 * @var null
 	 */
 	protected $jetpack_search;
 	/**

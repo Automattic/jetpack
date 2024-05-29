@@ -345,7 +345,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			static::$admin_menu->add_plugins_menu();
 
 			// Make sure that initial menu item is hidden.
-			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] );
+			$this->assertSame( 'hide-if-js', $submenu['plugins.php'][1][4] ?? null );
 			// Make sure that the new menu item is inserted.
 			$this->assertSame( 'https://wordpress.com/plugins/' . static::$domain, $submenu['plugins.php'][0][2] );
 			// Make sure that Installed Plugins menu item is still in place.
@@ -379,5 +379,19 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
 
 		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
+	}
+
+	/**
+	 * Tests add_jetpack_scan_menu
+	 *
+	 * @covers ::add_jetpack_menu
+	 */
+	public function test_add_jetpack_scan_submenu() {
+		global $submenu;
+
+		static::$admin_menu->add_jetpack_menu();
+		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
+
+		$this->assertContains( 'https://wordpress.com/scan/history/' . static::$domain, $links );
 	}
 }

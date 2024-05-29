@@ -457,9 +457,13 @@ class Jetpack_Gutenberg {
 		if ( ! wp_script_is( 'jetpack-blocks-assets-base-url', 'registered' ) ) {
 			// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- No actual script, so no version needed.
 			wp_register_script( 'jetpack-blocks-assets-base-url', false, array(), null, array( 'in_footer' => false ) );
+			$json_encode_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+			if ( get_option( 'blog_charset' ) === 'UTF-8' ) {
+				$json_encode_flags |= JSON_UNESCAPED_UNICODE;
+			}
 			wp_add_inline_script(
 				'jetpack-blocks-assets-base-url',
-				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'var Jetpack_Block_Assets_Base_Url=' . wp_json_encode( plugins_url( self::get_blocks_directory(), JETPACK__PLUGIN_FILE ), $json_encode_flags ) . ';',
 				'before'
 			);
 		}
@@ -725,11 +729,6 @@ class Jetpack_Gutenberg {
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-				/**
-				 * Prevent the registration of the blocks from extensions/blocks/contact-form
-				 * if the Forms package is enabled.
-				 */
-				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', true ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
@@ -745,19 +744,26 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$jetpack_social_settings = new Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings();
-			$settings                = $jetpack_social_settings->get_settings( true );
+			$social_initial_state    = $jetpack_social_settings->get_initial_state();
 
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
-				'isSocialImageGeneratorAvailable' => $settings['socialImageGeneratorSettings']['available'],
-				'isSocialImageGeneratorEnabled'   => $settings['socialImageGeneratorSettings']['enabled'],
+				'isSocialImageGeneratorAvailable' => $social_initial_state['socialImageGeneratorSettings']['available'],
+				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
 				'dismissedNotices'                => Dismissed_Notices::get_dismissed_notices(),
 				'supportedAdditionalConnections'  => $publicize->get_supported_additional_connections(),
-				'autoConversionSettings'          => $settings['autoConversionSettings'],
+				'autoConversionSettings'          => $social_initial_state['autoConversionSettings'],
 				'jetpackSharingSettingsUrl'       => esc_url_raw( admin_url( 'admin.php?page=jetpack#/sharing' ) ),
+				'userConnectionUrl'               => esc_url_raw( admin_url( 'admin.php?page=my-jetpack#/connection' ) ),
+				'useAdminUiV1'                    => $social_initial_state['useAdminUiV1'],
 			);
+
+			// Add connectionData if we are using the new Connection UI.
+			if ( $social_initial_state['useAdminUiV1'] ) {
+				$initial_state['social']['connectionData'] = $social_initial_state['connectionData'];
+			}
 		}
 
 		wp_localize_script(

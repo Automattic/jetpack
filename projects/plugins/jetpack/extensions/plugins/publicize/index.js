@@ -28,7 +28,7 @@ export const name = 'publicize';
 const PublicizeSettings = () => {
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( name );
-	const { isSocialImageGeneratorAvailable, isPublicizeEnabled } = usePublicizeConfig();
+	const { isSocialImageGeneratorAvailable } = usePublicizeConfig();
 
 	let children = null;
 	let panels = null;
@@ -49,7 +49,7 @@ const PublicizeSettings = () => {
 				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
-				{ isSocialImageGeneratorAvailable && isPublicizeEnabled && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 			</>
 		);
 		panels = (

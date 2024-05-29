@@ -1,9 +1,11 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -32,9 +34,9 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 /**
  * Make it easier to register a Jetpack Boost Data-Sync option.
  *
- * @param $key    string - The key for this option.
- * @param $parser Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser - The schema for this option.
- * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry|null - The entry handler for this option.
+ * @param string                                                           $key - The key for this option.
+ * @param \Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser                $parser - The schema for this option.
+ * @param \Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get|null $entry - The entry handler for this option.
  */
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
@@ -44,13 +46,13 @@ function jetpack_boost_register_option( $key, $parser, $entry = null ) {
 /**
  * Register a new Jetpack Boost Data_Sync Action
  *
- * @param $key         string
- * @param $action_name string
- * @param $instance    Data_Sync_Action
+ * @param string           $key
+ * @param string           $action_name
+ * @param Schema_Parser    $request_schema
+ * @param Data_Sync_Action $instance
  *
  * @return void
  */
-
 function jetpack_boost_register_action( $key, $action_name, $request_schema, $instance ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 			->register_action( $key, $action_name, $request_schema, $instance );
@@ -64,7 +66,7 @@ function jetpack_boost_register_readonly_option( $key, $callback ) {
 }
 
 /**
- * @param $key
+ * @param string $key
  *
  * @return Data_Sync_Entry
  */
@@ -379,3 +381,4 @@ jetpack_boost_register_option(
 );
 
 jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
+jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ) );

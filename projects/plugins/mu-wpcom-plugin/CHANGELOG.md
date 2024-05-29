@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.28 - 2024-05-27
+### Changed
+- Internal updates.
+
+## 2.1.27 - 2024-05-20
+### Changed
+- Internal updates.
+
+## 2.1.26 - 2024-05-16
+### Changed
+- Updated package dependencies. [#37348]
+
+## 2.1.25 - 2024-05-14
+### Changed
+- Internal updates.
+
+## 2.1.24 - 2024-05-13
+### Changed
+- Internal updates.
+
+## 2.1.23 - 2024-05-13
+### Changed
+- Internal updates.
+
+## 2.1.22 - 2024-05-09
+### Changed
+- Internal updates.
+
+## 2.1.21 - 2024-05-06
+### Changed
+- Update formalized dependencies in Scheduled Updates. [#37008]
+
+## 2.1.20 - 2024-04-29
+### Changed
+- Internal updates.
+
+## 2.1.19 - 2024-04-29
+### Changed
+- Internal updates.
+
+## 2.1.18 - 2024-04-26
+### Changed
+- Internal updates.
+
+## 2.1.17 - 2024-04-25
+### Changed
+- Internal updates.
+
+## 2.1.16 - 2024-04-22
+### Changed
+- Internal updates.
+
+## 2.1.15 - 2024-04-15
+### Changed
+- Internal updates.
+
 ## 2.1.14 - 2024-04-08
 ### Changed
 - Updated package dependencies. [#36775]

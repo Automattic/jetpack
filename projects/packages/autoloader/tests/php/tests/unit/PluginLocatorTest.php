@@ -40,8 +40,7 @@ class PluginLocatorTest extends TestCase {
 	 */
 	public function set_up() {
 		$this->path_processor = $this->getMockBuilder( Path_Processor::class )->getMock();
-		// @phan-suppress-next-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
-		$this->locator = new Plugin_Locator( $this->path_processor );
+		$this->locator        = new Plugin_Locator( $this->path_processor );
 	}
 
 	/**
@@ -60,7 +59,7 @@ class PluginLocatorTest extends TestCase {
 	public function test_finds_current_plugin() {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
-			->with( TEST_PLUGIN_DIR, array() ) // @phan-suppress-current-line PhanTypeMismatchArgument -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( TEST_PLUGIN_DIR, array() )
 			->willReturn( TEST_PLUGIN_DIR );
 
 		$path = $this->locator->find_current_plugin();
@@ -74,7 +73,7 @@ class PluginLocatorTest extends TestCase {
 	public function test_finds_current_plugin_throws_exception_when_not_autoloaded() {
 		$this->path_processor->expects( $this->once() )
 			->method( 'find_directory_with_autoloader' )
-			->with( TEST_PLUGIN_DIR, array() ) // @phan-suppress-current-line PhanTypeMismatchArgument -- PHPUnit 9.6 declares the wrong type for this method.
+			->with( TEST_PLUGIN_DIR, array() )
 			->willReturn( false );
 
 		$this->expectExceptionMessage( 'Failed to locate plugin' );
@@ -96,9 +95,11 @@ class PluginLocatorTest extends TestCase {
 		);
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'test/test.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'test/test.php' )
+				)
 			)
 			->willReturn( false );
 
@@ -118,9 +119,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current/dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current/dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -142,9 +145,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current/dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current/dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -166,9 +171,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 'dummy_current/dummy_current.php' ),
-				array( 123456 )
+			->with(
+				...with_consecutive(
+					array( 'dummy_current/dummy_current.php' ),
+					array( 123456 )
+				)
 			)
 			->willReturnOnConsecutiveCalls( WP_PLUGIN_DIR . '/dummy_current', false );
 
@@ -256,9 +263,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current\\dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current\\dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 
@@ -279,9 +288,11 @@ class PluginLocatorTest extends TestCase {
 
 		$this->path_processor->expects( $this->exactly( 2 ) )
 			->method( 'find_directory_with_autoloader' )
-			->withConsecutive(
-				array( 0 ),
-				array( 'dummy_current\\dummy_current.php' )
+			->with(
+				...with_consecutive(
+					array( 0 ),
+					array( 'dummy_current\\dummy_current.php' )
+				)
 			)
 			->willReturnOnConsecutiveCalls( false, WP_PLUGIN_DIR . '/dummy_current' );
 

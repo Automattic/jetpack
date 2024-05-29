@@ -21,7 +21,7 @@
 		overflow: hidden;
 	}
 }
-  
+
 .newsletter-colapsable {
 	grid-template-rows: 1fr;
 	transition: grid-template-rows 500ms;
@@ -37,20 +37,34 @@
 			overflow: hidden;
 		}
 		grid-template-rows: 0fr;
-    }
+	}
 }
 
 .newsletter-card-colapsable {
-    transition: max-height 500ms;
-    max-height: 60px;
-        
-    &.hide {
-        max-height: 0px;
-        overflow: hidden;
-    }
+	transition: max-height 500ms;
+	max-height: 60px;
+
+	&.hide {
+		max-height: 0px;
+		overflow: hidden;
+	}
 }
 
 .newsletter-categories-toggle-wrapper {
 	display: flex;
 	margin-bottom: 16px;
+}
+
+.jp-form-settings-group.newsletter-group .sender-name {
+	--vertical-gutter: 8px;
+}
+
+.sender-name-example {
+	font-size: var( --font-body-small );
+	color: var( --jp-gray-20 );
+	margin-top: 8px;
+}
+
+#jp-settings-subscriptions .jp-form-fieldset:not(:first-of-type) {
+	margin-top: 24px;
 }

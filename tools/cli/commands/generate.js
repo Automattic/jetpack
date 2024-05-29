@@ -377,10 +377,17 @@ async function generatePluginFromStarter( projDir, answers ) {
 	} );
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
-		if ( file ) {
+		if ( file && ! file.startsWith( 'changelog/' ) ) {
 			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 		}
 	} );
+
+	// Initialize changelog dir.
+	mergeDirs(
+		fileURLToPath( new URL( '../skeletons/common/changelog', import.meta.url ) ),
+		path.join( projDir, 'changelog' ),
+		answers.name
+	);
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
@@ -949,7 +956,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.3\n' +
+		'Requires at least: 6.4\n' +
 		'Requires PHP: 7.0\n' +
 		'Tested up to: 6.5\n' +
 		`Stable tag: ${ answers.version }\n` +

@@ -25,18 +25,16 @@ class Plugin_Storage {
 	const PLUGINS_DISABLED_OPTION_NAME = 'jetpack_connection_disabled_plugins';
 
 	/**
+	 * Transient name used as flag to indicate that the active connected plugins list needs refreshing.
+	 */
+	const ACTIVE_PLUGINS_REFRESH_FLAG = 'jetpack_connection_active_plugins_refresh';
+
+	/**
 	 * Whether this class was configured for the first time or not.
 	 *
 	 * @var boolean
 	 */
 	private static $configured = false;
-
-	/**
-	 * Refresh list of connected plugins upon intialization.
-	 *
-	 * @var boolean
-	 */
-	private static $refresh_connected_plugins = false;
 
 	/**
 	 * Connected plugins.
@@ -64,11 +62,6 @@ class Plugin_Storage {
 	 */
 	public static function upsert( $slug, array $args = array() ) {
 		self::$plugins[ $slug ] = $args;
-
-		// if plugin is not in the list of active plugins, refresh the list.
-		if ( ! array_key_exists( $slug, (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
-			self::$refresh_connected_plugins = true;
-		}
 
 		return true;
 	}
@@ -167,6 +160,44 @@ class Plugin_Storage {
 			return;
 		}
 
+		self::$configured = true;
+
+		add_action( 'update_option_active_plugins', array( __CLASS__, 'set_flag_to_refresh_active_connected_plugins' ) );
+
+		self::maybe_update_active_connected_plugins();
+	}
+
+	/**
+	 * Set a flag to indicate that the active connected plugins list needs to be updated.
+	 * This will happen when the `active_plugins` option is updated.
+	 *
+	 * @see configure
+	 */
+	public static function set_flag_to_refresh_active_connected_plugins() {
+		set_transient( self::ACTIVE_PLUGINS_REFRESH_FLAG, time() );
+	}
+
+	/**
+	 * Determine if we need to update the active connected plugins list.
+	 */
+	public static function maybe_update_active_connected_plugins() {
+		$maybe_error = self::ensure_configured();
+
+		if ( $maybe_error instanceof WP_Error ) {
+			return;
+		}
+		// Only attempt to update the option if the corresponding flag is set.
+		if ( ! get_transient( self::ACTIVE_PLUGINS_REFRESH_FLAG ) ) {
+			return;
+		}
+		// Only attempt to update the option on POST requests.
+		// This will prevent the option from being updated multiple times due to concurrent requests.
+		if ( ! ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) ) {
+			return;
+		}
+
+		delete_transient( self::ACTIVE_PLUGINS_REFRESH_FLAG );
+
 		if ( is_multisite() ) {
 			self::$current_blog_id = get_current_blog_id();
 		}
@@ -175,11 +206,9 @@ class Plugin_Storage {
 		// self::$plugins is populated in Config::ensure_options_connection().
 		$number_of_plugins_differ = count( self::$plugins ) !== count( (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
 
-		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
+		if ( $number_of_plugins_differ ) {
 			self::update_active_plugins_option();
 		}
-
-		self::$configured = true;
 	}
 
 	/**
@@ -188,7 +217,7 @@ class Plugin_Storage {
 	 * @return void
 	 */
 	public static function update_active_plugins_option() {
-		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
+		// Note: Since this option is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
 		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
 
 		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {

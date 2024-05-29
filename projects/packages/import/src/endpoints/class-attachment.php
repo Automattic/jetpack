@@ -211,7 +211,7 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * Prepares a single attachment for create or update. This function overrides the parent function
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return stdClass|WP_Error Post object.
+	 * @return \stdClass|WP_Error Post object.
 	 */
 	protected function prepare_item_for_database( $request ) {
 		$prepared_attachment = parent::prepare_item_for_database( $request );

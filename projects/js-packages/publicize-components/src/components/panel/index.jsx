@@ -59,7 +59,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 									  )
 							}
 							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled }
+							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
 						/>
 					) }

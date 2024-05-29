@@ -2,6 +2,45 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.53.5] - 2024-05-23
+### Changed
+- Updated package dependencies. [#36964]
+
+## [0.53.4] - 2024-05-22
+### Changed
+- Internal updates.
+
+## [0.53.3] - 2024-05-16
+### Added
+- Social | Wired up confirmation UI with connect button [#37295]
+
+### Changed
+- Updated package dependencies. [#37379]
+- Updated package dependencies. [#37380]
+- Updated package dependencies. [#37382]
+
+## [0.53.2] - 2024-05-13
+### Added
+- Added --jp-gray-5 as an alias of --jp-gray to the theme [#37327]
+
+### Fixed
+- Fixed notices z-index for global notices when modal is open [#37196]
+
+## [0.53.1] - 2024-05-09
+### Added
+- Added GlobalNotices component and useGlobalNotices hook [#37286]
+
+## [0.53.0] - 2024-05-08
+### Added
+- Social: Added add connection modal [#37211]
+
+### Changed
+- Jetpack Backup: Add a LoadingPlaceholder while waiting for Jetpack Backup price [#37238]
+
+## [0.52.1] - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
 ## [0.52.0] - 2024-04-11
 ### Added
 - Added connected card to the A4A plugin. [#36747]
@@ -1008,6 +1047,13 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.53.5]: https://github.com/Automattic/jetpack-components/compare/0.53.4...0.53.5
+[0.53.4]: https://github.com/Automattic/jetpack-components/compare/0.53.3...0.53.4
+[0.53.3]: https://github.com/Automattic/jetpack-components/compare/0.53.2...0.53.3
+[0.53.2]: https://github.com/Automattic/jetpack-components/compare/0.53.1...0.53.2
+[0.53.1]: https://github.com/Automattic/jetpack-components/compare/0.53.0...0.53.1
+[0.53.0]: https://github.com/Automattic/jetpack-components/compare/0.52.1...0.53.0
+[0.52.1]: https://github.com/Automattic/jetpack-components/compare/0.52.0...0.52.1
 [0.52.0]: https://github.com/Automattic/jetpack-components/compare/0.51.0...0.52.0
 [0.51.0]: https://github.com/Automattic/jetpack-components/compare/0.50.5...0.51.0
 [0.50.5]: https://github.com/Automattic/jetpack-components/compare/0.50.4...0.50.5

@@ -19,3 +19,12 @@
 		grid-column: 2;
 	}
 }
+
+.connection-management {
+	grid-column: span 2;
+	justify-self: flex-start;
+
+	@media ( min-width: 600px ) {
+		grid-column: 2;
+	}
+}

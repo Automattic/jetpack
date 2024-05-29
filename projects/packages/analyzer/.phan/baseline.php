@@ -10,23 +10,21 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 30+ occurrences
-    // PhanTypeMismatchArgument : 10+ occurrences
-    // PhanUndeclaredClassMethod : 9 occurrences
+    // PhanTypeMismatchArgument : 8 occurrences
     // PhanPossiblyUndeclaredVariable : 7 occurrences
     // PhanParamSignatureMismatch : 6 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 6 occurrences
-    // PhanUndeclaredTypeParameter : 6 occurrences
+    // PhanUndeclaredClassMethod : 6 occurrences
+    // PhanUndeclaredMethod : 6 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
-    // PhanUndeclaredMethod : 4 occurrences
+    // PhanUndeclaredTypeParameter : 4 occurrences
     // PhanDeprecatedEncapsVar : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginDuplicateCatchStatementBody : 2 occurrences
     // PhanTypeMismatchDeclaredParam : 2 occurrences
     // PhanUndeclaredClassStaticProperty : 2 occurrences
-    // PhanUnextractableAnnotationElementName : 2 occurrences
-    // PhanUnextractableAnnotationSuffix : 2 occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
@@ -41,7 +39,6 @@ return [
         'scripts/jetpack-slurper.php' => ['PhanDeprecatedEncapsVar'],
         'scripts/jetpack-svn.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'src/Declarations/class-declaration.php' => ['PhanUndeclaredProperty'],
-        'src/Declarations/class-visitor.php' => ['PhanTypeMismatchArgument'],
         'src/Differences/class-class-const-missing.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
         'src/Differences/class-class-const-moved.php' => ['PhanTypeMismatchArgument'],
         'src/Differences/class-class-method-deprecated.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchReturnProbablyReal'],
@@ -57,7 +54,7 @@ return [
         'src/class-declarations.php' => ['PhanPluginDuplicateCatchStatementBody'],
         'src/class-differences.php' => ['PhanNonClassMethodCall', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable'],
         'src/class-invocations.php' => ['PhanPluginDuplicateCatchStatementBody'],
-        'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredClassMethod', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter', 'PhanUnextractableAnnotationElementName', 'PhanUnextractableAnnotationSuffix'],
+        'src/class-utils.php' => ['PhanTypeMismatchArgument', 'PhanUndeclaredMethod', 'PhanUndeclaredProperty', 'PhanUndeclaredTypeParameter'],
         'src/class-warnings.php' => ['PhanUndeclaredMethod'],
         'src/diff-generator.php' => ['PhanDeprecatedEncapsVar'],
     ],

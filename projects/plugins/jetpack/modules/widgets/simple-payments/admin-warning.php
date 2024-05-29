@@ -1,3 +1,14 @@
+<?php
+/**
+ * Display the Pay with PayPal Form.
+ *
+ * @html-template Jetpack_Simple_Payments_Widget::form
+ * @package automattic/jetpack
+ */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
+?>
 <div class='jetpack-simple-payments-disabled-error'>
 	<p>
 		<?php

@@ -14,10 +14,10 @@ class Utils {
 	/**
 	 * Build a VideoPress video URL based on the guid and block attributes.
 	 *
-	 * @param {string} $guid       - Video GUID.
-	 * @param {array}  $attributes - Video block attributes. Default is an empty array.
+	 * @param string $guid       - Video GUID.
+	 * @param array  $attributes - Video block attributes. Default is an empty array.
 	 *
-	 * @return {string} VideoPress video URL with the specified attributes.
+	 * @return string VideoPress video URL with the specified attributes.
 	 */
 	public static function get_video_press_url( $guid, $attributes = array() ) {
 		if ( ! $guid ) {

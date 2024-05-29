@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -1477,7 +1478,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @param  string $search SQL where clause.
 	 *
-	 * @return array          Filtered SQL where clause.
+	 * @return string         Filtered SQL where clause.
 	 */
 	public function personal_data_search_filter( $search ) {
 		global $wpdb;
@@ -1487,7 +1488,7 @@ class Contact_Form_Plugin {
 		 * author's email address whenever it's on a line by itself.
 		 */
 		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
-			$search = $wpdb->prepare(
+			$search = (string) $wpdb->prepare(
 				" AND (
 					{$wpdb->posts}.post_content LIKE %s
 					OR {$wpdb->posts}.post_content LIKE %s

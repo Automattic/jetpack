@@ -43,7 +43,7 @@ class Tus_Client {
 	/** @const string Base API Uri */
 	const BASE_API_URL = 'https://public-api.wordpress.com/rest/v1.1/video-uploads/%d';
 
-	/** @var Cacheable */
+	/** @var Tus_Abstract_Cache */
 	protected $cache;
 
 	/** @var string */
@@ -121,7 +121,7 @@ class Tus_Client {
 	/**
 	 * Get cache.
 	 *
-	 * @return Cacheable
+	 * @return Tus_Abstract_Cache
 	 */
 	public function get_cache() {
 		return $this->cache;

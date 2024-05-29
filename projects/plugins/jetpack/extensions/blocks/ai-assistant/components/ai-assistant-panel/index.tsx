@@ -5,7 +5,7 @@ import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { BlockIcon } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import type { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,9 +14,9 @@ import './style.scss';
 /**
  * Block sidebar Pannel
  *
- * @returns {React.ReactElement} The component's elements.
+ * @returns {ReactElement} The component's elements.
  */
-export default function AiAssistantPanel(): React.ReactElement {
+export default function AiAssistantPanel(): ReactElement {
 	return (
 		<PanelBody
 			title={ __( 'AI Assistant', 'jetpack' ) }
