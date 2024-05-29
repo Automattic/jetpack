@@ -49,7 +49,7 @@ class Premium_Features {
 		// Prepare a list of features after applying jetpack_boost_has_feature_* filter for each feature.
 		foreach ( $all_features as $feature ) {
 			/**
-			 * Filter the feature list to disable some features.
+			 * Filter the availability of a feature
 			 *
 			 * @param bool $has_feature if the feature is available
 			 *
