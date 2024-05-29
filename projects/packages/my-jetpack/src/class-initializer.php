@@ -78,8 +78,6 @@ class Initializer {
 			return;
 		}
 
-		self::setup_historically_active_jetpack_modules_sync();
-
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 
@@ -519,6 +517,7 @@ class Initializer {
 			'jetpack_user_authorized',
 			'jetpack_before_unlinking_user',
 			'activated_plugin',
+			'my_jetpack_init',
 		);
 
 		foreach ( $actions as $action ) {
@@ -579,7 +578,7 @@ class Initializer {
 			// If the module has been disabled due to a manual user action,
 			// or because of a missing plan error, remove it from the array
 			if ( in_array( $status, $disabled_module_statuses, true ) ) {
-				$historically_active_modules = array_diff( $historically_active_modules, array( $product_slug ) );
+				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}
 
