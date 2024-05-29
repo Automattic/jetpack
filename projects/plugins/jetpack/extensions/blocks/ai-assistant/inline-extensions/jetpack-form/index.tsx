@@ -1,7 +1,7 @@
 /**
  * External
  */
-import { parse } from '@wordpress/blocks';
+import { parse, serialize } from '@wordpress/blocks';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -20,7 +20,9 @@ export class JetpackFormHandler extends BlockHandler {
 	currentListOfValidBlocks = [];
 
 	constructor( clientId: string ) {
-		super( clientId, [], 'action' );
+		super( clientId, [] );
+		this.behavior = 'action';
+		this.feature = 'jetpack-form-ai-extension';
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {
@@ -118,6 +120,23 @@ export class JetpackFormHandler extends BlockHandler {
 			// Reset the list of valid blocks after the request is done.
 			this.currentListOfValidBlocks = [];
 		}
+	}
+
+	public getContent() {
+		const block = this.getBlock();
+		if ( ! block ) {
+			return '';
+		}
+
+		const { innerBlocks } = block;
+
+		if ( ! innerBlocks?.length ) {
+			return '';
+		}
+
+		return innerBlocks.reduce( ( acc, innerBlock ) => {
+			return acc + serialize( innerBlock ) + '\n\n';
+		}, '' );
 	}
 
 	public onSuggestion( suggestion: string ): void {

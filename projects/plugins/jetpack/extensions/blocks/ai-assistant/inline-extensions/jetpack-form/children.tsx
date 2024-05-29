@@ -5,8 +5,9 @@ export class JetpackChildrenFormHandler extends BlockHandler {
 	jetpackFormBlockName = 'jetpack/contact-form';
 
 	constructor( clientId: string ) {
-		super( clientId, [], null, true );
+		super( clientId, [] );
 		this.behavior = this.handleBehavior;
+		this.childrenBlock = true;
 	}
 
 	handleBehavior = ( { context } ) => {

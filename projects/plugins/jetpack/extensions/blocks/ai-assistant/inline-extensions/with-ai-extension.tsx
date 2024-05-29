@@ -41,6 +41,7 @@ const blockExtensionMapper = {
 	'core/paragraph': 'paragraph',
 	'core/list-item': 'list-item',
 	'core/list': 'list',
+	'jetpack/contact-form': 'form-ai',
 };
 
 // Defines where the block controls should be placed in the toolbar
