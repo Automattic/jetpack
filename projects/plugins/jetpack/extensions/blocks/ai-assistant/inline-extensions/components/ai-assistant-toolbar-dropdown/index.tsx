@@ -4,18 +4,19 @@
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ToolbarButton, Dropdown } from '@wordpress/components';
+import React, { useCallback, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
 import AiAssistantToolbarDropdownContent from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import { InlineExtensionsContext } from '../../get-block-handler';
 /*
  * Types
  */
-import { BlockBehavior } from '../../types';
 import type { OnRequestSuggestion } from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
+import type { BlockBehavior } from '../../types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
@@ -72,6 +73,7 @@ export default function AiAssistantExtensionToolbarDropdown( {
 	onRequestSuggestion,
 }: AiAssistantExtensionToolbarDropdownProps ): ReactElement {
 	const { tracks } = useAnalytics();
+	const inlineExtensionsContext = useContext( InlineExtensionsContext );
 
 	const toggleHandler = useCallback(
 		( isOpen: boolean ) => {
@@ -112,7 +114,7 @@ export default function AiAssistantExtensionToolbarDropdown( {
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				const handleClick = () => {
 					if ( typeof behavior === 'function' ) {
-						behavior( { onToggle, onAskAiAssistant } );
+						behavior( { onToggle, onAskAiAssistant, context: inlineExtensionsContext } );
 						return;
 					}
 
