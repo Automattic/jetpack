@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import FoldingElement from '../folding-element/folding-element';
 import { ErrorSet, getPrimaryErrorSet } from '../lib/critical-css-errors';
 import { CriticalCssState } from '../lib/stores/critical-css-state-types';
@@ -78,6 +78,13 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 						) : (
 							<>
 								<p>{ showRetry ? firstTimeError : secondTimeError }</p>
+								<p>
+									{ sprintf(
+										/* translators: %s: error message */
+										__( `Error: %s`, 'jetpack-boost' ),
+										cssState.status_error
+									) }
+								</p>
 								{ showRetry ? (
 									<button className="secondary" onClick={ retry }>
 										{ __( 'Refresh', 'jetpack-boost' ) }
