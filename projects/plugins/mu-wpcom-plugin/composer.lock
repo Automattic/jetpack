@@ -1217,7 +1217,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
+                "reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1226,7 +1226,6 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-identity-crisis": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "brain/monkey": "2.6.1",
