@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true,
+		"source.fixAll.eslint": "always"
 	},
 	"files.exclude": {
 		"**/.cache/**": true,
@@ -12,7 +12,7 @@
 		"**/CVS/**": true,
 		"**/jetpack_vendor/**": true,
 		"**/node_modules/**": true,
-		"**/vendor/**": true,
+		"**/vendor/**": true
 	},
 	"intelephense.files.exclude": [
 		"**/.cache/**",
@@ -25,7 +25,7 @@
 		"**/packages/**/wordpress/**",
 		"**/projects/**/wordpress/**",
 		"**/plugins/**/wordpress/**",
-		"**/vendor/**",		
+		"**/vendor/**"
 	],
 	"phpCodeSniffer.autoExecutable": true,
 	"phpCodeSniffer.standard": "Automatic",
@@ -35,7 +35,7 @@
 		"**/.hg/**",
 		"**/.cache/**",
 		"**/jetpack_vendor/**",
-		"**/vendor/**",
+		"**/vendor/**"
 	],
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }
