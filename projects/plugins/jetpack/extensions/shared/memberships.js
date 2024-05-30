@@ -44,28 +44,24 @@ export function showModal( url ) {
 	dialog.setAttribute( 'aria-live', 'polite' );
 
 	const iframe = document.createElement( 'iframe' );
+	iframe.setAttribute( 'frameborder', '0' );
+	iframe.setAttribute( 'allowtransparency', 'true' );
+	iframe.setAttribute( 'allowfullscreen', 'true' );
 
 	iframe.addEventListener( 'load', function () {
 		dialog.classList.remove( 'is-loading' );
 		dialog.setAttribute( 'aria-busy', 'false' );
 	} );
 
-	const inputLanguage = document.querySelector( 'input[name="lang"]' );
-	let siteLanguage = null;
-	if ( inputLanguage ) {
-		siteLanguage = inputLanguage.value;
-	}
 	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
 	iframe.innerText =
 		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
 	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+
+	const siteLanguage = document.querySelector( 'input[name="lang"]' )?.value;
 	if ( siteLanguage ) {
 		iframe.src = iframe.src + '&lang=' + siteLanguage;
 	}
-	iframe.setAttribute( 'frameborder', '0' );
-	iframe.setAttribute( 'allowtransparency', 'true' );
-	iframe.setAttribute( 'allowfullscreen', 'true' );
-
 	document.body.appendChild( dialog );
 	dialog.appendChild( iframe );
 
