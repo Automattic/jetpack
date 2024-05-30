@@ -244,7 +244,6 @@ class Notices {
 	/**
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
-	 * @since jetpack-$$next-version$$
 	 * @since $$next-version$$
 	 *
 	 * @param string $message Error message.
