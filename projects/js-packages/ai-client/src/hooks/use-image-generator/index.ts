@@ -5,7 +5,6 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
@@ -86,77 +85,10 @@ This is the post content:
 	return imageGenerationPrompt + truncateContent( postContent, imageGenerationPrompt.length );
 };
 
-/**
- * Create the Stable Diffusion pre-processing prompt based on the provided context.
- * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
- * @returns {string} the prompt string to be fed to the AI Assistant model.
- */
-const getStableDiffusionPreProcessingPrompt = (
-	postContent: string,
-	userPrompt?: string
-): string => {
-	/**
-	 * If the user provide some custom prompt for the image generation,
-	 * we will use it and add the post content as additional context.
-	 */
-	if ( userPrompt ) {
-		const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post based on this user-provided image description:
-
-${ userPrompt.length > 1000 ? userPrompt.substring( 0, 1000 ) : userPrompt }
-
-The image should be a photo. Make sure you highlight the main suject of the image description, and include brief details about the light and style of the image.
-Include a request to use high resolution and produce a highly detailed image, with sharp focus.
-Return just the prompt, without comments.
-
-For additional context, this is the post content:
-
-`;
-		// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
-		return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
-	}
-
-	/**
-	 * When the user does not provide a custom prompt, we will use the
-	 * standard one, based solely on the post content.
-	 */
-	const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post with the following content.
-The image should be a photo. Make sure you highlight the main suject of the content, and include brief details about the light and style of the image.
-Include a request to use high resolution and produce a highly detailed image, with sharp focus.
-Return just the prompt, without comments. The content is:
-
-`;
-
-	// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
-	return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
-};
-
-/**
- * Uses the Jetpack AI query endpoint to produce a prompt for the stable diffusion model.
- * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
- * @param {string} feature - the feature to be used for the image generation.
- * @returns {string} the prompt string to be used on stable diffusion image generation.
- */
-const getStableDiffusionImageGenerationPrompt = async (
-	postContent: string,
-	userPrompt?: string,
-	feature?: string
-): Promise< string > => {
-	const prompt = getStableDiffusionPreProcessingPrompt( postContent, userPrompt );
-
-	/**
-	 * Request the prompt on the AI Assistant endpoint
-	 */
-	const data = await askQuestionSync( prompt, { feature } );
-
-	return data.choices?.[ 0 ]?.message?.content;
-};
-
 const useImageGenerator = () => {
-	const executeImageGeneration = async function ( parameters: {
-		[ key: string ]: string;
-	} ): Promise< ImageGenerationResponse > {
+	const executeImageGeneration = async function (
+		parameters: object
+	): Promise< ImageGenerationResponse > {
 		let token = '';
 
 		try {
@@ -204,16 +136,19 @@ const useImageGenerator = () => {
 		try {
 			debug( 'Generating image with Stable Diffusion' );
 
-			const prompt = await getStableDiffusionImageGenerationPrompt(
-				postContent,
-				userPrompt,
-				feature
-			);
-
 			const parameters = {
-				prompt,
+				messages: [
+					{
+						role: 'jetpack-ai',
+						context: {
+							type: 'featured-image-generation',
+							content: postContent,
+							request: userPrompt ? userPrompt : null,
+							model: 'stable-diffusion',
+						},
+					},
+				],
 				feature,
-				model: 'stable-diffusion',
 				style: 'photographic',
 			};
 
