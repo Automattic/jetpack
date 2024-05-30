@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+AI Featured Image: use backend prompt structure on the image generator hook.
