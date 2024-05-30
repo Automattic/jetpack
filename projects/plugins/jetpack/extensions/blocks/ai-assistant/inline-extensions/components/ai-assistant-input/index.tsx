@@ -21,6 +21,7 @@ import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetp
 import type { ReactElement, MouseEvent } from 'react';
 
 export type AiAssistantInputProps = {
+	className?: string;
 	requestingState: RequestingStateProp;
 	requestingError?: RequestingErrorProps;
 	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
@@ -34,12 +35,13 @@ export type AiAssistantInputProps = {
 	tryAgain?: () => void;
 };
 
-const className = classNames(
+const defaultClassNames = classNames(
 	'jetpack-ai-assistant-extension-ai-input',
 	'wp-block' // Some themes, like Twenty Twenty, use this class to set the element's side margins.
 );
 
 export default function AiAssistantInput( {
+	className,
 	requestingState,
 	requestingError,
 	inputRef,
@@ -156,7 +158,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			className={ className }
+			className={ classNames( defaultClassNames, className ) }
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }

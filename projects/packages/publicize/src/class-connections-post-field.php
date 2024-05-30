@@ -132,6 +132,18 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'external_id'     => array(
+					'description' => __( 'The external ID of the connected account', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'can_disconnect'  => array(
+					'description' => __( 'Whether the current user can disconnect this connection', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}
@@ -202,6 +214,9 @@ class Connections_Post_Field {
 
 			$output_connection['id']            = (string) $connection['unique_id'];
 			$output_connection['connection_id'] = (string) $connection['id'];
+
+			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
+			$output_connection['shared']         = $connection['global'];
 
 			$output_connections[] = $output_connection;
 		}

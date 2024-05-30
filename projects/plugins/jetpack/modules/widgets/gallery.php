@@ -329,6 +329,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	/**
 	 * Outputs the widget settings form.
 	 *
+	 * @html-template-var array $instance
+	 * @html-template-var array<string,array<string|int,string|int>> $allowed_values
+	 *
 	 * @param array $instance Current settings.
 	 */
 	public function form( $instance ) {

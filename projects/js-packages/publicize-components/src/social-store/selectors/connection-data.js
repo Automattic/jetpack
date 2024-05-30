@@ -18,7 +18,19 @@ export function getConnections( state ) {
  * @returns {import("../types").Connection | undefined} The connection.
  */
 export function getConnectionById( state, connectionId ) {
-	return getConnections( state ).find( connection => connection.id === connectionId );
+	return getConnections( state ).find( connection => connection.connection_id === connectionId );
+}
+
+/**
+ * Returns connections by service name/ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} serviceName - The service name.
+ *
+ * @returns {Array<import("../types").Connections>} The connections.
+ */
+export function getConnectionsByService( state, serviceName ) {
+	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
 }
 
 /**
@@ -149,6 +161,20 @@ export function isCreatingConnection( state ) {
 }
 
 /**
+ * Whether a mastodon account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} username - The mastodon username.
+ *
+ * @returns {boolean} Whether the mastodon account is already connected.
+ */
+export function isMastodonAccountAlreadyConnected( state, username ) {
+	return getConnectionsByService( state, 'mastodon' ).some( connection => {
+		return connection.external_display === username;
+	} );
+}
+
+/**
  * Returns the services list from the store.
  *
  * @param {import("../types").SocialStoreState} state - State object.
@@ -157,4 +183,15 @@ export function isCreatingConnection( state ) {
  */
 export function getServices( state ) {
 	return state.connectionData?.services ?? [];
+}
+
+/**
+ * Returns the latest KeyringResult from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {import("../types").KeyringResult} The KeyringResult
+ */
+export function getKeyringResult( state ) {
+	return state.connectionData?.keyringResult;
 }

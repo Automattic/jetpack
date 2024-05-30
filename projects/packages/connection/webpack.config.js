@@ -6,12 +6,14 @@ const ssoEntries = {};
 // Add all js files in the src/sso directory.
 for ( const file of glob.sync( './src/sso/*.js' ) ) {
 	const name = path.basename( file, path.extname( file ) );
-	ssoEntries[ name ] = file;
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
 }
 // Add all css files as well.
 for ( const file of glob.sync( './src/sso/*.css' ) ) {
 	const name = path.basename( file, path.extname( file ) );
-	ssoEntries[ name ] = file;
+	ssoEntries[ name ] ??= [];
+	ssoEntries[ name ].push( file );
 }
 
 module.exports = [
@@ -25,6 +27,7 @@ module.exports = [
 					type: 'window',
 				},
 			},
+			'identity-crisis': './src/identity-crisis/_inc/admin.jsx',
 			...ssoEntries,
 		},
 		mode: jetpackWebpackConfig.mode,
@@ -51,11 +54,23 @@ module.exports = [
 				// Transpile JavaScript, including node_modules.
 				jetpackWebpackConfig.TranspileRule(),
 
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css' ],
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
 				} ),
 			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'identity_crisis',
+			} ),
 		},
 	},
 ];

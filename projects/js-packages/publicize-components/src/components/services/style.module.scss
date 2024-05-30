@@ -163,7 +163,7 @@
 
 
 	.disconnect {
-		&:global(.components-button) {
+		&:global(.components-button.is-tertiary) {
 			font-size: 1rem;
 			font-weight: 400;
 			color: var(--jp-gray-50);
@@ -191,11 +191,6 @@
 			font-size: 14px;
 		}
 	}
-}
-
-.mark-shared-wrap {
-	display: flex;
-	gap: 0.5rem;
 }
 
 .mark-shared-wrap {

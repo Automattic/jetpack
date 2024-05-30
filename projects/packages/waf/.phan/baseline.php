@@ -48,7 +48,6 @@ return [
         'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
         'tests/php/integration/test-waf-compatibility.php' => ['PhanParamTooMany'],
-        'tests/php/integration/test-waf-unsupported-environment.php' => ['PhanTypeMismatchArgument'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment'],

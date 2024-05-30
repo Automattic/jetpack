@@ -1,4 +1,3 @@
-import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -117,7 +116,11 @@ function NewsletterCategories( props ) {
 						disabled={ disabled }
 						checked={ isNewsletterCategoriesEnabled }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }
-						label={ __( 'Enable newsletter categories', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable newsletter categories', 'jetpack' ) }
+							</span>
+						}
 					/>
 				</div>
 				<div
