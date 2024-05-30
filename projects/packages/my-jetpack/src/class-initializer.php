@@ -515,7 +515,7 @@ class Initializer {
 			'jetpack_site_before_disconnected',
 			'jetpack_site_registered',
 			'jetpack_user_authorized',
-			'jetpack_before_unlinking_user',
+			'jetpack_unlinked_user',
 			'activated_plugin',
 			'my_jetpack_init',
 		);
