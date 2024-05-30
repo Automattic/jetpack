@@ -261,7 +261,6 @@ class Notices {
 		 *
 		 * @module sso
 		 *
-		 * @since jetpack-$$next-version$$
 		 * @since $$next-version$$
 		 *
 		 * @param string $error Error text.
