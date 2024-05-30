@@ -22,14 +22,14 @@ export function handleIframeResult( eventFromIframe ) {
 			window.removeEventListener( 'message', handleIframeResult );
 			const dialog = document.getElementById( 'memberships-modal-window' );
 			dialog.close();
-			document.body.classList.remove( 'modal-open' );
+			document.body.classList.remove( 'jetpack-memberships-modal-open' );
 		}
 	}
 }
 
 export function showModal( url ) {
 	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
-	document.body.classList.add( 'modal-open' );
+	document.body.classList.add( 'jetpack-memberships-modal-open' );
 
 	const existingModal = document.getElementById( 'memberships-modal-window' );
 	if ( existingModal ) {
@@ -38,8 +38,18 @@ export function showModal( url ) {
 
 	const dialog = document.createElement( 'dialog' );
 	dialog.setAttribute( 'id', 'memberships-modal-window' );
+	dialog.classList.add( 'jetpack-memberships-modal' );
+	dialog.classList.add( 'is-loading' );
+	dialog.setAttribute( 'aria-busy', 'true' );
+	dialog.setAttribute( 'aria-live', 'polite' );
 
 	const iframe = document.createElement( 'iframe' );
+
+	iframe.addEventListener( 'load', function () {
+		dialog.classList.remove( 'is-loading' );
+		dialog.setAttribute( 'aria-busy', 'false' );
+	} );
+
 	const inputLanguage = document.querySelector( 'input[name="lang"]' );
 	let siteLanguage = null;
 	if ( inputLanguage ) {
@@ -55,7 +65,6 @@ export function showModal( url ) {
 	iframe.setAttribute( 'frameborder', '0' );
 	iframe.setAttribute( 'allowtransparency', 'true' );
 	iframe.setAttribute( 'allowfullscreen', 'true' );
-	dialog.classList.add( 'jetpack-memberships-modal' );
 
 	document.body.appendChild( dialog );
 	dialog.appendChild( iframe );

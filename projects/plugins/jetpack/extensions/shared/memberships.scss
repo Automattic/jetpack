@@ -1,51 +1,70 @@
 /* Additional styling to thickbox that displays modal */
 /* stylelint-disable selector-max-id */
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.jetpack-memberships-modal #TB_title {
-	display: none;
-}
-
-#memberships-modal-window.jetpack-memberships-modal,
-#TB_window.jetpack-memberships-modal {
-	background-color: transparent;
-	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
-	background-size: 50px;
-	background-repeat: no-repeat;
-	background-position: center 150px;
-	margin: 0 !important;
-	box-shadow: none;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	border: none;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	top: 0;
-	width: 100% !important;
-	height: 100%;
-}
-
-#memberships-modal-window.jetpack-memberships-modal {
-	padding: 21px;
-}
-
-.jetpack-memberships-modal #TB_iframeContent,
-.jetpack-memberships-modal #memberships-modal-iframe {
-	margin: 0 !important;
-	height: 100% !important;
-	width: 100% !important;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
-/* This is a class added by Thickbox on open modals. */
-BODY.modal-open {
+body.jetpack-memberships-modal-open {
 	overflow: hidden;
 }
 
-dialog::backdrop {
-	background-color: #000;
-	opacity: 0.7;
+dialog.jetpack-memberships-modal {
+	padding: 21px;
+
+	&, iframe {
+		position: absolute;
+		margin: 0;
+		height: 100%;
+		width: 100%;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+
+		box-shadow: none;
+		border: 0;
+		background: transparent;
+	}
+
+	&.is-loading {
+		// Animate the modal appearing on the page.
+		animation: jetpack-memberships-modal__appear-animation 0.3s ease-out;
+		animation-fill-mode: forwards;
+		@include reduce-motion( 'animation' );
+
+		max-height: 400px;
+		max-width: 400px;
+
+		top: 50%;
+		left: 50%;
+		right: auto;
+		bottom: auto;
+		transform: translateX(-50%) translateY(-50%);
+
+		// Below styles match what we have inside the iframe
+		// @TODO: remove styles from inside iframe and rely only on below styles
+		box-shadow: 0 3px 9px rgba(0, 0, 0, 0.4);
+
+		border-radius: 4px;
+
+		background-color: #fff;
+		background-image: url(./spinner.svg);
+		background-size: 25px;
+		background-repeat: no-repeat;
+		background-position: center center;
+	}
+
+	&::backdrop {
+		background-color: #000;
+		opacity: 0.7;
+	}
+}
+
+@keyframes jetpack-memberships-modal__appear-animation {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) translateY(-40%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) translateY(-50%);
+	}
 }
