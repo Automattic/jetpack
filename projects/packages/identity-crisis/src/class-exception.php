@@ -3,7 +3,7 @@
  * Exception class for the Identity Crisis package.
  *
  * @package  automattic/jetpack-identity-crisis
- * @deprecated $$next-version$$
+ * @deprecated 0.21.0
  * @see \Automattic\Jetpack\IdentityCrisis\Exception
  */
 
