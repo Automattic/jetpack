@@ -69,6 +69,10 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		if ( in_array( $module_slug, $slugs, true ) ) {
 			$this->invalidate_cache();
 		}
+
+		if ( $module_slug === 'page_cache' && ! $status ) {
+			Page_Cache_Setup::delete_advanced_cache();
+		}
 	}
 
 	public function invalidate_cache() {
