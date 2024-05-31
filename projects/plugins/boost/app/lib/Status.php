@@ -42,7 +42,7 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
 		$this->status_sync_map = array(
-			Cloud_CSS::class => array(
+			Cloud_CSS::get_slug() => array(
 				Critical_CSS::class,
 			),
 		);
@@ -106,7 +106,7 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$mapped_status = new Status( $mapped_module );
+			$mapped_status = new Status( new $mapped_module() );
 			$mapped_status->update( $new_status );
 		}
 

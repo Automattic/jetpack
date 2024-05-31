@@ -58,7 +58,7 @@ class Boost_Health {
 	}
 
 	private static function is_critical_css_enabled() {
-		return ( new Status( Critical_CSS::class ) )->is_enabled();
+		return ( new Status( new Critical_CSS() ) )->is_enabled();
 	}
 
 	/**
@@ -94,7 +94,7 @@ class Boost_Health {
 	 * @return bool True if the cache engine is not loading, false otherwise.
 	 */
 	public static function cache_engine_not_loading() {
-		if ( ! ( new Status( Page_Cache::class ) )->is_enabled() ) {
+		if ( ! ( new Status( new Page_Cache() ) )->is_enabled() ) {
 			return false;
 		}
 
