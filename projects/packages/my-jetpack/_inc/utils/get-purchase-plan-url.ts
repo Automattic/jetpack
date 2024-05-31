@@ -18,16 +18,17 @@ const getPurchasePlanUrl = () => {
 		lifecycleStats,
 	} = getMyJetpackWindowInitialState();
 
-	const { isSiteConnected } = lifecycleStats;
+	const { isSiteConnected, isUserConnected } = lifecycleStats;
 
-	// If site is not connected, we will send the user to the purchase page without a site in context.
-	const redirectID = isSiteConnected
-		? MY_JETPACK_MY_PLANS_PURCHASE_SOURCE
-		: MY_JETPACK_MY_PLANS_PURCHASE_NO_SITE_SOURCE;
+	// If site or user is not connected, we will send the user to the purchase page without a site in context.
+	const redirectID =
+		isSiteConnected && isUserConnected
+			? MY_JETPACK_MY_PLANS_PURCHASE_SOURCE
+			: MY_JETPACK_MY_PLANS_PURCHASE_NO_SITE_SOURCE;
 
 	const getUrlArgs = () => {
 		const query = myJetpackCheckoutUri ? `redirect_to=${ myJetpackCheckoutUri }` : null;
-		if ( ! isSiteConnected ) {
+		if ( ! isSiteConnected || ! isUserConnected ) {
 			return {
 				query,
 			};
