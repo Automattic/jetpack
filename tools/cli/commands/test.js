@@ -154,7 +154,15 @@ async function runTest( argv ) {
 			renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 		}
 	);
-	await installer.run();
+	await installer.run().catch( err => {
+		console.error( err );
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
+		process.exit( err.exitCode || 1 );
+	} );
 
 	console.log( chalk.green( `Running ${ argv.testScript } tests for ${ argv.project }` ) );
 	const res = child_process.spawnSync( 'composer', [ 'run', '--timeout=0', argv.testScript ], {

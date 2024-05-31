@@ -122,16 +122,15 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 2.0.0 - 2024-02-07
+### 2.1.0 - 2024-05-23
 #### Added
-- Allow users to select price as default sorting option for search
-- Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group.
+- Trigger a red bubble notification when bad plugin install is detected.
 
 #### Changed
-- General: indicate full compatibility with the latest version of WordPress, 6.4.
-- General: update WordPress version requirements to WordPress 6.3.
-- General: updated PHP requirement to PHP 7.0+
-
+- Update WordPRess tested version to 6.5.
+- Update minimum WordPress version requirement to WordPress 6.4.
+- Only show installation errors on the plugins page.
+- Show My Jetpack link on the plugins page even if the plugin is not installed.
 
 == Testimonials ==
 

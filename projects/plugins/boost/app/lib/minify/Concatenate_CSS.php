@@ -34,6 +34,13 @@ class Concatenate_CSS extends WP_Styles {
 		}
 
 		$this->dependency_path_mapping = new Dependency_Path_Mapping(
+			/**
+			 * Filter the URL of the site the plugin will be concatenating CSS or JS on
+			 *
+			 * @param string $url URL of the page with CSS or JS to concatonate.
+			 *
+			 * @since   1.0.0
+			 */
 			apply_filters( 'page_optimize_site_url', $this->base_url )
 		);
 	}
@@ -41,7 +48,14 @@ class Concatenate_CSS extends WP_Styles {
 	public function do_items( $handles = false, $group = false ) {
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$stylesheets = array();
-		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
+		/**
+		 * Filter the URL of the site the plugin will be concatenating CSS or JS on
+		 *
+		 * @param string $url URL of the page with CSS or JS to concatonate.
+		 *
+		 * @since   1.0.0
+		 */
+		$siteurl = apply_filters( 'page_optimize_site_url', $this->base_url );
 
 		$this->all_deps( $handles );
 
@@ -52,7 +66,15 @@ class Concatenate_CSS extends WP_Styles {
 		$stylesheets[ $concat_group ] = array();
 
 		foreach ( $this->to_do as $key => $handle ) {
-			$obj      = $this->registered[ $handle ];
+			$obj = $this->registered[ $handle ];
+			/**
+			 * Filter the style source URL
+			 *
+			 * @param string $url URL of the page with CSS or JS to concatonate.
+			 * @param string $handle handle to CSS file.
+			 *
+			 * @since   1.0.0
+			 */
 			$obj->src = apply_filters( 'style_loader_src', $obj->src, $obj->handle );
 
 			// Core is kind of broken and returns "true" for src of "colors" handle
@@ -124,12 +146,27 @@ class Concatenate_CSS extends WP_Styles {
 				}
 			}
 
-			// Allow plugins to disable concatenation of certain stylesheets.
+			/**
+			 * Filter that allows plugins to disable concatenation of certain stylesheets.
+			 *
+			 * @param bool $do_concat if true, then perform concatenation
+			 * @param string $handle handle to CSS file
+			 *
+			 * @since   1.0.0
+			 */
 			if ( $do_concat && ! apply_filters( 'css_do_concat', $do_concat, $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat CSS %s => Filtered `false` -->\n", esc_html( $handle ) );
 				}
 			}
+			/**
+			 * Filter that allows plugins to disable concatenation of certain stylesheets.
+			 *
+			 * @param bool $do_concat if true, then perform concatenation
+			 * @param string $handle handle to CSS file
+			 *
+			 * @since   1.0.0
+			 */
 			$do_concat = apply_filters( 'css_do_concat', $do_concat, $handle );
 
 			if ( true === $do_concat ) {
@@ -192,10 +229,28 @@ class Concatenate_CSS extends WP_Styles {
 					$style_tag = "<link rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
 				}
 
+				/**
+				 * Filter the style loader HTML tag for page optimize.
+				 *
+				 * @param string $style_tag style loader tag
+				 * @param array $handles handles of CSS files
+				 * @param string $href link to CSS file
+				 * @param string $media media attribute of the link.
+				 *
+				 * @since   1.0.0
+				 */
 				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
 
-				// Allow manipulation of the stylesheet tag.
-				// For example - making it deferred when using with Critical CSS.
+				/**
+				 * Filter the stylesheet tag. For example: making it deferred when using Critical CSS.
+				 *
+				 * @param string $style_tag stylesheet tag
+				 * @param array $handles handles of CSS files
+				 * @param string $href link to CSS file
+				 * @param string $media media attribute of the link.
+				 *
+				 * @since   1.0.0
+				 */
 				$style_tag = apply_filters( 'style_loader_tag', $style_tag, implode( ',', $handles ), $href, $media );
 
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

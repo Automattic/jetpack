@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Define some paths.
+src_react_dir=src/react
+dest_react_dir=build/react
+
+# Start in the right folder.
+root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$root_dir"
+
+# Make dir if it doesn't exist.
+mkdir -p "$dest_react_dir"
+
+# Build files using TypeScript.
+pnpm tsc
+
+# Output.
+echo "Created React files in '$dest_react_dir'."

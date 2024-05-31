@@ -100,27 +100,33 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.2.0 - 2024-04-11
+### 4.3.0 - 2024-05-29
 #### Added
-- Added functions to display share urls
-- Added options and UI for link formatting
-- Added support for comments on Social Notes
-- Packages: add version tracking for identity-crisis package.
-- Trigger red bubble notification when bad install is detected
+- Add connect form/button for connection management
+- Added a CTA button to create a social note
+- Added and rendered GlobalNotices component
+- Added feature flag for new social admin ui
+- Added more E2E tests
+- Added the connection modal to the editor
+- Add Woocommerce event remove_order_items to Jetpack Sync
+- Disabled the Note config toggles while the API calls are pending
+- Social: Added add connection modal
+- Social Admin page: Added connection management component
+- Social Limits: Added clarification of cycle reset
 
 #### Changed
-- Allow multiple paragraphs for Social Notes
-- Only show custom media picker for normal posts
-- Only show installation errors on plugins page
-- Removed the featured image block from the template
-- Simplified social network selection for post sharing
-- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775]
-- Update to the most recent version of Color Studio, 2.6.0.
-- Update to the most recent version of the @automattic/calypso-color-schemes package.
+- General: update WordPress version requirements to WordPress 6.4.
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
+- Remove explicit Plugin Install package dependency.
+- Remove the 'jetpack-identity-crisis' dependency.
+- Social | Updated the connection test results endpoint for front-end
+- Updated package dependencies.
+- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection.
 
 #### Fixed
-- Fixed typos
-- Prevent enqueuing of admin styles on the frontend
+- Adjusted the webpack config so the social icon colours are picked up by PostCSS
+- Fixed CSS variables not loaded for modals on Social admin page
+- Fixed timeouts in E2E tests
 
 == Upgrade Notice ==
 

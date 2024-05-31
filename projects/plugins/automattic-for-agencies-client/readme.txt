@@ -39,29 +39,13 @@ If you would like to disconnect a site or check if the site is connected correct
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.1.0 - 2024-04-30
+### 0.2.0 - 2024-05-28
 #### Added
-- Added connected state content and site disconnection flow.
-- Added connection card
-- Added details about sharing information with Automattic to the connection card.
-- Added reconnection flow to the A4A client plugin.
-- Add Woocommerce event remove_order_items to Jetpack Sync
-- General: add first version of the plugin's readme and assets.
-- General: add modal displayed when deactivating the plugin.
-- Initial commit for the plugin’s infrastructure.
-- Packages: add version tracking for identity-crisis package.
+- Add autotagger and autorelease to composer.json to enable auto-tagging and auto-release actions
 
 #### Changed
-- General: update WordPress version requirements to WordPress 6.4.
-- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
-- Updated details about sharing data with WordPress.com
-- Updated package dependencies.
-- Updated package dependencies.
-- Updated package dependencies.
 - Updated package dependencies.
 
 #### Removed
-- Removed the Jetpack-branded header and footer from the plugin.
+- Remove the Plugin Installer package dependency.
 
-#### Fixed
-- Fix post-connection redirect URL.

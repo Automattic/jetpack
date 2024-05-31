@@ -328,7 +328,7 @@ class Jetpack_Social {
 		$initial_state = array(
 			'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 			'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-			'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
+			'connectionRefreshPath'           => ! empty( $social_state['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results',
 			'resharePath'                     => '/jetpack/v4/publicize/{postId}',
 			'publicizeConnectionsUrl'         => esc_url_raw(
 				'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='

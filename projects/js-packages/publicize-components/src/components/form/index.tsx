@@ -6,6 +6,7 @@
  * sharing message.
  */
 
+import { Button } from '@automattic/jetpack-components';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
@@ -21,6 +22,7 @@ import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conve
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
+import { ManageConnectionsModalWithTrigger as ManageConnectionsModal } from '../manage-connections-modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
@@ -29,6 +31,7 @@ import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
+import styles from './styles.module.scss';
 import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 import { ValidationNotice } from './validation-notice';
 
@@ -50,10 +53,11 @@ export default function PublicizeForm() {
 		userConnectionUrl,
 	} = usePublicizeConfig();
 
-	const { numberOfSharesRemaining } = useSelect( select => {
+	const { numberOfSharesRemaining, useAdminUiV1 } = useSelect( select => {
+		const store = select( socialStore );
 		return {
-			showShareLimits: select( socialStore ).showShareLimits(),
-			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
+			numberOfSharesRemaining: store.numberOfSharesRemaining(),
+			useAdminUiV1: store.useAdminUiV1(),
 		};
 	}, [] );
 
@@ -139,14 +143,25 @@ export default function PublicizeForm() {
 						if ( ! hasConnections ) {
 							return (
 								<p>
-									{ __(
-										'Sharing is disabled because there are no social media accounts connected.',
-										'jetpack'
+									<span className={ styles[ 'no-connections-text' ] }>
+										{ __(
+											'Sharing is disabled because there are no social media accounts connected.',
+											'jetpack'
+										) }
+									</span>
+									{ useAdminUiV1 ? (
+										<ManageConnectionsModal
+											trigger={
+												<Button variant="secondary" size="small">
+													{ __( 'Connect an account', 'jetpack' ) }
+												</Button>
+											}
+										/>
+									) : (
+										<ExternalLink href={ connectionsAdminUrl }>
+											{ __( 'Connect an account', 'jetpack' ) }
+										</ExternalLink>
 									) }
-									<br />
-									<ExternalLink href={ connectionsAdminUrl }>
-										{ __( 'Connect an account', 'jetpack' ) }
-									</ExternalLink>
 								</p>
 							);
 						}

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.32.0-alpha';
+	const PACKAGE_VERSION = '5.33.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -42,6 +42,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -92,7 +93,10 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-
+		// Only load the Calypsoify feature on WoA sites.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
@@ -301,5 +305,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_admin_interface() {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
+	}
+
+	/**
+	 * Load WPCOM Site Management widget.
+	 */
+	public static function load_wpcom_site_management_widget() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
+		}
 	}
 }
