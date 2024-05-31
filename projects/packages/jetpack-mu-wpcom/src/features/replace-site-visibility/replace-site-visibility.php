@@ -25,17 +25,20 @@ function replace_site_visibility() {
 	}
 
 	$jetpack_status = new Automattic\Jetpack\Status();
+	$site_slug      = $jetpack_status->get_site_suffix();
 
 	if ( ! is_jetpack_connected() && $jetpack_status->is_private_site() ) {
-		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
+		$manage_label = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
 	} elseif ( ! is_jetpack_connected() ) {
-		$escaped_content = __( 'Jetpack is disconnected. Connect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
+		$manage_label = __( 'Jetpack is disconnected. Connect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
 	} else {
-		$site_slug       = $jetpack_status->get_site_suffix();
-		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
-		$manage_label    = __( 'Manage your site visibility settings', 'jetpack-mu-wpcom' );
-		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
+		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+		$manage_label = __( 'Manage your site visibility settings', 'jetpack-mu-wpcom' );
 	}
+
+	$escaped_content = '<a href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
 
 	?>
 <noscript>
