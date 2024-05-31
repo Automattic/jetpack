@@ -31,8 +31,7 @@ function replace_site_visibility() {
 		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
 		$manage_label = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
 	} elseif ( ! is_jetpack_connected() ) {
-		$settings_url = esc_url_raw( sprintf( '/wp-admin/admin.php?page=jetpack' ) );
-		$manage_label = __( 'Jetpack is disconnected. Connect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+		return;
 	} else {
 		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
 		$manage_label = __( 'Manage your site visibility settings', 'jetpack-mu-wpcom' );
