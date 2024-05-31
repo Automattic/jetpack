@@ -3,7 +3,7 @@
  */
 import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { Icon, cloudUpload } from '@wordpress/icons';
+import { Icon, captureVideo } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -47,7 +47,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				onChange={ handleFileInputChangeEvent }
 				multiple={ hasVideoPressPurchase }
 			/>
-			<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) } />
+			<Icon icon={ captureVideo } size={ 32 } className={ classnames( styles.icon ) } />
 			<Text variant="title-small">
 				{ __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
 			</Text>

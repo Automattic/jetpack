@@ -64,7 +64,8 @@ export class BlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
-	public onDone(): void {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public onDone( suggestion: string ): void {
 		this.firstUpdate = true;
 	}
 

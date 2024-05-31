@@ -14,7 +14,7 @@ export type BlockBehavior = 'dropdown' | 'action' | CustomBlockBehavior;
 
 export interface IBlockHandler {
 	onSuggestion: OnSuggestion;
-	onDone: () => void;
+	onDone: ( suggestion: string ) => void;
 	getContent: () => string;
 	behavior: BlockBehavior;
 	childrenBlock?: boolean;
