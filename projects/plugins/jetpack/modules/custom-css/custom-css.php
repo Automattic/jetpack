@@ -1013,6 +1013,10 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return boolean
 	 */
 	public static function is_start_fresh_option_enabled() {
+		if ( wp_is_block_theme() ) {
+			return false;
+		}
+
 		$start_fresh = null;
 
 		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
