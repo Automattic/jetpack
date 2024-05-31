@@ -266,7 +266,6 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'setup_free',
 				'design_selected',
 				'domain_upsell',
-				'first_post_published',
 				'design_edited',
 				'site_launched',
 			),

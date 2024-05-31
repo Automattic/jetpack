@@ -23,15 +23,15 @@ import './style.scss';
  */
 const ManageConnectionDialog = props => {
 	const {
-		title,
+		title = __( 'Manage your Jetpack connection', 'jetpack' ),
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
 		onDisconnected,
-		context,
-		connectedUser,
+		context = 'jetpack-dashboard',
+		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
-		isOpen,
+		isOpen = false,
 		onClose,
 	} = props;
 
@@ -207,13 +207,6 @@ ManageConnectionDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-};
-
-ManageConnectionDialog.defaultProps = {
-	title: __( 'Manage your Jetpack connection', 'jetpack' ),
-	isOpen: false,
-	context: 'jetpack-dashboard',
-	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default ManageConnectionDialog;

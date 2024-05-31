@@ -7,12 +7,14 @@
 		"php": ">=7.0",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
-		"automattic/scheduled-updates": "@dev"
+		"automattic/scheduled-updates": "@dev",
+		"automattic/jetpack-compat": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -57,7 +59,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.29.x-dev"
+			"dev-trunk": "5.33.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

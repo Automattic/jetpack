@@ -158,17 +158,15 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 2.1.0-beta - 2024-03-14
+### 2.2.0 - 2024-05-24
 #### Added
-- Added onboarding flows.
-- Added firewall standalone mode indicator.
+- Add data to WAF logs and a toggle for users to opt-in to share more data with us if needed.
+- Trigger a red bubble notification when a bad install is detected.
 
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress, 6.5.
-- Use blog ID instead of site slug in checkout links.
-- Updated package dependencies.
-- Updated package lockfile.
+- Update WordPress minimum version requirement to WordPress 6.4.
+- Only show installation errors on the plugins page.
 
 #### Fixed
-- Prevent text orphans in the site scanning header.
+- Jetpack Protect Footer: ensure that "Go to cloud" links are not shown when on a platform with no firewall support.
 

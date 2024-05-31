@@ -9,10 +9,9 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-plugin-deactivation": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
-		"automattic/jetpack-sync": "@dev"
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -73,6 +72,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_1_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_2_1_alpha"
 	}
 }

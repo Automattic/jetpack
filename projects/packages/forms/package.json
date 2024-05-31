@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.31.2",
+	"version": "0.31.4",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -33,15 +33,15 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@wordpress/block-editor": "12.24.0",
-		"@wordpress/blocks": "12.33.0",
-		"@wordpress/compose": "6.33.0",
-		"@wordpress/core-data": "6.33.0",
-		"@wordpress/data": "9.26.0",
-		"@wordpress/element": "5.33.0",
-		"@wordpress/hooks": "3.56.0",
-		"@wordpress/i18n": "4.56.0",
-		"@wordpress/icons": "9.47.0",
+		"@wordpress/block-editor": "12.25.0",
+		"@wordpress/blocks": "12.34.0",
+		"@wordpress/compose": "6.34.0",
+		"@wordpress/core-data": "6.34.0",
+		"@wordpress/data": "9.27.0",
+		"@wordpress/element": "5.34.0",
+		"@wordpress/hooks": "3.57.0",
+		"@wordpress/i18n": "4.57.0",
+		"@wordpress/icons": "9.48.0",
 		"classnames": "2.3.2",
 		"copy-webpack-plugin": "11.0.0",
 		"email-validator": "2.0.4",
@@ -64,12 +64,12 @@
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.24.0",
 		"@babel/runtime": "7.24.0",
-		"@testing-library/dom": "9.3.4",
-		"@wordpress/api-fetch": "6.53.0",
-		"@wordpress/babel-plugin-import-jsx-pragma": "4.39.0",
-		"@wordpress/browserslist-config": "5.39.0",
-		"@wordpress/components": "27.4.0",
-		"@wordpress/date": "4.56.0",
+		"@testing-library/dom": "10.1.0",
+		"@wordpress/api-fetch": "6.54.0",
+		"@wordpress/babel-plugin-import-jsx-pragma": "4.40.0",
+		"@wordpress/browserslist-config": "5.40.0",
+		"@wordpress/components": "27.5.0",
+		"@wordpress/date": "4.57.0",
 		"autoprefixer": "10.4.14",
 		"concurrently": "7.6.0",
 		"glob": "7.1.6",
@@ -83,7 +83,7 @@
 		"typescript": "5.0.4"
 	},
 	"optionalDependencies": {
-		"react": "18.2.0",
-		"react-dom": "18.2.0"
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	}
 }

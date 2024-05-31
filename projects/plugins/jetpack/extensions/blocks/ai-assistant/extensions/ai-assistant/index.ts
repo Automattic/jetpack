@@ -26,21 +26,46 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
 );
 
-// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
-export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[];
-export let EXTENDED_INLINE_BLOCKS: string[];
+// The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
+export const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
 
-if ( isAiAssistantExtensionsSupportEnabled ) {
-	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list' ];
-	EXTENDED_INLINE_BLOCKS = [ 'core/heading' ];
-} else {
-	EXTENDED_TRANSFORMATIVE_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
-	EXTENDED_INLINE_BLOCKS = [];
-}
+// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
+export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];
+export const EXTENDED_INLINE_BLOCKS: string[] = [];
+
+// Temporarily keep track of inline extensions that have been released to production.
+const releasedInlineExtensions = [
+	'core/heading',
+	'core/paragraph',
+	'core/list-item',
+	'core/list',
+];
+// Temporarily keep track of inline extensions that are being worked on.
+const unreleasedInlineExtensions = [];
+
+releasedInlineExtensions.forEach( block => {
+	// Add the released inline extension to the inline list...
+	EXTENDED_INLINE_BLOCKS.push( block );
+	// ...and remove it from the transformative list.
+	EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
+} );
+
+unreleasedInlineExtensions.forEach( block => {
+	if ( isAiAssistantExtensionsSupportEnabled ) {
+		// Add the unreleased inline extension to the inline list...
+		EXTENDED_INLINE_BLOCKS.push( block );
+		// ...and remove it from the transformative list.
+		EXTENDED_TRANSFORMATIVE_BLOCKS = EXTENDED_TRANSFORMATIVE_BLOCKS.filter( b => b !== block );
+	}
+} );
 
 // Since the lists depend on the feature flag, we need to define the types manually.
-export type ExtendedBlockProp = 'core/paragraph' | 'core/list' | 'core/heading';
-export type ExtendedInlineBlockProp = 'core/heading';
+export type ExtendedBlockProp = string;
+export type ExtendedInlineBlockProp =
+	| 'core/heading'
+	| 'core/paragraph'
+	| 'core/list-item'
+	| 'core/list';
 
 type BlockSettingsProps = {
 	supports: {

@@ -37,16 +37,16 @@
 		"@storybook/react": "8.0.9",
 		"@storybook/react-webpack5": "8.0.9",
 		"@storybook/source-loader": "8.0.9",
-		"@storybook/test-runner": "0.17.0",
+		"@storybook/test-runner": "0.18.1",
 		"@storybook/theming": "8.0.9",
-		"@wordpress/babel-preset-default": "7.40.0",
-		"@wordpress/base-styles": "4.47.0",
-		"@wordpress/block-editor": "12.24.0",
-		"@wordpress/block-library": "8.33.0",
-		"@wordpress/components": "27.4.0",
-		"@wordpress/element": "5.33.0",
-		"@wordpress/format-library": "4.33.0",
-		"@wordpress/postcss-plugins-preset": "4.40.0",
+		"@wordpress/babel-preset-default": "7.41.0",
+		"@wordpress/base-styles": "4.48.0",
+		"@wordpress/block-editor": "12.25.0",
+		"@wordpress/block-library": "8.34.0",
+		"@wordpress/components": "27.5.0",
+		"@wordpress/element": "5.34.0",
+		"@wordpress/format-library": "4.34.0",
+		"@wordpress/postcss-plugins-preset": "4.41.0",
 		"allure-playwright": "2.9.2",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -56,8 +56,8 @@
 		"mime-types": "2.1.35",
 		"postcss": "8.4.31",
 		"postcss-loader": "6.2.0",
-		"react": "18.2.0",
-		"react-dom": "18.2.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1",
 		"remark-gfm": "4.0.0",
 		"require-from-string": "2.0.2",
 		"sass": "1.64.1",
@@ -71,6 +71,6 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "6.53.0"
+		"@wordpress/api-fetch": "6.54.0"
 	}
 }

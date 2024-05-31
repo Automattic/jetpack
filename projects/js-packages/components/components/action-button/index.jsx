@@ -26,11 +26,11 @@ const ActionButton = props => {
 	const {
 		label,
 		onClick,
-		isLoading,
+		isLoading = false,
 		loadingText,
 		isDisabled,
-		displayError,
-		errorMessage,
+		displayError = false,
+		errorMessage = __( 'An error occurred. Please try again.', 'jetpack' ),
 		customClass,
 	} = props;
 
@@ -70,12 +70,6 @@ ActionButton.propTypes = {
 	displayError: PropTypes.bool,
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
-};
-
-ActionButton.defaultProps = {
-	isLoading: false,
-	displayError: false,
-	errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
 };
 
 export default ActionButton;

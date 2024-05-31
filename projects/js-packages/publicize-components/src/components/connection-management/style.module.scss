@@ -1,70 +1,123 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wrapper {
 	display: flex;
 	flex-direction: column;
 	align-items: start;
 	gap: 1.5rem;
+	width: 100%;
+	padding-top: 1rem;
 
-	.profile-link {
+	> h3 {
+		margin-block: 0;
+	}
+}
+
+.connection-name {
+	display: inline-block;
+
+	span.profile-link,
+	.profile-link:global(.components-external-link) {
 		color: inherit;
-
-		> span {
-			text-decoration: none;
-		}
-
-		&:hover {
-			text-decoration: underline;
-		}
+		text-decoration: none;
+		font-size: 1rem;
+		font-weight: 400;
 
 		>svg {
 			vertical-align: bottom;
 		}
+
+		span {
+			text-decoration: none;
+		}
 	}
-}
 
-.name {
-	font-size: 15px;
-}
+	.profile-link:global(.components-external-link):hover {
+		text-decoration: underline;
+	}
 
-.column-name {
-	width: 25rem;
-}
-
-.icon>div {
-	cursor: default;
+	span {
+		text-decoration: none;
+	}
 }
 
 .confirmDialog span {
 	font-size: 15px;
 }
 
-// Table padding
-td {
-	padding-top: 0.8rem;
-	padding-bottom: 0.8rem;
 
-	&:first-child {
-		padding-left: 1rem;
-		padding-right: 0.6rem;
-	}
-
-	&:last-child {
-		padding-right: 1rem;
-	}
-}
-
-// Table border
-table {
-	border-collapse: separate;
-	border-spacing: 0;
-	border-radius: 4px;
-	outline: 1px solid var(--jp-gray-5);
-}
-
-tr:not(:last-child)>td {
-	border-bottom: solid 1px var(--jp-gray-5);
-}
-
-.actions {
+.mark-shared-wrap {
 	display: flex;
-	justify-content: end;
+	gap: 0.5rem;
+
+	border-top: 1px solid var(--jp-gray-5);
+	padding-top: 1rem;
+
+	margin-bottom: 1rem;
+}
+
+.connection-panel.connection-panel {
+	border: 0px;
+	margin-left: 3rem;
+
+	:global(.components-panel__body) {
+		border-top: 0px;
+		border-bottom: 0px;
+		padding: 0px;
+	}
+
+	:global(.components-panel__body.is-opened) {
+		margin-top: 1rem;
+	}
+}
+
+.connection-list {
+	outline: 1px solid var(--jp-gray-5);
+	border-radius: 4px;
+	margin: 0;
+	width: 100%;
+
+	*[inert="true"] {
+		opacity: 0.7;
+	}
+
+	.connection-list-item {
+		margin-bottom: 0px;
+		padding: 1rem;
+
+		&:not(:last-child) {
+			border-bottom: 1px solid var(--jp-gray-5);
+		}
+	}
+
+	.connection-item {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.connection-item-name{
+		font-size: 1rem;
+		font-weight: 400;
+	}
+
+	.learn-more {
+		&:global(.components-button) {
+			padding-inline: 6px;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 20px;
+
+			span {
+				display: flex;
+			}
+		}
+	}
+}
+
+.connection-name-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
 }

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2024-05-27
+### Changed
+- AI Client: Add paragraph tweaks to Markdown conversion libs. [#37461]
+- AI Featured Image: add type info. [#37474]
+
+## [0.14.0] - 2024-05-20
+### Added
+- AI Client: Expose HTML render rules type. [#37386]
+- AI Featured Image: Support Stable Diffusion image generation. [#37413]
+
+### Changed
+- AI Client: Change default behavior of Message components [#37365]
+- Updated package dependencies. [#37379] [#37380]
+
 ## [0.13.1] - 2024-05-13
 ### Added
 - AI Client: Add className to AI Control component. [#37322]
@@ -314,6 +328,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.14.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.0...v0.13.1
 [0.13.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.4...v0.13.0
 [0.12.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.3...v0.12.4

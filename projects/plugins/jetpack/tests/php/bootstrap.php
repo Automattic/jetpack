@@ -6,7 +6,13 @@
  */
 
 // Catch `exit()` and `die()` so they won't make PHPUnit exit.
-require __DIR__ . '/redefine-exit.php';
+// If we're running under `jetpack docker phpunit --php`, Patchwork is located in DOCKER_PHPUNIT_BASE_DIR.
+if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
+	require_once getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) . '/vendor/antecedent/patchwork/Patchwork.php';
+} else {
+	require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+}
+\Automattic\RedefineExit::setup();
 
 /*
  * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
@@ -149,6 +155,11 @@ require $test_root . '/includes/bootstrap.php';
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require __DIR__ . '/../../modules/shortcodes.php';
+}
+
+// Load the sso module to test properly.
+if ( ! in_running_uninstall_group() ) {
+	require __DIR__ . '/../../modules/sso.php';
 }
 
 // Load attachment helper methods.

@@ -210,6 +210,11 @@ export async function handler( argv ) {
 					}
 				}
 			}
+			if ( ! argv.v ) {
+				console.error(
+					chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+				);
+			}
 			process.exit( err.exitCode || 1 );
 		} );
 }
@@ -644,16 +649,31 @@ async function buildProject( t ) {
 				}
 			}
 
-			if ( Object.keys( versions ).length > 0 ) {
-				t.output( `\n=== Munging composer.json to fetch built packages ===\n\n` );
-				composerJson.repositories.splice( idx, 0, {
-					type: 'path',
-					url: t.argv.forMirrors + '/*/*',
-					options: {
-						monorepo: true,
-						versions,
-					},
-				} );
+			if (
+				Object.keys( versions ).length > 0 ||
+				composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0
+			) {
+				t.output(
+					`\n=== Munging composer.json to fetch built packages and/or remove test-only deps ===\n\n`
+				);
+				if ( Object.keys( versions ).length > 0 ) {
+					composerJson.repositories.splice( idx, 0, {
+						type: 'path',
+						url: t.argv.forMirrors + '/*/*',
+						options: {
+							monorepo: true,
+							versions,
+						},
+					} );
+				}
+				if ( composerJson.extra?.dependencies?.[ 'test-only' ]?.length > 0 ) {
+					for ( const dep of composerJson.extra.dependencies[ 'test-only' ] ) {
+						const depName = JSON.parse(
+							await fs.readFile( `projects/${ dep }/composer.json`, { encoding: 'utf8' } )
+						).name;
+						delete composerJson[ 'require-dev' ]?.[ depName ];
+					}
+				}
 				await writeFileAtomic(
 					`${ t.cwd }/composer.json`,
 					JSON.stringify( composerJson, null, '\t' ) + '\n',

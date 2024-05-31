@@ -25,7 +25,12 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	 * Set up.
 	 */
 	public function set_up() {
-		parent::set_up();
+		parent::set_up_wordbless();
+		\WorDBless\Users::init()->clear_all_users();
+
+		// Be sure wordbless cron is reset before each test.
+		delete_option( 'cron' );
+		update_option( 'cron', array( 'version' => 2 ), 'yes' );
 
 		$this->admin_id = wp_insert_user(
 			array(
@@ -35,7 +40,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 			)
 		);
 		wp_set_current_user( 0 );
-		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -47,7 +51,6 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	 */
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
-		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 
@@ -197,9 +200,10 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 	 *
 	 * @param int $i Schedule index.
 	 */
-	private function create_test_schedule( $i = 0 ) {
+	private function create_test_schedule( $i = 1 ) {
 		$request           = new \WP_REST_Request( 'POST', '/wpcom/v2/update-schedules' );
-		$scheduled_plugins = array( 'test/test' . $i . '.php' );
+		$scheduled_plugins = array( 'gutenberg/gutenberg.php', 'installed-plugin/installed-plugin.php' );
+		$scheduled_plugins = array_slice( $scheduled_plugins, 0, $i );
 		$request->set_body_params(
 			array(
 				'plugins'  => $scheduled_plugins,

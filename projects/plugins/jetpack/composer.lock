@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "aabdf7e6c89c547ee123802392e66866",
+	"content-hash": "2719992384ec4c57a7a89eb04ed4ebbd",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -313,7 +313,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "258e48062106a087862136ce4f13ec2f9da2683b"
+				"reference": "a2ef602b09204d9d02bd06b4cc1007d2876f50f6"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -323,7 +323,6 @@
 				"automattic/jetpack-composer-plugin": "@dev",
 				"automattic/jetpack-config": "@dev",
 				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-my-jetpack": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
@@ -728,6 +727,68 @@
 			}
 		},
 		{
+			"name": "automattic/jetpack-calypsoify",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/calypsoify",
+				"reference": "10f1e08f3ac93e9c6f004d1d733443370e15334f"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-calypsoify",
+				"textdomain": "jetpack-calypsoify",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "automattic/jetpack-compat",
 			"version": "dev-trunk",
 			"dist": {
@@ -827,7 +888,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "f465e7cdeb06c75b52922d05fc5c17f7d7686a0e"
+				"reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -835,7 +896,6 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-import": "@dev",
 				"automattic/jetpack-jitm": "@dev",
 				"automattic/jetpack-post-list": "@dev",
@@ -901,7 +961,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "bba49ffca10ebb3868ca3db25ddbf34c5eb72120"
+				"reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -936,7 +996,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.8.x-dev"
+					"dev-trunk": "2.9.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -949,7 +1009,8 @@
 				"classmap": [
 					"legacy",
 					"src/",
-					"src/webhooks"
+					"src/webhooks",
+					"src/identity-crisis"
 				]
 			},
 			"scripts": {
@@ -1332,82 +1393,6 @@
 			}
 		},
 		{
-			"name": "automattic/jetpack-identity-crisis",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/identity-crisis",
-				"reference": "abd4079c124a2d3560838cf5370043763e81cccd"
-			},
-			"require": {
-				"automattic/jetpack-assets": "@dev",
-				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-constants": "@dev",
-				"automattic/jetpack-logo": "@dev",
-				"automattic/jetpack-status": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "@dev",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-identity-crisis",
-				"textdomain": "jetpack-idc",
-				"version-constants": {
-					"::PACKAGE_VERSION": "src/class-identity-crisis.php"
-				},
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "0.18.x-dev"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"build-development": [
-					"pnpm run build"
-				],
-				"build-production": [
-					"NODE_ENV='production' pnpm run build"
-				],
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"watch": [
-					"Composer\\Config::disableProcessTimeout",
-					"pnpm run watch"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Identity Crisis.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
 			"name": "automattic/jetpack-image-cdn",
 			"version": "dev-trunk",
 			"dist": {
@@ -1781,7 +1766,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "1fd5a6c11b2f1d4e7e8a1e8383ddd4fc85c5e2e6"
+				"reference": "155eb8f5b45531011bc7a61b238441293fad0342"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1816,7 +1801,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.23.x-dev"
+					"dev-trunk": "4.24.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2002,10 +1987,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/plugins-installer",
-				"reference": "bdfc2fdd83370ee884a2ba1456c3886585eac847"
+				"reference": "c244721eaf5c40706e6275ce995a1f64931d6cd8"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
@@ -2018,7 +2004,7 @@
 			"type": "jetpack-library",
 			"extra": {
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"mirror-repo": "Automattic/jetpack-plugins-installer",
 				"changelogger": {
@@ -2116,7 +2102,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "f1711a2e043a4ae86e9a812c951cd214f70d979b"
+				"reference": "aa81259deff0daab3082228052b5d74002c75a5f"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2144,7 +2130,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.44.x-dev"
+					"dev-trunk": "0.45.x-dev"
 				}
 			},
 			"autoload": {
@@ -2515,7 +2501,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "eee141b034cb8d535ac9466d8e0434c2e5053aa6"
+				"reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2524,7 +2510,6 @@
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-ip": "@dev",
 				"automattic/jetpack-plans": "@dev",
 				"brain/monkey": "2.6.1",
@@ -2541,7 +2526,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.0.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -2578,12 +2563,11 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "4415298e32ada09dc9880eb8d4ec5b979efa4889"
+				"reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-constants": "@dev",
-				"automattic/jetpack-identity-crisis": "@dev",
 				"automattic/jetpack-ip": "@dev",
 				"automattic/jetpack-password-checker": "@dev",
 				"automattic/jetpack-roles": "@dev",
@@ -2612,7 +2596,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.16.x-dev"
+					"dev-trunk": "3.0.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -3187,6 +3171,62 @@
 				"cli",
 				"dev",
 				"keepachangelog"
+			],
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/patchwork-redefine-exit",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/patchwork-redefine-exit",
+				"reference": "14e4719ada9d517ef6d15334f583fbdb65312eab"
+			},
+			"require": {
+				"antecedent/patchwork": "^2.1",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"type": "library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "1.0.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/patchwork-redefine-exit"
+			},
+			"autoload": {
+				"classmap": [
+					"src"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Use antecedent/patchwork to redefine `exit` and `die` for more robust PHPUnit testing.",
+			"keywords": [
+				"die",
+				"exit",
+				"patchwork",
+				"phpunit",
+				"redefinition",
+				"testing"
 			],
 			"transport-options": {
 				"relative": true
@@ -4989,16 +5029,16 @@
 		},
 		{
 			"name": "symfony/console",
-			"version": "v7.0.6",
+			"version": "v7.0.7",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/console.git",
-				"reference": "fde915cd8e7eb99b3d531d3d5c09531429c3f9e5"
+				"reference": "c981e0e9380ce9f146416bde3150c79197ce9986"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/console/zipball/fde915cd8e7eb99b3d531d3d5c09531429c3f9e5",
-				"reference": "fde915cd8e7eb99b3d531d3d5c09531429c3f9e5",
+				"url": "https://api.github.com/repos/symfony/console/zipball/c981e0e9380ce9f146416bde3150c79197ce9986",
+				"reference": "c981e0e9380ce9f146416bde3150c79197ce9986",
 				"shasum": ""
 			},
 			"require": {
@@ -5062,7 +5102,7 @@
 				"terminal"
 			],
 			"support": {
-				"source": "https://github.com/symfony/console/tree/v7.0.6"
+				"source": "https://github.com/symfony/console/tree/v7.0.7"
 			},
 			"funding": [
 				{
@@ -5078,7 +5118,74 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-04-01T11:04:53+00:00"
+			"time": "2024-04-18T09:29:19+00:00"
+		},
+		{
+			"name": "symfony/deprecation-contracts",
+			"version": "v3.5.0",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/symfony/deprecation-contracts.git",
+				"reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
+				"reference": "0e0d29ce1f20deffb4ab1b016a7257c4f1e789a1",
+				"shasum": ""
+			},
+			"require": {
+				"php": ">=8.1"
+			},
+			"type": "library",
+			"extra": {
+				"branch-alias": {
+					"dev-main": "3.5-dev"
+				},
+				"thanks": {
+					"name": "symfony/contracts",
+					"url": "https://github.com/symfony/contracts"
+				}
+			},
+			"autoload": {
+				"files": [
+					"function.php"
+				]
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"MIT"
+			],
+			"authors": [
+				{
+					"name": "Nicolas Grekas",
+					"email": "p@tchwork.com"
+				},
+				{
+					"name": "Symfony Community",
+					"homepage": "https://symfony.com/contributors"
+				}
+			],
+			"description": "A generic function and convention to trigger deprecation notices",
+			"homepage": "https://symfony.com",
+			"support": {
+				"source": "https://github.com/symfony/deprecation-contracts/tree/v3.5.0"
+			},
+			"funding": [
+				{
+					"url": "https://symfony.com/sponsor",
+					"type": "custom"
+				},
+				{
+					"url": "https://github.com/fabpot",
+					"type": "github"
+				},
+				{
+					"url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+					"type": "tidelift"
+				}
+			],
+			"time": "2024-04-18T09:32:20+00:00"
 		},
 		{
 			"name": "symfony/polyfill-ctype",
@@ -5400,16 +5507,16 @@
 		},
 		{
 			"name": "symfony/process",
-			"version": "v7.0.4",
+			"version": "v7.0.7",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/process.git",
-				"reference": "0e7727191c3b71ebec6d529fa0e50a01ca5679e9"
+				"reference": "3839e56b94dd1dbd13235d27504e66baf23faba0"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/process/zipball/0e7727191c3b71ebec6d529fa0e50a01ca5679e9",
-				"reference": "0e7727191c3b71ebec6d529fa0e50a01ca5679e9",
+				"url": "https://api.github.com/repos/symfony/process/zipball/3839e56b94dd1dbd13235d27504e66baf23faba0",
+				"reference": "3839e56b94dd1dbd13235d27504e66baf23faba0",
 				"shasum": ""
 			},
 			"require": {
@@ -5441,7 +5548,7 @@
 			"description": "Executes commands in sub-processes",
 			"homepage": "https://symfony.com",
 			"support": {
-				"source": "https://github.com/symfony/process/tree/v7.0.4"
+				"source": "https://github.com/symfony/process/tree/v7.0.7"
 			},
 			"funding": [
 				{
@@ -5457,25 +5564,26 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-02-22T20:27:20+00:00"
+			"time": "2024-04-18T09:29:19+00:00"
 		},
 		{
 			"name": "symfony/service-contracts",
-			"version": "v3.4.2",
+			"version": "v3.5.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/service-contracts.git",
-				"reference": "11bbf19a0fb7b36345861e85c5768844c552906e"
+				"reference": "bd1d9e59a81d8fa4acdcea3f617c581f7475a80f"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/service-contracts/zipball/11bbf19a0fb7b36345861e85c5768844c552906e",
-				"reference": "11bbf19a0fb7b36345861e85c5768844c552906e",
+				"url": "https://api.github.com/repos/symfony/service-contracts/zipball/bd1d9e59a81d8fa4acdcea3f617c581f7475a80f",
+				"reference": "bd1d9e59a81d8fa4acdcea3f617c581f7475a80f",
 				"shasum": ""
 			},
 			"require": {
 				"php": ">=8.1",
-				"psr/container": "^1.1|^2.0"
+				"psr/container": "^1.1|^2.0",
+				"symfony/deprecation-contracts": "^2.5|^3"
 			},
 			"conflict": {
 				"ext-psr": "<1.1|>=2"
@@ -5483,7 +5591,7 @@
 			"type": "library",
 			"extra": {
 				"branch-alias": {
-					"dev-main": "3.4-dev"
+					"dev-main": "3.5-dev"
 				},
 				"thanks": {
 					"name": "symfony/contracts",
@@ -5523,7 +5631,7 @@
 				"standards"
 			],
 			"support": {
-				"source": "https://github.com/symfony/service-contracts/tree/v3.4.2"
+				"source": "https://github.com/symfony/service-contracts/tree/v3.5.0"
 			},
 			"funding": [
 				{
@@ -5539,20 +5647,20 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2023-12-19T21:51:00+00:00"
+			"time": "2024-04-18T09:32:20+00:00"
 		},
 		{
 			"name": "symfony/string",
-			"version": "v7.0.4",
+			"version": "v7.0.7",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/symfony/string.git",
-				"reference": "f5832521b998b0bec40bee688ad5de98d4cf111b"
+				"reference": "e405b5424dc2528e02e31ba26b83a79fd4eb8f63"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/symfony/string/zipball/f5832521b998b0bec40bee688ad5de98d4cf111b",
-				"reference": "f5832521b998b0bec40bee688ad5de98d4cf111b",
+				"url": "https://api.github.com/repos/symfony/string/zipball/e405b5424dc2528e02e31ba26b83a79fd4eb8f63",
+				"reference": "e405b5424dc2528e02e31ba26b83a79fd4eb8f63",
 				"shasum": ""
 			},
 			"require": {
@@ -5609,7 +5717,7 @@
 				"utf8"
 			],
 			"support": {
-				"source": "https://github.com/symfony/string/tree/v7.0.4"
+				"source": "https://github.com/symfony/string/tree/v7.0.7"
 			},
 			"funding": [
 				{
@@ -5625,7 +5733,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2024-02-01T13:17:36+00:00"
+			"time": "2024-04-18T09:29:19+00:00"
 		},
 		{
 			"name": "theseer/tokenizer",
@@ -5750,6 +5858,7 @@
 		"automattic/jetpack-blaze": 20,
 		"automattic/jetpack-blocks": 20,
 		"automattic/jetpack-boost-speed-score": 20,
+		"automattic/jetpack-calypsoify": 20,
 		"automattic/jetpack-compat": 20,
 		"automattic/jetpack-composer-plugin": 20,
 		"automattic/jetpack-config": 20,
@@ -5760,7 +5869,6 @@
 		"automattic/jetpack-forms": 20,
 		"automattic/jetpack-google-analytics": 20,
 		"automattic/jetpack-google-fonts-provider": 20,
-		"automattic/jetpack-identity-crisis": 20,
 		"automattic/jetpack-image-cdn": 20,
 		"automattic/jetpack-import": 20,
 		"automattic/jetpack-ip": 20,
@@ -5782,7 +5890,8 @@
 		"automattic/jetpack-waf": 20,
 		"automattic/jetpack-wordads": 20,
 		"automattic/woocommerce-analytics": 20,
-		"automattic/jetpack-changelogger": 20
+		"automattic/jetpack-changelogger": 20,
+		"automattic/patchwork-redefine-exit": 20
 	},
 	"prefer-stable": true,
 	"prefer-lowest": false,

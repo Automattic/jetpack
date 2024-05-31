@@ -2,6 +2,66 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.5-a.5 - 2024-05-27
+### Enhancements
+- AI Assistant: Move Paragraph extension to production. [#37495]
+- Newsletter: Add "From" name setting. [#37502]
+- Newsletter: Add "Reply to" name setting. [#37362]
+- Social: Add connection management to editor. [#37405]
+- Social: Add width to connection management container. [#37490]
+
+### Improved compatibility
+- Change how Jetpack social connections are stored on the local site. [#37500]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add auto-scroll to inline extension. [#37481]
+- AI Assistant: Add paragraph inline extension. [#37461]
+- AI Assistant: Fix selected block while using the AI Assistant extension on a nested block. [#37519]
+- AI Assistant: Toggle inline AI input on Ask AI Assistant button. [#37480]
+- AI Featured Image: Add site type and image model to events being tracked on the tool. [#37474]
+- Fix settings endpoint when subscription_options is not modified. [#37190]
+- Deprecated Errors class. [#37451]
+- Jetpack AI: Open upgrade paths in new tab on every upgrade entry point. [#37457]
+- Jetpack_Currencies: Fix PHP8 fatal error in format_price when passing a string in number_format [#37530]
+- Pay with PayPal: Ensure prices are correctly formatted. [#37534]
+- Sharing button: Increase performance on p2020 theme. [#37497]
+- Social: Update the initial state fields for WP.com. [#37532]
+- Subscriptions: Add name to the overlay group block. [#37574]
+- Subscriptions: Do not clear the subscriber email when current user is empty. [#37485]
+- Subscriptions: Subscription overlay fixes. [#37503]
+- Updated package dependencies. [#36964]
+
+## 13.5-a.3 - 2024-05-20
+### Enhancements
+- AI Assistant: Enable inline Heading extension. [#37386]
+- Subscribe block: Add button-only style. [#37341]
+- Subscribe block: Allow in the Navigation block. [#37439]
+
+### Improved compatibility
+- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself. [#37394]
+
+### Bug fixes
+- Slideshow: Ensures autoplay works properly. [#37378]
+- WordAds: Prevent fatal error when post content is null. [#37384]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add some missing abstract methods to SAL_Site, and implement in Jetpack_Site. [#37344]
+- AI Assistant: Add chat history to inline extension [#37429]
+- AI Assistant: Inline extension testing feedback changes [#37365]
+- AI Featured Image: add support to Stable Diffusion image generation. [#37413]
+- Fix `SAL_Token::is_global()`. [#37344]
+- Minor typos [#37387]
+- Monetize: correctly updates and delete paid content meta. [#37346]
+- Prevent JS error when subscription module is not enabled. [#36276]
+- Remove `jetpack_server_sandbox()` and `jetpack_server_sandbox_request_parameters()`. [#37344]
+- Remove `Jetpack_User_Agent_Info::is_OperaMobile()`. [#37344]
+- SSO: Switch to loading feature from the Connection package. [#37153]
+- Subscription paywall: Simplify paid access question for logged out subscribers. [#37434]
+- Subscriptions: Add Subscribe Overlay toggle. [#37433]
+- Subscriptions: Add Welcome Overlay behind the feature flag. [#37372]
+- Subscriptions: Subscribe Overlay default tagline. [#37446]
+- Updated package dependencies. [#37348] [#37379] [#37380] [#37382]
+
 ## 13.5-a.1 - 2024-05-13
 ### Enhancements
 - SSO: Improve accessibility of tooltips on WP Admin users page. [#37302]
@@ -38,6 +98,14 @@
 - Update invite user error response logging. [#37144]
 - Update sizes and spacings on Title Optimization. [#37333]
 - WordPress.com Toolbar: Remove "My Sites" text and only display icon. [#37314]
+
+## 13.4.3 - 2024-05-16
+### Bug fixes
+- Social: Prevent multiple uncached requests for images during frontend requests. [#37368] [#37411]
+
+## 13.4.2 - 2024-05-13
+### Bug fixes
+- Tiled Gallery: Fix view rendering issues. [#37213]
 
 ## 13.4.1 - 2024-05-10
 ### Bug fixes

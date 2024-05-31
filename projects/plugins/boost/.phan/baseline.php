@@ -15,12 +15,11 @@ return [
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
     // PhanTypeMissingReturn : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
-    // PhanTypeMismatchArgument : 9 occurrences
+    // PhanTypeMismatchArgument : 8 occurrences
     // PhanParamTooMany : 7 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
-    // PhanUndeclaredClassMethod : 6 occurrences
-    // PhanUndeclaredFunction : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginUseReturnValueInternalKnown : 3 occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeMismatchPropertyDefault : 3 occurrences
@@ -39,7 +38,7 @@ return [
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanTypeSuspiciousStringExpression : 1 occurrence
+    // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
     // PhanUndeclaredFunctionInCallable : 1 occurrence
 
@@ -51,9 +50,7 @@ return [
         'app/data-sync/Performance_History_Entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
         'app/features/setup-prompt/Setup_Prompt.php' => ['PhanTypeMissingReturn'],
         'app/lib/Status.php' => ['PhanTypeArraySuspiciousNullable'],
-        'app/lib/Super_Cache_Info.php' => ['PhanUndeclaredFunction'],
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        'app/lib/class-viewport.php' => ['PhanTypeMismatchArgument'],
         'app/lib/critical-css/Critical_CSS_State.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/critical-css/Regenerate.php' => ['PhanParamTooMany'],
         'app/lib/critical-css/source-providers/providers/Archive_Provider.php' => ['PhanTypeMismatchReturnProbablyReal'],
@@ -87,13 +84,11 @@ return [
         'app/modules/performance-history/Performance_History.php' => ['PhanTypeMissingReturn'],
         'app/rest-api/permissions/Nonce.php' => ['PhanParamTooMany'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
-        'compatibility/jetpack.php' => ['PhanUndeclaredClassMethod'],
-        'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany', 'PhanUndeclaredClassMethod'],
+        'compatibility/lib/class-sync-jetpack-module-status.php' => ['PhanParamTooMany'],
         'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
         'compatibility/score-prompt.php' => ['PhanImpossibleTypeComparisonInGlobalScope', 'PhanTypeComparisonToArray'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
-        'compatibility/wp-super-cache.php' => ['PhanUndeclaredFunction'],
         'jetpack-boost.php' => ['PhanNoopNew'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
         'wp-js-data-sync.php' => ['PhanParamTooMany'],

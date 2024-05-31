@@ -26,7 +26,7 @@
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugin-deactivation": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-js-data-sync": "@dev",
 		"tedivm/jshrink": "1.4.0",

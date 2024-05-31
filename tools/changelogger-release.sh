@@ -32,6 +32,9 @@ if [[ $# -eq 0 ]]; then
 	usage
 fi
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 # Check whether it looks like a major version bump.
 #
 # 0.x -> 0.(x+1) also counts as major.
@@ -128,7 +131,7 @@ init_changelogger
 cd "$BASE/projects/$REL_SLUG"
 CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
-	proceed_p "Project $SLUG has no changes." 'Do a release anyway?'
+	proceed_p "Project $REL_SLUG has no changes." 'Do a release anyway?'
 	changelogger_add 'Internal updates.' '' --filename=force-a-release
 fi
 

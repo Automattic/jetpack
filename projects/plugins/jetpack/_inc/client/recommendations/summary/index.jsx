@@ -44,7 +44,7 @@ const SummaryComponent = props => {
 		addViewedRecommendation,
 		upsell,
 		isOnboardingActive,
-		newRecommendations,
+		newRecommendations = [],
 		stateStepSlug,
 		updatingStep,
 		updateOnboardingData,
@@ -213,10 +213,6 @@ const SummaryComponent = props => {
 			) }
 		</div>
 	);
-};
-
-SummaryComponent.defaultProps = {
-	newRecommendations: [],
 };
 
 const Summary = connect(

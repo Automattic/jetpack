@@ -30,11 +30,11 @@ const ConnectScreenRequiredPlanVisual = props => {
 		priceAfter,
 		pricingIcon,
 		pricingTitle,
-		pricingCurrencyCode,
-		isLoading,
-		handleButtonClick,
-		displayButtonError,
-		buttonIsLoading,
+		pricingCurrencyCode = 'USD',
+		isLoading = false,
+		handleButtonClick = () => {},
+		displayButtonError = false,
+		buttonIsLoading = false,
 		logo,
 		isOfflineMode,
 		rna = false,
@@ -138,14 +138,6 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	logo: PropTypes.element,
 	/** Whether the site is in offline mode. */
 	isOfflineMode: PropTypes.bool,
-};
-
-ConnectScreenRequiredPlanVisual.defaultProps = {
-	pricingCurrencyCode: 'USD',
-	isLoading: false,
-	buttonIsLoading: false,
-	displayButtonError: false,
-	handleButtonClick: () => {},
 };
 
 export default ConnectScreenRequiredPlanVisual;

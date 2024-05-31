@@ -2,23 +2,54 @@ import { globalNoticesStore } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
+	ADD_CONNECTION,
+	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
+	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
+	UPDATE_CONNECTION,
+	UPDATING_CONNECTION,
 } from './constants';
 
 /**
  * Set connections list
- * @param {Array} connections - list of connections
+ * @param {Array<import('../types').Connection>} connections - list of connections
  * @returns {object} - an action object.
  */
 export function setConnections( connections ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
+	};
+}
+
+/**
+ * Set keyring result
+ *
+ * @param {import('../types').KeyringResult} [keyringResult] - keyring result
+ *
+ * @returns {object} - an action object.
+ */
+export function setKeyringResult( keyringResult ) {
+	return {
+		type: SET_KEYRING_RESULT,
+		keyringResult,
+	};
+}
+
+/**
+ * Add connection to the list
+ * @param {import('../types').Connection} connection - connection object
+ * @returns {object} - an action object.
+ */
+export function addConnection( connection ) {
+	return {
+		type: ADD_CONNECTION,
+		connection,
 	};
 }
 
@@ -66,6 +97,7 @@ export function mergeConnections( freshConnections ) {
 				...defaults,
 				...prevConnection,
 				...freshConnection,
+				shared: prevConnection?.shared,
 				is_healthy: freshConnection.test_success,
 			};
 			connections.push( connection );
@@ -162,16 +194,29 @@ export function deletingConnection( connectionId, deleting = true ) {
 }
 
 /**
+ * Whether a connection is being created.
+ *
+ * @param {boolean} creating - Whether the connection is being creating.
+ * @returns {object} Creating connection action.
+ */
+export function creatingConnection( creating = true ) {
+	return {
+		type: CREATING_CONNECTION,
+		creating,
+	};
+}
+
+/**
  * Deletes a connection by disconnecting it.
  *
  * @param {object} args - Arguments.
  * @param {string | number} args.connectionId - Connection ID to delete.
  * @param {boolean} [args.showSuccessNotice] - Whether to show a success notice.
  *
- * @returns {void}
+ * @returns {boolean} Whether the connection was deleted.
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
-	return async function ( { dispatch } ) {
+	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
@@ -189,6 +234,13 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 					isDismissible: true,
 				} );
 			}
+
+			// If we are on post editor, sync the connections to the post meta.
+			if ( registry.select( editorStore ).getCurrentPostId() ) {
+				dispatch( syncConnectionsToPostMeta() );
+			}
+
+			return true;
 		} catch ( error ) {
 			let message = __( 'Error disconnecting account.', 'jetpack' );
 
@@ -199,6 +251,147 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
 			dispatch( deletingConnection( connectionId, false ) );
+		}
+
+		return false;
+	};
+}
+
+/**
+ * Creates a connection.
+ *
+ * @param {Record<string, any>} data - The data for API call.
+ * @returns {void}
+ */
+export function createConnection( data ) {
+	return async function ( { registry, dispatch } ) {
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		try {
+			const path = `/jetpack/v4/social/connections/`;
+
+			dispatch( creatingConnection() );
+
+			/**
+			 * @type {import('../types').Connection}
+			 */
+			const connection = await apiFetch( { method: 'POST', path, data } );
+
+			if ( connection ) {
+				dispatch(
+					addConnection( {
+						...connection,
+						can_disconnect: true,
+						// For editor, we always enable the connection by default.
+						enabled: true,
+					} )
+				);
+
+				createSuccessNotice(
+					sprintf(
+						/* translators: %s is the name of the social media platform e.g. "Facebook" */
+						__( '%s account connected successfully.', 'jetpack' ),
+						connection.label
+					),
+					{
+						type: 'snackbar',
+						isDismissible: true,
+					}
+				);
+
+				// If we are on post editor, sync the connections to the post meta.
+				if ( registry.select( editorStore ).getCurrentPostId() ) {
+					dispatch( syncConnectionsToPostMeta() );
+				}
+			}
+		} catch ( error ) {
+			let message = __( 'Error connecting account.', 'jetpack' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+		} finally {
+			dispatch( creatingConnection( false ) );
+		}
+	};
+}
+
+/**
+ * Updates a connection.
+ *
+ * @param {string} connectionId - Connection ID to update.
+ * @param {Record<string, any>} data - The data.
+ *
+ * @returns {object} Delete connection action.
+ */
+export function updateConnection( connectionId, data ) {
+	return {
+		type: UPDATE_CONNECTION,
+		connectionId,
+		data,
+	};
+}
+
+/**
+ * Marks a connection as being updating.
+ *
+ * @param {string} connectionId - Connection ID being updated.
+ * @param {boolean} updating - Whether the connection is being updated.
+ *
+ * @returns {object} Deleting connection action.
+ */
+export function updatingConnection( connectionId, updating = true ) {
+	return {
+		type: UPDATING_CONNECTION,
+		connectionId,
+		updating,
+	};
+}
+
+/**
+ * Updates a connection.
+ *
+ * @param {string} connectionId - Connection ID to update.
+ * @param {Record<string, any>} data - The data for API call.
+ * @returns {void}
+ */
+export function updateConnectionById( connectionId, data ) {
+	return async function ( { dispatch, select } ) {
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		const prevConnection = select.getConnectionById( connectionId );
+
+		try {
+			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			// Optimistically update the connection.
+			dispatch( updateConnection( connectionId, data ) );
+
+			dispatch( updatingConnection( connectionId ) );
+
+			const connection = await apiFetch( { method: 'POST', path, data } );
+
+			if ( connection ) {
+				createSuccessNotice( __( 'Account updated successfully.', 'jetpack' ), {
+					type: 'snackbar',
+					isDismissible: true,
+				} );
+			}
+		} catch ( error ) {
+			let message = __( 'Error updating account.', 'jetpack' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			// Revert the connection to its previous state.
+			dispatch( updateConnection( connectionId, prevConnection ) );
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+		} finally {
+			dispatch( updatingConnection( connectionId, false ) );
 		}
 	};
 }

@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	useAnalytics,
+	isAtomicSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
@@ -14,6 +18,7 @@ import { Icon, external } from '@wordpress/icons';
 import './style.scss';
 import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import { PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import usePostContent from '../../hooks/use-post-content';
 import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
@@ -25,8 +30,36 @@ import AiAssistantModal from '../modal';
 import Carrousel, { CarrouselImageData, CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
 
+const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
 const FEATURED_IMAGE_FEATURE_NAME = 'featured-post-image';
 export const FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN = 'media-source-dropdown';
+
+/**
+ * Control experimental image generation for the featured image.
+ */
+const AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT =
+	'ai-assistant-experimental-image-generation-support';
+const isAiAssistantExperimentalImageGenerationSupportEnabled = getFeatureAvailability(
+	AI_ASSISTANT_EXPERIMENTAL_IMAGE_GENERATION_SUPPORT
+);
+const IMAGE_GENERATION_MODEL = isAiAssistantExperimentalImageGenerationSupportEnabled
+	? 'stable-diffusion'
+	: 'dall-e-3';
+/**
+ * Determine the site type for tracking purposes.
+ *
+ * @returns {string} The site type, one of atomic, simple, jetpack.
+ */
+const getSiteType = () => {
+	if ( isAtomicSite() ) {
+		return 'atomic';
+	}
+	if ( isSimpleSite() ) {
+		return 'simple';
+	}
+	return 'jetpack';
+};
+const SITE_TYPE = getSiteType();
 
 export default function FeaturedImage( {
 	busy,
@@ -53,7 +86,7 @@ export default function FeaturedImage( {
 	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
-	const { generateImage } = useImageGenerator();
+	const { generateImage, generateImageWithStableDiffusion } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -71,7 +104,9 @@ export default function FeaturedImage( {
 		costs,
 	} = useAiFeature();
 	const planType = usePlanType( currentTier );
-	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
+	const featuredImageCost = isAiAssistantExperimentalImageGenerationSupportEnabled
+		? costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.stableDiffusion ?? 1
+		: costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.image;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
 	const notEnoughRequests = requestsBalance < featuredImageCost;
@@ -115,6 +150,8 @@ export default function FeaturedImage( {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
 					error: data.error?.message,
+					model: IMAGE_GENERATION_MODEL,
+					site_type: SITE_TYPE,
 				} );
 			}
 		},
@@ -166,12 +203,21 @@ export default function FeaturedImage( {
 			return;
 		}
 
-		generateImage( {
-			feature: FEATURED_IMAGE_FEATURE_NAME,
-			postContent,
-			responseFormat: 'b64_json',
-			userPrompt,
-		} )
+		/** Decide between standard or experimental generation */
+		const generateImagePromise = isAiAssistantExperimentalImageGenerationSupportEnabled
+			? generateImageWithStableDiffusion( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					userPrompt,
+			  } )
+			: generateImage( {
+					feature: FEATURED_IMAGE_FEATURE_NAME,
+					postContent,
+					responseFormat: 'b64_json',
+					userPrompt,
+			  } );
+
+		generateImagePromise
 			.then( result => {
 				if ( result.data.length > 0 ) {
 					const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
@@ -195,6 +241,7 @@ export default function FeaturedImage( {
 		notEnoughRequests,
 		updateImages,
 		generateImage,
+		generateImageWithStableDiffusion,
 		postContent,
 		userPrompt,
 		updateRequestsCount,
@@ -214,6 +261,8 @@ export default function FeaturedImage( {
 		// track the generate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		toggleFeaturedImageModal();
@@ -224,6 +273,8 @@ export default function FeaturedImage( {
 		// track the regenerate image event
 		recordEvent( 'jetpack_ai_featured_image_generation_generate_another_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		processImageGeneration();
@@ -234,6 +285,8 @@ export default function FeaturedImage( {
 		// track the try again event
 		recordEvent( 'jetpack_ai_featured_image_generation_try_again', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		processImageGeneration();
@@ -256,6 +309,8 @@ export default function FeaturedImage( {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
 			placement,
+			model: IMAGE_GENERATION_MODEL,
+			site_type: SITE_TYPE,
 		} );
 
 		const setAsFeaturedImage = image => {
@@ -315,11 +370,16 @@ export default function FeaturedImage( {
 	}, [ placement, handleGenerate ] );
 
 	const modalTitle = __( 'Generate a featured image with AI', 'jetpack' );
-	const costTooltipText = sprintf(
+
+	const costTooltipTextSingular = __( '1 request per image', 'jetpack' );
+
+	const costTooltipTextPlural = sprintf(
 		// Translators: %d is the cost of generating one image.
 		__( '%d requests per image', 'jetpack' ),
 		featuredImageCost
 	);
+
+	const costTooltipText = featuredImageCost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	const acceptButton = (
 		<Button
@@ -379,6 +439,7 @@ export default function FeaturedImage( {
 										  )
 										: null
 								}
+								placement={ FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT }
 								useLightNudge={ true }
 							/>
 						) }

@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack VideoPress
  * Plugin URI: https://wordpress.org/plugins/jetpack-videopress
  * Description: High quality, ad-free video.
- * Version: 1.8-alpha
+ * Version: 1.9-alpha
  * Author: Automattic - Jetpack Video team
  * Author URI: https://jetpack.com/videopress/
  * License: GPLv2 or later
@@ -114,7 +114,7 @@ add_action( 'activated_plugin', 'jetpack_videopress_activation' );
 function jetpack_videopress_activation( $plugin ) {
 	if (
 		JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH === $plugin &&
-		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH )
+		( new \Automattic\Jetpack\Paths() )->is_current_request_activating_plugin_from_plugins_screen( JETPACK_VIDEOPRESS_ROOT_FILE_RELATIVE_PATH )
 	) {
 		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-videopress' ) ) );
 		exit;

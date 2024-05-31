@@ -29,5 +29,17 @@ return make_phan_config(
 			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
 			'modules/custom-css/custom-css/preprocessors/lessc.inc.php',
 		),
+		'parse_file_list'                 => array(
+			// Reference files to handle code checking for stuff from other in-monorepo plugins.
+			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
+			//
+			// DO NOT add references to files in packages like this! Packages should be listed in composer.json 'require',
+			// or 'require-dev' if they're only needed in tests or build scripts.
+			__DIR__ . '/../../../plugins/vaultpress/vaultpress.php',                  // class VaultPress
+			__DIR__ . '/../../../plugins/crm/includes/ZeroBSCRM.Core.Extensions.php', // functions zeroBSCRM_isExtensionInstalled, zeroBSCRM_extension_install_jetpackforms
+
+			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/launchpad/launchpad.php', // function wpcom_launchpad_is_fse_next_steps_modal_hidden
+		),
 	)
 );

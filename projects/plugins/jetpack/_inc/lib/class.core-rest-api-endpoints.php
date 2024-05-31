@@ -2652,8 +2652,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscriptions_from_name'       => array(
+				'description'       => esc_html__( 'From name for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to_name',
+				'jp_group'          => 'subscriptions',
+			),
 			'sm_enabled'                            => array(
 				'description'       => esc_html__( 'Show popup Subscribe modal to readers.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscribe_overlay_enabled'     => array(
+				'description'       => esc_html__( 'Show subscribe overlay on homepage.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -2668,6 +2682,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'jetpack_subscriptions_login_navigation_enabled' => array(
 				'description'       => esc_html__( 'Add Subscriber Login block to the navigation.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_subscribe_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block to the navigation.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3409,8 +3430,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
-		$valid_values = array( 'author', 'no-reply' );
-		if ( ! empty( $value ) && ! in_array( $value, $valid_values, true ) ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		if ( ! empty( $value ) && ! Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to_name( $value, $request, $param ) {
+		if ( ! empty( $value ) && ! is_string( $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(

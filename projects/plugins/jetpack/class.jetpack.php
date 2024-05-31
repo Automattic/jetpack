@@ -138,6 +138,7 @@ class Jetpack {
 		'wpcom_instagram_widget',
 		'milestone-widget',
 		'subscribe-modal-css',
+		'subscribe-overlay-css',
 	);
 
 	/**
@@ -1079,28 +1080,13 @@ class Jetpack {
 	 * @return array list of callables.
 	 */
 	public function filter_sync_callable_whitelist( $callables ) {
-
 		// Jetpack Functions.
 		$jetpack_callables = array(
 			'single_user_site'         => array( 'Jetpack', 'is_single_user_site' ),
 			'updates'                  => array( 'Jetpack', 'get_updates' ),
 			'available_jetpack_blocks' => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		);
-		$callables         = array_merge( $callables, $jetpack_callables );
-
-		// Jetpack_SSO_Helpers.
-		if ( include_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' ) {
-			$sso_helpers = array(
-				'sso_is_two_step_required'      => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
-				'sso_should_hide_login_form'    => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
-				'sso_match_by_email'            => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
-				'sso_new_user_override'         => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
-				'sso_bypass_default_login_form' => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
-			);
-			$callables   = array_merge( $callables, $sso_helpers );
-		}
-
-		return $callables;
+		return array_merge( $callables, $jetpack_callables );
 	}
 
 	/**
@@ -2413,18 +2399,26 @@ class Jetpack {
 	/**
 	 * Catches PHP errors.  Must be used in conjunction with output buffering.
 	 *
+	 * @deprecated since 13.5
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
+	 * @deprecated $$next-version$$
+	 * @see \Automattic\Jetpack\Errors
 	 */
 	public static function catch_errors( $catch ) {
+		_deprecated_function( __METHOD__, '13.5' );
+		// @phan-suppress-next-line PhanDeprecatedClass
 		return ( new Errors() )->catch_errors( $catch );
 	}
 
 	/**
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
+	 *
+	 * @deprecated since 13.5
 	 */
 	public static function catch_errors_on_shutdown() {
+		_deprecated_function( __METHOD__, '13.5' );
 		self::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
 	}
 
@@ -2550,7 +2544,6 @@ class Jetpack {
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating.
 		if ( $send_state_messages ) {
 			self::restate();
-			self::catch_errors( true );
 		}
 
 		$active = self::get_active_modules();
@@ -2620,8 +2613,6 @@ class Jetpack {
 			self::state( 'error', false );
 			self::state( 'module', false );
 		}
-
-		self::catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
 		 *
@@ -3323,6 +3314,7 @@ p {
 					$throw = true;
 				}
 			} else {
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Checked above. See also https://github.com/phan/phan/issues/1204.
 				$reflection = new ReflectionFunction( 'stats_get_api_key' );
 				if ( basename( $plugin ) === basename( $reflection->getFileName() ) ) {
 					$throw = true;
@@ -5359,6 +5351,8 @@ endif;
 	 *
 	 * Data passed in with the $data parameter will be available in the
 	 * template file as $data['value']
+	 *
+	 * @html-template-var array $data
 	 *
 	 * @param string $template - Template file to load.
 	 * @param array  $data - Any data to pass along to the template.

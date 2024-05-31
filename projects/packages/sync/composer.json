@@ -7,7 +7,6 @@
 		"php": ">=7.0",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-password-checker": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-roles": "@dev",
@@ -60,7 +59,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.16.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

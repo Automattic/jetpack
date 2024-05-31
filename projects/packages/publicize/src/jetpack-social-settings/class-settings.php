@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize\Jetpack_Social_Settings;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 
 /**
@@ -183,13 +182,15 @@ class Settings {
 
 		$settings = $this->get_settings( true );
 
-		$settings['useAdminUiV1'] = Publicize::use_admin_ui_v1();
+		$settings['useAdminUiV1'] = false;
 
 		$settings['is_publicize_enabled'] = false;
+		$settings['hasPaidFeatures']      = false;
 
 		$connection = new Manager();
 
 		if ( ( new Modules() )->is_active( 'publicize' ) && $connection->has_connected_user() ) {
+			$settings['useAdminUiV1']   = $publicize->use_admin_ui_v1();
 			$settings['connectionData'] = array(
 				'connections' => $publicize->get_all_connections_for_user(),
 				'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
@@ -197,13 +198,14 @@ class Settings {
 			);
 
 			$settings['is_publicize_enabled'] = true;
+			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
 		} else {
 			$settings['connectionData'] = array(
 				'connections' => array(),
 			);
 		}
 
-		$settings['connectionRefreshPath'] = '/jetpack/v4/publicize/connection-test-results';
+		$settings['connectionRefreshPath'] = ! empty( $settings['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results';
 
 		return $settings;
 	}

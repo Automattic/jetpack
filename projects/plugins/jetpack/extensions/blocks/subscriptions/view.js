@@ -54,11 +54,14 @@ domReady( function () {
 					return;
 				}
 
-				const emailInput = form.querySelector( 'input[type=email]' );
-				const email = emailInput ? emailInput.value : form.dataset.subscriber_email;
+				// If email is empty, we will ask for it in the modal that opens
+				// Email input can be hidden for "button only style" for example.
+				let email = form.querySelector( 'input[type=email]' )?.value ?? '';
 
-				if ( ! email ) {
-					return;
+				// Fallback to provided email from the logged in user when set
+				if ( ! email && form.dataset.subscriber_email ) {
+					// eslint-disable-next-line no-console
+					email = form.dataset.subscriber_email;
 				}
 
 				const action = form.querySelector( 'input[name=action]' ).value;

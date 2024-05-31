@@ -199,7 +199,9 @@ export const SEO = withModuleSettingsFormHelpers(
 							}
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Customize your SEO settings', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Customize your SEO settings', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 					{ isSeoActive &&

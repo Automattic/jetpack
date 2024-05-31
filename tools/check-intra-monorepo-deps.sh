@@ -76,6 +76,9 @@ while getopts ":uUvhHRan:" opt; do
 done
 shift "$(($OPTIND -1))"
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 if ! $VERBOSE; then
 	. "$BASE/tools/includes/spin.sh"
 	function debug {

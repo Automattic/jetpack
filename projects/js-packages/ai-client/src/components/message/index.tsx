@@ -10,9 +10,11 @@ import classNames from 'classnames';
  */
 import './style.scss';
 import errorExclamation from '../../icons/error-exclamation.js';
+import { ERROR_QUOTA_EXCEEDED } from '../../types.js';
 /**
  * Types
  */
+import type { SuggestionErrorCode } from '../../types.js';
 import type React from 'react';
 
 export const MESSAGE_SEVERITY_WARNING = 'warning';
@@ -37,14 +39,21 @@ export type MessageProps = {
 	children: React.ReactNode;
 };
 
+export type OnUpgradeClick = ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
+
 export type UpgradeMessageProps = {
 	requestsRemaining: number;
-	onUpgradeClick: ( event?: React.MouseEvent< HTMLButtonElement > ) => void;
+	severity?: MessageSeverityProp;
+	onUpgradeClick: OnUpgradeClick;
+	upgradeUrl?: string;
 };
 
 export type ErrorMessageProps = {
 	error?: string;
+	code?: SuggestionErrorCode;
 	onTryAgainClick: () => void;
+	onUpgradeClick: OnUpgradeClick;
+	upgradeUrl?: string;
 };
 
 const messageIconsMap = {
@@ -113,18 +122,31 @@ export function GuidelineMessage(): React.ReactElement {
  */
 export function UpgradeMessage( {
 	requestsRemaining,
+	severity,
 	onUpgradeClick,
+	upgradeUrl,
 }: UpgradeMessageProps ): React.ReactElement {
+	let messageSeverity = severity;
+
+	if ( messageSeverity == null ) {
+		messageSeverity = requestsRemaining > 0 ? MESSAGE_SEVERITY_INFO : MESSAGE_SEVERITY_WARNING;
+	}
+
 	return (
-		<Message severity={ MESSAGE_SEVERITY_WARNING }>
+		<Message severity={ messageSeverity }>
 			<span>
 				{ sprintf(
 					// translators: %1$d: number of requests remaining
-					__( 'You have %1$d free requests remaining.', 'jetpack-ai-client' ),
+					__( 'You have %1$d requests remaining.', 'jetpack-ai-client' ),
 					requestsRemaining
 				) }
 			</span>
-			<Button variant="link" onClick={ onUpgradeClick }>
+			<Button
+				variant="link"
+				onClick={ onUpgradeClick }
+				href={ upgradeUrl }
+				target={ upgradeUrl ? '_blank' : null }
+			>
 				{ __( 'Upgrade now', 'jetpack-ai-client' ) }
 			</Button>
 		</Message>
@@ -137,7 +159,13 @@ export function UpgradeMessage( {
  * @param {number} requestsRemaining - Number of requests remaining.
  * @returns {React.ReactElement } - Message component.
  */
-export function ErrorMessage( { error, onTryAgainClick }: ErrorMessageProps ): React.ReactElement {
+export function ErrorMessage( {
+	error,
+	code,
+	onTryAgainClick,
+	onUpgradeClick,
+	upgradeUrl,
+}: ErrorMessageProps ): React.ReactElement {
 	const errorMessage = error || __( 'Something went wrong', 'jetpack-ai-client' );
 
 	return (
@@ -149,9 +177,20 @@ export function ErrorMessage( { error, onTryAgainClick }: ErrorMessageProps ): R
 					errorMessage
 				) }
 			</span>
-			<Button variant="link" onClick={ onTryAgainClick }>
-				{ __( 'Try Again', 'jetpack-ai-client' ) }
-			</Button>
+			{ code === ERROR_QUOTA_EXCEEDED ? (
+				<Button
+					variant="link"
+					onClick={ onUpgradeClick }
+					href={ upgradeUrl }
+					target={ upgradeUrl ? '_blank' : null }
+				>
+					{ __( 'Upgrade now', 'jetpack-ai-client' ) }
+				</Button>
+			) : (
+				<Button variant="link" onClick={ onTryAgainClick }>
+					{ __( 'Try again', 'jetpack-ai-client' ) }
+				</Button>
+			) }
 		</Message>
 	);
 }

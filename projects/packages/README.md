@@ -41,6 +41,10 @@ and that will install the required Composer packages.
 
 ### Using packages
 
+Before using a package within another project, you will need to require the package in the project's `composer.json` file. Then, run `tools/fixup-project-versions.sh` to update the `composer.lock` file in the proect, and reinstall the project with the `jetpack install` command.
+
+As an example, if you want to require the Logo package in the Jetpack plugin, add `"automattic/jetpack-logo": "@dev",` underneath `require` in the Jetpack plugin's `composer.json` file to require it. After updating the project versions run `jetpack install plugins/jetpack` to pull the new package.
+
 To use something from a package, you have to declare it at the top of the file before any other instruction, and then use it in the code. For example, the logo can be used like this:
 
 ```php

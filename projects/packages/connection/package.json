@@ -21,11 +21,24 @@
 		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
 		"clean": "rm -rf dist",
-		"validate": "pnpm exec validate-es dist/"
+		"validate": "pnpm exec validate-es dist/",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
+	"dependencies": {
+		"@automattic/jetpack-idc": "workspace:*",
+		"@wordpress/data": "9.25.0",
+		"@wordpress/element": "5.32.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "5.39.0",
+		"@babel/core": "7.24.0",
+		"@babel/preset-env": "7.24.0",
+		"@babel/runtime": "7.24.0",
+		"@wordpress/browserslist-config": "5.40.0",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"sass": "1.64.1",
+		"sass-loader": "12.4.0",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	}

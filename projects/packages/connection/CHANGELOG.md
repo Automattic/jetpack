@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2024-05-29
+### Added
+- Move Identity Crisis handling functionality into the package. [#36968]
+
+## [2.8.6] - 2024-05-28
+### Changed
+- Internal updates.
+
+## [2.8.5] - 2024-05-27
+### Fixed
+- SSO: Use filter instead of action for user custom column to prevent interference with other custom columns. [#37575]
+
+## [2.8.4] - 2024-05-22
+### Deprecated
+- Jetpack Connection Manager: Deprecate `request_params` arg in setup_xmlrpc_handlers method. [#37445]
+
+### Fixed
+- SSO: Ensure the dist files are generated properly, without overwriting each other. [#37489]
+
+## [2.8.3] - 2024-05-20
+### Changed
+- Internal updates.
+
+## [2.8.2] - 2024-05-16
+### Added
+- Connection: Ensuring direct file access is disabled in class-jetpack-ixr-client.php [#37398]
+
+### Changed
+- Updated package dependencies. [#37379]
+
+## [2.8.1] - 2024-05-14
+### Changed
+- SSO: do not rely on the Jetpack class anymore. [#37153]
+
 ## [2.8.0] - 2024-05-13
 ### Added
 - SSO: Ensuring tooltips are accessible [#37302]
@@ -1058,6 +1092,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.9.0]: https://github.com/Automattic/jetpack-connection/compare/v2.8.6...v2.9.0
+[2.8.6]: https://github.com/Automattic/jetpack-connection/compare/v2.8.5...v2.8.6
+[2.8.5]: https://github.com/Automattic/jetpack-connection/compare/v2.8.4...v2.8.5
+[2.8.4]: https://github.com/Automattic/jetpack-connection/compare/v2.8.3...v2.8.4
+[2.8.3]: https://github.com/Automattic/jetpack-connection/compare/v2.8.2...v2.8.3
+[2.8.2]: https://github.com/Automattic/jetpack-connection/compare/v2.8.1...v2.8.2
+[2.8.1]: https://github.com/Automattic/jetpack-connection/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/Automattic/jetpack-connection/compare/v2.7.7...v2.8.0
 [2.7.7]: https://github.com/Automattic/jetpack-connection/compare/v2.7.6...v2.7.7
 [2.7.6]: https://github.com/Automattic/jetpack-connection/compare/v2.7.5...v2.7.6

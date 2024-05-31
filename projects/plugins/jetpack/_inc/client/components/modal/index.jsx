@@ -8,7 +8,6 @@ import jQuery from 'jquery';
 import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -41,6 +40,8 @@ class Modal extends React.Component {
 		style: {},
 	};
 
+	domNode = null;
+
 	state = {
 		overlayMouseDown: false,
 	};
@@ -49,7 +50,7 @@ class Modal extends React.Component {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
-			this.focusTrap = createFocusTrap( ReactDOM.findDOMNode( this ) );
+			this.focusTrap = createFocusTrap( this.domNode );
 			this.focusTrap.activate( {
 				// onDeactivate: this.maybeClose,
 				initialFocus: this.props.initialFocus,
@@ -122,6 +123,7 @@ class Modal extends React.Component {
 		const combinedStyle = assign( {}, style, containerStyle );
 		return (
 			<div
+				ref={ node => ( this.domNode = node ) }
 				className="dops-modal-wrapper"
 				onClick={ this.handleClickOverlay }
 				onMouseDown={ this.handleMouseDownOverlay }
