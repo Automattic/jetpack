@@ -1565,36 +1565,6 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
-  projects/packages/action-bar:
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@babel/core':
-        specifier: 7.24.0
-        version: 7.24.0
-      '@wordpress/browserslist-config':
-        specifier: 5.40.0
-        version: 5.40.0
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
-      core-js:
-        specifier: 3.23.5
-        version: 3.23.5
-      sass:
-        specifier: 1.64.1
-        version: 1.64.1
-      sass-loader:
-        specifier: 12.4.0
-        version: 12.4.0(sass@1.64.1)(webpack@5.76.0)
-      webpack:
-        specifier: 5.76.0
-        version: 5.76.0(webpack-cli@4.9.1)
-      webpack-cli:
-        specifier: 4.9.1
-        version: 4.9.1(webpack@5.76.0)
-
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
