@@ -1,0 +1,43 @@
+<?php
+/**
+ * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+/**
+ * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
+ */
+function replace_site_visibility() {
+	// We are not either in Simple or Atomic.
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
+		return;
+	}
+
+	$jetpack_status = new Automattic\Jetpack\Status();
+
+	if ( ! Jetpack::is_connection_ready() && $jetpack_status->is_private_site() ) {
+		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+	} else {
+		$site_slug       = $jetpack_status->get_site_suffix();
+		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+		$manage_label    = __( 'Manage your site visibility settings', 'jetpack-mu-wpcom' );
+		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
+	}
+
+	?>
+<noscript>
+<p><?php echo wp_kses_post( $escaped_content ); ?></p>
+</noscript>
+<script>
+( function() {
+	var widgetArea = document.querySelector( '.option-site-visibility td' );
+	if ( ! widgetArea ) {
+		return;
+	}
+	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ); ?>';
+} )()
+</script>
+		<?php
+}
+add_action( 'blog_privacy_selector', 'replace_site_visibility' );
