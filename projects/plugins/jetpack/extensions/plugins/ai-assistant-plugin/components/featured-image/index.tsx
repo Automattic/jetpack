@@ -86,7 +86,7 @@ export default function FeaturedImage( {
 	const triggeredAutoGeneration = useRef( false );
 
 	const { enableComplementaryArea } = useDispatch( 'core/interface' );
-	const { generateImage, generateImageWithStableDiffusion } = useImageGenerator();
+	const { generateImageWithParameters } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
@@ -203,19 +203,25 @@ export default function FeaturedImage( {
 			return;
 		}
 
-		/** Decide between standard or experimental generation */
-		const generateImagePromise = isAiAssistantExperimentalImageGenerationSupportEnabled
-			? generateImageWithStableDiffusion( {
-					feature: FEATURED_IMAGE_FEATURE_NAME,
-					postContent,
-					userPrompt,
-			  } )
-			: generateImage( {
-					feature: FEATURED_IMAGE_FEATURE_NAME,
-					postContent,
-					responseFormat: 'b64_json',
-					userPrompt,
-			  } );
+		/**
+		 * Make a generic call to backend and let it decide the model.
+		 */
+		const generateImagePromise = generateImageWithParameters( {
+			feature: FEATURED_IMAGE_FEATURE_NAME,
+			size: '1792x1024', // the size, when the generation happens with DALL-E-3
+			responseFormat: 'b64_json', // the response format, when the generation happens with DALL-E-3
+			style: 'photographic', // the style of the image, when the generation happens with Stable Diffusion
+			messages: [
+				{
+					role: 'jetpack-ai',
+					context: {
+						type: 'featured-image-generation',
+						request: userPrompt ? userPrompt : null,
+						content: postContent,
+					},
+				},
+			],
+		} );
 
 		generateImagePromise
 			.then( result => {
@@ -240,8 +246,7 @@ export default function FeaturedImage( {
 	}, [
 		notEnoughRequests,
 		updateImages,
-		generateImage,
-		generateImageWithStableDiffusion,
+		generateImageWithParameters,
 		postContent,
 		userPrompt,
 		updateRequestsCount,
