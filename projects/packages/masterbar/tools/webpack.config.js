@@ -91,7 +91,13 @@ module.exports = [
 		...sharedWebpackConfig,
 		entry: masterbarCssEntriesForAdminColorSchemes,
 		plugins: [
-			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: false,
+				I18nLoaderPlugin: false,
+				I18nCheckPlugin: false,
+				MiniCssWithRtlPlugin: false,
+				WebpackRtlPlugin: false,
+			} ),
 			// Delete the dummy JS files Webpack would otherwise create.
 			new RemoveAssetWebpackPlugin( {
 				assets: /\.js(\.map)?$/,
