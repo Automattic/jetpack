@@ -234,7 +234,7 @@ $modules_state_schema = Schema::as_array(
 $entry = new Modules_State_Entry( Modules_Index::MODULES );
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
-jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( Liar::class ) );
+jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( new Liar() ) );
 
 require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
 

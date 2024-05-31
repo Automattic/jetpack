@@ -35,7 +35,7 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 	 */
 	protected $option_name;
 
-	public function __construct( $feature ) {
+	public function __construct( Pluggable $feature ) {
 		$this->feature     = $feature;
 		$this->slug        = $feature::get_slug();
 		$module_slug       = str_replace( '_', '-', $this->slug );

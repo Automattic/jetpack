@@ -3,11 +3,11 @@
 namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
-class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Set {
+class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	public function get( $_fallback = false ) {
 		$state             = array();
 		$modules_instances = $this->get_modules_instances();
@@ -57,6 +57,10 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 				do_action( 'jetpack_boost_module_status_updated', $module_slug, $module_state['active'] );
 			}
 		}
+	}
+
+	public function merge( $value, $partial_value ) {
+		return array_merge( $value, $partial_value );
 	}
 
 	private function get_modules_instances() {
