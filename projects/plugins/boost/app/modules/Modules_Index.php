@@ -18,9 +18,9 @@ use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
 	/**
-	 * @var Pluggable[] - Associative array of all Jetpack Boost modules.
+	 * @var Pluggable[] - Associative array of all Jetpack Boost features.
 	 *
-	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
+	 * Example: [ 'critical_css' => Pluggable, 'image_cdn' => Pluggable ]
 	 */
 	protected $features = array();
 
@@ -34,7 +34,7 @@ class Modules_Index {
 	/**
 	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
 	 */
-	const MODULES = array(
+	const FEATURES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
@@ -54,7 +54,7 @@ class Modules_Index {
 	 * without a nonce.
 	 */
 	public function __construct() {
-		foreach ( self::MODULES as $module ) {
+		foreach ( self::FEATURES as $module ) {
 			$slug                    = $module::get_slug();
 			$this->features[ $slug ] = $module;
 			if ( $module::is_available() ) {
@@ -84,7 +84,7 @@ class Modules_Index {
 	public static function get_all_modules() {
 		$modules = array();
 
-		foreach ( self::MODULES as $module ) {
+		foreach ( self::FEATURES as $module ) {
 			$modules[]       = $module;
 			$module_instance = ( new Module( new $module() ) );
 			if ( $module_instance->feature instanceof Has_Submodules ) {

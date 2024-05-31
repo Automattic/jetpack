@@ -65,7 +65,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 
 	private function get_modules_instances() {
 		$modules = array();
-		foreach ( Modules_Index::MODULES as $module_name ) {
+		foreach ( Modules_Index::FEATURES as $module_name ) {
 			$module_instance                                  = new Module( new $module_name() );
 			$modules[ $module_instance->feature::get_slug() ] = $module_instance;
 		}

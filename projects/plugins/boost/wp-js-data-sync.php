@@ -232,7 +232,7 @@ $modules_state_schema = Schema::as_array(
 	)
 )->fallback( array() );
 
-$entry = new Modules_State_Entry( Modules_Index::MODULES );
+$entry = new Modules_State_Entry( Modules_Index::FEATURES );
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
 require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
