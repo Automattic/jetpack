@@ -15,7 +15,6 @@ const sharedWebpackConfig = {
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,
-		modules: [ 'node_modules' ],
 		alias: {
 			...jetpackWebpackConfig.resolve.alias,
 			fs: false,
