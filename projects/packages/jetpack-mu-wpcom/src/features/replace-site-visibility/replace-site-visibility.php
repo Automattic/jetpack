@@ -6,6 +6,16 @@
  */
 
 /**
+ * Whether the current site is connected to Jetpack.
+ *
+ * @return bool
+ */
+function is_jetpack_connected() {
+	// @phan-suppress-next-line PhanUndeclaredClassMethod, PhanUndeclaredClassInCallable
+	return class_exists( 'Jetpack' ) && is_callable( 'Jetpack::is_connection_ready' ) && Jetpack::is_connection_ready();
+}
+
+/**
  * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
  */
 function replace_site_visibility() {
@@ -16,7 +26,7 @@ function replace_site_visibility() {
 
 	$jetpack_status = new Automattic\Jetpack\Status();
 
-	if ( ! Jetpack::is_connection_ready() && $jetpack_status->is_private_site() ) {
+	if ( ! is_jetpack_connected() && $jetpack_status->is_private_site() ) {
 		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
 	} else {
 		$site_slug       = $jetpack_status->get_site_suffix();
