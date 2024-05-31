@@ -114,7 +114,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onDone: onBlockDone,
 			getContent,
 			behavior,
-			childrenBlock,
+			isChildBlock,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
@@ -432,16 +432,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
 
-		const InlineExtensionsProvider = childrenBlock
-			? React.Fragment
-			: InlineExtensionsContext.Provider;
-
-		const ProviderProps = childrenBlock
-			? {}
-			: { value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } } };
-
-		return (
-			<InlineExtensionsProvider { ...ProviderProps }>
+		const aiInlineExtensionContent = (
+			<>
 				<BlockEdit { ...props } />
 
 				{ showAiControl && (
@@ -469,7 +461,21 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						behavior={ behavior }
 					/>
 				</BlockControls>
-			</InlineExtensionsProvider>
+			</>
+		);
+
+		if ( isChildBlock ) {
+			return aiInlineExtensionContent;
+		}
+
+		const ProviderProps = {
+			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+		};
+
+		return (
+			<InlineExtensionsContext.Provider { ...ProviderProps }>
+				{ aiInlineExtensionContent }
+			</InlineExtensionsContext.Provider>
 		);
 	};
 }, 'blockEditWithAiComponents' );

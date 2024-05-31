@@ -17,7 +17,7 @@ export interface IBlockHandler {
 	onDone: ( suggestion: string ) => void;
 	getContent: () => string;
 	behavior: BlockBehavior;
-	childrenBlock?: boolean;
+	isChildBlock?: boolean;
 }
 
 export type BlockEditorSelect = {

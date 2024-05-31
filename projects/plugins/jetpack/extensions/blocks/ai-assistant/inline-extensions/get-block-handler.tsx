@@ -53,6 +53,6 @@ export function getBlockHandler(
 		onDone: handler.onDone.bind( handler ),
 		getContent: handler.getContent.bind( handler ),
 		behavior: handler.behavior,
-		childrenBlock: handler.childrenBlock,
+		isChildBlock: handler.isChildBlock,
 	};
 }
