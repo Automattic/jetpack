@@ -28,6 +28,8 @@ function replace_site_visibility() {
 
 	if ( ! is_jetpack_connected() && $jetpack_status->is_private_site() ) {
 		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
+	} elseif ( ! is_jetpack_connected() ) {
+		$escaped_content = __( 'Jetpack is disconnected. Connect Jetpack to manage site visibility settings.', 'jetpack-mu-wpcom' );
 	} else {
 		$site_slug       = $jetpack_status->get_site_suffix();
 		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
