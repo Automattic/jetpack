@@ -21,7 +21,7 @@ import useAutoScroll from '../hooks/use-auto-scroll';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
-import { getBlockHandler } from './get-block-handler';
+import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
 import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
@@ -114,6 +114,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onDone: onBlockDone,
 			getContent,
 			behavior,
+			isChildBlock,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
@@ -431,7 +432,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
 
-		return (
+		const aiInlineExtensionContent = (
 			<>
 				<BlockEdit { ...props } />
 
@@ -461,6 +462,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					/>
 				</BlockControls>
 			</>
+		);
+
+		if ( isChildBlock ) {
+			return aiInlineExtensionContent;
+		}
+
+		const ProviderProps = {
+			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+		};
+
+		return (
+			<InlineExtensionsContext.Provider { ...ProviderProps }>
+				{ aiInlineExtensionContent }
+			</InlineExtensionsContext.Provider>
 		);
 	};
 }, 'blockEditWithAiComponents' );
