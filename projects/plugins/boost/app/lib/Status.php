@@ -37,7 +37,7 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 
 	public function __construct( Pluggable $feature ) {
 		$this->feature     = $feature;
-		$this->slug        = $feature::get_slug();
+		$this->slug        = $this->feature::get_slug();
 		$module_slug       = str_replace( '_', '-', $this->slug );
 		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
@@ -62,7 +62,6 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 	}
 
 	public function update( $new_status ) {
-		$this->on_update( $new_status );
 		return update_option( $this->option_name, $new_status );
 	}
 

@@ -138,17 +138,20 @@ class Modules_Setup implements Has_Setup {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
-		$module = $this->modules->get_module_instance_by_slug( $module_slug );
-
-		$status = new Status( $module->feature );
-		$status->on_update( $is_activated );
-
-		if ( $is_activated && $module->feature instanceof Has_Activate ) {
-			$module->feature::activate();
+		$feature = $this->modules->get_feature_by_slug( $module_slug );
+		if ( $feature === false ) {
+			return;
 		}
 
-		if ( ! $is_activated && $module->feature instanceof Has_Deactivate ) {
-			$module->feature::deactivate();
+		$status = new Status( new $feature() );
+		$status->on_update( $is_activated );
+
+		if ( $is_activated && $feature instanceof Has_Activate ) {
+			$feature::activate();
+		}
+
+		if ( ! $is_activated && $feature instanceof Has_Deactivate ) {
+			$feature::deactivate();
 		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {

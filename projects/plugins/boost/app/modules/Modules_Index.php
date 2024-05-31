@@ -18,11 +18,18 @@ use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
 	/**
-	 * @var Module[] - Associative array of all Jetpack Boost modules.
+	 * @var Pluggable[] - Associative array of all Jetpack Boost modules.
 	 *
 	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
-	protected $modules = array();
+	protected $features = array();
+
+	/**
+	 * @var Module[] - Associative array of all available Jetpack Boost modules.
+	 *
+	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
+	 */
+	protected $available_modules = array();
 
 	/**
 	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
@@ -48,9 +55,10 @@ class Modules_Index {
 	 */
 	public function __construct() {
 		foreach ( self::MODULES as $module ) {
+			$slug                    = $module::get_slug();
+			$this->features[ $slug ] = $module;
 			if ( $module::is_available() ) {
-				$slug                   = $module::get_slug();
-				$this->modules[ $slug ] = new Module( new $module() );
+				$this->available_modules[ $slug ] = new Module( new $module() );
 			}
 		}
 	}
@@ -94,7 +102,7 @@ class Modules_Index {
 		$forced_disabled_modules = $this->get_disabled_modules();
 
 		if ( empty( $forced_disabled_modules ) ) {
-			return $this->modules;
+			return $this->available_modules;
 		}
 
 		if ( array( 'all' ) === $forced_disabled_modules ) {
@@ -102,7 +110,7 @@ class Modules_Index {
 		}
 
 		$available_modules = array();
-		foreach ( $this->modules as $slug => $module ) {
+		foreach ( $this->available_modules as $slug => $module ) {
 			if ( ! in_array( $slug, $forced_disabled_modules, true ) ) {
 				$available_modules[ $slug ] = $module;
 			}
@@ -154,6 +162,10 @@ class Modules_Index {
 	}
 
 	public function get_module_instance_by_slug( $slug ) {
-		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : false;
+		return isset( $this->available_modules[ $slug ] ) ? $this->available_modules[ $slug ] : false;
+	}
+
+	public function get_feature_by_slug( $slug ) {
+		return isset( $this->features[ $slug ] ) ? $this->features[ $slug ] : false;
 	}
 }
