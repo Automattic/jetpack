@@ -68,15 +68,6 @@ const sharedWebpackConfig = {
 			},
 		],
 	},
-	plugins: [
-		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: false,
-			I18nLoaderPlugin: false,
-			I18nCheckPlugin: false,
-			MiniCssWithRtlPlugin: false,
-			WebpackRtlPlugin: false,
-		} ),
-	],
 };
 
 const masterbarCssEntriesForAdminColorSchemes = {};
