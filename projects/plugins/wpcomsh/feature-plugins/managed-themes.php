@@ -48,7 +48,7 @@ add_filter( 'wp_prepare_themes_for_js', 'wpcomsh_remove_theme_delete_button' );
  * makes sure a stylesheet is returned only if the current theme has been
  * symlinked and is a WP.com premium theme.
  *
- * @return string The WP.com premium theme stylesheet
+ * @return string|bool The WP.com premium theme stylesheet or false if theme is not linked or a not premium theme.
  */
 function wpcomsh_handle_atomic_premium_theme_option() {
 	$stylesheet = wp_get_theme()->get_stylesheet();

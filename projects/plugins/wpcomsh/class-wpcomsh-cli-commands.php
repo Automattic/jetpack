@@ -672,7 +672,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			$global_styles = $response->get_data();
-			$field         = isset( $assoc_args['field'] ) ? $assoc_args['field'] : '';
+			$field         = $assoc_args['field'] ?? '';
 			$field_path    = ! empty( $field ) ? explode( '.', $field ) : array();
 			if ( $action === 'list' ) {
 				$global_styles = $response->get_data();
@@ -895,6 +895,8 @@ if ( class_exists( 'Checksum_Plugin_Command' ) ) {
  *
  * [--activate]
  * : Indicates that the symlinked plugin should be activated
+ *
+ * @return never
  */
 function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 	WP_CLI::warning( 'This command is deprecated. Please use the `wpcomsh plugin use-managed` command instead.' );
@@ -906,7 +908,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 		WP_CLI::error( 'Cannot symlink wpcomsh' );
 	}
 
-	if ( false === chdir( WP_PLUGIN_DIR ) ) {
+	if ( ! chdir( WP_PLUGIN_DIR ) ) {
 		WP_CLI::error( "Cannot switch to plugins directory '" . WP_PLUGIN_DIR . "'" );
 	}
 
@@ -933,7 +935,7 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
 
 		if ( is_link( $plugin_to_symlink ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			if ( false === unlink( $plugin_to_symlink ) ) {
+			if ( ! unlink( $plugin_to_symlink ) ) {
 				WP_CLI::error( "Failed to remove conflicting symlink '$plugin_to_symlink'" );
 				exit( -1 );
 			}
@@ -993,6 +995,8 @@ function wpcomsh_cli_plugin_symlink( $args, $assoc_args = array() ) {
  *
  * [--activate]
  * : Indicates that the symlinked theme should be activated
+ *
+ * @return never
  */
 function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	WP_CLI::warning( 'This command is deprecated. Please use the `wpcomsh theme use-managed` command instead.' );
@@ -1000,7 +1004,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 	$theme_to_symlink = $args[0];
 
 	$themes_dir = get_theme_root();
-	if ( false === chdir( $themes_dir ) ) {
+	if ( ! chdir( $themes_dir ) ) {
 		WP_CLI::error( "Cannot switch to themes directory '$themes_dir'" );
 	}
 
@@ -1043,7 +1047,7 @@ function wpcomsh_cli_theme_symlink( $args, $assoc_args = array() ) {
 
 		if ( is_link( $theme_to_symlink ) ) {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			if ( false === unlink( $theme_to_symlink ) ) {
+			if ( ! unlink( $theme_to_symlink ) ) {
 				WP_CLI::error( "Failed to remove conflicting symlink '$theme_to_symlink'" );
 				exit( -1 );
 			}

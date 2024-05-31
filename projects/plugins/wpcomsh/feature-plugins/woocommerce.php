@@ -11,6 +11,8 @@ use Automattic\Jetpack\Status;
 /**
  * Redirect to Design With AI page with `ref=entrepreneur-signup` in the URL.
  * Also deletes the `_wc_activation_redirect` transient which is used for first-time woo onboarding.
+ *
+ * @return never
  */
 function wpcom_redirect_to_woo_design_with_ai() {
 	delete_transient( '_wc_activation_redirect' );

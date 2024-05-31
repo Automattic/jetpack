@@ -29,13 +29,14 @@ class Colors_API {
 	 * @param string|false $route API route.
 	 * @param array        $args API args.
 	 * @param int|false    $id Item ID if available, false otherwise.
+	 * @return array|\WP_Error
 	 */
 	public static function call( $route = false, $args = array(), $id = false ) {
 		if ( ! self::is_valid_route( $route ) ) {
 			return new WP_Error( 'Invalid route.' );
 		}
 		$args = self::validate_args( $args );
-		if ( false === $args ) {
+		if ( ! is_array( $args ) ) {
 			return new WP_Error( 'Arguments should be an array.' );
 		}
 		if ( empty( $args ) ) {
@@ -68,7 +69,7 @@ class Colors_API {
 	 *
 	 * @param array $args Color API args.
 	 *
-	 * @return array
+	 * @return bool|array
 	 */
 	public static function validate_args( $args ) {
 		if ( ! is_array( $args ) ) {
@@ -90,7 +91,7 @@ class Colors_API {
 	 * Modified to work with v2 wpcom endpoints
 	 *
 	 * @param string            $path Request path.
-	 * @param string            $version API version.
+	 * @param int|string        $version API version.
 	 * @param array             $args Request args.
 	 * @param array|string|null $body Request body.
 	 * @param string            $base_api_path Determines the base API path for jetpack requests; defaults to 'rest'.
@@ -123,7 +124,7 @@ class Colors_API {
 		$_path = preg_replace( '/^\//', '', $path );
 
 		// Use GET by default whereas `remote_request` uses POST
-		if ( isset( $filtered_args['method'] ) && strtoupper( $filtered_args['method'] === 'POST' ) ) {
+		if ( isset( $filtered_args['method'] ) && strtoupper( $filtered_args['method'] ) === 'POST' ) {
 			$request_method = 'POST';
 		} else {
 			$request_method = 'GET';

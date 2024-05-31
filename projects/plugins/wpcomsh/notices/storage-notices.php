@@ -16,8 +16,8 @@ function wpcomsh_storage_notices() {
 		return;
 	}
 
-	$space_used  = $site_info['space_used'];
-	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
+	$space_used  = intval( $site_info['space_used'] );
+	$space_quota = intval( wpcomsh_pro_plan_storage_override( $site_info['space_quota'] ) );
 
 	// Info (0-95% usage)
 	$notice_class = 'info';
@@ -68,8 +68,8 @@ function wpcomsh_display_disk_space_usage() {
 		return;
 	}
 
-	$space_used  = $site_info['space_used'];
-	$space_quota = wpcomsh_pro_plan_storage_override( $site_info['space_quota'] );
+	$space_used  = intval( $site_info['space_used'] );
+	$space_quota = intval( wpcomsh_pro_plan_storage_override( $site_info['space_quota'] ) );
 
 	$message = sprintf(
 		/* translators: 1: Upload space used; 2: Upload space allowed; 3: percentage of allowed space used */

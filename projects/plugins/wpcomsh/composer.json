@@ -8,12 +8,13 @@
     "automattic/at-pressable-podcasting": "^2.0",
     "automattic/custom-fonts": "^3.0",
     "automattic/custom-fonts-typekit": "^2.0",
+    "automattic/jetpack-config": "^1.5",
+    "automattic/jetpack-device-detection": "^2.1",
+    "automattic/jetpack-mu-wpcom": "^5.32.0",
+    "automattic/jetpack-post-list": "^0.5.1",
     "automattic/text-media-widget-styles": "^2.0",
     "automattic/wc-calypso-bridge": "2.5.1",
     "wordpress/classic-editor-plugin": "1.5",
-    "automattic/jetpack-config": "^1.5",
-    "automattic/jetpack-post-list": "^0.5.1",
-    "automattic/jetpack-mu-wpcom": "^5.32.0",
     "tubalmartin/cssmin": "^4.1"
   },
   "require-dev": {

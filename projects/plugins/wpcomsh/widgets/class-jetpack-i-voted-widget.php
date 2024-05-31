@@ -39,7 +39,7 @@ class Jetpack_I_Voted_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		$title = isset( $instance['title'] ) ? $instance['title'] : null;
+		$title = $instance['title'] ?? null;
 		$title = apply_filters( 'widget_title', $title );
 
 		if ( $title ) {
@@ -69,6 +69,7 @@ class Jetpack_I_Voted_Widget extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$defaults = array(

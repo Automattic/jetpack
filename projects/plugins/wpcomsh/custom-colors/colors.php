@@ -294,7 +294,7 @@ class Colors_Manager_Common {
 			if ( $parsed_url && ! isset( $parsed_url['query'] ) ) {
 				return $theme;
 			}
-			wp_parse_str( $parsed_url['query'], $query_parts );
+			wp_parse_str( $parsed_url['query'] ?? '', $query_parts );
 			if ( isset( $query_parts['theme'] ) ) {
 				return $query_parts['theme'];
 			}
@@ -383,8 +383,8 @@ class Colors_Manager_Common {
 	 */
 	public static function register_scripts_and_styles() {
 		// register styles
-		wp_register_style( 'colors-tool', plugins_url( 'css/colors-control.css', __FILE__ ), null, '20220727' );
-		wp_register_style( 'noticons', '//s0.wp.com/i/noticons/noticons.css', null, '20120621', 'all' );
+		wp_register_style( 'colors-tool', plugins_url( 'css/colors-control.css', __FILE__ ), array(), '20220727' );
+		wp_register_style( 'noticons', '//s0.wp.com/i/noticons/noticons.css', array(), '20120621', 'all' );
 
 		// register scripts
 		wp_register_script( 'Color.js', plugins_url( 'js/color.js', __FILE__ ), array(), '20121210', true );
@@ -606,6 +606,8 @@ class Colors_Manager_Common {
 
 	/**
 	 * Outputs color pallettes for AJAX requests.
+	 *
+	 * @return never
 	 */
 	public static function ajax_color_palettes() {
 		$palettes = self::get_color_palettes( $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
@@ -619,6 +621,8 @@ class Colors_Manager_Common {
 
 	/**
 	 * Outputs generated color pallette for AJAX requests.
+	 *
+	 * @return never
 	 */
 	public static function ajax_generate_palette() {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
@@ -629,6 +633,8 @@ class Colors_Manager_Common {
 
 	/**
 	 * Outputs color recommendations for AJAX requests.
+	 *
+	 * @return never
 	 */
 	public static function ajax_color_recommendations() {
 		$colors = self::get_color_recommendations( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
@@ -642,6 +648,8 @@ class Colors_Manager_Common {
 
 	/**
 	 * Outputs pattern recommendations for AJAX requests.
+	 *
+	 * @return never
 	 */
 	public static function ajax_pattern_recommendations() {
 		$patterns = self::get_pattern_recommendations( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
@@ -661,7 +669,8 @@ class Colors_Manager_Common {
 	 */
 	public static function format_colourlovers_urls( $new_theme_mods ) {
 		if ( ! empty( $new_theme_mods['background_image'] ) && false !== strpos( $new_theme_mods['background_image'], '/imgpress?url=' . rawurlencode( self::COLOURLOVERS_HOST ) ) ) {
-			$new_theme_mods['background_image'] = urldecode( array_pop( explode( '/imgpress?url=', $new_theme_mods['background_image'], 2 ) ) );
+			$parts                              = explode( '/imgpress?url=', $new_theme_mods['background_image'], 2 );
+			$new_theme_mods['background_image'] = urldecode( array_pop( $parts ) );
 		}
 
 		return $new_theme_mods;
@@ -696,8 +705,8 @@ class Colors_Manager_Common {
 					$pattern_id = $matches[1];
 
 					if ( empty( $mods['background_image_metadata'] ) || $pattern_id !== $mods['background_image_metadata']['pattern_id'] ) {
-						$pattern = Colors_API::call( 'patterns', array(), $pattern_id );
-						if ( ! is_wp_error( $pattern ) ) {
+						$pattern = Colors_API::call( 'patterns', array(), (int) $pattern_id );
+						if ( ! is_wp_error( $pattern ) && is_array( $pattern ) ) {
 							set_theme_mod(
 								'background_image_metadata',
 								array(
@@ -849,7 +858,7 @@ class Colors_Manager_Common {
 	/**
 	 * Query and return palette data.
 	 *
-	 * @param array{?color:string,?limit:int,?offset:int} $args initial color settings.
+	 * @param array{color?:string,limit?:int,offset?:int} $args initial color settings.
 	 * @return array An array of color palettes.
 	 */
 	public static function get_color_palettes( $args = array() ) {
@@ -936,7 +945,7 @@ class Colors_Manager_Common {
 	 * Returns a color palette matching a given image thanks to the Tonesque
 	 * lib.
 	 *
-	 * @param array{?image:string} $args an image URL in the form of an array.
+	 * @param array{image?:string} $args an image URL in the form of an array.
 	 * @return array A single color palette
 	 */
 	public static function get_generated_palette( $args = array() ) {
@@ -1013,7 +1022,7 @@ class Colors_Manager_Common {
 	/**
 	 * Query and return pattern data.
 	 *
-	 * @param array{?color:string,?limit:int,?offset:int} $args initial settings.
+	 * @param array{color?:string,limit?:int,offset?:int} $args initial settings.
 	 * @return array An array of patterns.
 	 */
 	public static function get_patterns( $args = array() ) {
@@ -1062,7 +1071,7 @@ class Colors_Manager_Common {
 				}
 
 				$patterns[ $pattern_index ]['colors']            = $colors;
-				$patterns[ $pattern_index ]['preview_image_url'] = ( function_exists( 'jetpack_photon_url' ) ) ? jetpack_photon_url( $pattern['preview_image_url'], array(), 'network_path' ) : $pattern['preview_image_url'];
+				$patterns[ $pattern_index ]['preview_image_url'] = apply_filters( 'jetpack_photon_url', $pattern['preview_image_url'], array(), 'network_path' );
 			}
 		}
 
@@ -1109,7 +1118,7 @@ class Colors_Manager_Common {
 	/**
 	 * Finds colors that could be suitable complement to a given set of colors.
 	 *
-	 * @param array{?color:string,?role:string,?colors:array,?limit:int} $args initial settings.
+	 * @param array{color?:string,role?:string,colors?:array,limit?:int} $args initial settings.
 	 * @return array An array of color codes.
 	 */
 	public static function get_color_recommendations( $args ) {
@@ -1140,7 +1149,7 @@ class Colors_Manager_Common {
 				)
 			);
 
-			if ( ! is_wp_error( $palettes ) ) {
+			if ( is_array( $palettes ) ) {
 				foreach ( $palettes as $palette ) {
 					$multiplier = 0;
 
@@ -1156,14 +1165,14 @@ class Colors_Manager_Common {
 						}
 					}
 
-					foreach ( $palette['colors'] as $role => $_color ) {
+					foreach ( $palette['colors'] as $palette_role => $_color ) {
 						if ( ! $_color ) {
 							continue;
 						}
 
 						$colors[ $_color ] += ( 1 * $multiplier );
 
-						if ( $role === $args['role'] ) {
+						if ( $palette_role === $args['role'] ) {
 							$colors[ $_color ] += ( 1 * $multiplier );
 						}
 					}
@@ -1203,7 +1212,7 @@ class Colors_Manager_Common {
 	/**
 	 * Finds patterns that could be suitable complement to a given set of colors.
 	 *
-	 * @param array{?colors:array,?limit:int} $args initial settings.
+	 * @param array{colors?:array,limit?:int} $args initial settings.
 	 * @return array An array of patterns.
 	 */
 	public static function get_pattern_recommendations( $args ) {
@@ -1229,7 +1238,7 @@ class Colors_Manager_Common {
 				)
 			);
 
-			if ( ! is_wp_error( $color_patterns ) ) {
+			if ( is_array( $color_patterns ) ) {
 				foreach ( $color_patterns as $pattern ) {
 					$patterns_by_id[ $pattern['id'] ] = $pattern;
 
@@ -1238,8 +1247,8 @@ class Colors_Manager_Common {
 					}
 					$pattern_ids[ $pattern['id'] ] += 1;
 
-					foreach ( $pattern['colors'] as $color ) {
-						if ( in_array( $color, $args['colors'], true ) ) {
+					foreach ( $pattern['colors'] as $value ) {
+						if ( in_array( $value, $args['colors'], true ) ) {
 							$pattern_ids[ $pattern['id'] ] += 1;
 						}
 					}
@@ -1306,27 +1315,13 @@ class Colors_Manager_Common {
 		// Include controller class
 		require_once __DIR__ . '/class-colors-controller.php';
 
-		if ( false && class_exists( 'WP_Customize_Panel_Section' ) ) {
-			$wp_customize->add_section(
-				new WP_Customize_Panel_Section(
-					$wp_customize,
-					'colors_manager_tool',
-					array(
-						'title'    => __( 'Colors & Backgrounds', 'wpcomsh' ),
-						'priority' => 35,
-						'panel'    => 'custom-design',
-					)
-				)
-			);
-		} else {
-			$wp_customize->add_section(
-				'colors_manager_tool',
-				array(
-					'title'    => __( 'Colors & Backgrounds', 'wpcomsh' ),
-					'priority' => 35,
-				)
-			);
-		}
+		$wp_customize->add_section(
+			'colors_manager_tool',
+			array(
+				'title'    => __( 'Colors & Backgrounds', 'wpcomsh' ),
+				'priority' => 35,
+			)
+		);
 
 		$setting_opts = array(
 			'default'    => self::get_colors(),
@@ -1491,7 +1486,7 @@ class Colors_Manager_Common {
 		}
 		$css = self::get_theme_css();
 
-		wp_register_style( 'custom-colors-editor-css', false, null, '20210311' ); // Register an empty stylesheet to append custom CSS to.
+		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
 		wp_enqueue_style( 'custom-colors-editor-css' );
 		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
 	}
@@ -1573,7 +1568,7 @@ class Colors_Manager_Common {
 				// darken/lighten
 				if ( '+' === $first_char || '-' === $first_char ) {
 					$modify = 10 * $number;
-					$color  = $working_color->incrementLightness( $modify )->toString();
+					$color  = $working_color->incrementLightness( intval( $modify ) )->toString();
 				} else {
 					// hex bg for contrast
 					if ( '#' === $first_char ) {
@@ -1601,7 +1596,7 @@ class Colors_Manager_Common {
 					// we have a bg color to contrast
 					if ( isset( $bg_color ) && is_a( $bg_color, 'Jetpack_Color' ) ) {
 						// default contrast of 5, can be overridden with 4th arg.
-						$contrast = ( isset( $rule[3] ) ) ? $rule[3] : 5;
+						$contrast = $rule[3] ?? 5;
 						$color    = $working_color->getReadableContrastingColor( $bg_color, $contrast )->toString();
 					}
 				}
@@ -1609,7 +1604,7 @@ class Colors_Manager_Common {
 				unset( $rule[2] );
 				// back compat for non-rgba browsers
 				$css  .= self::css_rule( $rule, $color );
-				$color = $working_color->toCSS( 'rgba', $number );
+				$color = $working_color->toCSS( 'rgba', intval( $number ) );
 			}
 		}
 		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
@@ -1642,7 +1637,7 @@ class Colors_Manager_Common {
 			}
 			$color = $extra['color'];
 			foreach ( $extra['rules'] as $rule ) {
-				$css .= self::css_rule( $rule, $color );
+				$css .= self::css_rule( $rule, (string) $color );
 			}
 		}
 		return $css;
@@ -1680,8 +1675,8 @@ class Colors_Manager_Common {
 	/**
 	 * Allow a theme to declare its own color palettes.
 	 *
-	 * @param array  $palette An array with 5 colors.
-	 * @param string $title optional title string.
+	 * @param array       $palette An array with 5 colors.
+	 * @param bool|string $title optional title string.
 	 */
 	public static function add_color_palette( $palette, $title = false ) {
 		if ( ! $title ) {
@@ -1964,8 +1959,8 @@ function add_color_rule( $category, $default_color, $rules, $label = false ) {
 /**
  * Adds color palette.
  *
- * @param array  $palette An array with 5 colors.
- * @param string $title optional title string.
+ * @param array       $palette An array with 5 colors.
+ * @param bool|string $title optional title string.
  */
 function add_color_palette( $palette, $title = false ) {
 	return Colors_Manager::add_color_palette( $palette, $title );

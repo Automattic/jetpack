@@ -45,7 +45,7 @@ function search_plugin_info( $slug ) {
  *
  * @param string $slug Plugin slug.
  * @param array  $body Array data with needed information to check the plugin.
- * @return WP_Error|bool Error instance if something fails, `true` if plugin is accepted.
+ * @return WP_Error|array Error instance if something fails, the response if plugin is accepted.
  */
 function request_check_plugin( $slug, $body ) {
 	$wpcom_blog_id = Jetpack_Options::get_option( 'id' );
@@ -71,7 +71,7 @@ function request_check_plugin( $slug, $body ) {
 	}
 
 	$response_code = wp_remote_retrieve_response_code( $request );
-	$response      = json_decode( wp_remote_retrieve_body( $request ), true );
+	$response      = json_decode( wp_remote_retrieve_body( $request ), true ) ?? array();
 
 	$error_data = array(
 		'wpcom_blog_id' => $wpcom_blog_id,
@@ -87,10 +87,10 @@ function request_check_plugin( $slug, $body ) {
 	// It should be changed passing the `reject` action.
 	if ( $response_code === 400 ) {
 		$error_data['response-code'] = 400;
-		return new WP_Error( 'unaccepted_plugin', $response['message'], $error_data );
+		return new WP_Error( 'unaccepted_plugin', $response['message'] ?? '', $error_data );
 	}
 
-	if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+	if ( empty( $response ) || ! $response_code || $response_code < 200 || $response_code >= 300 ) {
 		return new WP_Error(
 			'checking_plugin_failed',
 			"Invalid response from API - {$response_code}",
@@ -98,14 +98,14 @@ function request_check_plugin( $slug, $body ) {
 		);
 	}
 
-	if ( $response['action'] === 'reject' ) {
-		return new WP_Error( 'unaccepted_plugin', $response['message'], $response['threats'] );
+	if ( isset( $response['action'] ) && $response['action'] === 'reject' ) {
+		return new WP_Error( 'unaccepted_plugin', $response['message'] ?? '', $response['threats'] ?? '' );
 	}
 
 	$result = array(
-		'action'     => (string) $response['action'],
-		'message'    => (string) $response['message'],
-		'registered' => (string) $response['registered'],
+		'action'     => (string) ( $response['action'] ?? '' ),
+		'message'    => (string) ( $response['message'] ?? '' ),
+		'registered' => (string) ( $response['registered'] ?? '' ),
 	);
 
 	if ( array_key_exists( 'threats', $response ) ) {

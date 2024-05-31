@@ -56,11 +56,11 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * SQL_Postprocessor constructor.
 	 *
-	 * @param string      $home_url   The home URL.
-	 * @param string      $site_url   The site URL.
-	 * @param string      $tmp_prefix The table temporary prefix.
-	 * @param bool        $dry_run    Whether to run the command in dry run mode.
-	 * @param null|Logger $logger     An optional logger for logging operations.
+	 * @param string                       $home_url   The home URL.
+	 * @param string                       $site_url   The site URL.
+	 * @param string                       $tmp_prefix The table temporary prefix.
+	 * @param bool                         $dry_run    Whether to run the command in dry run mode.
+	 * @param null|Utils\Logger\FileLogger $logger     An optional logger for logging operations.
 	 */
 	public function __construct( string $home_url, string $site_url, string $tmp_prefix, $dry_run = true, $logger = null ) {
 		parent::__construct( $logger );
@@ -73,7 +73,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * Postprocess the database after importing.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function postprocess() {
 		global $wpdb;
@@ -118,7 +118,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		$exclude_list  = array( $wpdb->prefix . 'users', $wpdb->prefix . 'usermeta' );
 		$replace_query = $this->get_tables_replace_query( $exclude_list );
 
-		if ( is_wp_error( $replace_query ) ) {
+		if ( ! is_array( $replace_query ) ) {
 			return $replace_query;
 		}
 
@@ -140,7 +140,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * Postprocess the database after importing.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function replace_urls() {
 		global $wpdb;
@@ -195,7 +195,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * Save a whitelist of options in temporary tables.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function save_whitelist_options() {
 		global $wpdb;
@@ -276,7 +276,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * Replace the users.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function replace_users() {
 		global $wpdb;
@@ -322,7 +322,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	/**
 	 * Merge the plugins.
 	 *
-	 * @return bool|WP_Error
+	 * @return bool
 	 */
 	public function merge_plugins(): bool {
 		global $wpdb;
@@ -364,7 +364,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	 *
 	 * @param array $exclude The tables to exclude.
 	 *
-	 * @return array|WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function get_tables_replace_query( $exclude = array() ) {
 		global $wpdb;
@@ -499,7 +499,7 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 	 *
 	 * @see https://wordpress.github.io/wordpress-playground/architecture/browser-scopes/
 	 *
-	 * @return bool|WP_Error
+	 * @return null|string|\WP_Error
 	 */
 	public function get_app_scope() {
 		global $wpdb;

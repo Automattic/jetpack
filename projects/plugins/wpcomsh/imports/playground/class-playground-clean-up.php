@@ -20,7 +20,7 @@ class Playground_Clean_Up {
 	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
 	 *
-	 * @return boolean|WP_Error True on success, or a WP_Error on failure.
+	 * @return boolean|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public static function remove_tmp_files( string $zip_or_tar_file_path, string $destination_path ) {
 		if ( file_exists( $zip_or_tar_file_path ) ) {

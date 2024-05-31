@@ -238,7 +238,7 @@ class Template_First_Themes {
 	 * @param string $locale The preferred locale.
 	 * @param string $fallback_locale The locale that's preferred if $locale is not found.
 	 *
-	 * @return object|bool It will return an object that represents the homepage or
+	 * @return array|bool It will return an associative array that represents the homepage or
 	 * false if it doesn't exist.
 	 */
 	protected function get_homepage( $theme_name, $locale, $fallback_locale ) {

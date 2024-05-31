@@ -127,7 +127,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 
 		foreach ( $tags as $tag_name => $num_posts ) {
 			$font_size = $instance['min_font_per'] + ( ( $num_posts - $min_value ) * $step );
-			echo '<a href="' . esc_url( $tag_urls[ $tag_name ] ) . '" style="font-size: ' . esc_attr( $font_size ) . '%; padding: 1px; margin: 1px;" title="' . esc_attr( $tag_name . ' (' . $num_posts . ')' ) . '">' . esc_html( $tag_name ) . '</a> ';
+			echo '<a href="' . esc_url( $tag_urls[ $tag_name ] ) . '" style="font-size: ' . esc_attr( $font_size . '%' ) . '; padding: 1px; margin: 1px;" title="' . esc_attr( $tag_name . ' (' . $num_posts . ')' ) . '">' . esc_html( $tag_name ) . '</a> ';
 		}
 
 		echo '</div>';
@@ -155,6 +155,7 @@ class WPCOM_Category_Cloud_Widget extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(

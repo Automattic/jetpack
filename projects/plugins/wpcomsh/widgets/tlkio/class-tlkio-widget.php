@@ -57,7 +57,7 @@ class Tlkio_Widget extends WP_Widget {
 		echo '<div id="tlkio" class="tlkio-container" data-channel="' . esc_attr( $instance['channel'] ) . '" style="width:100%; height:' . esc_attr( $instance['height'] ) . 'px;"></div>';
 
 		if ( ! wp_script_is( 'tlkio-js', 'enqueued' ) ) {
-			wp_enqueue_script( 'tlkio-js', plugins_url( 'tlkio.js', __FILE__ ), array(), 140115, true );
+			wp_enqueue_script( 'tlkio-js', plugins_url( 'tlkio.js', __FILE__ ), array(), '140115', true );
 		}
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -67,6 +67,7 @@ class Tlkio_Widget extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );

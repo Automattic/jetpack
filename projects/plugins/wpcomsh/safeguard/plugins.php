@@ -16,15 +16,6 @@ namespace Safeguard;
  */
 
 require_once __DIR__ . '/utils.php';
-/**
- * `upgrader_pre_download` filter for checking plugin before install.
- *
- * @param $reply
- * @param $package
- * @param $wp_upgrader
- *
- * @return bool|WP_Error
- */
 
 $attachment_data = array();
 
@@ -35,6 +26,15 @@ add_filter(
 
 		add_filter(
 			'upgrader_pre_download',
+			/**
+			 * `upgrader_pre_download` filter for checking plugin before install.
+			 *
+			 * @param $reply
+			 * @param $package
+			 * @param $wp_upgrader
+			 *
+			 * @return bool|\WP_Error
+			 */
 			function ( $reply, $package, $wp_upgrader ) use ( $attachment_data ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 				// Ensure package is a plugin.
 				if (

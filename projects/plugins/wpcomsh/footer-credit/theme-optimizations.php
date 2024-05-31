@@ -3,6 +3,9 @@
  * This file is taken from wp-content/blog-plugins/theme-optimizations.php on wpcom and is split into this and 'footer-credit-optimizations.php'.
  * The latter will hold all footer-credit-related logic that can run outside of wpcom environment. I hope to port these files back
  */
+
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+
 require_once __DIR__ . '/footer-credit-optimizations.php';
 
 // Footer credit wpcom-related hooks:
@@ -86,14 +89,15 @@ add_filter( 'wpcom_better_footer_credit_url', 'wpcom_better_footer_credit_url', 
  *
  * @param string $str Text content.
  * @uses jetpack_is_mobile()
- * @uses Jetpack_User_Agent_Info::is_tablet()
+ * @uses User_Agent_Info::is_tablet()
  * @uses apply_filters()
  * @filter the_title
  * @return string
  */
 function widont( $str = '' ) {
 	// Don't apply on non-tablet mobile devices so the browsers can fit to the viewport properly.
-	if ( jetpack_is_mobile() && ! Jetpack_User_Agent_Info::is_tablet() ) {
+	$ua = new User_Agent_Info();
+	if ( jetpack_is_mobile() && ! $ua->is_tablet() ) {
 		return $str;
 	}
 
@@ -189,7 +193,7 @@ add_action( 'wp_head', 'wpcom_edit_post_admin_url_redirect_add_hook' );
  * Remove edit post admin URL redirect hook.
  */
 function wpcom_edit_post_admin_url_redirect_remove_hook() {
-	remove_filter( 'get_edit_post_link', 'wpcom_edit_post_admin_url_redirect', 10, 2 );
+	remove_filter( 'get_edit_post_link', 'wpcom_edit_post_admin_url_redirect', 10 );
 }
 add_action( 'wp_footer', 'wpcom_edit_post_admin_url_redirect_remove_hook' );
 
@@ -224,7 +228,7 @@ add_action( 'wp_head', 'wpcom_new_post_admin_url_redirect_add_hook' );
  * Remove new post admin URL redirect hook.
  */
 function wpcom_new_post_admin_url_redirect_remove_hook() {
-	remove_filter( 'admin_url', 'wpcom_new_post_admin_url_redirect', 10, 2 );
+	remove_filter( 'admin_url', 'wpcom_new_post_admin_url_redirect', 10 );
 }
 add_action( 'wp_footer', 'wpcom_new_post_admin_url_redirect_remove_hook' );
 

@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+
 /**
  * Retrieves the headstart annotation for a given theme.
  *
@@ -12,7 +14,7 @@
  * @param string $locale The preferred locale.
  * @param string $fallback_locale The locale that's preferred if $locale is not found.
  *
- * @return object|bool It will return an object that contains the headstart annotation or
+ * @return array|bool It will return an associative array that contains the headstart annotation or
  * false if it doesn't exist.
  */
 function wpcomsh_headstart_get_annotation( $theme_name, $locale, $fallback_locale ) {
@@ -63,10 +65,7 @@ function wpcomsh_headstart_get_annotation( $theme_name, $locale, $fallback_local
 		return false;
 	}
 	// 8. maybe_filter_annotation_for_non_gutenberg_users in headstart/class-headstart-annotations.php.
-	$is_gutenberg_user = true;
-	if ( class_exists( '\Jetpack_User_Agent_Info' ) ) {
-		$is_gutenberg_user = ! \Jetpack_User_Agent_Info::is_mobile_app();
-	}
+	$is_gutenberg_user = ! User_Agent_Info::is_mobile_app();
 	if ( $is_gutenberg_user ) {
 		$annotation = apply_filters( 'headstart_gutenberg_annotation_filter', $annotation, $theme_name, false, false, $locale );
 	}

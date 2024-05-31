@@ -159,7 +159,7 @@ class Backup_Import_Response extends WP_REST_Controller {
 	 */
 	public function read_last_log_line() {
 		$log_file = '/tmp/restore_log/restoration_log.txt';
-		if ( ! $log_file || ! file_exists( $log_file ) ) {
+		if ( ! file_exists( $log_file ) ) {
 			return null;
 		}
 

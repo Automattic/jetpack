@@ -287,7 +287,7 @@ class Backup_Import_Manager {
 	 */
 	private function bump_import_stats( string $status ) {
 		if ( isset( $this->options['dry_run'] ) && $this->options['dry_run'] ) {
-			return;
+			return true;
 		}
 
 		// Bumping at the same time the status and the type.
@@ -333,7 +333,7 @@ class Backup_Import_Manager {
 	 * @param string $zip_or_tar_file_path The path to the ZIP or TAR file to be imported.
 	 * @param string $destination_path The path where the backup will be imported.
 	 *
-	 * @return Importer|WP_Error An instance of the appropriate importer or a WP_Error if the type is unknown.
+	 * @return Backup_Importer|WP_Error An instance of the appropriate importer or a WP_Error if the type is unknown.
 	 */
 	public static function get_importer( string $type, string $zip_or_tar_file_path, string $destination_path ) {
 		switch ( $type ) {
@@ -426,7 +426,7 @@ class Backup_Import_Manager {
 			return new WP_Error( 'no_backup_import_found', __( 'No backup import found.', 'wpcomsh' ) );
 		}
 
-		if ( $backup_import_status && $backup_import_status['status'] === self::CANCELLED ) {
+		if ( isset( $backup_import_status['status'] ) && $backup_import_status['status'] === self::CANCELLED ) {
 			// The import has been cancelled, so we should stop here.
 			return true;
 		}

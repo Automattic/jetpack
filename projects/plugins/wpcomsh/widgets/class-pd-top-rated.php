@@ -49,9 +49,8 @@ class PD_Top_Rated extends WP_Widget {
 		if ( ! empty( $posts_rating_id ) || ! empty( $pages_rating_id ) || ! empty( $comments_rating_id ) ) {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-			if ( $instance['show_posts'] === 1 ) {
-				$top_class = 'posts';
-			} elseif ( $instance['show_pages'] === 1 ) {
+			$top_class = 'posts';
+			if ( $instance['show_pages'] === 1 ) {
 				$top_class = 'pages';
 			} elseif ( $instance['show_comments'] === 1 ) {
 				$top_class = 'comments';
@@ -128,6 +127,7 @@ class PD_Top_Rated extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 
@@ -175,11 +175,11 @@ class PD_Top_Rated extends WP_Widget {
 			</label>
 		</p>
 		<p>
-			<label for="rss-items-<?php echo esc_attr( $item_count ); ?>"><?php esc_html_e( 'How many items would you like to display?', 'wpcomsh' ); ?>
+			<label for="rss-items-<?php echo (int) $item_count; ?>"><?php esc_html_e( 'How many items would you like to display?', 'wpcomsh' ); ?>
 				<select id="<?php echo esc_attr( $this->get_field_id( 'item_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'item_count' ) ); ?>">
 					<?php
 					for ( $i = 1; $i <= 20; ++$i ) {
-						echo '<option value="' . esc_attr( $i ) . '"' . selected( $item_count, $i, false ) . '>' . esc_html( $i ) . '</option>';
+						echo '<option value="' . (int) $i . '"' . selected( $item_count, $i, false ) . '>' . (int) $i . '</option>'; // @phan-suppress-current-line PhanRedundantConditionInLoop -- phpcs needs the explicit cast.
 					}
 					?>
 				</select>

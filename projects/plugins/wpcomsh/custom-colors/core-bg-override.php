@@ -135,6 +135,6 @@ class Core_Bg_Override {
 		if ( ! is_array( $overrides ) ) {
 			return $value;
 		}
-		return isset( $overrides[ $name ] ) ? $overrides[ $name ] : $value;
+		return $overrides[ $name ] ?? $value;
 	}
 }

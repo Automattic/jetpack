@@ -55,6 +55,7 @@ class Aboutme_Widget extends WP_Widget {
 	 * Back-end widget form.
 	 *
 	 * @param array $instance Previously saved values from database.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance  = wp_parse_args(

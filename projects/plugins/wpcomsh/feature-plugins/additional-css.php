@@ -42,7 +42,7 @@ function wpcomsh_custom_css_admin_menu() {
 	}
 
 	// Add in our legacy page to support old bookmarks and such.
-	add_submenu_page( null, __( 'CSS', 'wpcomsh' ), __( 'Additional CSS', 'wpcomsh' ), 'edit_theme_options', 'editcss', '__return_false' );
+	add_submenu_page( '', __( 'CSS', 'wpcomsh' ), __( 'Additional CSS', 'wpcomsh' ), 'edit_theme_options', 'editcss', '__return_false' );
 
 	// Add in our new page slug that will redirect to the Customizer.
 	$hook = add_theme_page( __( 'CSS', 'wpcomsh' ), __( 'Additional CSS', 'wpcomsh' ), 'edit_theme_options', 'editcss-customizer-redirect', '__return_false' );
@@ -56,6 +56,7 @@ function wpcomsh_custom_css_admin_menu() {
  * that would make this unnecessary.
  *
  * @link https://core.trac.wordpress.org/ticket/39050
+ * @return never
  */
 function wpcomsh_custom_css_customizer_redirect() {
 	$redirect_to = add_query_arg(

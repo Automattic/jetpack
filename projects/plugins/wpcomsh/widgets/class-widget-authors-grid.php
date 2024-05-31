@@ -115,6 +115,7 @@ class Widget_Authors_Grid extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
@@ -150,7 +151,7 @@ class Widget_Authors_Grid extends WP_Widget {
 						'128' => '128x128',
 					) as $value => $label ) {
 						?>
-						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
+						<option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php } ?>
 				</select>
 			</label>

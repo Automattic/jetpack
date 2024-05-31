@@ -24,8 +24,8 @@ add_action( 'wp_ajax_anyone_can_register_dismiss_notice', 'wpcomsh_ajax_anyone_c
 /**
  * Clear metadata when option disabled.
  *
- * @param number $old_value of users_can_register option.
- * @param number $new_value of users_can_register option.
+ * @param int $old_value of users_can_register option.
+ * @param int $new_value of users_can_register option.
  */
 function wpcomsh_users_can_register_option_change( $old_value, $new_value ) {
 	if ( ! $new_value ) {

@@ -172,7 +172,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_table_creation() {
 		$this->generator->start();
 		$this->generator->start_table( 'test_table', array(), 1, false );
-		$this->generator->end_table_inserts( 'test_table' );
+		$this->generator->end_table_inserts();
 		$this->generator->end();
 
 		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $this->generator->get_dump() );
@@ -185,7 +185,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_table_creation_and_drop() {
 		$this->generator->start();
 		$this->generator->start_table( 'test_table', array(), 1 );
-		$this->generator->end_table_inserts( 'test_table' );
+		$this->generator->end_table_inserts();
 		$this->generator->end();
 
 		$this->assertStringContainsString( 'CREATE TABLE `test_table`', $this->generator->get_dump() );
@@ -198,7 +198,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_table_creation_with_collation() {
 		$this->generator->start( array( 'collation' => SQL_Generator::DEFAULT_COLLATION ) );
 		$this->generator->start_table( 'test_table', array(), 1 );
-		$this->generator->end_table_inserts( 'test_table' );
+		$this->generator->end_table_inserts();
 		$this->generator->end();
 
 		$this->assertStringContainsString( 'COLLATE=' . SQL_Generator::DEFAULT_COLLATION, $this->generator->get_dump() );
@@ -222,7 +222,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_valid_default_charset() {
 		$this->generator->start();
 		$this->generator->start_table( 'test_table', array(), 1 );
-		$this->generator->end_table_inserts( 'test_table' );
+		$this->generator->end_table_inserts();
 		$this->generator->end();
 
 		$this->assertStringContainsString( 'SET NAMES ' . SQL_Generator::DEFAULT_CHARSET, $this->generator->get_dump() );
@@ -235,7 +235,7 @@ class SQLGeneratorTest extends WP_UnitTestCase {
 	public function test_valid_specified_charset() {
 		$this->generator->start( array( 'charset' => 'utf32' ) );
 		$this->generator->start_table( 'test_table', array(), 1 );
-		$this->generator->end_table_inserts( 'test_table' );
+		$this->generator->end_table_inserts();
 		$this->generator->end();
 
 		$this->assertStringContainsString( 'SET NAMES utf32', $this->generator->get_dump() );

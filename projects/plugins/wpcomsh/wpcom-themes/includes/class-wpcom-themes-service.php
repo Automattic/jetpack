@@ -181,7 +181,7 @@ class WPCom_Themes_Service {
 
 		$wpcom_themes = array_filter(
 			$wpcom_themes,
-			fn( $theme ) => array_intersect( $tags, $theme->tags )
+			fn( $theme ) => (bool) array_intersect( $tags, $theme->tags )
 		);
 
 		return $this->merger->merge_by_wpcom_first( $wporg_theme_api_response, $wpcom_themes );

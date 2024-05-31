@@ -110,6 +110,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 * Outputs the Tag Cloud widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 *
 	 * @since 2.8.0
 	 */

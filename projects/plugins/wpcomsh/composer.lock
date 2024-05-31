@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c8b2321a1d5dc4ba361bc2a6de5e33c",
+    "content-hash": "0bbc2e565b0252e6bd6ec04577eb378d",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -486,26 +486,26 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v2.8.5",
+            "version": "v2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "c347b740efa0c3934805273ddc159ce1baf9c3a1"
+                "reference": "ff563ff6d5e1d03b70bac23f45efc59e3250e988"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/c347b740efa0c3934805273ddc159ce1baf9c3a1",
-                "reference": "c347b740efa0c3934805273ddc159ce1baf9c3a1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/ff563ff6d5e1d03b70bac23f45efc59e3250e988",
+                "reference": "ff563ff6d5e1d03b70bac23f45efc59e3250e988",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "^2.0.1",
                 "automattic/jetpack-admin-ui": "^0.4.2",
                 "automattic/jetpack-assets": "^2.1.11",
-                "automattic/jetpack-constants": "^2.0.2",
+                "automattic/jetpack-constants": "^2.0.3",
                 "automattic/jetpack-redirect": "^2.0.2",
                 "automattic/jetpack-roles": "^2.0.2",
-                "automattic/jetpack-status": "^3.2.0",
+                "automattic/jetpack-status": "^3.2.2",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -529,7 +529,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -542,7 +542,8 @@
                 "classmap": [
                     "legacy",
                     "src/",
-                    "src/webhooks"
+                    "src/webhooks",
+                    "src/identity-crisis"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -551,29 +552,29 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.8.5"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.9.0"
             },
-            "time": "2024-05-27T13:59:15+00:00"
+            "time": "2024-05-29T09:45:59+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "v2.0.2",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-constants.git",
-                "reference": "6f7991f9e4475d4e2c3fd843111abfadb8a8c187"
+                "reference": "f5da87d3b7f80411b77aa58a7355733ea72295aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/6f7991f9e4475d4e2c3fd843111abfadb8a8c187",
-                "reference": "6f7991f9e4475d4e2c3fd843111abfadb8a8c187",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/f5da87d3b7f80411b77aa58a7355733ea72295aa",
+                "reference": "f5da87d3b7f80411b77aa58a7355733ea72295aa",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^4.2.2",
+                "automattic/jetpack-changelogger": "^4.2.4",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -602,9 +603,9 @@
             ],
             "description": "A wrapper for defining constants in a more testable way.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-constants/tree/v2.0.2"
+                "source": "https://github.com/Automattic/jetpack-constants/tree/v2.0.3"
             },
-            "time": "2024-04-30T19:01:57+00:00"
+            "time": "2024-05-29T09:44:58+00:00"
         },
         {
             "name": "automattic/jetpack-device-detection",
@@ -655,66 +656,6 @@
                 "source": "https://github.com/Automattic/jetpack-device-detection/tree/v2.1.3"
             },
             "time": "2024-04-08T18:32:53+00:00"
-        },
-        {
-            "name": "automattic/jetpack-identity-crisis",
-            "version": "v0.20.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Automattic/jetpack-identity-crisis.git",
-                "reference": "c3a9c61250efb0292583e8797a5abb2b4209d7b6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/c3a9c61250efb0292583e8797a5abb2b4209d7b6",
-                "reference": "c3a9c61250efb0292583e8797a5abb2b4209d7b6",
-                "shasum": ""
-            },
-            "require": {
-                "automattic/jetpack-assets": "^2.1.11",
-                "automattic/jetpack-connection": "^2.8.3",
-                "automattic/jetpack-constants": "^2.0.2",
-                "automattic/jetpack-logo": "^2.0.3",
-                "automattic/jetpack-status": "^3.1.0",
-                "php": ">=7.0"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "^4.2.4",
-                "automattic/wordbless": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
-            },
-            "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-identity-crisis",
-                "textdomain": "jetpack-idc",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-identity-crisis.php"
-                },
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.20.x-dev"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Identity Crisis.",
-            "support": {
-                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.20.0"
-            },
-            "time": "2024-05-20T18:04:48+00:00"
         },
         {
             "name": "automattic/jetpack-ip",
@@ -1330,20 +1271,20 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v3.2.0",
+            "version": "v3.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "795f4fa778daa6139c88ba5f62e09dea93bdd93c"
+                "reference": "0c52204f768e1fc612bbb996a8a58acc1aec2024"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/795f4fa778daa6139c88ba5f62e09dea93bdd93c",
-                "reference": "795f4fa778daa6139c88ba5f62e09dea93bdd93c",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/0c52204f768e1fc612bbb996a8a58acc1aec2024",
+                "reference": "0c52204f768e1fc612bbb996a8a58acc1aec2024",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-constants": "^2.0.2",
+                "automattic/jetpack-constants": "^2.0.3",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -1387,38 +1328,37 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v3.2.0"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v3.2.2"
             },
-            "time": "2024-05-22T17:28:26+00:00"
+            "time": "2024-05-29T09:45:24+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v3.0.0",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "dea9ac101cd2664ba9079882db3731ecab5edbaa"
+                "reference": "980a137bdbcba6f78ce7f56a77ad33850c151ab9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/dea9ac101cd2664ba9079882db3731ecab5edbaa",
-                "reference": "dea9ac101cd2664ba9079882db3731ecab5edbaa",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/980a137bdbcba6f78ce7f56a77ad33850c151ab9",
+                "reference": "980a137bdbcba6f78ce7f56a77ad33850c151ab9",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^2.8.5",
-                "automattic/jetpack-constants": "^2.0.2",
-                "automattic/jetpack-identity-crisis": "^0.20.0",
+                "automattic/jetpack-connection": "^2.9.0",
+                "automattic/jetpack-constants": "^2.0.3",
                 "automattic/jetpack-ip": "^0.2.2",
                 "automattic/jetpack-password-checker": "^0.3.1",
                 "automattic/jetpack-roles": "^2.0.2",
-                "automattic/jetpack-status": "^3.2.0",
+                "automattic/jetpack-status": "^3.2.2",
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^4.2.4",
                 "automattic/jetpack-search": "@dev",
-                "automattic/jetpack-waf": "^0.16.8",
+                "automattic/jetpack-waf": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -1457,9 +1397,9 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v3.0.0"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v3.0.1"
             },
-            "time": "2024-05-27T13:59:37+00:00"
+            "time": "2024-05-29T09:46:15+00:00"
         },
         {
             "name": "automattic/scheduled-updates",

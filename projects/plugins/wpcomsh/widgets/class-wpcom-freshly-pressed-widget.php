@@ -65,6 +65,7 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$defaults = array(

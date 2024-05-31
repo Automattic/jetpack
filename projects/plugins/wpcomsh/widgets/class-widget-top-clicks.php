@@ -14,7 +14,7 @@ class Widget_Top_Clicks extends WP_Widget {
 	/**
 	 * Widget default settings.
 	 *
-	 * @var array{ title: string, count: int, len: int } $defaults
+	 * @var array{title:string,count:int,len:int} $defaults
 	 */
 	public $defaults = array(
 		'title' => '',
@@ -63,6 +63,7 @@ class Widget_Top_Clicks extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
@@ -84,7 +85,7 @@ class Widget_Top_Clicks extends WP_Widget {
 				<?php esc_html_e( 'URLs to show:', 'wpcomsh' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'count' ) ); ?>">
 					<?php for ( $i = 1; $i <= 12; ++$i ) { ?>
-						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $instance['count'] ); ?>><?php echo esc_html( $i ); ?></option>
+						<option value="<?php echo $i; ?>" <?php selected( $i, $instance['count'] ); ?>><?php echo $i; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $i is an integer iterator. */ ?></option>
 					<?php } ?>
 				</select>
 			</label>

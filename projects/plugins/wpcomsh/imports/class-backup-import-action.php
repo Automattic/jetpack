@@ -17,14 +17,14 @@ abstract class Backup_Import_Action {
 	/**
 	 * An optional logger for logging operations.
 	 *
-	 * @var FileLogger|null
+	 * @var Utils\Logger\FileLogger|null
 	 */
 	protected $logger;
 
 	/**
 	 * Constructs a new instance of the Backup_Import_Action class.
 	 *
-	 * @param FileLogger|null $logger An instance of FileLogger for logging messages. Default is null.
+	 * @param Utils\Logger\FileLogger|null $logger An instance of FileLogger for logging messages. Default is null.
 	 */
 	public function __construct( $logger = null ) {
 		$this->logger = $logger;

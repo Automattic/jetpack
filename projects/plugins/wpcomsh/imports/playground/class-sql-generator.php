@@ -30,14 +30,14 @@ class SQL_Generator {
 	/**
 	 * The output file.
 	 *
-	 * @var string
+	 * @var string|resource|null
 	 */
 	private $output_handle = '';
 
 	/**
 	 * The current table.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	private $current_table = null;
 
@@ -65,7 +65,7 @@ class SQL_Generator {
 	/**
 	 * The collation.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	private $collation = null;
 

@@ -56,6 +56,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	 * @see WP_Widget::form()
 	 *
 	 * @param array $instance Previously saved values from database.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		// outputs the options form on admin

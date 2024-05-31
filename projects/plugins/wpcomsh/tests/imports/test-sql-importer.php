@@ -15,7 +15,7 @@ class SQLImporterTest extends WP_UnitTestCase {
 	/**
 	 * Temporary SQL file.
 	 *
-	 * @var string
+	 * @var resource
 	 */
 	private $tmp_sql_file;
 

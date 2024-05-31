@@ -24,7 +24,7 @@ class Music_Player_Widget extends WP_Widget {
 	 */
 	public function widget_scripts() {
 		wp_enqueue_media();
-		wp_enqueue_script( 'music-player', plugins_url( 'music-player/music-player.js', __FILE__ ), array( 'jquery', 'thickbox' ), 1, true );
+		wp_enqueue_script( 'music-player', plugins_url( 'music-player/music-player.js', __FILE__ ), array( 'jquery', 'thickbox' ), '1', true );
 	}
 
 	/**
@@ -72,7 +72,7 @@ class Music_Player_Widget extends WP_Widget {
 	 *
 	 * @param array $instance An array of the current settings for this widget.
 	 *
-	 * @return void Echoes its output
+	 * @return never Echoes its output
 	 **/
 	public function form( $instance ) {
 		$instance = wp_parse_args(

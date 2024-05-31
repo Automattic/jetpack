@@ -448,6 +448,8 @@ function is_jetpack_admin_ajax_request() {
 /**
  * Tell the client that the site is private and they do not have access.
  * This function always exits PHP (`wp_send_json_error` calls `wp_die` / `die`)
+ *
+ * @return never
  */
 function send_access_denied_error_response() {
 	global $wp;

@@ -7,6 +7,8 @@
 
 namespace Imports;
 
+use WP_Error;
+
 /**
  * Abstract class representing a backup importer.
  *

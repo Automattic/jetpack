@@ -85,7 +85,7 @@ add_filter( 'jetpack_upload_handler_can_upload', 'wpcomsh_jetpack_upload_handler
  */
 function wpcomsh_allow_file_uploads_with_invalid_mime_types( $file_data, $file, $filename, $mimes ) {
 	// Remove itself to avoid potential infinite loops
-	remove_filter( 'wp_check_filetype_and_ext', 'wpcomsh_allow_file_uploads_with_invalid_mime_types', 1000, 4 );
+	remove_filter( 'wp_check_filetype_and_ext', 'wpcomsh_allow_file_uploads_with_invalid_mime_types', 1000 );
 	if ( ! file_exists( $file ) ) {
 		return $file_data;
 	}

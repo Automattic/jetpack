@@ -57,8 +57,8 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_blaze_module_list' )
  * The Blaze module may not be auto-activated when the site is not public,
  * so we have to activate the module when it's public manually.
  *
- * @param number $old_value of blog_public option.
- * @param number $new_value of blog_public option.
+ * @param int $old_value of blog_public option.
+ * @param int $new_value of blog_public option.
  */
 function wpcomsh_activate_blaze_module_on_launching( $old_value, $new_value ) {
 	$blog_public = (int) $new_value;

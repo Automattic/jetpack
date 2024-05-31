@@ -44,7 +44,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 			// Delete the database.
 			wp_delete_file( $this->tmp_db_path );
 
-			$this->tmp_db_path = null;
+			$this->tmp_db_path = '';
 		}
 
 		parent::tearDown();
@@ -354,7 +354,7 @@ class PlaygroundDBImporterTest extends WP_UnitTestCase {
 
 			$this->tmp_db_path = $tmp_db_path;
 		} catch ( Exception $e ) {
-			$this->tmp_db_path = null;
+			$this->tmp_db_path = '';
 		}
 	}
 

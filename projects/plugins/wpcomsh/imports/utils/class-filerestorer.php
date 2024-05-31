@@ -37,7 +37,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	/**
 	 * The queue that manages the files to be restored.
 	 *
-	 * @var SplQueue
+	 * @var \SplQueue
 	 */
 	private $queue;
 	/**
@@ -61,9 +61,9 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * Initializes a new instance of the FileRestorer class with the specified
 	 * source directory, destination directory, and optional logger.
 	 *
-	 * @param string      $source_dir The source directory.
-	 * @param string      $dest_dir The destination directory.
-	 * @param null|Logger $logger An optional logger.
+	 * @param string               $source_dir The source directory.
+	 * @param string               $dest_dir The destination directory.
+	 * @param null|LoggerInterface $logger An optional logger.
 	 */
 	public function __construct( $source_dir, $dest_dir, $logger = null ) {
 		parent::__construct( $logger );
@@ -164,7 +164,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 		$this->log( "Finished copying $this->total_count files. Copied: $copied_count files. Skipped: $skipped_count files. Failed: $failed_count files." );
 
 		if ( $copied_count === 0 ) {
-			return \WP_Error( 'file_restoration_failed', __( 'No files are restored.', 'wpcomsh' ) );
+			return new \WP_Error( 'file_restoration_failed', __( 'No files are restored.', 'wpcomsh' ) );
 		}
 
 		return true;
@@ -229,7 +229,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * This method checks if a file is excluded from restoration. If the file is excluded,
 	 * it logs a message and returns false. Otherwise, it returns true.
 	 *
-	 * @param SplFileInfo $fileinfo The file to check.
+	 * @param \SplFileInfo $fileinfo The file to check.
 	 * @return bool True if the file should be enqueued, false otherwise.
 	 */
 	private function should_enqueue_file( $fileinfo ) {
@@ -250,7 +250,7 @@ class FileRestorer extends \Imports\Backup_Import_Action {
 	 * This method takes a SplFileInfo object and returns an array containing the source file path,
 	 * destination file path, relative file path, and file type.
 	 *
-	 * @param SplFileInfo $fileinfo The file to create information for.
+	 * @param \SplFileInfo $fileinfo The file to create information for.
 	 * @return array An array containing the source file path, destination file path, relative file path, and file type.
 	 */
 	private function create_file_info_array( $fileinfo ) {

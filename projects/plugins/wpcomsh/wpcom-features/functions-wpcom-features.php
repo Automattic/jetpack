@@ -295,7 +295,7 @@ function wpcom_product_has_feature( $product, $feature ) {
 		_doing_it_wrong(
 			__FUNCTION__,
 			'Support for this function is only in available in contexts where the store products database is available.',
-			false // No version.
+			'' // No version.
 		);
 		return false;
 	}
@@ -357,7 +357,7 @@ function wpcom_get_product_features( $product ) {
 		_doing_it_wrong(
 			__FUNCTION__,
 			'Support for this function is only in available in contexts where the store products database is available.',
-			false // No version.
+			'' // No version.
 		);
 		return array();
 	}

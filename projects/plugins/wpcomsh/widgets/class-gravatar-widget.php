@@ -119,9 +119,8 @@ class Gravatar_Widget extends WP_Widget {
 	 * Display config interface
 	 *
 	 * @param array $instance Widget instance.
-	 *
-	 * @return void
-	 **/
+	 * @return never
+	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args(
 			(array) $instance,
@@ -178,7 +177,7 @@ class Gravatar_Widget extends WP_Widget {
 	<label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>"><?php esc_html_e( 'Size:', 'wpcomsh' ); ?>
 		<select id="<?php echo esc_attr( $this->get_field_id( 'gravatar_size' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_size' ) ); ?>">
 			<?php foreach ( $sizes as $size => $name ) : ?>
-				<option value="<?php echo esc_attr( $size ); ?>"
+				<option value="<?php echo $size; /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- size is an integer set in the same function.*/ ?>"
 					<?php selected( $gravatar_size, $size ); ?>
 				><?php echo esc_html( $name ); ?></option>
 			<?php endforeach; ?>

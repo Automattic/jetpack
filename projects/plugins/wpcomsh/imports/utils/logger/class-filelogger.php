@@ -21,7 +21,7 @@ class FileLogger implements LoggerInterface {
 	/**
 	 * The path to the log file.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	private $log_file = '/tmp/restore_log/restoration_log.txt';
 

@@ -51,6 +51,7 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
@@ -189,9 +190,9 @@ add_action( 'widgets_init', 'reservations_widget_register' );
  * Enqueue widget styles.
  */
 function reservations_widget_style() {
-	if ( is_active_widget( null, null, 'reservations' ) ) {
+	if ( is_active_widget( false, false, 'reservations' ) ) {
 		wp_enqueue_style( 'widget-reservations', plugins_url( 'reservations/css/reservations.css', __FILE__ ), array(), WPCOMSH_VERSION );
-		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), 'jquery', WPCOMSH_VERSION, true );
+		wp_enqueue_script( 'widget-reservations', plugins_url( 'reservations/js/reservations.js', __FILE__ ), array( 'jquery' ), WPCOMSH_VERSION, true );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'reservations_widget_style' );

@@ -29,7 +29,7 @@ class Playground_DB_Importer {
 	/**
 	 * The database connection.
 	 *
-	 * @var SQLite3
+	 * @var ?SQLite3
 	 */
 	private ?SQLite3 $db;
 
@@ -38,7 +38,7 @@ class Playground_DB_Importer {
 	 *
 	 * @var array
 	 */
-	private ?array $options;
+	private array $options = array();
 
 	/**
 	 * Generate a .sql file from a Playground SQLite database file.
@@ -199,7 +199,7 @@ class Playground_DB_Importer {
 
 			$generator->start_table( $output_table, $types_map['map'], $types_map['auto_increment'] );
 			$this->generate_inserts( $generator, $table['name'], $types_map['format'], $types_map['field_names'] );
-			$generator->end_table_inserts( $output_table );
+			$generator->end_table_inserts();
 
 			if ( ! $this->options['all_tables'] ) {
 				// Remove the table from the core tables list.

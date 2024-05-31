@@ -119,11 +119,12 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 	 * Display the widget settings form.
 	 *
 	 * @param array $instance Current settings.
+	 * @return never
 	 */
 	public function form( $instance ) {
 		// Defaults.
 		$account = isset( $instance['account'] ) ? wp_kses( $instance['account'], array() ) : '';
-		$title   = isset( $instance['title'] ) ? $instance['title'] : '';
+		$title   = $instance['title'] ?? '';
 
 		/*
 		 * Urge people to upgrade to the new twitter timeline widget. While this widget will continue working, we may totally remove it in the future.

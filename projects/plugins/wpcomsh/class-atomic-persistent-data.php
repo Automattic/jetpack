@@ -7,8 +7,12 @@
 
 /**
  * The class Atomic_Persistent_Data.
+ *
+ * @property string $WPCOM_PURCHASES
+ * @property string $WPCOM_MARKETPLACE
  */
 final class Atomic_Persistent_Data {
+
 	/**
 	 * The get function.
 	 *

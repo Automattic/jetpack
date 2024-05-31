@@ -22,7 +22,7 @@ function wpcom_better_footer_links_buffer( $page ) {
 	// Run "better link" filters.
 	$footer = wpcom_better_footer_links( $output[0] );
 
-	$remaining_content = isset( $output[1] ) ? $output[1] : '';
+	$remaining_content = $output[1] ?? '';
 
 	// Piece back together again.
 	$page = implode( array( $footer, 'wpcom_wp_footer' . $remaining_content ) );

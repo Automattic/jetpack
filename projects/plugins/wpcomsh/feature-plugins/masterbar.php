@@ -122,7 +122,7 @@ function wpcomsh_hide_color_schemes() {
 		return false;
 	}
 	$connection_manager        = new Connection_Manager( 'jetpack' );
-	$user_id_from_query_string = isset( $_GET['user_id'] ) ? $_GET['user_id'] : false; // phpcs:ignore WordPress.Security
+	$user_id_from_query_string = $_GET['user_id'] ?? false; // phpcs:ignore WordPress.Security
 
 	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
 		// If this is a local user, show the default UX.

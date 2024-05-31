@@ -28,7 +28,7 @@ const WPCOMSH_SMTP_LEVEL_LOCAL_PRIORITY = 5;
 /**
  * Add the custom email priority SMTP header if that's something we need for this site.
  *
- * @param PHPMailer $phpmailer The current PHPMailer instance, which is passed by reference.
+ * @param \PHPMailer\PHPMailer\PHPMailer $phpmailer The current PHPMailer instance, which is passed by reference.
  * @return void
  * @throws \PHPMailer\PHPMailer\Exception Exception may be thrown by the {@see PHP_Mailer::addCustomHeader()} function.
  */
@@ -56,7 +56,6 @@ function wpcomsh_smtp_add_priority_header( $phpmailer ): void {
 	if ( ! is_int( $atomic_email_priority ) ) {
 		$atomic_email_priority = WPCOMSH_SMTP_LEVEL_REDUCED;
 	}
-	$atomic_email_priority = (int) $atomic_email_priority;
 	$atomic_email_priority = min( WPCOMSH_SMTP_LEVEL_MAX, $atomic_email_priority );
 	$atomic_email_priority = max( WPCOMSH_SMTP_LEVEL_MIN, $atomic_email_priority );
 

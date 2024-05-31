@@ -53,7 +53,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	/**
 	 * Preprocess the backup before importing.
 	 *
-	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function preprocess() {
 		$options  = array(
@@ -72,7 +72,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	/**
 	 * Process the files in the backup.
 	 *
-	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function process_files() {
 		$final_path    = '/srv/htdocs/';
@@ -95,7 +95,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	/**
 	 * Recreate the database from the backup.
 	 *
-	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function recreate_database() {
 		return SQL_Importer::import( $this->tmp_database );
@@ -104,7 +104,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	/**
 	 * Postprocess the database after importing.
 	 *
-	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function postprocess_database() {
 		$processor = new SQL_Postprocessor( get_home_url(), get_site_url(), $this->tmp_prefix, false, $this->logger );
@@ -115,7 +115,7 @@ class Playground_Importer extends \Imports\Backup_Importer {
 	/**
 	 * Clean up after the import.
 	 *
-	 * @return bool|WP_Error True on success, or a WP_Error on failure.
+	 * @return bool|\WP_Error True on success, or a WP_Error on failure.
 	 */
 	public function clean_up() {
 		return Playground_Clean_Up::remove_tmp_files( $this->zip_or_tar_file_path, $this->destination_path );

@@ -217,7 +217,7 @@ function wpcomsh_apply_headstart_custom_terms( $custom_terms_by_taxonomy ) {
 				$args   = array(
 					'slug'        => $term['slug'],
 					'description' => $term['description'],
-					'parent'      => isset( $term_id_map[ $term['parent'] ] ) ? $term_id_map[ $term['parent'] ] : 0,
+					'parent'      => $term_id_map[ $term['parent'] ] ?? 0,
 				);
 				$result = wp_insert_term( $term['name'], $taxonomy, $args );
 				if ( ! is_wp_error( $result ) ) {

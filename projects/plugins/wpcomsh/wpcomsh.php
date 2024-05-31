@@ -232,7 +232,7 @@ function wpcomsh_admin_enqueue_style() {
 	wp_enqueue_style(
 		'wpcomsh-admin-style',
 		plugins_url( 'assets/admin-style.css', __FILE__ ),
-		null,
+		array(),
 		WPCOMSH_VERSION
 	);
 }
@@ -456,7 +456,7 @@ function wpcomsh_make_content_clickable( $content ) {
 			}
 		}
 
-		if ( $found === false ) {
+		if ( ! $found ) {
 			$split[] = $chunk;
 		}
 	}
