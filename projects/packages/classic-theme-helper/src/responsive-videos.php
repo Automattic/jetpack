@@ -69,7 +69,7 @@ function jetpack_responsive_videos_embed_html( $html ) {
 
 	Assets::register_script(
 		'jetpack-responsive-videos',
-		'../build/responsive-videos/responsive-videos.js',
+		'../dist/responsive-videos/responsive-videos.js',
 		__FILE__,
 		array(
 			'in_footer'  => true,

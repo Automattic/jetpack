@@ -8,10 +8,11 @@
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use WP_Error;
+
 /**
- * Classic Theme Helper.
+ * Classic Theme Helper Loader.
  */
-class Loader {
+class Main {
 
 	const PACKAGE_VERSION = '0.3.0-alpha';
 
@@ -27,7 +28,7 @@ class Loader {
 
 	/** Holds the singleton instance of the Loader
 	 *
-	 * @var Loader
+	 * @var Main
 	 */
 	public static $instance = null;
 
@@ -36,9 +37,9 @@ class Loader {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			self::$instance = new Loader();
+			self::$instance = new Main();
 			add_action( 'plugins_loaded', array( self::$instance, 'load_modules' ) );
-			// TODO Commenting belo since we still load them from theme-tools module
+			// TODO Commenting below since we still load them from theme-tools module
 			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
 			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
 		}
@@ -56,7 +57,7 @@ class Loader {
 		// @param array $modules Array of modules to include.
 		$modules = apply_filters( 'jetpack_classic_theme_helper_modules', $this->modules );
 		foreach ( $modules as $module ) {
-			require_once __DIR__ . $module;
+			require_once __DIR__ . '/' . $module;
 		}
 	}
 
@@ -123,4 +124,4 @@ class Loader {
 		}
 	}
 }
-Loader::init();
+Main::init();

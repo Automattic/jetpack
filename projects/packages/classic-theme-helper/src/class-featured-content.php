@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 use Automattic\Jetpack\Assets;
 use WP_Customize_Manager;
 use WP_Query;
-
 if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -602,7 +601,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['p
 		public static function enqueue_scripts() {
 			Assets::register_script(
 				'featured-content-suggest',
-				'../build/featured-content/suggest.js',
+				'../dist/featured-content/suggest.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
