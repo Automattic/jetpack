@@ -757,6 +757,6 @@ export function subscriptionSiteEditSupported( state ) {
  * @param {object} state - Global state tree.
  * @returns {object} Jetpack Social Initial State
  */
-export function getSoicalInitiaState( state ) {
+export function getSocialInitiaState( state ) {
 	return state.jetpack.initialState.socialInitialState ?? {};
 }
