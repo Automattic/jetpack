@@ -105,7 +105,7 @@ class Publicize_Setup {
 	/**
 	 * Initialise share limits if they should be enabled.
 	 *
-	 * @param WP_Screen $current_screen The current screen object.
+	 * @param \WP_Screen $current_screen The current screen object.
 	 */
 	public static function init_sharing_limits( $current_screen ) {
 		global $publicize;
