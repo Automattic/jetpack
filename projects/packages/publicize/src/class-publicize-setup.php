@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
-
 /**
  * The class to configure and initialize the publicize package.
  */
@@ -44,7 +41,7 @@ class Publicize_Setup {
 		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		add_action( 'current_screen', array( static::class, 'on_current_screen_action' ) );
+		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
@@ -74,46 +71,15 @@ class Publicize_Setup {
 	}
 
 	/**
-	 * Get current URL.
-	 *
-	 * @return string Current URL.
+	 * Initialise share limits if they should be enabled.
 	 */
-	public static function get_current_url() {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$host = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : wp_parse_url( home_url(), PHP_URL_HOST );
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$path = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
-		return esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $path );
-	}
-
-	/**
-	 * Hook into the current screen action.
-	 */
-	public static function on_current_screen_action() {
+	public static function init_sharing_limits() {
 		$current_screen = get_current_screen();
 
-		if ( empty( $current_screen ) || 'post' !== $current_screen->base ) {
+		if ( empty( $current_screen ) || $current_screen->base !== 'post' ) {
 			return;
 		}
 
-		self::init_sharing_limits( $current_screen );
-
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = ( new Host() )->is_woa_site();
-
-		if ( $current_screen->is_block_editor() || $is_simple_site || $is_atomic_site ) {
-			return;
-		}
-
-		add_action( 'publicize_classic_editor_form_after', array( static::class, 'render_classic_editor_nudge' ), 11 );
-	}
-
-	/**
-	 * Initialise share limits if they should be enabled.
-	 *
-	 * @param \WP_Screen $current_screen The current screen object.
-	 */
-	public static function init_sharing_limits( $current_screen ) {
 		global $publicize;
 
 		if ( $publicize->has_paid_plan( self::$refresh_plan_info ) ) {
@@ -133,40 +99,7 @@ class Publicize_Setup {
 		$connections      = $publicize->get_filtered_connection_data();
 		$shares_remaining = $info['shares_remaining'];
 
-		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor(), self::get_current_url() );
+		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
 		$share_limits->enforce_share_limits();
-	}
-
-	/**
-	 * Render the classic editor nudge.
-	 */
-	public static function render_classic_editor_nudge() {
-		global $publicize;
-
-		if ( $publicize->has_paid_features() ) {
-			return;
-		}
-
-		$current_url = self::get_current_url();
-
-		$link = sprintf(
-			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
-			Redirect::get_url(
-				'jetpack-social-basic-plan-block-editor',
-				array(
-					'query' => 'redirect_to=' . rawurlencode( $current_url ),
-				)
-			),
-			__( 'Unlock enhanced media sharing features.', 'jetpack-publicize-pkg' )
-		);
-
-		$kses_allowed_tags = array(
-			'a' => array(
-				'href'   => array(),
-				'target' => array(),
-			),
-		);
-
-		echo '<p><em>' . wp_kses( $link, $kses_allowed_tags ) . ' </em></p>';
 	}
 }
