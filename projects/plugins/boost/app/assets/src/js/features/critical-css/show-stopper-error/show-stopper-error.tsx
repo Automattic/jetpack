@@ -9,6 +9,7 @@ import getSupportLinkCriticalCss from '$lib/utils/get-support-link-critical-css'
 import NumberedList from '../numbered-list/numbered-list';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
 import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
+import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -146,6 +147,17 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 						) }
 						errorType={ cssState.status_error }
 					/>
+					<p>
+						{ createInterpolateElement(
+							__(
+								'If the problem has been resolved, refresh the page and click <retry>here</retry> to try regenerating critical css.',
+								'jetpack-boost'
+							),
+							{
+								...actionLinkInterpolateVar( retry, 'retry' ),
+							}
+						) }
+					</p>
 				</>
 			) : (
 				<>
