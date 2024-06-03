@@ -13,6 +13,7 @@ use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use InvalidArgumentException;
 use Mockery;
+use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\TestingAccessWrapper;
 
@@ -50,9 +51,9 @@ class AssetsTest extends TestCase {
 					return $url;
 				},
 				'plugins_url'    => function ( $path, $plugin_path ) use ( $plugin_dir ) {
-					$plugin_path = dirname( $plugin_path );
-					$this->stringStartsWith( $plugin_dir, $plugin_path );
-					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . '/' . $path;
+					$plugin_path = dirname( $plugin_path ) . '/';
+					$this->assertStringStartsWith( $plugin_dir, $plugin_path );
+					return 'http://www.example.com/wp-content/plugins/jetpack/' . substr( $plugin_path, strlen( $plugin_dir ) ) . $path;
 				},
 			)
 		);
@@ -305,9 +306,9 @@ class AssetsTest extends TestCase {
 	 * Test `register_script` and `enqueue_script`.
 	 *
 	 * @dataProvider provide_register_script
-	 * @param array $args Arguments for `register_script`.
-	 * @param array $expect Map of function to expected arguments.
-	 * @param array $extra Map of additional settings:
+	 * @param array{string,string,string,4?:array} $args Arguments for `register_script`.
+	 * @param array                                $expect Map of function to expected arguments.
+	 * @param array                                $extra Map of additional settings:
 	 *   - is_script_debug: Value for `SCRIPT_DEBUG`.
 	 *   - is_rtl: Value for `is_rtl()`.
 	 *   - exception: Exception expected to be thrown.
@@ -342,6 +343,7 @@ class AssetsTest extends TestCase {
 			$this->expectExceptionMessage( $extra['exception']->getMessage() );
 		}
 		if ( isset( $extra['enqueue'] ) ) {
+			// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 			$obj = $this->getMockBuilder( \stdClass::class )
 				->setMethods( array( 'get_data' ) )
 				->getMock();
@@ -352,7 +354,11 @@ class AssetsTest extends TestCase {
 		Assets::register_script( ...$args );
 	}
 
-	/** Data provider for `test_register_script` */
+	/**
+	 * Data provider for `test_register_script`
+	 *
+	 * @return array{array{string,string,string,4?:array},array<string,array>,2?:array}[]
+	 */
 	public static function provide_register_script() {
 		$url_base = 'http://www.example.com/wp-content/plugins/jetpack/packages/assets/tests/php/test-assets-files';
 		return array(
@@ -716,32 +722,65 @@ class AssetsTest extends TestCase {
 		);
 
 		$obj = Filters\expectApplied( 'jetpack_i18n_state' )->once()->with( $expect_filter );
+		// @phan-suppress-next-line PhanImpossibleTypeComparison -- Phan gets confused.
 		if ( array_key_exists( 'filter', $options ) ) {
 			$obj->andReturn( $options['filter'] );
 		}
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$mock = $this->getMockBuilder( \stdClass::class )
 			->setMethods( array( 'add', 'add_inline_script' ) )
 			->getMock();
+
+		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
+		// https://github.com/sebastianbergmann/phpunit/issues/4026
+		$with_consecutive = function ( ...$groups ) {
+			$ct         = count( $groups[0] );
+			$value_sets = array();
+			foreach ( $groups as $group ) {
+				for ( $i = 0; $i < $ct; $i++ ) {
+					$value_sets[ $i ][] = $group[ $i ] instanceof Constraint ? $group[ $i ] : $this->equalTo( $group[ $i ] );
+				}
+			}
+			$funcs = array();
+			for ( $i = 0; $i < $ct; $i++ ) {
+				$funcs[] = $this->callback(
+					function ( $value ) use ( $value_sets, $i ) {
+						static $set = null;
+						$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+						$expect     = array_shift( $set );
+						$expect->evaluate( $value );
+						return true;
+					}
+				);
+			}
+			return $funcs;
+		};
+
 		$mock->expects( $this->exactly( 2 ) )->method( 'add' )
-			->withConsecutive(
-				array(
-					'wp-jp-i18n-loader',
-					$this->logicalOr(
-						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
-						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+			->with(
+				...$with_consecutive(
+					array(
+						'wp-jp-i18n-loader',
+						$this->logicalOr(
+							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/i18n-loader.js?minify=true',
+							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/i18n-loader.js?minify=true'
+						),
+						array( 'wp-i18n' ),
 					),
-					array( 'wp-i18n' ),
-				),
-				array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) )
+				)
 			);
 		$mock->expects( $this->exactly( 3 ) )->method( 'add_inline_script' )
-			->withConsecutive(
-				array( 'wp-jp-i18n-loader', $expect_js ),
-				array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
-				array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+			->with(
+				...$with_consecutive(
+					array( 'wp-jp-i18n-loader', $expect_js ),
+					array( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' ),
+					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
+				)
 			);
 
+		// @phan-suppress-next-line PhanTypeMismatchArgument -- We don't have a WP_Scripts definition to create a mock from. 🤷
 		Assets::wp_default_scripts_hook( $mock );
 	}
 
@@ -1017,9 +1056,9 @@ class AssetsTest extends TestCase {
 	 * Test filter_load_script_translation_file.
 	 *
 	 * @dataProvider provide_filter_load_script_translation_file
-	 * @param array  $args Arguments to the filter.
-	 * @param array  $is_readable Expected files passed to `is_readable()` and the corresponding return values.
-	 * @param string $expect Expected return value.
+	 * @param array{false|string,string,string} $args Arguments to the filter.
+	 * @param array                             $is_readable Expected files passed to `is_readable()` and the corresponding return values.
+	 * @param string|false                      $expect Expected return value.
 	 */
 	public function test_filter_load_script_translation_file( $args, $is_readable, $expect ) {
 		Jetpack_Constants::set_constant( 'WP_LANG_DIR', '/path/to/wordpress/wp-content/languages' );
@@ -1040,7 +1079,11 @@ class AssetsTest extends TestCase {
 		$this->assertSame( $expect, Assets::filter_load_script_translation_file( ...$args ) );
 	}
 
-	/** Data provider for test_filter_load_script_translation_file. */
+	/**
+	 * Data provider for test_filter_load_script_translation_file.
+	 *
+	 * @return array{array{false|string,string,string},array<string,bool>,string|false}[]
+	 */
 	public function provide_filter_load_script_translation_file() {
 		return array(
 			'Passed false'                 => array(
