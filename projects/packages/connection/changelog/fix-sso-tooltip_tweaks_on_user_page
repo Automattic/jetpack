@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove tabindex from tooltip modal.
