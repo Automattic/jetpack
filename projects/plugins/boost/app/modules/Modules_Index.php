@@ -18,14 +18,14 @@ use Automattic\Jetpack_Boost\Modules\Performance_History\Performance_History;
 class Modules_Index {
 	const DISABLE_MODULE_QUERY_VAR = 'jb-disable-modules';
 	/**
-	 * @var Pluggable[] - Associative array of all Jetpack Boost features.
+	 * @var Module[] - Associative array of all Jetpack Boost modules.
 	 *
-	 * Example: [ 'critical_css' => Pluggable, 'image_cdn' => Pluggable ]
+	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
-	protected $features = array();
+	protected $toplevel_modules = array();
 
 	/**
-	 * @var Module[] - Associative array of all available Jetpack Boost modules.
+	 * @var Module[] - Associative array of available Jetpack Boost modules.
 	 *
 	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
@@ -54,11 +54,13 @@ class Modules_Index {
 	 * without a nonce.
 	 */
 	public function __construct() {
-		foreach ( self::FEATURES as $module ) {
-			$slug                    = $module::get_slug();
-			$this->features[ $slug ] = $module;
-			if ( $module::is_available() ) {
-				$this->available_modules[ $slug ] = new Module( new $module() );
+		foreach ( self::FEATURES as $feature ) {
+			$slug                            = $feature::get_slug();
+			$module_instance                 = new Module( new $feature() );
+			$this->toplevel_modules[ $slug ] = $module_instance;
+
+			if ( $module_instance->is_available() ) {
+				$this->available_modules[ $slug ] = $module_instance;
 			}
 		}
 	}
@@ -72,30 +74,34 @@ class Modules_Index {
 	public static function get_modules_implementing( string $interface ): array {
 		$matching_modules = array();
 
-		foreach ( self::get_all_modules() as $module ) {
+		foreach ( self::get_all_modules_and_submodules() as $slug => $module ) {
 			if ( in_array( $interface, class_implements( $module ), true ) ) {
-				$matching_modules[ $module::get_slug() ] = $module;
+				$matching_modules[ $slug ] = $module;
 			}
 		}
 
 		return $matching_modules;
 	}
 
-	public static function get_all_modules() {
+	public static function get_all_modules_and_submodules() {
 		$modules = array();
 
 		foreach ( self::FEATURES as $module ) {
-			$modules[]       = $module;
-			$module_instance = ( new Module( new $module() ) );
+			$modules[ $module::get_slug() ] = $module;
+			$module_instance                = ( new Module( new $module() ) );
 			if ( $module_instance->feature instanceof Has_Submodules ) {
 				$submodules = $module_instance->feature->get_submodules();
 				foreach ( $submodules as $submodule ) {
-					$modules[] = $submodule;
+					$modules[ $submodule::get_slug() ] = $submodule;
 				}
 			}
 		}
 
 		return $modules;
+	}
+
+	public function get_toplevel_modules() {
+		return $this->toplevel_modules;
 	}
 
 	public function available_modules() {
@@ -161,11 +167,11 @@ class Modules_Index {
 		return array();
 	}
 
-	public function get_module_instance_by_slug( $slug ) {
+	public function get_available_module_instance_by_slug( $slug ) {
 		return isset( $this->available_modules[ $slug ] ) ? $this->available_modules[ $slug ] : false;
 	}
 
-	public function get_feature_by_slug( $slug ) {
-		return isset( $this->features[ $slug ] ) ? $this->features[ $slug ] : false;
+	public function get_module_instance_by_slug( $slug ) {
+		return isset( $this->toplevel_modules[ $slug ] ) ? $this->toplevel_modules[ $slug ] : false;
 	}
 }

@@ -113,7 +113,7 @@ class CLI {
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		$modules_index = new Modules_Index();
-		$module        = $modules_index->get_module_instance_by_slug( $module_slug );
+		$module        = $modules_index->get_available_module_instance_by_slug( $module_slug );
 		if ( $module === false ) {
 			\WP_CLI::error(
 				/* translators: %s refers to the module slug like 'critical-css' */
