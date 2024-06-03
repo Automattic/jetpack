@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * The class to configure and initialize the publicize package.
@@ -97,9 +98,14 @@ class Publicize_Setup {
 
 		self::init_sharing_limits( $current_screen );
 
-		if ( ! $current_screen->is_block_editor() ) {
-			add_action( 'publicize_classic_editor_form_after', array( static::class, 'render_classic_editor_nudge' ), 11 );
+		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$is_atomic_site = ( new Host() )->is_woa_site();
+
+		if ( $current_screen->is_block_editor() || $is_simple_site || $is_atomic_site ) {
+			return;
 		}
+
+		add_action( 'publicize_classic_editor_form_after', array( static::class, 'render_classic_editor_nudge' ), 11 );
 	}
 
 	/**
@@ -136,10 +142,6 @@ class Publicize_Setup {
 	 */
 	public static function render_classic_editor_nudge() {
 		global $publicize;
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return;
-		}
 
 		if ( $publicize->has_paid_features() ) {
 			return;
