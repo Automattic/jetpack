@@ -5,6 +5,8 @@
  * @package automattic/jetpack-masterbar
  */
 
+namespace Automattic\Jetpack\Masterbar;
+
 /**
  * Load the Posts_List_Notification.
  */
@@ -19,4 +21,4 @@ function masterbar_init_wp_posts_list() {
 	}
 }
 
-add_action( 'init', 'masterbar_init_wp_posts_list', 1 );
+add_action( 'init', __NAMESPACE__ . '\masterbar_init_wp_posts_list', 1 );
