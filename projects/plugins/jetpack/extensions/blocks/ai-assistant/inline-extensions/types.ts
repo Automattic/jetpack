@@ -9,13 +9,15 @@ import type { Block } from '@automattic/jetpack-ai-client';
 
 export type OnSuggestion = ( suggestion: string ) => void;
 
-export type BlockBehavior = 'dropdown' | 'action';
+type CustomBlockBehavior = ( { onToggle, onAskAiAssistant, context } ) => void;
+export type BlockBehavior = 'dropdown' | 'action' | CustomBlockBehavior;
 
 export interface IBlockHandler {
 	onSuggestion: OnSuggestion;
 	onDone: ( suggestion: string ) => void;
 	getContent: () => string;
 	behavior: BlockBehavior;
+	isChildBlock?: boolean;
 }
 
 export type BlockEditorSelect = {

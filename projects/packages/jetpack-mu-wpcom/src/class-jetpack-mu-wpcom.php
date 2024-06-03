@@ -43,6 +43,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_replace_site_visibility' ) );
 
 		// This feature runs only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -314,5 +315,12 @@ class Jetpack_Mu_Wpcom {
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		}
+	}
+
+	/**
+	 * Load Replace Site Visibility feature.
+	 */
+	public static function load_replace_site_visibility() {
+		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
 	}
 }
