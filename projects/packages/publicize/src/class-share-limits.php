@@ -36,25 +36,16 @@ class Share_Limits {
 	public $is_classic_editor;
 
 	/**
-	 * Current URL.
-	 *
-	 * @var string
-	 */
-	public $current_url;
-
-	/**
 	 * Constructor.
 	 *
-	 * @param array  $connections List of Publicize connections.
-	 * @param int    $shares_remaining Number of shares remaining for this period.
-	 * @param bool   $is_classic_editor Whether we're loading the classic editor.
-	 * @param string $current_url Current URL.
+	 * @param array $connections List of Publicize connections.
+	 * @param int   $shares_remaining Number of shares remaining for this period.
+	 * @param bool  $is_classic_editor Whether we're loading the classic editor.
 	 */
-	public function __construct( $connections, $shares_remaining, $is_classic_editor, $current_url = '' ) {
+	public function __construct( $connections, $shares_remaining, $is_classic_editor ) {
 		$this->connections       = $connections;
 		$this->shares_remaining  = $shares_remaining;
 		$this->is_classic_editor = $is_classic_editor;
-		$this->current_url       = $current_url;
 	}
 
 	/**
@@ -88,10 +79,24 @@ class Share_Limits {
 	}
 
 	/**
+	 * Get current URL.
+	 *
+	 * @return string Current URL.
+	 */
+	public function get_current_url() {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$host = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : wp_parse_url( home_url(), PHP_URL_HOST );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$path = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+		return esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $path );
+	}
+
+	/**
 	 * Render a notice with the share count in the classic editor.
 	 */
 	public function render_classic_editor_notice() {
-		$notice = sprintf(
+		$current_url = $this->get_current_url();
+		$notice      = sprintf(
 			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
 			_n(
 				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
@@ -103,9 +108,19 @@ class Share_Limits {
 			Redirect::get_url(
 				'jetpack-social-basic-plan-classic-editor',
 				array(
-					'query' => 'redirect_to=' . rawurlencode( $this->current_url ),
+					'query' => 'redirect_to=' . rawurlencode( $current_url ),
 				)
 			)
+		);
+		$more_link = sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			Redirect::get_url(
+				'jetpack-social-basic-plan-block-editor',
+				array(
+					'query' => 'redirect_to=' . rawurlencode( $current_url ),
+				)
+			),
+			__( 'More about Jetpack Social', 'jetpack-publicize-pkg' )
 		);
 
 		$kses_allowed_tags = array(
@@ -115,7 +130,7 @@ class Share_Limits {
 			),
 		);
 
-		echo '<p><em>' . wp_kses( $notice, $kses_allowed_tags ) . ' </em></p>';
+		echo '<p><em>' . wp_kses( $notice, $kses_allowed_tags ) . '<br />' . wp_kses( $more_link, $kses_allowed_tags ) . ' </em></p>';
 	}
 
 	/**
