@@ -27,5 +27,6 @@
 		"**/.cache/**",
 		"**/jetpack_vendor/**",
 		"**/vendor/**"
-	]
+	],
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }
