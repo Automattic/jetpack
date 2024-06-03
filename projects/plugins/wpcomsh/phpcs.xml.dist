@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<ruleset>
+	<description>The phpcs standard for wpcomsh code.</description>
+	<file>.</file>
+	<!-- Exclude Composer vendor directory. -->
+	<exclude-pattern>*/.git/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>/build</exclude-pattern>
+	<exclude-pattern>/.phan</exclude-pattern>
+
+	<!-- Exclude externals -->
+	<exclude-pattern>/custom-colors</exclude-pattern>
+	<exclude-pattern>/footer-credit</exclude-pattern>
+
+	<!-- Exclude folders that have not been fixed yet -->
+	<exclude-pattern>/widgets</exclude-pattern>
+	<exclude-pattern>/support-session.php</exclude-pattern>
+
+	<!-- Exclude wpcom-features folder because it contains copies of wpcom files -->
+	<exclude-pattern>/wpcom-features</exclude-pattern>
+
+	<arg value="ps"/>
+	<arg name="basepath" value="."/><!-- Strip the file paths down to the relevant bit -->
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="50"/>
+
+	<rule ref="WordPress">
+		<exclude name="Squiz.PHP.CommentedOutCode.Found" />
+		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+		<exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop" />
+
+		<exclude name="Universal.Files.SeparateFunctionsFromOO.Mixed" />
+
+		<!-- Warning are displayed in GitHub diffs but not blocked from commit. Elevating them to errors will avoid that. -->
+		<type>error</type>
+	</rule>
+
+	<rule ref="WordPress-Extra">
+		<exclude name="WordPress.PHP.YodaConditions"/>
+	</rule>
+
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed" />
+	</rule>
+</ruleset>

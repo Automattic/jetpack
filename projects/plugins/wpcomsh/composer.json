@@ -1,0 +1,84 @@
+{
+  "name": "automattic/wpcomsh",
+  "type": "project",
+  "description": "A helper for connecting WordPress.com sites to external host infrastructure.",
+  "license": "GPLv3",
+  "require": {
+    "php": ">=7.0.0",
+    "automattic/at-pressable-podcasting": "^2.0",
+    "automattic/custom-fonts": "^3.0",
+    "automattic/custom-fonts-typekit": "^2.0",
+    "automattic/jetpack-config": "^1.5",
+    "automattic/jetpack-device-detection": "^2.1",
+    "automattic/jetpack-mu-wpcom": "^5.32.0",
+    "automattic/jetpack-post-list": "^0.5.1",
+    "automattic/text-media-widget-styles": "^2.0",
+    "automattic/wc-calypso-bridge": "2.5.1",
+    "wordpress/classic-editor-plugin": "1.5",
+    "tubalmartin/cssmin": "^4.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "wp-coding-standards/wpcs": "^3.0"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/Automattic/custom-fonts.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/Automattic/custom-fonts-typekit.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/automattic/at-pressable-podcasting.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/Automattic/text-media-widget-styles.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/Automattic/wc-calypso-bridge.git"
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "wordpress/classic-editor-plugin",
+        "version": "1.5",
+        "dist": {
+          "url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip",
+          "type": "zip"
+        },
+        "source": {
+          "url": "https://plugins.svn.wordpress.org/classic-editor/",
+          "type": "svn",
+          "reference": "tags/1.5/"
+        },
+        "autoload": {
+          "classmap": []
+        }
+      }
+    }
+  ],
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "phpcs": "vendor/bin/phpcs",
+    "phpcbf": "vendor/bin/phpcbf",
+    "lint": "phpcs",
+    "phpunit": "vendor/bin/phpunit",
+    "test": "phpunit"
+  }
+}
