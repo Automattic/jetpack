@@ -3595,7 +3595,7 @@ importers:
         version: 10.0.0(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.0.0
-        version: 4.0.0
+        version: 4.0.0(react@18.3.1)
       '@wordpress/url':
         specifier: 4.0.0
         version: 4.0.0
@@ -10532,7 +10532,7 @@ packages:
       '@wordpress/keycodes': 4.0.0
       '@wordpress/notices': 5.0.0(react@18.3.1)
       '@wordpress/patterns': 2.0.0(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
-      '@wordpress/primitives': 4.0.0
+      '@wordpress/primitives': 4.0.0(react@18.3.1)
       '@wordpress/private-apis': 1.0.0
       '@wordpress/reusable-blocks': 5.0.0(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
       '@wordpress/rich-text': 7.0.0(react@18.3.1)
@@ -10594,7 +10594,7 @@ packages:
       '@wordpress/keycodes': 4.0.0
       '@wordpress/notices': 5.0.0(react@18.3.1)
       '@wordpress/patterns': 2.0.0(react-dom@18.3.1)(react@18.3.1)
-      '@wordpress/primitives': 4.0.0
+      '@wordpress/primitives': 4.0.0(react@18.3.1)
       '@wordpress/private-apis': 1.0.0
       '@wordpress/reusable-blocks': 5.0.0(react-dom@18.3.1)(react@18.3.1)
       '@wordpress/rich-text': 7.0.0(react@18.3.1)
@@ -10744,7 +10744,7 @@ packages:
       '@wordpress/icons': 9.48.0(react@18.3.1)
       '@wordpress/is-shallow-equal': 4.57.0
       '@wordpress/keycodes': 3.57.0
-      '@wordpress/primitives': 3.55.0
+      '@wordpress/primitives': 3.55.0(react@18.3.1)
       '@wordpress/private-apis': 0.39.0
       '@wordpress/rich-text': 6.34.0(react@18.3.1)
       '@wordpress/warning': 2.57.0
@@ -10804,7 +10804,7 @@ packages:
       '@wordpress/icons': 10.0.0(react@18.3.1)
       '@wordpress/is-shallow-equal': 5.0.0
       '@wordpress/keycodes': 4.0.0
-      '@wordpress/primitives': 4.0.0
+      '@wordpress/primitives': 4.0.0(react@18.3.1)
       '@wordpress/private-apis': 1.0.0
       '@wordpress/rich-text': 7.0.0(react@18.3.1)
       '@wordpress/warning': 3.0.0
@@ -10864,7 +10864,7 @@ packages:
       '@wordpress/icons': 10.0.0(react@18.3.1)
       '@wordpress/is-shallow-equal': 5.0.0
       '@wordpress/keycodes': 4.0.0
-      '@wordpress/primitives': 4.0.0
+      '@wordpress/primitives': 4.0.0(react@18.3.1)
       '@wordpress/private-apis': 1.0.0
       '@wordpress/rich-text': 7.0.0(react@18.3.1)
       '@wordpress/warning': 3.0.0
@@ -11627,7 +11627,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.0
       '@wordpress/element': 6.0.0
-      '@wordpress/primitives': 4.0.0
+      '@wordpress/primitives': 4.0.0(react@18.3.1)
       react: 18.3.1
 
   /@wordpress/icons@9.48.0(react@18.3.1):
@@ -11638,7 +11638,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.24.0
       '@wordpress/element': 5.34.0
-      '@wordpress/primitives': 3.55.0
+      '@wordpress/primitives': 3.55.0(react@18.3.1)
       react: 18.3.1
     dev: false
 
@@ -11962,22 +11962,28 @@ packages:
       prettier: /wp-prettier@3.0.3
     dev: true
 
-  /@wordpress/primitives@3.55.0:
+  /@wordpress/primitives@3.55.0(react@18.3.1):
     resolution: {integrity: sha512-4vMhlu40+qxkt6lyCv2KWCx9bP7hcpPC9GXj9Kq3gwKIzSSHoqbYs3V8HYeGWrG9g7JWMFN9Pkdy8Bm61ZsKuQ==}
     engines: {node: '>=12'}
+    peerDependencies:
+      react: ^18
     dependencies:
       '@babel/runtime': 7.24.0
       '@wordpress/element': 5.34.0
       classnames: 2.3.2
+      react: 18.3.1
     dev: false
 
-  /@wordpress/primitives@4.0.0:
+  /@wordpress/primitives@4.0.0(react@18.3.1):
     resolution: {integrity: sha512-NMzDEFxfRwh1IAbf4fJHz6UmvIyfHmId6/1UjueCgpON0LR0y5ydjB6Pd4AngkMcO2qOjD9XNP6MKAOzdjw54g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18
     dependencies:
       '@babel/runtime': 7.24.0
       '@wordpress/element': 6.0.0
       clsx: 2.1.1
+      react: 18.3.1
 
   /@wordpress/priority-queue@2.57.0:
     resolution: {integrity: sha512-g4Oka9aQFVPQUhXkKhHT6BoyTEdCG6S0TUvP4SP16PbkhbvIFwZ25GRQb2ERCVTdseCuDIM5YP0kwZd3NqTlGg==}
