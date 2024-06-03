@@ -4,18 +4,24 @@
 import { aiAssistantIcon } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ToolbarButton, Dropdown } from '@wordpress/components';
+import React, { useCallback, useContext } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
 import AiAssistantToolbarDropdownContent from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import useTransformToAssistant from '../../../hooks/use-transform-to-assistant';
+import { InlineExtensionsContext } from '../../get-block-handler';
 /*
  * Types
  */
-import { BlockBehavior } from '../../types';
-import type { OnRequestSuggestion } from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
+import type {
+	AiAssistantDropdownOnChangeOptionsArgProps,
+	OnRequestSuggestion,
+} from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
+import type { PromptTypeProp } from '../../../lib/prompt';
+import type { BlockBehavior } from '../../types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
@@ -36,14 +42,51 @@ function AiAssistantExtensionToolbarDropdownContent( {
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantExtensionToolbarDropdownContentProps ) {
-	const handleRequestSuggestion: OnRequestSuggestion = ( ...args ) => {
-		onRequestSuggestion?.( ...args );
-		onClose?.();
+	const { canTransformToAIAssistant, transformToAIAssistant, getSelectedBlockClientIds } =
+		useTransformToAssistant();
+
+	const handleToolbarButtonClick = useCallback(
+		( request?: {
+			promptType: PromptTypeProp;
+			options?: AiAssistantDropdownOnChangeOptionsArgProps;
+			humanText?: string;
+		} ) => {
+			const selectedBlockIds = getSelectedBlockClientIds();
+			const [ clientId ] = selectedBlockIds;
+
+			if (
+				selectedBlockIds.length < 2 ||
+				! canTransformToAIAssistant( { clientId, blockName: blockType } )
+			) {
+				// If there is only one selected block or the block cannot be transformed, proceed to open the extension input.
+				if ( request ) {
+					onRequestSuggestion?.( request.promptType, request.options, request.humanText );
+				} else {
+					onAskAiAssistant?.();
+				}
+				onClose?.();
+			} else {
+				// If there are multiple blocks selected, replace them with a single AI Assistant block.
+				transformToAIAssistant( { request } );
+			}
+		},
+		[
+			blockType,
+			canTransformToAIAssistant,
+			getSelectedBlockClientIds,
+			onAskAiAssistant,
+			onClose,
+			onRequestSuggestion,
+			transformToAIAssistant,
+		]
+	);
+
+	const handleRequestSuggestion: OnRequestSuggestion = ( promptType, options, humanText ) => {
+		handleToolbarButtonClick( { promptType, options, humanText } );
 	};
 
-	const handleAskAiAssistant = () => {
-		onAskAiAssistant?.();
-		onClose?.();
+	const handleAskAiAssistant = async () => {
+		handleToolbarButtonClick();
 	};
 
 	return (
@@ -72,6 +115,7 @@ export default function AiAssistantExtensionToolbarDropdown( {
 	onRequestSuggestion,
 }: AiAssistantExtensionToolbarDropdownProps ): ReactElement {
 	const { tracks } = useAnalytics();
+	const inlineExtensionsContext = useContext( InlineExtensionsContext );
 
 	const toggleHandler = useCallback(
 		( isOpen: boolean ) => {
@@ -111,6 +155,11 @@ export default function AiAssistantExtensionToolbarDropdown( {
 			} }
 			renderToggle={ ( { isOpen, onToggle } ) => {
 				const handleClick = () => {
+					if ( typeof behavior === 'function' ) {
+						behavior( { onToggle, onAskAiAssistant, context: inlineExtensionsContext } );
+						return;
+					}
+
 					switch ( behavior ) {
 						case 'action':
 							handleAskAiAssistant();

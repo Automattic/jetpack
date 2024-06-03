@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Improve performance of get_revisions function

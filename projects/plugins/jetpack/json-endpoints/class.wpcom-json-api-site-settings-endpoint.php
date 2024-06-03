@@ -466,6 +466,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'jetpack_subscriptions_reply_to'   => (string) $this->get_subscriptions_reply_to_option(),
+						'jetpack_subscriptions_from_name'  => (string) get_option( 'jetpack_subscriptions_from_name' ),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
