@@ -17,10 +17,10 @@ return [
     // PhanTypeVoidAssignment : 8 occurrences
     // PhanUndeclaredClassProperty : 7 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
-    // PhanRedundantCondition : 5 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
     // PhanRedefinedClassReference : 4 occurrences
+    // PhanRedundantCondition : 4 occurrences
     // PhanTypeMismatchReturnNullable : 4 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanUndeclaredClassInCallable : 4 occurrences

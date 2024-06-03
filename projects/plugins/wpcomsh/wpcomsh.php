@@ -177,7 +177,7 @@ if (
  *
  * @param string $url The attachment URL.
  * @param int    $post_id The post id.
- * @return string The filtered attachment URL
+ * @return string The filtered attachment URL.
  */
 function wpcomsh_get_attachment_url( $url, $post_id ) {
 	$attachment_subdomain = get_option( 'wpcom_attachment_subdomain' );
@@ -341,7 +341,7 @@ function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
 }
 add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializable_track_number' );
 
-// Jetpack for Atomic sites are always production version
+// Jetpack for Atomic sites are always production version.
 add_filter( 'jetpack_development_version', '__return_false' );
 
 /**
@@ -426,9 +426,9 @@ function wpcomsh_make_content_clickable( $content ) {
 	);
 
 	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
-	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag)
+	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag).
 	foreach ( $_split as $chunk ) {
-		if ( $chunk === '' ) {
+		if ( '' === $chunk ) {
 			continue;
 		}
 
@@ -462,15 +462,15 @@ function wpcomsh_make_content_clickable( $content ) {
 	}
 
 	foreach ( $split as $chunk ) {
-		// if $chunk is white space or a tag (or a combined tag), add it and continue
-		if ( preg_match( '/^\s+$/', $chunk ) || ( $chunk[0] === '<' && $chunk[ strlen( $chunk ) - 1 ] === '>' ) ) {
+		// if $chunk is white space or a tag (or a combined tag), add it and continue.
+		if ( preg_match( '/^\s+$/', $chunk ) || ( '<' === $chunk[0] && '>' === $chunk[ strlen( $chunk ) - 1 ] ) ) {
 			$out .= $chunk;
 			continue;
 		}
 
-		// three strpos() are faster than one preg_match() here. If we need to check for more protocols, preg_match() would probably be better
+		// three strpos() are faster than one preg_match() here. If we need to check for more protocols, preg_match() would probably be better.
 		if ( strpos( $chunk, 'http://' ) !== false || strpos( $chunk, 'https://' ) !== false || strpos( $chunk, 'www.' ) !== false ) {
-			// looks like there is a plain-text url
+			// looks like there is a plain-text url.
 			$out .= make_clickable( $chunk );
 		} else {
 			$out .= $chunk;
@@ -582,7 +582,7 @@ add_filter( 'amp_dev_tools_user_default_enabled', '__return_false' );
 function wpcomsh_record_tracks_event( $event, $event_properties ) {
 	if ( class_exists( '\Automattic\Jetpack\Tracking' ) ) {
 		// User has to agree to ToS for tracking. Thing is, on initial Simple -> Atomic we never set the ToS option.
-		// And since they agreed to WP.com ToS, we can track but in a roundabout way. :)
+		// And since they agreed to WP.com ToS, we can track but in a roundabout way. :).
 		add_filter( 'jetpack_options', 'wpcomsh_jetpack_filter_tos_for_tracking', 10, 2 );
 
 		$jetpack_tracks = new \Automattic\Jetpack\Tracking( 'atomic' );
@@ -631,7 +631,7 @@ function wpcomsh_avoid_proxied_v2_banner() {
 }
 
 // We don't want to show a "PROXIED V2" banner for legacy widget previews
-// which are normally embedded within another page
+// which are normally embedded within another page.
 if (
 	defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST &&
 	isset( $_GET['legacy-widget-preview'] ) && //phpcs:ignore WordPress.Security.NonceVerification
@@ -639,7 +639,7 @@ if (
 	add_action( 'plugins_loaded', 'wpcomsh_avoid_proxied_v2_banner' );
 }
 
-// Temporary feature flag for the new Reading Settings page
+// Temporary feature flag for the new Reading Settings page.
 add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
 
 /**

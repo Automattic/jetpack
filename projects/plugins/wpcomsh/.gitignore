@@ -1,9 +1,4 @@
-.idea
-*.swp
-.env
-.DS_Store
-.phpunit.result.cache
-/private-constants.php
-build/
 vendor/
-node_modules
+node_modules/
+/private-constants.php
+/build

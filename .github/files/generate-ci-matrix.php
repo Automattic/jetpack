@@ -89,6 +89,16 @@ $matrix[] = array(
 	'with-woocommerce' => true,
 );
 
+// Add WooCommerce tests.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 7.4 WP latest with WPCOMSH',
+	'script'       => 'test-php',
+	'php'          => '8.1',
+	'wp'           => 'latest',
+	'timeout'      => 20,
+	'with-wpcomsh' => true,
+);
+
 // Add JS tests.
 $matrix[] = array(
 	'name'    => 'JS tests',

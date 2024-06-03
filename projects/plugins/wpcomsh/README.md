@@ -1,3 +1,7 @@
+# wpcomsh
+
+A helper for connecting WordPress.com sites to external host infrastructure.
+
 # WordPress.com Site Helper
 
 [![PHP Lint](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml) [![WPCloud Unit Testing](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml)
@@ -42,6 +46,7 @@ When working on wpcomsh, follow the [WP.org coding standards](https://codex.word
 There are two stages of manually testing wpcomsh:
 
 The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)).
+
 However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
 Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
@@ -128,7 +133,7 @@ branch and run:
 
 - Use the `__( 'My string to be translated', 'wpcomsh' );` code to consume translations.
 - Create a new branch and run the command `make i18n` to convert these new strings into the [wpcomsh.pot](./languages/wpcomsh.pot) file. It will also download previous translations and update .mo and .po files of the [languages folder](./languages/) and will commit them automatically.
-- After merging everything on the trunk branch strings on [wpcomsh.pot](./languages/wpcomsh.pot) file will be automatically inserted into our translation system fbhepr%2Skers%2Sjcpbz%2Sova%2Sv18a%2Svzcbeg%2Qtvguho%2Qbevtvanyf.cuc%3Se%3Q1oq4q3oo%26zb%3Q12%26sv%3Q2%235-og.
+- After merging everything on the trunk branch strings on [wpcomsh.pot](./languages/wpcomsh.pot) file will be automatically inserted into our translation system by this script:  fbhepr%2Skers%2Sjcpbz%2Sova%2Sv18a%2Svzcbeg%2Qtvguho%2Qbevtvanyf.cuc%3Se%3Q1oq4q3oo%26zb%3Q12%26sv%3Q2%235-og.
 - After they get translated we need to run again `make i18n` and it will download all translations done by our translation vendor and the community.
 - Deploy and release the translations file.
 - You'll now have your strings translated into production!
@@ -296,7 +301,7 @@ The navigation sidebar in the [WordPress.com Editing Toolkit](https://wordpress.
 
 ### Coming Soon
 
-PCYsg-u4S-p2 mode is provided via the PCYsg-Osp-p2 and enabled using a filter. Coming Soon allows users to hide their site behind a Coming Soon page from the site settings page of Calypso.
+The Coming Soon PCYsg-u4S-p2 mode is provided via the jetpack-mu-wpcom package PCYsg-Osp-p2 and enabled using a filter. Coming Soon allows users to hide their site behind a Coming Soon page from the site settings page of Calypso.
 
 ### Nav Unification
 
@@ -317,8 +322,17 @@ Allow the showing of notices on the frontend. Currently we are showing:
 
 ### GitHub Deploy
 
-Includes a simple REST API for the pet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`.
+Includes a simple REST API for the GitHub deployment on Atomic: pet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`.
 
 ### Site Monitoring
 
 The menu item for WoA logging (`/site-monitoring/:siteSlug` in Calypso) is toggled on and off in wpcomsh.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+wpcomsh is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+
