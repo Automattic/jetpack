@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use WP_User;
 
 /**
  * Hides profile fields for WordPress.com connected users.

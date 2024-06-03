@@ -16,8 +16,7 @@ function masterbar_init_wp_posts_list() {
 	if (
 		( 'edit.php' === $pagenow && isset( $_GET['post_type'] ) && 'page' === $_GET['post_type'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	) {
-		require_once __DIR__ . '/class-posts-list-page-notification.php';
-		Automattic\Jetpack\Masterbar\Posts_List_Page_Notification::init();
+		Posts_List_Page_Notification::init();
 	}
 }
 
