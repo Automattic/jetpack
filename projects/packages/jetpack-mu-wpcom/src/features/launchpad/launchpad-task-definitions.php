@@ -27,8 +27,7 @@ function wpcom_launchpad_should_use_wp_admin_link() {
  * @return bool
  */
 function wpcom_launchpad_should_use_jetpack_cloud_link() {
-	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
-	return $is_atomic_site && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	return get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 }
 
 /**
