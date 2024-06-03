@@ -23,15 +23,18 @@ export class BlockHandler {
 	public renderRules: RenderHTMLRules = [];
 	public firstUpdate: boolean = true;
 	public behavior: BlockBehavior = 'dropdown' as const;
+	public isChildBlock: boolean = false;
 
 	constructor(
 		clientId: string,
 		renderRules: RenderHTMLRules = [],
-		behavior: BlockBehavior = 'dropdown'
+		behavior: BlockBehavior = 'dropdown',
+		isChildBlock: boolean = false
 	) {
 		this.clientId = clientId;
 		this.renderRules = renderRules;
 		this.behavior = behavior;
+		this.isChildBlock = isChildBlock;
 	}
 
 	public getBlock(): Block {
