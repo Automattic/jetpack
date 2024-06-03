@@ -8,7 +8,7 @@
 #   2: Symlink creation failed
 
 # Go to monorepo root.
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 # Abort if settings file already exists.
 if [[ -f .vscode/settings.json ]]; then
