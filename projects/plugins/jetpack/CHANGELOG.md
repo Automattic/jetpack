@@ -2,6 +2,38 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.5-beta - 2024-06-03
+### Enhancements
+- AI Assistant: Fallback to transformation when multiple blocks are selected. [#37632]
+- AI Assistant: Move List and List Item extensions to production. [#37613]
+- Notifications: Change icon. [#37625]
+- Social: Add the new Jetpack Social plan. [#37619]
+- Stats: Deprecate old Stats experience. [#37591]
+- Subscriptions: Add a toggle to automatically add Subscribe block to site navigation. [#37464]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add behavior support on AI inline extensions. [#37624]
+- Add support for custom behavior on AI inline extensions. [#37634]
+- AI Assistant: Add List and List Item inline extensions [#37564]
+- Carousel: Adjust logic when fetching info about attachment. [#37580]
+- Connection: Update connection ToS messaging. [#37536]
+- Correctly highlight Dashboard and Settings submenu in WoA sites that show My Jetpack. [#37572]
+- Fix looping API bug on Posts page [#37635]
+- Improve performance of `get_revisions` function [#37651]
+- Jetpack AI: Change upgrade prompt click target to new tab. [#37460]
+- Jetpack AI: Open AI Control upgrade links in a new tab. [#37629]
+- Jetpack AI: Open upgrade prompt from pre-publish in a new tab. [#37630]
+- Jetpack AI: Update copy of proofread/feedback tool. [#37611]
+- Jetpack Menu: Add Scan submenu to Jetpack to show history scans. [#37459]
+- Pass suggestion from AI inline extensions to `onBlockDone`. [#37636]
+- Remove the `jetpack-identity-crisis` dependency. [#36968]
+- Social: Modify initial state. [#37644]
+- Social: Update upgrade nudges to use the new plan. [#37638]
+- Stats: Deprecate old stats experience. [#37614]
+- Subscriptions: Release subscription overlay and Subscribe block navigation placement. [#37594]
+- Subscriptions: Add setting headings to divide toggles into groups. [#37576]
+- Tiled Gallery: Force image aspect ratio for square and circle styles. [#37627]
+
 ## 13.5-a.5 - 2024-05-27
 ### Enhancements
 - AI Assistant: Move Paragraph extension to production. [#37495]

@@ -149,6 +149,13 @@ class Source_Providers {
 				$sources[] = array(
 					'key'           => $key,
 					'label'         => $provider::describe_key( $key ),
+					/**
+					 * Filters the URLs used by Critical CSS
+					 *
+					 * @param array $urls The list of URLs to be used to generate critical CSS
+					 *
+					 * @since   1.0.0
+					 */
 					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);

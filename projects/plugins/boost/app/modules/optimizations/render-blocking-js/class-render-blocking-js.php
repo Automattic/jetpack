@@ -58,7 +58,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 	public function setup() {
 		$this->output_filter = new Output_Filter();
 
-		// Set up the ignore attribute value.
+		/**
+		 * Filters the ignore attribute
+		 *
+		 * @param $string $ignore_attribute The string used to ignore elements of the page.
+		 *
+		 * @since   1.0.0
+		 */
 		$this->ignore_attribute = apply_filters( 'jetpack_boost_render_blocking_js_ignore_attribute', 'data-jetpack-boost' );
 
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
@@ -90,7 +96,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 		 * Here are a few scenarios when we shouldn't do it:
 		 */
 
-		// Give a chance to disable defer blocking js.
+		/**
+		 * Filter to disable defer blocking JS
+		 *
+		 * @param bool $defer return false to disable defer blocking
+		 *
+		 * @since   1.0.0
+		 */
 		if ( false === apply_filters( 'jetpack_boost_should_defer_js', '__return_true' ) ) {
 			return;
 		}
@@ -214,6 +226,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 			return array();
 		}
 
+		/**
+		 * Filter to remove any scripts that should not be moved to the end of the document.
+		 *
+		 * @param array $script_tags array of script tags. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_render_blocking_js_exclude_scripts', $script_tags[0] );
 	}
 
@@ -292,6 +311,13 @@ class Render_Blocking_JS implements Pluggable, Changes_Page_Output, Optimization
 	 * @return string
 	 */
 	public function handle_exclusions( $tag, $handle ) {
+		/**
+		 * Filter to provide an array of registered script handles that should not be moved to the end of the document.
+		 *
+		 * @param array $script_handles array of script handles. Remove any scripts that should not be moved to the end of the documents.
+		 *
+		 * @since   1.0.0
+		 */
 		$exclude_handles = apply_filters( 'jetpack_boost_render_blocking_js_exclude_handles', array() );
 
 		if ( ! in_array( $handle, $exclude_handles, true ) ) {

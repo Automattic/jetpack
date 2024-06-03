@@ -64,6 +64,10 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		/**
 		 * Front-end display of the widget.
 		 *
+		 * @html-template-var array $instance
+		 * @html-template-var string|null $flickr_home
+		 * @html-template-var string $photos';
+		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
@@ -168,6 +172,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 		/**
 		 * Back-end widget form.
+		 *
+		 * @html-template-var array $instance
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

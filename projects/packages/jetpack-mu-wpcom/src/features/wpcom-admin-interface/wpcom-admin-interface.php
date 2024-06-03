@@ -152,7 +152,7 @@ function wpcom_render_classic_tour_template() {
 				<div class="wpcom-classic-tour-step-current"><?php esc_html_e( 'Step {{currentStep}} of {{totalSteps}}', 'jetpack-mu-wpcom' ); ?></div>
 				<button data-action="prev" class="button button-secondary"><?php esc_html_e( 'Previous', 'jetpack-mu-wpcom' ); ?></button>
 				<button data-action="next" class="button button-primary"><?php esc_html_e( 'Next', 'jetpack-mu-wpcom' ); ?></button>
-				<button data-action="dismiss" class="button button-primary"><?php esc_html_e( 'Well done!', 'jetpack-mu-wpcom' ); ?></button>
+				<button data-action="dismiss" class="button button-primary"><?php esc_html_e( 'Got it!', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</template>
@@ -195,7 +195,7 @@ function wpcom_classic_tour_enqueue_scripts() {
 				'target'      => '.toplevel_page_wpcom-hosting-menu',
 				'placement'   => 'right-bottom',
 				'title'       => esc_html__( 'Upgrades is now Hosting', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'The Hosting drawer contains the My Home page and all items from the Updates drawer, including Plans, Domains, Emails, and Purchases.', 'jetpack-mu-wpcom' ),
+				'description' => esc_html__( 'The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more.', 'jetpack-mu-wpcom' ),
 				'position'    => 'fixed',
 			),
 			array(
@@ -209,7 +209,7 @@ function wpcom_classic_tour_enqueue_scripts() {
 				'target'      => '.wp-admin-bar-all-sites',
 				'placement'   => 'bottom-right',
 				'title'       => esc_html__( 'All your sites', 'jetpack-mu-wpcom' ),
-				'description' => esc_html__( 'All sites consolidates all your sites, domains, notifications, help center, Reader, and more in one place.', 'jetpack-mu-wpcom' ),
+				'description' => esc_html__( 'Click here to access your sites, domains, Reader, account settings, and more.', 'jetpack-mu-wpcom' ),
 				'position'    => 'fixed',
 			),
 		),
