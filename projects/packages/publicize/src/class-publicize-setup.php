@@ -43,8 +43,7 @@ class Publicize_Setup {
 		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
-		add_action( 'publicize_classic_editor_form_after', array( static::class, 'render_classic_editor_nudge' ), 11 );
+		add_action( 'current_screen', array( static::class, 'on_current_screen_action' ) );
 
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
@@ -87,15 +86,28 @@ class Publicize_Setup {
 	}
 
 	/**
-	 * Initialise share limits if they should be enabled.
+	 * Hook into the current screen action.
 	 */
-	public static function init_sharing_limits() {
+	public static function on_current_screen_action() {
 		$current_screen = get_current_screen();
 
-		if ( empty( $current_screen ) || $current_screen->base !== 'post' ) {
+		if ( empty( $current_screen ) || 'post' !== $current_screen->base ) {
 			return;
 		}
 
+		self::init_sharing_limits( $current_screen );
+
+		if ( ! $current_screen->is_block_editor() ) {
+			add_action( 'publicize_classic_editor_form_after', array( static::class, 'render_classic_editor_nudge' ), 11 );
+		}
+	}
+
+	/**
+	 * Initialise share limits if they should be enabled.
+	 *
+	 * @param WP_Screen $current_screen The current screen object.
+	 */
+	public static function init_sharing_limits( $current_screen ) {
 		global $publicize;
 
 		if ( $publicize->has_paid_plan( self::$refresh_plan_info ) ) {
