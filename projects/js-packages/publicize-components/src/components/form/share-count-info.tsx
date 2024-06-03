@@ -1,6 +1,10 @@
 import { IconTooltip, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getSiteFragment,
+	isAtomicSite,
+	isSimpleSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
@@ -23,7 +27,9 @@ export const ShareCountInfo: React.FC = () => {
 	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
-	if ( isSimpleSite() || ( ! showShareLimits && hasPaidFeatures ) ) {
+	const isWpcom = isSimpleSite() || isAtomicSite();
+
+	if ( isWpcom || ( ! showShareLimits && hasPaidFeatures ) ) {
 		return null;
 	}
 
@@ -68,7 +74,7 @@ export const ShareCountInfo: React.FC = () => {
 							} ) }
 						>
 							{ _x(
-								'Upgrade for advanced sharing.',
+								'Unlock enhanced media sharing features.',
 								'Call to action to buy a new plan',
 								'jetpack'
 							) }
