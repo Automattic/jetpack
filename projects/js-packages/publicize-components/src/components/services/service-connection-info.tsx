@@ -11,9 +11,14 @@ import { SupportedService } from './use-supported-services';
 export type ServiceConnectionInfoProps = {
 	connection: Connection;
 	service: SupportedService;
+	isAdmin?: boolean;
 };
 
-export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectionInfoProps ) => {
+export const ServiceConnectionInfo = ( {
+	connection,
+	service,
+	isAdmin,
+}: ServiceConnectionInfoProps ) => {
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
@@ -34,7 +39,7 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 						return <ConnectionStatus connection={ conn } service={ service } />;
 					}
 
-					if ( conn.can_disconnect ) {
+					if ( isAdmin ) {
 						return (
 							<div className={ styles[ 'mark-shared-wrap' ] }>
 								<MarkAsShared connection={ conn } />
@@ -48,11 +53,11 @@ export const ServiceConnectionInfo = ( { connection, service }: ServiceConnectio
 						);
 					}
 
-					return (
+					return ! conn.can_disconnect ? (
 						<Text className={ styles.description }>
 							{ __( 'This connection is added by a site administrator.', 'jetpack' ) }
 						</Text>
-					);
+					) : null;
 				} )( connection ) }
 			</div>
 			<div className={ styles[ 'connection-actions' ] }>

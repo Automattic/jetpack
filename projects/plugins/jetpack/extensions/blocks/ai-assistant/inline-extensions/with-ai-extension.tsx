@@ -21,7 +21,7 @@ import useAutoScroll from '../hooks/use-auto-scroll';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
-import { getBlockHandler } from './get-block-handler';
+import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
 import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
@@ -39,6 +39,8 @@ const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' 
 const blockExtensionMapper = {
 	'core/heading': 'heading',
 	'core/paragraph': 'paragraph',
+	'core/list-item': 'list-item',
+	'core/list': 'list',
 };
 
 // Defines where the block controls should be placed in the toolbar
@@ -87,8 +89,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 			return { postId: getCurrentPostId() };
 		}, [] );
-		// The block's id to find it in the DOM for the positioning adjustments.
-		const { id } = useBlockProps();
+		// The block's id to find it in the DOM for the positioning adjustments
+		// The classname is used by nested blocks to determine which block's toolbar to display when the input is focused.
+		const { id, className } = useBlockProps();
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
@@ -101,11 +104,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			true
 		);
 
+		const focusInput = useCallback( () => {
+			inputRef.current?.focus();
+		}, [] );
+
 		// Data and functions with block-specific implementations.
 		const {
 			onSuggestion: onBlockSuggestion,
 			onDone: onBlockDone,
 			getContent,
+			behavior,
+			isChildBlock,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
@@ -177,48 +186,58 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 
 		// Called after the last suggestion chunk is received.
-		const onDone = useCallback( () => {
-			disableAutoScroll();
-			onBlockDone();
-			increaseRequestsCount();
-			setAction( '' );
+		const onDone = useCallback(
+			( suggestion: string ) => {
+				disableAutoScroll();
+				onBlockDone( suggestion );
+				increaseRequestsCount();
+				setAction( '' );
 
-			if ( lastRequest.current?.message ) {
-				const assistantMessage = {
-					role: 'assistant' as const,
-					content: getContent(),
-				};
+				if ( lastRequest.current?.message ) {
+					const assistantMessage = {
+						role: 'assistant' as const,
+						content: getContent(),
+					};
 
-				chatHistory.current.push( lastRequest.current.message, assistantMessage );
+					chatHistory.current.push( lastRequest.current.message, assistantMessage );
 
-				// Limit the messages to 20 items.
-				if ( chatHistory.current.length > 20 ) {
-					chatHistory.current.splice( 0, chatHistory.current.length - 20 );
+					// Limit the messages to 20 items.
+					if ( chatHistory.current.length > 20 ) {
+						chatHistory.current.splice( 0, chatHistory.current.length - 20 );
 
-					// Make sure the first message is a 'jetpack-ai' message and not marked as a follow-up.
-					const firstJetpackAiMessageIndex = chatHistory.current.findIndex(
-						message => message.role === 'jetpack-ai'
-					);
+						// Make sure the first message is a 'jetpack-ai' message and not marked as a follow-up.
+						const firstJetpackAiMessageIndex = chatHistory.current.findIndex(
+							message => message.role === 'jetpack-ai'
+						);
 
-					if ( firstJetpackAiMessageIndex !== -1 ) {
-						chatHistory.current = chatHistory.current.slice( firstJetpackAiMessageIndex );
+						if ( firstJetpackAiMessageIndex !== -1 ) {
+							chatHistory.current = chatHistory.current.slice( firstJetpackAiMessageIndex );
 
-						chatHistory.current[ 0 ].context = {
-							...chatHistory.current[ 0 ].context,
-							is_follow_up: false,
-						};
+							chatHistory.current[ 0 ].context = {
+								...chatHistory.current[ 0 ].context,
+								is_follow_up: false,
+							};
+						}
 					}
 				}
-			}
 
-			lastRequest.current = null;
+				lastRequest.current = null;
 
-			// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-			setTimeout( () => {
-				adjustBlockPadding();
-				inputRef.current?.focus();
-			}, 100 );
-		}, [ disableAutoScroll, onBlockDone, increaseRequestsCount, getContent, adjustBlockPadding ] );
+				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
+				setTimeout( () => {
+					adjustBlockPadding();
+					focusInput();
+				}, 100 );
+			},
+			[
+				disableAutoScroll,
+				onBlockDone,
+				increaseRequestsCount,
+				getContent,
+				adjustBlockPadding,
+				focusInput,
+			]
+		);
 
 		// Called when an error is received.
 		const onError = useCallback(
@@ -283,6 +302,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				dequeueAsyncRequest();
 
 				enableAutoScroll();
+
 				request( messages );
 			},
 			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
@@ -305,8 +325,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			disableAutoScroll();
 			stopSuggestion();
 
-			inputRef.current?.focus();
-		}, [ disableAutoScroll, stopSuggestion ] );
+			focusInput();
+		}, [ disableAutoScroll, stopSuggestion, focusInput ] );
 
 		// Called when the user clicks the "Try Again" button in the input error message.
 		const handleTryAgain = useCallback( () => {
@@ -348,9 +368,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
 				// Focus the input when the AI Control is displayed.
-				inputRef.current.focus();
+				focusInput();
 			}
-		}, [ showAiControl ] );
+		}, [ showAiControl, focusInput ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
@@ -412,12 +432,13 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
 
-		return (
+		const aiInlineExtensionContent = (
 			<>
 				<BlockEdit { ...props } />
 
 				{ showAiControl && (
 					<AiAssistantInput
+						className={ className }
 						requestingState={ requestingState }
 						requestingError={ error }
 						wrapperRef={ controlRef }
@@ -437,9 +458,24 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						blockType={ blockName }
 						onAskAiAssistant={ handleAskAiAssistant }
 						onRequestSuggestion={ handleRequestSuggestion }
+						behavior={ behavior }
 					/>
 				</BlockControls>
 			</>
+		);
+
+		if ( isChildBlock ) {
+			return aiInlineExtensionContent;
+		}
+
+		const ProviderProps = {
+			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+		};
+
+		return (
+			<InlineExtensionsContext.Provider { ...ProviderProps }>
+				{ aiInlineExtensionContent }
+			</InlineExtensionsContext.Provider>
 		);
 	};
 }, 'blockEditWithAiComponents' );

@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit d14f975fc8b120a790a897b70ea26e01b02feccf.
+ * Stubs automatically generated from WordPress.com commit 2d082c6ddeb55ddd1d056684148ba2d5c089ebcf.
  */
 
 namespace {
@@ -62,17 +62,6 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
-    }
-    /**
-     * @param string $id
-     * @param string $title
-     * @param string $callback
-     * @param string $page
-     * @param string $section
-     * @param array $args
-     */
-    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
-    {
     }
     class Domain_Management
     {
@@ -167,6 +156,9 @@ namespace {
          * @var string|bool
          */
         public $meta = '';
+    }
+    function wpcom_plugins_display_marketplace()
+    {
     }
     function vary_cache_on_function($function)
     {
@@ -377,7 +369,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text')
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
         {
         }
         /**
@@ -1248,14 +1240,6 @@ namespace {
         }
     }
     function wp_kses_reject($content, $rejected_item = \false, $is_attribute = \false)
-    {
-    }
-    /**
-     * @param string $option_group
-     * @param string $option_name
-     * @param array $args
-     */
-    function register_setting($option_group, $option_name, $args = array())
     {
     }
     /**

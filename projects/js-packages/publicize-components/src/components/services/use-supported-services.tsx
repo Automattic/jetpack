@@ -3,9 +3,6 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import connectionsButtonFacebook from '../../assets/connections-button-facebook.png';
-import connectionsButtonLinkedin from '../../assets/connections-button-linkedin.png';
-import connectionsButtonTumblr from '../../assets/connections-button-tumblr.png';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
 import connectionsLinkedin from '../../assets/connections-linkedin.png';
@@ -13,8 +10,6 @@ import connectionsNextdoor from '../../assets/connections-nextdoor.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
 import { store } from '../../social-store';
 import { ConnectionService } from '../../social-store/types';
-
-const sharingButtonLink = 'https://wordpress.com/support/sharing/';
 
 export interface SupportedService extends ConnectionService {
 	icon: React.ComponentType< { iconSize: number } >;
@@ -40,7 +35,7 @@ export function useSupportedServices(): Array< SupportedService > {
 			);
 	}, [] );
 
-	return [
+	const supportedServices: Array< SupportedService > = [
 		{
 			...availableServices.facebook,
 			icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
@@ -48,9 +43,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsFacebook } alt={ __( 'Add Facebook connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts on your Facebook page.',
@@ -61,28 +53,7 @@ export function useSupportedServices(): Array< SupportedService > {
 					</>
 				),
 				() => (
-					<>
-						<img
-							src={ connectionsButtonFacebook }
-							alt={ __( 'Add Facebook connection', 'jetpack' ) }
-						/>
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their friends.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
+					<img src={ connectionsFacebook } alt={ __( 'Add Facebook connection', 'jetpack' ) } />
 				),
 			],
 		},
@@ -141,9 +112,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts with your LinkedIn connections.',
@@ -154,28 +122,7 @@ export function useSupportedServices(): Array< SupportedService > {
 					</>
 				),
 				() => (
-					<>
-						<img
-							src={ connectionsButtonLinkedin }
-							alt={ __( 'Add LinkedIn connection', 'jetpack' ) }
-						/>
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their connections.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
+					<img src={ connectionsLinkedin } alt={ __( 'Add LinkedIn connection', 'jetpack' ) } />
 				),
 			],
 		},
@@ -205,9 +152,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			examples: [
 				() => (
 					<>
-						<img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
-						<br />
-						<br />
 						{ createInterpolateElement(
 							__(
 								'<strong>Connect</strong> to automatically share posts to your Tumblr blog.',
@@ -217,27 +161,7 @@ export function useSupportedServices(): Array< SupportedService > {
 						) }
 					</>
 				),
-				() => (
-					<>
-						<img src={ connectionsButtonTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />
-						<br />
-						<br />
-						{ createInterpolateElement(
-							__(
-								'Add a <link /> to your posts so readers can share your story with their followers.',
-								'jetpack'
-							),
-							{
-								strong: <strong></strong>,
-								link: (
-									<ExternalLink href={ sharingButtonLink }>
-										{ __( 'sharing button', 'jetpack' ) }
-									</ExternalLink>
-								),
-							}
-						) }
-					</>
-				),
+				() => <img src={ connectionsTumblr } alt={ __( 'Add Tumblr connection', 'jetpack' ) } />,
 			],
 		},
 		{
@@ -256,7 +180,8 @@ export function useSupportedServices(): Array< SupportedService > {
 				),
 			],
 		},
-	].filter(
+	];
+	return supportedServices.filter(
 		// Return only the ones that are present in the available services.
 		service => Boolean( service.ID )
 	);

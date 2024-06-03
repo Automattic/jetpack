@@ -43,8 +43,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
-				hasSocialBasicFeatures = this.props.hasSocialBasicFeatures,
-				hasSocialAdvancedFeatures = this.props.hasSocialAdvancedFeatures,
+				hasPaidFeatures = this.props.hasPaidFeatures,
 				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
 				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
@@ -57,7 +56,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 				activeFeatures &&
 				activeFeatures.length > 0 &&
 				isActive &&
-				! hasSocialAdvancedFeatures &&
+				! hasPaidFeatures &&
 				isLinked;
 
 			const shouldShowChildElements = isActive && ! this.props.isSavingAnyOption( 'publicize' );
@@ -118,51 +117,26 @@ export const Publicize = withModuleSettingsFormHelpers(
 									'jetpack'
 								) }
 							</p>
-							{ showUpgradeLink && (
-								<>
-									<p>
-										{ ! hasSocialBasicFeatures
-											? createInterpolateElement(
-													__(
-														'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get unlimited shares and advanced media sharing options.',
-														'jetpack'
-													),
-													{
-														moreInfo: (
-															<a
-																href={ getRedirectUrl(
-																	'jetpack-plugin-admin-page-sharings-screen',
-																	{
-																		site: siteRawUrl,
-																		query: 'redirect_to=' + redirectUrl,
-																	}
-																) }
-															/>
-														),
-													}
-											  )
-											: createInterpolateElement(
-													__(
-														'<moreInfo>Upgrade to the Jetpack Social Advanced plan</moreInfo> to get advanced media sharing options.',
-														'jetpack'
-													),
-													{
-														moreInfo: (
-															<a
-																href={ getRedirectUrl(
-																	'jetpack-plugin-admin-page-sharings-screen',
-																	{
-																		site: siteRawUrl,
-																		query: 'redirect_to=' + redirectUrl,
-																	}
-																) }
-															/>
-														),
-													}
-											  ) }
-									</p>
-								</>
-							) }
+							{ showUpgradeLink ? (
+								<p>
+									{ createInterpolateElement(
+										__(
+											'<moreInfo>Upgrade to a Jetpack Social plan</moreInfo> to get advanced sharing options.',
+											'jetpack'
+										),
+										{
+											moreInfo: (
+												<a
+													href={ getRedirectUrl( 'jetpack-plugin-admin-page-sharings-screen', {
+														site: siteRawUrl,
+														query: 'redirect_to=' + redirectUrl,
+													} ) }
+												/>
+											),
+										}
+									) }
+								</p>
+							) : null }
 							<ModuleToggle
 								slug="publicize"
 								disabled={ unavailableInOfflineMode }

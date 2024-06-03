@@ -198,7 +198,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 done
 
 # When it completes, wait for user to edit anything they want, then push key to continue.
-read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
+read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)).\nCheck for consistency between the different entries, and keep in mind that your plugin changelog will be used in the plugin readme file.\n\nOnce you are happy with your work, press enter to continue the release process.'
 echo ""
 
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -320,9 +320,17 @@ sed "s/%RELEASED_PLUGINS%/$PLUGINS_CHANGED/g" .github/files/BACKPORT_RELEASE_CHA
 gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md)" --label "[Status] Needs Review" --repo "Automattic/jetpack" --head "$(git rev-parse --abbrev-ref HEAD)"
 rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 
-yellow "Release script complete! Next steps: "
-echo -e "\t1. Merge the above PR into trunk."
-echo -e "\t2. If this is NOT the Jetpack core plugin, the release will shortly be tagged to GitHub and released to SVN."
-echo -e "\t3. You can then smoke test the release and use .tools/stable-tag.sh <plugin> to update the stable tag, and you're done!"
-echo -e "\t4. If you are releasing Jetpack-the-plugin, after the changes make it to the mirror repo, conduct a GitHub release."
-echo -e "\t5. Then run ./tools/deploy-to-svn.sh <plugin-name> <tag> to deploy to SVN, smoke test, and flip stable tag."
+yellow "Release script complete!"
+cat <<"EOM"
+
+Next you need to merge the above PR into trunk.
+
+If this is NOT the Jetpack core plugin, the release will shortly be tagged to
+GitHub and released to SVN and you can then smoke test the release. Once ready,
+use `./tools/stable-tag.sh <plugin>` to update the stable tag, and you're done!
+
+If you are releasing Jetpack (the plugin), wait for the changes to appear in
+the mirror repo and conduct a GitHub release. Next, deploy the tag to SVN by
+running `./tools/deploy-to-svn.sh <plugin> <tag>`, and smoke test. When ready,
+flip the stable tag and you're all set.
+EOM

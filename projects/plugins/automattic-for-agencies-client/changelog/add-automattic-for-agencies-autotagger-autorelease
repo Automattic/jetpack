@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add autotagger and autorelease to composer.json to enable auto-tagging and auto-release actions

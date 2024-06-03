@@ -7,7 +7,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockBehavior, BlockEditorDispatch, BlockEditorSelect } from './types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html: string ) {
@@ -15,17 +15,26 @@ export function getMarkdown( html: string ) {
 }
 
 export function renderHTMLContent( markdown: string, rules: RenderHTMLRules = [] ) {
-	return renderHTMLFromMarkdown( { content: markdown, rules } );
+	return renderHTMLFromMarkdown( { content: markdown, rules, extension: true } );
 }
 
 export class BlockHandler {
 	public clientId: string;
 	public renderRules: RenderHTMLRules = [];
 	public firstUpdate: boolean = true;
+	public behavior: BlockBehavior = 'dropdown' as const;
+	public isChildBlock: boolean = false;
 
-	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
+	constructor(
+		clientId: string,
+		renderRules: RenderHTMLRules = [],
+		behavior: BlockBehavior = 'dropdown',
+		isChildBlock: boolean = false
+	) {
 		this.clientId = clientId;
 		this.renderRules = renderRules;
+		this.behavior = behavior;
+		this.isChildBlock = isChildBlock;
 	}
 
 	public getBlock(): Block {
@@ -55,7 +64,8 @@ export class BlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
-	public onDone(): void {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public onDone( suggestion: string ): void {
 		this.firstUpdate = true;
 	}
 
@@ -67,18 +77,22 @@ export class BlockHandler {
 			return;
 		}
 
-		const { updateBlockAttributes, __unstableMarkNextChangeAsNotPersistent } = dispatch(
-			'core/block-editor'
-		) as BlockEditorDispatch;
+		const { updateBlockAttributes, replaceInnerBlocks, __unstableMarkNextChangeAsNotPersistent } =
+			dispatch( 'core/block-editor' ) as BlockEditorDispatch;
 
-		if ( ! this.firstUpdate ) {
-			// Mark the change as not persistent so we can undo all the changes in one step.
-			__unstableMarkNextChangeAsNotPersistent();
-		} else {
+		// Do not mark the very first change as not persistent.
+		if ( this.firstUpdate ) {
 			this.firstUpdate = false;
+		} else {
+			// Mark all other changes as not persistent so we can undo all the changes in one step.
+			__unstableMarkNextChangeAsNotPersistent();
 		}
 
 		// Replace the original block attributes with the new block attributes.
 		updateBlockAttributes( this.clientId, newBlock.attributes );
+
+		// Replace the original block inner blocks with the new block inner blocks.
+		__unstableMarkNextChangeAsNotPersistent();
+		replaceInnerBlocks( this.clientId, newBlock.innerBlocks );
 	}
 }

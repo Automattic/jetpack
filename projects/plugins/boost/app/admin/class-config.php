@@ -12,6 +12,13 @@ use Automattic\Jetpack\Status\Host;
  */
 class Config {
 	public function constants() {
+		/**
+		 * Filters the internal path to the distributed assets used by the plugin
+		 *
+		 * @param string $path the path to the assets
+		 *
+		 * @since   1.0.0
+		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
@@ -32,7 +39,13 @@ class Config {
 			'postTypes'       => (object) $this->get_custom_post_types(),
 		);
 
-		// Give each module an opportunity to define extra constants.
+		/**
+		 * Filters the constants so each module can define extra ones
+		 *
+		 * @param array $constant The array of constants used by the plugin
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_js_constants', $constants );
 	}
 
