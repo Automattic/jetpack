@@ -1,6 +1,6 @@
 import { IconTooltip, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
@@ -23,7 +23,7 @@ export const ShareCountInfo: React.FC = () => {
 	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
-	if ( ! showShareLimits && hasPaidFeatures ) {
+	if ( isSimpleSite() || ( ! showShareLimits && hasPaidFeatures ) ) {
 		return null;
 	}
 
