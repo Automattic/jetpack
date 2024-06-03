@@ -326,16 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.5-a.5 - 2024-05-27
+### 13.5-beta - 2024-06-03
 #### Enhancements
-- AI Assistant: Move Paragraph extension to production.
-- Newsletter: Add "From" name setting.
-- Newsletter: Add "Reply to" name setting.
-- Social: Add connection management to editor.
-- Social: Add width to connection management container.
-
-#### Improved compatibility
-- Change how Jetpack social connections are stored on the local site.
+- AI Assistant: Fallback to transformation when multiple blocks are selected.
+- AI Assistant: Move List and List Item extensions to production.
+- Notifications: Change icon.
+- Social: Add the new Jetpack Social plan.
+- Stats: Deprecate old Stats experience.
+- Subscriptions: Add a toggle to automatically add Subscribe block to site navigation.
 
 --------
 
