@@ -23,7 +23,7 @@ export const ShareCountInfo: React.FC = () => {
 	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 	const autosaveAndRedirect = useAutoSaveAndRedirect();
 
-	if ( isSimpleSite() || hasPaidFeatures || ! showShareLimits ) {
+	if ( isSimpleSite() || ( ! showShareLimits && hasPaidFeatures ) ) {
 		return null;
 	}
 
