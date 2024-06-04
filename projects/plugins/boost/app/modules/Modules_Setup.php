@@ -146,11 +146,11 @@ class Modules_Setup implements Has_Setup {
 
 		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
 		if ( $is_activated && $module ) {
-			$module->activate();
+			$module->on_activate();
 		}
 
 		if ( ! $is_activated && $module ) {
-			$module->deactivate();
+			$module->on_deactivate();
 		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {

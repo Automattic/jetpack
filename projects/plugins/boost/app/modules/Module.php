@@ -25,11 +25,11 @@ class Module {
 		$this->status  = new Status( $feature::get_slug() );
 	}
 
-	public function activate() {
+	public function on_activate() {
 		return $this->feature instanceof Has_Activate ? $this->feature::activate() : true;
 	}
 
-	public function deactivate() {
+	public function on_deactivate() {
 		return $this->feature instanceof Has_Deactivate ? $this->feature::deactivate() : true;
 	}
 
