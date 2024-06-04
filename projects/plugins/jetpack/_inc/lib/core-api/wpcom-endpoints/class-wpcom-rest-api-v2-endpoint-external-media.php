@@ -423,8 +423,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			$wpcom_path,
 			'2',
 			array(
-				'method'  => 'DELETE',
-				'blog_id' => Manager::get_site_id(),
+				'method' => 'DELETE',
 			)
 		);
 
