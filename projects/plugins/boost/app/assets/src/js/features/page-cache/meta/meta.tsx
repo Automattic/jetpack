@@ -8,7 +8,7 @@ import styles from './meta.module.scss';
 import { useEffect, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import { Link } from 'react-router-dom';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
@@ -203,7 +203,7 @@ const BypassPatterns = ( {
 
 	return (
 		<div
-			className={ classNames( styles.section, {
+			className={ clsx( styles.section, {
 				[ styles[ 'has-error' ] ]: inputInvalid,
 			} ) }
 		>
@@ -217,7 +217,7 @@ const BypassPatterns = ( {
 				onChange={ e => validateInputValue( e.target.value ) }
 				id="jb-cache-exceptions"
 			/>
-			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
+			<p className={ clsx( styles.description, styles[ 'error-message' ] ) }>
 				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
 			</p>
 			<div className={ styles.description }>

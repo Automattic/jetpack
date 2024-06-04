@@ -1,6 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { Media, CalypsoSpinner } from './components';
 import waitMediaReady from './lib/wait-media-ready';
 
@@ -60,7 +60,7 @@ export const Slide = ( {
 		<>
 			{ visible && ( loading || uploading || buffering ) && (
 				<div
-					className={ classNames( 'wp-story-slide', 'is-loading', {
+					className={ clsx( 'wp-story-slide', 'is-loading', {
 						transparent: playing && buffering,
 						'semi-transparent': uploading || ( ! playing && buffering ),
 					} ) }

@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
-import cs from 'classnames';
+import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
@@ -310,7 +310,7 @@ const ActionButton = ( {
 	return (
 		<>
 			<div
-				className={ cs(
+				className={ clsx(
 					styles[ 'action-button' ],
 					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
@@ -320,7 +320,7 @@ const ActionButton = ( {
 				</Button>
 				{ hasAdditionalActions && (
 					<button
-						className={ cs(
+						className={ clsx(
 							styles[ 'dropdown-chevron' ],
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }

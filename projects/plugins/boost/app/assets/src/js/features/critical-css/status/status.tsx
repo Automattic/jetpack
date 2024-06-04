@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
@@ -73,7 +73,7 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 
 				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
-					<div className={ classNames( 'failures', styles.failures ) }>
+					<div className={ clsx( 'failures', styles.failures ) }>
 						<InfoIcon />
 
 						<>

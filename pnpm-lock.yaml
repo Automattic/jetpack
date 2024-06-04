@@ -137,9 +137,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -306,9 +306,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.0.0
         version: 5.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -457,9 +457,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -757,9 +757,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -821,9 +821,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -939,9 +939,9 @@ importers:
       '@wordpress/notices':
         specifier: 5.0.0
         version: 5.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -1913,9 +1913,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.76.0)
@@ -2284,9 +2284,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -2450,9 +2450,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
@@ -2662,9 +2662,9 @@ importers:
       '@wordpress/url':
         specifier: 4.0.0
         version: 4.0.0
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -2813,9 +2813,9 @@ importers:
       chart.js:
         specifier: 3.7.1
         version: 3.7.1
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
@@ -3024,9 +3024,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3124,9 +3124,9 @@ importers:
       '@wordpress/element':
         specifier: 6.0.0
         version: 6.0.0
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.76.0)
@@ -3369,9 +3369,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -3617,12 +3617,12 @@ importers:
       bounding-client-rect:
         specifier: 1.0.5
         version: 1.0.5
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
       clipboard:
         specifier: 2.0.6
         version: 2.0.6
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       component-uid:
         specifier: 0.0.2
         version: 0.0.2
@@ -4006,9 +4006,9 @@ importers:
       camelize:
         specifier: 1.0.1
         version: 1.0.1
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       diff:
         specifier: ^4.0.2
         version: 4.0.2
@@ -4114,9 +4114,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
-      classnames:
-        specifier: 2.3.2
-        version: 2.3.2
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       react:
         specifier: 18.3.1
         version: 18.3.1

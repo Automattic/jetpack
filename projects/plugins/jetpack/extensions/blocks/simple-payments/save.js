@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { formatPrice } from './utils';
 
 export default function Save( { attributes } ) {
@@ -23,7 +23,7 @@ export default function Save( { attributes } ) {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames(
+			className={ clsx(
 				blockProps.className,
 				`jetpack-simple-payments-wrapper jetpack-simple-payments-${ productId }`
 			) }
