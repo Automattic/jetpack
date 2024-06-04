@@ -39,7 +39,7 @@ const Header = () => {
 		const store = select( socialStore );
 		return {
 			connectionsAdminUrl: connectionData.adminUrl,
-			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
+			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
@@ -75,18 +75,16 @@ const Header = () => {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className={ styles.container }>
 				<Col sm={ 4 } md={ 4 } lg={ 5 }>
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
-					{ ! useAdminUiV1 ? (
-						<div className={ styles.actions }>
-							{ isModuleEnabled && ! hasConnections && (
-								<Button href={ connectionsAdminUrl } isExternalLink={ true }>
-									{ __( 'Connect accounts', 'jetpack-social' ) }
-								</Button>
-							) }
-							<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
-								{ __( 'Write a post', 'jetpack-social' ) }
+					<div className={ styles.actions }>
+						{ ! useAdminUiV1 && isModuleEnabled && ! hasConnections && (
+							<Button href={ connectionsAdminUrl } isExternalLink={ true }>
+								{ __( 'Connect accounts', 'jetpack-social' ) }
 							</Button>
-						</div>
-					) : null }
+						) }
+						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
+							{ __( 'Write a post', 'jetpack-social' ) }
+						</Button>
+					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 					{ showShareLimits ? (
