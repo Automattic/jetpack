@@ -132,6 +132,9 @@
 		"release-branch-prefix": "wpcomsh",
 		"changelogger": {
 			"versioning": "semver"
+		},
+		"version-constants": {
+			"WPCOMSH__VERSION": "wpcomsh.php"
 		}
 	}
 }
