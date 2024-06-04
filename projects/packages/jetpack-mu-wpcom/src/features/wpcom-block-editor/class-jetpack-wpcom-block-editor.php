@@ -64,7 +64,7 @@ class Jetpack_WPCOM_Block_Editor {
 			return;
 		}
 
-		if ( $this->is_iframed_block_editor() ) {
+		if ( ! ( new Host() )->is_wpcom_simple() && $this->is_iframed_block_editor() ) {
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
@@ -141,7 +141,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function allow_block_editor_login() {
 		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( empty( $_REQUEST['redirect_to'] ) ) {
+		if ( ( new Host() )->is_wpcom_simple() || empty( $_REQUEST['redirect_to'] ) ) {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification
