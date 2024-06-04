@@ -11,15 +11,10 @@ import {
 import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../hooks/use-product-info';
 import styles from './styles.module.scss';
-
-const UNLIMITED = __( 'Unlimited', 'jetpack-social' );
-const UNLIMITED_SHARES = __( 'Unlimited shares', 'jetpack-social' );
-const UP_TO_30 = __( 'Up to 30', 'jetpack-social' );
-const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
 
 const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
@@ -38,29 +33,11 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 		onDismiss();
 	}, [ updateOptions, onDismiss ] );
 
-	const UNLIMITED_SHARES_TABLE_ITEM = (
-		<PricingTableItem
-			isIncluded
-			label={
-				<>
-					<del>{ __( 'Up to 1,000', 'jetpack-social' ) }</del>&nbsp;
-					<strong>{ isLarge ? UNLIMITED : UNLIMITED_SHARES }</strong>
-				</>
-			}
-			tooltipTitle={ UNLIMITED_SHARES }
-			tooltipInfo={ __(
-				'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!',
-				'jetpack-social'
-			) }
-		/>
-	);
-
 	return (
 		<PricingTable
 			showIntroOfferDisclaimer
 			title={ __( 'Write once, post everywhere', 'jetpack-social' ) }
 			items={ [
-				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
 				{
@@ -107,19 +84,11 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 		>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
-					{ productInfo?.advanced ? (
+					{ productInfo?.v1 ? (
 						<ProductPrice
-							price={ productInfo?.advanced?.price }
-							offPrice={ productInfo?.advanced?.introOffer }
-							legend={ sprintf(
-								// translators: %1$s is the currency code, %2$s is the regular monthly price
-								__(
-									'trial for the first month, then %1$s%2$s /month, billed yearly',
-									'jetpack-social'
-								),
-								productInfo?.currencyCode,
-								parseFloat( productInfo?.advanced?.price ).toFixed( 2 )
-							) }
+							price={ productInfo?.v1?.price }
+							offPrice={ productInfo?.v1?.introOffer }
+							legend={ __( 'per month for the first year, then billed yearly', 'jetpack-social' ) }
 							currency={ productInfo?.currencyCode }
 							hidePriceFraction
 						/>
@@ -133,10 +102,9 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 						} ) }
 						fullWidth
 					>
-						{ __( 'Get Advanced plan', 'jetpack-social' ) }
+						{ __( 'Get Social', 'jetpack-social' ) }
 					</Button>
 				</PricingTableHeader>
-				{ UNLIMITED_SHARES_TABLE_ITEM }
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
@@ -164,10 +132,6 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 						{ __( 'Start for free', 'jetpack-social' ) }
 					</Button>
 				</PricingTableHeader>
-				<PricingTableItem
-					isIncluded
-					label={ <strong>{ isLarge ? UP_TO_30 : UP_TO_30_SHARES }</strong> }
-				/>
 				<PricingTableItem />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
