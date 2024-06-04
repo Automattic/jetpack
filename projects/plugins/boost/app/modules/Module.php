@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
-use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -21,7 +20,7 @@ class Module {
 
 	public function __construct( Pluggable $feature ) {
 		$this->feature = $feature;
-		$this->status  = new Status( $feature );
+		$this->status  = new Status( $feature::get_slug() );
 	}
 
 	public function get_slug() {
@@ -37,19 +36,20 @@ class Module {
 	}
 
 	public function update( $new_status ) {
-		return $this->status->update( $new_status );
+		return $this->status->set( $new_status );
 	}
 
 	public function is_enabled() {
-		if ( $this->feature instanceof Is_Always_On ) {
+		$always_on = is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
+		if ( $always_on ) {
 			return true;
 		}
 
-		return $this->status->is_enabled();
+		return $this->status->get();
 	}
 
 	public function is_available() {
-		return $this->status->is_available();
+		return $this->feature::is_available();
 	}
 
 	/**

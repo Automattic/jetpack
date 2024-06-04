@@ -387,4 +387,4 @@ jetpack_boost_register_option(
 jetpack_boost_register_action( 'page_cache', 'clear-page-cache', Schema::as_void(), new Clear_Page_Cache() );
 jetpack_boost_register_action( 'page_cache', 'deactivate-wpsc', Schema::as_void(), new Deactivate_WPSC() );
 
-jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( new Liar() ) );
+jetpack_boost_register_option( 'image_cdn_liar', Schema::as_boolean()->fallback( false ), new Status( Liar::get_slug() ) );

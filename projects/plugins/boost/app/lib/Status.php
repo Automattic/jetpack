@@ -4,7 +4,6 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
-use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
@@ -26,18 +25,12 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 	protected $status_sync_map;
 
 	/**
-	 * @var Pluggable $feature
-	 */
-	protected $feature;
-
-	/**
 	 * @var string $option_name
 	 */
 	protected $option_name;
 
-	public function __construct( Pluggable $feature ) {
-		$this->feature     = $feature;
-		$this->slug        = $this->feature::get_slug();
+	public function __construct( $slug ) {
+		$this->slug        = $slug;
 		$module_slug       = str_replace( '_', '-', $this->slug );
 		$this->option_name = 'jetpack_boost_status_' . $module_slug;
 
@@ -49,28 +42,11 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 	}
 
 	public function get( $_fallback = false ) {
-		$always_on = is_subclass_of( $this->feature, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
-		if ( $always_on ) {
-			return true;
-		}
-
 		return get_option( $this->option_name, false );
 	}
 
 	public function set( $value ) {
-		return $this->update( $value );
-	}
-
-	public function update( $new_status ) {
-		return update_option( $this->option_name, $new_status );
-	}
-
-	public function is_enabled() {
-		return get_option( $this->option_name, false );
-	}
-
-	public function is_available() {
-		return $this->feature::is_available();
+		return update_option( $this->option_name, $value );
 	}
 
 	/**
@@ -105,8 +81,8 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$mapped_status = new Status( new $mapped_module() );
-			$mapped_status->update( $new_status );
+			$mapped_status = new Status( $mapped_module::get_slug() );
+			$mapped_status->set( $new_status );
 		}
 
 		// The moduleInstance will be there. But check just in case.
