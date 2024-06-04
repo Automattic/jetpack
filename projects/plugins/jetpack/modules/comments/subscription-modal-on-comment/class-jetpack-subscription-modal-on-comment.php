@@ -46,10 +46,9 @@ class Jetpack_Subscription_Modal_On_Comment {
 
 	/**
 	 * Jetpack_Subscription_Modal_On_Comment class constructor.
-	 * Limited to Atomic sites.
 	 */
 	public function __construct() {
-		if ( ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true ) ) {
+		if ( get_option( 'jetpack_verbum_subscription_modal', true ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscription_modal_to_frontend' ) );
 			add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
@@ -137,6 +136,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 		$continue_reading   = __( 'Continue reading', 'jetpack' );
+		$source             = ( new Host() )->is_woa_site() ? 'atomic-subscription-modal-lo' : 'jetpack-subscription-modal-lo';
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
@@ -150,7 +150,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"atomic-subscription-modal-lo"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":$source"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscription-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscription-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
