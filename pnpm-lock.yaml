@@ -1804,6 +1804,9 @@ importers:
       core-js:
         specifier: 3.23.5
         version: 3.23.5
+      glob:
+        specifier: 10.4.1
+        version: 10.4.1
       postcss:
         specifier: 8.4.31
         version: 8.4.31
@@ -1850,6 +1853,9 @@ importers:
       '@wordpress/browserslist-config':
         specifier: 6.0.0
         version: 6.0.0
+      glob:
+        specifier: 10.4.1
+        version: 10.4.1
       react:
         specifier: 18.2.0
         version: 18.2.0

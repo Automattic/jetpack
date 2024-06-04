@@ -1,6 +1,6 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const ssoEntries = {};
 // Add all js files in the src/sso directory.
