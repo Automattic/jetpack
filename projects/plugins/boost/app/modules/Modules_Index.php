@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Modules\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
@@ -22,12 +21,12 @@ class Modules_Index {
 	 *
 	 * Example: [ 'critical_css' => Module, 'image_cdn' => Module ]
 	 */
-	protected $modules = array();
+	protected $available_modules = array();
 
 	/**
 	 * @var class-string<Pluggable>[] - Classes that handle all Jetpack Boost features.
 	 */
-	const MAIN_FEATURES = array(
+	const FEATURES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
@@ -47,10 +46,10 @@ class Modules_Index {
 	 * without a nonce.
 	 */
 	public function __construct() {
-		foreach ( self::MAIN_FEATURES as $feature ) {
-			$module                 = new Module( new $feature() );
-			$slug                   = $module->get_slug();
-			$this->modules[ $slug ] = $module;
+		foreach ( self::FEATURES as $feature ) {
+			if ( $feature::is_available() ) {
+				$this->available_modules[ $feature::get_slug() ] = new Module( new $feature() );
+			}
 		}
 	}
 
@@ -61,34 +60,15 @@ class Modules_Index {
 	 * @return array - An array of module classes indexed by slug that implement the interface.
 	 */
 	public static function get_modules_implementing( string $interface ): array {
-		$matching_modules = array();
+		$matching_features = array();
 
-		foreach ( self::get_modules_and_submodules() as $slug => $module ) {
-			if ( in_array( $interface, class_implements( $module ), true ) ) {
-				$matching_modules[ $slug ] = $module;
+		foreach ( self::FEATURES as $feature ) {
+			if ( in_array( $interface, class_implements( $feature ), true ) ) {
+				$matching_features[ $feature::get_slug() ] = $feature;
 			}
 		}
 
-		return $matching_modules;
-	}
-
-	public static function get_modules_and_submodules() {
-		$modules = array();
-
-		foreach ( self::MAIN_FEATURES as $module ) {
-			$modules[ $module::get_slug() ] = $module;
-			$module_instance                = ( new Module( new $module() ) );
-
-			if ( $module_instance->feature instanceof Has_Submodules ) {
-				$submodules = $module_instance->feature->get_submodules();
-
-				foreach ( $submodules as $submodule ) {
-					$modules[ $submodule::get_slug() ] = $submodule;
-				}
-			}
-		}
-
-		return $modules;
+		return $matching_features;
 	}
 
 	/**
@@ -96,49 +76,47 @@ class Modules_Index {
 	 *
 	 * @return Module[]
 	 */
-	public function get_modules() {
+	public function available_modules() {
 		$forced_disabled_modules = $this->get_disabled_modules();
 
 		if ( empty( $forced_disabled_modules ) ) {
-			return $this->modules;
+			return $this->available_modules;
 		}
 
 		if ( array( 'all' ) === $forced_disabled_modules ) {
 			return array();
 		}
 
-		$modules = array();
-		foreach ( $this->modules as $slug => $module ) {
+		$available_modules = array();
+		foreach ( $this->available_modules as $slug => $module ) {
 			if ( ! in_array( $slug, $forced_disabled_modules, true ) ) {
-				$modules[ $slug ] = $module;
+				$available_modules[ $slug ] = $module;
 			}
 		}
 
-		return $modules;
+		return $available_modules;
 	}
 
-	// @todo - This only checks main modules.
 	public function is_module_enabled( $slug ) {
-		$modules = $this->get_modules();
+		$available_modules = $this->available_modules();
 
-		if ( ! array_key_exists( $slug, $modules ) ) {
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
 			return false;
 		}
 
-		$module = $modules[ $slug ];
+		$module = $available_modules[ $slug ];
 
 		return $module->is_enabled();
 	}
 
-	// @todo - This only checks main modules.
 	public function is_module_available( $slug ) {
-		$modules = $this->get_modules();
+		$available_modules = $this->available_modules();
 
-		if ( ! array_key_exists( $slug, $modules ) ) {
+		if ( ! array_key_exists( $slug, $available_modules ) ) {
 			return false;
 		}
 
-		$module = $modules[ $slug ];
+		$module = $available_modules[ $slug ];
 
 		return $module->is_available();
 	}
@@ -161,8 +139,7 @@ class Modules_Index {
 		return array();
 	}
 
-	// @todo - This only checks main modules.
 	public function get_module_instance_by_slug( $slug ) {
-		return isset( $this->modules[ $slug ] ) ? $this->modules[ $slug ] : false;
+		return isset( $this->available_modules[ $slug ] ) ? $this->available_modules[ $slug ] : false;
 	}
 }
