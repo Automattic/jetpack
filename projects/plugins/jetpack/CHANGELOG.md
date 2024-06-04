@@ -19,7 +19,7 @@
 - Stats: Deprecate old Stats experience. [#37591]
 
 ### Bug fixes
-- Slideshow: Ensures autoplay works correctly. [#37378]
+- Slideshow: Ensure autoplay works correctly. [#37378]
 - WordAds: Prevent fatal error when post content is null. [#37384]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
