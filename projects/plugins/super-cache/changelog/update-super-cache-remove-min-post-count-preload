@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: remove the preload interval based on the post count. Preload as often as you want.
