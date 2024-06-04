@@ -1172,31 +1172,31 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v3.0.1",
+            "version": "v3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "980a137bdbcba6f78ce7f56a77ad33850c151ab9"
+                "reference": "d88437d282d493f919e656cda3259f3c761d9036"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/980a137bdbcba6f78ce7f56a77ad33850c151ab9",
-                "reference": "980a137bdbcba6f78ce7f56a77ad33850c151ab9",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/d88437d282d493f919e656cda3259f3c761d9036",
+                "reference": "d88437d282d493f919e656cda3259f3c761d9036",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^2.9.0",
+                "automattic/jetpack-connection": "^2.9.1",
                 "automattic/jetpack-constants": "^2.0.3",
                 "automattic/jetpack-ip": "^0.2.2",
                 "automattic/jetpack-password-checker": "^0.3.1",
                 "automattic/jetpack-roles": "^2.0.2",
-                "automattic/jetpack-status": "^3.2.2",
+                "automattic/jetpack-status": "^3.2.3",
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^4.2.4",
                 "automattic/jetpack-search": "@dev",
-                "automattic/jetpack-waf": "@dev",
+                "automattic/jetpack-waf": "^0.16.9",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -1235,9 +1235,9 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v3.0.1"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v3.0.2"
             },
-            "time": "2024-05-29T09:46:15+00:00"
+            "time": "2024-06-04T16:28:48+00:00"
         },
         {
             "name": "automattic/scheduled-updates",
