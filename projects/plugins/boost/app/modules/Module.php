@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
+use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
@@ -21,6 +22,18 @@ class Module {
 	public function __construct( Pluggable $feature ) {
 		$this->feature = $feature;
 		$this->status  = new Status( $feature );
+	}
+
+	public function get_slug() {
+		return $this->feature::get_slug();
+	}
+
+	public function get_submodules() {
+		if ( $this->feature instanceof Has_Submodules ) {
+			return $this->feature->get_submodules();
+		}
+
+		return false;
 	}
 
 	public function update( $new_status ) {

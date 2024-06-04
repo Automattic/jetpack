@@ -5,19 +5,26 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack_Boost\Modules\Module;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
 class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
+
+	protected $modules = array();
+
+	public function __construct( $features ) {
+		foreach ( $features as $feature ) {
+			$instance                               = new Module( new $feature() );
+			$this->modules[ $instance->get_slug() ] = $instance;
+		}
+	}
+
 	public function get( $_fallback = false ) {
-		$state             = array();
-		$modules_instances = $this->get_modules_instances();
+		$state = array();
 
 		/*
 		 * Module states are stored in their individual wp_options records.
 		 * We're combining the states of all modules into a single record and attaching the availability of the module.
 		 */
-		foreach ( $modules_instances as $module ) {
-			$slug      = $module->feature::get_slug();
+		foreach ( $this->modules as $module ) {
 			$always_on = is_subclass_of( $module, 'Automattic\Jetpack_Boost\Contracts\Is_Always_On' );
 			if ( $always_on ) {
 				$is_on = true;
@@ -28,7 +35,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 			$is_available = $module->is_available();
 			$is_active    = $is_available && $is_on;
 
-			$state[ $slug ] = array(
+			$state[ $module->get_slug() ] = array(
 				'active'    => $is_active,
 				'available' => $is_available,
 			);
@@ -38,14 +45,12 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	}
 
 	public function set( $value ) {
-		$modules_instances = $this->get_modules_instances();
-
 		foreach ( $value as $module_slug => $module_state ) {
-			if ( ! isset( $modules_instances[ $module_slug ] ) ) {
+			if ( ! isset( $this->modules[ $module_slug ] ) ) {
 				continue;
 			}
 
-			$updated = $modules_instances[ $module_slug ]->update( $module_state['active'] );
+			$updated = $this->modules[ $module_slug ]->update( $module_state['active'] );
 			if ( $updated ) {
 				/**
 				 * Fires when a module is enabled or disabled.
@@ -61,15 +66,5 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 
 	public function merge( $value, $partial_value ) {
 		return array_merge( $value, $partial_value );
-	}
-
-	private function get_modules_instances() {
-		$modules = array();
-		foreach ( Modules_Index::FEATURES as $module_name ) {
-			$module_instance                                  = new Module( new $module_name() );
-			$modules[ $module_instance->feature::get_slug() ] = $module_instance;
-		}
-
-		return $modules;
 	}
 }

@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
-use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
@@ -11,27 +10,12 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Modules_Setup implements Has_Setup {
 	/**
-	 * @var Modules_Index
+	 * @var Module[]
 	 */
 	protected $modules = array();
 
-	/**
-	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
-	 */
-	protected $available_modules = array();
-
 	public function __construct() {
-		$this->modules           = new Modules_Index();
-		$this->available_modules = $this->modules->available_modules();
-	}
-
-	public function have_enabled_modules() {
-		foreach ( $this->available_modules as $module ) {
-			if ( $module->is_enabled() ) {
-				return true;
-			}
-		}
-		return false;
+		$this->modules = ( new Modules_Index() )->get_modules();
 	}
 
 	/**
@@ -41,8 +25,8 @@ class Modules_Setup implements Has_Setup {
 	 */
 	public function get_ready_active_optimization_modules() {
 		$working_modules = array();
-		foreach ( $this->available_modules as $slug => $module ) {
-			if ( $module->is_optimizing() ) {
+		foreach ( $this->modules as $slug => $module ) {
+			if ( $module->is_available() && $module->is_optimizing() ) {
 				$working_modules[] = $slug;
 			}
 		}
@@ -51,8 +35,10 @@ class Modules_Setup implements Has_Setup {
 
 	public function get_status() {
 		$status = array();
-		foreach ( $this->available_modules as $slug => $module ) {
-			$status[ $slug ] = $module->is_enabled();
+		foreach ( $this->modules as $slug => $module ) {
+			if ( $module->is_available() ) {
+				$status[ $slug ] = $module->is_enabled();
+			}
 		}
 		return $status;
 	}
@@ -88,7 +74,7 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	public function load_modules() {
-		$this->init_modules( $this->available_modules );
+		$this->init_modules( $this->modules );
 	}
 
 	private function init_modules( $modules ) {
@@ -102,13 +88,13 @@ class Modules_Setup implements Has_Setup {
 
 			Setup::add( $module->feature );
 
-			if ( $module->feature instanceof Has_Submodules ) {
-				$submodule_list      = $module->feature->get_submodules();
-				$submodule_instances = array();
-				foreach ( $submodule_list as $sub_module ) {
-					$submodule_instances[] = new Module( new $sub_module() );
+			$submodules = $module->get_submodules();
+			if ( $submodules ) {
+				$submodules_instances = array();
+				foreach ( $submodules as $sub_module ) {
+					$submodules_instances[] = new Module( new $sub_module() );
 				}
-				$this->init_modules( $submodule_instances );
+				$this->init_modules( $submodules_instances );
 			}
 
 			$this->register_endpoints( $module->feature );
@@ -133,6 +119,7 @@ class Modules_Setup implements Has_Setup {
 	 * @param bool   $is_activated The new status.
 	 */
 	public function on_module_status_update( $module_slug, $is_activated ) {
+		// @todo - revive this?
 		// $module = $this->modules->get_module_instance_by_slug( $module_slug );
 		// if ( $module === false ) {
 		// return;
