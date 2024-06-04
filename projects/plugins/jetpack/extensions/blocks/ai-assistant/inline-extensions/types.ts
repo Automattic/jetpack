@@ -19,6 +19,7 @@ export interface IBlockHandler {
 	behavior: BlockBehavior;
 	isChildBlock?: boolean;
 	feature: string;
+	adjustPosition?: boolean;
 }
 
 export type BlockEditorSelect = {

@@ -23,6 +23,7 @@ export class JetpackFormHandler extends BlockHandler {
 		super( clientId, [] );
 		this.behavior = 'action';
 		this.feature = 'jetpack-form-ai-extension';
+		this.adjustPosition = false;
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {

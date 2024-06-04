@@ -67,5 +67,6 @@ export function getBlockHandler(
 		behavior: handler.behavior,
 		isChildBlock: handler.isChildBlock,
 		feature: handler.feature,
+		adjustPosition: handler.adjustPosition,
 	};
 }
