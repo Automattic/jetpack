@@ -326,31 +326,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.5-beta - 2024-06-03
+### 13.5 - 2024-06-04
 #### Enhancements
-- AI Assistant: Enable inline Heading extension.
-- AI Assistant: Fallback to transformation when multiple blocks are selected.
-- AI Assistant: Move List and List Item extensions to production.
-- AI Assistant: Move Paragraph extension to production.
-- Newsletter: Add "From" name setting.
-- Newsletter: Add "Reply to" name setting.
-- Notifications: Change icon.
+- AI Assistant: Add AI Assistant to Paragraph, Heading, List, and List Item blocks.
+- Newsletters: Add "From" and "Reply to" name settings.
 - Social: Add connection management to editor.
 - Social: Add the new Jetpack Social plan.
-- Social: Add width to connection management container.
-- SSO: Improve accessibility of tooltips on WP Admin users page.
-- Stats: Deprecate old Stats experience.
-- Subscribe block: Add button-only style.
-- Subscribe block: Allow in the Navigation block.
+- Subscribe Block: Add button-only style.
+- Subscribe Block: Allow to be placed inside the Navigation block.
 - Subscriptions: Add a toggle to automatically add Subscribe block to site navigation.
-- WordAds: Add inline ads within post content.
+- WordAds: Allow inline ads to be added within post content.
 
 #### Improved compatibility
-- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself.
-- Change how Jetpack social connections are stored on the local site.
+- Notifications: Update notification icon to match WordPress.com.
+- SSO: Improve accessibility of tooltips on WP Admin users page.
+- Stats: Deprecate old Stats experience.
 
 #### Bug fixes
-- Slideshow: Ensures autoplay works properly.
+- External Media: Ensure the connect URL has the correct blog ID and verification values.
+- Slideshow: Ensure autoplay works correctly.
 - WordAds: Prevent fatal error when post content is null.
 
 --------
