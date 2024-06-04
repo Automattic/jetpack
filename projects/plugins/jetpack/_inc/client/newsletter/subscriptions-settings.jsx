@@ -54,6 +54,15 @@ function SubscriptionsSettings( props ) {
 			  } )
 			: null;
 
+	const commentSubscribeModalEditorUrl =
+		siteAdminUrl && themeStylesheet
+			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
+					postType: 'wp_template_part',
+					postId: `${ themeStylesheet }//jetpack-subscription-modal`,
+					canvas: 'edit',
+			  } )
+			: null;
+
 	const subscribeOverlayEditorUrl =
 		siteAdminUrl && themeStylesheet
 			? addQueryArgs( `${ siteAdminUrl }site-editor.php`, {
@@ -275,6 +284,14 @@ function SubscriptionsSettings( props ) {
 						label={
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Show subscription pop-up after commenting on a post', 'jetpack' ) }
+								{ isSubscriptionSiteEditSupported && commentSubscribeModalEditorUrl && (
+									<>
+										{ '. ' }
+										<ExternalLink href={ commentSubscribeModalEditorUrl }>
+											{ __( 'Preview and edit', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								) }
 							</span>
 						}
 					/>
