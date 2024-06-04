@@ -19,6 +19,7 @@
 - Stats: Deprecate old Stats experience. [#37591]
 
 ### Bug fixes
+- External Media: Ensure the connect URL has the correct blog ID and verification values. [#37689]
 - Slideshow: Ensure autoplay works correctly. [#37378]
 - WordAds: Prevent fatal error when post content is null. [#37384]
 
@@ -41,7 +42,8 @@
 - AI Assistant: Inline extension testing feedback changes. [#37365]
 - AI Assistant: Toggle inline AI input on Ask AI Assistant button. [#37480]
 - AI Featured Image: Add site type and image model to events being tracked on the tool. [#37474]
-- AI Featured Image: add support to Stable Diffusion image generation. [#37413]
+- AI Featured Image: Add support to Stable Diffusion image generation. [#37413]
+- AI Featured Image: Let the backend decide the model for the image generation. [#37668]
 - Blocks: Remove External Link icon styling fix now that the change has been made in WordPress itself. [#37394]
 - Blocks: When outputting JSON data in inline script tags, only use `JSON_UNESCAPED_UNICODE` when the blog charset is UTF-8. [#37285]
 - Carousel: Adjust logic when fetching info about attachment. [#37580]
@@ -49,6 +51,7 @@
 - Correctly highlight Dashboard and Settings submenu in WoA sites that show My Jetpack. [#37572]
 - Custom CSS: Add deprecation warning in codebase. [#37163]
 - Deprecated Errors class. [#37451]
+- External Media: Remove unneeded return value. [#37703]
 - External Media: support editor changes in WordPress 6.5. [#36188]
 - Extract Google Analytics tests into the package. [#37246]
 - Fix an occasional PHP warning when iterating over menu items in the masterbar module. [#37315]
@@ -82,6 +85,7 @@
 - Rendered GlobalNotices component. [#37237]
 - Sanitize the preload value for video shortcodes and blocks. [#37271]
 - Sharing button: Increase performance on p2020 theme. [#37497]
+- Slideshow: Ensure whole block is selectable in the editor. [#37683]
 - Social: Add width to connection management container. [#37490]
 - Social: Change how Jetpack social connections are stored on the local site. [#37500]
 - Social: Modify initial state. [#37644]
