@@ -94,7 +94,7 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	public function load_modules() {
-		$this->init_modules( $this->modules );
+		$this->init_modules( $this->available_modules );
 	}
 
 	private function init_modules( $modules ) {
