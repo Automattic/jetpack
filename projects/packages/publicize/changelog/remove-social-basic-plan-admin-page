@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed the social-product-info endpoint to return v1 plan
