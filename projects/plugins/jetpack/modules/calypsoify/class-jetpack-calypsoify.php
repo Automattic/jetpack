@@ -14,7 +14,7 @@ use Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify as Calypsoify;
  *
  * @deprecated $$next-version$$
  */
-class Jetpack_Calypsoify {
+class Jetpack_Calypsoify extends Calypsoify {
 
 	/**
 	 * Singleton instance of `Jetpack_Calypsoify`.
@@ -35,15 +35,21 @@ class Jetpack_Calypsoify {
 	public $is_calypsoify_enabled = false;
 
 	/**
+	 * Jetpack_Calypsoify constructor.
+	 */
+	private function __construct() {
+	}
+
+	/**
 	 * Singleton.
 	 *
 	 * @deprecated $$next-version$$
 	 *
-	 * @return Jetpack_Calypsoify
+	 * @return Calypsoify
 	 */
 	public static function get_instance() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_instance' );
-		return Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+		return parent::get_instance();
 	}
 
 	/**
@@ -53,7 +59,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function setup() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::setup' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->setup();
+		return parent::setup();
 	}
 
 	/**
@@ -63,7 +69,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function enqueue_for_gutenberg() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::enqueue_for_gutenberg' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->enqueue_for_gutenberg();
+		return parent::enqueue_for_gutenberg();
 	}
 
 	/**
@@ -78,7 +84,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function get_calypso_url( $post_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- in process of deprecating hence unused parameter.
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_calypso_url' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->get_calypso_url();
+		return parent::get_calypso_url();
 	}
 
 	/**
@@ -91,7 +97,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function get_close_gutenberg_url() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_close_gutenberg_url' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->get_close_gutenberg_url();
+		return parent::get_close_gutenberg_url();
 	}
 
 	/**
@@ -103,7 +109,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function get_switch_to_classic_editor_url() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_switch_to_classic_editor_url' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->get_switch_to_classic_editor_url();
+		return parent::get_switch_to_classic_editor_url();
 	}
 
 	/**
@@ -114,7 +120,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function check_meta() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::check_meta' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->check_meta();
+		return parent::check_meta();
 	}
 
 	/**
@@ -128,7 +134,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function is_post_type_gutenberg( $post_type ) { // phpcs:ignore  VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- in process of deprecating hence unused parameter.
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::is_post_type_gutenberg' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->is_post_type_gutenberg();
+		return parent::is_post_type_gutenberg( $post_type );
 	}
 
 	/**
@@ -140,7 +146,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function is_page_gutenberg() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::is_page_gutenberg' );
-		return ( new Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify() )->is_page_gutenberg();
+		return parent::is_page_gutenberg();
 	}
 }
 
