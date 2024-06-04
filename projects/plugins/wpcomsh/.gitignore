@@ -2,3 +2,5 @@ vendor/
 node_modules/
 /private-constants.php
 /build
+/wordpress/
+/wp-content/
