@@ -14,6 +14,7 @@ import {
 	ShareLimitsBar,
 	store as socialStore,
 	useShareLimits,
+	ManageConnectionsModalWithTrigger as ManageConnectionsModal,
 } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +25,6 @@ import styles from './styles.module.scss';
 const Header = () => {
 	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
-		connectionsAdminUrl,
 		hasConnections,
 		isModuleEnabled,
 		newPostUrl,
@@ -34,10 +34,10 @@ const Header = () => {
 		blogID,
 		showShareLimits,
 		hasPaidFeatures,
+		useAdminUiV1,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
-			connectionsAdminUrl: connectionData.adminUrl,
 			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
@@ -47,6 +47,7 @@ const Header = () => {
 			blogID: store.getBlogID(),
 			showShareLimits: store.showShareLimits(),
 			hasPaidFeatures: store.hasPaidFeatures() || store.hasPaidPlan(),
+			useAdminUiV1: store.useAdminUiV1(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -75,9 +76,17 @@ const Header = () => {
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 					<div className={ styles.actions }>
 						{ isModuleEnabled && ! hasConnections && (
-							<Button href={ connectionsAdminUrl } isExternalLink={ true }>
-								{ __( 'Connect accounts', 'jetpack-social' ) }
-							</Button>
+							<>
+								{ useAdminUiV1 ? (
+									<ManageConnectionsModal
+										trigger={ <Button>{ __( 'Connect accounts', 'jetpack-social' ) }</Button> }
+									/>
+								) : (
+									<Button href={ connectionData.adminUrl } isExternalLink={ true }>
+										{ __( 'Connect accounts', 'jetpack-social' ) }
+									</Button>
+								) }
+							</>
 						) }
 						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
 							{ __( 'Write a post', 'jetpack-social' ) }
