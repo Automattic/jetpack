@@ -5,11 +5,11 @@
 ## 13.5 - 2024-06-04
 ### Enhancements
 - AI Assistant: Add AI Assistant to Paragraph, Heading, List, and List Item blocks. [#37495] [#37386] [#37613]
-- Newsletter: Add "From" and "Reply to" name settings. [#37502] [#37362]
+- Newsletters: Add "From" and "Reply to" name settings. [#37502] [#37362]
 - Social: Add connection management to editor. [#37405]
 - Social: Add the new Jetpack Social plan. [#37619]
-- Subscribe block: Add button-only style. [#37341]
-- Subscribe block: Allow to be placed inside the Navigation block. [#37439]
+- Subscribe Block: Add button-only style. [#37341]
+- Subscribe Block: Allow to be placed inside the Navigation block. [#37439]
 - Subscriptions: Add a toggle to automatically add Subscribe block to site navigation. [#37464]
 - WordAds: Allow inline ads to be added within post content. [#37170]
 
