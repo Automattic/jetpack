@@ -7,13 +7,13 @@ const ssoEntries = {};
 for ( const file of glob.sync( './src/sso/*.js' ) ) {
 	const name = path.basename( file, path.extname( file ) );
 	ssoEntries[ name ] ??= [];
-	ssoEntries[ name ].push( file );
+	ssoEntries[ name ].push( path.resolve( file ) );
 }
 // Add all css files as well.
 for ( const file of glob.sync( './src/sso/*.css' ) ) {
 	const name = path.basename( file, path.extname( file ) );
 	ssoEntries[ name ] ??= [];
-	ssoEntries[ name ].push( file );
+	ssoEntries[ name ].push( path.resolve( file ) );
 }
 
 module.exports = [
