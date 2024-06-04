@@ -65,10 +65,10 @@ class AutoloaderHandlerTest extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$this->autoloader_handler = new Autoloader_Handler(
-			$this->php_autoloader, // @phan-suppress-current-line PhanTypeMismatchArgument -- It's correct, but PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
-			$this->hook_manager, // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
-			$this->manifest_reader, // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
-			$version_selector // @phan-suppress-current-line PhanTypeMismatchArgument -- Same.
+			$this->php_autoloader,
+			$this->hook_manager,
+			$this->manifest_reader,
+			$version_selector
 		);
 	}
 
@@ -80,10 +80,12 @@ class AutoloaderHandlerTest extends TestCase {
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
 			->method( 'read_manifests' )
-			->withConsecutive(
-				array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+			->with(
+				...with_consecutive(
+					array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+				)
 			);
 		$this->php_autoloader->expects( $this->once() )
 			->method( 'register_autoloader' );

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Question\Question;
 /**
  * "Add" command for the changelogger tool CLI.
  */
+#[AsCommand( 'add', 'Adds a change file' )]
 class AddCommand extends Command {
 
 	/**
@@ -57,6 +59,13 @@ class AddCommand extends Command {
 	protected static $defaultName = 'add';
 
 	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Adds a change file';
+
+	/**
 	 * Configures the command.
 	 */
 	protected function configure() {
@@ -73,7 +82,7 @@ class AddCommand extends Command {
 			);
 		};
 
-		$this->setDescription( 'Adds a change file' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'filename', 'f', InputOption::VALUE_REQUIRED, 'Name for the change file. If not provided, a default will be determined from the current timestamp or git branch name.' )
 			->addOption( 'filename-auto-suffix', null, InputOption::VALUE_NONE, 'If the specified file already exists in non-interactive mode, add a numeric suffix so the new entry can be created.' )
 			->addOption( 'significance', 's', InputOption::VALUE_REQUIRED, "Significance of the change, in the style of semantic versioning. One of the following:\n" . $joiner( self::$significances ) )
@@ -173,7 +182,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		try {
 			$dir = Config::changesDir();
 			if ( ! is_dir( $dir ) ) {

@@ -1417,6 +1417,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 */
 	public function test_image_cdn_in_rest_response_external_media() {
 		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		wp_set_current_user( self::$author_id );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/external-media/copy/pexels' );

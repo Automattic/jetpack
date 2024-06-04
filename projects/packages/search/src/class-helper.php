@@ -754,7 +754,7 @@ class Helper {
 	 *
 	 * @since 8.9.0
 	 *
-	 * @param any $value from the customizer form.
+	 * @param mixed $value from the customizer form.
 	 * @return string either '0' or '1'.
 	 */
 	public static function sanitize_checkbox_value( $value ) {
@@ -766,7 +766,7 @@ class Helper {
 	 *
 	 * @since 8.9.0
 	 *
-	 * @param any $value from the database.
+	 * @param mixed $value from the database.
 	 * @return boolean
 	 */
 	public static function sanitize_checkbox_value_for_js( $value ) {

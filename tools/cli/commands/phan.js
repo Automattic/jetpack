@@ -55,6 +55,11 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Update the Phan baselines.',
 		} )
+		.option( 'force-update-baseline', {
+			type: 'boolean',
+			description:
+				'Update the Phan baselines, even if no baseline currently exists. But please try not to use this, fix the issues instead.',
+		} )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
@@ -106,6 +111,9 @@ export async function builder( yargs ) {
 			description: 'Write the report to this file instead of to standard output.',
 		} )
 		.check( argv => {
+			if ( argv.forceUpdateBaseline ) {
+				argv.updateBaseline = true;
+			}
 			if (
 				argv.updateBaseline &&
 				( argv[ 'allow-polyfill-parser' ] || argv[ 'force-polyfill-parser' ] )
@@ -276,12 +284,6 @@ export async function handler( argv ) {
 	} else {
 		phanArgs.push( '--progress-bar' );
 	}
-	if ( argv.baseline !== false ) {
-		phanArgs.push( '--load-baseline=.phan/baseline.php' );
-	}
-	if ( argv.updateBaseline ) {
-		phanArgs.push( '--save-baseline=.phan/baseline.php' );
-	}
 	for ( const arg of [
 		'automatic-fix',
 		'allow-polyfill-parser',
@@ -327,7 +329,17 @@ export async function handler( argv ) {
 
 		const projectPhanArgs = checkFilesByProject[ project ]
 			? [ ...phanArgs, '--include-analysis-file-list', checkFilesByProject[ project ].join( ',' ) ]
-			: phanArgs;
+			: [ ...phanArgs ];
+
+		// Baseline handling depends on whether the baseline exists.
+		const hasBaseline =
+			( await fs.access( path.join( cwd, '.phan/baseline.php' ) ).catch( () => false ) ) !== false;
+		if ( hasBaseline && argv.baseline !== false ) {
+			projectPhanArgs.push( '--load-baseline=.phan/baseline.php' );
+		}
+		if ( ( hasBaseline && argv.updateBaseline ) || argv.forceUpdateBaseline ) {
+			projectPhanArgs.push( '--save-baseline=.phan/baseline.php' );
+		}
 
 		let sstdout = process.stdout,
 			sstderr = process.stderr;
@@ -416,6 +428,25 @@ export async function handler( argv ) {
 								} );
 							}
 							await proc;
+
+							// Don't re-create unneeded baselines with --force-update-baseline.
+							if ( ! hasBaseline && argv.forceUpdateBaseline ) {
+								if ( argv.v ) {
+									sstderr.write(
+										'Removing that baseline, no issues were reported so it should be empty.\n'
+									);
+								}
+								try {
+									await fs.unlink( path.join( cwd, '.phan/baseline.php' ) );
+								} catch ( e ) {
+									if ( argv.v ) {
+										sstderr.write(
+											// prettier-ignore
+											`Failed to unlink ${ path.join( cwd, '.phan/baseline.php' ) }: ${ e.message }\n`
+										);
+									}
+								}
+							}
 						} catch ( e ) {
 							let json;
 							try {
@@ -437,11 +468,13 @@ export async function handler( argv ) {
 							}
 							if ( json.length ) {
 								issues.push( ...json );
-								throw new Error(
+								const err = new Error(
 									json.length === 1
 										? 'Phan reported 1 issue'
 										: `Phan reported ${ json.length } issues`
 								);
+								err.isSuccessfulError = true;
+								throw err;
 							}
 						}
 					},
@@ -450,6 +483,7 @@ export async function handler( argv ) {
 				return new Listr( subtasks, {
 					concurrent: false,
 					renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+					exitOnError: true,
 				} );
 			},
 		} );
@@ -460,8 +494,10 @@ export async function handler( argv ) {
 		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
 		exitOnError: false,
 	} );
-	await listr.run().catch( e => {
-		process.exitCode = e.exitCode || 1;
+	await listr.run().catch( err => {
+		for ( const e of err.errors ?? [ err ] ) {
+			process.exitCode |= e.isSuccessfulError ? 1 : 2;
+		}
 	} );
 
 	issues.sort( ( a, b ) => {
@@ -630,5 +666,17 @@ export async function handler( argv ) {
 	if ( argv.reportFile ) {
 		reportStream.end();
 		console.log( `Report written to ${ argv.reportFile }` );
+	}
+	if ( ( process.exitCode & 2 ) !== 0 ) {
+		console.error(
+			chalk.red(
+				'Errors were encountered while running Phan for one or more projects! Results may not be complete.'
+			)
+		);
+		if ( ! argv.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 	}
 }

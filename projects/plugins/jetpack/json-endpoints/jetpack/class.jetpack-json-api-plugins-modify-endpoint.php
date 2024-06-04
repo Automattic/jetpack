@@ -461,8 +461,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			// This avoids the plugin to be deactivated.
 			// Using bulk upgrade puts the site into maintenance mode during the upgrades
 			$result               = $upgrader->bulk_upgrade( array( $plugin ) );
-			$errors               = $upgrader->skin->get_errors();
-			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
+			$errors               = $skin->get_errors();
+			$this->log[ $plugin ] = $skin->get_upgrade_messages();
 
 			// release individual plugin lock.
 			WP_Upgrader::release_lock( 'jetpack_' . $plugin_slug );

@@ -42,7 +42,12 @@ const renderError = supportURL => {
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
-	const { isStartingFresh, startFreshCallback, customContent, hasError } = props;
+	const {
+		isStartingFresh = false,
+		startFreshCallback = () => {},
+		customContent = {},
+		hasError = false,
+	} = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
 	const currentHostName = extractHostname( props.currentUrl );
@@ -113,20 +118,13 @@ CardFresh.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether starting fresh is in progress. */
-	isStartingFresh: PropTypes.bool.isRequired,
+	isStartingFresh: PropTypes.bool,
 	/** "Start Fresh" callback. */
-	startFreshCallback: PropTypes.func.isRequired,
+	startFreshCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
-};
-
-CardFresh.defaultProps = {
-	isStartingFresh: false,
-	startFreshCallback: () => {},
-	customContent: {},
-	hasError: false,
+	hasError: PropTypes.bool,
 };
 
 export default CardFresh;

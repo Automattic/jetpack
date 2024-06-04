@@ -156,7 +156,7 @@ class Products {
 				'status'      => array(
 					'title' => 'The product status',
 					'type'  => 'string',
-					'enum'  => array( 'active', 'inactive', 'plugin_absent', 'needs_purchase', 'needs_purchase_or_free', 'error' ),
+					'enum'  => array( 'active', 'inactive', 'plugin_absent', 'needs_purchase', 'needs_purchase_or_free', 'needs_first_site_connection', 'user_connection_error', 'site_connection_error' ),
 				),
 				'class'       => array(
 					'title' => 'The product class handler',

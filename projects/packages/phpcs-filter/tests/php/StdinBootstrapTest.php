@@ -60,7 +60,7 @@ class StdinBootstrapTest extends TestCase {
 		$this->assertIsArray( $data, 'phpcs output contains a JSON object' );
 
 		$fileData = array_values( $data['files'] );
-		$messages = isset( $fileData[0]['messages'] ) ? $fileData[0]['messages'] : array();
+		$messages = $fileData[0]['messages'] ?? array();
 
 		$actual = array();
 		foreach ( $messages as $m ) {
@@ -109,7 +109,7 @@ class StdinBootstrapTest extends TestCase {
 				continue;
 			}
 			$contents = file_get_contents( $path );
-			yield array( $file, $contents, isset( $expect[ $file ] ) ? $expect[ $file ] : array() );
+			yield array( $file, $contents, $expect[ $file ] ?? array() );
 		}
 	}
 }

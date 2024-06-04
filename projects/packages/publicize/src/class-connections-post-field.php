@@ -132,6 +132,18 @@ class Connections_Post_Field {
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
+				'external_id'     => array(
+					'description' => __( 'The external ID of the connected account', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'can_disconnect'  => array(
+					'description' => __( 'Whether the current user can disconnect this connection', 'jetpack-publicize-pkg' ),
+					'type'        => 'boolean',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
 			),
 		);
 	}
@@ -203,6 +215,9 @@ class Connections_Post_Field {
 			$output_connection['id']            = (string) $connection['unique_id'];
 			$output_connection['connection_id'] = (string) $connection['id'];
 
+			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
+			$output_connection['shared']         = $connection['global'];
+
 			$output_connections[] = $output_connection;
 		}
 
@@ -223,7 +238,7 @@ class Connections_Post_Field {
 	 * @param object          $post    Post data to insert/update.
 	 * @param WP_REST_Request $request API request.
 	 *
-	 * @return Filtered $post
+	 * @return object|WP_Error Filtered $post
 	 */
 	public function rest_pre_insert( $post, $request ) {
 		$request_connections = ! empty( $request['jetpack_publicize_connections'] ) ? $request['jetpack_publicize_connections'] : array();

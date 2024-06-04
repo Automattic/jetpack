@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
-Tags: Security, backup, Woo, malware, scan, performance
-Stable tag: 13.3.1
-Requires at least: 6.3
+Tags: Security, backup, malware, scan, performance
+Stable tag: 13.4.3
+Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
 License: GPLv2 or later
@@ -31,7 +31,7 @@ We have a global team of Happiness Engineers ready to provide incredible support
 WordPress security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
 
 = 24/7 AUTO SITE SECURITY =
-We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
+We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and basic downtime / uptime monitoring are free.
 
 * Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
@@ -174,13 +174,13 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 
 = Is Jetpack free? =
 
-Yes! Jetpack's core features are and always will be free.
+Yes! Jetpack's core features are free for non-commercial sites.
 
 These include: site stats, a high-speed CDN for images, related posts, downtime monitoring, brute force attack protection, automated sharing to social networks, sidebar customization, SEO (search engine optimization) tools, and much more.
 
 = Should I purchase a paid plan? =
 
-It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is often “yes.” For context, Jetpack's paid services include real-time backups, security scanning, spam filtering, video hosting, site monetization, search, priority support, and more.
+It depends on your site and what kind of protection, performance, and design you need. If you make money from your site, the answer is “yes.” For context, Jetpack's paid services include real-time backups, security scanning, spam filtering, video hosting, site monetization, search, priority support, and more.
 
 To learn more about the essential security and WordPress services we provide and see how we can improve your site, visit [our plans page](https://jetpack.com/pricing?from=wporg).
 
@@ -326,13 +326,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.4-a.1 - 2024-04-08
+### 13.5-beta - 2024-06-03
 #### Enhancements
-- Newsletters: Add a filter that enables the user to control the timing at which the Subscribe Modal loads.
+- AI Assistant: Enable inline Heading extension.
+- AI Assistant: Fallback to transformation when multiple blocks are selected.
+- AI Assistant: Move List and List Item extensions to production.
+- AI Assistant: Move Paragraph extension to production.
+- Newsletter: Add "From" name setting.
+- Newsletter: Add "Reply to" name setting.
+- Notifications: Change icon.
+- Social: Add connection management to editor.
+- Social: Add the new Jetpack Social plan.
+- Social: Add width to connection management container.
+- SSO: Improve accessibility of tooltips on WP Admin users page.
+- Stats: Deprecate old Stats experience.
+- Subscribe block: Add button-only style.
+- Subscribe block: Allow in the Navigation block.
+- Subscriptions: Add a toggle to automatically add Subscribe block to site navigation.
+- WordAds: Add inline ads within post content.
+
+#### Improved compatibility
+- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself.
+- Change how Jetpack social connections are stored on the local site.
 
 #### Bug fixes
-- Secure Sign-On: Disable the WordPress.com invitation setup on Multisite.
-- Theme Tools: Fix deprecation notices in the color management library.
+- Slideshow: Ensures autoplay works properly.
+- WordAds: Prevent fatal error when post content is null.
 
 --------
 

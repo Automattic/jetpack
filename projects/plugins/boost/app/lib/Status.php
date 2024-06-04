@@ -43,6 +43,11 @@ class Status {
 		return $modules_state[ $this->slug ]['active'];
 	}
 
+	public function is_available() {
+		$modules_state = jetpack_boost_ds_get( 'modules_state' );
+		return $modules_state[ $this->slug ]['available'];
+	}
+
 	/**
 	 * Called when the module is toggled.
 	 *
@@ -58,7 +63,7 @@ class Status {
 	 *
 	 * For example: critical-css module status should be synced with cloud-css module.
 	 *
-	 * @param $new_status
+	 * @param mixed $new_status
 	 * @return void
 	 */
 	protected function update_mapped_modules( $new_status ) {

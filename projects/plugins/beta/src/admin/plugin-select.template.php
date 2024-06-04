@@ -2,8 +2,11 @@
 /**
  * Jetpack Beta wp-admin page to select a plugin to manage.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render
  * @package automattic/jetpack-beta
  */
+
+// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- This is an HTML template, not actually global.
 
 use Automattic\JetpackBeta\Plugin;
 use Automattic\JetpackBeta\Utils;
@@ -13,9 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// -------------
-
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 $plugins = Plugin::get_all_plugins( true );
 
 ?>
@@ -32,17 +32,16 @@ $plugins = Plugin::get_all_plugins( true );
 
 	<div class="jetpack-beta__wrap">
 	<?php
-	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	foreach ( $plugins as $slug => $plugin ) {
 		$classes = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card' );
 		if ( is_plugin_active( $plugin->plugin_file() ) ) {
 			$classes[] = 'plugin-stable';
 			$verslug   = $plugin->plugin_slug();
-			$version   = $plugin->stable_pretty_version();
+			$version   = $plugin->stable_pretty_version() ?? '';
 		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
 			$classes[] = 'plugin-dev';
 			$verslug   = $plugin->dev_plugin_slug();
-			$version   = $plugin->dev_pretty_version();
+			$version   = $plugin->dev_pretty_version() ?? '';
 		} else {
 			$classes[] = 'plugin-inactive';
 			$verslug   = '';

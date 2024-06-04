@@ -7,6 +7,7 @@ import {
 	SocialIcon,
 	getRedirectUrl,
 	getUserLocale,
+	Text,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import {
@@ -32,6 +33,7 @@ const Header = () => {
 		siteSuffix,
 		blogID,
 		showShareLimits,
+		hasPaidFeatures,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -44,6 +46,7 @@ const Header = () => {
 			siteSuffix: store.getSiteSuffix(),
 			blogID: store.getBlogID(),
 			showShareLimits: store.showShareLimits(),
+			hasPaidFeatures: store.hasPaidFeatures() || store.hasPaidPlan(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -88,23 +91,19 @@ const Header = () => {
 								usedCount={ usedCount }
 								scheduledCount={ scheduledCount }
 								remainingCount={ remainingCount }
+								remainingLabel={ __( 'left in this cycle', 'jetpack-social' ) }
 								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 								className={ styles[ 'bar-wrapper' ] }
 							/>
-							<ContextualUpgradeTrigger
-								className={ styles.cut }
-								description={ __(
-									'Unlock unlimited shares and advanced posting options',
-									'jetpack-social'
-								) }
-								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-									site: blogID ?? siteSuffix,
-									query: 'redirect_to=admin.php?page=jetpack-social',
-								} ) }
-								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
-							/>
+							<Text variant="small" className={ styles[ 'bar-description' ] }>
+								<i>
+									{ __(
+										'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
+										'jetpack-social'
+									) }
+								</i>
+							</Text>
 						</>
 					) : (
 						<StatCards
@@ -124,6 +123,18 @@ const Header = () => {
 							] }
 						/>
 					) }
+					{ ! hasPaidFeatures ? (
+						<ContextualUpgradeTrigger
+							className={ styles.cut }
+							description={ __( 'Unlock advanced posting options', 'jetpack-social' ) }
+							cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
+							href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
+								site: blogID ?? siteSuffix,
+								query: 'redirect_to=admin.php?page=jetpack-social',
+							} ) }
+							tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
+						/>
+					) : null }
 				</Col>
 			</Container>
 		</>

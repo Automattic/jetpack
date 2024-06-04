@@ -10,7 +10,6 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Action_Endpoint;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 
@@ -26,7 +25,7 @@ class Registry {
 	/**
 	 * Store a references for every Data_Sync_Entry instance.
 	 *
-	 * @var Data_Sync_Entry_Adapter[]
+	 * @var Data_Sync_Entry[]
 	 */
 	private $entries = array();
 
@@ -159,7 +158,7 @@ class Registry {
 	/**
 	 * Get all registered entries.
 	 *
-	 * @return Entry_Can_Get[]
+	 * @return Data_Sync_Entry[]
 	 */
 	public function all() {
 		return $this->entries;

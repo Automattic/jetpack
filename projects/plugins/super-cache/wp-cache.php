@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.12.1-alpha
+ * Version: 1.12.2-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -33,6 +33,7 @@ define( 'WPSC_VERSION', '1.9.1-alpha' );
 
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
+require_once __DIR__ . '/inc/boost.php';
 
 if ( ! function_exists( 'wp_cache_phase2' ) ) {
 	require_once( __DIR__. '/wp-cache-phase2.php');
@@ -1061,13 +1062,7 @@ table.wpsc-settings-table {
 	if ( 'preload' === $curr_tab ) {
 		if ( true == $super_cache_enabled && ! defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
-			$count = wpsc_post_count();
-			if ( $count > 1000 ) {
-				$min_refresh_interval = 720;
-			} else {
-				$min_refresh_interval = 30;
-			}
-			wpsc_preload_settings( $min_refresh_interval );
+			wpsc_preload_settings();
 			$currently_preloading = false;
 
 			echo '<div id="wpsc-preload-status"></div>';
@@ -2301,6 +2296,7 @@ function wp_cache_create_advanced_cache() {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		fwrite( $fp, $file );
 		fclose( $fp );
+		do_action( 'wpsc_created_advanced_cache' );
 	} else {
 		$ret = false;
 	}
@@ -2327,15 +2323,7 @@ function wpsc_check_advanced_cache() {
 
 	if ( false == $ret ) {
 		if ( $other_advanced_cache === 'BOOST' ) {
-			echo '<div style="width: 50%" class="notice notice-error"><h2>' . esc_html__( 'Warning! Jetpack Boost Cache Detected', 'wp-super-cache' ) . '</h2>';
-			// translators: %s is the filename of the advanced-cache.php file
-			echo '<p>' . sprintf( esc_html__( 'The file %s was created by the Jetpack Boost plugin.', 'wp-super-cache' ), esc_html( $wpsc_advanced_cache_filename ) ) . '</p>';
-			echo '<p>' . esc_html__( 'You can use Jetpack Boost and WP Super Cache at the same time but only if the Cache Site Pages module in Boost is disabled. To use WP Super Cache for caching:', 'wp-super-cache' ) . '</p>';
-			// translators: %s is a html link to the plugins page
-			echo '<ol><li>' . sprintf( esc_html__( 'Deactivate Jetpack Boost on the %s page.', 'wp-super-cache' ), '<a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Plugins', 'wp-super-cache' ) . '</a>' ) . '</li>';
-			echo '<li>' . esc_html__( 'Reload this page to configure WP Super Cache.', 'wp-super-cache' ) . '</li>';
-			echo '<li>' . esc_html__( 'Activate the Jetpack Boost plugin again.', 'wp-super-cache' ) . '</li>';
-			echo '</ol>';
+			wpsc_deactivate_boost_cache_notice();
 		} elseif ( $other_advanced_cache ) {
 			echo '<div style="width: 50%" class="notice notice-error"><h2>' . __( 'Warning! You may not be allowed to use this plugin on your site.', 'wp-super-cache' ) . "</h2>";
 			echo '<p>' .
@@ -3951,7 +3939,18 @@ function wpsc_post_count() {
 
 	return $count;
 }
-function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
+
+/**
+ * Get the minimum interval in minutes between preload refreshes.
+ * Filter the default value of 10 minutes using the `wpsc_minimum_preload_interval` filter.
+ *
+ * @return int
+ */
+function wpsc_get_minimum_preload_interval() {
+	return apply_filters( 'wpsc_minimum_preload_interval', 10 );
+}
+
+function wpsc_preload_settings() {
 	global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 
 	if ( isset( $_POST[ 'action' ] ) == false || $_POST[ 'action' ] != 'preload' )
@@ -3971,14 +3970,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		return;
 	}
 
-	if ( $min_refresh_interval == 'NA' ) {
-		$count = wpsc_post_count();
-		if ( $count > 1000 ) {
-			$min_refresh_interval = 720;
-		} else {
-			$min_refresh_interval = 30;
-		}
-	}
+	$min_refresh_interval = wpsc_get_minimum_preload_interval();
 
 	// Set to true if the preload interval is changed, and a reschedule is required.
 	$force_preload_reschedule = false;

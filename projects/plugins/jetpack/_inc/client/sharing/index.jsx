@@ -40,13 +40,13 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
 			activeFeatures: this.props.activeFeatures,
-			hasSocialBasicFeatures: this.props.hasSocialBasicFeatures,
-			hasSocialAdvancedFeatures: this.props.hasSocialAdvancedFeatures,
+			hasPaidFeatures: this.props.hasPaidFeatures,
 			hasSocialImageGenerator: this.props.hasSocialImageGenerator,
 			hasAutoConversion: this.props.hasAutoConversion,
 			isAtomicSite: this.props.isAtomicSite,
 			hasSharingBlock: this.props.hasSharingBlock,
 			isBlockTheme: this.props.isBlockTheme,
+			useAdminUiV1: this.props.useAdminUiV1,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -94,14 +94,14 @@ export default connect( state => {
 		siteRawUrl: getSiteRawUrl( state ),
 		blogID: getSiteId( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
-		hasSocialBasicFeatures: siteHasFeature( state, 'social-shares-1000' ),
 		activeFeatures: getActiveFeatures( state ),
-		hasSocialAdvancedFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
+		hasPaidFeatures: siteHasFeature( state, 'social-enhanced-publishing' ),
 		hasSocialImageGenerator: siteHasFeature( state, 'social-image-generator' ),
 		hasAutoConversion: siteHasFeature( state, 'social-image-auto-convert' ),
 		userCanManageModules: userCanManageModules( state ),
 		isAtomicSite: isAtomicSite( state ),
 		hasSharingBlock: isSharingBlockAvailable( state ),
 		isBlockTheme: currentThemeIsBlockTheme( state ),
+		useAdminUiV1: state.jetpack.initialState.socialInitialState.useAdminUiV1,
 	};
 } )( Sharing );

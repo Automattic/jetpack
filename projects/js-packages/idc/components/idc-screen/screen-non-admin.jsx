@@ -12,7 +12,7 @@ import customContentShape from '../../tools/custom-content-shape';
  * @returns {React.Component} The ScreenMain component.
  */
 const ScreenNonAdmin = props => {
-	const { customContent } = props;
+	const { customContent = {} } = props;
 
 	return (
 		<React.Fragment>
@@ -58,10 +58,6 @@ const ScreenNonAdmin = props => {
 ScreenNonAdmin.propTypes = {
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
-};
-
-ScreenNonAdmin.defaultProps = {
-	customContent: {},
 };
 
 export default ScreenNonAdmin;

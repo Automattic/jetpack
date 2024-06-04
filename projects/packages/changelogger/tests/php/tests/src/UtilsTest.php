@@ -47,7 +47,6 @@ class UtilsTest extends TestCase {
 		if ( ! $sh ) {
 			$this->markTestSkipped( 'This test requires a POSIX shell' );
 		}
-		'@phan-var string $sh';
 
 		$expectOutput = strtr( $expectOutput, array( '{SHELL}' => $sh ) );
 
@@ -136,7 +135,6 @@ class UtilsTest extends TestCase {
 		if ( ! $sleep ) {
 			$this->markTestSkipped( 'This test requires a "sleep" command' );
 		}
-		'@phan-var string $sleep';
 
 		$output = new BufferedOutput();
 		$output->setVerbosity( BufferedOutput::VERBOSITY_DEBUG );
@@ -392,7 +390,7 @@ class UtilsTest extends TestCase {
 
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '123',
 			),
 			Utils::getRepoData( 'in-git.txt', $output, $helper )
@@ -401,7 +399,7 @@ class UtilsTest extends TestCase {
 		// Test the second commit.
 		$this->assertSame(
 			array(
-				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'timestamp' => '2021-02-02T22:22:22Z',
 				'pr-num'    => '124',
 			),
 			Utils::getRepoData( 'in-git2.txt', $output, $helper )
@@ -431,7 +429,6 @@ class UtilsTest extends TestCase {
 	 */
 	public function testLoadAllChanges() {
 		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
-		'@phan-var FormatterPlugin&\PHPUnit\Framework\MockObject\MockObject $formatter'; // PHPUnit 9.6 only declares `@psalm-template` and not `@template` and such so Phan can't know the right types.
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'newChangeEntry' ) ) );
 		$formatter->method( 'newChangeEntry' )->willReturnCallback(
 			function ( $data ) {

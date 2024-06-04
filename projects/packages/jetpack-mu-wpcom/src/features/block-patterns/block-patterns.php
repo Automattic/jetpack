@@ -32,7 +32,7 @@ function wpcom_unregister_jetpack_patterns() {
  * Return a function that loads and register block patterns from the API. This
  * function can be registered to the `rest_dispatch_request` filter.
  *
- * @param Function $register_patterns_func A function that when called will
+ * @param callable $register_patterns_func A function that when called will
  * register the relevant block patterns in the registry.
  */
 function register_patterns_on_api_request( $register_patterns_func ) {

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package automattic/jetpack
+ */
 
 // This is WP_Test_REST_Controller_Testcase without the unneeded abstract methods.
 require_once __DIR__ . '/class-wp-test-spy-rest-server.php';

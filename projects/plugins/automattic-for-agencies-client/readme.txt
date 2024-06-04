@@ -1,10 +1,10 @@
 === Automattic For Agencies Client ===
 Contributors: automattic
 Tags: agency, dashboard, management, sites, monitoring
-Requires at least: 6.3
+Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
-Stable tag: 0.1.0-alpha
+Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,7 +39,13 @@ If you would like to disconnect a site or check if the site is connected correct
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
+### 0.2.0 - 2024-05-28
+#### Added
+- Add autotagger and autorelease to composer.json to enable auto-tagging and auto-release actions
 
-### 0.1.0 - 2024-04-09
-#### Enhancements
-- Initial release
+#### Changed
+- Updated package dependencies.
+
+#### Removed
+- Remove the Plugin Installer package dependency.
+

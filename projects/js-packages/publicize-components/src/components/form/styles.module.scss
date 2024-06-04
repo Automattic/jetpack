@@ -54,3 +54,13 @@ p.auto-share-title {
 	font-weight: 600;
 	text-transform: uppercase;
 }
+
+.title-container {
+	display: flex;
+	gap: 0.4rem;
+}
+
+.no-connections-text {
+	display: block;
+	margin-bottom: 1rem;
+}

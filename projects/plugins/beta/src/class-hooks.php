@@ -21,16 +21,16 @@ class Hooks {
 	/**
 	 * Singleton class instance.
 	 *
-	 * @var static
+	 * @var self
 	 */
-	protected static $instance = null;
+	private static $instance = null;
 
 	/**
 	 * Previous error handler.
 	 *
-	 * @var callable
+	 * @var callable|null
 	 */
-	protected static $prev_error_handler = null;
+	private static $prev_error_handler = null;
 
 	/**
 	 * Main Instance
@@ -179,7 +179,7 @@ class Hooks {
 	 *
 	 * @param string[] $actions Array of plugin action links.
 	 * @param string   $plugin_file Plugin file.
-	 * @return $actions
+	 * @return string[]
 	 */
 	public function remove_activate_link( $actions, $plugin_file ) {
 		if ( isset( $actions['activate'] ) ) {
@@ -300,7 +300,7 @@ class Hooks {
 
 		// Initialize the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
 		if ( ! WP_Filesystem( $creds ) ) {
 			// Any problems and we exit.
 			return;
@@ -489,8 +489,8 @@ class Hooks {
 		// This avoids the plugin to be deactivated.
 		// Using bulk upgrade puts the site into maintenance mode during the upgrades.
 		$result = $upgrader->bulk_upgrade( $plugins );
-		$errors = $upgrader->skin->get_errors();
-		$log    = $upgrader->skin->get_upgrade_messages();
+		$errors = $skin->get_errors();
+		$log    = $skin->get_upgrade_messages();
 
 		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 			return $errors;
@@ -504,8 +504,8 @@ class Hooks {
 	/**
 	 * Builds and sends an email about succesfull plugin autoupdate.
 	 *
-	 * @param Array  $plugins - List of plugins that were updated.
-	 * @param String $log     - Upgrade message from core's plugin upgrader.
+	 * @param array    $plugins - List of plugins that were updated.
+	 * @param string[] $log     - Upgrade message from core's plugin upgrader.
 	 */
 	private static function send_autoupdate_email( $plugins, $log ) {
 		$admin_email = get_site_option( 'admin_email' );

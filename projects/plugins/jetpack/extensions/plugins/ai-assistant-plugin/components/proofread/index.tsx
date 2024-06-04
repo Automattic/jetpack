@@ -102,7 +102,7 @@ export default function Proofread( {
 			) }
 			<p>
 				{ __(
-					'Check for mistakes and verify the tone of your post before publishing.',
+					'Get suggestions on how to enhance your post to better engage your audience.',
 					'jetpack'
 				) }
 			</p>
