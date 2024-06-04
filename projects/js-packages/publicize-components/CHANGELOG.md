@@ -5,15 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2024-06-03
+### Changed
+- Social | Updated upgrade nudges to use the new plan. [#37638]
+- Updated the editor nudge text and logic. [#37644]
+
 ## [0.53.0] - 2024-05-29
 ### Added
-- Added tests for manage connections modal and services [#37582]
+- Added tests for manage connections modal and services. [#37582]
 
 ### Removed
-- Social | Removed sharing buttons info from connections modal [#37593]
+- Social | Removed sharing buttons info from connections modal. [#37593]
 
 ### Fixed
-- Social | Hide "Mark as shared" for non-admin authors [#37595]
+- Social | Hide "Mark as shared" for non-admin authors. [#37595]
 
 ## [0.52.0] - 2024-05-27
 ### Added
@@ -712,6 +717,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.54.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.1...v0.52.0
 [0.51.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.0...v0.51.1
