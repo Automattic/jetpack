@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Fetch the Blaze posts from db instead of rest API.
