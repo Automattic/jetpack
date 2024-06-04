@@ -1,5 +1,5 @@
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
