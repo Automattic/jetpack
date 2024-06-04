@@ -56,9 +56,7 @@ class Modules_Setup implements Has_Setup {
 	public function get_status() {
 		$status = array();
 		foreach ( $this->available_modules as $slug => $module ) {
-			if ( $module->is_available() ) {
-				$status[ $slug ] = $module->is_enabled();
-			}
+			$status[ $slug ] = $module->is_enabled();
 		}
 		return $status;
 	}
