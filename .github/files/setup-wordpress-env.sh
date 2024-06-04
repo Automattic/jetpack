@@ -160,12 +160,12 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	echo "::endgroup::"
 fi
 
-# Install WooCommerce plugin used for some Jetpack integration tests.
+# Install the wpcomsh plugin used for some Jetpack integration tests.
 if [[ "$WITH_WPCOMSH" == true ]]; then
 	echo "::group::Installing wpcomsh into WordPress"
 
 	mkdir "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins"
-	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh/src" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
+	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
 
 	echo "::endgroup::"
 fi

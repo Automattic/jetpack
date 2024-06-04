@@ -89,7 +89,7 @@ $matrix[] = array(
 	'with-woocommerce' => true,
 );
 
-// Add WooCommerce tests.
+// Add wpcomsh tests.
 $matrix[] = array(
 	'name'         => 'PHP tests: PHP 7.4 WP latest with WPCOMSH',
 	'script'       => 'test-php',
