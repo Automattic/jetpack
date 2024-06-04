@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Has_Activate;
-use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
@@ -147,12 +145,12 @@ class Modules_Setup implements Has_Setup {
 		$status->on_update( $is_activated );
 
 		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
-		if ( $is_activated && $module && $module->feature instanceof Has_Activate ) {
-			$module->feature::activate();
+		if ( $is_activated && $module ) {
+			$module->activate();
 		}
 
-		if ( ! $is_activated && $module && $module->feature instanceof Has_Deactivate ) {
-			$module->feature::deactivate();
+		if ( ! $is_activated && $module ) {
+			$module->deactivate();
 		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {

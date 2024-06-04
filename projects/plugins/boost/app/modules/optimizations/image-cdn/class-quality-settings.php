@@ -65,7 +65,7 @@ class Quality_Settings implements Pluggable, Changes_Page_Output, Is_Always_On {
 	}
 
 	private function get_quality_for_type( $image_type ) {
-		$quality_settings = $this->get_state();
+		$quality_settings = jetpack_boost_ds_get( 'image_cdn_quality' );
 
 		if ( ! isset( $quality_settings[ $image_type ] ) ) {
 			return null;

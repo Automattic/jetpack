@@ -140,6 +140,6 @@ class Modules_Index {
 	}
 
 	public function get_module_instance_by_slug( $slug ) {
-		return isset( $this->available_modules[ $slug ] ) ? $this->available_modules[ $slug ] : false;
+		return $this->available_modules[ $slug ] ?? false;
 	}
 }
