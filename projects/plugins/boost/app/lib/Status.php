@@ -36,7 +36,7 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 
 		$this->status_sync_map = array(
 			Cloud_CSS::get_slug() => array(
-				Critical_CSS::class,
+				Critical_CSS::get_slug(),
 			),
 		);
 	}
@@ -80,9 +80,9 @@ class Status implements Entry_Can_Get, Entry_Can_Set {
 			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
 		}
 
-		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$mapped_status = new Status( $mapped_module::get_slug() );
-			$mapped_status->set( $new_status );
+		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module_slug ) {
+			$status = new Status( $mapped_module_slug );
+			$status->set( $new_status );
 		}
 
 		// The moduleInstance will be there. But check just in case.
