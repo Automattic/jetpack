@@ -580,8 +580,8 @@ importers:
         version: 4.3.4
     devDependencies:
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
@@ -1522,8 +1522,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       babel-loader:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.24.0)(webpack@5.76.0)
@@ -1796,8 +1796,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.31)
@@ -2195,8 +2195,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.31)
@@ -2533,8 +2533,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.31)
@@ -2890,8 +2890,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 5.8.0
-        version: 5.8.0(webpack@5.76.0)
+        specifier: 5.9.0
+        version: 5.9.0(webpack@5.76.0)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.24.0)
@@ -11179,8 +11179,8 @@ packages:
       moment: 2.29.4
       moment-timezone: 0.5.45
 
-  /@wordpress/dependency-extraction-webpack-plugin@5.8.0(webpack@5.76.0):
-    resolution: {integrity: sha512-DdFjCrBkV0maEh1REY8QFtg6rfgGz+qXw8qJ0HxfH+Uees16oCModxBmbgCTC2w3IkMyHP3kEpvRJHHmYRRmWg==}
+  /@wordpress/dependency-extraction-webpack-plugin@5.9.0(webpack@5.76.0):
+    resolution: {integrity: sha512-hXbCkbG1XES47t7hFSETRrLfaRSPyQPlCnhlCx7FfhYFD0wh1jVArApXX5dD+A6wTrayXX/a16MpfaNqE662XA==}
     engines: {node: '>=18'}
     peerDependencies:
       webpack: ^5.0.0
