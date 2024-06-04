@@ -167,7 +167,7 @@ const ResourcePromptComponent = props => {
 									{ ctaText }
 								</ExternalLink>
 							) : (
-								<Button rna href={ ctaLink } onClick={ onResourceLinkClick }>
+								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
 									{ ctaText }
 								</Button>
 							) }
