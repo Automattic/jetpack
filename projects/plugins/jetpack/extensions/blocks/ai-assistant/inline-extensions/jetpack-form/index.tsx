@@ -24,6 +24,7 @@ export class JetpackFormHandler extends BlockHandler {
 		this.behavior = 'action';
 		this.feature = 'jetpack-form-ai-extension';
 		this.adjustPosition = false;
+		this.startOpen = true;
 	}
 
 	private setContent( newContent: string, isRequestDone = false ): void {

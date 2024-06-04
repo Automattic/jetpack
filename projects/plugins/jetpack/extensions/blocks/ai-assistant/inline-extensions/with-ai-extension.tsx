@@ -82,8 +82,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ action, setAction ] = useState< string >( '' );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
-		// State to display the AI Control or not.
-		const [ showAiControl, setShowAiControl ] = useState( false );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -122,7 +120,11 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			isChildBlock,
 			feature,
 			adjustPosition,
+			startOpen,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
+
+		// State to display the AI Control or not.
+		const [ showAiControl, setShowAiControl ] = useState( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {

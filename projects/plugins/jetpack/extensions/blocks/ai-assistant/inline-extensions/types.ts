@@ -20,6 +20,7 @@ export interface IBlockHandler {
 	isChildBlock?: boolean;
 	feature: string;
 	adjustPosition?: boolean;
+	startOpen?: boolean;
 }
 
 export type BlockEditorSelect = {

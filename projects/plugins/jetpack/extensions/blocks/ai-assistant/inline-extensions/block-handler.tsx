@@ -26,6 +26,7 @@ export class BlockHandler {
 	public isChildBlock: boolean = false;
 	public feature: string = 'ai-assistant';
 	public adjustPosition: boolean = true;
+	public startOpen: boolean = false;
 
 	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
 		this.clientId = clientId;
