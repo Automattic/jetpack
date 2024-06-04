@@ -7,7 +7,7 @@ export class JetpackChildrenFormHandler extends BlockHandler {
 	constructor( clientId: string ) {
 		super( clientId, [] );
 		this.behavior = this.handleBehavior;
-		this.childrenBlock = true;
+		this.isChildBlock = true;
 	}
 
 	handleBehavior = ( { context } ) => {
