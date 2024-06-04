@@ -75,7 +75,7 @@ class Jetpack_Calypsoify extends Calypsoify {
 	 */
 	public function get_calypso_url( $post_id = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- in process of deprecating hence unused parameter.
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Calypsoify\\Jetpack_Calypsoify::get_calypso_url' );
-		return parent::get_calypso_url();
+		return parent::get_calypso_url( $post_id );
 	}
 
 	/**
