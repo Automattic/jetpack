@@ -7,7 +7,7 @@ const srcDataFile = 'src/react/social-logo-data.tsx';
 const fs = require( 'fs' );
 const path = require( 'path' );
 const process = require( 'process' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const xml2js = require( 'xml2js' );
 
 // Start in the right folder.
