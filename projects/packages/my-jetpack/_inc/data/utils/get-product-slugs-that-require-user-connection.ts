@@ -8,7 +8,7 @@ const getProductSlugsThatRequireUserConnection = ( products: {
 		.filter(
 			( { requiresUserConnection, status } ) =>
 				requiresUserConnection &&
-				( status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.ERROR )
+				( status === PRODUCT_STATUSES.ACTIVE || PRODUCT_STATUSES.USER_CONNECTION_ERROR )
 		)
 		.map( ( { name } ) => name );
 

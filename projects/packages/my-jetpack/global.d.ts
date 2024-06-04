@@ -43,6 +43,8 @@ interface Window {
 			videoPressStats: boolean;
 		};
 		lifecycleStats: {
+			historicallyActiveModules: Array< string >;
+			brokenModules: Array< string >;
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
@@ -195,7 +197,7 @@ interface Window {
 			} >;
 		};
 		redBubbleAlerts: {
-			'missing-site-connection'?: null;
+			'missing-connection'?: 'site' | 'user';
 			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {

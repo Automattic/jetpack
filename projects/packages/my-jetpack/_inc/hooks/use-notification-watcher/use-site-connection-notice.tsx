@@ -9,7 +9,6 @@ import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
-import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
@@ -18,29 +17,26 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
-	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 	const { siteIsRegistering, handleRegisterSite } = useConnection( {
 		skipUserConnection: true,
 		apiRoot,
 		apiNonce,
 		from: 'my-jetpack',
+		redirectUri: null,
+		autoTrigger: false,
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const connectionErrorType = redBubbleAlerts[ 'missing-connection' ];
 
 	useEffect( () => {
-		if ( ! Object.keys( redBubbleAlerts ).includes( 'missing-site-connection' ) ) {
+		if ( ! connectionErrorType ) {
 			return;
 		}
 
 		const productSlugsThatRequireUserConnection =
 			getProductSlugsThatRequireUserConnection( products );
-		const requiresUserConnection =
-			! hasConnectedOwner && ! isUserConnected && productSlugsThatRequireUserConnection.length > 0;
-
-		if ( ! requiresUserConnection && isRegistered ) {
-			return;
-		}
+		const requiresUserConnection = connectionErrorType === 'user';
 
 		const onActionButtonClick = () => {
 			if ( requiresUserConnection ) {
@@ -97,7 +93,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 		const noticeOptions = {
 			id: requiresUserConnection ? 'user-connection-notice' : 'site-connection-notice',
-			level: 'info',
+			level: 'error',
 			actions: [
 				{
 					label: requiresUserConnection
@@ -130,9 +126,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		} );
 	}, [
 		handleRegisterSite,
-		hasConnectedOwner,
-		isRegistered,
-		isUserConnected,
 		navToConnection,
 		products,
 		recordEvent,
@@ -140,6 +133,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		resetNotice,
 		setNotice,
 		siteIsRegistering,
+		connectionErrorType,
 	] );
 };
 

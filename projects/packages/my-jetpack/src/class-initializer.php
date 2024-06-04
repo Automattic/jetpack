@@ -59,7 +59,7 @@ class Initializer {
 
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 
-	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -238,6 +238,7 @@ class Initializer {
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
 					'purchases'                 => self::get_purchases(),
@@ -757,6 +758,31 @@ class Initializer {
 	}
 
 	/**
+	 * Check for features broken by a disconnected user or site
+	 *
+	 * @return array
+	 */
+	public static function check_for_broken_modules() {
+		$broken_modules              = array();
+		$products                    = Products::get_products();
+		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+		$broken_module_statuses      = array(
+			'site_connection_error',
+			'user_connection_error',
+		);
+
+		foreach ( $historically_active_modules as $module ) {
+			$product = $products[ $module ];
+
+			if ( in_array( $product['status'], $broken_module_statuses, true ) ) {
+				$broken_modules[] = $module;
+			}
+		}
+
+		return $broken_modules;
+	}
+
+	/**
 	 *  Add relevant red bubble notifications
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
@@ -768,7 +794,7 @@ class Initializer {
 			$red_bubble_slugs['welcome-banner-active'] = null;
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+			return self::alert_if_missing_connection( $red_bubble_slugs );
 		}
 	}
 
@@ -778,9 +804,15 @@ class Initializer {
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
 	 */
-	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
+	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
+		$broken_modules = self::check_for_broken_modules();
+
+		if ( count( $broken_modules ) > 0 ) {
+			if ( ! ( new Connection_Manager() )->is_user_connected() && ! ( new Connection_Manager() )->has_Connected_owner() ) {
+				$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = 'user';
+			} elseif ( ! ( new Connection_Manager() )->is_connected() ) {
+				$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = 'site';
+			}
 		}
 
 		return $red_bubble_slugs;
