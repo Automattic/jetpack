@@ -3817,9 +3817,6 @@ importers:
       eval:
         specifier: 0.1.8
         version: 0.1.8
-      fs-extra:
-        specifier: 10.0.0
-        version: 10.0.0
       glob:
         specifier: 10.4.1
         version: 10.4.1

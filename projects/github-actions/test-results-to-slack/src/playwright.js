@@ -1,6 +1,6 @@
 const fs = require( 'fs' );
 const { getInput } = require( '@actions/core' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const { debug } = require( './debug' );
 
 /**

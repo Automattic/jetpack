@@ -9,7 +9,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
