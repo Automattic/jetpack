@@ -17,7 +17,7 @@ class Modules_Setup implements Has_Setup {
 	/**
 	 * @var Modules_Index
 	 */
-	protected $modules = array();
+	protected $modules_index = array();
 
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
@@ -25,8 +25,8 @@ class Modules_Setup implements Has_Setup {
 	protected $available_modules = array();
 
 	public function __construct() {
-		$this->modules           = new Modules_Index();
-		$this->available_modules = $this->modules->available_modules();
+		$this->modules_index     = new Modules_Index();
+		$this->available_modules = $this->modules_index->available_modules();
 	}
 
 	public function have_enabled_modules() {
@@ -146,7 +146,7 @@ class Modules_Setup implements Has_Setup {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		$module = $this->modules->get_module_instance_by_slug( $module_slug );
+		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
 		if ( $is_activated && $module && $module->feature instanceof Has_Activate ) {
 			$module->feature::activate();
 		}
