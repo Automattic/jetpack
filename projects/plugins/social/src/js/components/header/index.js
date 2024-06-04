@@ -14,7 +14,6 @@ import {
 	ShareLimitsBar,
 	store as socialStore,
 	useShareLimits,
-	ManageConnectionsModalWithTrigger as ManageConnectionsModal,
 } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -25,6 +24,7 @@ import styles from './styles.module.scss';
 const Header = () => {
 	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
+		connectionsAdminUrl,
 		hasConnections,
 		isModuleEnabled,
 		newPostUrl,
@@ -38,6 +38,7 @@ const Header = () => {
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
+			connectionsAdminUrl: connectionData.adminUrl,
 			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
@@ -74,24 +75,18 @@ const Header = () => {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className={ styles.container }>
 				<Col sm={ 4 } md={ 4 } lg={ 5 }>
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
-					<div className={ styles.actions }>
-						{ isModuleEnabled && ! hasConnections && (
-							<>
-								{ useAdminUiV1 ? (
-									<ManageConnectionsModal
-										trigger={ <Button>{ __( 'Connect accounts', 'jetpack-social' ) }</Button> }
-									/>
-								) : (
-									<Button href={ connectionData.adminUrl } isExternalLink={ true }>
-										{ __( 'Connect accounts', 'jetpack-social' ) }
-									</Button>
-								) }
-							</>
-						) }
-						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
-							{ __( 'Write a post', 'jetpack-social' ) }
-						</Button>
-					</div>
+					{ ! useAdminUiV1 ? (
+						<div className={ styles.actions }>
+							{ isModuleEnabled && ! hasConnections && (
+								<Button href={ connectionsAdminUrl } isExternalLink={ true }>
+									{ __( 'Connect accounts', 'jetpack-social' ) }
+								</Button>
+							) }
+							<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
+								{ __( 'Write a post', 'jetpack-social' ) }
+							</Button>
+						</div>
+					) : null }
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
 					{ showShareLimits ? (
