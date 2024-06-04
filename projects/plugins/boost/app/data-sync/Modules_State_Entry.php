@@ -26,7 +26,7 @@ class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 		 */
 		foreach ( $this->modules as $module ) {
 			$state[ $module->get_slug() ] = array(
-				'active'    => $module->is_enabled(),
+				'active'    => $module->is_available() && $module->is_enabled(),
 				'available' => $module->is_available(),
 			);
 		}
