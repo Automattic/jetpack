@@ -14,6 +14,7 @@ import {
 	getSiteRawUrl,
 	getJetpackCloudUrl,
 	getStaticProductsForPurchase,
+	getSocialInitiaState,
 } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
@@ -81,9 +82,11 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				configLink: getSocialInitiaState( state ).useAdminUiV1
+					? '#/sharing'
+					: getRedirectUrl( 'calypso-marketing-connections', {
+							site: getSiteRawUrl( state ),
+					  } ),
 			};
 		case 'videopress':
 			return {

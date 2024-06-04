@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix Phan issues. None of the fixes seem to change functionality beyond one of the deprecated methods will no longer call a second one.
+
+

@@ -27,7 +27,7 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 );
 
 // The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
-const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
+export const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
 
 // The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
 export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];

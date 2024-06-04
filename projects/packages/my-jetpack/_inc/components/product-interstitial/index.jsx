@@ -1,10 +1,17 @@
 /**
  * External dependencies
  */
-import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect } from 'react';
 /**
@@ -66,6 +73,7 @@ export default function ProductInterstitial( {
 	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
+	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating } = useActivate( slug );
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
@@ -76,6 +84,15 @@ export default function ProductInterstitial( {
 		skipUserConnection: true,
 		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
 	} );
+	const showBundledTOS = ! hideTOS && !! bundle;
+	const productName = detail?.title;
+	const bundleName = bundleDetail?.title;
+	const bundledTosLabels = [
+		/* translators: %s is the product name  */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productName ),
+		/* translators: %s is the bundled product name */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), bundleName ),
+	];
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -238,7 +255,7 @@ export default function ProductInterstitial( {
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
 									ctaButtonLabel={ ctaButtonLabel }
-									hideTOS={ hideTOS }
+									hideTOS={ hideTOS || showBundledTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
 									isFetching={ isActivating || siteIsRegistering }
@@ -256,6 +273,7 @@ export default function ProductInterstitial( {
 										trackButtonClick={ trackBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
@@ -265,6 +283,13 @@ export default function ProductInterstitial( {
 								) }
 							</Col>
 						</Container>
+					) }
+				</Col>
+				<Col>
+					{ showBundledTOS && (
+						<div className={ styles[ 'tos-container' ] }>
+							<TermsOfService multipleButtons={ bundledTosLabels } />
+						</div>
 					) }
 				</Col>
 			</Container>
