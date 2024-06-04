@@ -11,8 +11,11 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
+use Jetpack_PostImages;
 use WC_Product;
 use WP_Error;
+use WP_Post;
+use WP_Query;
 use WP_REST_Request;
 use WP_REST_Server;
 
@@ -27,6 +30,13 @@ class Dashboard_REST_Controller {
 	 * @var string
 	 */
 	public static $namespace = 'jetpack/v4/blaze-app';
+
+	/**
+	 * The title to be filtered.
+	 *
+	 * @var string
+	 */
+	private $title;
 
 	/**
 	 * Registers the REST routes for Blaze Dashboard.
@@ -49,7 +59,7 @@ class Dashboard_REST_Controller {
 			sprintf( '/sites/%d/blaze/posts(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_blaze_posts' ),
+				'callback'            => array( $this, 'get_blaze_posts_from_db' ),
 				'permission_callback' => array( $this, 'can_user_view_dsp_callback' ),
 			)
 		);
@@ -348,6 +358,161 @@ class Dashboard_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Get the Blaze posts from database.
+	 *
+	 * @param $request The request object.
+	 *
+	 * @return array
+	 */
+	public function get_blaze_posts_from_db( $request ) {
+		$page           = $request->get_param( 'page' ) ?? 1;
+		$posts_per_page = $request->get_param( 'posts_per_page' ) ?? 20;
+		$order          = $request->get_param( 'order' ) ?? 'DESC';
+		$order_by       = $request->get_param( 'order_by' ) ?? 'date';
+		$post_types     = $request->get_param( 'filter_post_type' ) ?? implode( ',', self::get_blazable_post_types() );
+		$this->title    = strtolower( $request->get_param( 'title' ) ?? '' );
+
+		$post_type_list = explode( ',', $post_types );
+		$stats_enabled  = false;
+		$likes_enabled  = false;
+
+		// Validate post per page parameter (use default value if invalid).
+		if ( $posts_per_page <= 0 || $posts_per_page > 20 ) {
+			$posts_per_page = 20;
+		}
+
+		if ( '' !== $this->title ) {
+			add_filter( 'posts_where', array( $this, 'add_wp_query_filter_title' ) );
+		}
+
+		$args = array(
+			'order'          => $order,
+			'order_by'       => $order_by,
+			'post_type'      => $post_type_list,
+			'post_status'    => 'publish',
+			'post_password'  => '',
+			'posts_per_page' => $posts_per_page,
+			'paged'          => $page,
+		);
+
+		$post_query  = new WP_Query( $args );
+		$posts       = $post_query->get_posts();
+		$total_pages = $post_query->max_num_pages;
+
+		// Add featured_image and likes to posts.
+		$posts = $this->add_featured_image_and_likes( $posts );
+
+		// Add sku to product posts.
+		$posts = $this->add_product_sku( $posts );
+
+		// Add prices to product posts.
+		$posts = $this->add_prices_in_posts( $posts );
+
+		// Keep the expected structure.
+		$posts = $this->filter_post_list( $posts );
+
+		remove_filter( 'posts_where', array( $this, 'add_wp_query_filter_title' ) );
+
+		return array(
+			'posts'         => $posts,
+			'total_items'   => $post_query->found_posts,
+			'post_title'    => addslashes( $title ),
+			'page'          => (int) $page,
+			'total_pages'   => $total_pages,
+			'stats_enabled' => $stats_enabled,
+			'likes_enabled' => $likes_enabled,
+		);
+	}
+
+	public static function get_blazeble_post_types() {
+		return array( 'post', 'page', 'product' );
+	}
+
+	/**
+	 * Transforms the list of posts to only include the data we need.
+	 *
+	 * @param $posts
+	 *
+	 * @return array[]
+	 */
+	public function filter_post_list( $posts ) {
+
+		$permalink_structure = get_option( 'permalink_structure' );
+
+		function get_post_url( $post, $permalink_structure ) {
+
+			if ( $permalink_structure === '' ) {
+				return $post->guid;
+			}
+
+			return get_permalink( $post->ID );
+		}
+
+		return array_map(
+			function ( $post ) use ( $permalink_structure ) {
+
+				$filtered_post = array(
+					'ID'             => $post->ID,
+					'title'          => $post->post_title,
+					'type'           => $post->post_type,
+					'date'           => gmdate( 'c', strtotime( $post->post_date_gmt ) ),
+					'modified'       => gmdate( 'c', strtotime( $post->post_modified_gmt ) ),
+					'comment_count'  => (int) $post->comment_count,
+					'like_count'     => $post->like_count,
+					'featured_image' => $post->featured_image,
+					'author'         => $post->post_author,
+					'sku'            => $post->sku,
+					'post_url'       => get_post_url( $post, $permalink_structure ),
+				);
+
+				return $filtered_post;
+			},
+			$posts
+		);
+	}
+
+	/**
+	 * Filter to add a where clause to the WP_Query to search for posts by title.
+	 *
+	 * @param $where
+	 *
+	 * @return mixed|string
+	 */
+	public function add_wp_query_filter_title( $where ) {
+		global $wpdb;
+
+		if ( $this->title !== '' ) {
+			$title_like = '%' . $wpdb->esc_like( $this->title ) . '%';
+			$where     .= $wpdb->prepare( " AND {$wpdb->posts}.post_title LIKE %s", $title_like );
+		}
+		return $where;
+	}
+
+	public function add_featured_image_and_likes( $posts ) {
+
+		foreach ( $posts as $post ) {
+			// No likes by default.
+			$post->like_count = -1;
+
+			// Add featured media.
+			$post_images          = Jetpack_PostImages::get_image( $post->ID );
+			$canonical_image      = $post_images['src'] ?? null;
+			$post->featured_image = $canonical_image ?? get_the_post_thumbnail_url( $post->ID ) ?? null;
+		}
+
+		return $posts;
+	}
+
+	public function add_product_sku( $posts ) {
+
+		foreach ( $posts as $post ) {
+			$post->sku = get_post_meta( $post->ID, '_sku', true );
+		}
+
+		return $posts;
 	}
 
 	/**
@@ -751,6 +916,12 @@ class Dashboard_REST_Controller {
 		}
 
 		foreach ( $posts as $key => $item ) {
+			$is_wp_post = 'WP_Post' === get_class( $item );
+
+			if ( $is_wp_post ) {
+				$item          = $item->to_array();
+				$posts[ $key ] = $item;
+			}
 			if ( ! isset( $item['ID'] ) ) {
 				$posts[ $key ]['price'] = '';
 				continue;
@@ -774,6 +945,9 @@ class Dashboard_REST_Controller {
 				$formatted_price = sprintf( $price_format, $currency_symbol, $price );
 
 				$posts[ $key ]['price'] = html_entity_decode( $formatted_price, ENT_COMPAT );
+			}
+			if ( $is_wp_post ) {
+				$posts[ $key ] = new WP_Post( (object) $posts[ $key ] );
 			}
 		}
 		return $posts;
