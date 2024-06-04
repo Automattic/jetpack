@@ -11,13 +11,14 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Outdated dep. Already fixed upstream, just waiting on a release.
-	// https://github.com/Automattic/wp-calypso/pull/87350
-	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
-	) {
-		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
+	// Deps tend to get outdated due to a slow release cycle.
+	// So change `^` to `>=` and hope any breaking changes will not really break.
+	if ( pkg.name === '@automattic/social-previews' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	// Missing dep or peer dep on react.
