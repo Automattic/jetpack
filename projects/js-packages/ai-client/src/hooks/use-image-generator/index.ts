@@ -154,9 +154,9 @@ const getStableDiffusionImageGenerationPrompt = async (
 };
 
 const useImageGenerator = () => {
-	const executeImageGeneration = async function ( parameters: {
-		[ key: string ]: string;
-	} ): Promise< ImageGenerationResponse > {
+	const executeImageGeneration = async function (
+		parameters: object
+	): Promise< ImageGenerationResponse > {
 		let token = '';
 
 		try {
@@ -259,6 +259,7 @@ const useImageGenerator = () => {
 	return {
 		generateImage,
 		generateImageWithStableDiffusion,
+		generateImageWithParameters: executeImageGeneration,
 	};
 };
 
