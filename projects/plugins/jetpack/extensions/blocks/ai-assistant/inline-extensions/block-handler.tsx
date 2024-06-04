@@ -7,7 +7,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockBehavior, BlockEditorDispatch, BlockEditorSelect } from './types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html: string ) {
@@ -22,10 +22,19 @@ export class BlockHandler {
 	public clientId: string;
 	public renderRules: RenderHTMLRules = [];
 	public firstUpdate: boolean = true;
+	public behavior: BlockBehavior = 'dropdown' as const;
+	public isChildBlock: boolean = false;
 
-	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
+	constructor(
+		clientId: string,
+		renderRules: RenderHTMLRules = [],
+		behavior: BlockBehavior = 'dropdown',
+		isChildBlock: boolean = false
+	) {
 		this.clientId = clientId;
 		this.renderRules = renderRules;
+		this.behavior = behavior;
+		this.isChildBlock = isChildBlock;
 	}
 
 	public getBlock(): Block {
@@ -55,7 +64,8 @@ export class BlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
-	public onDone(): void {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public onDone( suggestion: string ): void {
 		this.firstUpdate = true;
 	}
 

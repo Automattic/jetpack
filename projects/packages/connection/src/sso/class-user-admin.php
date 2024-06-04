@@ -1203,7 +1203,7 @@ class User_Admin {
 					'<span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="jetpack-sso-invitation-tooltip-icon sso-disconnected-user">
 						<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 						<span class="sso-disconnected-user-icon dashicons dashicons-warning">
-							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip" tabindex="0">%3$s</span>
+							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip">%3$s</span>
 						</span>
 					</span>',
 					add_query_arg(

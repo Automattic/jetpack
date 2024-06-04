@@ -201,7 +201,7 @@ export class ConnectButton extends React.Component {
 					<p className="jp-banner__tos-blurb">
 						{ createInterpolateElement(
 							__(
-								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+								'By clicking the button below, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.',
 								'jetpack'
 							),
 							{
