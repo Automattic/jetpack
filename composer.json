@@ -9,6 +9,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-codesniffer": "@dev",
+		"automattic/jetpack-phan-plugins": "@dev",
 		"automattic/jetpack-phpcs-filter": "@dev",
 		"dealerdirect/phpcodesniffer-composer-installer": "1.0.0",
 		"phan/phan": "^5.4",

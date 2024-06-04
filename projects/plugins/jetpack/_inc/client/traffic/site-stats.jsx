@@ -284,11 +284,16 @@ class SiteStatsComponent extends React.Component {
 										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
 										disabled={
 											! isStatsActive ||
+											! optedOutOfOdyssey ||
 											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [ 'stats' ] )
 										}
 										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
-										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
+										onChange={
+											optedOutOfOdyssey
+												? this.handleStatsOptionToggle( 'enable_odyssey_stats' )
+												: null
+										}
 										label={
 											<>
 												{ /* This toggle enables Odyssey Stats. */ }

@@ -21,16 +21,16 @@ class Hooks {
 	/**
 	 * Singleton class instance.
 	 *
-	 * @var static
+	 * @var self
 	 */
-	protected static $instance = null;
+	private static $instance = null;
 
 	/**
 	 * Previous error handler.
 	 *
-	 * @var callable
+	 * @var callable|null
 	 */
-	protected static $prev_error_handler = null;
+	private static $prev_error_handler = null;
 
 	/**
 	 * Main Instance
@@ -300,7 +300,7 @@ class Hooks {
 
 		// Initialize the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
 		if ( ! WP_Filesystem( $creds ) ) {
 			// Any problems and we exit.
 			return;
@@ -504,8 +504,8 @@ class Hooks {
 	/**
 	 * Builds and sends an email about succesfull plugin autoupdate.
 	 *
-	 * @param Array  $plugins - List of plugins that were updated.
-	 * @param String $log     - Upgrade message from core's plugin upgrader.
+	 * @param array    $plugins - List of plugins that were updated.
+	 * @param string[] $log     - Upgrade message from core's plugin upgrader.
 	 */
 	private static function send_autoupdate_email( $plugins, $log ) {
 		$admin_email = get_site_option( 'admin_email' );

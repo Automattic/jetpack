@@ -211,7 +211,7 @@ class WPCOM_Site_Management_Widget {
 									),
 									array(
 										'name' => __( 'Server Logs', 'jetpack-mu-wpcom' ),
-										'href' => "/site-monitoring/$domain/web",
+										'href' => "/site-logs/$domain/web",
 									),
 								);
 								foreach ( $dev_tools_items as $item ) {

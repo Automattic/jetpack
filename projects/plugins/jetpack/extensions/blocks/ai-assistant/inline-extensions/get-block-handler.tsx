@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createContext } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -24,6 +25,8 @@ const handlers = {
 	'core/list-item': ListItemHandler,
 	'core/list': ListHandler,
 };
+
+export const InlineExtensionsContext = createContext( {} );
 
 /**
  * Gets the block handler based on the block type.
@@ -49,5 +52,7 @@ export function getBlockHandler(
 		onSuggestion: handler.onSuggestion.bind( handler ),
 		onDone: handler.onDone.bind( handler ),
 		getContent: handler.getContent.bind( handler ),
+		behavior: handler.behavior,
+		isChildBlock: handler.isChildBlock,
 	};
 }
