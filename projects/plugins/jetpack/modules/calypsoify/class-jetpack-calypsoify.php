@@ -17,15 +17,6 @@ use Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify as Calypsoify;
 class Jetpack_Calypsoify extends Calypsoify {
 
 	/**
-	 * Singleton instance of `Jetpack_Calypsoify`.
-	 *
-	 * @deprecated $$next-version$$
-	 *
-	 * @var object
-	 */
-	public static $instance = false;
-
-	/**
 	 * Is Calypsoify enabled, based on any value of `calypsoify` user meta.
 	 *
 	 * @deprecated $$next-version$$
