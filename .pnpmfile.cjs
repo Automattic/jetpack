@@ -186,6 +186,17 @@ function afterAllResolved( lockfile ) {
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
 			);
 		}
+
+		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
+		// https://github.com/WordPress/gutenberg/issues/62202
+		if (
+			k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/' ) &&
+			! k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/5.' )
+		) {
+			throw new Error(
+				'@wordpress/dependency-extraction-webpack-plugin >= 6.0.0 is not allowed until we drop WordPress 6.5 support.\nSee https://github.com/WordPress/gutenberg/issues/62202 for details.'
+			);
+		}
 	}
 	return lockfile;
 }
