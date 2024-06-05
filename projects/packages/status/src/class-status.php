@@ -301,7 +301,7 @@ class Status {
 	 *
 	 * @return bool
 	 */
-	public function is_development_site() {
+	public static function is_development_site() {
 		$is_dev_site = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 		/**
 		 * Filters is_development_site check.
@@ -311,6 +311,7 @@ class Status {
 		 * @param bool $is_dev_site If the current site is a staging or dev site.
 		 */
 		$is_dev_site = apply_filters( 'jetpack_is_development_site', $is_dev_site );
+
 		return $is_dev_site;
 	}
 
