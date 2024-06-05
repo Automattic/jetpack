@@ -46,9 +46,13 @@ package.json      export-ignore
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 .eslintignore                                 production-exclude
+.dockerignore                                 production-exclude
+.editorconfig                                 production-exclude
+/.circleci/**                                 production-exclude
 /.gitignore                                   production-exclude
 /.phpcsignore                                 production-exclude
 /.phpcs.dir.xml                               production-exclude
+/.phpcs.dir.phpcompatibility.xml              production-exclude
 /changelog/**                                 production-exclude
 /jetpack_vendor/automattic/**/README.md       production-exclude
 /jetpack_vendor/automattic/**/src/css/*.scss  production-exclude
