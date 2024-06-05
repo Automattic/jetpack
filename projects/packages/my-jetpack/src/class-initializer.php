@@ -531,7 +531,7 @@ class Initializer {
 	/**
 	 * Update historically active Jetpack plugins
 	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
-	 * This array will conxsist of any plugins that were active at one point in time and are still enabled on the site
+	 * This array will consist of any plugins that were active at one point in time and are still enabled on the site
 	 *
 	 * @return void
 	 */
@@ -546,8 +546,8 @@ class Initializer {
 			'site_connection_error',
 			'user_connection_error',
 		);
-		// This is defined as the statuses in which the user has purposely disabled the module
-		// whether it be by uninstalling the plugin, disabling the module, or not renewing their plan.
+		// This is defined as the statuses in which the user willingly has the module disabled whether it be by
+		// default, uninstalling the plugin, disabling the module, or not renewing their plan.
 		$disabled_module_statuses = array(
 			'inactive',
 			'module_disabled',
@@ -567,7 +567,7 @@ class Initializer {
 				continue;
 			}
 
-			// If the module is active and not aready in the array, add it
+			// If the module is active and not already in the array, add it
 			if (
 				in_array( $status, $active_module_statuses, true ) &&
 				! in_array( $product_slug, $historically_active_modules, true )
@@ -582,7 +582,7 @@ class Initializer {
 			}
 		}
 
-		\Jetpack_Options::update_option( 'historically_active_modules', $historically_active_modules );
+		\Jetpack_Options::update_option( 'historically_active_modules', array_unique( $historically_active_modules ) );
 	}
 
 	/**
