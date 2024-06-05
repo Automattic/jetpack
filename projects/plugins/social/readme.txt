@@ -100,33 +100,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.3.0 - 2024-05-29
-#### Added
-- Add connect form/button for connection management
-- Added a CTA button to create a social note
-- Added and rendered GlobalNotices component
-- Added feature flag for new social admin ui
-- Added more E2E tests
-- Added the connection modal to the editor
-- Add Woocommerce event remove_order_items to Jetpack Sync
-- Disabled the Note config toggles while the API calls are pending
-- Social: Added add connection modal
-- Social Admin page: Added connection management component
-- Social Limits: Added clarification of cycle reset
-
+### 4.4.0 - 2024-06-05
 #### Changed
-- General: update WordPress version requirements to WordPress 6.4.
-- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
-- Remove explicit Plugin Install package dependency.
-- Remove the 'jetpack-identity-crisis' dependency.
-- Social | Updated the connection test results endpoint for front-end
+- Social | Removed "Connect accounts" button on the admin page when no connections
+- Social | Updated upgrade nudges to use the new plan
 - Updated package dependencies.
-- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection.
-
-#### Fixed
-- Adjusted the webpack config so the social icon colours are picked up by PostCSS
-- Fixed CSS variables not loaded for modals on Social admin page
-- Fixed timeouts in E2E tests
+- Updated the editor nudge text and logic
 
 == Upgrade Notice ==
 
