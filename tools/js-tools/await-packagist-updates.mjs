@@ -180,7 +180,7 @@ function pollPackagist( name, versionRange ) {
 					} ).finally( () => {
 						// Make sure the request actually gets closed whenever the promise settles.
 						// We don't want hung connections waiting on us to read more data or something.
-						if ( ! req.closed && ! req.destroyed ) {
+						if ( req && ! req.closed && ! req.destroyed ) {
 							req.close( http2.constants.NGHTTP2_CANCEL );
 						}
 					} );
