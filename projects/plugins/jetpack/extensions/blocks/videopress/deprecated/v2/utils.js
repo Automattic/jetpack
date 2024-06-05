@@ -38,9 +38,7 @@ export const filterVideoPressClasses = ( className, videoPressClassNames ) => {
 	const videoPressClassTokenList = new TokenList( className );
 	videoPressClassTokenList.add( videoPressClassNames );
 
-	customClassTokenList.forEach( customClass => {
-		videoPressClassTokenList.remove( customClass );
-	} );
+	videoPressClassTokenList.remove( ...customClassTokenList );
 
 	return {
 		className: customClassTokenList.value,
