@@ -41,6 +41,7 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		Garbage_Collection::setup();
 
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_module_status_updated' ), 10, 2 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'handle_deactivate_module' ), 10, 2 );
 		add_action( 'jetpack_boost_critical_css_invalidated', array( $this, 'invalidate_cache' ) );
 		add_action( 'jetpack_boost_critical_css_generated', array( $this, 'invalidate_cache' ) );
 		add_action( 'update_option_' . JETPACK_BOOST_DATASYNC_NAMESPACE . '_minify_js_excludes', array( $this, 'invalidate_cache' ) );
@@ -69,7 +70,12 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 		if ( in_array( $module_slug, $slugs, true ) ) {
 			$this->invalidate_cache();
 		}
+	}
 
+	/**
+	 * Handles the deactivation of the module by removing the advanced-cache.php file.
+	 */
+	public function handle_deactivate_module( $module_slug, $status ) {
 		if ( $module_slug === 'page_cache' && ! $status ) {
 			Page_Cache_Setup::delete_advanced_cache();
 		}
