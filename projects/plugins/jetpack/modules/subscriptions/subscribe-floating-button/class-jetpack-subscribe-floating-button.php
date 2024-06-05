@@ -3,7 +3,7 @@
  * Adds support for Jetpack floating Subscribe button feature
  *
  * @package automattic/jetpack-subscriptions
- * @since 13.5
+ * @since $$next-version$$
  */
 
 /**
@@ -34,7 +34,7 @@ class Jetpack_Subscribe_Floating_Button {
 	 * Jetpack_Subscribe_Floating_Button class constructor.
 	 */
 	public function __construct() {
-		if ( get_option( 'jetpack_subscribe_floating_button_enabled', true ) ) { // @TODO: change default to false
+		if ( get_option( 'jetpack_subscribe_floating_button_enabled', false ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_floating_button_to_frontend' ) );
 		}
