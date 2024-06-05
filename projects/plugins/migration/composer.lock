@@ -1466,7 +1466,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "07d6d64b61fb034065ff760463c1f04872a62c5c"
+                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
