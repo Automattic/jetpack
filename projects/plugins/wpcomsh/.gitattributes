@@ -6,10 +6,74 @@ package.json      export-ignore
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
+# Files to include in Automattic/wpcom-site-helper
+/*.php                                        production-include
+/assets/**                                    production-include
+/block-theme-footer-credits/**                production-include
+/customizer-fixes/**                          production-include
+/custom-colors/**                             production-include
+/endpoints/**                                 production-include
+/feature-plugins/**                           production-include
+/footer-credit/**                             production-include
+/frontend-notices/**                          production-include
+/imports/**                                   production-include
+/jetpack-require-connection-owner/**          production-include
+/jetpack-token-error-header/**                production-include
+/jetpack-token-resilience/**                  production-include
+/languages/**                                 production-include
+/lib/**                                       production-include
+/logo-tool/**                                 production-include
+/mailpoet/**                                  production-include
+/notices/**                                   production-include
+/privacy/**                                   production-include
+/private-site/**                              production-include
+/safeguard/**                                 production-include
+/share-post/**                                production-include
+/storage/**                                   production-include
+/storefront/**                                production-include
+/tests/**                                     production-include
+/vendor/**                                    production-include
+/widgets/**                                   production-include
+/wpcom-features/**                            production-include
+/wpcom-migration-helpers/**                   production-include
+/wpcom-plugins/**                             production-include
+/wpcom-themes/**                              production-include
+/vendor/autoload.php                          production-include
+/vendor/automattic/**                         production-include
+/vendor/composer/**                           production-include
+/vendor/tubalmartin/**                        production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
-tests/**          production-exclude
+.eslintignore                                 production-exclude
+/.gitignore                                   production-exclude
+/.phpcsignore                                 production-exclude
+/.phpcs.dir.xml                               production-exclude
+/changelog/**                                 production-exclude
+/jetpack_vendor/automattic/**/README.md       production-exclude
+/jetpack_vendor/automattic/**/src/css/*.scss  production-exclude
+/jetpack_vendor/automattic/**/composer.json   production-exclude
+/node_modules/**                              production-exclude
+/phpunit.xml.dist                             production-exclude
+/readme.md                                    production-exclude
+/vendor/automattic/**/README.md               production-exclude
+/vendor/automattic/**/src/css/*.scss          production-exclude
+/vendor/automattic/**/composer.json           production-exclude
+/vendor/automattic/jetpack-autoloader/**      production-exclude
+/vendor/automattic/jetpack-changelogger/**    production-exclude
+/vendor/automattic/jetpack-composer-plugin/** production-exclude
+**/.phan/**                                   production-exclude
+**/.w.org-assets/**                           production-exclude
+/bin/**                                       production-exclude
+/build/**                                     production-exclude
+/node_modules/**                              production-exclude
+/tests/**                                     production-exclude
+.circleci                                     production-exclude
+.idea                                         production-exclude
+.env                                          production-exclude
+.DS_Store                                     production-exclude
+p.*ntrc                                       production-exclude
+Makefile                                      production-exclude
+*.mdown                                       production-exclude
+composer.lock                                 production-exclude
+error_log                                     production-exclude

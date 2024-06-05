@@ -61,8 +61,6 @@
 		"test-php": [
 			"@composer phpunit"
 		],
-		"build-production": "make clean build",
-		"build-development": "WPCOMSH_DEVMODE=1 make clean build",
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
