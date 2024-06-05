@@ -127,6 +127,7 @@
 		}
 	},
 	"extra": {
+		"mirror-repo": "Automattic/wpcom-site-helper",
 		"release-branch-prefix": "wpcomsh",
 		"changelogger": {
 			"versioning": "semver"
