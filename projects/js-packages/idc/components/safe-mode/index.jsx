@@ -181,7 +181,7 @@ const SafeMode = props => {
 							onClick={ staySafeCallback }
 							disabled={ isActionInProgress }
 						>
-							{ isStayingSafe ? <Spinner /> : buttonLabel }
+							{ isStayingSafe ? <Spinner color="black" /> : buttonLabel }
 						</Button>
 
 						{ hasError && renderError( customContent.supportURL ) }
