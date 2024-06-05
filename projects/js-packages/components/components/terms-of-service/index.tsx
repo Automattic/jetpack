@@ -10,8 +10,9 @@ const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 	className,
 	multipleButtons,
 	agreeButtonLabel,
+	...textProps
 } ) => (
-	<Text className={ classNames( className, 'terms-of-service' ) }>
+	<Text className={ classNames( className, 'terms-of-service' ) } { ...textProps }>
 		{ multipleButtons ? (
 			<MultipleButtonsText multipleButtonsLabels={ multipleButtons } />
 		) : (
