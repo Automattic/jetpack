@@ -1,12 +1,10 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-product';
-import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
@@ -17,14 +15,13 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
-	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
-	const { siteIsRegistering, handleRegisterSite } = useConnection( {
-		skipUserConnection: true,
-		apiRoot,
-		apiNonce,
-		from: 'my-jetpack',
-	} );
+	const {
+		handleRegisterSite,
+		siteIsRegistering,
+		siteIsRegistered,
+		isUserConnected,
+		hasConnectedOwner,
+	} = useMyJetpackConnection( { skipUserConnection: true } );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 
@@ -38,7 +35,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		const requiresUserConnection =
 			! hasConnectedOwner && ! isUserConnected && productSlugsThatRequireUserConnection.length > 0;
 
-		if ( ! requiresUserConnection && isRegistered ) {
+		if ( ! requiresUserConnection && siteIsRegistered ) {
 			return;
 		}
 
@@ -131,7 +128,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	}, [
 		handleRegisterSite,
 		hasConnectedOwner,
-		isRegistered,
+		siteIsRegistered,
 		isUserConnected,
 		navToConnection,
 		products,
