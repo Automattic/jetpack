@@ -310,13 +310,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20  # 2024-05-02: Up to about 8 minutes now that we're running against the old WP stubs too.
     steps:
+      - name: Disk space
+        run: df -h
       - uses: actions/checkout@v4
+      - name: Disk space
+        run: df -h
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+      - name: Disk space
+        run: df -h
       - name: Pnpm install
         run: pnpm install
+      - name: Disk space
+        run: df -h
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
+      - name: Disk space
+        if: always()
+        run: df -h
       - name: Run phan for previous WP version too
         env:
           # Don't bother complaining about unused suppressions that may be used with the newer stubs. See .phan/config.base.php for how this gets applied.
