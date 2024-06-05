@@ -111,7 +111,7 @@ class Jetpack_Subscribe_Floating_Button {
 	public function get_floating_subscribe_button_template_content() {
 		$block_name = esc_attr__( 'Floating subscribe button', 'jetpack' );
 
-		return '<!-- wp:jetpack/subscriptions {"className":"is-style-button","metadata":{"name":"' . $block_name . '"}} /-->';
+		return '<!-- wp:jetpack/subscriptions {"className":"is-style-button","lock":{"move":false,"remove":true},"metadata":{"name":"' . $block_name . '"}} /-->';
 	}
 
 	/**
