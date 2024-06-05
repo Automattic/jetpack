@@ -34,11 +34,12 @@ const Header = () => {
 		blogID,
 		showShareLimits,
 		hasPaidFeatures,
+		useAdminUiV1,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			connectionsAdminUrl: connectionData.adminUrl,
-			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
+			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
@@ -47,6 +48,7 @@ const Header = () => {
 			blogID: store.getBlogID(),
 			showShareLimits: store.showShareLimits(),
 			hasPaidFeatures: store.hasPaidFeatures() || store.hasPaidPlan(),
+			useAdminUiV1: store.useAdminUiV1(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -74,7 +76,7 @@ const Header = () => {
 				<Col sm={ 4 } md={ 4 } lg={ 5 }>
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 					<div className={ styles.actions }>
-						{ isModuleEnabled && ! hasConnections && (
+						{ ! useAdminUiV1 && isModuleEnabled && ! hasConnections && (
 							<Button href={ connectionsAdminUrl } isExternalLink={ true }>
 								{ __( 'Connect accounts', 'jetpack-social' ) }
 							</Button>
