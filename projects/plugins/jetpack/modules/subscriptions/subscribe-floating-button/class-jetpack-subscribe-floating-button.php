@@ -61,7 +61,7 @@ class Jetpack_Subscribe_Floating_Button {
 	}
 
 	/**
-	 * Makes get_block_template return the WP_Block_Template for the Subscribe Overlay.
+	 * Makes get_block_template return the WP_Block_Template for the floating Subscribe button.
 	 *
 	 * @param WP_Block_Template $block_template The block template to be returned.
 	 * @param string            $id Template unique identifier (example: theme_slug//template_slug).
@@ -80,7 +80,7 @@ class Jetpack_Subscribe_Floating_Button {
 	}
 
 	/**
-	 * Returns a custom template for the Subscribe Overlay.
+	 * Returns a custom template for the floating Subscribe button.
 	 *
 	 * @return WP_Block_Template
 	 */
@@ -90,7 +90,7 @@ class Jetpack_Subscribe_Floating_Button {
 		$template->slug           = self::BLOCK_TEMPLATE_PART_SLUG;
 		$template->id             = self::get_block_template_part_id();
 		$template->area           = 'uncategorized';
-		$template->content        = $this->get_subscribe_overlay_template_content();
+		$template->content        = $this->get_floating_subscribe_button_template_content();
 		$template->source         = 'plugin';
 		$template->type           = 'wp_template_part';
 		$template->title          = __( 'Jetpack Subscribe floating button', 'jetpack' );
@@ -108,14 +108,14 @@ class Jetpack_Subscribe_Floating_Button {
 	 *
 	 * @return string
 	 */
-	public function get_subscribe_overlay_template_content() {
+	public function get_floating_subscribe_button_template_content() {
 		$block_name = esc_attr__( 'Floating subscribe button', 'jetpack' );
 
 		return '<!-- wp:jetpack/subscriptions {"className":"is-style-button","metadata":{"name":"' . $block_name . '"}} /-->';
 	}
 
 	/**
-	 * Enqueues JS to load overlay.
+	 * Enqueues styles.
 	 *
 	 * @return void
 	 */
@@ -126,7 +126,7 @@ class Jetpack_Subscribe_Floating_Button {
 	}
 
 	/**
-	 * Adds overlay with Subscribe Overlay content.
+	 * Adds floating Subscribe button HTML wrapper
 	 *
 	 * @return void
 	 */
