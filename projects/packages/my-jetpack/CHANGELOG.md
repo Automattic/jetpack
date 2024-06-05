@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.24.3] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
 ## [4.24.2] - 2024-06-03
 ### Changed
 - Update ToS wording. [#37536]
@@ -1491,6 +1495,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.24.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.2...4.24.3
 [4.24.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.1...4.24.2
 [4.24.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.0...4.24.1
 [4.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.3...4.24.0
