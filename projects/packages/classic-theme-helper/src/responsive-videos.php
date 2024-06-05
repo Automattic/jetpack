@@ -75,7 +75,7 @@ function jetpack_responsive_videos_embed_html( $html ) {
 			'in_footer'  => true,
 			'enqueue'    => true,
 			'textdomain' => 'jetpack-classic-theme-helper',
-			'css_path'   => '../build/responsive-videos/responsive-videos.css',
+			'css_path'   => '../dist/responsive-videos/responsive-videos.css',
 		)
 	);
 

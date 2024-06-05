@@ -21,7 +21,7 @@ use Composer\Util\PackageSorter;
  */
 class AutoloadGenerator {
 
-	const VERSION = '3.0.8-alpha';
+	const VERSION = '3.0.8';
 
 	/**
 	 * IO object.

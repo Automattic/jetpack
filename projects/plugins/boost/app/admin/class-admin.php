@@ -35,6 +35,13 @@ class Admin {
 	}
 
 	public function handle_admin_menu() {
+		/**
+		 * Filters the number of problems shown in the Boost sidebar menu
+		 *
+		 * @param int $count the number of problems shown.
+		 *
+		 * @since   1.0.0
+		 */
 		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
 		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
 		if ( $total_problems ) {
@@ -68,6 +75,13 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
+		/**
+		 * Filters the internal path to the distributed assets used by the plugin
+		 *
+		 * @param string $path the path to the assets
+		 *
+		 * @since   1.0.0
+		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		wp_enqueue_style(
@@ -84,6 +98,11 @@ class Admin {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+		/**
+		 * Filters the internal path to the distributed assets used by the plugin
+		 *
+		 * @param string $path the path to the assets
+		 */
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$critical_css_gen_handle = 'jetpack-boost-critical-css-gen';

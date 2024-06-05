@@ -1,5 +1,5 @@
 === Jetpack Social  ===
-Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk, danielpost
+Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
 Requires at least: 6.4
 Requires PHP: 7.0
@@ -100,27 +100,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 4.2.0 - 2024-04-11
-#### Added
-- Added functions to display share urls
-- Added options and UI for link formatting
-- Added support for comments on Social Notes
-- Packages: add version tracking for identity-crisis package.
-- Trigger red bubble notification when bad install is detected
-
+### 4.4.0 - 2024-06-05
 #### Changed
-- Allow multiple paragraphs for Social Notes
-- Only show custom media picker for normal posts
-- Only show installation errors on plugins page
-- Removed the featured image block from the template
-- Simplified social network selection for post sharing
-- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775]
-- Update to the most recent version of Color Studio, 2.6.0.
-- Update to the most recent version of the @automattic/calypso-color-schemes package.
-
-#### Fixed
-- Fixed typos
-- Prevent enqueuing of admin styles on the frontend
+- Social | Removed the top "Connect accounts" on the admin page
+- Social | Updated upgrade nudges to use the new plan
+- Updated package dependencies.
+- Updated the editor nudge text and logic
 
 == Upgrade Notice ==
 

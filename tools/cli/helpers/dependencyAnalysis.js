@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
-import { promisify } from 'util';
-import glob from 'glob';
+import { glob } from 'glob';
 
 /**
  * Collect project dependencies.
@@ -15,13 +14,13 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 
 	// Collect all project slugs.
 	ret.set( 'monorepo', new Set() );
-	for ( const file of await promisify( glob )( 'projects/*/*/composer.json', { cwd: root } ) ) {
+	for ( const file of await glob( 'projects/*/*/composer.json', { cwd: root } ) ) {
 		ret.set( file.substring( 9, file.length - 14 ), new Set() );
 	}
 
 	// Collect package name→slug mappings.
 	const packageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/packages/*/composer.json', {
+	for ( const file of await glob( 'projects/packages/*/composer.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 14 );
@@ -38,7 +37,7 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 
 	// Collect js-package name→slug mappings.
 	const jsPackageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/js-packages/*/package.json', {
+	for ( const file of await glob( 'projects/js-packages/*/package.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 13 );
