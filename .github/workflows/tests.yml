@@ -323,6 +323,14 @@ jobs:
         run: pnpm install
       - name: Disk space
         run: df -h
+      - name: Install some packages
+        run: pnpm jetpack install packages/abtest packages/admin-ui
+      - name: Disk space
+        run: df -h
+      - name: Install another package
+        run: pnpm jetpack install packages/videopress
+      - name: Disk space
+        run: df -h
       - name: Run phan
         run: pnpm jetpack phan --all -v --update-baseline --format github
       - name: Disk space
