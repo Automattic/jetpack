@@ -25,10 +25,7 @@ export const ASPECT_RATIOS = [
 export const filterVideoPressClasses = ( className, videoPressClassNames ) => {
 	// Filter out VideoPress specific styles from className attribute.
 
-	const aspectRatioClassNames = ASPECT_RATIOS.reduce( ( accumulator, ratio ) => {
-		accumulator.push( ratio.className );
-		return accumulator;
-	}, [] );
+	const aspectRatioClassNames = ASPECT_RATIOS.map( ratio => ratio.className );
 
 	const customClassTokenList = new TokenList( className );
 	customClassTokenList.remove(
