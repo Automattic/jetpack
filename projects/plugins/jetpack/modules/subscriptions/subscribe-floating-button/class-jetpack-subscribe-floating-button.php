@@ -34,7 +34,7 @@ class Jetpack_Subscribe_Floating_Button {
 	 * Jetpack_Subscribe_Floating_Button class constructor.
 	 */
 	public function __construct() {
-		if ( get_option( 'jetpack_subscribe_floating_button_enabled', false ) ) {
+		if ( get_option( 'jetpack_subscribe_floating_button_enabled', true ) ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 			add_action( 'wp_footer', array( $this, 'add_subscribe_floating_button_to_frontend' ) );
 		}
@@ -111,7 +111,7 @@ class Jetpack_Subscribe_Floating_Button {
 	public function get_floating_subscribe_button_template_content() {
 		$block_name = esc_attr__( 'Floating subscribe button', 'jetpack' );
 
-		return '<!-- wp:jetpack/subscriptions {"className":"is-style-button","lock":{"move":false,"remove":true},"metadata":{"name":"' . $block_name . '"}} /-->';
+		return '<!-- wp:jetpack/subscriptions {"className":"is-style-button","lock":{"move":false,"remove":true},"style":{"spacing":{"margin":{"right":"20px","left":"20px","top":"20px","bottom":"20px"}}},"metadata":{"name":"' . $block_name . '"}} /-->';
 	}
 
 	/**

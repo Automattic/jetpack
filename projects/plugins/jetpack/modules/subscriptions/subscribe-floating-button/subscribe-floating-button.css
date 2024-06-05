@@ -1,8 +1,8 @@
 .jetpack-subscribe-floating-button {
 	position: fixed;
 	z-index: 50000; /* Same as WP.com Action bar */
-	bottom: 20px;
-	right: 20px;
+	bottom: 0;
+	right: 0;
 }
 
 @media screen and (max-width: 640px) {
