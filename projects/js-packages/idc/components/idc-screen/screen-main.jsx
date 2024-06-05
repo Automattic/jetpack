@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 import extractHostname from '../../tools/extract-hostname';
-import CardDevelopmentFresh from '../card-development-fresh';
 import CardFresh from '../card-fresh';
 import CardMigrate from '../card-migrate';
 import SafeMode from '../safe-mode';
@@ -149,17 +148,19 @@ const ScreenMain = props => {
 							startFreshCallback={ startFreshCallback }
 							customContent={ customContent }
 							hasError={ hasFreshError }
+							isDevelopmentSite={ isDevelopmentSite }
 						/>
 					</React.Fragment>
 				) : (
 					<React.Fragment>
-						<CardDevelopmentFresh
+						<CardFresh
 							wpcomHomeUrl={ wpcomHomeUrl }
 							currentUrl={ currentUrl }
 							isStartingFresh={ isStartingFresh }
 							startFreshCallback={ startFreshCallback }
 							customContent={ customContent }
 							hasError={ hasFreshError }
+							isDevelopmentSite={ isDevelopmentSite }
 						/>
 						<div className="jp-idc__idc-screen__cards-separator">or</div>
 						<SafeMode
@@ -200,6 +201,7 @@ ScreenMain.propTypes = {
 	hasStaySafeError: PropTypes.bool,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
+	/** Whether the site is in development mode. */
 	isDevelopmentSite: PropTypes.bool,
 };
 

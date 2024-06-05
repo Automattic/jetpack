@@ -114,6 +114,7 @@ IDCScreen.propTypes = {
 	isAdmin: PropTypes.bool.isRequired,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
+	/** Whether the site is in development mode. */
 	isDevelopmentSite: PropTypes.bool,
 };
 
