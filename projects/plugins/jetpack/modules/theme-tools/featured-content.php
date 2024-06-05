@@ -5,9 +5,6 @@
  * @package automattic/jetpack
  */
 
-// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content' );
-
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
