@@ -332,7 +332,7 @@ jobs:
       - name: Disk space
         run: df -h
       - name: Run phan
-        run: pnpm jetpack phan --all -v --update-baseline --format github
+        run: pnpm jetpack phan --all -v --update-baseline --format github --cleanup-vendor-after-scan
       - name: Disk space
         if: always()
         run: df -h
@@ -343,7 +343,7 @@ jobs:
         run: |
           composer update --prefer-lowest php-stubs/wordpress-stubs php-stubs/wordpress-tests-stubs
           # Don't re-update baselines here, only check.
-          pnpm jetpack phan --all -v --format github
+          pnpm jetpack phan --all -v --format github --cleanup-vendor-after-scan
       - name: Check baselines
         run: |
           # Anything changed? (with a side of printing the diff)

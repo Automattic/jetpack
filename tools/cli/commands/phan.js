@@ -110,6 +110,12 @@ export async function builder( yargs ) {
 			type: 'string',
 			description: 'Write the report to this file instead of to standard output.',
 		} )
+		.option( 'cleanup-vendor-after-scan', {
+			type: 'boolean',
+			description:
+				'Remove vendor, jetpack_vendor, and wordpress dirs after scanning the package. Intended for CI use, Actions gets slow as more files are created.',
+			hidden: true,
+		} )
 		.check( argv => {
 			if ( argv.forceUpdateBaseline ) {
 				argv.updateBaseline = true;
@@ -267,6 +273,17 @@ export async function handler( argv ) {
 		return false;
 	};
 
+	// For each run, we want to disable most of the steps if an earlier one failed, but still run the cleanup step.
+	const wrapRecordFailure = func => async ( ctx, task ) => {
+		try {
+			return await func( ctx, task );
+		} catch ( e ) {
+			ctx.failed = true;
+			throw e;
+		}
+	};
+	const isGoodToGo = ctx => ! ctx.failed;
+
 	const phanPath = path.join( process.cwd(), 'vendor/bin/phan' );
 	const phanArgs = [
 		'--absolute-path-issue-messages',
@@ -364,7 +381,8 @@ export async function handler( argv ) {
 						: await getInstallArgs( project, 'composer', argv );
 					subtasks.push( {
 						title: 'Installing composer dependencies',
-						task: async () => {
+						enabled: isGoodToGo,
+						task: wrapRecordFailure( async () => {
 							const proc = execa( 'composer', args, {
 								cwd,
 								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
@@ -374,7 +392,7 @@ export async function handler( argv ) {
 								proc.stderr.pipe( sstderr, { end: false } );
 							}
 							await proc;
-						},
+						} ),
 					} );
 				}
 
@@ -382,7 +400,8 @@ export async function handler( argv ) {
 					await fs.access( path.join( cwd, '.phan/pre-run' ), fs.constants.X_OK );
 					subtasks.push( {
 						title: 'Executing pre-run script',
-						task: async () => {
+						enabled: isGoodToGo,
+						task: wrapRecordFailure( async () => {
 							const proc = execa( path.join( cwd, '.phan/pre-run' ), projectPhanArgs, {
 								cwd,
 								stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
@@ -392,7 +411,7 @@ export async function handler( argv ) {
 								proc.stderr.pipe( sstderr, { end: false } );
 							}
 							await proc;
-						},
+						} ),
 					} );
 				} catch ( e ) {
 					if ( e.code !== 'ENOENT' ) {
@@ -402,7 +421,8 @@ export async function handler( argv ) {
 
 				subtasks.push( {
 					title: 'Running phan',
-					task: async ( ctx, task ) => {
+					enabled: isGoodToGo,
+					task: wrapRecordFailure( async ( ctx, task ) => {
 						let stdout = '';
 						try {
 							if ( argv.v ) {
@@ -477,13 +497,25 @@ export async function handler( argv ) {
 								throw err;
 							}
 						}
-					},
+					} ),
 				} );
+
+				if ( project !== 'monorepo' && argv.cleanupVendorAfterScan ) {
+					subtasks.push( {
+						title: 'Cleanup',
+						task: () =>
+							Promise.allSettled( [
+								fs.rm( path.join( cwd, 'vendor' ), { recursive: true, force: true } ),
+								fs.rm( path.join( cwd, 'jetpack_vendor' ), { recursive: true, force: true } ),
+								fs.rm( path.join( cwd, 'wordpress' ), { recursive: true, force: true } ),
+							] ),
+					} );
+				}
 
 				return new Listr( subtasks, {
 					concurrent: false,
 					renderer: argv.v ? VerboseRenderer : UpdateRenderer,
-					exitOnError: true,
+					exitOnError: false,
 				} );
 			},
 		} );
