@@ -14,11 +14,8 @@ if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUP
 }
 
 $count = wpsc_post_count();
-if ( $count > 1000 ) {
-	$min_refresh_interval = 720;
-} else {
-	$min_refresh_interval = 30;
-}
+
+$min_refresh_interval = wpsc_get_minimum_preload_interval();
 
 echo '<div class="wpsc-card">';
 echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';

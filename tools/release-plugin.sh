@@ -296,7 +296,7 @@ git checkout prerelease
 # If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
 if [[ -v PROJECTS["plugins/jetpack"] ]]; then
   if proceed_p "Do you want to start a new cycle for Jetpack?"; then
-    pnpm jetpack release plugins/jetpack version -a
+    pnpm jetpack release plugins/jetpack version -a --init-next-cycle
     git add --all
     git commit -am "Init new cycle"
   fi
