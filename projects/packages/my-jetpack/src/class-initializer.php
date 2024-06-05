@@ -769,15 +769,20 @@ class Initializer {
 		);
 		$products                    = Products::get_products();
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+		$broken_connection_statuses  = array(
+			'user_connection_error',
+			'site_connection_error',
+		);
 
 		foreach ( $historically_active_modules as $module ) {
 			$product = $products[ $module ];
 
-			if ( $product['status'] === 'site_connection_error' ) {
-				$broken_modules['needs_site_connection'][] = $module;
-			}
-			if ( $product['status'] === 'user_connection_error' ) {
+			// If the site or user is disconnected, and the product requires a user connection
+			// mark the product as a broken module needing user connection
+			if ( in_array( $product['status'], $broken_connection_statuses, true ) && $product['requires_user_connection'] ) {
 				$broken_modules['needs_user_connection'][] = $module;
+			} elseif ( $product['status'] === 'site_connection_error' ) {
+				$broken_modules['needs_site_connection'][] = $module;
 			}
 		}
 

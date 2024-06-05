@@ -58,6 +58,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						onClose: resetNotice,
 					},
 				} );
+				delete redBubbleAlerts[ 'missing-connection' ];
+				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
 			} );
 		};
 
