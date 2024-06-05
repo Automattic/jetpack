@@ -408,18 +408,18 @@ class Dashboard_REST_Controller {
 		// Add sku to product posts.
 		$posts = $this->add_product_sku( $posts );
 
-		// Add prices to product posts.
-		$posts = $this->add_prices_in_posts( $posts );
-
 		// Keep the expected structure.
 		$posts = $this->filter_post_list( $posts );
+
+		// Add prices to product posts.
+		$posts = $this->add_prices_in_posts( $posts );
 
 		remove_filter( 'posts_where', array( $this, 'add_wp_query_filter_title' ) );
 
 		return array(
 			'posts'         => $posts,
 			'total_items'   => $post_query->found_posts,
-			'post_title'    => addslashes( $title ),
+			'post_title'    => addslashes( $this->title ),
 			'page'          => (int) $page,
 			'total_pages'   => $total_pages,
 			'stats_enabled' => $stats_enabled,
@@ -427,7 +427,7 @@ class Dashboard_REST_Controller {
 		);
 	}
 
-	public static function get_blazeble_post_types() {
+	public static function get_blazable_post_types() {
 		return array( 'post', 'page', 'product' );
 	}
 
@@ -916,7 +916,7 @@ class Dashboard_REST_Controller {
 		}
 
 		foreach ( $posts as $key => $item ) {
-			$is_wp_post = 'WP_Post' === get_class( $item );
+			$is_wp_post = is_object( $item ) && 'WP_Post' === get_class( $item );
 
 			if ( $is_wp_post ) {
 				$item          = $item->to_array();
