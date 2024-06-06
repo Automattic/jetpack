@@ -1482,6 +1482,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option onboarding_segment coming from the Guided Flow
+	 *
+	 * @return string
+	 */
+	public function get_onboarding_segment() {
+		return get_option( 'onboarding_segment', '' );
+	}
+
+	/**
 	 * Get site option for completed launchpad checklist tasks
 	 *
 	 * @return string
