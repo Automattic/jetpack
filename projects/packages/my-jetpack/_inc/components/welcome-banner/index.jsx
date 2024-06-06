@@ -39,8 +39,9 @@ const WelcomeBanner = () => {
 	}, [ recordEvent, dismissWelcomeBanner ] );
 
 	const onConnectSiteClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_welcome_banner_finish_connection_click' );
+		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
 		handleRegisterSite().then( () => {
+			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 			resetNotice();
 			setNotice( {
 				message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
@@ -53,8 +54,10 @@ const WelcomeBanner = () => {
 					onClose: resetNotice,
 				},
 			} );
+			setBannerVisible( false );
+			dismissWelcomeBanner();
 		} );
-	}, [ recordEvent, handleRegisterSite, resetNotice, setNotice ] );
+	}, [ recordEvent, handleRegisterSite, resetNotice, setNotice, dismissWelcomeBanner ] );
 
 	if ( ! bannerVisible ) {
 		return null;
