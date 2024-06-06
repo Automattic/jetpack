@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "explicit"
+		"source.fixAll.eslint": true,
 	},
 	"files.exclude": {
 		"**/.cache/**": true,
