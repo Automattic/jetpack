@@ -539,38 +539,19 @@ class Initializer {
 	public static function update_historically_active_jetpack_modules() {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$products                    = Products::get_products();
-		$active_module_statuses      = array(
-			'active',
-			'can_upgrade',
-		);
-		$broken_module_statuses      = array(
-			'site_connection_error',
-			'user_connection_error',
-		);
-		// This is defined as the statuses in which the user willingly has the module disabled whether it be by
-		// default, uninstalling the plugin, disabling the module, or not renewing their plan.
-		$disabled_module_statuses = array(
-			'inactive',
-			'module_disabled',
-			'plugin_absent',
-			'plugin_absent_with_plan',
-			'needs_purchase',
-			'needs_purchase_or_free',
-			'needs_first_site_connection',
-		);
 
 		foreach ( $products as $product ) {
 			$status       = $product['status'];
 			$product_slug = $product['slug'];
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
-			if ( in_array( $status, $broken_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
 				continue;
 			}
 
 			// If the module is active and not already in the array, add it
 			if (
-				in_array( $status, $active_module_statuses, true ) &&
+				in_array( $status, Products::$active_module_statuses, true ) &&
 				! in_array( $product_slug, $historically_active_modules, true )
 			) {
 					$historically_active_modules[] = $product_slug;
@@ -578,7 +559,7 @@ class Initializer {
 
 			// If the module has been disabled due to a manual user action,
 			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, $disabled_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
 				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}
@@ -769,19 +750,15 @@ class Initializer {
 		);
 		$products                    = Products::get_products();
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
-		$broken_connection_statuses  = array(
-			'user_connection_error',
-			'site_connection_error',
-		);
 
 		foreach ( $historically_active_modules as $module ) {
 			$product = $products[ $module ];
 
 			// If the site or user is disconnected, and the product requires a user connection
 			// mark the product as a broken module needing user connection
-			if ( in_array( $product['status'], $broken_connection_statuses, true ) && $product['requires_user_connection'] ) {
+			if ( in_array( $product['status'], Products::$broken_module_statuses, true ) && $product['requires_user_connection'] ) {
 				$broken_modules['needs_user_connection'][] = $module;
-			} elseif ( $product['status'] === 'site_connection_error' ) {
+			} elseif ( $product['status'] === Products::STATUS_SITE_CONNECTION_ERROR ) {
 				$broken_modules['needs_site_connection'][] = $module;
 			}
 		}
