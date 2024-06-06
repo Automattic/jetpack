@@ -96,7 +96,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 == Screenshots ==
 
-1. Soical settings options
+1. Social settings options
 2. Social settings options
 3. Connected social media accounts
 4. Adding new social media accounts
