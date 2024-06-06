@@ -62,7 +62,7 @@ We are working hard to bring more features and improvements to Jetpack Social. L
 From your site’s WP Admin:
 
 1. Navigate to Jetpack → Social.
-2. Click on the Manage Connections button.
+2. Click on the "Connect an account" button.
 3. Click Connect next to the social network you want to connect to.
 4. Log in to that social network site and authorize the connection.
 
@@ -73,20 +73,22 @@ You can connect to any of the following networks:
 * LinkedIn
 * Mastodon
 * Instagram Business
+* Nextdoor
+* Mastodon
 
-After you add a new connection, you have the option to make the connection ‘global’, meaning it can also be used by any other user on your site who has the ability to publish posts.
+After you add a new connection, you have the option to mark the connection as shared, meaning it can also be used by any other users on your site who have the ability to publish posts.
 
-To make the connection available to all users, check the box labeled "Connection available to all administrators, editors, and authors".
+To make the connection available to all users, check the box labeled "Mark the connection as shared".
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Instagram Business, Tumblr, Mastodon and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Instagram Business, Tumblr, Mastodon, Linkedin and Nextdoor. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 
-To configure the Publicize options when writing a new post, click the green Jetpack icon at top right of the edit sidebar.
+To configure the Social options when writing a new post, click the Jetpack/Social icon at top right of the edit sidebar.
 
-You’ll then see the Publicize options under the **Share this post** section, where you can toggle social media connections, connect new services, and write a custom message to be used when your post is shared.
+You’ll then see the Social options under the **Share this post** section, where you can toggle social media connections, connect new services, and write a custom message to be used when your post is shared.
 
 = How do I add a custom excerpt to my social posts? =
 
@@ -94,10 +96,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 == Screenshots ==
 
-1. Activate the plugin and get access to your social media connections.
-2. Connect your social media accounts.
-3. Manage and publish to your social accounts via the Editor.
-4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
+1. Social settings options
+2. Social settings options
+3. Connected social media accounts
+4. Adding new social media accounts
+5. Social media sharing options in the post editor
+6. Managing Social media accounts in the post editor
 
 == Changelog ==
 ### 4.4.0 - 2024-06-05
