@@ -1,2 +1,32 @@
-// Put your code in this `src/` folder!
-// Feel free to delete or rename this file.
+/**
+ * External dependencies
+ */
+import { createExPlatClient } from '@automattic/explat-client';
+import createExPlatClientReactHelpers from '@automattic/explat-client-react-helpers';
+/**
+ * Internal dependencies
+ */
+import { getAnonId, initializeAnonId } from './anon';
+import { fetchExperimentAssignment } from './assignment';
+import { logError } from './error';
+import { isDevelopmentMode } from './utils';
+
+export const initializeExPlat = (): void => {
+	if ( window.jetpackTracks?.isEnabled ) {
+		initializeAnonId().catch( e => logError( { message: e.message } ) );
+	}
+};
+
+initializeExPlat();
+
+const exPlatClient = createExPlatClient( {
+	fetchExperimentAssignment,
+	getAnonId,
+	logError,
+	isDevelopmentMode,
+} );
+
+export const { loadExperimentAssignment, dangerouslyGetExperimentAssignment } = exPlatClient;
+
+export const { useExperiment, Experiment, ProvideExperimentData } =
+	createExPlatClientReactHelpers( exPlatClient );
