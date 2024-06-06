@@ -32,5 +32,5 @@ cp "$GITHUB_WORKSPACE/trunk/.github/files/test-plugin-update/mu-plugin.php" wp-c
 echo "::endgroup::"
 
 echo "::group::Backing up database"
-mysqldump --add-drop-database --add-drop-table --databases wordpress --column-statistics=0 > "$GITHUB_WORKSPACE/db.sql"
+wp --allow-root db export "$GITHUB_WORKSPACE/db.sql"
 echo "::endgroup::"
