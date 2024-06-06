@@ -2403,7 +2403,7 @@ class Jetpack {
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 * @see \Automattic\Jetpack\Errors
 	 */
 	public static function catch_errors( $catch ) {
@@ -5351,6 +5351,8 @@ endif;
 	 *
 	 * Data passed in with the $data parameter will be available in the
 	 * template file as $data['value']
+	 *
+	 * @html-template-var array $data
 	 *
 	 * @param string $template - Template file to load.
 	 * @param array  $data - Any data to pass along to the template.

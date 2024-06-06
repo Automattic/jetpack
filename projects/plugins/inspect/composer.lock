@@ -311,7 +311,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "f465e7cdeb06c75b52922d05fc5c17f7d7686a0e"
+                "reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
             },
             "require": {
                 "php": ">=7.0"
@@ -319,7 +319,6 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-identity-crisis": "@dev",
                 "automattic/jetpack-import": "@dev",
                 "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-post-list": "@dev",
@@ -385,7 +384,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "bba49ffca10ebb3868ca3db25ddbf34c5eb72120"
+                "reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -420,7 +419,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.9.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -433,7 +432,8 @@
                 "classmap": [
                     "legacy",
                     "src/",
-                    "src/webhooks"
+                    "src/webhooks",
+                    "src/identity-crisis"
                 ]
             },
             "scripts": {
@@ -624,7 +624,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "aa6dffdf02a0285b3ce1632c4fe211693f4e79fe"
+                "reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -633,7 +633,6 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-identity-crisis": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "brain/monkey": "2.6.1",

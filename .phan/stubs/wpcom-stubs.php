@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit 71c7768ac036426ffc4d9fbb0363693dcd3f8aad.
+ * Stubs automatically generated from WordPress.com commit 2d082c6ddeb55ddd1d056684148ba2d5c089ebcf.
  */
 
 namespace {
@@ -62,17 +62,6 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
-    }
-    /**
-     * @param string $id
-     * @param string $title
-     * @param string $callback
-     * @param string $page
-     * @param string $section
-     * @param array $args
-     */
-    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
-    {
     }
     class Domain_Management
     {
@@ -167,6 +156,9 @@ namespace {
          * @var string|bool
          */
         public $meta = '';
+    }
+    function wpcom_plugins_display_marketplace()
+    {
     }
     function vary_cache_on_function($function)
     {
@@ -1251,14 +1243,6 @@ namespace {
     {
     }
     /**
-     * @param string $option_group
-     * @param string $option_name
-     * @param array $args
-     */
-    function register_setting($option_group, $option_name, $args = array())
-    {
-    }
-    /**
      * @param int $blog_id
      * @return string
      */
@@ -1450,6 +1434,12 @@ namespace WPCOM\Jetpack_AI\Usage {
         }
         public static function get_costs()
         {
+        }
+        /**
+         * @param int $blog_id
+         * @return string
+         */
+        public static function get_upgrade_url($blog_id){
         }
     }
 }

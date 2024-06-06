@@ -141,6 +141,7 @@ function make_phan_config( $dir, $options = array() ) {
 			'SimplifyExpressionPlugin',
 			'UnreachableCodePlugin',
 			'UseReturnValuePlugin',
+			"$root/vendor/automattic/jetpack-phan-plugins/src/HtmlTemplatePlugin.php",
 			// Others to consider:
 			// https://github.com/wikimedia/mediawiki-tools-phan/blob/master/src/Plugin/RedundantExistenceChecksPlugin.php
 			// https://packagist.org/packages/mediawiki/phan-taint-check-plugin
