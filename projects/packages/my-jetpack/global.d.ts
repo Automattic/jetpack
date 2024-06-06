@@ -197,7 +197,10 @@ interface Window {
 			} >;
 		};
 		redBubbleAlerts: {
-			'missing-connection'?: 'site' | 'user';
+			'missing-connection'?: {
+				type: string;
+				is_error: boolean;
+			};
 			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {

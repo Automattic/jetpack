@@ -10,6 +10,7 @@ import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-win
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
+import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
@@ -27,16 +28,16 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
-	const connectionErrorType = redBubbleAlerts[ 'missing-connection' ];
+	const connectionError = redBubbleAlerts[ 'missing-connection' ];
 
 	useEffect( () => {
-		if ( ! connectionErrorType ) {
+		if ( ! connectionError ) {
 			return;
 		}
 
 		const productSlugsThatRequireUserConnection =
 			getProductSlugsThatRequireUserConnection( products );
-		const requiresUserConnection = connectionErrorType === 'user';
+		const requiresUserConnection = connectionError.type === 'user';
 
 		const onActionButtonClick = () => {
 			if ( requiresUserConnection ) {
@@ -93,9 +94,9 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			title: __( 'Missing site connection', 'jetpack-my-jetpack' ),
 		};
 
-		const noticeOptions = {
+		const noticeOptions: NoticeOptions = {
 			id: requiresUserConnection ? 'user-connection-notice' : 'site-connection-notice',
-			level: 'error',
+			level: connectionError.is_error ? 'error' : 'info',
 			actions: [
 				{
 					label: requiresUserConnection
@@ -135,7 +136,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		resetNotice,
 		setNotice,
 		siteIsRegistering,
-		connectionErrorType,
+		connectionError,
 	] );
 };
 

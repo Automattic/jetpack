@@ -812,21 +812,21 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
-		$broken_modules                         = self::check_for_broken_modules();
-		$is_modules_with_broken_site_connection = ! empty( $broken_modules['needs_site_connection'] );
-		$is_modules_with_broken_user_connection = ! empty( $broken_modules['needs_user_connection'] );
+		$broken_modules = self::check_for_broken_modules();
 
 		if (
 			! ( new Connection_Manager() )->is_user_connected() &&
-			! ( new Connection_Manager() )->has_connected_owner() &&
-			$is_modules_with_broken_user_connection
+			! ( new Connection_Manager() )->has_connected_owner()
 		) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = 'user';
-		} elseif (
-			! ( new Connection_Manager() )->is_connected() &&
-			$is_modules_with_broken_site_connection
-		) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = 'site';
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => ! empty( $broken_modules['needs_user_connection'] ),
+			);
+		} elseif ( ! ( new Connection_Manager() )->is_connected() ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => ! empty( $broken_modules['needs_site_connection'] ),
+			);
 		}
 
 		return $red_bubble_slugs;
