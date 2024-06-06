@@ -109,6 +109,7 @@ class Jetpack_Subscribe_Overlay {
 	 * @return string
 	 */
 	public function get_subscribe_overlay_template_content() {
+		$home_url         = get_home_url();
 		$site_tagline     = get_bloginfo( 'description' );
 		$default_tagline  = __( 'Stay informed with curated content and the latest headlines, all delivered straight to your inbox. Subscribe now to stay ahead and never miss a beat!', 'jetpack' );
 		$tagline_block    = empty( $site_tagline )
@@ -129,7 +130,7 @@ class Jetpack_Subscribe_Overlay {
 		<!-- wp:jetpack/subscriptions /-->
 
 		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
-		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="#">$skip_to_content ↓</a></p>
+		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="$home_url">$skip_to_content ↓</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

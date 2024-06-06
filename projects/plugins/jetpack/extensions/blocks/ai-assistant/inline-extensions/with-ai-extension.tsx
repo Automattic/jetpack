@@ -11,6 +11,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import classNames from 'classnames';
 import debugFactory from 'debug';
 import React from 'react';
 /*
@@ -21,7 +22,7 @@ import useAutoScroll from '../hooks/use-auto-scroll';
 import { mapInternalPromptTypeToBackendPromptType } from '../lib/prompt/backend-prompt';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
-import { getBlockHandler } from './get-block-handler';
+import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
 import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
@@ -41,6 +42,7 @@ const blockExtensionMapper = {
 	'core/paragraph': 'paragraph',
 	'core/list-item': 'list-item',
 	'core/list': 'list',
+	'jetpack/contact-form': 'form-ai',
 };
 
 // Defines where the block controls should be placed in the toolbar
@@ -80,8 +82,6 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ action, setAction ] = useState< string >( '' );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
-		// State to display the AI Control or not.
-		const [ showAiControl, setShowAiControl ] = useState( false );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -91,7 +91,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [] );
 		// The block's id to find it in the DOM for the positioning adjustments
 		// The classname is used by nested blocks to determine which block's toolbar to display when the input is focused.
-		const { id, className } = useBlockProps();
+		const { id, className } = useBlockProps( {
+			className: classNames( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
+		} );
+
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
@@ -114,7 +117,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onDone: onBlockDone,
 			getContent,
 			behavior,
+			isChildBlock,
+			feature,
+			adjustPosition,
+			startOpen,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
+
+		// State to display the AI Control or not.
+		const [ showAiControl, setShowAiControl ] = useState( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -176,12 +186,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				onBlockSuggestion( suggestion );
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-				adjustBlockPadding();
+				if ( adjustPosition ) {
+					adjustBlockPadding();
+				}
 
 				// Scroll to the bottom when a new suggestion is received.
 				snapToBottom();
 			},
-			[ onBlockSuggestion, adjustBlockPadding, snapToBottom ]
+			[ onBlockSuggestion, adjustPosition, snapToBottom, adjustBlockPadding ]
 		);
 
 		// Called after the last suggestion chunk is received.
@@ -224,7 +236,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 				setTimeout( () => {
-					adjustBlockPadding();
+					if ( adjustPosition ) {
+						adjustBlockPadding();
+					}
 					focusInput();
 				}, 100 );
 			},
@@ -233,8 +247,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				onBlockDone,
 				increaseRequestsCount,
 				getContent,
-				adjustBlockPadding,
+				adjustPosition,
 				focusInput,
+				adjustBlockPadding,
 			]
 		);
 
@@ -268,7 +283,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onError,
 			askQuestionOptions: {
 				postId,
-				feature: 'ai-assistant',
+				feature,
 			},
 		} );
 
@@ -380,6 +395,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				return;
 			}
 
+			if ( ! adjustPosition ) {
+				return;
+			}
+
 			// Once when the AI Control is displayed
 			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
 				// Save the block bottom padding to reset it later.
@@ -429,9 +448,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlObserver.current.disconnect();
 				}
 			};
-		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
+		}, [ adjustBlockPadding, adjustPosition, clientId, controlObserver, id, showAiControl ] );
 
-		return (
+		const aiInlineExtensionContent = (
 			<>
 				<BlockEdit { ...props } />
 
@@ -461,6 +480,20 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					/>
 				</BlockControls>
 			</>
+		);
+
+		if ( isChildBlock ) {
+			return aiInlineExtensionContent;
+		}
+
+		const ProviderProps = {
+			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+		};
+
+		return (
+			<InlineExtensionsContext.Provider { ...ProviderProps }>
+				{ aiInlineExtensionContent }
+			</InlineExtensionsContext.Provider>
 		);
 	};
 }, 'blockEditWithAiComponents' );
