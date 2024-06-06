@@ -11,6 +11,7 @@ type PropTypes = {
 	labelCollapsedText: string;
 	isExpanded?: boolean;
 	children?: React.ReactNode;
+	onExpand?: ( isExpanded: boolean ) => void;
 };
 
 const FoldingElement: React.FC< PropTypes > = ( {
@@ -18,6 +19,7 @@ const FoldingElement: React.FC< PropTypes > = ( {
 	labelCollapsedText,
 	isExpanded = false,
 	children = [],
+	onExpand,
 } ) => {
 	const [ expanded, setExpanded ] = useState( isExpanded );
 	const label = expanded ? labelCollapsedText : labelExpandedText;
@@ -27,13 +29,21 @@ const FoldingElement: React.FC< PropTypes > = ( {
 		height: expanded ? height : 0,
 	} );
 
+	const handleOnExpand = () => {
+		const newIsEditing = ! expanded;
+		setExpanded( newIsEditing );
+		if ( onExpand ) {
+			onExpand( newIsEditing );
+		}
+	};
+
 	return (
 		<>
 			<button
 				className={ classNames( 'components-button is-link', styles[ 'foldable-element-control' ], {
 					visible: expanded,
 				} ) }
-				onClick={ () => setExpanded( ! expanded ) }
+				onClick={ handleOnExpand }
 			>
 				{ label }
 				{ expanded ? <ChevronUp /> : <ChevronDown /> }
