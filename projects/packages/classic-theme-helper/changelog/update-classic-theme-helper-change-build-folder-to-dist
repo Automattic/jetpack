@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Classic Theme Helper: Added dist folder to gitattributes so mirror repo picks it.
