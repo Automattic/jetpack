@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use MatthiasMullie\Minify\JS as JSMinifier;
 use tubalmartin\CssMin\Minifier as CSSMinifier;
 
 /**
@@ -32,7 +33,7 @@ class Minify {
 		require_once JETPACK_BOOST_DIR_PATH . '/vendor/tedivm/jshrink/src/JShrink/Minifier.php';
 
 		try {
-			$minifier    = new \JShrink\Minifier( $js );
+			$minifier    = new JSMinifier( $js );
 			$minified_js = $minifier->minify();
 		} catch ( \Exception $e ) {
 			return $js;
