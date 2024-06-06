@@ -30,8 +30,6 @@ class Minify {
 	 * @return string String with whitespace stripped.
 	 */
 	public static function js( $js ) {
-		require_once JETPACK_BOOST_DIR_PATH . '/vendor/tedivm/jshrink/src/JShrink/Minifier.php';
-
 		try {
 			$minifier    = new JSMinifier( $js );
 			$minified_js = $minifier->minify();
