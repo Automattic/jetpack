@@ -94,10 +94,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 
 == Screenshots ==
 
-1. Activate the plugin and get access to your social media connections.
-2. Connect your social media accounts.
-3. Manage and publish to your social accounts via the Editor.
-4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
+1. Soical settings options
+2. Social settings options
+3. Connected social media accounts
+4. Adding new social media accounts
+5. Social media sharing options in the post editor
+6. Managing Social media accounts in the post editor
 
 == Changelog ==
 ### 4.4.0 - 2024-06-05
