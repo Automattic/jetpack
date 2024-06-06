@@ -39,7 +39,7 @@ import PlansSection from '../plans-section';
 import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
-import WelcomeBanner from '../welcome-banner';
+import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -139,7 +139,7 @@ export default function MyJetpackScreen() {
 						</Col>
 					</Container>
 				) }
-				<WelcomeBanner />
+				<WelcomeFlow />
 				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
