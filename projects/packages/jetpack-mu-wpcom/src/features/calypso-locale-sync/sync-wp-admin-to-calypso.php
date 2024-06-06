@@ -14,6 +14,9 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * @param string $locale   Locale code.
  */
 function update_calypso_locale( $locale ) {
+	if ( empty( $locale ) ) {
+		return;
+	}
 	Client::wpcom_json_api_request_as_user(
 		'/me/locale',
 		'2',
@@ -27,43 +30,35 @@ function update_calypso_locale( $locale ) {
 
 /**
  * Sync locale updated via /wp-admin/profile.php to Calypso.
- *
- * @param array   $meta   Meta values and keys for the user.
- * @param WP_User $user   User object.
- * @param boolean $update Whether the user is being updated rather than created.
  */
-function sync_wp_admin_locale_to_calypso( $meta, $user, $update ) {
-	$locale            = $meta['locale'];
-	$old_locale        = get_user_locale( $user );
-	$is_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
-
-	if ( ! $update || $old_locale === $locale || ! $is_user_connected ) {
-		// Only proceed for locale changes on an existing connected WPCOM user.
-		return $meta;
+function sync_wp_admin_locale_on_profile_update() {
+	$user_id = get_current_user_id();
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing
+	$locale = isset( $_POST['locale'] ) ? sanitize_text_field( wp_unslash( $_POST['locale'] ) ) : '';
+	if ( ! $user_id || empty( $locale ) ) {
+		return;
 	}
 
-	if ( ! $locale ) {
-		// No locale means the "Site Default" option, which is the Site language (WPLANG) or "en".
-		$locale = get_option( 'WPLANG' );
-		if ( ! $locale ) {
-			$locale = 'en';
-		}
+	$user               = get_userdata( $user_id );
+	$old_locale         = get_user_locale( $user );
+	$connection_manager = new Connection_Manager( 'jetpack' );
+	$is_user_connected  = $connection_manager->is_user_connected();
+
+	if ( $old_locale === $locale || ! $is_user_connected ) {
+		// Only proceed for locale changes on an existing connected WPCOM user.
+		return;
+	}
+
+	if ( 'site-default' === $locale ) {
+		// Use the Site language (WPLANG) or "en" for 'site-default'.
+		$locale_option = get_option( 'WPLANG', 'en' );
+		// WPLANG can be an empty string, so we still need to check if it's empty.
+		$locale = ! empty( $locale_option ) ? $locale_option : 'en';
 	}
 
 	update_calypso_locale( $locale );
-
-	return $meta;
 }
 
-/**
- * Sync wp-admin site locale to Calypso when wp-admin user locale has "Site Default" option selected.
- *
- * @param array $old_value    Old value of the option WPLANG.
- * @param array $new_value    New value of the option WPLANG.
- */
-function sync_wp_admin_site_locale_with_site_default_to_calypso( $old_value, $new_value ) {
-	if ( empty( get_user_option( 'locale' ) ) ) {
-		// No user locale means to use the site language (WPLANG) or "en".
-		update_calypso_locale( $new_value ? $new_value : 'en' );
-	}
+if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+	add_action( 'personal_options_update', 'sync_wp_admin_locale_on_profile_update' );
 }
