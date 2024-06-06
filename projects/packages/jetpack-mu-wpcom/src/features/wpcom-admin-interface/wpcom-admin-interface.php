@@ -272,7 +272,7 @@ function add_hosting_overview_menu() {
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		'manage_options',
-		esc_url( "https://wordpress.com/hosting/$domain" ),
+		esc_url( "https://wordpress.com/overview/$domain" ),
 		'',
 		1
 	);
