@@ -78,7 +78,8 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-logo-generator",
-		"ai-assistant-extensions-support"
+		"ai-assistant-extensions-support",
+		"ai-general-purpose-image-generator"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [
