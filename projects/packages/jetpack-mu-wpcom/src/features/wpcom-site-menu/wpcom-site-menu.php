@@ -435,23 +435,65 @@ function wpcom_maybe_enable_link_manager() {
 add_action( 'init', 'wpcom_maybe_enable_link_manager' );
 
 /**
- * Handles the Plugins menu for WP.com sites.
+ * Hides a submenu item.
+ *
+ * Useful in cases where we cannot remove a submenu item because there is external logic
+ * that depends on the route registered by that submenu.
+ *
+ * @param string $menu_slug The slug of the parent menu.
+ * @param string $submenu_slug The slug of the submenu that should be hidden.
  */
-function wpcom_add_plugins_menu() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+function wpcom_hide_submenu_page( string $menu_slug, string $submenu_slug ) {
+	global $submenu;
+
+	if ( ! isset( $submenu[ $menu_slug ] ) ) {
 		return;
 	}
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		add_menu_page(
-			__( 'Plugins', 'jetpack-mu-wpcom' ),
-			__( 'Plugins', 'jetpack-mu-wpcom' ),
-			'manage_options', // Roughly means "is a site admin"
-			'plugins.php',
-			null,
-			'dashicons-admin-plugins',
-			65
-		);
+	foreach ( $submenu[ $menu_slug ] as $i => $item ) {
+		if ( $submenu_slug !== $item[2] ) {
+			continue;
+		}
+
+		$css_hide_class = 'hide-if-js';
+		$css_classes    = empty( $item[4] ) ? $css_hide_class : $item[4] . ' ' . $css_hide_class;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu[ $menu_slug ][ $i ][4] = $css_classes;
+		return;
+	}
+}
+
+/**
+ * Handles the Plugins menu for WP.com sites.
+ */
+function wpcom_add_plugins_menu() {
+	global $menu;
+	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
+	$is_atomic_site          = ! $is_simple_site;
+	$is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+
+	if ( $is_simple_site ) {
+		$has_plugins_menu = false;
+		foreach ( $menu as &$menu_item ) {
+			if ( 'plugins.php' === $menu_item[2] ) {
+				$has_plugins_menu = true;
+				break;
+			}
+		}
+
+		if ( ! $has_plugins_menu ) {
+			// TODO: Remove `remove_menu_page('plugins.php');` from `/wp-content/admin-plugins/wpcom-misc.php`.
+			add_menu_page(
+				__( 'Plugins', 'jetpack-mu-wpcom' ),
+				__( 'Plugins', 'jetpack-mu-wpcom' ),
+				'manage_options', // Roughly means "is a site admin"
+				'plugins.php',
+				null,
+				'dashicons-admin-plugins',
+				65
+			);
+		}
 
 		if ( function_exists( 'wpcom_plugins_display_marketplace' ) ) {
 			add_submenu_page(
@@ -462,7 +504,15 @@ function wpcom_add_plugins_menu() {
 				'wpcom-install-plugin',
 				'wpcom_plugins_display_marketplace'
 			);
+
+			if ( ! $is_nav_redesign_enabled ) {
+				wpcom_hide_submenu_page( 'plugins.php', 'wpcom-install-plugin' );
+			}
 		}
+	}
+
+	if ( ! $is_nav_redesign_enabled ) {
+		return;
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
@@ -477,7 +527,7 @@ function wpcom_add_plugins_menu() {
 		null
 	);
 
-	if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+	if ( $is_atomic_site ) {
 		if (
 			/**
 			 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,

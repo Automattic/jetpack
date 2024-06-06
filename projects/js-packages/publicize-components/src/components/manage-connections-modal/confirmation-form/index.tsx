@@ -146,7 +146,12 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 				shared: formData.get( 'shared' ) === '1' ? true : undefined,
 			};
 
-			await createConnection( data );
+			// Do not await the connection creation to unblock the UI
+			createConnection( data, {
+				display_name: formData.get( 'display_name' ),
+				profile_picture: formData.get( 'profile_picture' ),
+				service_name: service.ID,
+			} );
 
 			onComplete();
 		},
@@ -156,6 +161,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			keyringResult.ID,
 			onComplete,
 			service.multiple_external_user_ID_support,
+			service.ID,
 		]
 	);
 
@@ -204,6 +210,12 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 											defaultChecked={ index === 0 }
 											className={ styles[ 'account-input' ] }
 											required
+										/>
+										<input type="hidden" name="display_name" value={ option.label } />
+										<input
+											type="hidden"
+											name="profile_picture"
+											value={ option.profile_picture || '' }
 										/>
 										<AccountInfo
 											label={ option.label }
