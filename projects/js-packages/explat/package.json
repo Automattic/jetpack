@@ -1,0 +1,33 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-explat",
+	"version": "0.1.0-alpha",
+	"description": "JS package component and utils for A/B testing using ExPlat",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/explat/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Explat"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/explat"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm exec tsc --pretty",
+		"clean": "rm -rf build/",
+		"test": "jest tests"
+	},
+	"devDependencies": {
+		"jest": "29.7.0",
+		"typescript": "5.0.4"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	}
+}
