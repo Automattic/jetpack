@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Sync\Health;
 use WC_Product;
 use WP_Error;
 use WP_REST_Request;
@@ -328,6 +329,10 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
+		if ( ! $this->is_jetpack_synced() ) {
+			return new WP_Error( 'jetpack_not_synced', 'Content not ready yet. Please try again later.' );
+		}
+
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -384,6 +389,10 @@ class Dashboard_REST_Controller {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
+		}
+
+		if ( ! $this->is_jetpack_synced() ) {
+			return new WP_Error( 'jetpack_not_synced', 'Content not ready yet. Please try again later.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -889,5 +898,14 @@ class Dashboard_REST_Controller {
 	 */
 	private function get_site_id() {
 		return Connection_Manager::get_site_id();
+	}
+
+	/**
+	 * Check if the Jetpack is sync.
+	 *
+	 * @return bool True if is sync false otherwise.
+	 */
+	private function is_jetpack_synced(): bool {
+		return Health::STATUS_IN_SYNC === Health::get_status();
 	}
 }
