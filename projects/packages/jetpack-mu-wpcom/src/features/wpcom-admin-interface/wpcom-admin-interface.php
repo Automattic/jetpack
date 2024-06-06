@@ -254,3 +254,28 @@ function wpcom_show_admin_interface_notice() {
 	);
 }
 add_action( 'admin_notices', 'wpcom_show_admin_interface_notice' );
+
+/**
+ * Adds Hosting -> Overview menu on classic interface
+ *
+ * This logic should be moved to jetpack-mu-wpcom once nav redesign is fully launched.
+ */
+function add_hosting_overview_menu() {
+	if ( ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	$domain = preg_replace( '#^https?://#', '', network_site_url() );
+
+	add_submenu_page(
+		'wpcom-hosting-menu',
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		'manage_options',
+		esc_url( "https://wordpress.com/hosting/$domain" ),
+		'',
+		1
+	);
+}
+add_action( 'admin_menu', 'add_hosting_overview_menu', 999999 );
+
