@@ -2,6 +2,8 @@ import useMeasure from 'react-use-measure';
 import { animated, useSpring } from '@react-spring/web';
 import classNames from 'classnames';
 import { useState } from 'react';
+import ChevronDown from '$svg/chevron-down';
+import ChevronUp from '$svg/chevron-up';
 import styles from './folding-element.module.scss';
 
 type PropTypes = {
@@ -34,6 +36,7 @@ const FoldingElement: React.FC< PropTypes > = ( {
 				onClick={ () => setExpanded( ! expanded ) }
 			>
 				{ label }
+				{ expanded ? <ChevronUp /> : <ChevronDown /> }
 			</button>
 
 			<animated.div
