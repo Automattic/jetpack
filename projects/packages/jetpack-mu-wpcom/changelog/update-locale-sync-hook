@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use personal_options_update to sync locale from wp-admin to Calypso
