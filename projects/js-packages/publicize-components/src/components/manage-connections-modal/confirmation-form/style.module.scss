@@ -1,0 +1,49 @@
+.confirmation {
+	.header-text {
+		font-size: 1rem;
+	}
+
+	.form {
+		margin-top: 2rem;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+
+		.accounts-list {
+			display: flex;
+			flex-direction: column;
+			gap: 1rem;
+		}
+
+		.account-input {
+			flex-shrink: 0;
+		}
+
+		.account-label {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+	}
+
+	.submit-wrap {
+		margin-top: 3rem;
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+		justify-content: end;
+	}
+
+	.profile-pic {
+		width: 2rem;
+		height: 2rem;
+	}
+
+	.account-info {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 1rem;
+	}
+}

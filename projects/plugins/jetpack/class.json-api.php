@@ -382,6 +382,17 @@ class WPCOM_JSON_API {
 	}
 
 	/**
+	 * Checks if the current request is authorized with an upload token.
+	 * This method is overridden by a child class in WPCOM.
+	 *
+	 * @since 13.5
+	 * @return boolean
+	 */
+	public function is_authorized_with_upload_token() {
+		return false;
+	}
+
+	/**
 	 * Serve.
 	 *
 	 * @param bool $exit Whether to exit.
@@ -1014,6 +1025,18 @@ class WPCOM_JSON_API {
 	 */
 	public function add_global_ID( $blog_id, $post_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 		return '';
+	}
+
+	/**
+	 * Return a count of comment likes.
+	 * This method is overridden by a child class in WPCOM.
+	 *
+	 * @since 13.5
+	 * @return int
+	 */
+	public function comment_like_count() {
+		func_get_args(); // @phan-suppress-current-line PhanPluginUseReturnValueInternalKnown -- This is just here so Phan realizes the wpcom version does this.
+		return 0;
 	}
 
 	/**

@@ -1,12 +1,11 @@
 import {
 	Container,
-	ContextualUpgradeTrigger,
 	Col,
 	H3,
 	Button,
 	SocialIcon,
-	getRedirectUrl,
 	getUserLocale,
+	Text,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import {
@@ -29,21 +28,19 @@ const Header = () => {
 		newPostUrl,
 		postsCount,
 		totalShareCount,
-		siteSuffix,
-		blogID,
 		showShareLimits,
+		useAdminUiV1,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			connectionsAdminUrl: connectionData.adminUrl,
-			hasConnections: Object.keys( connectionData.connections || {} ).length > 0,
+			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
-			siteSuffix: store.getSiteSuffix(),
-			blogID: store.getBlogID(),
 			showShareLimits: store.showShareLimits(),
+			useAdminUiV1: store.useAdminUiV1(),
 		};
 	} );
 	const { hasConnectionError } = useConnectionErrorNotice();
@@ -71,7 +68,7 @@ const Header = () => {
 				<Col sm={ 4 } md={ 4 } lg={ 5 }>
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 					<div className={ styles.actions }>
-						{ isModuleEnabled && ! hasConnections && (
+						{ ! useAdminUiV1 && isModuleEnabled && ! hasConnections && (
 							<Button href={ connectionsAdminUrl } isExternalLink={ true }>
 								{ __( 'Connect accounts', 'jetpack-social' ) }
 							</Button>
@@ -88,23 +85,19 @@ const Header = () => {
 								usedCount={ usedCount }
 								scheduledCount={ scheduledCount }
 								remainingCount={ remainingCount }
+								remainingLabel={ __( 'left in this cycle', 'jetpack-social' ) }
 								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
 								noticeType={ noticeType }
 								className={ styles[ 'bar-wrapper' ] }
 							/>
-							<ContextualUpgradeTrigger
-								className={ styles.cut }
-								description={ __(
-									'Unlock unlimited shares and advanced posting options',
-									'jetpack-social'
-								) }
-								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-									site: blogID ?? siteSuffix,
-									query: 'redirect_to=admin.php?page=jetpack-social',
-								} ) }
-								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
-							/>
+							<Text variant="small" className={ styles[ 'bar-description' ] }>
+								<i>
+									{ __(
+										'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
+										'jetpack-social'
+									) }
+								</i>
+							</Text>
 						</>
 					) : (
 						<StatCards

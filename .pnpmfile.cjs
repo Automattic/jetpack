@@ -11,19 +11,21 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Outdated dep. Already fixed upstream, just waiting on a release.
-	// https://github.com/Automattic/wp-calypso/pull/87350
-	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
-	) {
-		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
+	// Deps tend to get outdated due to a slow release cycle.
+	// So change `^` to `>=` and hope any breaking changes will not really break.
+	if ( pkg.name === '@automattic/social-previews' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/62250
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/primitives' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -94,13 +96,6 @@ function fixDeps( pkg ) {
 	if ( pkg.name === 'ajv-formats' && pkg.dependencies?.ajv && pkg.peerDependencies?.ajv ) {
 		delete pkg.dependencies.ajv;
 		delete pkg.peerDependenciesMeta?.ajv;
-	}
-
-	// Missing deps.
-	// https://github.com/storybookjs/test-runner/issues/414
-	if ( pkg.name === '@storybook/test-runner' ) {
-		pkg.dependencies.semver ??= '*';
-		pkg.dependencies[ 'detect-package-manager' ] ??= '*';
 	}
 
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
@@ -190,6 +185,17 @@ function afterAllResolved( lockfile ) {
 		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
+			);
+		}
+
+		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
+		// https://github.com/WordPress/gutenberg/issues/62202
+		if (
+			k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/' ) &&
+			! k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/5.' )
+		) {
+			throw new Error(
+				'@wordpress/dependency-extraction-webpack-plugin >= 6.0.0 is not allowed until we drop WordPress 6.5 support.\nSee https://github.com/WordPress/gutenberg/issues/62202 for details.'
 			);
 		}
 	}

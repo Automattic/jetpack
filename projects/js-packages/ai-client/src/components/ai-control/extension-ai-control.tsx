@@ -16,7 +16,7 @@ import './style.scss';
 /**
  * Types
  */
-import type { RequestingStateProp } from '../../types.js';
+import type { RequestingErrorProps, RequestingStateProp } from '../../types.js';
 import type { ReactElement, MouseEvent } from 'react';
 
 type ExtensionAIControlProps = {
@@ -28,9 +28,10 @@ type ExtensionAIControlProps = {
 	isTransparent?: boolean;
 	state?: RequestingStateProp;
 	showGuideLine?: boolean;
-	error?: string;
+	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	upgradeUrl?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
@@ -61,6 +62,7 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		upgradeUrl,
 		wrapperRef,
 		onChange,
 		onSend,
@@ -202,11 +204,24 @@ export function ExtensionAIControl(
 	);
 
 	let message = null;
-	if ( error ) {
-		message = <ErrorMessage error={ error } onTryAgainClick={ tryAgainHandler } />;
+
+	if ( error?.message ) {
+		message = (
+			<ErrorMessage
+				error={ error.message }
+				code={ error.code }
+				onTryAgainClick={ tryAgainHandler }
+				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
+			/>
+		);
 	} else if ( showUpgradeMessage ) {
 		message = (
-			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
+			<UpgradeMessage
+				requestsRemaining={ requestsRemaining }
+				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
+			/>
 		);
 	} else if ( showGuideLine ) {
 		message = <GuidelineMessage />;

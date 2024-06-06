@@ -4,6 +4,7 @@ import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import cs from 'classnames';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import useProduct from '../../data/products/use-product';
+import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
 
@@ -11,11 +12,13 @@ export const PRODUCT_STATUSES = {
 	ACTIVE: 'active',
 	INACTIVE: 'inactive',
 	MODULE_DISABLED: 'module_disabled',
-	ERROR: 'error',
+	SITE_CONNECTION_ERROR: 'site_connection_error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
 	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
+	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
+	USER_CONNECTION_ERROR: 'user_connection_error',
 	CAN_UPGRADE: 'can_upgrade',
 };
 
@@ -43,6 +46,8 @@ const ActionButton = ( {
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
 	const dropdownRef = useRef( null );
+	const chevronRef = useRef( null );
+	const { recordEvent } = useAnalytics();
 
 	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
@@ -87,6 +92,20 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
 				};
 			}
+			// The site or user have never been connected before and the connection is required
+			case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
+				};
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
 				return {
 					...buttonState,
@@ -149,7 +168,7 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
 				};
 			}
-			case PRODUCT_STATUSES.ERROR:
+			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 				return {
 					...buttonState,
 					href: '#/connection',
@@ -161,6 +180,18 @@ const ActionButton = ( {
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
+				};
+			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
+				return {
+					href: '#/connection',
+					size: 'small',
+					variant: 'primary',
+					weight: 'regular',
+					label: __( 'Connect', 'jetpack-my-jetpack' ),
+					onClick: onFixConnection,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
 				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:
@@ -202,9 +233,17 @@ const ActionButton = ( {
 		[ additionalActions, getStatusAction, hasAdditionalActions ]
 	);
 
+	const recordDropdownStateChange = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_dropdown_toggle', {
+			product: slug,
+			state: ! isDropdownOpen ? 'open' : 'closed',
+		} );
+	}, [ isDropdownOpen, recordEvent, slug ] );
+
 	const onChevronClick = useCallback( () => {
 		setIsDropdownOpen( ! isDropdownOpen );
-	}, [ isDropdownOpen ] );
+		recordDropdownStateChange();
+	}, [ isDropdownOpen, recordDropdownStateChange ] );
 
 	// By default, we set the first "addition action" as the current action shown on the card.
 	// If there are none, set it to the status action.
@@ -213,8 +252,12 @@ const ActionButton = ( {
 	}, [ allActions ] );
 
 	// Close the dropdown when clicking outside of it.
-	useOutsideAlerter( dropdownRef, () => {
-		setIsDropdownOpen( false );
+	useOutsideAlerter( dropdownRef, e => {
+		// Don't need to use outside alerter if chevron is clicked, chevron button will handle it
+		if ( ! chevronRef.current.contains( e.target ) ) {
+			setIsDropdownOpen( false );
+			recordDropdownStateChange();
+		}
 	} );
 
 	if ( ! admin ) {
@@ -235,6 +278,11 @@ const ActionButton = ( {
 					const onDropdownMenuItemClick = () => {
 						setCurrentAction( allActions[ index ] );
 						setIsDropdownOpen( false );
+
+						recordEvent( 'jetpack_myjetpack_product_card_dropdown_action_click', {
+							product: slug,
+							action: label,
+						} );
 					};
 
 					return (
@@ -277,6 +325,7 @@ const ActionButton = ( {
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }
 						onClick={ onChevronClick }
+						ref={ chevronRef }
 					>
 						<Icon
 							icon={ chevronDown }

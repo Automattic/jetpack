@@ -5,9 +5,17 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
+
+/**
+ * The type of the response from the image generation API.
+ */
+type ImageGenerationResponse = {
+	data: Array< { [ key: string ]: string } >;
+};
 
 /**
  * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
@@ -30,7 +38,7 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
  * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
  * @returns {string} the prompt string
  */
-const getImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
+const getDalleImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
 	/**
 	 * If the user provide some custom prompt for the image generation,
 	 * we will use it, add the post content as additional context and
@@ -78,18 +86,77 @@ This is the post content:
 	return imageGenerationPrompt + truncateContent( postContent, imageGenerationPrompt.length );
 };
 
+/**
+ * Create the Stable Diffusion pre-processing prompt based on the provided context.
+ * @param {string} postContent - the content of the post.
+ * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @returns {string} the prompt string to be fed to the AI Assistant model.
+ */
+const getStableDiffusionPreProcessingPrompt = (
+	postContent: string,
+	userPrompt?: string
+): string => {
+	/**
+	 * If the user provide some custom prompt for the image generation,
+	 * we will use it and add the post content as additional context.
+	 */
+	if ( userPrompt ) {
+		const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post based on this user-provided image description:
+
+${ userPrompt.length > 1000 ? userPrompt.substring( 0, 1000 ) : userPrompt }
+
+The image should be a photo. Make sure you highlight the main suject of the image description, and include brief details about the light and style of the image.
+Include a request to use high resolution and produce a highly detailed image, with sharp focus.
+Return just the prompt, without comments.
+
+For additional context, this is the post content:
+
+`;
+		// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+		return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
+	}
+
+	/**
+	 * When the user does not provide a custom prompt, we will use the
+	 * standard one, based solely on the post content.
+	 */
+	const preProcessingPrompt = `I need a Stable Diffusion prompt to generate a featured image for a blog post with the following content.
+The image should be a photo. Make sure you highlight the main suject of the content, and include brief details about the light and style of the image.
+Include a request to use high resolution and produce a highly detailed image, with sharp focus.
+Return just the prompt, without comments. The content is:
+
+`;
+
+	// truncating the content so the whole prompt is not longer than 4000 characters, the model limit.
+	return preProcessingPrompt + truncateContent( postContent, preProcessingPrompt.length );
+};
+
+/**
+ * Uses the Jetpack AI query endpoint to produce a prompt for the stable diffusion model.
+ * @param {string} postContent - the content of the post.
+ * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
+ * @param {string} feature - the feature to be used for the image generation.
+ * @returns {string} the prompt string to be used on stable diffusion image generation.
+ */
+const getStableDiffusionImageGenerationPrompt = async (
+	postContent: string,
+	userPrompt?: string,
+	feature?: string
+): Promise< string > => {
+	const prompt = getStableDiffusionPreProcessingPrompt( postContent, userPrompt );
+
+	/**
+	 * Request the prompt on the AI Assistant endpoint
+	 */
+	const data = await askQuestionSync( prompt, { feature } );
+
+	return data.choices?.[ 0 ]?.message?.content;
+};
+
 const useImageGenerator = () => {
-	const generateImage = async function ( {
-		feature,
-		postContent,
-		responseFormat = 'url',
-		userPrompt,
-	}: {
-		feature: string;
-		postContent: string;
-		responseFormat?: 'url' | 'b64_json';
-		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
+	const executeImageGeneration = async function (
+		parameters: object
+	): Promise< ImageGenerationResponse > {
 		let token = '';
 
 		try {
@@ -100,18 +167,7 @@ const useImageGenerator = () => {
 		}
 
 		try {
-			debug( 'Generating image' );
-
-			const imageGenerationPrompt = getImageGenerationPrompt( postContent, userPrompt );
-
 			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
-
-			const body = {
-				prompt: imageGenerationPrompt,
-				response_format: responseFormat,
-				feature,
-				size: '1792x1024',
-			};
 
 			const headers = {
 				Authorization: `Bearer ${ token }`,
@@ -121,7 +177,7 @@ const useImageGenerator = () => {
 			const data = await fetch( URL, {
 				method: 'POST',
 				headers,
-				body: JSON.stringify( body ),
+				body: JSON.stringify( parameters ),
 			} ).then( response => response.json() );
 
 			if ( data?.data?.status && data?.data?.status > 200 ) {
@@ -129,7 +185,71 @@ const useImageGenerator = () => {
 				return Promise.reject( data );
 			}
 
-			return data as { data: { [ key: string ]: string }[] };
+			return data as ImageGenerationResponse;
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
+	const generateImageWithStableDiffusion = async function ( {
+		feature,
+		postContent,
+		userPrompt,
+	}: {
+		feature: string;
+		postContent: string;
+		userPrompt?: string;
+	} ): Promise< ImageGenerationResponse > {
+		try {
+			debug( 'Generating image with Stable Diffusion' );
+
+			const prompt = await getStableDiffusionImageGenerationPrompt(
+				postContent,
+				userPrompt,
+				feature
+			);
+
+			const parameters = {
+				prompt,
+				feature,
+				model: 'stable-diffusion',
+				style: 'photographic',
+			};
+
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
+	const generateImage = async function ( {
+		feature,
+		postContent,
+		responseFormat = 'url',
+		userPrompt,
+	}: {
+		feature: string;
+		postContent: string;
+		responseFormat?: 'url' | 'b64_json';
+		userPrompt?: string;
+	} ): Promise< ImageGenerationResponse > {
+		try {
+			debug( 'Generating image' );
+
+			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
+
+			const parameters = {
+				prompt: imageGenerationPrompt,
+				response_format: responseFormat,
+				feature,
+				size: '1792x1024',
+			};
+
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
@@ -138,6 +258,8 @@ const useImageGenerator = () => {
 
 	return {
 		generateImage,
+		generateImageWithStableDiffusion,
+		generateImageWithParameters: executeImageGeneration,
 	};
 };
 

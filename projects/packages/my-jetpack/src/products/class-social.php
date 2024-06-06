@@ -149,7 +149,7 @@ class Social extends Hybrid_Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
 		if ( ( new Host() )->is_woa_site() ) {

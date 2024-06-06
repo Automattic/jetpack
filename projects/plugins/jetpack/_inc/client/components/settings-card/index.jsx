@@ -39,7 +39,13 @@ import {
 import { getModuleOverride, getModule } from 'state/modules';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 
-export const SettingsCard = props => {
+export const SettingsCard = inprops => {
+	const props = {
+		action: '',
+		saveDisabled: false,
+		...inprops,
+	};
+
 	const trackBannerClick = feature => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'upgrade-banner',
@@ -127,7 +133,11 @@ export const SettingsCard = props => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						title={ __( 'Generate income with high-quality ads.', 'jetpack' ) }
+						title={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Generate income with high-quality ads.', 'jetpack' ) }
+							</span>
+						}
 						callToAction={ upgradeLabel }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
@@ -458,11 +468,6 @@ export const SettingsCard = props => {
 SettingsCard.propTypes = {
 	action: PropTypes.string,
 	saveDisabled: PropTypes.bool,
-};
-
-SettingsCard.defaultProps = {
-	action: '',
-	saveDisabled: false,
 };
 
 export default connect(

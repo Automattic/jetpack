@@ -57,7 +57,7 @@ class User_Admin {
 		add_action( 'delete_user_form', array( $this, 'render_invitations_notices_for_deleted_users' ) );
 		add_action( 'delete_user', array( $this, 'revoke_user_invite' ) );
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_user_connected_th' ) );
-		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
+		add_filter( 'manage_users_custom_column', array( $this, 'jetpack_show_connection_status' ), 10, 3 );
 		add_action( 'user_row_actions', array( $this, 'jetpack_user_table_row_actions' ), 10, 2 );
 		add_action( 'admin_notices', array( $this, 'handle_invitation_results' ) );
 		add_action( 'admin_post_jetpack_invite_user_to_wpcom', array( $this, 'invite_user_to_wpcom' ) );
@@ -835,7 +835,7 @@ class User_Admin {
 	 * @return boolean Indicating if the core invitation main should be sent.
 	 */
 	public function should_send_wp_mail_new_user( $send_wp_email ) {
-		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! isset( $_POST['invite_user_wpcom'] ) && isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Hooked to 'wp_send_new_user_notification_to_user' to conditionally disable the core invitation email. At this point nonces should be checked already.
 			return $send_wp_email;
 		}
 		return false;
@@ -1203,7 +1203,7 @@ class User_Admin {
 					'<span tabindex="0" role="tooltip" aria-label="%4$s: %3$s" class="jetpack-sso-invitation-tooltip-icon sso-disconnected-user">
 						<a href="%1$s" class="jetpack-sso-invitation sso-disconnected-user">%2$s</a>
 						<span class="sso-disconnected-user-icon dashicons dashicons-warning">
-							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip" tabindex="0">%3$s</span>
+							<span class="jetpack-sso-invitation-tooltip jetpack-sso-td-tooltip">%3$s</span>
 						</span>
 					</span>',
 					add_query_arg(
@@ -1221,6 +1221,7 @@ class User_Admin {
 				return $connection_html;
 			}
 		}
+		return $val;
 	}
 
 	/**

@@ -4,7 +4,9 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.0"
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -16,8 +18,12 @@
 		]
 	},
 	"scripts": {
-		"build-development": "echo 'Add your build step to composer.json, please!'",
-		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
@@ -47,7 +53,7 @@
 		"mirror-repo": "Automattic/jetpack-calypsoify",
 		"textdomain": "jetpack-calypsoify",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-calypsoify.php"
+			"::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
 		}
 	},
 	"suggest": {

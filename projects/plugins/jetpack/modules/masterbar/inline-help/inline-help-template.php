@@ -2,10 +2,13 @@
 /**
  * Inline Help FAB icon template.
  *
+ * @html-template load_template
+ * @html-template-var array{href:string,icon:string,svg_allowed:array} $args
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
 ?>
 
 <div class="a8c-faux-inline-help">

@@ -1,30 +1,16 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { Button, IconTooltip } from '@automattic/jetpack-components';
+import { Panel, PanelBody } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
+import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
+import { useReducer } from 'react';
+import ConnectionIcon from '../connection-icon';
+import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
+import { Disconnect } from './disconnect';
+import { MarkAsShared } from './mark-as-shared';
 import styles from './style.module.scss';
 
 type ConnectionInfoProps = ConnectionStatusProps;
-
-/**
- * Connection name component
- *
- * @param {Pick< ConnectionInfoProps, 'connection' >} props - component props
- *
- * @returns {import('react').ReactNode} - React element
- */
-function ConnectionName( { connection }: Pick< ConnectionInfoProps, 'connection' > ) {
-	if ( connection.display_name ) {
-		if ( ! connection.profile_link ) {
-			return <span>{ connection.display_name }</span>;
-		}
-		return (
-			<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-				{ connection.display_name }
-			</ExternalLink>
-		);
-	}
-	return <Spinner color="black" />;
-}
 
 /**
  * Connection info component
@@ -33,11 +19,55 @@ function ConnectionName( { connection }: Pick< ConnectionInfoProps, 'connection'
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionInfo( { connection, onReconnect }: ConnectionInfoProps ) {
+export function ConnectionInfo( { connection, service, onConfirmReconnect }: ConnectionInfoProps ) {
+	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
+
 	return (
-		<div>
-			<ConnectionName connection={ connection } />
-			<ConnectionStatus connection={ connection } onReconnect={ onReconnect } />
-		</div>
+		<>
+			<div className={ styles[ 'connection-item' ] }>
+				<ConnectionIcon
+					serviceName={ connection.service_name }
+					label={ connection.display_name }
+					profilePicture={ connection.profile_picture }
+				/>
+				<div className={ styles[ 'connection-name-wrapper' ] }>
+					<div className={ styles[ 'connection-item-name' ] }>
+						<ConnectionName connection={ connection } />
+					</div>
+					<ConnectionStatus
+						connection={ connection }
+						service={ service }
+						onConfirmReconnect={ onConfirmReconnect }
+					/>
+				</div>
+				<Button
+					size={ 'small' }
+					className={ styles[ 'learn-more' ] }
+					variant="tertiary"
+					onClick={ togglePanel }
+					aria-label={
+						isPanelOpen
+							? __( 'Close panel', 'jetpack' )
+							: _x( 'Open panel', 'Accessibility label', 'jetpack' )
+					}
+				>
+					{ <Icon className={ styles.chevron } icon={ isPanelOpen ? chevronUp : chevronDown } /> }
+				</Button>
+			</div>
+			<Panel className={ styles[ 'connection-panel' ] }>
+				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
+					<div className={ styles[ 'mark-shared-wrap' ] }>
+						<MarkAsShared connection={ connection } />
+						<IconTooltip>
+							{ __(
+								'If enabled, the connection will be available to all administrators, editors, and authors.',
+								'jetpack'
+							) }
+						</IconTooltip>
+					</div>
+					<Disconnect connection={ connection } />
+				</PanelBody>
+			</Panel>
+		</>
 	);
 }

@@ -38,6 +38,10 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 		parent::set_up_wordbless();
 		\WorDBless\Users::init()->clear_all_users();
 
+		// Be sure wordbless cron is reset before each test.
+		delete_option( 'cron' );
+		update_option( 'cron', array( 'version' => 2 ), 'yes' );
+
 		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_path_user',
@@ -46,7 +50,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
-		add_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 
 		Scheduled_Updates::init();
 	}
@@ -59,7 +62,6 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_delete_user( $this->admin_id );
 		delete_option( Scheduled_Updates_Health_Paths::OPTION_NAME );
-		remove_filter( 'jetpack_scheduled_update_verify_plugins', '__return_true', 11 );
 		parent::tear_down_wordbless();
 	}
 

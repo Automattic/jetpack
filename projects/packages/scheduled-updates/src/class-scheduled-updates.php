@@ -20,7 +20,7 @@ class Scheduled_Updates {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.12.0';
+	const PACKAGE_VERSION = '0.13.0';
 
 	/**
 	 * The cron event hook for the scheduled plugins update.
@@ -77,8 +77,6 @@ class Scheduled_Updates {
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Health_Paths::class, 'clear' ) );
 		add_action( 'jetpack_scheduled_update_deleted', array( Scheduled_Updates_Logs::class, 'delete_logs_schedule_id' ), 10, 3 );
 
-		add_filter( 'jetpack_scheduled_update_verify_plugins', array( __CLASS__, 'verify_plugins' ) );
-
 		// Update cron sync option after options update.
 		$callback = array( __CLASS__, 'update_option_cron' );
 
@@ -93,6 +91,8 @@ class Scheduled_Updates {
 		// Active flag saving.
 		add_action( 'add_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
 		add_action( 'update_option_' . Scheduled_Updates_Active::OPTION_NAME, $callback );
+
+		add_filter( 'pre_schedule_event', array( __CLASS__, 'clear_cron_cache_pre' ), 10, 2 );
 	}
 
 	/**
@@ -166,32 +166,6 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Create a scheduled update.
-	 *
-	 * @param int    $timestamp Timestamp of the first run.
-	 * @param string $interval  Interval of the update.
-	 * @param array  $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function create_scheduled_update( $timestamp, $interval, $plugins ) {
-		return wp_schedule_event( $timestamp, $interval, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
-	 * Remove a scheduled update.
-	 *
-	 * @param int   $timestamp Timestamp of the first run.
-	 * @param array $plugins   List of plugins to update.
-	 * @return \WP_Error|bool True on success, WP_Error on failure.
-	 */
-	public static function delete_scheduled_update( $timestamp, $plugins ) {
-		// Be sure to clear the cron cache before removing a cron entry.
-		self::clear_cron_cache();
-
-		return wp_unschedule_event( $timestamp, self::PLUGIN_CRON_HOOK, $plugins, true );
-	}
-
-	/**
 	 * Save the schedules for sync after cron option saving.
 	 */
 	public static function update_option_cron() {
@@ -227,7 +201,23 @@ class Scheduled_Updates {
 	 * Clear the cron cache.
 	 */
 	public static function clear_cron_cache() {
-		wp_cache_delete( 'alloptions', 'options' );
+		wp_cache_delete( 'cron', 'options' );
+		wp_load_alloptions( true );
+	}
+
+	/**
+	 * Reload the cron cache in pre_schedule_event hook. Returns null to prevent short-circuit.
+	 *
+	 * @param null|bool|\WP_Error $result The value to return instead. Default null to continue adding the event.
+	 * @param object              $event  The event object.
+	 */
+	public static function clear_cron_cache_pre( $result, $event ) {
+		// If the transient is set and an external event is about to run, it means that the cron cache must be refreshed.
+		if ( self::PLUGIN_CRON_HOOK !== $event->hook && get_transient( 'pre_schedule_event_clear_cron_cache' ) ) {
+			self::clear_cron_cache();
+		}
+
+		return $result;
 	}
 
 	/**
@@ -362,16 +352,11 @@ class Scheduled_Updates {
 				/**
 				* Populates the is_managed field.
 				*
-				* Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
-				* link target is within the `/wordpress` directory to determine if the plugin is managed.
-				*
-				* @see p9o2xV-3Nx-p2#comment-8728
-				*
 				* @param array $data Prepared response array.
 				* @return bool
 				*/
 				'get_callback' => function ( $data ) {
-					return self::is_plugin_managed( $data['plugin'] );
+					return self::is_managed_plugin( $data['plugin'] );
 				},
 				'schema'       => array(
 					'description' => 'Whether the plugin is managed by the host.',
@@ -405,7 +390,7 @@ class Scheduled_Updates {
 			}
 
 			// Remove the schedule.
-			$result = self::delete_scheduled_update( $event->timestamp, $event->args );
+			$result = wp_unschedule_event( $event->timestamp, self::PLUGIN_CRON_HOOK, $event->args, true );
 
 			if ( is_wp_error( $result ) || false === $result ) {
 				continue;
@@ -418,9 +403,9 @@ class Scheduled_Updates {
 			}
 
 			// There are still plugins to update. Schedule a new event.
-			$result = self::create_scheduled_update( $event->timestamp, $event->schedule, $plugins );
+			$event = wp_schedule_event( $event->timestamp, $event->schedule, self::PLUGIN_CRON_HOOK, $plugins, true );
 
-			if ( is_wp_error( $result ) || false === $result ) {
+			if ( is_wp_error( $event ) || false === $event ) {
 				continue;
 			}
 
@@ -447,55 +432,20 @@ class Scheduled_Updates {
 	}
 
 	/**
-	 * Check if a plugin is installed.
-	 *
-	 * @param string $plugin The plugin to check.
-	 * @return bool
-	 */
-	public static function is_plugin_installed( $plugin ) {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-		$installed_plugins = get_plugins();
-		return array_key_exists( $plugin, $installed_plugins );
-	}
-
-	/**
 	 * Check if a plugin is managed by the host.
 	 *
+	 * Users could have their own plugins folder with symlinks pointing to it, so we need to check if the
+	 * link target is within the `/wordpress` directory to determine if the plugin is managed.
+	 *
+	 * @see p9o2xV-3Nx-p2#comment-8728
+	 *
 	 * @param string $plugin The plugin to check.
 	 * @return bool
 	 */
-	public static function is_plugin_managed( $plugin ) {
+	public static function is_managed_plugin( $plugin ) {
 		$folder = WP_PLUGIN_DIR . '/' . strtok( $plugin, '/' );
 		$target = is_link( $folder ) ? realpath( $folder ) : false;
+
 		return $target && 0 === strpos( $target, '/wordpress/' );
-	}
-
-	/**
-	 * Verify that the plugins are installed.
-	 *
-	 * @param array $plugins List of plugins to update.
-	 * @return bool|\WP_Error
-	 */
-	public static function verify_plugins( $plugins ) {
-		$request_plugins_not_installed_or_managed = true;
-
-		foreach ( $plugins as $plugin ) {
-			if ( self::is_plugin_installed( $plugin ) && ! self::is_plugin_managed( $plugin ) ) {
-				$request_plugins_not_installed_or_managed = false;
-				break;
-			}
-		}
-
-		if ( $request_plugins_not_installed_or_managed ) {
-			return new \WP_Error(
-				'rest_forbidden',
-				__( 'None of the specified plugins are installed or all of them are managed.', 'jetpack-scheduled-updates' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		return true;
 	}
 }

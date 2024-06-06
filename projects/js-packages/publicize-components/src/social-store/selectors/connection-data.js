@@ -10,6 +10,30 @@ export function getConnections( state ) {
 }
 
 /**
+ * Return a connection by its ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} connectionId - The connection ID.
+ *
+ * @returns {import("../types").Connection | undefined} The connection.
+ */
+export function getConnectionById( state, connectionId ) {
+	return getConnections( state ).find( connection => connection.connection_id === connectionId );
+}
+
+/**
+ * Returns connections by service name/ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} serviceName - The service name.
+ *
+ * @returns {Array<import("../types").Connections>} The connections.
+ */
+export function getConnectionsByService( state, serviceName ) {
+	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
@@ -115,4 +139,59 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
  */
 export function getDeletingConnections( state ) {
 	return state.connectionData?.deletingConnections ?? [];
+}
+
+/**
+ * Get the connections being updated.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['updatingConnections']} The connection being updated.
+ */
+export function getUpdatingConnections( state ) {
+	return state.connectionData?.updatingConnections ?? [];
+}
+
+/**
+ * Whether a connection is being created.
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {boolean} Whether a connection is being created.
+ */
+export function isCreatingConnection( state ) {
+	return state.connectionData?.creatingConnection ?? false;
+}
+
+/**
+ * Whether a mastodon account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} username - The mastodon username.
+ *
+ * @returns {boolean} Whether the mastodon account is already connected.
+ */
+export function isMastodonAccountAlreadyConnected( state, username ) {
+	return getConnectionsByService( state, 'mastodon' ).some( connection => {
+		return connection.external_display === username;
+	} );
+}
+
+/**
+ * Returns the services list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").ConnectionService>} The services list
+ */
+export function getServices( state ) {
+	return state.connectionData?.services ?? [];
+}
+
+/**
+ * Returns the latest KeyringResult from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {import("../types").KeyringResult} The KeyringResult
+ */
+export function getKeyringResult( state ) {
+	return state.connectionData?.keyringResult;
 }

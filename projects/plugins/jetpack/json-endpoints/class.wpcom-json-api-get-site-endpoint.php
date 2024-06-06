@@ -289,7 +289,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Site
 	 *
-	 * @var $site.
+	 * @var SAL_Site $site.
 	 */
 	private $site;
 
@@ -560,11 +560,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_products();
 				break;
 			case 'zendesk_site_meta':
-				// D59613-code only added this function to the wpcom SAL subclasses. Absent any better idea,
-				// we'll just omit the key entirely in Jetpack.
-				if ( is_callable( array( $this->site, 'get_zendesk_site_meta' ) ) ) {
-					$response[ $key ] = $this->site->get_zendesk_site_meta();
-				}
+				$response[ $key ] = $this->site->get_zendesk_site_meta();
 				break;
 			case 'quota':
 				$response[ $key ] = $this->site->get_quota();
@@ -819,11 +815,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->get_import_engine();
 					break;
 				case 'is_pending_plan':
-					// D40032-code only added this function to the wpcom SAL subclasses. Absent any better idea,
-					// we'll just omit the key entirely in Jetpack.
-					if ( is_callable( array( $site, 'is_pending_plan' ) ) ) {
-						$options[ $key ] = $site->is_pending_plan();
-					}
+					$options[ $key ] = $site->is_pending_plan();
 					break;
 
 				case 'is_wpforteams_site':

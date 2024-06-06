@@ -5,7 +5,7 @@ const spawnSync = require( 'child_process' ).spawnSync;
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
 const isJetpackDraftMode = require( './jetpack-draft' );
 
