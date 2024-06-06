@@ -270,7 +270,7 @@ function add_hosting_overview_menu() {
 	add_submenu_page(
 		'wpcom-hosting-menu',
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ) . ' <span class="dashicons dashicons-external"></span>',
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/hosting/$domain" ),
 		'',
