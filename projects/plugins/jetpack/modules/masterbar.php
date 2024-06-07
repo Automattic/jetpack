@@ -14,39 +14,6 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Dashboard_Customizations;
+use Automattic\Jetpack\Masterbar\Main as Jetpack_Masterbar;
 
-use Automattic\Jetpack\Status\Host;
-
-require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
-require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
-require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
-
-$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
-
-if ( ! $should_use_nav_redesign ) {
-	new Masterbar();
-}
-
-new Admin_Color_Schemes();
-
-if ( ( new Host() )->is_woa_site() ) {
-	new Inline_Help();
-	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
-	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
-	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
-}
-
-/**
- * Whether to load the admin menu functionality.
- *
- * @use add_filter( 'jetpack_load_admin_menu_class', '__return_true' );
- * @module masterbar
- *
- * @since 9.3.0
- *
- * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
- */
-if ( ! $should_use_nav_redesign && apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-	require_once __DIR__ . '/masterbar/admin-menu/load.php';
-}
+Jetpack_Masterbar::init();

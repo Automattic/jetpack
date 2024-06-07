@@ -57,6 +57,8 @@ class Initializer {
 
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
 
+	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
+
 	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
 
 	/**
@@ -206,6 +208,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
 			'my_jetpack_main_app',
@@ -233,11 +236,12 @@ class Initializer {
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'userIsNewToJetpack'     => self::is_jetpack_user_new(),
 				'lifecycleStats'         => array(
-					'jetpackPlugins'  => self::get_installed_jetpack_plugins(),
-					'isSiteConnected' => $connection->is_connected(),
-					'isUserConnected' => $connection->is_user_connected(),
-					'purchases'       => self::get_purchases(),
-					'modules'         => self::get_active_modules(),
+					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
+					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'isSiteConnected'           => $connection->is_connected(),
+					'isUserConnected'           => $connection->is_user_connected(),
+					'purchases'                 => self::get_purchases(),
+					'modules'                   => self::get_active_modules(),
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
@@ -484,6 +488,101 @@ class Initializer {
 		 * @param bool $shoud_initialize Should we initialize My Jetpack?
 		 */
 		return apply_filters( 'jetpack_my_jetpack_should_initialize', $should );
+	}
+
+	/**
+	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
+	 *
+	 * @return void
+	 */
+	public static function queue_historically_active_jetpack_modules_update() {
+		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	}
+
+	/**
+	 * Hook into several connection-based actions to update the historically active Jetpack modules
+	 * If the transient that indicates the list needs to be synced, update it and delete the transient
+	 *
+	 * @return void
+	 */
+	public static function setup_historically_active_jetpack_modules_sync() {
+		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
+			self::update_historically_active_jetpack_modules();
+			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
+		}
+
+		$actions = array(
+			'jetpack_site_before_disconnected',
+			'jetpack_site_registered',
+			'jetpack_user_authorized',
+			'jetpack_unlinked_user',
+			'activated_plugin',
+			'my_jetpack_init',
+		);
+
+		foreach ( $actions as $action ) {
+			add_action( $action, array( __CLASS__, 'queue_historically_active_jetpack_modules_update' ), 5 );
+		}
+
+		// Modules are often updated async, so we need to update them right away as there will sometimes be no page reload.
+		add_action( 'jetpack_activate_module', array( __CLASS__, 'update_historically_active_jetpack_modules' ), 5 );
+	}
+
+	/**
+	 * Update historically active Jetpack plugins
+	 * Historically active is defined as the Jetpack plugins that are installed and active with the required connections
+	 * This array will consist of any plugins that were active at one point in time and are still enabled on the site
+	 *
+	 * @return void
+	 */
+	public static function update_historically_active_jetpack_modules() {
+		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+		$products                    = Products::get_products();
+		$active_module_statuses      = array(
+			'active',
+			'can_upgrade',
+		);
+		$broken_module_statuses      = array(
+			'site_connection_error',
+			'user_connection_error',
+		);
+		// This is defined as the statuses in which the user willingly has the module disabled whether it be by
+		// default, uninstalling the plugin, disabling the module, or not renewing their plan.
+		$disabled_module_statuses = array(
+			'inactive',
+			'module_disabled',
+			'plugin_absent',
+			'plugin_absent_with_plan',
+			'needs_purchase',
+			'needs_purchase_or_free',
+			'needs_first_site_connection',
+		);
+
+		foreach ( $products as $product ) {
+			$status       = $product['status'];
+			$product_slug = $product['slug'];
+			// We want to leave modules in the array if they've been active in the past
+			// and were not manually disabled by the user.
+			if ( in_array( $status, $broken_module_statuses, true ) ) {
+				continue;
+			}
+
+			// If the module is active and not already in the array, add it
+			if (
+				in_array( $status, $active_module_statuses, true ) &&
+				! in_array( $product_slug, $historically_active_modules, true )
+			) {
+					$historically_active_modules[] = $product_slug;
+			}
+
+			// If the module has been disabled due to a manual user action,
+			// or because of a missing plan error, remove it from the array
+			if ( in_array( $status, $disabled_module_statuses, true ) ) {
+				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
+			}
+		}
+
+		\Jetpack_Options::update_option( 'historically_active_modules', array_unique( $historically_active_modules ) );
 	}
 
 	/**
