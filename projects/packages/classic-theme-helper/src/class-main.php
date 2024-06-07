@@ -5,14 +5,16 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Classic_Theme_Helper;
+
+use WP_Error;
 
 /**
- * Classic Theme Helper.
+ * Classic Theme Helper Loader.
  */
-class Classic_Theme_Helper {
+class Main {
 
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Modules to include.
@@ -21,16 +23,28 @@ class Classic_Theme_Helper {
 	 */
 	public $modules = array(
 		'class-featured-content.php',
-		'responsive-videos.php',
+		// 'responsive-videos.php',
 	);
 
-	/**
-	 * Initialize Classic Theme Helper.
+	/** Holds the singleton instance of the Loader
+	 *
+	 * @var Main
 	 */
-	public function init() {
-		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
-		add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
-		add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
+	public static $instance = null;
+
+	/**
+	 * Initialize the Loader.
+	 */
+	public static function init() {
+		if ( ! self::$instance ) {
+			self::$instance = new Main();
+			add_action( 'plugins_loaded', array( self::$instance, 'load_modules' ) );
+			// TODO Commenting below since we still load them from theme-tools module
+			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -43,7 +57,7 @@ class Classic_Theme_Helper {
 		// @param array $modules Array of modules to include.
 		$modules = apply_filters( 'jetpack_classic_theme_helper_modules', $this->modules );
 		foreach ( $modules as $module ) {
-			require_once __DIR__ . $module;
+			require_once __DIR__ . '/' . $module;
 		}
 	}
 
@@ -110,3 +124,4 @@ class Classic_Theme_Helper {
 		}
 	}
 }
+Main::init();
