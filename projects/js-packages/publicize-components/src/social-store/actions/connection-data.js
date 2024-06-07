@@ -11,6 +11,7 @@ import {
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
+	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
 } from './constants';
@@ -411,4 +412,35 @@ export function updateConnectionById( connectionId, data ) {
 			dispatch( updatingConnection( connectionId, false ) );
 		}
 	};
+}
+
+/**
+ * Toggles the connections modal.
+ *
+ * @param {boolean} isOpen - Whether the modal is open.
+ *
+ * @returns {object} - An action object.
+ */
+export function toggleConnectionsModal( isOpen ) {
+	return {
+		type: TOGGLE_CONNECTIONS_MODAL,
+		isOpen,
+	};
+}
+
+/**
+ * Opens the connections modal.
+ *
+ * @returns {object} - An action object.
+ */
+export function openConnectionsModal() {
+	return toggleConnectionsModal( true );
+}
+
+/**
+ * Closes the connections modal.
+ * @returns {object} - An action object.
+ */
+export function closeConnectionsModal() {
+	return toggleConnectionsModal( false );
 }
