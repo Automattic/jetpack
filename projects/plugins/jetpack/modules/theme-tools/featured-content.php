@@ -37,6 +37,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * "max_posts" entry in the second parameter passed in the call to
 		 * add_theme_support( 'featured-content' ).
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @see Featured_Content::init()
 		 * @var int
 		 */
@@ -48,6 +49,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * 'post_types' argument (string|array) in the call to
 		 * add_theme_support( 'featured-content' ).
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @see Featured_Content::init()
 		 * @var array
 		 */
@@ -57,6 +59,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * The tag that is used to mark featured content. Users can define
 		 * a custom tag name that will be stored in this variable.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @see Featured_Content::hide_featured_term
 		 * @var string
 		 */
