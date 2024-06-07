@@ -52,7 +52,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -60,7 +60,7 @@
 		"mirror-repo": "Automattic/jetpack-classic-theme-helper",
 		"textdomain": "jetpack-classic-theme-helper",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-classic-theme-helper.php"
+			"::PACKAGE_VERSION": "src/class-main.php"
 		}
 	},
 	"suggest": {
