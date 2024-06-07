@@ -32,6 +32,13 @@ function update_calypso_locale( $locale ) {
  * Sync locale updated via /wp-admin/profile.php to Calypso.
  */
 function sync_wp_admin_locale_on_profile_update() {
+	static $is_updating_calypso_locale = false;
+
+	// Bail if we started updating the locale earlier in the current request.
+	if ( $is_updating_calypso_locale ) {
+		return;
+	}
+
 	$locale = null;
 
 	if ( isset( $_POST['locale'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -64,6 +71,8 @@ function sync_wp_admin_locale_on_profile_update() {
 		// WPLANG can be an empty string, so we still need to check if it's empty.
 		$locale = ! empty( $locale_option ) ? $locale_option : 'en';
 	}
+
+	$is_updating_calypso_locale = true;
 
 	update_calypso_locale( $locale );
 }
