@@ -28,7 +28,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
-	const connectionError = redBubbleAlerts[ 'missing-connection' ];
+	const redBubbleSlug = 'missing-connection';
+	const connectionError = redBubbleAlerts[ redBubbleSlug ];
 
 	useEffect( () => {
 		if ( ! connectionError ) {
@@ -59,7 +60,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						onClose: resetNotice,
 					},
 				} );
-				delete redBubbleAlerts[ 'missing-connection' ];
+				delete redBubbleAlerts[ redBubbleSlug ];
 				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
 			} );
 		};
@@ -95,7 +96,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		};
 
 		const noticeOptions: NoticeOptions = {
-			id: requiresUserConnection ? 'user-connection-notice' : 'site-connection-notice',
+			id: redBubbleSlug,
 			level: connectionError.is_error ? 'error' : 'info',
 			actions: [
 				{
