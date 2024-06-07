@@ -28,45 +28,44 @@ export function handleIframeResult( eventFromIframe ) {
 }
 
 export function showModal( url ) {
-	// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
-	document.body.classList.add( 'jetpack-memberships-modal-open' );
+	return new Promise( resolvePromise => {
+		const existingModal = document.getElementById( 'memberships-modal-window' );
+		if ( existingModal ) {
+			document.body.removeChild( existingModal );
+		}
 
-	const existingModal = document.getElementById( 'memberships-modal-window' );
-	if ( existingModal ) {
-		document.body.removeChild( existingModal );
-	}
+		const dialog = document.createElement( 'dialog' );
+		dialog.setAttribute( 'id', 'memberships-modal-window' );
+		dialog.classList.add( 'jetpack-memberships-modal' );
+		dialog.classList.add( 'is-loading' );
 
-	const dialog = document.createElement( 'dialog' );
-	dialog.setAttribute( 'id', 'memberships-modal-window' );
-	dialog.classList.add( 'jetpack-memberships-modal' );
-	dialog.classList.add( 'is-loading' );
-	dialog.setAttribute( 'aria-busy', 'true' );
-	dialog.setAttribute( 'aria-live', 'polite' );
+		const iframe = document.createElement( 'iframe' );
+		iframe.setAttribute( 'frameborder', '0' );
+		iframe.setAttribute( 'allowtransparency', 'true' );
+		iframe.setAttribute( 'allowfullscreen', 'true' );
 
-	const iframe = document.createElement( 'iframe' );
-	iframe.setAttribute( 'frameborder', '0' );
-	iframe.setAttribute( 'allowtransparency', 'true' );
-	iframe.setAttribute( 'allowfullscreen', 'true' );
+		iframe.addEventListener( 'load', function () {
+			// prevent double scroll bars. We use the entire viewport for the modal so we need to hide overflow on the body element.
+			document.body.classList.add( 'jetpack-memberships-modal-open' );
+			dialog.classList.remove( 'is-loading' );
+			resolvePromise();
+		} );
 
-	iframe.addEventListener( 'load', function () {
-		dialog.classList.remove( 'is-loading' );
-		dialog.setAttribute( 'aria-busy', 'false' );
+		iframe.setAttribute( 'id', 'memberships-modal-iframe' );
+		iframe.innerText =
+			'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
+		iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
+
+		const siteLanguage = document.querySelector( 'input[name="lang"]' )?.value;
+		if ( siteLanguage ) {
+			iframe.src = iframe.src + '&lang=' + siteLanguage;
+		}
+		document.body.appendChild( dialog );
+		dialog.appendChild( iframe );
+
+		window.addEventListener( 'message', handleIframeResult, false );
+		dialog.showModal();
 	} );
-
-	iframe.setAttribute( 'id', 'memberships-modal-iframe' );
-	iframe.innerText =
-		'This feature requires inline frames. You have iframes disabled or your browser does not support them.';
-	iframe.src = url + '&display=alternate&jwt_token=' + getTokenFromCookie();
-
-	const siteLanguage = document.querySelector( 'input[name="lang"]' )?.value;
-	if ( siteLanguage ) {
-		iframe.src = iframe.src + '&lang=' + siteLanguage;
-	}
-	document.body.appendChild( dialog );
-	dialog.appendChild( iframe );
-
-	window.addEventListener( 'message', handleIframeResult, false );
-	dialog.showModal();
 }
 
 function setUpModal( button ) {

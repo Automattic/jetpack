@@ -33,7 +33,7 @@ function show_iframe( data ) {
 
 	const url = 'https://subscribe.wordpress.com/memberships/?' + params.toString();
 
-	showModal( url );
+	return showModal( url );
 }
 
 domReady( function () {
@@ -53,6 +53,12 @@ domReady( function () {
 				if ( form.resubmitted ) {
 					return;
 				}
+
+				const button = form.querySelector( 'button[type="submit"]' );
+
+				button.classList.add( 'is-loading' );
+				button.setAttribute( 'aria-busy', 'true' );
+				button.setAttribute( 'aria-live', 'polite' );
 
 				// If email is empty, we will ask for it in the modal that opens
 				// Email input can be hidden for "button only style" for example.
@@ -83,6 +89,9 @@ domReady( function () {
 						app_source,
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
+					} ).then( () => {
+						button.classList.remove( 'is-loading' );
+						button.setAttribute( 'aria-busy', 'false' );
 					} );
 				}
 			} );

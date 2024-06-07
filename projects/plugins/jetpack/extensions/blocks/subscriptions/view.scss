@@ -1,9 +1,12 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
 @function x($var-name, $fallback) {
 	@return unquote("var(#{$var-name}, #{$fallback})");
 }
 
+@keyframes jetpack-memberships-modal__spinner-animation {
+	100% {
+		transform: rotate(360deg);
+	}
+}
 
 .is-style-compact {
 	.is-not-subscriber {
@@ -73,6 +76,28 @@
 		button {
 			border-style: solid;
 			border-color: transparent;
+
+			.jetpack-subscribe-spinner {
+				display: none;
+				width: 1em;
+				height: 1em;
+				margin: 0 0 0 5px;
+				svg {
+					/* Better center-align the spinner with button text, because 1m height doesn't take line-height into account */
+					margin-bottom: -2px;
+					width: 100%;
+					height: 100%;
+				}
+			}
+
+			.jetpack-subscribe-spinner-rotating {
+				transform-origin: center;
+				animation: jetpack-memberships-modal__spinner-animation .75s infinite linear
+			}
+
+			&.is-loading .jetpack-subscribe-spinner {
+				display: inline-block;
+			}
 		}
 
 		.wp-block-jetpack-subscriptions__textfield, p#subscribe-email {

@@ -23,47 +23,18 @@ dialog.jetpack-memberships-modal {
 		background: transparent;
 	}
 
-	&.is-loading {
-		// Animate the modal appearing on the page.
-		animation: jetpack-memberships-modal__appear-animation 0.3s ease-out;
-		animation-fill-mode: forwards;
-		@include reduce-motion( 'animation' );
-
-		max-height: 400px;
-		max-width: 400px;
-
-		top: 50%;
-		left: 50%;
-		right: auto;
-		bottom: auto;
-		transform: translateX(-50%) translateY(-50%);
-
-		// Below styles match what we have inside the iframe
-		// @TODO: remove styles from inside iframe and rely only on below styles
-		box-shadow: 0 3px 9px rgba(0, 0, 0, 0.4);
-
-		border-radius: 4px;
-
-		background-color: #fff;
-		background-image: url(./spinner.svg);
-		background-size: 25px;
-		background-repeat: no-repeat;
-		background-position: center center;
-	}
+	opacity: 1;
 
 	&::backdrop {
 		background-color: #000;
 		opacity: 0.7;
+		transition: opacity .2s ease-out;
 	}
-}
 
-@keyframes jetpack-memberships-modal__appear-animation {
-	from {
-		opacity: 0;
-		transform: translateX(-50%) translateY(-40%);
+	&.is-loading {
+		&, &::backdrop {
+			opacity: 0;
+		}
 	}
-	to {
-		opacity: 1;
-		transform: translateX(-50%) translateY(-50%);
-	}
+
 }
