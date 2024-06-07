@@ -264,7 +264,6 @@ class Status {
 
 	/**
 	 * If the site is in safe mode.
-	 * TODO: Fix IDC package after we move it to connection package.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -294,8 +293,9 @@ class Status {
 
 	/**
 	 * If the site is a development/staging site.
-	 * This is a new version of is_staging_site added to separate safe and legacy staging modes.
-	 * This method only checks for core WP_ENVIRONMENT_TYPE setting
+	 * This is a new version of is_staging_site added to separate safe mode from the legacy staging mode.
+	 * This method checks for core WP_ENVIRONMENT_TYPE setting
+	 * Using the jetpack_is_development_site filter.
 	 *
 	 * @since $$next-version$$
 	 *
