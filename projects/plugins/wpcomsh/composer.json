@@ -121,14 +121,15 @@
 	"prefer-stable": true,
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"composer/installers": true,
-			"dealerdirect/phpcodesniffer-composer-installer": true
+			"roots/wordpress-core-installer": true
 		}
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
 		"release-branch-prefix": "wpcomsh",
+		"installer-disable": true,
 		"changelogger": {
 			"versioning": "semver"
 		},

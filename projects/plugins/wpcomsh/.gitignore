@@ -2,4 +2,3 @@ vendor/
 node_modules/
 /build
 /wordpress/
-/wp-content/
