@@ -44,7 +44,7 @@ function sync_wp_admin_locale_on_profile_update() {
 
 	$user_id = get_current_user_id();
 
-	if ( ! $user_id || ! empty( $locale ) ) {
+	if ( ! $user_id || empty( $locale ) ) {
 		return;
 	}
 
