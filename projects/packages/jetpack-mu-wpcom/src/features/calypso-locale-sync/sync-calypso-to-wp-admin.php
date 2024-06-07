@@ -30,6 +30,12 @@ function sync_calypso_locale_to_wp_admin() {
 
 	// Check for changes
 	if ( $locale && $locale !== get_user_option( 'locale' ) ) {
+		// Do not update locale when site-default is selected and Calypso locale matches the site language.
+		if ( '' === get_user_option( 'locale' ) && $locale === ( get_option( 'WPLANG' ) ? get_option( 'WPLANG' ) : 'en_US' ) ) {
+			// Empty locale means site-default and uses WPLANG but WPLANG is empty for English.
+			return;
+		}
+
 		// Install
 		install_locale( $locale );
 
