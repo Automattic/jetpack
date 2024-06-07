@@ -100,6 +100,7 @@ function current_visitor_can_access( $attributes, $block ) {
 		return false;
 	}
 
+	$can_view     = false;
 	$paywall      = subscription_service();
 	$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
 	$tier_ids     = \Jetpack_Memberships::get_all_newsletter_plan_ids();
@@ -128,7 +129,6 @@ function current_visitor_can_access( $attributes, $block ) {
 			$payload        = $paywall->decode_token( $token );
 			$is_valid_token = ! empty( $payload );
 
-			$can_view = false;
 			if ( $is_valid_token ) {
 				$subscriptions = (array) $payload['subscriptions'];
 			}
@@ -140,8 +140,12 @@ function current_visitor_can_access( $attributes, $block ) {
 				break;
 			}
 		}
-	} else {
-		$can_view = $paywall->visitor_can_view_content( $selected_plan_ids, $access_level );
+	}
+
+	$non_tier_ids = array_diff( $selected_plan_ids, $tier_ids );
+	if ( ! $can_view ) {
+		// For selected plans that are not tiers, we want to check if the user has any of the selected plans.
+		$can_view = $paywall->visitor_can_view_content( $non_tier_ids, $access_level );
 	}
 
 	if ( $can_view ) {
