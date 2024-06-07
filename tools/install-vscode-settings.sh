@@ -23,12 +23,12 @@ if [[ ! -f .vscode/settings.dist.json ]]; then
 fi
 
 # Create symlink.
-ln -s settings.dist.json .vscode/settings.json
+cp .vscode/settings.dist.json .vscode/settings.json
 
 # Verify success.
 if [[ ! -f .vscode/settings.json ]]; then
-	echo "Failed to create symlink!"
+	echo "Failed to create settings file!"
 	exit 2
 fi
 
-echo "Created VS Code settings symlink: .vscode/settings.json"
+echo "Copied VS Code settings into place: .vscode/settings.json"
