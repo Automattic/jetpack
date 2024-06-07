@@ -20,8 +20,7 @@
 		"babel-jest": "^29.7.0",
 		"jest": "^29.7.0",
 		"lodash": "^4.17.15",
-		"node-fetch": "^2.6.0",
-		"wp-prettier": "^1.1.7"
+		"node-fetch": "^2.6.0"
 	},
 	"scripts": {
 		"build": "echo 'Not implemented.'",
