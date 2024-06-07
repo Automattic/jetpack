@@ -4,24 +4,27 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "29cc6ca2c3261729eaf8463b68a206d6",
+    "content-hash": "64878728dabfc672c44fa54685bfad27",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "v2.0.1",
+            "version": "v2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "e7902faa3b908e13df1231e7fe0750923c2b3f80"
+                "reference": "113461a854d3d6551c173ca4c02dbc901bbefd27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/e7902faa3b908e13df1231e7fe0750923c2b3f80",
-                "reference": "e7902faa3b908e13df1231e7fe0750923c2b3f80",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/113461a854d3d6551c173ca4c02dbc901bbefd27",
+                "reference": "113461a854d3d6551c173ca4c02dbc901bbefd27",
                 "shasum": ""
             },
-            "type": "library",
-            "time": "2024-02-26T21:36:17+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "time": "2024-06-06T16:58:27+00:00"
         },
         {
             "name": "automattic/custom-fonts",
@@ -369,7 +372,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
+                "reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -387,7 +390,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -395,7 +398,7 @@
                 "mirror-repo": "Automattic/jetpack-classic-theme-helper",
                 "textdomain": "jetpack-classic-theme-helper",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-classic-theme-helper.php"
+                    "::PACKAGE_VERSION": "src/class-main.php"
                 }
             },
             "autoload": {
@@ -911,7 +914,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "6afbf5c272cdb3860f49a8bc915dfbbe1ed77ed5"
+                "reference": "572557dc75d57d3d1a24aed00fc6cfbbf784f618"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -942,7 +945,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.33.x-dev"
+                    "dev-trunk": "5.35.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1610,20 +1613,23 @@
         },
         {
             "name": "automattic/text-media-widget-styles",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/text-media-widget-styles.git",
-                "reference": "f4760bca8f2ca5763a947e23e54ea441e69fbcf1"
+                "reference": "83d7572593cc77f7d6c72477d853a7d9c110f264"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/text-media-widget-styles/zipball/f4760bca8f2ca5763a947e23e54ea441e69fbcf1",
-                "reference": "f4760bca8f2ca5763a947e23e54ea441e69fbcf1",
+                "url": "https://api.github.com/repos/Automattic/text-media-widget-styles/zipball/83d7572593cc77f7d6c72477d853a7d9c110f264",
+                "reference": "83d7572593cc77f7d6c72477d853a7d9c110f264",
                 "shasum": ""
             },
-            "type": "library",
-            "time": "2023-05-01T20:09:15+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "time": "2024-06-06T17:20:00+00:00"
         },
         {
             "name": "automattic/wc-calypso-bridge",
@@ -3047,7 +3053,7 @@
         },
         {
             "name": "roots/wordpress",
-            "version": "6.5.3",
+            "version": "6.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roots/wordpress.git",
@@ -3078,7 +3084,7 @@
             ],
             "support": {
                 "issues": "https://github.com/roots/wordpress/issues",
-                "source": "https://github.com/roots/wordpress/tree/6.5.3"
+                "source": "https://github.com/roots/wordpress/tree/6.5.4"
             },
             "funding": [
                 {
@@ -3161,22 +3167,22 @@
         },
         {
             "name": "roots/wordpress-no-content",
-            "version": "6.5.3",
+            "version": "6.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "6.5.3"
+                "reference": "6.5.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/release/wordpress-6.5.3-no-content.zip",
-                "shasum": "adeffdc339d34eab4209e88b17966d8917e36e91"
+                "url": "https://downloads.wordpress.org/release/wordpress-6.5.4-no-content.zip",
+                "shasum": "bb4d48b2f6f47f4c06061460c83f8453e9809af5"
             },
             "require": {
                 "php": ">= 7.0.0"
             },
             "provide": {
-                "wordpress/core-implementation": "6.5.3"
+                "wordpress/core-implementation": "6.5.4"
             },
             "suggest": {
                 "ext-curl": "Performs remote request operations.",
@@ -3227,7 +3233,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2024-05-07T16:02:20+00:00"
+            "time": "2024-06-06T12:30:39+00:00"
         },
         {
             "name": "sebastian/cli-parser",
