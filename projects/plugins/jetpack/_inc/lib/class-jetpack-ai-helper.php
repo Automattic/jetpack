@@ -377,6 +377,7 @@ class Jetpack_AI_Helper {
 				'usage-period'         => WPCOM\Jetpack_AI\Usage\Helper::get_period_data( $blog_id ),
 				'site-require-upgrade' => WPCOM\Jetpack_AI\Usage\Helper::site_requires_upgrade( $blog_id ),
 				'upgrade-type'         => $upgrade_type,
+				'upgrade-url'          => WPCOM\Jetpack_AI\Usage\Helper::get_upgrade_url( $blog_id ),
 				'current-tier'         => WPCOM\Jetpack_AI\Usage\Helper::get_current_tier( $blog_id ),
 				'next-tier'            => WPCOM\Jetpack_AI\Usage\Helper::get_next_tier( $blog_id ),
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
