@@ -347,16 +347,18 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
-		wp_localize_script(
-			'wpcom-block-editor-default-editor-script',
-			'jetpackMuWpcomGutenberg',
-			array(
-				'richTextToolbar' => array(
-					'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
-					'underline' => __( 'Underline', 'jetpack-mu-wpcom' ),
-				),
-			)
-		);
+		if ( ! ( new Host() )->is_wpcom_simple() ) { // Same object is already used in gutenberg-wpcom plugin.
+			wp_localize_script(
+				'wpcom-block-editor-default-editor-script',
+				'wpcomGutenberg',
+				array(
+					'richTextToolbar' => array(
+						'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
+						'underline' => __( 'Underline', 'jetpack-mu-wpcom' ),
+					),
+				)
+			);
+		}
 
 		wp_enqueue_script(
 			'wpcom-block-editor-wpcom-editor-script',
