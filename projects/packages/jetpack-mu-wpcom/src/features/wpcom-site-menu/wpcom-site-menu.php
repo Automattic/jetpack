@@ -140,24 +140,6 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/hosting-config/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
 		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Marketing', 'jetpack-mu-wpcom' ),
 		'manage_options',
