@@ -112,6 +112,10 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			// If this notice gets into a loading state, we want to show it above the rest
 			priority: NOTICE_PRIORITY_HIGH + ( siteIsRegistering ? 1 : 0 ),
 			isRedBubble: true,
+			tracksArgs: {
+				type: connectionError.type,
+				isError: connectionError.is_error,
+			},
 		};
 
 		const messageContent = requiresUserConnection ? (

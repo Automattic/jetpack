@@ -21,6 +21,7 @@ export type NoticeOptions = {
 	hideCloseButton?: boolean;
 	onClose?: () => void;
 	isRedBubble?: boolean;
+	tracksArgs?: Record< string, unknown >;
 };
 
 export type NoticeContextType< T = Notice > = {

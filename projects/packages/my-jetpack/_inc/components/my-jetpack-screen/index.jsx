@@ -44,17 +44,15 @@ import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
-	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 
 	useEffect( () => {
-		// Record details of the red bubble alert if available.
-		const details = redBubbleAlerts[ options.id ] ?? [];
+		const tracksArgs = options?.tracksArgs || {};
 
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
 			noticeId: options.id,
-			...details,
+			...tracksArgs,
 		} );
-	}, [ options.id, recordEvent, redBubbleAlerts ] );
+	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
