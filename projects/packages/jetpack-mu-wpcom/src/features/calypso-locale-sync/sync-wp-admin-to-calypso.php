@@ -38,13 +38,13 @@ function sync_wp_admin_locale_on_profile_update() {
 		$locale = sanitize_text_field( wp_unslash( $_POST['locale'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 
-	if ( empty( $locale ) ) {
+	if ( '' === $locale ) {
 		$locale = 'en';
 	}
 
 	$user_id = get_current_user_id();
 
-	if ( ! $user_id || null === $locale ) {
+	if ( ! $user_id || ! empty( $locale ) ) {
 		return;
 	}
 
