@@ -34,7 +34,7 @@ function update_calypso_locale( $locale ) {
 function sync_wp_admin_locale_on_profile_update() {
 	$user_id = get_current_user_id();
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing
-	$locale = isset( $_POST['locale'] ) ? sanitize_text_field( wp_unslash( $_POST['locale'] ) ) : '';
+	$locale = isset( $_POST['locale'] ) ? sanitize_text_field( wp_unslash( empty( $_POST['locale'] ) ? 'en' : $_POST['locale'] ) ) : null;
 	if ( ! $user_id || empty( $locale ) ) {
 		return;
 	}
