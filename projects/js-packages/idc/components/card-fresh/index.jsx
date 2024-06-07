@@ -109,7 +109,7 @@ const CardFresh = props => {
 											'<p><strong>Recommended for</strong></p>' +
 												'<list><item>development sites</item><item>sites that need access to all Jetpack features</item></list>' +
 												'<p><strong>Please note</strong> that creating a fresh connection for this site, <hostname>%1$s</hostname>, means that the connection on <hostname>%2$s</hostname> will need to be restored in case of cloning this site back to production. ' +
-												'<safeModeLink>Learn more</safeModeLink></p>',
+												'<safeModeLink>Learn more</safeModeLink>.</p>',
 											'jetpack'
 										),
 										currentHostName,

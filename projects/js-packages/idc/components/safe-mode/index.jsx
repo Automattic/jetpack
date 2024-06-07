@@ -150,7 +150,7 @@ const SafeMode = props => {
 										'<p><strong>Recommended for</strong></p>' +
 											'<list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list>' +
 											'<p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. ' +
-											'<safeModeLink>Learn more</safeModeLink></p>',
+											'<safeModeLink>Learn more</safeModeLink>.</p>',
 										'jetpack'
 									),
 								{

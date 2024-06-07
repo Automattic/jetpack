@@ -47,7 +47,7 @@ const ScreenMain = props => {
 							customContent.mainBodyText ||
 								__(
 									'Your site is in Safe Mode because you have 2 Jetpack-powered sites that appear to be duplicates. ' +
-										'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
+										'Two sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more about safe mode.</safeModeLink>',
 									'jetpack'
 								),
 							{
@@ -69,7 +69,7 @@ const ScreenMain = props => {
 								sprintf(
 									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
 									__(
-										'<span>Your site is in Safe Mode because <hostname>%1$s</hostname>, appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>' +
+										'<span>Your site is in Safe Mode because <hostname>%1$s</hostname> appears to be a staging or development copy of <hostname>%2$s</hostname>.</span>' +
 											'2 sites that are telling Jetpack they’re the same site. <safeModeLink>Learn more or troubleshoot common Safe mode issues</safeModeLink>.',
 										'jetpack'
 									),
