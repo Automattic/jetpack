@@ -123,23 +123,21 @@ fontStream
 		console.log( err );
 	} );
 
-glob( svgDir + '/*.svg', ( error, files ) => {
-	if ( error ) {
-		console.log( error );
-		return;
-	}
+const files = glob.sync( svgDir + '/*.svg' );
 
-	files.forEach( file => {
-		const glyph = fs.createReadStream( file );
-		const glyphName = path.basename( file, '.svg' );
-		const glyphUnicode = String.fromCharCode( getCodepoint( glyphName ) );
-		glyph.metadata = {
-			name: glyphName,
-			unicode: [ glyphUnicode ],
-		};
-		// Trigger `data` event on font stream.
-		fontStream.write( glyph );
-	} );
-	// Trigger `end` event on font stream.
-	fontStream.end();
+// Sort for consistency.
+files.sort();
+
+files.forEach( file => {
+	const glyph = fs.createReadStream( file );
+	const glyphName = path.basename( file, '.svg' );
+	const glyphUnicode = String.fromCharCode( getCodepoint( glyphName ) );
+	glyph.metadata = {
+		name: glyphName,
+		unicode: [ glyphUnicode ],
+	};
+	// Trigger `data` event on font stream.
+	fontStream.write( glyph );
 } );
+// Trigger `end` event on font stream.
+fontStream.end();
