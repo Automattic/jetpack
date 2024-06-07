@@ -302,6 +302,10 @@ class Status {
 	 * @return bool
 	 */
 	public static function is_development_site() {
+		$cached = Cache::get( 'is_development_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
 		$is_dev_site = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
 		/**
 		 * Filters is_development_site check.
@@ -312,6 +316,7 @@ class Status {
 		 */
 		$is_dev_site = apply_filters( 'jetpack_is_development_site', $is_dev_site );
 
+		Cache::set( 'is_development_site', $is_dev_site );
 		return $is_dev_site;
 	}
 
