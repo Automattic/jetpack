@@ -90,8 +90,7 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/overview/$domain" ),
-		'',
-		1
+		null
 	);
 
 	add_submenu_page(
