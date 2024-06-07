@@ -133,7 +133,7 @@
 			"versioning": "semver"
 		},
 		"version-constants": {
-			"WPCOMSH__VERSION": "wpcomsh.php"
+			"WPCOMSH_VERSION": "wpcomsh.php"
 		}
 	}
 }
