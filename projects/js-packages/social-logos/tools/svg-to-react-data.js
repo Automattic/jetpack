@@ -55,7 +55,9 @@ files.forEach( file => {
 			attrNameProcessors: [ kebabToCamelCase ],
 		},
 		function ( err, result ) {
-			if ( ! err ) {
+			if ( err ) {
+				throw err;
+			} else {
 				const builder = new xml2js.Builder( {
 					renderOpts: { pretty: false },
 					headless: true, //omit xml header

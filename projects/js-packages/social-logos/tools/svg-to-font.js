@@ -120,7 +120,7 @@ fontStream
 		console.log( `Created font files in '${ destFontDir }'.` );
 	} )
 	.on( 'error', function ( err ) {
-		console.log( err );
+		throw err;
 	} );
 
 const files = glob.sync( svgDir + '/*.svg' );
