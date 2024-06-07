@@ -1,6 +1,12 @@
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
+
 module.exports = {
 	root: true,
-	extends: [ 'plugin:jest/recommended', 'prettier' ],
+	extends: [
+		require.resolve( 'jetpack-js-tools/eslintrc/jest' ),
+		require.resolve( 'jetpack-js-tools/eslintrc/prettier' ),
+	],
+	ignorePatterns: loadIgnorePatterns( __dirname ),
 	overrides: [],
 	env: {
 		browser: true,
@@ -8,11 +14,10 @@ module.exports = {
 		node: true,
 	},
 	parserOptions: {
-		ecmaVersion: 2018,
+		ecmaVersion: 2020,
 		sourceType: 'module',
 	},
 	globals: {},
-	plugins: [ 'jest', 'import' ],
 	settings: {},
 	rules: {
 		'jest/no-disabled-tests': 'warn',
