@@ -1,6 +1,5 @@
 import {
 	ADD_CONNECTION,
-	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
@@ -56,12 +55,6 @@ const connectionData = ( state = {}, action ) => {
 				deletingConnections: [ ...deleting ],
 			};
 		}
-
-		case CREATING_CONNECTION:
-			return {
-				...state,
-				creatingConnection: action.creating,
-			};
 
 		case UPDATE_CONNECTION:
 			return {
