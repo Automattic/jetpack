@@ -36,8 +36,6 @@ package.json      export-ignore
 /vendor/automattic/jetpack-autoloader/**      production-exclude
 /vendor/automattic/jetpack-changelogger/**    production-exclude
 /vendor/automattic/jetpack-composer-plugin/** production-exclude
-**/.phan/**                                   production-exclude
-**/.w.org-assets/**                           production-exclude
 /bin/**                                       production-exclude
 /build/**                                     production-exclude
 /node_modules/**                              production-exclude
