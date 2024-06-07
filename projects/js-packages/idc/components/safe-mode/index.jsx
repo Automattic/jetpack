@@ -90,7 +90,7 @@ const SafeMode = props => {
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
 
 	const buttonLabel =
-		customContent.stayInSafeModehButtonLabel || __( 'Stay in Safe mode', 'jetpack' );
+		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack' );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
