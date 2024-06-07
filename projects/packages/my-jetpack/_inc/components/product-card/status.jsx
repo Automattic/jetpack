@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import classNames from 'classnames';
-import { PRODUCT_STATUSES } from './action-button';
+import { PRODUCT_STATUSES } from '../../constants';
 import styles from './style.module.scss';
 import { PRODUCT_STATUSES_LABELS } from '.';
 
