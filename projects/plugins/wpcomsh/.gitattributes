@@ -7,37 +7,7 @@ package.json      export-ignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
 # Files to include in Automattic/wpcom-site-helper
-/*.php                                        production-include
-/assets/**                                    production-include
-/block-theme-footer-credits/**                production-include
-/customizer-fixes/**                          production-include
-/custom-colors/**                             production-include
-/endpoints/**                                 production-include
-/feature-plugins/**                           production-include
-/footer-credit/**                             production-include
-/frontend-notices/**                          production-include
-/imports/**                                   production-include
-/jetpack-require-connection-owner/**          production-include
-/jetpack-token-error-header/**                production-include
-/jetpack-token-resilience/**                  production-include
-/languages/**                                 production-include
-/lib/**                                       production-include
-/logo-tool/**                                 production-include
-/mailpoet/**                                  production-include
-/notices/**                                   production-include
-/privacy/**                                   production-include
-/private-site/**                              production-include
-/safeguard/**                                 production-include
-/share-post/**                                production-include
-/storage/**                                   production-include
-/storefront/**                                production-include
-/tests/**                                     production-include
 /vendor/**                                    production-include
-/widgets/**                                   production-include
-/wpcom-features/**                            production-include
-/wpcom-migration-helpers/**                   production-include
-/wpcom-plugins/**                             production-include
-/wpcom-themes/**                              production-include
 /vendor/autoload.php                          production-include
 /vendor/automattic/**                         production-include
 /vendor/composer/**                           production-include
