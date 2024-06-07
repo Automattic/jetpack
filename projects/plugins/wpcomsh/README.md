@@ -104,20 +104,8 @@ In order for WordPress to load the test site correctly, you'll need to access th
 
 ## Deployment
 
-### Dependencies
-
-- The deployment tooling requires [GitHub CLI](https://cli.github.com/) - `brew install gh`
-
-### Deployment instructions
-
-- Make sure there are no uncommitted changes
-- Run `bin/update-version.sh` and provide the new version. This will update the versions in `package.json`, `package-lock.json`, and `wpcomsh.php`. Make sure there are no other changes. Commit these changes and create a PR.
-- Once your PR has been reviewed and approved, “Squash and merge” your PR.
-- Now checkout the latest trunk branch with `git checkout trunk` and `git pull`.
-- Tag the release with the command `make tag`.
-- Run the git push command suggested by make tag.
-- Run `bin/create-github-release.sh` to build a new release zip and create a GitHub release. This reads the version number to use for the build from `wpcomsh.php`, which is set in the first step.
-- You can view your [successful release here](https://github.com/Automattic/wpcomsh/releases).
+- Use the Monorepo deployment tools available in the `tools` folder in the root. For more information on releasing a plugin go to [the Monorepo deployment docs](../../../docs/monorepo.md#plugin-release-tooling).
+- You can view your [successful release here](https://github.com/Automattic/wpcom-site-helper/releases).
 - New versions are deployed when our monitoring detects its release.
   - Note: You can monitor [#atomic-alerts](https://a8c.slack.com/archives/C05GLGHLM8U) channel to see when the new version is deployed.
 
