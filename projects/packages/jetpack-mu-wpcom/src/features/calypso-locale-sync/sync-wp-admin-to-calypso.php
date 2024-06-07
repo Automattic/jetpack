@@ -32,9 +32,19 @@ function update_calypso_locale( $locale ) {
  * Sync locale updated via /wp-admin/profile.php to Calypso.
  */
 function sync_wp_admin_locale_on_profile_update() {
-	$user_id = get_current_user_id();
+	$locale = null;
+
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing
-	$locale = isset( $_POST['locale'] ) ? sanitize_text_field( wp_unslash( empty( $_POST['locale'] ) ? 'en' : $_POST['locale'] ) ) : null;
+	if ( isset( $_POST['locale'] ) ) {
+		$locale = sanitize_text_field( wp_unslash( $_POST['locale'] ) );
+	}
+
+	if ( empty( $locale ) ) {
+		$locale = 'en';
+	}
+
+	$user_id = get_current_user_id();
+
 	if ( ! $user_id || ! isset( $locale ) ) {
 		return;
 	}
