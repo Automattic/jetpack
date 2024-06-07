@@ -59,6 +59,20 @@ function sync_wp_admin_locale_on_profile_update() {
 	update_calypso_locale( $locale );
 }
 
+/**
+ * Sync wp-admin site locale to Calypso when wp-admin user locale has "Site Default" option selected.
+ *
+ * @param array $old_value    Old value of the option WPLANG.
+ * @param array $new_value    New value of the option WPLANG.
+ */
+function sync_wp_admin_site_locale_with_site_default_to_calypso( $old_value, $new_value ) {
+	if ( empty( get_user_option( 'locale' ) ) ) {
+		// Empty user locale means site-default and uses the site language (WPLANG) or "en" when WPLANG is empty.
+		update_calypso_locale( $new_value ? $new_value : 'en' );
+	}
+}
+
 if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_action( 'personal_options_update', 'sync_wp_admin_locale_on_profile_update' );
+	add_filter( 'update_option_WPLANG', 'sync_wp_admin_site_locale_with_site_default_to_calypso', 10, 2 );
 }
