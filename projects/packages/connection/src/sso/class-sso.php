@@ -268,7 +268,7 @@ class SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! ( new Status() )->is_staging_site() ) {
+		if ( ! ( new Status() )->in_safe_mode() ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -488,8 +488,8 @@ class SSO {
 			if ( isset( $_GET['result'] ) && isset( $_GET['user_id'] ) && isset( $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
-			} elseif ( ( new Status() )->is_staging_site() ) {
-				add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
+			} elseif ( ( new Status() )->in_safe_mode() ) {
+				add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
 			} else {
 				// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 				add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
@@ -531,8 +531,8 @@ class SSO {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 		add_action( 'login_head', array( $this, 'print_inline_admin_css' ) );
 
-		if ( ( new Status() )->is_staging_site() ) {
-			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_staging' ) );
+		if ( ( new Status() )->in_safe_mode() ) {
+			add_filter( 'login_message', array( Notices::class, 'sso_not_allowed_in_safe_mode' ) );
 			return;
 		}
 

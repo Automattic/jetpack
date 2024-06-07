@@ -21,6 +21,7 @@ import './style.scss';
  * @param {boolean} isDisabled - Whether the button should be disabled.
  * @returns {React.Component} - The rendered output.
  */
+
 const renderStaySafeButton = ( callback, isDisabled ) => {
 	return createInterpolateElement(
 		__( 'Or decide later and stay in <button>Safe mode</button>', 'jetpack' ),
@@ -84,8 +85,12 @@ const SafeMode = props => {
 		clearErrorType,
 		hasError = false,
 		customContent,
+		isDevelopmentSite,
 	} = props;
 	const [ isStayingSafe, setIsStayingSafe ] = useState( false );
+
+	const buttonLabel =
+		customContent.stayInSafeModeButtonLabel || __( 'Stay in Safe mode', 'jetpack' );
 
 	const staySafeCallback = useCallback( () => {
 		if ( ! isActionInProgress ) {
@@ -114,13 +119,76 @@ const SafeMode = props => {
 	}, [ isActionInProgress, setIsActionInProgress, setErrorType, clearErrorType ] );
 
 	return (
-		<div className="jp-idc__safe-mode">
-			{ isStayingSafe
-				? renderStayingSafe()
-				: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
+		<React.Fragment>
+			{ ! isDevelopmentSite ? (
+				<div className="jp-idc__safe-mode">
+					{ isStayingSafe
+						? renderStayingSafe()
+						: renderStaySafeButton( staySafeCallback, isActionInProgress ) }
 
-			{ hasError && renderError( customContent.supportURL ) }
-		</div>
+					{ hasError && renderError( customContent.supportURL ) }
+				</div>
+			) : (
+				<div
+					className={
+						'jp-idc__idc-screen__card-action-base' +
+						( hasError ? ' jp-idc__idc-screen__card-action-error' : '' )
+					}
+				>
+					<div className="jp-idc__idc-screen__card-action-top">
+						<h4>
+							{ customContent.safeModeTitle
+								? createInterpolateElement( customContent.safeModeTitle, { em: <em /> } )
+								: __( 'Stay in Safe Mode', 'jetpack' ) }
+						</h4>
+
+						<div>
+							{ createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+									__(
+										'<p><strong>Recommended for</strong></p>' +
+											'<list><item>short-lived test sites</item><item>sites that will be cloned back to production after testing</item></list>' +
+											'<p><strong>Please note</strong> that staying in Safe mode will disable some Jetpack features, including security features such as SSO, firewall, and site monitor. ' +
+											'<safeModeLink>Learn more</safeModeLink>.</p>',
+										'jetpack'
+									),
+								{
+									p: <p />,
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+									list: <ul />,
+									item: <li />,
+									safeModeLink: (
+										<a
+											href={
+												customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' )
+											}
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+							) }
+						</div>
+					</div>
+
+					<div className="jp-idc__idc-screen__card-action-bottom">
+						<Button
+							className="jp-idc__idc-screen__card-action-button-secondary"
+							label={ buttonLabel }
+							onClick={ staySafeCallback }
+							disabled={ isActionInProgress }
+						>
+							{ isStayingSafe ? <Spinner color="black" /> : buttonLabel }
+						</Button>
+
+						{ hasError && renderError( customContent.supportURL ) }
+					</div>
+				</div>
+			) }
+		</React.Fragment>
 	);
 };
 
@@ -137,6 +205,7 @@ SafeMode.propTypes = {
 	hasError: PropTypes.bool,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default compose( [
