@@ -129,7 +129,6 @@ function current_visitor_can_access( $attributes, $block ) {
 			$payload        = $paywall->decode_token( $token );
 			$is_valid_token = ! empty( $payload );
 
-			$can_view = false;
 			if ( $is_valid_token ) {
 				$subscriptions = (array) $payload['subscriptions'];
 			}
