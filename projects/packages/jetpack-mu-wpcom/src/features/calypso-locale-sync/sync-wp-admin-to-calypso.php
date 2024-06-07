@@ -39,6 +39,12 @@ function sync_wp_admin_locale_on_profile_update() {
 		return;
 	}
 
+	// To further prevent a potential unexpected amplification of the underlying async jobs,
+	// we only trigger the sync from either admin pages or API requests.
+	if ( ! is_admin() && ( ! defined( 'REST_REQUEST' ) || ! REST_REQUEST ) ) {
+		return;
+	}
+
 	$locale = null;
 
 	if ( isset( $_POST['locale'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
