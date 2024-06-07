@@ -96,7 +96,7 @@ function sync_wp_admin_site_locale_with_site_default_to_calypso( $old_value, $ne
 	}
 }
 
-if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 	add_action( 'personal_options_update', 'sync_wp_admin_locale_on_profile_update' );
 	add_filter( 'update_option_WPLANG', 'sync_wp_admin_site_locale_with_site_default_to_calypso', 10, 2 );
 }
