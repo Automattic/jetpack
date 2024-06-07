@@ -5,7 +5,7 @@ body.jetpack-subscribe-overlay-open {
 .jetpack-subscribe-overlay {
 	--jetpack-subscribe-overlay--background-color: var(--wp--preset--color--background, var(--wp--preset--color--base, var(--wp--preset--color--contrast, #F9F9F9)));
 
-	visibility: hidden;
+	opacity: 0;
 	position: fixed;
 	z-index: 50000; /* Same as WP.com Action bar */
 	left: 0;
@@ -13,19 +13,16 @@ body.jetpack-subscribe-overlay-open {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	background-color: transparent;
-	transition: background-color 0.4s, visibility 0.4s;
+	background-color: var(--jetpack-subscribe-overlay--background-color);
+	transition: opacity 0.4s;
 }
 
 .jetpack-subscribe-overlay__content {
 	position: relative;
-	visibility: hidden;
 	overflow: hidden;
 	top: 100%;
-	margin: 15% auto;
 	width: 100%;
-	max-width: 400px;
-	transition: top 0.4s, visibility 0.4s;
+	transition: top 0.4s;
 	text-wrap: pretty;
 }
 
@@ -37,6 +34,7 @@ body.jetpack-subscribe-overlay-open {
 	right: 32px;
 	width: 24px;
 	height: 24px;
+	z-index: 50001;
 }
 
 body.admin-bar .jetpack-subscribe-overlay__close {
@@ -53,12 +51,10 @@ body.admin-bar .jetpack-subscribe-overlay__close {
 }
 
 .jetpack-subscribe-overlay.open {
-	background-color: var(--jetpack-subscribe-overlay--background-color);
-	visibility: visible;
+	opacity: 1;
 
 	.jetpack-subscribe-overlay__content {
 		top: 0;
-		visibility: visible;
 	}
 
 	.jetpack-subscribe-overlay__close {

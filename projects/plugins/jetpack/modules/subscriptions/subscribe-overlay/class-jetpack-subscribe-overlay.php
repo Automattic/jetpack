@@ -119,19 +119,24 @@ class Jetpack_Subscribe_Overlay {
 		$group_block_name = esc_attr__( 'Subscribe overlay container', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"metadata":{"name":"$group_block_name"},"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
-	<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
-		<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
+	<!-- wp:group {"metadata":{"name":"$group_block_name"},"style":{"dimensions":{"minHeight":"100vh"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"center","verticalAlignment":"center"}} -->
+	<div class="wp-block-group" style="min-height:100vh">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
+		<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 
-		<!-- wp:site-title {"textAlign":"center","isLink":false,"fontSize":"x-large"} /-->
+			<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 
-		$tagline_block
+			<!-- wp:site-title {"textAlign":"center","isLink":false,"fontSize":"x-large"} /-->
 
-		<!-- wp:jetpack/subscriptions /-->
+			$tagline_block
 
-		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
-		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="$home_url">$skip_to_content ↓</a></p>
-		<!-- /wp:paragraph -->
+			<!-- wp:jetpack/subscriptions /-->
+
+			<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
+			<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="$home_url">$skip_to_content ↓</a></p>
+			<!-- /wp:paragraph -->
+		</div>
+		<!-- /wp:group -->
 	</div>
 	<!-- /wp:group -->
 HTML;
