@@ -1,7 +1,3 @@
-// Note if you change something here, you'll have to make a package.json mismatch pnpm-lock.yaml to
-// get it re-run. An easy way to do that is to just edit pnpm-lock.yaml to change the version number
-// of husky near the top.
-
 /**
  * Fix package dependencies.
  *
@@ -179,20 +175,13 @@ function afterAllResolved( lockfile ) {
 		return lockfile;
 	}
 
+	// eslint-disable-next-line no-unused-vars -- Don't care.
 	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
-		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
-		// https://github.com/pnpm/pnpm/issues/3935
-		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
-			throw new Error(
-				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
-			);
-		}
-
 		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
 		// https://github.com/WordPress/gutenberg/issues/62202
 		if (
-			k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/' ) &&
-			! k.startsWith( '/@wordpress/dependency-extraction-webpack-plugin/5.' )
+			k.startsWith( '@wordpress/dependency-extraction-webpack-plugin@' ) &&
+			! k.startsWith( '@wordpress/dependency-extraction-webpack-plugin@5.' )
 		) {
 			throw new Error(
 				'@wordpress/dependency-extraction-webpack-plugin >= 6.0.0 is not allowed until we drop WordPress 6.5 support.\nSee https://github.com/WordPress/gutenberg/issues/62202 for details.'
