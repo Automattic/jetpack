@@ -1,12 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
-import { ManageConnectionsModalWithTrigger as ManageConnectionsModal } from '../manage-connections-modal';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
@@ -44,6 +44,8 @@ const ConnectionManagement = ( { className = null } ) => {
 		{}
 	);
 
+	const { openConnectionsModal } = useDispatch( store );
+
 	return (
 		<div className={ classNames( styles.wrapper, className ) }>
 			{ connections.length ? (
@@ -69,13 +71,13 @@ const ConnectionManagement = ( { className = null } ) => {
 					</ul>
 				</>
 			) : null }
-			<ManageConnectionsModal
-				trigger={
-					<Button variant={ connections.length ? 'secondary' : 'primary' }>
-						{ __( 'Connect an account', 'jetpack' ) }
-					</Button>
-				}
-			/>
+			<ManageConnectionsModal />
+			<Button
+				variant={ connections.length ? 'secondary' : 'primary' }
+				onClick={ openConnectionsModal }
+			>
+				{ __( 'Connect an account', 'jetpack' ) }
+			</Button>
 		</div>
 	);
 };
