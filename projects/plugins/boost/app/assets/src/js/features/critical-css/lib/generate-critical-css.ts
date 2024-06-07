@@ -191,7 +191,7 @@ async function generateForKeys(
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
 	} catch ( err ) {
 		recordBoostEvent( 'critical_css_library_failure', {} );
-		throw new Error( 'Critical CSS Generator library is either not found or invalid.' );
+		throw new Error( 'css-gen-library-failure' );
 	}
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return

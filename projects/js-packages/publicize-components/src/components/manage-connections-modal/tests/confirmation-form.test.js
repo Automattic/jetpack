@@ -71,11 +71,18 @@ describe( 'ConfirmationForm', () => {
 		await userEvent.click( screen.getByText( 'Confirm' ) );
 
 		await waitFor( () =>
-			expect( stubCreateConnection ).toHaveBeenCalledWith( {
-				external_user_ID: 'additional-2',
-				keyring_connection_ID: 'service-1',
-				shared: undefined,
-			} )
+			expect( stubCreateConnection ).toHaveBeenCalledWith(
+				{
+					external_user_ID: 'additional-2',
+					keyring_connection_ID: 'service-1',
+					shared: undefined,
+				},
+				{
+					display_name: 'Additional User 2',
+					profile_picture: 'https://example.com/additional2.jpg',
+					service_name: 'service-1',
+				}
+			)
 		);
 	} );
 
@@ -86,11 +93,18 @@ describe( 'ConfirmationForm', () => {
 		await userEvent.click( screen.getByText( 'Confirm' ) );
 
 		await waitFor( () =>
-			expect( stubCreateConnection ).toHaveBeenCalledWith( {
-				external_user_ID: 'additional-1',
-				keyring_connection_ID: 'service-1',
-				shared: true,
-			} )
+			expect( stubCreateConnection ).toHaveBeenCalledWith(
+				{
+					external_user_ID: 'additional-1',
+					keyring_connection_ID: 'service-1',
+					shared: true,
+				},
+				{
+					display_name: 'Additional User 1',
+					profile_picture: 'https://example.com/additional1.jpg',
+					service_name: 'service-1',
+				}
+			)
 		);
 	} );
 

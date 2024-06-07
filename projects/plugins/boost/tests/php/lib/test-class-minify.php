@@ -15,7 +15,7 @@ class WP_Test_Minify extends Base_Test_Case {
 var two = "two";
 var three = "three";';
 
-		$minified_js = 'var one="one";var two="two";var three="three";';
+		$minified_js = 'var one="one";var two="two";var three="three"';
 
 		$this->assertEquals( $minified_js, Minify::js( $expanded_js ) );
 	}

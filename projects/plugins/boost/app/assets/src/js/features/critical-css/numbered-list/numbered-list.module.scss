@@ -1,24 +1,31 @@
 .numbered-list {
 	list-style-type: none;
 	margin-left: 0;
+	margin: 0;
 
 	li {
-		margin-bottom: 0.5em;
+		margin-bottom: 1em;
 		display: flex;
 	}
 
+	li:last-child {
+		margin-bottom: 0;
+	}
+
 	.text {
-	  	flex: 1;
+		flex: 1;
+		line-height: 1.3em;
 	}
 
 	.index {
 		border: 1px solid #ccc;
 		border-radius: 50%;
 		display: block;
-		width: 1.5em;
-		height: 1.5em;
+		width: 1.4em;
+		height: 1.4em;
 		text-align: center;
-		line-height: 1.4em;
+		line-height: 1.3em;
+		font-size: 14px;
 		margin-right: 5px;
 	}
 }
