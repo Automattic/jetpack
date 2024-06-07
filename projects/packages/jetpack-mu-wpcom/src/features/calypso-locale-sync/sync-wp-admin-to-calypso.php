@@ -34,9 +34,8 @@ function update_calypso_locale( $locale ) {
 function sync_wp_admin_locale_on_profile_update() {
 	$locale = null;
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing
-	if ( isset( $_POST['locale'] ) ) {
-		$locale = sanitize_text_field( wp_unslash( $_POST['locale'] ) );
+	if ( isset( $_POST['locale'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$locale = sanitize_text_field( wp_unslash( $_POST['locale'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 
 	if ( empty( $locale ) ) {
