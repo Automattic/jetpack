@@ -3,9 +3,9 @@
 # See: p1HpG7-sQE-p2
 #
 # Exit codes:
-#   0: all is well
+#   0: All is well
 #   1: Repo settings template is missing
-#   2: Symlink creation failed
+#   2: Settings file creation failed
 
 # Go to monorepo root.
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
