@@ -127,7 +127,6 @@ class Test_Masterbar extends TestCase {
 		$this->assertTrue( wp_script_is( 'a8c_wpcom_css_override' ) );
 		$this->assertTrue( wp_script_is( 'jetpack-accessible-focus' ) );
 		$this->assertTrue( wp_script_is( 'a8c_wpcom_masterbar_tracks_events' ) );
-		$this->assertTrue( wp_script_is( 'a8c_wpcom_masterbar_overrides' ) );
 	}
 
 	/**

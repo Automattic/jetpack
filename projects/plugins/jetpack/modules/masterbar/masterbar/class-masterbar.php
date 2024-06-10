@@ -337,14 +337,6 @@ class Masterbar {
 			JETPACK__VERSION,
 			false
 		);
-
-		wp_enqueue_script(
-			'a8c_wpcom_masterbar_overrides',
-			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			false
-		);
 	}
 
 	/**
