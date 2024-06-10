@@ -37,5 +37,6 @@
 		"**/jetpack_vendor/**",
 		"**/vendor/**",
 	],
-	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs",
+	"php.version": "7.0"
 }
