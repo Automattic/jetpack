@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack\Google_Analytics;
 
+use Automattic\Jetpack\Modules;
 use WP_Error;
 
 /**
@@ -46,6 +47,7 @@ class GA_Manager {
 			'ec_track_add_to_cart' => false,
 		),
 		'1.4' => array(
+			'is_active'                     => false, // This default value will most likely be overwritten by the current status of the GA module.
 			'code'                          => '',
 			'anonymize_ip'                  => false,
 			'honor_dnt'                     => false,
@@ -142,6 +144,10 @@ class GA_Manager {
 		$wga         = get_option( $option_name, array() );
 		$wga['code'] = $value['code'];
 
+		if ( ! array_key_exists( 'is_active', $wga ) ) {
+			$wga['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
+		}
+
 		/**
 		 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
 		 *
@@ -208,9 +214,18 @@ class GA_Manager {
 
 	/**
 	 * Get GA settings.
+	 *
+	 * @return array
 	 */
 	public function get_google_analytics_settings() {
-		return get_option( $this->get_google_analytics_option_name() );
+		$settings = get_option( $this->get_google_analytics_option_name() );
+
+		// Save the `is_active` property depending on the module status.
+		if ( is_array( $settings ) && ! array_key_exists( 'is_active', $settings ) ) {
+			$settings['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
+		}
+
+		return $settings;
 	}
 
 	/**

@@ -22,14 +22,16 @@ class Modules {
 	 * Check whether or not a Jetpack module is active.
 	 *
 	 * @param string $module The slug of a Jetpack module.
+	 * @param bool   $available_only Whether to only check among available modules.
+	 *
 	 * @return bool
 	 */
-	public function is_active( $module ) {
+	public function is_active( $module, $available_only = true ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return true;
 		}
 
-		return in_array( $module, self::get_active(), true );
+		return in_array( $module, self::get_active( $available_only ), true );
 	}
 
 	/**
@@ -184,8 +186,12 @@ class Modules {
 
 	/**
 	 * Get a list of activated modules as an array of module slugs.
+	 *
+	 * @param bool $available_only Filter out the unavailable (deleted) modules.
+	 *
+	 * @return array
 	 */
-	public function get_active() {
+	public function get_active( $available_only = true ) {
 		$active = \Jetpack_Options::get_option( 'active_modules' );
 
 		if ( ! is_array( $active ) ) {
@@ -206,9 +212,11 @@ class Modules {
 			$active[] = 'protect';
 		}
 
-		// If it's not available, it shouldn't be active.
-		// We don't delete it from the options though, as it will be active again when a plugin gets reactivated.
-		$active = array_intersect( $active, $this->get_available() );
+		if ( $available_only ) {
+			// If it's not available, it shouldn't be active.
+			// We don't delete it from the options though, as it will be active again when a plugin gets reactivated.
+			$active = array_intersect( $active, $this->get_available() );
+		}
 
 		/**
 		 * Allow filtering of the active modules.

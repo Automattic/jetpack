@@ -1347,9 +1347,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "10874bea4538723174807e03c17c17c3dac6ef3a"
+				"reference": "9aacc5acb62eda87adf12a76dcc1d006103adf5c"
 			},
 			"require": {
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
