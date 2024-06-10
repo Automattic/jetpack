@@ -7,16 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.35.0] - 2024-06-10
 ### Added
-- Jetpack-mu-wpcom: Add hosting > overview menu option on wp-admin sidebar [#37732]
+- Add Hosting > Overview menu option on WP Admin sidebar. [#37732]
 
 ### Changed
 - WPCOM Block Editor: Moved from Jetpack Plugin to mu-wpcom [#37324]
 
 ### Removed
-- Jetpack-mu-wpcom: Remove the hosting menu options monitoring and configuration [#37736]
+- Remove Monitoring and Configuration menu options from Hosting menu. [#37736]
 
 ### Fixed
-- mu-wpcom: Fixed typo in setcookie call [#37774]
+- Fixed typo in setcookie call [#37774]
 
 ## [5.34.0] - 2024-06-06
 ### Added
