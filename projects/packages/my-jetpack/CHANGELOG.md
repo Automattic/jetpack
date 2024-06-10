@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.24.5] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
 ## [4.24.4] - 2024-06-10
 ### Added
 - Add mechanism to track previously working plugins [#37537]
@@ -1503,6 +1507,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.24.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.4...4.24.5
 [4.24.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.3...4.24.4
 [4.24.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.2...4.24.3
 [4.24.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.1...4.24.2
