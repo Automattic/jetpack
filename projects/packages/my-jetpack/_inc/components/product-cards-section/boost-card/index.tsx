@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { PRODUCT_STATUSES } from '../../../constants';
 import ProductCard from '../../connected-product-card';
-import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import BoostSpeedScore from './boost-speed-score';
 import type { FC } from 'react';
 

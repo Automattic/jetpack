@@ -311,7 +311,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
+                "reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -329,7 +329,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -337,7 +337,7 @@
                 "mirror-repo": "Automattic/jetpack-classic-theme-helper",
                 "textdomain": "jetpack-classic-theme-helper",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-classic-theme-helper.php"
+                    "::PACKAGE_VERSION": "src/class-main.php"
                 }
             },
             "autoload": {
@@ -416,7 +416,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
+                "reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -451,7 +451,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.9.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -780,7 +780,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "ee598d3fbc8b143e8fd73d7d6790b7da948e1507"
+                "reference": "572557dc75d57d3d1a24aed00fc6cfbbf784f618"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -811,7 +811,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.34.x-dev"
+                    "dev-trunk": "5.35.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1083,7 +1083,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "a73f14c137cb5bfa1ed40ff0927573261dee3d1b"
+                "reference": "51130b6feb1e67769587bd503d52f17207303c6a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1110,7 +1110,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -1217,7 +1217,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
+                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1242,7 +1242,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1279,7 +1279,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
+                "reference": "6b8af670d924432fb2457a8eb59cb32330bfc25a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1312,7 +1312,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

@@ -19,6 +19,7 @@ import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
+import { PRODUCT_STATUSES } from '../../constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
@@ -36,7 +37,6 @@ import ConnectionsSection from '../connections-section';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
-import { PRODUCT_STATUSES } from '../product-card';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
 import WelcomeBanner from '../welcome-banner';

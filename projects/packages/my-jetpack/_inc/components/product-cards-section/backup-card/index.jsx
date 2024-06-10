@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import {
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
@@ -16,7 +17,6 @@ import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
-import { PRODUCT_STATUSES } from '../../product-card/action-button';
 import styles from './style.module.scss';
 
 const getIcon = slug => {
