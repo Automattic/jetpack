@@ -30,6 +30,7 @@ function jetpack_user_content_link_redirection() {
 				'user_id'    => get_current_user_id(),
 				'properties' => array(
 					'query_params' => $query_params,
+					'source'       => 'jetpack',
 				),
 			)
 		);
