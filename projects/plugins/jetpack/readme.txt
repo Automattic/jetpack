@@ -328,8 +328,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.6-a.1 - 2024-06-10
 #### Bug fixes
-- External media: Ensured the connect URL has the correct blog ID and verification values.
-- Slideshow: Ensure whole block is selectable in the editor
+- External media: Ensure connect URL has the correct blog ID and verification values.
+- Slideshow: Ensure whole block is selectable in the editor.
 
 --------
 
