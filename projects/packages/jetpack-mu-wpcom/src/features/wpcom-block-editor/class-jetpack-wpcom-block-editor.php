@@ -497,7 +497,7 @@ class Jetpack_WPCOM_Block_Editor {
 			array_walk(
 				$this->set_cookie_args,
 				function ( $cookie ) {
-					call_user_func_array( 'set_cookie', $cookie );
+					call_user_func_array( 'setcookie', $cookie );
 				}
 			);
 			$this->set_cookie_args = array();
