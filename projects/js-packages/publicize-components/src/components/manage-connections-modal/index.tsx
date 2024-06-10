@@ -73,12 +73,7 @@ export const ManageConnectionsModal = () => {
  */
 export function ThemedConnectionsModal() {
 	const shouldModalBeOpen = useSelect( select => {
-		const keyringResult = select( store ).getKeyringResult();
-
-		// It's possible that when reconnecting a connection from within the modal,
-		// the user closes the modal immediately, without waiting for the confirmation,
-		// in that case we should show the modal again when the keyringResult is set.
-		return keyringResult?.ID || select( store ).isConnectionsModalOpen();
+		return select( store ).isConnectionsModalOpen();
 	}, [] );
 
 	return (
