@@ -12,9 +12,7 @@ import { logError } from './error';
 import { isDevelopmentMode } from './utils';
 
 export const initializeExPlat = (): void => {
-	if ( window.jetpackTracks?.isEnabled ) {
-		initializeAnonId().catch( e => logError( { message: e.message } ) );
-	}
+	initializeAnonId().catch( e => logError( { message: e.message } ) );
 };
 
 initializeExPlat();

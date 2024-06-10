@@ -11,10 +11,6 @@ export const fetchExperimentAssignment = async ( {
 	experimentName: string;
 	anonId: string | null;
 } ): Promise< unknown > => {
-	if ( ! window.jetpackTracks?.isEnabled ) {
-		throw new Error( `Tracking is disabled, can't fetch experimentAssignment` );
-	}
-
 	const params = stringify( {
 		experiment_name: experimentName,
 		anon_id: anonId ?? undefined,

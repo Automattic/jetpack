@@ -57,9 +57,5 @@ export const initializeAnonId = async (): Promise< string | null > => {
 };
 
 export const getAnonId = async (): Promise< string | null > => {
-	if ( ! window.jetpackTracks?.isEnabled ) {
-		return null;
-	}
-
 	return await initializeAnonIdPromise;
 };

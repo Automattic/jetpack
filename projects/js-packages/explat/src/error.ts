@@ -25,10 +25,6 @@ export const logError = ( error: Record< string, string > & { message: string } 
 		if ( isDevelopmentMode ) {
 			console.error( '[ExPlat] ', error.message, error ); // eslint-disable-line no-console
 		} else {
-			if ( ! window.jetpackTracks?.isEnabled ) {
-				throw new Error( `Tracking is disabled, can't send error to the server` );
-			}
-
 			const body = new window.FormData();
 			body.append( 'error', JSON.stringify( logStashError ) );
 			/* @todo Jetpack: point to Jetpack API. */
