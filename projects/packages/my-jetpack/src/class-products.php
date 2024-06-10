@@ -66,6 +66,25 @@ class Products {
 	);
 
 	/**
+	 * List of all statuses that a product can have
+	 *
+	 * @var array
+	 */
+	public static $all_statuses = array(
+		self::STATUS_SITE_CONNECTION_ERROR,
+		self::STATUS_USER_CONNECTION_ERROR,
+		self::STATUS_ACTIVE,
+		self::STATUS_CAN_UPGRADE,
+		self::STATUS_INACTIVE,
+		self::STATUS_MODULE_DISABLED,
+		self::STATUS_PLUGIN_ABSENT,
+		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
+		self::STATUS_NEEDS_PURCHASE,
+		self::STATUS_NEEDS_PURCHASE_OR_FREE,
+		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
+	);
+
+	/**
 	 * Get the list of Products classes
 	 *
 	 * Here's where all the existing Products are registered
@@ -209,7 +228,7 @@ class Products {
 				'status'      => array(
 					'title' => 'The product status',
 					'type'  => 'string',
-					'enum'  => array( 'active', 'inactive', 'plugin_absent', 'plugin_absent_with_plan', 'needs_purchase', 'needs_purchase_or_free', 'needs_first_site_connection', 'user_connection_error', 'site_connection_error', 'can_upgrade', 'module_disabled' ),
+					'enum'  => self::$all_statuses,
 				),
 				'class'       => array(
 					'title' => 'The product class handler',
