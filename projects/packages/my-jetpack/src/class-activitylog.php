@@ -34,8 +34,10 @@ class Activitylog {
 			return;
 		}
 
+		$is_simple_classic = ( new Host() )->is_wpcom_simple() && get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+
 		// Do not display the menu on Multisite.
-		if ( is_multisite() && ! ( new Host() )->is_wpcom_simple() ) {
+		if ( is_multisite() && ! $is_simple_classic ) {
 			return;
 		}
 
