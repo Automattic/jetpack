@@ -3,24 +3,11 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
-
-export const PRODUCT_STATUSES = {
-	ACTIVE: 'active',
-	INACTIVE: 'inactive',
-	MODULE_DISABLED: 'module_disabled',
-	SITE_CONNECTION_ERROR: 'site_connection_error',
-	ABSENT: 'plugin_absent',
-	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
-	NEEDS_PURCHASE: 'needs_purchase',
-	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
-	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
-	USER_CONNECTION_ERROR: 'user_connection_error',
-	CAN_UPGRADE: 'can_upgrade',
-};
 
 const ActionButton = ( {
 	status,

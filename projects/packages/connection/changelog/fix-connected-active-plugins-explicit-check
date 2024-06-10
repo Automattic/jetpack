@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Connection: Add stricter check before updating 'jetpack_connection_active_plugins' option

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Staging: deprecating staging mode and separating the logic into is_development_site and in_safe_mode

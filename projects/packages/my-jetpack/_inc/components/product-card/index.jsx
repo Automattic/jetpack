@@ -3,9 +3,10 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
-import ActionButton, { PRODUCT_STATUSES } from './action-button';
+import ActionButton from './action-button';
 import Status from './status';
 import styles from './style.module.scss';
 

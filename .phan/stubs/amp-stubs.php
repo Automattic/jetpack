@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from AMP 2.5.3 and AMP for WP 1.0.94
+ * Stubs automatically generated from AMP 2.5.3 and AMP for WP 1.0.95
  * using the definition file `tools/stubs/amp-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.

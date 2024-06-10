@@ -4,6 +4,7 @@ import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { isEmpty, isNil, noop, split, trim } from 'lodash';
+import { getCaretPosition } from '../util/caret';
 import { setFocus } from '../util/focus';
 import { useFormStyle, useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -64,18 +65,29 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 		}
 	};
 
-	const handleSplitOption = index => ( value, isOriginal ) => {
-		if ( ! isOriginal ) {
+	const handleKeyDown = index => e => {
+		// Create a new dropdown option when the user hits Enter.
+		// Previously handled with the onSplit prop, which was removed in https://github.com/WordPress/gutenberg/pull/54543
+		if ( 'Enter' !== e.key ) {
 			return;
 		}
 
-		const splitValue = attributes.options[ index ].slice( value.length );
+		e.preventDefault();
 
-		if ( isEmpty( value ) && isEmpty( splitValue ) ) {
+		const value = attributes.options[ index ];
+
+		if ( ! value ) {
 			return;
 		}
 
-		handleMultiValues( index, [ value, splitValue ] );
+		const caretPos = getCaretPosition( e.target );
+		// splitValue is the value after the caret position when a user hits Enter
+		const splitValue = caretPos ? value.slice( caretPos ) : '';
+
+		handleMultiValues(
+			index,
+			splitValue ? [ value.slice( 0, caretPos ), splitValue ] : [ value, '' ]
+		);
 	};
 
 	const handleDeleteOption = index => () => {
@@ -134,7 +146,7 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 							key={ index }
 							value={ option }
 							onChange={ handleChangeOption( index ) }
-							onSplit={ handleSplitOption( index ) }
+							onKeyDown={ handleKeyDown( index ) }
 							onRemove={ handleDeleteOption( index ) }
 							onReplace={ noop }
 							placeholder={ __( 'Add option…', 'jetpack-forms' ) }

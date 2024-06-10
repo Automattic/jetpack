@@ -368,16 +368,6 @@ export function isOfflineMode( state ) {
 }
 
 /**
- * Checks if the site is currently in staging.
- *
- * @param  {Object}  state Global state tree
- * @return {boolean} True if site is in staging. False otherwise.
- */
-export function isStaging( state ) {
-	return get( state.jetpack.connection.status, [ 'siteConnected', 'isStaging' ], false );
-}
-
-/**
  * Checks if the site is currently in an Identity Crisis.
  *
  * @param  {Object}  state Global state tree

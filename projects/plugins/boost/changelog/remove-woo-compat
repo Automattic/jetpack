@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: We previously excluded a woocommerce file from minification. It is no longer necessary.
+
+
