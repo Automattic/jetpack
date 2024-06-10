@@ -44,7 +44,10 @@ interface Window {
 		};
 		lifecycleStats: {
 			historicallyActiveModules: Array< string >;
-			brokenModules: Array< string >;
+			brokenModules: {
+				needs_site_connection: Array< string >;
+				needs_user_connection: Array< string >;
+			};
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
