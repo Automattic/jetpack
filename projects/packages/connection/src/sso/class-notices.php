@@ -214,14 +214,14 @@ class Notices {
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
 	 * @since jetpack-4.4.0
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 2.10.0
 	 *
 	 * @param string $message Error message.
 	 *
 	 * @return string
 	 */
 	public static function sso_not_allowed_in_staging( $message ) {
-		_deprecated_function( __FUNCTION__, '$$next-version$$', 'sso_not_allowed_in_safe_mode' );
+		_deprecated_function( __FUNCTION__, '2.10.0', 'sso_not_allowed_in_safe_mode' );
 		$error = __(
 			'Logging in with WordPress.com is disabled for sites that are in staging mode.',
 			'jetpack-connection'
@@ -244,7 +244,7 @@ class Notices {
 	/**
 	 * Error message that is displayed when the current site is in an identity crisis and SSO can not be used.
 	 *
-	 * @since $$next-version$$
+	 * @since 2.10.0
 	 *
 	 * @param string $message Error message.
 	 *
@@ -261,7 +261,7 @@ class Notices {
 		 *
 		 * @module sso
 		 *
-		 * @since $$next-version$$
+		 * @since 2.10.0
 		 *
 		 * @param string $error Error text.
 		 */

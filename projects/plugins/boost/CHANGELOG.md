@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2024-06-10
+### Added
+- Boost: added cache rebuild functionality [#37151]
+- Boost: remove the advanced-cache.php when the Cache module is disabled [#37643]
+- Cache: Allow easy migration from WPSC to Boost Cache [#36818]
+- Critical CSS: Add a friendly error if css gen library is broken/missing. [#37283]
+
+### Changed
+- Critical CSS: Improve source providers collecting logic. [#37095]
+- Critical CSS: Improve UI when errors are present. [#37658]
+- Minification: Skip files ending in `.min.js` and `.min.css` from minification [#37700]
+- Remove the explicit Plugin Install dependency. [#37430]
+- Updated package dependencies. [#37348]
+- Updated package dependencies. [#37379]
+- Updated package dependencies. [#37380]
+- Updated package dependencies. [#37669]
+
+### Fixed
+- Concatenate JS: Added compatibility with WooCommerce 8.9 [#37403]
+- Hotfix: Remove post types with empty Critical CSS URLs [#37389]
+
 ## [3.3.0] - 2024-05-08
 ### Added
 - General: Add endpoint to list source providers. [#36373]
@@ -436,6 +457,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.3.0...3.4.0
 [3.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.2...3.3.0
 [3.2.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.0...3.2.2
 [3.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.1.1...3.2.0

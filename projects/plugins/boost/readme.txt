@@ -183,22 +183,26 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.3.0 - 2024-05-08
+### 3.4.0 - 2024-06-10
 #### Added
-- General: Add endpoint to list source providers.
-- General: Add end to end tests for modules.
-- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance
-- JS Concatenation: Added compatibility with event-tickets by The Events Calendar.
-- Speed Score: Add the speed changed popup back.
+- Boost: added cache rebuild functionality
+- Boost: remove the advanced-cache.php when the Cache module is disabled
+- Cache: Allow easy migration from WPSC to Boost Cache
+- Critical CSS: Add a friendly error if css gen library is broken/missing.
 
 #### Changed
-- Cache: remove Beta tag
-- General: improved compatibility with WP 6.4.
-- Image CDN: Update UI.
+- Critical CSS: Improve source providers collecting logic.
+- Critical CSS: Improve UI when errors are present.
+- Minification: Skip files ending in `.min.js` and `.min.css` from minification
+- Remove the explicit Plugin Install dependency.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
+- Updated package dependencies.
 
 #### Fixed
-- CLI: Fix fatal error when using 'activate' without a module name.
-- Critical CSS: Update the way generation library is loaded.
+- Concatenate JS: Added compatibility with WooCommerce 8.9
+- Hotfix: Remove post types with empty Critical CSS URLs
 
 --------
 
