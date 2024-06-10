@@ -139,7 +139,12 @@ class Jetpack_Admin {
 		// See https://github.com/Automattic/jetpack/pull/19965 for more on how this menu item is dealt with on WoA sites.
 		if ( ( new Host() )->is_woa_site() && ! ( in_array( 'custom-css', Jetpack::get_available_modules(), true ) ) ) {
 			return;
-		} elseif ( class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'custom-css' ) ) { // If the Custom CSS module is enabled, add the Additional CSS menu item and link to the Customizer.
+		} elseif (
+			class_exists( 'Jetpack' ) && (
+				Jetpack::is_module_active( 'custom-css' ) || // If the Custom CSS module is enabled, add the Additional CSS menu item and link to the Customizer.
+				( wp_is_block_theme() && ! empty( wp_get_custom_css() ) ) // Do the same if the theme is block-based but has existing custom CSS.
+			)
+		) {
 			// Add in our legacy page to support old bookmarks and such.
 			add_submenu_page( '', __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'customizer_redirect' ) );
 

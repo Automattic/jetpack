@@ -1,7 +1,7 @@
 import formatCurrency, { CURRENCIES } from '@automattic/format-currency';
 import { RichText } from '@wordpress/block-editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 
 const Amount = ( {
@@ -85,7 +85,7 @@ const Amount = ( {
 
 	return (
 		<div
-			className={ classnames( 'donations__amount', className, {
+			className={ clsx( 'donations__amount', className, {
 				'has-focus': isFocused,
 				'has-error': isInvalid,
 			} ) }

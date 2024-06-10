@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { getActiveStyleName } from '../../shared/block-styles';
 import styles from './styles';
 
@@ -33,7 +33,7 @@ const MapSave = ( { attributes } ) => {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( className, align ? `align${ align }` : null ) }
+			className={ clsx( className, align ? `align${ align }` : null ) }
 			data-map-style={ mapStyle }
 			data-map-details={ mapDetails }
 			data-points={ JSON.stringify( points ) }

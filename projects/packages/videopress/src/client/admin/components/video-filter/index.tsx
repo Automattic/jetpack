@@ -5,7 +5,7 @@ import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/je
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Types
  */
@@ -41,7 +41,7 @@ export const FilterButton = ( props: {
 	return (
 		<Button
 			variant={ isActive ? 'primary' : 'secondary' }
-			className={ classnames( styles[ 'filter-button' ], {
+			className={ clsx( styles[ 'filter-button' ], {
 				[ styles[ 'is-active' ] ]: isActive,
 			} ) }
 			icon={ filterIcon }
@@ -107,7 +107,7 @@ export const FilterSection = ( props: {
 	};
 
 	return (
-		<div className={ classnames( styles[ 'filters-section' ], props.className ) }>
+		<div className={ clsx( styles[ 'filters-section' ], props.className ) }>
 			<Container horizontalSpacing={ isSm ? 2 : 4 } horizontalGap={ 2 }>
 				<Col sm={ 4 } md={ 4 } lg={ 4 }>
 					<Text variant="body-extra-small-bold" weight="bold">

@@ -16,7 +16,7 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -475,7 +475,7 @@ export default function VideoPressEdit( {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockMainClassName, {
+			className={ clsx( blockMainClassName, {
 				[ `align${ align }` ]: align,
 				'is-updating-preview': ! previewHtml,
 			} ) }

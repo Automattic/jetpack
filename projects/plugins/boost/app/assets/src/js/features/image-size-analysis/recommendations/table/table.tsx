@@ -10,7 +10,7 @@ import {
 	type IsaReport,
 	ISAStatus,
 } from '$features/image-size-analysis';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 const toggleImageFix = ( imageDetails: IsaImage ) => {
 	const imageFixer = useImageFixer();
@@ -45,7 +45,7 @@ interface TableProps {
 const Table = ( { isaDataLoading, images, isaReport }: TableProps ) => {
 	return (
 		<>
-			<div className={ classnames( 'jb-loading-spinner', { 'jb-active': isaDataLoading } ) }>
+			<div className={ clsx( 'jb-loading-spinner', { 'jb-active': isaDataLoading } ) }>
 				<Spinner size="3rem" lineWidth="4px" />
 			</div>
 
@@ -56,7 +56,7 @@ const Table = ( { isaDataLoading, images, isaReport }: TableProps ) => {
 						: __( 'No image size issues found yet…', 'jetpack-boost' ) }
 				</h1>
 			) : (
-				<div className={ classnames( 'jb-table', { 'jb-loading': isaDataLoading } ) }>
+				<div className={ clsx( 'jb-table', { 'jb-loading': isaDataLoading } ) }>
 					<div className="jb-table-header jb-recommendation-page-grid">
 						<div className="jb-table-header__image">Image</div>
 						<div className="jb-table-header__potential-size">Potential Size</div>

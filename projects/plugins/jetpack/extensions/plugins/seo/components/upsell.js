@@ -2,7 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useUpgradeFlow from '../../../shared/use-upgrade-flow';
 import './upsell.scss';
 
@@ -43,7 +43,7 @@ const UpsellNotice = ( { requiredPlan } ) => {
 				onClick={ onClickHandler }
 				target="_top"
 				icon={ external }
-				className={ classNames( 'components-seo-upsell__button is-primary', {
+				className={ clsx( 'components-seo-upsell__button is-primary', {
 					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 				} ) }
 				isBusy={ isRedirecting }

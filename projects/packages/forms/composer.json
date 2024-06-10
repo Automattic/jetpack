@@ -67,7 +67,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.31.x-dev"
+			"dev-trunk": "0.32.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

@@ -35,6 +35,7 @@ const IDCScreenVisual = props => {
 		hasFreshError = false,
 		hasStaySafeError = false,
 		possibleDynamicSiteUrlDetected = false,
+		isDevelopmentSite,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -64,6 +65,7 @@ const IDCScreenVisual = props => {
 				hasFreshError={ hasFreshError }
 				hasStaySafeError={ hasStaySafeError }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+				isDevelopmentSite={ isDevelopmentSite }
 			/>
 		);
 	}
@@ -126,6 +128,8 @@ IDCScreenVisual.propTypes = {
 	hasStaySafeError: PropTypes.bool,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default IDCScreenVisual;
