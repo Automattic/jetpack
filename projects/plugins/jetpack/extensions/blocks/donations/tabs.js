@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Controls from './controls';
 import Tab from './tab';
 
@@ -60,7 +60,7 @@ const Tabs = props => {
 							<div
 								role="button"
 								tabIndex={ 0 }
-								className={ classNames( 'donations__nav-item', {
+								className={ clsx( 'donations__nav-item', {
 									'is-active': isTabActive( interval ),
 								} ) }
 								onClick={ () => setActiveTab( interval ) }

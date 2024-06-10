@@ -1,12 +1,12 @@
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
 
 const Notice = ( { children, type = 'default', actions = [], onDismiss } ) => {
-	const className = classnames( styles.notice, styles[ `notice--${ type }` ] );
+	const className = clsx( styles.notice, styles[ `notice--${ type }` ] );
 
 	return (
 		<div className={ className }>

@@ -5,7 +5,7 @@ import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -263,7 +263,7 @@ const VideoQuickActions = ( {
 	const { canPerformAction } = usePermission();
 
 	return (
-		<div className={ classNames( styles.actions, className ) }>
+		<div className={ clsx( styles.actions, className ) }>
 			<ThumbnailActionsDropdown
 				onUpdate={ onUpdateVideoThumbnail }
 				description={ __( 'Update thumbnail', 'jetpack-videopress-pkg' ) }

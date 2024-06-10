@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { describeErrorSet, rawError } from '../lib/describe-critical-css-recommendations';
@@ -63,14 +63,10 @@ const CriticalCssErrorDescription: React.FC< CriticalCssErrorDescriptionTypes > 
 						labelExpandedText={ __( 'See error message', 'jetpack-boost' ) }
 						labelCollapsedText={ __( 'Hide error message', 'jetpack-boost' ) }
 					>
-						<p className={ classNames( styles[ 'raw-error' ], styles[ 'no-spacing' ] ) }>
-							{ rawErrors }
-						</p>
+						<p className={ clsx( styles[ 'raw-error' ], styles[ 'no-spacing' ] ) }>{ rawErrors }</p>
 					</FoldingElement>
 				) : (
-					<p className={ classNames( styles[ 'raw-error' ], styles[ 'fade-in' ] ) }>
-						{ rawErrors }
-					</p>
+					<p className={ clsx( styles[ 'raw-error' ], styles[ 'fade-in' ] ) }>{ rawErrors }</p>
 				) ) }
 		</div>
 	);

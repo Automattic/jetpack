@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 import './style.scss';
 
@@ -18,7 +18,7 @@ export const Nudge = ( {
 	showButton = true,
 	target = '_top',
 } ) => {
-	const cssClasses = classNames( className, 'jetpack-upgrade-plan-banner', {
+	const cssClasses = clsx( className, 'jetpack-upgrade-plan-banner', {
 		'wp-block': context === 'editor-canvas',
 		'block-editor-block-list__block': context === 'editor-canvas',
 		'jetpack-upgrade-plan__hidden': ! visible,
@@ -30,9 +30,7 @@ export const Nudge = ( {
 		<div className={ cssClasses } data-align={ align }>
 			<div className="jetpack-upgrade-plan-banner__wrapper">
 				{ title && (
-					<strong
-						className={ classNames( 'banner-title', { [ `${ className }__title` ]: className } ) }
-					>
+					<strong className={ clsx( 'banner-title', { [ `${ className }__title` ]: className } ) }>
 						{ title }
 					</strong>
 				) }
@@ -46,7 +44,7 @@ export const Nudge = ( {
 						href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 						onClick={ goToCheckoutPage }
 						target={ target }
-						className={ classNames( 'is-primary', {
+						className={ clsx( 'is-primary', {
 							'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 						} ) }
 						isBusy={ isRedirecting }

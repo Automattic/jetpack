@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
 import { defaultColumnsNumber } from './edit';
@@ -23,7 +23,7 @@ export default function TiledGallerySave( { attributes } ) {
 	} = attributes;
 
 	return (
-		<div { ...blockProps } className={ classNames( blockProps.className, className ) }>
+		<div { ...blockProps } className={ clsx( blockProps.className, className ) }>
 			<Layout
 				align={ align }
 				columns={ columns }
