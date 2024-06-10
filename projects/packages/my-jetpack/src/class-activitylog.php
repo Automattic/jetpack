@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Activity Log features in My Jetpack.
@@ -34,7 +35,7 @@ class Activitylog {
 		}
 
 		// Do not display the menu on Multisite.
-		if ( is_multisite() ) {
+		if ( is_multisite() && ! ( new Host() )->is_wpcom_simple() ) {
 			return;
 		}
 
