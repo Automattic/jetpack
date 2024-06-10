@@ -1435,6 +1435,12 @@ namespace WPCOM\Jetpack_AI\Usage {
         public static function get_costs()
         {
         }
+        /**
+         * @param int $blog_id
+         * @return string
+         */
+        public static function get_upgrade_url($blog_id){
+        }
     }
 }
 namespace WPForTeams {

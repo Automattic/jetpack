@@ -2,12 +2,15 @@
 /**
  * Theme Tools: functions for Featured Content enhancements.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
-use Automattic\Jetpack\Assets;
+namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+use Automattic\Jetpack\Assets;
+use WP_Customize_Manager;
+use WP_Query;
+if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
 	 * Featured Content.
@@ -598,7 +601,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function enqueue_scripts() {
 			Assets::register_script(
 				'featured-content-suggest',
-				'../build/featured-content/suggest.js',
+				'../dist/featured-content/suggest.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
@@ -767,7 +770,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		$copy_dirs[] = __FILE__;
 		return $copy_dirs;
 	}
-	add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
+	add_action( 'restapi_theme_action_copy_dirs', __NAMESPACE__ . '\wpcom_rest_api_featured_content_copy_plugin_actions' );
 
 	/**
 	 * Delayed initialization for API Requests.
@@ -780,7 +783,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	}
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
-		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks' );
+		add_filter( 'rest_request_before_callbacks', __NAMESPACE__ . '\wpcom_rest_request_before_callbacks' );
 	}
 
 	Featured_Content::setup();

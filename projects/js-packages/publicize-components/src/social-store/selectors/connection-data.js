@@ -152,15 +152,6 @@ export function getUpdatingConnections( state ) {
 }
 
 /**
- * Whether a connection is being created.
- * @param {import("../types").SocialStoreState} state - State object.
- * @returns {boolean} Whether a connection is being created.
- */
-export function isCreatingConnection( state ) {
-	return state.connectionData?.creatingConnection ?? false;
-}
-
-/**
  * Whether a mastodon account is already connected.
  *
  * @param {import("../types").SocialStoreState} state - State object.

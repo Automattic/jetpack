@@ -29,6 +29,10 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 				}
 			}
 		}
+
+		.tiled-gallery__item img {
+			aspect-ratio: 1;
+		}
 	}
 
 	&.is-style-columns,
