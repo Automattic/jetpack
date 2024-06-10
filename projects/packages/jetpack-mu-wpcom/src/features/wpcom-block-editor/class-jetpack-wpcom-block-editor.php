@@ -2,21 +2,21 @@
 /**
  * WordPress.com Block Editor
  * Allow new block editor posts to be composed on WordPress.com.
- * This is auto-loaded as of Jetpack v7.4 for sites connected to WordPress.com only.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-mu-wpcom
  */
 
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor' );
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor;
+
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
+use WP_Post;
 
 /**
- * WordPress.com Block editor for Jetpack
- *
- * @deprecated $$next-version$$
+ * WordPress.com Block editor
  */
 class Jetpack_WPCOM_Block_Editor {
 	/**
@@ -35,11 +35,8 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Singleton
-	 *
-	 * @deprecated $$next-version$$
 	 */
 	public static function init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::init' );
 		static $instance = false;
 
 		if ( ! $instance ) {
@@ -51,11 +48,8 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Jetpack_WPCOM_Block_Editor constructor.
-	 *
-	 * @deprecated $$next-version$$
 	 */
 	private function __construct() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::__construct' );
 		$this->set_cookie_args = array();
 		add_action( 'init', array( $this, 'init_actions' ) );
 	}
@@ -65,23 +59,22 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function init_actions() {
 		// Bail early if Jetpack's block editor extensions are disabled on the site.
-		/* This filter is documented in class.jetpack-gutenberg.php */
+		/* This filter is documented in projects/plugins/jetpack/class.jetpack-gutenberg.php */
 		if ( ! apply_filters( 'jetpack_gutenberg', true ) ) {
 			return;
 		}
 
-		if ( $this->is_iframed_block_editor() ) {
+		if ( ! ( new Host() )->is_wpcom_simple() && $this->is_iframed_block_editor() ) {
 			add_action( 'admin_init', array( $this, 'disable_send_frame_options_header' ), 9 );
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
-		require_once __DIR__ . '/functions.editor-type.php';
-		add_action( 'edit_form_top', 'Jetpack\EditorType\remember_classic_editor' );
+		add_action( 'edit_form_top', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_classic_editor' );
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
-		add_filter( 'block_editor_settings_all', 'Jetpack\EditorType\remember_block_editor', 10, 2 );
+		add_filter( 'block_editor_settings_all', 'Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType\remember_block_editor', 10, 2 );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -148,7 +141,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function allow_block_editor_login() {
 		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( empty( $_REQUEST['redirect_to'] ) ) {
+		if ( ( new Host() )->is_wpcom_simple() || empty( $_REQUEST['redirect_to'] ) ) {
 			return;
 		}
 		// phpcs:ignore WordPress.Security.NonceVerification
@@ -189,7 +182,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 */
 	public function add_login_message( $errors ) {
 		$errors->remove( 'expired' );
-		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack' ), 'message' );
+		$errors->add( 'info', __( 'Before we continue, please log in to your Jetpack site.', 'jetpack-mu-wpcom' ), 'message' );
 
 		return $errors;
 	}
@@ -204,7 +197,7 @@ class Jetpack_WPCOM_Block_Editor {
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
-				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack' ) ); ?>';
+				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack-mu-wpcom' ) ); ?>';
 			} );
 		</script>
 		<?php
@@ -354,42 +347,42 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
-		wp_localize_script(
-			'wpcom-block-editor-default-editor-script',
-			'wpcomGutenberg',
-			array(
-				'richTextToolbar' => array(
-					'justify'   => __( 'Justify', 'jetpack' ),
-					'underline' => __( 'Underline', 'jetpack' ),
-				),
-			)
-		);
-
-		if ( ( new Host() )->is_woa_site() ) {
-			wp_enqueue_script(
-				'wpcom-block-editor-wpcom-editor-script',
-				$debug
-					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.js?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
+		if ( ! ( new Host() )->is_wpcom_simple() ) { // Same object is already used in gutenberg-wpcom plugin.
+			wp_localize_script(
+				'wpcom-block-editor-default-editor-script',
+				'wpcomGutenberg',
 				array(
-					'lodash',
-					'wp-blocks',
-					'wp-data',
-					'wp-dom-ready',
-					'wp-plugins',
-				),
-				$version,
-				true
-			);
-			wp_enqueue_style(
-				'wpcom-block-editor-wpcom-editor-styles',
-				$debug
-					? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.css?minify=false'
-					: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.css',
-				array(),
-				$version
+					'richTextToolbar' => array(
+						'justify'   => __( 'Justify', 'jetpack-mu-wpcom' ),
+						'underline' => __( 'Underline', 'jetpack-mu-wpcom' ),
+					),
+				)
 			);
 		}
+
+		wp_enqueue_script(
+			'wpcom-block-editor-wpcom-editor-script',
+			$debug
+				? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.js?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
+			array(
+				'lodash',
+				'wp-blocks',
+				'wp-data',
+				'wp-dom-ready',
+				'wp-plugins',
+			),
+			$version,
+			true
+		);
+		wp_enqueue_style(
+			'wpcom-block-editor-wpcom-editor-styles',
+			$debug
+				? '//widgets.wp.com/wpcom-block-editor/wpcom.editor.css?minify=false'
+				: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.css',
+			array(),
+			$version
+		);
 
 		if ( $this->is_iframed_block_editor() ) {
 			wp_enqueue_script(
@@ -479,7 +472,7 @@ class Jetpack_WPCOM_Block_Editor {
 		/**
 		 * Allow plugins to disable the cross-site auth cookies.
 		 *
-		 * @since 8.1.1
+		 * @since jetpack-8.1.1
 		 *
 		 * @param false bool Whether auth cookies should be disabled for cross-site access. False by default.
 		 */
@@ -501,11 +494,11 @@ class Jetpack_WPCOM_Block_Editor {
 	public function maybe_send_cookies( $send_cookies ) {
 
 		if ( ! empty( $this->set_cookie_args ) && $send_cookies ) {
-			array_map(
+			array_walk(
+				$this->set_cookie_args,
 				function ( $cookie ) {
-					call_user_func_array( 'jetpack_shim_setcookie', $cookie );
-				},
-				$this->set_cookie_args
+					call_user_func_array( 'setcookie', $cookie );
+				}
 			);
 			$this->set_cookie_args = array();
 			return false;
@@ -527,7 +520,7 @@ class Jetpack_WPCOM_Block_Editor {
 		 *
 		 * @param string $samesite SameSite attribute to use in auth cookies.
 		 *
-		 * @since 8.1.1
+		 * @since jetpack-8.1.1
 		 */
 		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', $samesite );
 
@@ -546,7 +539,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @param string $scheme      Authentication scheme. Values include 'auth' or 'secure_auth'.
 	 */
 	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme ) {
-		if ( wp_startswith( $scheme, 'secure_' ) ) {
+		if ( $scheme && is_scalar( $scheme ) && str_starts_with( (string) $scheme, 'secure_' ) ) {
 			$secure           = true;
 			$auth_cookie_name = SECURE_AUTH_COOKIE;
 		} else {
