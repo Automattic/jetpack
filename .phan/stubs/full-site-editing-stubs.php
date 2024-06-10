@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WordPress.com Editing Toolkit 4.20606
+ * Stubs automatically generated from WordPress.com Editing Toolkit 4.25065
  * using the definition file `tools/stubs/full-site-editing-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.

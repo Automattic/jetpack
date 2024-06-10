@@ -86,6 +86,15 @@ function wpcom_add_wpcom_menu_item() {
 
 	add_submenu_page(
 		$parent_slug,
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
+		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/overview/$domain" ),
+		null
+	);
+
+	add_submenu_page(
+		$parent_slug,
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
 		'manage_options',
@@ -126,24 +135,6 @@ function wpcom_add_wpcom_menu_item() {
 		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Configuration', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/hosting-config/$domain" ),
-		null
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Monitoring', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/site-monitoring/$domain" ),
 		null
 	);
 
