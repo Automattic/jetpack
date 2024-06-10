@@ -6,7 +6,7 @@ import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 /**
  * Internal dependencies
@@ -45,7 +45,7 @@ const InputWrapper = ( {
 	);
 
 	const baseProps = {
-		className: classnames( styles.input, {
+		className: clsx( styles.input, {
 			[ styles[ 'with-icon' ] ]: icon != null,
 		} ),
 		onChange: handleChangeEvent,
@@ -58,7 +58,7 @@ const InputWrapper = ( {
 
 	return (
 		<div
-			className={ classnames( className, styles[ 'input-wrapper' ], {
+			className={ clsx( className, styles[ 'input-wrapper' ], {
 				[ styles.disabled ]: disabled,
 				[ styles.large ]: size === 'large',
 				[ styles[ 'is-textarea' ] ]: isTextarea,
@@ -70,7 +70,7 @@ const InputWrapper = ( {
 				<>
 					{ loading || icon ? (
 						<div
-							className={ classnames( styles[ 'icon-wrapper' ], {
+							className={ clsx( styles[ 'icon-wrapper' ], {
 								[ styles.loader ]: loading,
 							} ) }
 						>
@@ -162,11 +162,11 @@ export const SearchInput = ( {
 			endAdornment={
 				<>
 					{ Boolean( componentProps.value ) && (
-						<div className={ classnames( styles[ 'icon-wrapper' ] ) }>
+						<div className={ clsx( styles[ 'icon-wrapper' ] ) }>
 							<Icon
 								icon={ closeSmall }
 								onClick={ clearInput }
-								className={ classnames( styles[ 'clear-icon' ] ) }
+								className={ clsx( styles[ 'clear-icon' ] ) }
 							/>
 						</div>
 					) }

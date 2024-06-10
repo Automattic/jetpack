@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useMemo, forwardRef } from 'react';
 import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants';
 import styles from './style.module.scss';
@@ -30,7 +30,7 @@ const Text = forwardRef< HTMLElement, TextProps >(
 
 		return (
 			<Component
-				className={ classNames( styles.reset, styles[ variant ], className, boxModelClasses ) }
+				className={ clsx( styles.reset, styles[ variant ], className, boxModelClasses ) }
 				{ ...componentProps }
 			>
 				{ children }

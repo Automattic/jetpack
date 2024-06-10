@@ -8,7 +8,7 @@ import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
@@ -283,7 +283,7 @@ const DashBoost = ( {
 								</span>
 
 								<p
-									className={ classnames(
+									className={ clsx(
 										'dash-boost-speed-score__score-text',
 										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 									) }

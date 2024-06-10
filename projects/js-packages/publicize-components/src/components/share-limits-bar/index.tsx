@@ -1,7 +1,7 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { ShareLimits } from '../../hooks/use-share-limits';
 import styles from './styles.module.scss';
 
@@ -67,7 +67,7 @@ export const ShareLimitsBar = ( {
 	}, [ noticeType, scheduledCount, usedCount, remainingCount, remainingLabel ] );
 
 	return (
-		<div className={ classNames( styles.wrapper, className ) }>
+		<div className={ clsx( styles.wrapper, className ) }>
 			<RecordMeterBar
 				totalCount={ usedCount + scheduledCount + remainingCount }
 				items={ items }

@@ -4,7 +4,7 @@
 import { ExternalLink, Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, arrowRight } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -78,7 +78,7 @@ export default function Message( {
 }: MessageProps ): React.ReactElement {
 	return (
 		<div
-			className={ classNames(
+			className={ clsx(
 				'jetpack-ai-assistant__message',
 				`jetpack-ai-assistant__message-severity-${ severity }`
 			) }

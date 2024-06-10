@@ -1,6 +1,6 @@
 import { compose } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty, isNil } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -24,7 +24,7 @@ const JetpackFieldTextarea = props => {
 	const formStyle = useFormStyle( clientId );
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
-	const classes = classnames( 'jetpack-field jetpack-field-textarea', {
+	const classes = clsx( 'jetpack-field jetpack-field-textarea', {
 		'is-selected': isSelected,
 		'has-placeholder': ! isEmpty( placeholder ),
 	} );

@@ -1,6 +1,6 @@
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { getVideoPressUrl } from './url';
 
 const VideoPressSave = CoreVideoSave => props => {
@@ -27,7 +27,7 @@ const VideoPressSave = CoreVideoSave => props => {
 	} = props;
 
 	const blockProps = useBlockProps.save( {
-		className: classnames( 'wp-block-video', className, videoPressClassNames, {
+		className: clsx( 'wp-block-video', className, videoPressClassNames, {
 			[ `align${ align }` ]: align,
 		} ),
 	} );

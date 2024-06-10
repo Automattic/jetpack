@@ -3,7 +3,7 @@ import { Disabled } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import { ManageConnectionsModalWithTrigger as ManageConnectionsModal } from '../manage-connections-modal';
@@ -45,7 +45,7 @@ const ConnectionManagement = ( { className = null } ) => {
 	);
 
 	return (
-		<div className={ classNames( styles.wrapper, className ) }>
+		<div className={ clsx( styles.wrapper, className ) }>
 			{ connections.length ? (
 				<>
 					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
