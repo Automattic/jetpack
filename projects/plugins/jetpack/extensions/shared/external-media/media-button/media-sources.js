@@ -4,6 +4,7 @@ import {
 	internalMediaSources,
 	externalMediaSources,
 	featuredImageExclusiveMediaSources,
+	generalPurposeImageExclusiveMediaSources,
 } from '../sources';
 
 function MediaSources( {
@@ -31,6 +32,20 @@ function MediaSources( {
 
 			{ isFeatured &&
 				featuredImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
+					<MenuItem
+						icon={ icon }
+						key={ id }
+						onClick={ () => {
+							onClick();
+							setSource( id );
+						} }
+					>
+						{ label }
+					</MenuItem>
+				) ) }
+
+			{ ! isFeatured &&
+				generalPurposeImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }
 						key={ id }
