@@ -1,9 +1,10 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useCommand } from '@wordpress/commands';
+import { useCommandLoader } from '@wordpress/commands';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { store as editorStore } from '@wordpress/editor';
+import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
 import { accessOptions } from '../../shared/memberships/constants';
@@ -72,59 +73,89 @@ function CommandPalette() {
 		insertBlocks( blocks, 1 );
 	}
 
-	useCommand( {
-		name: 'jetpack/subscriptions-access-paid',
-		label: __( 'Limit post access to paid subscribers', 'jetpack' ),
-		icon,
-		// context: 'site-editor', // @TODO: post editor only
-		callback: ( { close } ) => {
-			addPaywallBlock();
-			selectAccess( accessOptions.paid_subscribers.key );
+	function useSubscriptionsCommandLoader() {
+		// Check for editor context
+		const { postType, isLoading } = useSelect( select => {
+			const { getCurrentPostType } = select( editorStore );
 
-			createInfoNotice( __( 'Post limited to paid subscribers only.', 'jetpack' ), {
-				id: 'jetpack/subscriptions-access-paid/notice',
-				type: 'snackbar',
-			} );
+			return {
+				postType: getCurrentPostType(),
+				isLoading: ! select( editorStore ).hasFinishedResolution( 'getCurrentPostType' ),
+			};
+		}, [] );
 
-			close();
-		},
-	} );
+		// Create the commands.
+		const commands = useMemo( () => {
+			// If postType is defined and not 'post', unregister the block.
+			if ( postType !== 'post' ) {
+				return [];
+			}
 
-	useCommand( {
-		name: 'jetpack/subscriptions-access-subscribers',
-		label: __( 'Limit post access to free subscribers', 'jetpack' ),
-		icon,
-		// context: 'site-editor', // @TODO: post editor only
-		callback: ( { close } ) => {
-			addPaywallBlock();
-			selectAccess( accessOptions.subscribers.key );
+			return [
+				{
+					name: 'jetpack/subscriptions-access-paid',
+					label: __( 'Limit post access to paid subscribers', 'jetpack' ),
+					icon,
+					callback: ( { close } ) => {
+						addPaywallBlock();
+						selectAccess( accessOptions.paid_subscribers.key );
 
-			createInfoNotice( __( 'Post limited to subscribers only.', 'jetpack' ), {
-				id: 'jetpack/subscriptions-access-subscribers/notice',
-				type: 'snackbar',
-			} );
+						createInfoNotice( __( 'Post limited to paid subscribers only.', 'jetpack' ), {
+							id: 'jetpack/subscriptions-access-paid/notice',
+							type: 'snackbar',
+						} );
 
-			close();
-		},
-	} );
+						close();
+					},
+				},
+				{
+					name: 'jetpack/subscriptions-access-subscribers',
+					label: __( 'Limit post access to free subscribers', 'jetpack' ),
+					icon,
+					callback: ( { close } ) => {
+						addPaywallBlock();
+						selectAccess( accessOptions.subscribers.key );
 
-	useCommand( {
-		name: 'jetpack/subscriptions-access-everyone',
-		label: __( 'Make post accessible to everyone', 'jetpack' ),
-		searchLabel: __( 'Make post accessible to everyone, free and paid subscribers', 'jetpack' ),
-		icon,
-		// context: 'site-editor', // @TODO: post editor only
-		callback: ( { close } ) => {
-			removePaywallBlock();
-			selectAccess( accessOptions.everybody.key );
+						createInfoNotice( __( 'Post limited to subscribers only.', 'jetpack' ), {
+							id: 'jetpack/subscriptions-access-subscribers/notice',
+							type: 'snackbar',
+						} );
 
-			createInfoNotice( __( 'Post made accesible to everyone.', 'jetpack' ), {
-				id: 'jetpack/subscriptions-access-everyone/notice',
-				type: 'snackbar',
-			} );
+						close();
+					},
+				},
+				{
+					name: 'jetpack/subscriptions-access-everyone',
+					label: __( 'Make post accessible to everyone', 'jetpack' ),
+					searchLabel: __(
+						'Make post accessible to everyone, free and paid subscribers',
+						'jetpack'
+					),
+					icon,
+					callback: ( { close } ) => {
+						removePaywallBlock();
+						selectAccess( accessOptions.everybody.key );
 
-			close();
-		},
+						createInfoNotice( __( 'Post made accesible to everyone.', 'jetpack' ), {
+							id: 'jetpack/subscriptions-access-everyone/notice',
+							type: 'snackbar',
+						} );
+
+						close();
+					},
+				},
+			];
+		}, [ postType ] );
+
+		return {
+			commands,
+			isLoading,
+		};
+	}
+
+	useCommandLoader( {
+		name: 'jetpack/subscriptions-access',
+		hook: useSubscriptionsCommandLoader,
 	} );
 
 	return <PlansSetupDialog closeDialog={ closeDialog } showDialog={ showDialog } />;
