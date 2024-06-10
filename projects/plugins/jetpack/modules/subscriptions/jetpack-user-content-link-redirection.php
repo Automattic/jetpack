@@ -19,6 +19,22 @@ function jetpack_user_content_link_redirection() {
 	$query_params = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
 	$iframe_url   = "https://subscribe.wordpress.com/?$query_params";
 
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+
+		log2logstash(
+			array(
+				'feature'    => 'user_content_link_tracking',
+				'tags'       => array( 'info' ),
+				'blog_id'    => get_current_blog_id(),
+				'user_id'    => get_current_user_id(),
+				'properties' => array(
+					'query_params' => $query_params,
+				),
+			)
+		);
+	}
+
     // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 	echo <<<EOF
 <!DOCTYPE html>
