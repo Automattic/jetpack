@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Boost: remove the advanced-cache.php when the Cache module is disabled
