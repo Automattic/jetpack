@@ -1,4 +1,5 @@
-import FeaturedImage, {
+import {
+	FeaturedImage,
 	FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from '../../../plugins/ai-assistant-plugin/components/ai-image';
 
