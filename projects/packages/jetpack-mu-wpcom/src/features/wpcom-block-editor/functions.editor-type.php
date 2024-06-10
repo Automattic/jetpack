@@ -3,12 +3,11 @@
  * This file contains some 'remember' functions inspired by the core Classic Editor Plugin
  * Used to align the 'last editor' metadata so that it is set on all Jetpack and WPCOM sites
  *
- * @deprecated $$next-version$$
- * @package automattic/jetpack
+ * @package automattic/jetpack-mu-wpcom
  */
-namespace Jetpack\EditorType;
 
-_deprecated_file( __FILE__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\EditorType' );
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\EditorType;
+
 use WP_Block_Editor_Context;
 
 /**
