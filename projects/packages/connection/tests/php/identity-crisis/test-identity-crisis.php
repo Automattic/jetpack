@@ -257,7 +257,7 @@ class Test_Identity_Crisis extends BaseTestCase {
 	 */
 	public function test_is_staging_site_true_when_sync_error_idc_is_valid() {
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
-		$result = ( new Status() )->is_staging_site();
+		$result = ( new Status() )->in_safe_mode();
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
 
 		$this->assertTrue( $result );

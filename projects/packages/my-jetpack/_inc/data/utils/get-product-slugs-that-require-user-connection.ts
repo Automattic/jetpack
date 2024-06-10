@@ -1,4 +1,4 @@
-import { PRODUCT_STATUSES } from '../../components/product-card';
+import { PRODUCT_STATUSES } from '../../constants';
 import type { ProductCamelCase } from '../types';
 
 const getProductSlugsThatRequireUserConnection = ( products: {
