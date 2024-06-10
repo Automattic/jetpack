@@ -10,7 +10,7 @@
 	display: none;
 }
 
-/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-06-05T15:01:45.045Z */
+/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-06-10T12:18:50.530Z */
 .wpl-likebox {
 	container-type:inline-size;
 }
@@ -39,6 +39,7 @@
 	min-height:30px;
 	min-width:33px;
 	box-sizing:border-box;
+	align-items:center;
 }
 .rtl .wpl-button a {
 	margin:1px 1px 8px 6px;
@@ -56,7 +57,6 @@
 	width:16px;
 	height:16px;
 	text-align:center;
-	top:3px;
 	margin-left:0;
 	margin-right:-1px;
 	content:"";
@@ -87,6 +87,7 @@
 }
 .wpl-button.like a span,.wpl-button.liked a span,.wpl-button.reblog a span {
 	margin-left:5px;
+	text-wrap:nowrap;
 }
 .rtl .wpl-button.like a span,.rtl .wpl-button.liked a span,.rtl .wpl-button.reblog a span {
 	margin-right:5px;
@@ -181,14 +182,11 @@ a.comment-like-link.loading:before {
 	justify-content:center;
 	margin-bottom:4px;
 	flex-wrap:wrap;
-}
-.rtl .wpl-likebox .wpl-avatars {
-	justify-content:flex-end;
-	overflow:initial;
-	flex-wrap:wrap;
+	align-content:end;
+	min-width:30px;
 }
 .wpl-likebox .wpl-avatars li,.rtl .wpl-likebox .wpl-avatars li {
-	margin-bottom:10px;
+	margin-bottom:1px;
 	margin-top:1px;
 }
 .wpl-likebox .wpl-avatars li a {
@@ -200,6 +198,7 @@ a.comment-like-link.loading:before {
 }
 .rtl .wpl-likebox .wpl-avatars li:not(:first-child) a {
 	margin-left:-4px;
+	margin-right:0;
 }
 .wpl-likebox .wpl-avatars li a img {
 	border:solid 1.5px rgba(255,255,255,.5);
@@ -214,8 +213,9 @@ a.comment-like-link.loading:before {
 	white-space:nowrap;
 }
 .rtl .wpl-likebox .wpl-count {
-	margin-left:0;
 	margin-right:4px;
+	margin-bottom:4px;
+	clear:none;
 	white-space:nowrap;
 }
 
