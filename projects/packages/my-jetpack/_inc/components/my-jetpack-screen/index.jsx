@@ -46,10 +46,13 @@ const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
+		const tracksArgs = options?.tracksArgs || {};
+
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
 			noticeId: options.id,
+			...tracksArgs,
 		} );
-	}, [ options.id, recordEvent ] );
+	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 

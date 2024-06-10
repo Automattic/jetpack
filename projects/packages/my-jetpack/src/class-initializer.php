@@ -59,7 +59,7 @@ class Initializer {
 
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 
-	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -238,6 +238,7 @@ class Initializer {
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
 					'purchases'                 => self::get_purchases(),
@@ -538,38 +539,19 @@ class Initializer {
 	public static function update_historically_active_jetpack_modules() {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$products                    = Products::get_products();
-		$active_module_statuses      = array(
-			'active',
-			'can_upgrade',
-		);
-		$broken_module_statuses      = array(
-			'site_connection_error',
-			'user_connection_error',
-		);
-		// This is defined as the statuses in which the user willingly has the module disabled whether it be by
-		// default, uninstalling the plugin, disabling the module, or not renewing their plan.
-		$disabled_module_statuses = array(
-			'inactive',
-			'module_disabled',
-			'plugin_absent',
-			'plugin_absent_with_plan',
-			'needs_purchase',
-			'needs_purchase_or_free',
-			'needs_first_site_connection',
-		);
 
 		foreach ( $products as $product ) {
 			$status       = $product['status'];
 			$product_slug = $product['slug'];
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
-			if ( in_array( $status, $broken_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
 				continue;
 			}
 
 			// If the module is active and not already in the array, add it
 			if (
-				in_array( $status, $active_module_statuses, true ) &&
+				in_array( $status, Products::$active_module_statuses, true ) &&
 				! in_array( $product_slug, $historically_active_modules, true )
 			) {
 					$historically_active_modules[] = $product_slug;
@@ -577,7 +559,7 @@ class Initializer {
 
 			// If the module has been disabled due to a manual user action,
 			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, $disabled_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
 				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}
@@ -668,7 +650,7 @@ class Initializer {
 	/**
 	 * Returns true if the site has file write access to the plugins folder, false otherwise.
 	 *
-	 * @return bool
+	 * @return string
 	 **/
 	public static function has_file_system_write_access() {
 
@@ -757,6 +739,34 @@ class Initializer {
 	}
 
 	/**
+	 * Check for features broken by a disconnected user or site
+	 *
+	 * @return array
+	 */
+	public static function check_for_broken_modules() {
+		$broken_modules              = array(
+			'needs_site_connection' => array(),
+			'needs_user_connection' => array(),
+		);
+		$products                    = Products::get_products();
+		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+
+		foreach ( $historically_active_modules as $module ) {
+			$product = $products[ $module ];
+
+			// If the site or user is disconnected, and the product requires a user connection
+			// mark the product as a broken module needing user connection
+			if ( in_array( $product['status'], Products::$broken_module_statuses, true ) && $product['requires_user_connection'] ) {
+				$broken_modules['needs_user_connection'][] = $module;
+			} elseif ( $product['status'] === Products::STATUS_SITE_CONNECTION_ERROR ) {
+				$broken_modules['needs_site_connection'][] = $module;
+			}
+		}
+
+		return $broken_modules;
+	}
+
+	/**
 	 *  Add relevant red bubble notifications
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
@@ -768,7 +778,7 @@ class Initializer {
 			$red_bubble_slugs['welcome-banner-active'] = null;
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+			return self::alert_if_missing_connection( $red_bubble_slugs );
 		}
 	}
 
@@ -778,9 +788,42 @@ class Initializer {
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
 	 */
-	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
+	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
+		$broken_modules = self::check_for_broken_modules();
+
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if (
+			! ( new Connection_Manager() )->is_user_connected() &&
+			! ( new Connection_Manager() )->has_connected_owner()
+		) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => false,
+			);
+			return $red_bubble_slugs;
+		}
+
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => false,
+			);
+			return $red_bubble_slugs;
 		}
 
 		return $red_bubble_slugs;
