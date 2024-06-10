@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+mu-wpcom: Fixed typo in setcookie call
