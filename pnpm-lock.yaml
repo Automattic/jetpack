@@ -1296,8 +1296,8 @@ importers:
         specifier: 7.24.0
         version: 7.24.0
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       '@storybook/addon-a11y':
         specifier: 8.0.9
         version: 8.0.9
@@ -2112,8 +2112,8 @@ importers:
         specifier: 7.23.3
         version: 7.23.3(@babel/core@7.24.0)
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       '@types/node':
         specifier: ^20.4.2
         version: 20.12.12
@@ -3094,8 +3094,8 @@ importers:
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3242,8 +3242,8 @@ importers:
   projects/plugins/boost/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3333,8 +3333,8 @@ importers:
   projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3871,8 +3871,8 @@ importers:
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -3962,8 +3962,8 @@ importers:
   projects/plugins/migration/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4075,8 +4075,8 @@ importers:
   projects/plugins/search/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4211,8 +4211,8 @@ importers:
   projects/plugins/social/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4302,8 +4302,8 @@ importers:
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4407,8 +4407,8 @@ importers:
   projects/plugins/videopress/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
@@ -4504,8 +4504,8 @@ importers:
   tools/e2e-commons:
     devDependencies:
       '@playwright/test':
-        specifier: 1.43.0
-        version: 1.43.0
+        specifier: 1.44.1
+        version: 1.44.1
       '@slack/web-api':
         specifier: 6.10.0
         version: 6.10.0
@@ -4580,7 +4580,7 @@ importers:
         version: 6.7.5(eslint@8.51.0)(typescript@5.0.4)
       '@wordpress/eslint-plugin':
         specifier: 19.0.0
-        version: 19.0.0(@babel/core@7.24.0)(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint-config-prettier@9.0.0(eslint@8.51.0))(eslint-plugin-import@2.28.1(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0))(eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4))(eslint-plugin-jsdoc@46.8.2(eslint@8.51.0))(eslint-plugin-jsx-a11y@6.7.1(eslint@8.51.0))(eslint-plugin-playwright@0.16.0(eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4))(eslint@8.51.0))(eslint-plugin-prettier@5.0.1(eslint-config-prettier@9.0.0(eslint@8.51.0))(eslint@8.51.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@4.6.0(eslint@8.51.0))(eslint-plugin-react@7.33.2(eslint@8.51.0))(eslint@8.51.0)(typescript@5.0.4)(wp-prettier@3.0.3)
+        version: 19.0.0(6k6g2cxihyo572pzmksa7uzza4)
       '@wordpress/jest-console':
         specifier: 8.0.0
         version: 8.0.0(jest@29.7.0)
@@ -6115,8 +6115,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.43.0':
-    resolution: {integrity: sha512-Ebw0+MCqoYflop7wVKj711ccbNlrwTBCtjY5rlbiY9kHL2bCYxq+qltK6uPsVBGGAOb033H2VO0YobcQVxoW7Q==}
+  '@playwright/test@1.44.1':
+    resolution: {integrity: sha512-1hZ4TNvD5z9VuhNJ/walIjvMVvYkZKf71axoF/uiAqpntQJXpG64dlXhoDXE3OczPuTuvjf/M5KWFg5VAVUS3Q==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -11782,13 +11782,13 @@ packages:
     resolution: {integrity: sha512-Ie9z/WINcxxLp27BKOCHGde4ITq9UklYKDzVo1nhk5sqGEXU3FpkwP5GM2voTGJkGd9B3Otl+Q4uwSOeSUtOBA==}
     engines: {node: '>=14.16'}
 
-  playwright-core@1.43.0:
-    resolution: {integrity: sha512-iWFjyBUH97+pUFiyTqSLd8cDMMOS0r2ZYz2qEsPjH8/bX++sbIJT35MSwKnp1r/OQBAqC5XO99xFbJ9XClhf4w==}
+  playwright-core@1.44.1:
+    resolution: {integrity: sha512-wh0JWtYTrhv1+OSsLPgFzGzt67Y7BE/ZS3jEqgGBlp2ppp1ZDj8c+9IARNW4dwf1poq5MgHreEM2KV/GuR4cFA==}
     engines: {node: '>=16'}
     hasBin: true
 
-  playwright@1.43.0:
-    resolution: {integrity: sha512-SiOKHbVjTSf6wHuGCbqrEyzlm6qvXcv7mENP+OZon1I07brfZLGdfWV0l/efAzVx7TF3Z45ov1gPEkku9q25YQ==}
+  playwright@1.44.1:
+    resolution: {integrity: sha512-qr/0UJ5CFAtloI3avF95Y0L1xQo6r3LQArLIg/z/PoGJ6xa+EwzrwO5lpNr/09STxdHuUoP2mvuELJS+hLdtgg==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -15679,9 +15679,9 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@playwright/test@1.43.0':
+  '@playwright/test@1.44.1':
     dependencies:
-      playwright: 1.43.0
+      playwright: 1.44.1
 
   '@preact/signals-core@1.6.0': {}
 
@@ -16851,7 +16851,7 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 2.2.2(jest@29.7.0)
       nyc: 15.1.0
-      playwright: 1.43.0
+      playwright: 1.44.1
     transitivePeerDependencies:
       - '@swc/helpers'
       - '@types/node'
@@ -18587,8 +18587,8 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.0
 
-  ? '@wordpress/eslint-plugin@19.0.0(@babel/core@7.24.0)(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint-config-prettier@9.0.0(eslint@8.51.0))(eslint-plugin-import@2.28.1(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0))(eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4))(eslint-plugin-jsdoc@46.8.2(eslint@8.51.0))(eslint-plugin-jsx-a11y@6.7.1(eslint@8.51.0))(eslint-plugin-playwright@0.16.0(eslint-plugin-jest@27.4.2(@typescript-eslint/eslint-plugin@6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(jest@29.7.0)(typescript@5.0.4))(eslint@8.51.0))(eslint-plugin-prettier@5.0.1(eslint-config-prettier@9.0.0(eslint@8.51.0))(eslint@8.51.0)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@4.6.0(eslint@8.51.0))(eslint-plugin-react@7.33.2(eslint@8.51.0))(eslint@8.51.0)(typescript@5.0.4)(wp-prettier@3.0.3)'
-  : dependencies:
+  '@wordpress/eslint-plugin@19.0.0(6k6g2cxihyo572pzmksa7uzza4)':
+    dependencies:
       '@babel/core': 7.24.0
       '@babel/eslint-parser': 7.23.10(@babel/core@7.24.0)(eslint@8.51.0)
       '@typescript-eslint/eslint-plugin': 6.7.5(@typescript-eslint/parser@6.7.5(eslint@8.51.0)(typescript@5.0.4))(eslint@8.51.0)(typescript@5.0.4)
@@ -22479,7 +22479,7 @@ snapshots:
       jest-process-manager: 0.4.0
       jest-runner: 29.7.0
       nyc: 15.1.0
-      playwright-core: 1.43.0
+      playwright-core: 1.44.1
       rimraf: 3.0.2
       uuid: 8.3.2
     transitivePeerDependencies:
@@ -23960,11 +23960,11 @@ snapshots:
     dependencies:
       find-up: 6.3.0
 
-  playwright-core@1.43.0: {}
+  playwright-core@1.44.1: {}
 
-  playwright@1.43.0:
+  playwright@1.44.1:
     dependencies:
-      playwright-core: 1.43.0
+      playwright-core: 1.44.1
     optionalDependencies:
       fsevents: 2.3.2
 
