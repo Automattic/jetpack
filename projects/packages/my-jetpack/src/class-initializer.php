@@ -796,12 +796,18 @@ class Initializer {
 				'type'     => 'user',
 				'is_error' => true,
 			);
-		} elseif ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+			return $red_bubble_slugs;
+		}
+
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
 				'is_error' => true,
 			);
-		} elseif (
+			return $red_bubble_slugs;
+		}
+
+		if (
 			! ( new Connection_Manager() )->is_user_connected() &&
 			! ( new Connection_Manager() )->has_connected_owner()
 		) {
@@ -809,11 +815,15 @@ class Initializer {
 				'type'     => 'user',
 				'is_error' => false,
 			);
-		} elseif ( ! ( new Connection_Manager() )->is_connected() ) {
+			return $red_bubble_slugs;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
 				'is_error' => false,
 			);
+			return $red_bubble_slugs;
 		}
 
 		return $red_bubble_slugs;
