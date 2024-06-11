@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-boost",
-	"version": "3.4.1-beta",
+	"version": "3.4.2-alpha",
 	"description": "Boost your WordPress site's performance, from the creators of Jetpack",
 	"directories": {
 		"test": "tests"
@@ -31,9 +31,9 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-image-guide": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/preset-env": "7.24.0",
-		"@babel/preset-react": "7.23.3",
+		"@babel/core": "7.24.7",
+		"@babel/preset-env": "7.24.7",
+		"@babel/preset-react": "7.24.7",
 		"@storybook/react": "8.1.6",
 		"@types/jest": "29.5.12",
 		"@types/jquery": "3.5.29",
