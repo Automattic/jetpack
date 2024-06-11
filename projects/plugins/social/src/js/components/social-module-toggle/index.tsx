@@ -98,7 +98,7 @@ const SocialModuleToggle: React.FC = () => {
 					description={ __( 'Unlock advanced sharing options', 'jetpack-social' ) }
 					cta={ __( 'Power up Jetpack Social', 'jetpack-social' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-						site: blogID ?? siteSuffix,
+						site: `${ blogID ?? siteSuffix }`,
 						query: 'redirect_to=admin.php?page=jetpack-social',
 					} ) }
 					tooltipText={ __(
