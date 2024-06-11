@@ -11,7 +11,7 @@ $wp_branch  = getenv( 'WP_BRANCH' );
 
 if ( ! $_tests_dir ) {
 	if ( $wp_branch ) {
-		$_tests_dir = '/tmp/wordpress-' . $wp_branch;
+		$_tests_dir = '/tmp/wordpress-' . $wp_branch . '/tests/phpunit';
 	} else {
 		$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
 	}
