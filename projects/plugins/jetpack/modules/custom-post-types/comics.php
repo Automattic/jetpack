@@ -511,7 +511,7 @@ class Jetpack_Comic {
 				'https://jetpack.com/support/custom-content-types/#comics'
 			);
 
-			_deprecated_hook( 'Jetpack_Comic', 'jetpack-$$next-version$$', '', esc_html( $message ) );
+			_deprecated_hook( 'Jetpack_Comic', 'jetpack-13.6', '', esc_html( $message ) );
 		}
 
 		/**
