@@ -196,7 +196,7 @@ class Gravatar_Widget extends WP_Widget {
 	</label>
 </p>
 <p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>"><?php esc_html_e( 'Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:', 'wpcomsh' ); ?> <input  class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_url' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_url' ) ); ?>" type="text" value="<?php echo esc_attr( $gravatar_url ); ?>" /></label></p>
-<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>"><?php esc_html_e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'wpcomsh' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_text' ) ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text ); /* // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></textarea></label></p>
+<p><label for="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>"><?php esc_html_e( 'Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about.', 'wpcomsh' ); ?><br/> <textarea class="widefat" style="font-size: 0.9em" id="<?php echo esc_attr( $this->get_field_id( 'gravatar_text' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'gravatar_text' ) ); ?>" rows="5"><?php echo htmlspecialchars( $gravatar_text, ENT_COMPAT ); /* // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></textarea></label></p>
 <p>
 		<?php
 		printf(
