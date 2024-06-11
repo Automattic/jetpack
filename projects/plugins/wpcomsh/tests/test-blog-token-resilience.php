@@ -30,7 +30,7 @@ class BlogTokenResilienceTest extends WP_UnitTestCase {
 	 */
 	public function test_get_blog_token( $value_on_db, $value_on_persistent_data, $expected_value ) {
 		if ( $value_on_db ) {
-			update_option( 'blog_token', $value_on_db );
+			Jetpack_Options::update_option( 'blog_token', $value_on_db );
 		}
 		if ( $value_on_persistent_data ) {
 			Atomic_Persistent_Data::set( 'JETPACK_BLOG_TOKEN', $value_on_persistent_data );
