@@ -2,7 +2,7 @@ import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-component
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
@@ -25,7 +25,7 @@ export const PaidAccordionItem = ( {
 	const setOpen = accordionData?.setOpen;
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 
-	const bodyClassNames = classNames( styles[ 'accordion-body' ], {
+	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );

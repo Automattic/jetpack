@@ -1,7 +1,7 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 const ToolbarButton = ( { className, label, isPressed, onClick } ) => {
-	const buttonClassnames = classnames( className, 'components-button components-tab-button', {
+	const buttonClassnames = clsx( className, 'components-button components-tab-button', {
 		'is-pressed': isPressed,
 	} );
 

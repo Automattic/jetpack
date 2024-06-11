@@ -2,7 +2,7 @@ import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
@@ -246,7 +246,7 @@ class SiteStatsComponent extends React.Component {
 						'jetpack'
 					) }
 					clickableHeader={ true }
-					className={ classNames( 'jp-foldable-settings-standalone', {
+					className={ clsx( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>

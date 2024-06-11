@@ -1,7 +1,7 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { Card } from '@wordpress/components';
 import { arrowDown, arrowUp, Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './style.module.scss';
@@ -66,7 +66,7 @@ const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) 
 				</span>
 				{ difference !== null ? (
 					<span
-						className={ classNames( styles[ 'stats-card-difference' ], {
+						className={ clsx( styles[ 'stats-card-difference' ], {
 							[ styles[ 'stats-card-difference--positive' ] ]: difference < 0,
 							[ styles[ 'stats-card-difference--negative' ] ]: difference > 0,
 						} ) }

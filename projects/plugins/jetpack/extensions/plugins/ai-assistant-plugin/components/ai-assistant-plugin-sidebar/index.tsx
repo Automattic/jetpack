@@ -60,7 +60,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 			<PanelRow className="jetpack-ai-proofread-control__header">
 				<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
-					<Proofread busy={ false } disabled={ requireUpgrade } />
+					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 			{ isAIFeaturedImageAvailable && (
@@ -139,7 +139,11 @@ export default function AiAssistantPluginSidebar() {
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread busy={ false } disabled={ requireUpgrade } />
+					<Proofread
+						placement={ PLACEMENT_PRE_PUBLISH }
+						busy={ false }
+						disabled={ requireUpgrade }
+					/>
 					{ requireUpgrade && (
 						<Upgrade
 							placement={ PLACEMENT_PRE_PUBLISH }

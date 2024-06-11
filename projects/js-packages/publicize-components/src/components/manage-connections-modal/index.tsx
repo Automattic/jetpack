@@ -2,19 +2,15 @@ import { ThemeProvider, useBreakpointMatch } from '@automattic/jetpack-component
 import { Modal } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { cloneElement, useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
 import styles from './style.module.scss';
 
-type ManageConnectionsModalProps = {
-	onCloseModal?: VoidFunction;
-};
-
-export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModalProps ) => {
+export const ManageConnectionsModal = () => {
 	const { keyringResult } = useSelect( select => {
 		const { getKeyringResult } = select( store );
 
@@ -23,14 +19,14 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 		};
 	}, [] );
 
-	const { setKeyringResult } = useDispatch( store );
+	const { setKeyringResult, closeConnectionsModal } = useDispatch( store );
 
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 
 	const closeModal = useCallback( () => {
 		setKeyringResult( null );
-		onCloseModal?.();
-	}, [ onCloseModal, setKeyringResult ] );
+		closeConnectionsModal();
+	}, [ closeConnectionsModal, setKeyringResult ] );
 
 	const hasKeyringResult = Boolean( keyringResult?.ID );
 
@@ -42,7 +38,7 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 
 	return (
 		<Modal
-			className={ classNames( styles.modal, {
+			className={ clsx( styles.modal, {
 				[ styles.small ]: isSmall,
 			} ) }
 			onRequestClose={ closeModal }
@@ -68,51 +64,21 @@ export const ManageConnectionsModal = ( { onCloseModal }: ManageConnectionsModal
 	);
 };
 
-export type ManageConnectionsModalWithTriggerProps = {
-	trigger: React.ReactElement;
-};
-
 /**
- * Manage connections modal with trigger component.
+ * Themed Manage connections modal component.
  *
  * This component can be used to avoid dealing with modal state management.
  *
- * @param {ManageConnectionsModalWithTriggerProps} props - component props
- *
  * @returns {import('react').ReactNode} - React element
  */
-export function ManageConnectionsModalWithTrigger( {
-	trigger,
-}: ManageConnectionsModalWithTriggerProps ) {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-
-	const { keyringResult } = useSelect( select => {
-		return {
-			keyringResult: select( store ).getKeyringResult(),
-		};
+export function ThemedConnectionsModal() {
+	const shouldModalBeOpen = useSelect( select => {
+		return select( store ).isConnectionsModalOpen();
 	}, [] );
-
-	const closeModal = useCallback( () => {
-		setIsModalOpen( false );
-	}, [] );
-	const openModal = useCallback( () => {
-		setIsModalOpen( true );
-	}, [] );
-
-	const shouldModalBeOpen =
-		isModalOpen ||
-		// It's possible that when reconnecting a connection from within the modal,
-		// the user closes the modal immediately, without waiting for the confirmation,
-		// in that case we should show the modal again when the keyringResult is set.
-		keyringResult?.ID;
-
-	// Clone trigger element and pass onClick handler to open modal
-	const triggerWithOnClick = cloneElement( trigger, { onClick: openModal } );
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
-			{ triggerWithOnClick }
-			{ shouldModalBeOpen ? <ManageConnectionsModal onCloseModal={ closeModal } /> : null }
+			{ shouldModalBeOpen ? <ManageConnectionsModal /> : null }
 		</ThemeProvider>
 	);
 }

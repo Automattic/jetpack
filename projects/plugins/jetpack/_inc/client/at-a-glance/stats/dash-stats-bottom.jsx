@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import ConnectButton from 'components/connect-button';
 import analytics from 'lib/analytics';
@@ -129,7 +129,7 @@ class DashStatsBottom extends Component {
 											} ) }
 											rel="noopener noreferrer"
 											target="_blank"
-											className={ classNames(
+											className={ clsx(
 												'jp-at-a-glance__stats-ctas-wpcom-stats',
 												this.props.className
 											) }
