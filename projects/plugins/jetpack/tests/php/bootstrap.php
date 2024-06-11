@@ -103,6 +103,7 @@ function _manually_load_plugin() {
 	}
 
 	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+		define( 'IS_ATOMIC', true );
 		require __DIR__ . '/../../../../mu-plugins/wpcomsh/wpcomsh.php';
 	}
 	require __DIR__ . '/../../jetpack.php';
