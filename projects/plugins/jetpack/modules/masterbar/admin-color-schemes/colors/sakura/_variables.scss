@@ -14,7 +14,7 @@ $body-background: $studio-gray-0; // Calypso --color-surface-backdrop
 // admin menu & admin-bar (core _variables.scss)
 $menu-text: $studio-pink-80; // Calypso --color-sidebar-text
 $menu-background: $studio-pink-5; // Calypso --color-sidebar-background
-$menu-highlight-text: $studio-pink-90; // Calypso --color-sidebar-menu-hover-text
+$menu-highlight-text: $studio-pink-0; // Calypso --color-sidebar-menu-hover-text
 $menu-highlight-icon: $menu-highlight-text;
 $menu-highlight-background: $studio-pink-10; // Calypso --color-sidebar-menu-hover-background
 $menu-current-text: $studio-white; // Calypso --color-sidebar-menu-selected-text
@@ -22,7 +22,8 @@ $menu-current-icon: $menu-current-text;
 $menu-current-background: $studio-blue-50; // Calypso --color-sidebar-menu-selected-background
 $menu-submenu-text: $studio-pink-0; // Calypso --color-sidebar-submenu-text
 $menu-submenu-background: $studio-pink-90; // Calypso --color-sidebar-submenu-background
-$menu-submenu-focus-text: $studio-blue-20; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-background-alt: $studio-pink-70; // Calypso --color-sidebar-submenu-background-alt
+$menu-submenu-focus-text: $studio-pink-0; // Calypso --color-sidebar-submenu-hover-text
 $menu-submenu-current-text: $studio-pink-0; // Calypso --color-sidebar-submenu-selected-text
 
 // masterbar overrides
