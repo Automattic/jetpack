@@ -88,7 +88,7 @@ const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	if ( hasSiteConnectionBrokenModules ) {
 		return {
 			onClick: handleConnectUser,
-			text: __( 'Missing site connection to enable all features.', 'jetpack-my-jetpack' ),
+			text: __( 'Missing site connection to enable some features.', 'jetpack-my-jetpack' ),
 			actionText: __( 'Connect', 'jetpack-my-jetpack' ),
 			status: 'error',
 		};
