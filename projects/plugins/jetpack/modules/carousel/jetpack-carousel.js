@@ -1579,7 +1579,6 @@
 		// Register the event listeners for starting the gallery
 		document.body.addEventListener( 'click', handleInteraction );
 		document.body.addEventListener( 'keydown', handleInteraction );
-		document.body.addEventListener( 'touchstart', handleInteraction );
 
 		function handleInteraction( e ) {
 			if ( e.type === 'click' ) {
@@ -1593,10 +1592,6 @@
 					e.preventDefault(); // Prevent scrolling on space
 					return;
 				}
-			}
-
-			if ( e.type === 'touchstart' ) {
-				handleClick( e );
 			}
 		}
 
