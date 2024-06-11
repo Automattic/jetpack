@@ -1,15 +1,15 @@
 import {
-	FeaturedImage,
+	GeneralPurposeImage,
 	FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from '../../../plugins/ai-assistant-plugin/components/ai-image';
 
-function JetpackAIFeaturedImage( { onClose = () => {} } ) {
+function JetpackAIGeneralPurposeImage( { onClose = () => {} } ) {
 	return (
-		<FeaturedImage
+		<GeneralPurposeImage
 			placement={ FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN }
 			onClose={ onClose }
 		/>
 	);
 }
 
-export default JetpackAIFeaturedImage;
+export default JetpackAIGeneralPurposeImage;
