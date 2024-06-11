@@ -4426,16 +4426,16 @@ importers:
     devDependencies:
       '@babel/core':
         specifier: ^7.5.5
-        version: 7.24.0
+        version: 7.24.7
       '@babel/preset-env':
         specifier: ^7.5.5
-        version: 7.24.0(@babel/core@7.24.0)
+        version: 7.24.7(@babel/core@7.24.7)
       '@wordpress/babel-preset-default':
         specifier: ^8.0.0
         version: 8.0.0
       babel-jest:
         specifier: ^29.7.0
-        version: 29.7.0(@babel/core@7.24.0)
+        version: 29.7.0(@babel/core@7.24.7)
       jest:
         specifier: ^29.7.0
         version: 29.7.0
