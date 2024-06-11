@@ -56,6 +56,23 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	}
 }
 
+.banner-image-evaluation {
+    background-image: url(./assets/images/recommendations-blank.png),
+    radial-gradient(circle at 40% 70%, rgba(206, 217, 242, 0.75) 0%, rgba(255, 255, 255, 0) 40%),
+    radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(circle at 80% 20%, rgba(245, 230, 179, 0.75) 0%, rgba(255, 255, 255, 0) 50%);
+    background-repeat: no-repeat;
+    background-position: 75% center;
+	background-size: 393px, cover, cover, cover;
+
+	&.is-selected {
+		background-image: url(./assets/images/recommendations-selected.png),
+		radial-gradient(circle at 40% 70%, rgba(206, 217, 242, 0.75) 0%, rgba(255, 255, 255, 0) 40%),
+		radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%),
+		radial-gradient(circle at 80% 20%, rgba(245, 230, 179, 0.75) 0%, rgba(255, 255, 255, 0) 50%);
+	}
+}
+
 .banner-image {
 	background-image: url(./assets/images/site-cards.png),
 				radial-gradient(circle at 90% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 35%),
@@ -71,5 +88,58 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 				radial-gradient(circle at 50% 85%, rgba(245, 230, 179, 0.3) 0%, rgba(255, 255, 255, 0) 35%);
 		order: -1;
 		min-height: 160px;
+	}
+}
+
+.form {
+    margin-top: 24px;
+}
+
+.form-checkbox {
+    margin-top: 16px;
+    font-size: 16px !important;
+}
+
+.form-actions {
+    margin-top: 64px;
+
+    display: flex;
+    flex-direction: row;
+    column-gap: 40px;
+}
+
+.form-link-action {
+    text-decoration: none !important;
+    padding-right: calc( var( --spacing-base ) * 3 );
+    padding-left: calc( var( --spacing-base ) * 3 );
+}
+
+.banner-evaluation {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 144px 0;
+	background-image: radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%);
+    background-repeat: no-repeat;
+    background-position: 100% 80%;
+	background-size: cover;
+}
+
+.banner-loader {
+	margin-bottom: 24px;
+
+	svg {
+		width: 48px;
+		height: 48px;
+		color: var( --jp-green-40 );
+
+		circle {
+			stroke: var( --jp-green-5 );
+		}
+
+		circle, path {
+			stroke-width: 4px;
+		}
 	}
 }
