@@ -16,21 +16,16 @@ return [
     // PhanUndeclaredFunctionInCallable : 10+ occurrences
     // PhanTypeVoidAssignment : 8 occurrences
     // PhanUndeclaredClassProperty : 7 occurrences
+    // PhanRedundantCondition : 6 occurrences
     // PhanTypeMismatchArgument : 6 occurrences
     // PhanTypeMismatchArgumentNullable : 5 occurrences
     // PhanUndeclaredConstant : 5 occurrences
-    // PhanRedefinedClassReference : 4 occurrences
-    // PhanRedundantCondition : 4 occurrences
-    // PhanTypeMismatchReturnNullable : 4 occurrences
     // PhanTypeSuspiciousEcho : 4 occurrences
     // PhanUndeclaredClassInCallable : 4 occurrences
-    // PhanUndeclaredProperty : 4 occurrences
     // PhanUndeclaredTypeParameter : 4 occurrences
     // PhanImpossibleCondition : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
     // PhanNoopNew : 2 occurrences
-    // PhanRedefineClass : 2 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 2 occurrences
     // PhanTypeVoidArgument : 2 occurrences
     // PhanUndeclaredClassInstanceof : 2 occurrences
@@ -43,13 +38,11 @@ return [
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
-    // PhanTypeInstantiateTraitStaticOrSelf : 1 occurrence
-    // PhanTypeMismatchReturn : 1 occurrence
+    // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
     // PhanUndeclaredMethod : 1 occurrence
-    // PhanUnreferencedUseNormal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -58,7 +51,7 @@ return [
         'class-wpcomsh-cli-commands.php' => ['PhanTypeVoidAssignment', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
         'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
-        'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturnNullable', 'PhanUndeclaredVariable', 'PhanUnreferencedUseNormal'],
+        'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredVariable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject', 'PhanUndeclaredClassMethod'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
         'endpoints/rest-api-export.php' => ['PhanTypeMismatchArgumentProbablyReal'],
@@ -91,11 +84,6 @@ return [
         'widgets/class-jetpack-posts-i-like-widget.php' => ['PhanRedundantCondition'],
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanUndeclaredFunction'],
-        'wp-content/wordbless/src/ClearCacheGroup.php' => ['PhanUndeclaredProperty'],
-        'wp-content/wordbless/src/Singleton.php' => ['PhanTypeInstantiateTraitStaticOrSelf'],
-        'wp-content/wordbless/src/dbless-wpdb.php' => ['PhanTypeMismatchReturn'],
-        'wp-content/wordbless/tests/includes/setup-test-for-phpunit-pre8.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference'],
-        'wp-content/wordbless/tests/includes/setup-test-for-phpunit8+.php' => ['PhanRedefineClass', 'PhanRedefinedClassReference'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
         'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
         'wpcomsh.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunctionInCallable'],
