@@ -32,7 +32,7 @@
 	});
 
 	function insertLogoButton( id ) {
-		var button = $( '<a class="button create-logo-button" target="_blank" href="logo-maker-p2" />' ).text( LogoTool.l10n.create );
+		var button = $( '<a class="button create-logo-button" target="_blank" href="https://wp.me/logo-maker" />' ).text( LogoTool.l10n.create );
 
 		// Timeout lets us render after the core control finishes.
 		setTimeout( function(){
