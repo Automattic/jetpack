@@ -44,14 +44,10 @@ const WelcomeFlow: React.FC = () => {
 						horizontalGap={ 0 }
 						className={ styles[ 'banner-content' ] }
 					>
-						{ ! siteIsRegistered ? (
-							<ConnectionStep
-								onActivateSite={ handleRegisterSite }
-								isActivating={ siteIsRegistering }
-							/>
-						) : (
-							<>Site connected</>
-						) }
+						<ConnectionStep
+							onActivateSite={ handleRegisterSite }
+							isActivating={ siteIsRegistering }
+						/>
 					</Container>
 				</CardWrapper>
 				<Button

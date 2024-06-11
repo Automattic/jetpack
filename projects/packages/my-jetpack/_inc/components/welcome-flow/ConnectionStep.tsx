@@ -17,7 +17,7 @@ type ConnectionStepProps = {
  * @param {object} props - ConnectioStepProps
  * @param {Function} props.onActivateSite - Alias for handleRegisterSite
  * @param {boolean} props.isActivating - Alias for siteIsRegistering
- * @returns {object} The WelcomeBanner component.
+ * @returns {object} The ConnectionStep component.
  */
 const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
@@ -63,7 +63,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 					) }
 				</Text>
 				<TermsOfService agreeButtonLabel={ activationButtonLabel } mb={ 4 } />
-				<Button variant="primary" onClick={ onConnectSiteClick }>
+				<Button variant="primary" disabled={ isActivating } onClick={ onConnectSiteClick }>
 					{ isActivating ? __( 'Activating…', 'jetpack-my-jetpack' ) : activationButtonLabel }
 				</Button>
 			</Col>
