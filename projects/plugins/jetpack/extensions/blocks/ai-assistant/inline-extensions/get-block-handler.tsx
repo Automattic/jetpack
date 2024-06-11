@@ -69,5 +69,6 @@ export function getBlockHandler(
 		feature: handler.feature,
 		adjustPosition: handler.adjustPosition,
 		startOpen: handler.startOpen,
+		hideOnBlockFocus: handler.hideOnBlockFocus,
 	};
 }
