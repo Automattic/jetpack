@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import Status from '../status/status';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import { isFatalError } from '../lib/critical-css-errors';
 
 export default function CloudCssMetaProps() {
 	const [ cssState ] = useCriticalCssState();
@@ -27,6 +28,7 @@ export default function CloudCssMetaProps() {
 		<Status
 			cssState={ cssState }
 			isCloud={ true }
+			showFatalError={ isFatalError( cssState ) }
 			hasRetried={ hasRetried }
 			retry={ retry }
 			extraText={ extraText || undefined }
