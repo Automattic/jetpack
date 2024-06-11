@@ -188,7 +188,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
-	const { brokenModules } = lifecycleStats;
+	const { brokenModules } = lifecycleStats || {};
 	const products = useAllProducts();
 	const hasProductsThatRequireUserConnection =
 		getProductSlugsThatRequireUserConnection( products ).length > 0;
