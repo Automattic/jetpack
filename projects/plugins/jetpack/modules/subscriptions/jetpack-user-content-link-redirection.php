@@ -19,14 +19,17 @@ function jetpack_user_content_link_redirection() {
 		return;
 	}
 
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['user_content_redirect_domain_checking'] ) ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( empty( $_SERVER['QUERY_STRING'] ) || ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_GET['blog_id'] ) ) {
 			wp_safe_redirect( get_home_url() );
 			exit();
 		}
 
 		$domain_from_request = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-		$blog_id             = absint( wp_unslash( $_GET['blog_id'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$blog_id = absint( wp_unslash( $_GET['blog_id'] ) );
 
 		if ( ! jetpack_user_content_link_is_same_domain( $domain_from_request, $blog_id ) ) {
 			wp_safe_redirect( get_home_url() );
