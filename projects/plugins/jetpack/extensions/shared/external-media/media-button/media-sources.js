@@ -7,6 +7,16 @@ import {
 	generalPurposeImageExclusiveMediaSources,
 } from '../sources';
 
+/**
+ * Temporary feature flag to control generalPurposeImageExclusiveMediaSources
+ * visibility.
+ */
+const GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG = 'ai-general-purpose-image-generator';
+const isGeneralPurposeImageGeneratorBetaEnabled =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[
+		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
+	]?.available === true;
+
 function MediaSources( {
 	originalButton = null,
 	onClick = () => {},
@@ -45,6 +55,7 @@ function MediaSources( {
 				) ) }
 
 			{ ! isFeatured &&
+				isGeneralPurposeImageGeneratorBetaEnabled &&
 				generalPurposeImageExclusiveMediaSources.map( ( { icon, id, label } ) => (
 					<MenuItem
 						icon={ icon }
