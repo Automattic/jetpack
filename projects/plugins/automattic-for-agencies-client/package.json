@@ -41,9 +41,9 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/preset-env": "7.24.0",
-		"@babel/runtime": "7.24.0",
+		"@babel/core": "7.24.7",
+		"@babel/preset-env": "7.24.7",
+		"@babel/runtime": "7.24.7",
 		"@testing-library/dom": "10.1.0",
 		"@testing-library/react": "15.0.7",
 		"@wordpress/browserslist-config": "6.0.0",

@@ -30,6 +30,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
@@ -129,6 +130,8 @@ class Jetpack_Boost {
 
 		// Setup Site Health panel functionality.
 		Site_Health::init();
+
+		Super_Cache_Tracking::setup();
 	}
 
 	/**

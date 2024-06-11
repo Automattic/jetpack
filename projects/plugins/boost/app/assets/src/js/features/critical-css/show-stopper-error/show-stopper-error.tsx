@@ -160,7 +160,13 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 								'jetpack-boost'
 							),
 							{
-								...actionLinkInterpolateVar( retry, 'retry' ),
+								...actionLinkInterpolateVar( () => {
+									recordBoostEvent( 'critical_css_retry', {
+										errorType: 'CssGenLibraryFailure',
+									} );
+
+									retry();
+								}, 'retry' ),
 							}
 						) }
 					</p>
@@ -176,7 +182,16 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 						) }
 					</p>
 					{ showRetry ? (
-						<button className="secondary" onClick={ retry }>
+						<button
+							className="secondary"
+							onClick={ () => {
+								recordBoostEvent( 'critical_css_retry', {
+									errorType: 'UnknownError',
+								} );
+
+								retry();
+							} }
+						>
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (

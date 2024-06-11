@@ -1,9 +1,10 @@
 import { signal, effect, batch, computed } from '@preact/signals';
+import clsx from 'clsx';
 import { useState, useEffect } from 'preact/hooks';
 import { translate } from '../../i18n';
 import { Name, Website, Email } from '../../images';
 import { mailLoginData, isMailFormInvalid, shouldStoreEmailData } from '../../state';
-import { classNames, getUserInfoCookie, isAuthRequired } from '../../utils';
+import { getUserInfoCookie, isAuthRequired } from '../../utils';
 import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
 import { EmailFormCookieConsent } from './email-form-cookie-consent';
@@ -76,7 +77,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 
 	return (
 		<div
-			className={ classNames( 'verbum-form', {
+			className={ clsx( 'verbum-form', {
 				open: shouldShowEmailForm,
 			} ) }
 		>
@@ -86,7 +87,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 						<label className="verbum__label">
 							<Email />
 							<input
-								className={ classNames( 'verbum-form__email', {
+								className={ clsx( 'verbum-form__email', {
 									'invalid-form-data': isValidEmail.value === false && isEmailTouched.value,
 								} ) }
 								type="email"
@@ -109,7 +110,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 						<label className="verbum__label">
 							<Name />
 							<input
-								className={ classNames( 'verbum-form__name', {
+								className={ clsx( 'verbum-form__name', {
 									'invalid-form-data': isValidAuthor.value === false && isNameTouched.value,
 								} ) }
 								type="text"
