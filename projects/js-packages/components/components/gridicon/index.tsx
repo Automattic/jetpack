@@ -6,7 +6,7 @@ It has been modified to work with Preact, and only includes the icons that we ne
 !!! */
 
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { Component } from 'react';
 import './style.scss';
 import { GridiconProps } from './types';
@@ -290,7 +290,7 @@ class Gridicon extends Component< GridiconProps > {
 
 		const icon = 'gridicons-' + this.props.icon;
 
-		const iconClass = classNames( 'gridicon', icon, className, {
+		const iconClass = clsx( 'gridicon', icon, className, {
 			'needs-offset': this.needsOffset( icon, size ),
 		} );
 		const description = this.getSVGDescription( icon );

@@ -129,9 +129,11 @@ const useAutoScroll = (
 				scrollMargin: styledScrollElementRef.current.style.scrollMargin,
 			};
 
-			// Add scroll padding and margin to avoid the content to be hidden by the fixed input bar
-			styledScrollElementRef.current.style.scrollPadding = '80px';
-			styledScrollElementRef.current.style.scrollMargin = '10px';
+			if ( autoScrollEnabled.current ) {
+				// Add scroll padding and margin to avoid the content to be hidden by the fixed input bar
+				styledScrollElementRef.current.style.scrollPadding = '80px';
+				styledScrollElementRef.current.style.scrollMargin = '10px';
+			}
 		}
 	}, [ blockRef, getScrollParent ] );
 

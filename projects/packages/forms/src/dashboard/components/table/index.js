@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createRef, useCallback, useEffect, useRef } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { difference, forEach, includes, kebabCase, map, without } from 'lodash';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 /**
@@ -55,8 +55,8 @@ const Table = ( {
 		setSelectedResponses( newState );
 	}, [ items, selectedResponses, setSelectedResponses ] );
 
-	const classes = classnames( 'jp-forms__table', className );
-	const checkboxClasses = classnames( 'jp-forms__table-checkbox', {
+	const classes = clsx( 'jp-forms__table', className );
+	const checkboxClasses = clsx( 'jp-forms__table-checkbox', {
 		'is-intermediate': selectedResponses.length !== 0 && selectedResponses.length !== items.length,
 	} );
 
@@ -75,7 +75,7 @@ const Table = ( {
 				) }
 
 				{ map( columns, ( { label, key } ) => {
-					const headerClasses = classnames( 'jp-forms__table-cell', `is-${ kebabCase( key ) }` );
+					const headerClasses = clsx( 'jp-forms__table-cell', `is-${ kebabCase( key ) }` );
 
 					return (
 						<div key={ `table-header-${ key }` } className={ headerClasses }>

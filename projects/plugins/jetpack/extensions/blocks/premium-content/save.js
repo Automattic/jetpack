@@ -1,5 +1,5 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export default function Save() {
 	const blockProps = useBlockProps.save();
@@ -7,7 +7,7 @@ export default function Save() {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockProps.className, 'wp-block-premium-content-container' ) }
+			className={ clsx( blockProps.className, 'wp-block-premium-content-container' ) }
 		>
 			<InnerBlocks.Content />
 		</div>

@@ -14,7 +14,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
-import { AI_ASSISTANT_SUPPORT_NAME } from '../ai-assistant';
+import { AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME } from '../ai-assistant';
 import AiAssistantBar from './components/ai-assistant-bar';
 import AiAssistantToolbarButton from './components/ai-assistant-toolbar-button';
 import { isJetpackFromBlockAiCompositionAvailable } from './constants';
@@ -194,7 +194,7 @@ function jetpackFormWithAiSupport( settings, name: string ) {
 	}
 
 	// Disable if Inline Extension is enabled
-	if ( getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME ) ) {
+	if ( getFeatureAvailability( AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME ) ) {
 		return settings;
 	}
 
@@ -270,7 +270,7 @@ function jetpackFormChildrenEditWithAiSupport( settings, name ) {
 	}
 
 	// Disable if Inline Extension is enabled
-	if ( getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME ) ) {
+	if ( getFeatureAvailability( AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME ) ) {
 		return settings;
 	}
 

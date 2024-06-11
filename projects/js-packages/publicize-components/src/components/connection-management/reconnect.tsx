@@ -11,7 +11,6 @@ export type ReconnectProps = {
 	service: SupportedService;
 	connection: Connection;
 	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
-	onConfirmReconnect?: VoidFunction;
 };
 
 /**
@@ -21,13 +20,9 @@ export type ReconnectProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function Reconnect( {
-	connection,
-	service,
-	variant = 'link',
-	onConfirmReconnect,
-}: ReconnectProps ) {
-	const { deleteConnectionById, setKeyringResult } = useDispatch( socialStore );
+export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
+	const { deleteConnectionById, setKeyringResult, openConnectionsModal } =
+		useDispatch( socialStore );
 
 	const { isDisconnecting } = useSelect(
 		select => {
@@ -45,10 +40,10 @@ export function Reconnect( {
 			setKeyringResult( result );
 
 			if ( result?.ID ) {
-				onConfirmReconnect?.();
+				openConnectionsModal();
 			}
 		},
-		[ onConfirmReconnect, setKeyringResult ]
+		[ openConnectionsModal, setKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );

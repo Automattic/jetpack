@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Snackbar } from '@wordpress/components';
 import { MutationNotice, useNotices } from './context';
 import styles from './manager.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 type NoticeProps = {
 	notice: MutationNotice;
@@ -31,7 +31,7 @@ const NoticeManager = () => {
 
 	return (
 		Object.keys( notices ).length > 0 && (
-			<div className={ classNames( 'stackable-snackbars', styles.wrapper ) }>
+			<div className={ clsx( 'stackable-snackbars', styles.wrapper ) }>
 				{ Object.values( notices ).map( notice => (
 					<Notice
 						key={ notice.id }

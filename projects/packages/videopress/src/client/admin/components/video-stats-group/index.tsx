@@ -3,7 +3,7 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -13,9 +13,9 @@ import type React from 'react';
 
 const Stats = ( { label, value = 0 }: { label: string; value: number } ) => {
 	return (
-		<div className={ classnames( styles.column ) }>
+		<div className={ clsx( styles.column ) }>
 			<Text>{ label }</Text>
-			<Text variant="title-medium" className={ classnames( styles.count ) }>
+			<Text variant="title-medium" className={ clsx( styles.count ) }>
 				{ value }
 			</Text>
 		</div>
@@ -35,7 +35,7 @@ const VideoStatsGroup = ( {
 	playsToday = 0,
 }: VideoStatsGroupProps ) => {
 	return (
-		<div className={ classnames( className, styles.wrapper ) }>
+		<div className={ clsx( className, styles.wrapper ) }>
 			<Stats label={ __( 'Videos', 'jetpack-videopress-pkg' ) } value={ videos } />
 			<Stats label={ __( 'Plays', 'jetpack-videopress-pkg' ) } value={ plays } />
 			<Stats label={ __( 'Plays today', 'jetpack-videopress-pkg' ) } value={ playsToday } />

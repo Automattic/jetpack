@@ -1,6 +1,6 @@
 import { useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './styles.module.scss';
 import TEMPLATES_DATA from './templates.js';
 
@@ -32,7 +32,7 @@ const TemplatePicker = ( { value = null, onTemplateSelected = null } ) => {
 					onClick={ onTemplateClicked }
 					id={ template.name }
 					key={ template.name }
-					className={ classnames( styles.template, {
+					className={ clsx( styles.template, {
 						[ styles[ 'template--active' ] ]: template.name === value,
 					} ) }
 				>

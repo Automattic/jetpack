@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { createElement } from 'react';
 import { ColProps } from '../types';
 import styles from './style.module.scss';
@@ -29,7 +29,7 @@ const Col: React.FC< ColProps > = props => {
 	const lgStart = Math.min( lgCols, typeof props.lg === 'object' ? props.lg.start : 0 ); // max of 12, if undefined = 0
 	const lgEnd = Math.min( lgCols, typeof props.lg === 'object' ? props.lg.end : 0 ); // max of 12, if undefined = 0
 
-	const colClassName = classnames( className, {
+	const colClassName = clsx( className, {
 		// SM
 		[ styles[ `col-sm-${ sm }` ] ]: ! ( smStart && smEnd ),
 		[ styles[ `col-sm-${ smStart }-start` ] ]: smStart > 0,
