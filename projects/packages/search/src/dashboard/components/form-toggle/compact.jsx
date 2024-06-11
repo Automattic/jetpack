@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 /*eslint lodash/import-scope: [2, "method"]*/
 import Toggle from 'components/form-toggle';
 import omit from 'lodash/omit';
@@ -11,7 +11,7 @@ export default class CompactFormToggle extends React.Component {
 		return (
 			<Toggle
 				{ ...omit( this.props, 'className' ) }
-				className={ classNames( this.props.className, 'is-compact' ) }
+				className={ clsx( this.props.className, 'is-compact' ) }
 			>
 				{ this.props.children }
 			</Toggle>

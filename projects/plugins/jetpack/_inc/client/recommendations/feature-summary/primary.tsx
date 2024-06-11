@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import { useCallback } from 'react';
@@ -21,7 +21,7 @@ const SummaryTextLink = ( { href, label, isHidden, onClick }: SummaryTextLinkPro
 			target="_blank"
 			href={ href }
 			onClick={ onClick }
-			className={ classNames( 'jp-summary-text-link', { [ 'is-hidden' ]: isHidden } ) }
+			className={ clsx( 'jp-summary-text-link', { [ 'is-hidden' ]: isHidden } ) }
 		>
 			{ label }
 			<span className="jp-summary-text-link__icon dashicons dashicons-arrow-right-alt2"></span>

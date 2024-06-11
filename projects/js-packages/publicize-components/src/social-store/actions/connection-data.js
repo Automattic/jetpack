@@ -5,12 +5,12 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	ADD_CONNECTION,
-	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
+	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
 } from './constants';
@@ -194,19 +194,6 @@ export function deletingConnection( connectionId, deleting = true ) {
 }
 
 /**
- * Whether a connection is being created.
- *
- * @param {boolean} creating - Whether the connection is being creating.
- * @returns {object} Creating connection action.
- */
-export function creatingConnection( creating = true ) {
-	return {
-		type: CREATING_CONNECTION,
-		creating,
-	};
-}
-
-/**
  * Deletes a connection by disconnecting it.
  *
  * @param {object} args - Arguments.
@@ -257,20 +244,32 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 	};
 }
 
+let uniqueId = 1;
+
 /**
  * Creates a connection.
  *
  * @param {Record<string, any>} data - The data for API call.
+ * @param {Record<string, any>} optimisticData - Optimistic data for the connection.
  * @returns {void}
  */
-export function createConnection( data ) {
+export function createConnection( data, optimisticData = {} ) {
 	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		const tempId = `new-${ ++uniqueId }`;
 
 		try {
 			const path = `/jetpack/v4/social/connections/`;
 
-			dispatch( creatingConnection() );
+			dispatch(
+				addConnection( {
+					connection_id: tempId,
+					...optimisticData,
+				} )
+			);
+			// Mark the connection as updating to show the spinner.
+			dispatch( updatingConnection( tempId ) );
 
 			/**
 			 * @type {import('../types').Connection}
@@ -279,7 +278,8 @@ export function createConnection( data ) {
 
 			if ( connection ) {
 				dispatch(
-					addConnection( {
+					// Updating the connection will also override the connection_id.
+					updateConnection( tempId, {
 						...connection,
 						can_disconnect: true,
 						// For editor, we always enable the connection by default.
@@ -313,7 +313,9 @@ export function createConnection( data ) {
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( creatingConnection( false ) );
+			dispatch( updatingConnection( tempId, false ) );
+			// If the connection was not created, delete it.
+			dispatch( deleteConnection( tempId ) );
 		}
 	};
 }
@@ -394,4 +396,35 @@ export function updateConnectionById( connectionId, data ) {
 			dispatch( updatingConnection( connectionId, false ) );
 		}
 	};
+}
+
+/**
+ * Toggles the connections modal.
+ *
+ * @param {boolean} isOpen - Whether the modal is open.
+ *
+ * @returns {object} - An action object.
+ */
+export function toggleConnectionsModal( isOpen ) {
+	return {
+		type: TOGGLE_CONNECTIONS_MODAL,
+		isOpen,
+	};
+}
+
+/**
+ * Opens the connections modal.
+ *
+ * @returns {object} - An action object.
+ */
+export function openConnectionsModal() {
+	return toggleConnectionsModal( true );
+}
+
+/**
+ * Closes the connections modal.
+ * @returns {object} - An action object.
+ */
+export function closeConnectionsModal() {
+	return toggleConnectionsModal( false );
 }

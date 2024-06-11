@@ -15,7 +15,6 @@ import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
 	isConnectionOwner,
-	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
 	isReconnectingSite,
@@ -61,36 +60,6 @@ export class DevVersionNotice extends React.Component {
 DevVersionNotice.propTypes = {
 	isDevVersion: PropTypes.bool.isRequired,
 	userIsSubscriber: PropTypes.bool.isRequired,
-};
-
-export class StagingSiteNotice extends React.Component {
-	static displayName = 'StagingSiteNotice';
-
-	render() {
-		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			const stagingSiteSupportLink = getRedirectUrl( 'jetpack-support-staging-sites' ),
-				props = {
-					text: __( 'You are running Jetpack on a staging server.', 'jetpack' ),
-					status: 'is-basic',
-					showDismiss: false,
-				};
-
-			return (
-				<SimpleNotice { ...props }>
-					<NoticeAction href={ stagingSiteSupportLink }>
-						{ __( 'More Info', 'jetpack' ) }
-					</NoticeAction>
-				</SimpleNotice>
-			);
-		}
-
-		return false;
-	}
-}
-
-StagingSiteNotice.propTypes = {
-	isStaging: PropTypes.bool.isRequired,
-	isInIdentityCrisis: PropTypes.bool.isRequired,
 };
 
 export class OfflineModeNotice extends React.Component {
@@ -233,10 +202,6 @@ class JetpackNotices extends React.Component {
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
-				<StagingSiteNotice
-					isStaging={ this.props.isStaging }
-					isInIdentityCrisis={ this.props.isInIdentityCrisis }
-				/>
 				<PlanConflictWarning />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
@@ -287,7 +252,6 @@ export default connect(
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
-			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			connectionErrors: getConnectionErrors( state ),
 			siteDataErrors: getSiteDataErrors( state ),

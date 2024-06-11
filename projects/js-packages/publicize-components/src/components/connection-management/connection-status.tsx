@@ -5,7 +5,6 @@ import { Reconnect } from './reconnect';
 
 export type ConnectionStatusProps = {
 	connection: Connection;
-	onConfirmReconnect?: VoidFunction;
 	service: SupportedService;
 };
 
@@ -16,11 +15,7 @@ export type ConnectionStatusProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionStatus( {
-	connection,
-	service,
-	onConfirmReconnect,
-}: ConnectionStatusProps ) {
+export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
 	if ( connection.status !== 'broken' ) {
 		return null;
 	}
@@ -31,11 +26,7 @@ export function ConnectionStatus( {
 				{ __( 'There is an issue with this connection.', 'jetpack' ) }
 			</span>
 			&nbsp;
-			<Reconnect
-				connection={ connection }
-				service={ service }
-				onConfirmReconnect={ onConfirmReconnect }
-			/>
+			<Reconnect connection={ connection } service={ service } />
 		</div>
 	);
 }

@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { memoize } from 'lodash';
 
 /**
@@ -88,7 +88,7 @@ const generateColorsObject = ( {
 		primary: {
 			name: primaryColor,
 			custom: customPrimaryColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-primary': primaryColorClass || customPrimaryColor,
 				[ primaryColorClass ]: primaryColorClass,
 			} ),
@@ -96,7 +96,7 @@ const generateColorsObject = ( {
 		secondary: {
 			name: secondaryColor,
 			custom: customSecondaryColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-secondary': secondaryColorClass || customSecondaryColor,
 				[ secondaryColorClass ]: secondaryColorClass,
 			} ),
@@ -104,7 +104,7 @@ const generateColorsObject = ( {
 		background: {
 			name: backgroundColor,
 			custom: customBackgroundColor,
-			classes: classnames( {
+			classes: clsx( {
 				'has-background': backgroundColorClass || customBackgroundColor,
 				[ backgroundColorClass ]: backgroundColorClass,
 			} ),

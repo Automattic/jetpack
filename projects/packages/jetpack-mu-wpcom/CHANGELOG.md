@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.34.0] - 2024-06-06
+### Added
+- Menu: Register plugin install page for default sites [#37686]
+
+### Changed
+- Updated links to site management panel [#37712]
+- Updated package dependencies. [#37669]
+
+### Fixed
+- Jetpack Cloud Simple > Monetize: Fix the link for "Set up an offer for your supporters" step [#37673]
+- Revert update_calypso_locale [#37740]
+
+## [5.33.0] - 2024-06-03
+### Added
+- New intro tour for classic admin interface. [#37533]
+
+### Changed
+- Plugin menu: Register "Plugins Marketplace" menu. [#37521]
+- Update comments settings in Simple to match Jetpack site. [#37592]
+
+### Fixed
+- Replace "Site visibility" with a link to Calypso. [#37656]
+
 ## [5.32.0] - 2024-05-27
 ### Added
 - Add staging sites check for menus. [#37449]
@@ -832,6 +855,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.34.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.33.0...v5.34.0
+[5.33.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.32.0...v5.33.0
 [5.32.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.1...v5.32.0
 [5.31.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.31.0...v5.31.1
 [5.31.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.30.0...v5.31.0

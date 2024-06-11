@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid PHP notice when form is submitted to the wrong URL

@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
@@ -7,7 +7,7 @@ import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
-import { getProvidersWithErrors, isFatalError } from '../lib/critical-css-errors';
+import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
@@ -15,6 +15,7 @@ import styles from './status.module.scss';
 type StatusTypes = {
 	cssState: CriticalCssState;
 	isCloud?: boolean;
+	showFatalError: boolean;
 	hasRetried: boolean;
 	retry: () => void;
 	highlightRegenerateButton?: boolean;
@@ -25,6 +26,7 @@ type StatusTypes = {
 const Status: React.FC< StatusTypes > = ( {
 	cssState,
 	isCloud = false,
+	showFatalError,
 	hasRetried,
 	retry,
 	highlightRegenerateButton = false,
@@ -37,7 +39,7 @@ const Status: React.FC< StatusTypes > = ( {
 	const providersWithErrors = getProvidersWithErrors( cssState );
 
 	// If there has been a fatal error, show it.
-	if ( isFatalError( cssState ) ) {
+	if ( showFatalError ) {
 		return (
 			<ShowStopperError
 				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
@@ -73,7 +75,7 @@ const Status: React.FC< StatusTypes > = ( {
 				) }
 
 				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
-					<div className={ classNames( 'failures', styles.failures ) }>
+					<div className={ clsx( 'failures', styles.failures ) }>
 						<InfoIcon />
 
 						<>
