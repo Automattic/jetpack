@@ -23,7 +23,7 @@ This plugin will also enhance the overall Automattic for Agencies portal experie
 - Downtime monitoring so you’ll instantly know if a client’s site needs attention
 - And more to come.
 
-Like other Automattic products, this plugin connects to WordPress.com’s servers to provide the best end-user experience. We only sync what’s absolutely necessary to provide our program experience.
+Like other Automattic products, this plugin connects to WordPress.com’s servers to provide the best end-user experience. We only sync what’s absolutely necessary to provide our program experience. When connecting your site to the Automattic for Agencies Sites Dashboard, you agree to [our Terms of Service](https://wordpress.com/tos/).
 
 == Installation ==
 
