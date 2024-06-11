@@ -121,6 +121,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			feature,
 			adjustPosition,
 			startOpen,
+			hideOnBlockFocus,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		// State to display the AI Control or not.
@@ -450,23 +451,27 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ adjustBlockPadding, adjustPosition, clientId, controlObserver, id, showAiControl ] );
 
-		// Hide the AI Control when the user starts typing in the block.
+		// Hide the AI Control when the block is focused.
 		useEffect( () => {
+			if ( ! hideOnBlockFocus ) {
+				return;
+			}
+
 			if ( showAiControl ) {
 				const element = ownerDocument.current.getElementById( id );
 
 				const handleKeyDown = () => {
 					setShowAiControl( false );
-					element?.removeEventListener( 'keydown', handleKeyDown );
+					element?.removeEventListener( 'focusin', handleKeyDown );
 				};
 
-				element?.addEventListener( 'keydown', handleKeyDown );
+				element?.addEventListener( 'focusin', handleKeyDown );
 
 				return () => {
-					element?.removeEventListener( 'keydown', handleKeyDown );
+					element?.removeEventListener( 'focusin', handleKeyDown );
 				};
 			}
-		}, [ showAiControl, id ] );
+		}, [ hideOnBlockFocus, showAiControl, id ] );
 
 		const aiInlineExtensionContent = (
 			<>
