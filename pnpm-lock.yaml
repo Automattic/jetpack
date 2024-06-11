@@ -2085,6 +2085,9 @@ importers:
       '@wordpress/url':
         specifier: 4.0.0
         version: 4.0.0
+      clsx:
+        specifier: 2.1.1
+        version: 2.1.1
       preact:
         specifier: ^10.13.1
         version: 10.22.0
