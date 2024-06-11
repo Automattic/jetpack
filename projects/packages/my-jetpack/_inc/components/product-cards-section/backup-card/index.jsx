@@ -1,7 +1,7 @@
 import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
 import { useEffect, useState, useMemo } from 'react';
@@ -257,12 +257,12 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 
 						return (
 							<li
-								className={ classNames( styles[ 'main-stat' ], `main-stat-${ i }` ) }
+								className={ clsx( styles[ 'main-stat' ], `main-stat-${ i }` ) }
 								key={ i + itemSlug }
 							>
 								<>
 									{ i < itemsToShow && (
-										<span className={ classNames( styles[ 'visual-stat' ] ) } aria-hidden="true">
+										<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
 											{ getIcon( itemSlug ) }
 											<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
 										</span>

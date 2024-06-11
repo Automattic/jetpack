@@ -14,7 +14,7 @@ import {
 	ActionButton,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
@@ -46,10 +46,13 @@ const GlobalNotice = ( { message, title, options } ) => {
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
+		const tracksArgs = options?.tracksArgs || {};
+
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
 			noticeId: options.id,
+			...tracksArgs,
 		} );
-	}, [ options.id, recordEvent ] );
+	}, [ options.id, recordEvent, options?.tracksArgs ] );
 
 	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
 
@@ -59,7 +62,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 
 	return (
 		<div
-			className={ classnames( styles.notice, {
+			className={ clsx( styles.notice, {
 				[ styles[ 'bigger-than-medium' ] ]: isBiggerThanMedium,
 			} ) }
 		>
@@ -159,7 +162,7 @@ export default function MyJetpackScreen() {
 					) }
 					{ showFullJetpackStatsCard && (
 						<Col
-							className={ classnames( {
+							className={ clsx( {
 								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
 							} ) }
 						>

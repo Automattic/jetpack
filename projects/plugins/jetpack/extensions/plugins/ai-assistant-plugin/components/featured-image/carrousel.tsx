@@ -4,7 +4,7 @@
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,7 @@ function BlankImage( { children, isDotted = false } ) {
 		<div className="ai-assistant-featured-image__blank">
 			{ blankImage }
 			<div
-				className={ classNames( 'ai-assistant-featured-image__blank-content', {
+				className={ clsx( 'ai-assistant-featured-image__blank-content', {
 					'is-dotted': isDotted,
 				} ) }
 			>
@@ -62,7 +62,7 @@ export default function Carrousel( {
 		<button className="ai-carrousel__prev" onClick={ handlePreviousImage }>
 			<Icon
 				icon={ chevronLeft }
-				className={ classNames( 'ai-carrousel__prev-icon', {
+				className={ clsx( 'ai-carrousel__prev-icon', {
 					'is-disabled': current === 0,
 				} ) }
 			/>
@@ -73,7 +73,7 @@ export default function Carrousel( {
 		<button className="ai-carrousel__next" onClick={ handleNextImage }>
 			<Icon
 				icon={ chevronRight }
-				className={ classNames( 'ai-carrousel__next-icon', {
+				className={ clsx( 'ai-carrousel__next-icon', {
 					'is-disabled': current + 1 === images.length,
 				} ) }
 			/>
@@ -87,7 +87,7 @@ export default function Carrousel( {
 				{ images.map( ( { image, generating, error }, index ) => (
 					<div
 						key={ `image:` + index }
-						className={ classNames( 'ai-assistant-featured-image__carrousel-image-container', {
+						className={ clsx( 'ai-assistant-featured-image__carrousel-image-container', {
 							'is-current': current === index,
 							'is-prev': current > index,
 						} ) }

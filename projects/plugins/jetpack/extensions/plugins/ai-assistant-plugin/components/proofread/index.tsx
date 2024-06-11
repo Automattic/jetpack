@@ -21,7 +21,9 @@ import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 export default function Proofread( {
 	disabled = false,
 	busy = false,
+	placement,
 }: {
+	placement: string;
 	disabled?: boolean;
 	busy?: boolean;
 } ) {
@@ -90,6 +92,7 @@ export default function Proofread( {
 		toggleProofreadModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
 			feature: 'jetpack-ai-proofread-plugin',
+			placement,
 		} );
 	};
 

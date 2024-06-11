@@ -4,7 +4,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { store } from '../../social-store';
 import { ServicesList } from '../services/services-list';
 import { ConfirmationForm } from './confirmation-form';
@@ -38,7 +38,7 @@ export const ManageConnectionsModal = () => {
 
 	return (
 		<Modal
-			className={ classNames( styles.modal, {
+			className={ clsx( styles.modal, {
 				[ styles.small ]: isSmall,
 			} ) }
 			onRequestClose={ closeModal }

@@ -6,7 +6,7 @@ import { Button, BaseControl } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -35,11 +35,11 @@ const Poster = ( { file, videoPosterImageData, onVideoFrameSelected } ) => {
 	const src = useRef( file?.url ?? URL.createObjectURL( file ) );
 
 	return (
-		<div className={ classNames( 'uploading-editor__poster-container' ) }>
+		<div className={ clsx( 'uploading-editor__poster-container' ) }>
 			<VideoFrameSelector
 				src={ src?.current }
 				onVideoFrameSelected={ onVideoFrameSelected }
-				className={ classNames( { 'uploading-editor__hide': hasPosterImage } ) }
+				className={ clsx( { 'uploading-editor__hide': hasPosterImage } ) }
 			/>
 			{ hasPosterImage && (
 				<>

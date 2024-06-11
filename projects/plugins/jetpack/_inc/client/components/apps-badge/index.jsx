@@ -1,7 +1,7 @@
 import { imagePath } from 'constants/urls';
 import { getUserLocale as getLocaleSlug } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { startsWith } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
@@ -112,7 +112,7 @@ class AppsBadge extends PureComponent {
 			this.props;
 		const { imageSrc, hasExternalImageLoaded } = this.state;
 
-		const figureClassNames = classNames( 'apps-badge', {
+		const figureClassNames = clsx( 'apps-badge', {
 			[ `${ storeName }-app-badge` ]: true,
 			'is-external-image': hasExternalImageLoaded,
 		} );

@@ -9,7 +9,7 @@ import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
@@ -86,7 +86,7 @@ const SpeedScore = () => {
 				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 				<div
 					data-testid="speed-scores"
-					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
+					className={ clsx( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
 					{ site.online ? (
 						<div className={ styles.top } data-testid="speed-scores-top">

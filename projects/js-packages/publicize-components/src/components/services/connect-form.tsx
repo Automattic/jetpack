@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
@@ -70,7 +70,7 @@ export function ConnectForm( {
 
 	return (
 		<form
-			className={ classNames( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }
+			className={ clsx( styles[ 'connect-form' ], { [ styles.small ]: isSmall } ) }
 			onSubmit={ onSubmitForm }
 		>
 			{ displayInputs ? (

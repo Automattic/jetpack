@@ -1,5 +1,5 @@
 import { Icon, warning, info, check, close } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import styles from './style.module.scss';
 
@@ -58,7 +58,7 @@ const Notice: React.FC< NoticeProps > = ( {
 	hideCloseButton = false,
 	onClose,
 } ) => {
-	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
+	const classes = clsx( styles.container, styles[ `is-${ level }` ] );
 
 	return (
 		<div className={ classes }>
