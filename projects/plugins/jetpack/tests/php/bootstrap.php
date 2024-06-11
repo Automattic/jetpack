@@ -87,6 +87,11 @@ if ( '1' !== getenv( 'WP_MULTISITE' ) && ( ! defined( 'WP_TESTS_MULTISITE' ) || 
 	echo "Disregard Core's -c tests/phpunit/multisite.xml notice below." . PHP_EOL;
 }
 
+if ( '1' !== getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
+	echo 'To run tests with the WordPress.com Site Helper plugin activated and Atomic mode enabled,' . PHP_EOL;
+	echo 'prefix phpunit with JETPACK_TEST_WPCOMSH=1' . PHP_EOL;
+}
+
 if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	echo 'To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1' . PHP_EOL;
 } else {
@@ -104,7 +109,29 @@ function _manually_load_plugin() {
 
 	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 		define( 'IS_ATOMIC', true );
-		require __DIR__ . '/../../../../mu-plugins/wpcomsh/wpcomsh.php';
+		if ( getenv( 'GITHUB_ACTIONS' ) ) {
+
+			// Using plugin code installed by .github/files/setup-wordpress-env.sh.
+			require_once __DIR__ . '/../../../../mu-plugins/wpcomsh/wpcomsh.php';
+			require_once __DIR__ . '/../../../../mu-plugins/wpcomsh/vendor/autoload.php';
+		} else {
+			require_once __DIR__ . '/../../../wpcomsh/wpcomsh.php';
+			require_once __DIR__ . '/../../../wpcomsh/vendor/autoload.php';
+		}
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
+
+		// We can't simulate plugins_loaded because it causes a loop, but we can call load methods.
+		$reflection = new ReflectionClass( '\Automattic\Jetpack\Jetpack_Mu_Wpcom' );
+		foreach ( $reflection->getMethods() as $method ) {
+
+			// Verbum comments calls code that's not available in single site environment.
+			if ( str_starts_with( $method->name, 'load_' ) ) {
+				if ( 'load_verbum_comments' === $method->name ) {
+					continue;
+				}
+				$method->invoke( null );
+			}
+		}
 	}
 	require __DIR__ . '/../../jetpack.php';
 	$jetpack = Jetpack::init();
