@@ -1,3 +1,7 @@
 @import "variables";
 @import "../admin";
 @import "sidebar-notice";
+
+#wpadminbar #wp-admin-bar-user-info .display-name {
+	color: $menu-submenu-text;
+}
