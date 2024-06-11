@@ -903,8 +903,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.13
-        version: 2.0.1-beta.13(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.1
+        version: 2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.0.0
         version: 3.0.0(react@18.3.1)
@@ -3569,8 +3569,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.13
-        version: 2.0.1-beta.13(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.0.1
+        version: 2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -4744,10 +4744,10 @@ packages:
   '@automattic/request-external-access@1.0.0':
     resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
-  '@automattic/social-previews@2.0.1-beta.13':
-    resolution: {integrity: sha512-kfIY93RYQzIPCDyElRNyW32w3vEqRWw3Xs3IDMkuON/sRb56ZPFfWLVBRs3J6gPH4W+I/pdB36slbQ9r5Z872Q==}
+  '@automattic/social-previews@2.0.1':
+    resolution: {integrity: sha512-diFHzjWOp5mOp+wP8zqDsRz0uQwlmxsJj8zHjzlyoT6nMhrKjTae0bbffyFqp51zRN6HNdfgTSrji3hjcxyh6Q==}
     peerDependencies:
-      '@babel/runtime': ^7.24.0
+      '@babel/runtime': ^7.24.5
       react: ^18.2.0
       react-dom: ^18.2.0
     peerDependenciesMeta:
@@ -8491,9 +8491,6 @@ packages:
 
   cjs-module-lexer@1.3.1:
     resolution: {integrity: sha512-a3KdPAANPbNE4ZUv9h6LckSl9zLsYOP4MBmhIPkRaeyybt+r4UghLvq+xw/YwUcC1gqylCkL4rdVs3Lwupjm4Q==}
-
-  classnames@2.5.1:
-    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   clean-css@5.3.3:
     resolution: {integrity: sha512-D5J+kHaVb/wKSFcyyV75uCn8fiY4sV38XJoe4CUyGQ+mOU/fMVYUdH1hJC+CJQ5uY3EnW27SbJYS4X8BiLrAFg==}
@@ -14274,13 +14271,13 @@ snapshots:
     dependencies:
       '@automattic/popup-monitor': 1.0.2
 
-  '@automattic/social-previews@2.0.1-beta.13(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/social-previews@2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emotion/react': 11.11.4(@types/react@18.3.1)(react@18.3.1)
       '@wordpress/components': 28.0.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/element': 6.0.0
       '@wordpress/i18n': 5.0.0
-      classnames: 2.5.1
+      clsx: 2.1.1
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -20549,8 +20546,6 @@ snapshots:
       consola: 3.2.3
 
   cjs-module-lexer@1.3.1: {}
-
-  classnames@2.5.1: {}
 
   clean-css@5.3.3:
     dependencies:
