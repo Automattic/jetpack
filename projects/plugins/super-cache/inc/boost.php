@@ -34,3 +34,12 @@ function wpsc_track_move_from_boost() {
 	do_action( 'jb_cache_moved_to_wpsc' );
 }
 add_action( 'wpsc_created_advanced_cache', 'wpsc_track_move_from_boost' );
+
+/**
+ * Notify Jetpack Boost that Boost Cache will be used instead of WP Super Cache.
+ *
+ * @param string $source The source of the migration: 'notice', 'banner', 'try_button'.
+ */
+function wpsc_notify_migration_to_boost( $source ) {
+	do_action( 'jb_cache_moved_to_boost', $source );
+}
