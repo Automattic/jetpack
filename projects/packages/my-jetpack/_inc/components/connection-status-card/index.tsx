@@ -18,16 +18,15 @@ import emptyAvatar from './empty-avatar.svg';
 import jetpackGray from './jetpack-gray.svg';
 import jetpack from './jetpack.svg';
 import styles from './styles.module.scss';
-import type { FC, MouseEvent } from 'react';
+import type {
+	ConnectionListItemType,
+	getSiteConnectionLineDataType,
+	getUserConnectionLineDataType,
+	ConnectionStatusCardType,
+} from './types';
+import type { MouseEvent } from 'react';
 
-interface ConnectionListItemProps {
-	text: string;
-	actionText?: string;
-	onClick?: ( e: MouseEvent< HTMLButtonElement > ) => void;
-	status?: 'warning' | 'error' | 'unlock' | 'success';
-}
-
-const ConnectionListItem: FC< ConnectionListItemProps > = ( {
+const ConnectionListItem: ConnectionListItemType = ( {
 	text,
 	actionText,
 	onClick,
@@ -71,19 +70,7 @@ const ConnectionListItem: FC< ConnectionListItemProps > = ( {
 	);
 };
 
-interface getSiteConnectionLineDataProps {
-	isRegistered: boolean;
-	hasSiteConnectionBrokenModules: boolean;
-	handleConnectUser: ( e: MouseEvent< HTMLButtonElement > ) => void;
-	openManageSiteConnectionDialog: ( e: MouseEvent ) => void;
-}
-
-const getSiteConnectionLineData: ( props: getSiteConnectionLineDataProps ) => {
-	onClick: ( e: MouseEvent< HTMLButtonElement > ) => void;
-	text: string;
-	actionText: string;
-	status: 'warning' | 'error' | 'success';
-} = ( {
+const getSiteConnectionLineData: getSiteConnectionLineDataType = ( {
 	isRegistered,
 	hasSiteConnectionBrokenModules,
 	handleConnectUser,
@@ -115,23 +102,7 @@ const getSiteConnectionLineData: ( props: getSiteConnectionLineDataProps ) => {
 	};
 };
 
-interface getUserConnectionLineDataProps {
-	hasProductsThatRequireUserConnection: boolean;
-	hasUserConnectionBrokenModules: boolean;
-	isUserConnected: boolean;
-	// The user connection data from the connection package is untyped
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	userConnectionData: any;
-	openManageUserConnectionDialog: ( e: MouseEvent ) => void;
-	handleConnectUser: ( e: MouseEvent< HTMLButtonElement > ) => void;
-}
-
-const getUserConnectionLineData: ( props: getUserConnectionLineDataProps ) => {
-	onClick: ( e: MouseEvent< HTMLButtonElement > ) => void;
-	text: string;
-	actionText: string;
-	status: 'warning' | 'error' | 'unlock' | 'success';
-} = ( {
+const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 	hasProductsThatRequireUserConnection,
 	hasUserConnectionBrokenModules,
 	isUserConnected,
@@ -187,23 +158,7 @@ const getUserConnectionLineData: ( props: getUserConnectionLineDataProps ) => {
 	};
 };
 
-interface ConnectionStatusCardProps {
-	apiRoot: string;
-	apiNonce: string;
-	redirectUri?: string;
-	title?: string;
-	connectionInfoText?: string;
-	onDisconnected?: () => void;
-	connectedPlugins?: {
-		name: string;
-		slug: string;
-	}[];
-	connectedSiteId?: number;
-	context?: string;
-	onConnectUser?: ( props: unknown ) => void;
-}
-
-const ConnectionStatusCard: FC< ConnectionStatusCardProps > = ( {
+const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	apiRoot,
 	apiNonce,
 	redirectUri = null,
