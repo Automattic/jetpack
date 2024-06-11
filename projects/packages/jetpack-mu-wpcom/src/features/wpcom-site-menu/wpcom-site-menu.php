@@ -234,7 +234,7 @@ function replace_wp_logo_menu_on_masterbar( WP_Admin_Bar $wp_admin_bar ) {
 	$wp_admin_bar->add_node( $wp_logo_menu_args );
 }
 
-add_action( 'admin_bar_menu', 'replace_wp_logo_admin_bar', 11 );
+add_action( 'admin_bar_menu', 'replace_wp_logo_menu_on_masterbar', 11 );
 
 /**
  * Enqueue scripts and styles needed by the WP.com menu.
