@@ -115,6 +115,17 @@ function processCSS( css ) {
 		background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m9.00081 2 1.95699 4.26814h4.3763l-3.6666 3.39117 1.2473 4.34069-3.91399-2.25-3.914 2.25 1.24734-4.34069-3.66667-3.39117h2.18817 2.18816z' stroke='%232c3338' stroke-linecap='round' stroke-width='1.5'/%3E%3C/svg%3E");
 	}
 }
+
+// Format buttons correctly when displayed in columns
+@container (max-width: 320px) {
+	.wpl-button {
+		min-width: auto;
+	}
+
+	.wpl-button a span {
+		display: none;
+	}
+}
 `;
 
 	// Get current date and time
