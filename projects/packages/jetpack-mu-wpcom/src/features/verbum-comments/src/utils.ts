@@ -2,24 +2,6 @@ import { translate } from './i18n';
 import { Facebook, Mail, WordPress } from './images';
 import type { UserInfo, VerbumComments } from './types';
 
-/**
- * Returns a string of class names from the arguments.
- * @param {...any} args - The arguments to be passed to the function.
- */
-export function classNames( ...args: Array< string | Record< string, boolean | string > > ) {
-	const result = [];
-	for ( let i = 0; i < args.length; i++ ) {
-		if ( typeof args[ i ] === 'object' ) {
-			result[ i ] = Object.keys( args[ i ] )
-				.filter( key => args[ i ][ key ] )
-				.join( ' ' );
-		} else if ( args[ i ] ) {
-			result[ i ] = args[ i ];
-		}
-	}
-	return result.join( ' ' );
-}
-
 export const serviceData = {
 	wordpress: {
 		cookieName: 'wpc_wpc',

@@ -1,4 +1,5 @@
 import { effect } from '@preact/signals';
+import clsx from 'clsx';
 import { render } from 'preact';
 import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
 import { SimpleSubscribeModal } from './components/SimpleSubscribeModal';
@@ -24,7 +25,6 @@ import {
 	subscribeModalStatus,
 } from './state';
 import {
-	classNames,
 	canWeAccessCookies,
 	setUserInfoCookie,
 	addWordPressDomain,
@@ -219,7 +219,7 @@ const Verbum = ( { siteId }: VerbumComments ) => {
 		<>
 			<CommentInputField ref={ commentTextarea } handleOnKeyUp={ showTrayIfNewUser } />
 			<div
-				className={ classNames( 'comment-form__subscription-options', {
+				className={ clsx( 'comment-form__subscription-options', {
 					open: isTrayOpen.value,
 				} ) }
 			>
