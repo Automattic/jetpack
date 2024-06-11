@@ -30,10 +30,10 @@ const FoldingElement: React.FC< PropTypes > = ( {
 	} );
 
 	const handleOnExpand = () => {
-		const newIsEditing = ! expanded;
-		setExpanded( newIsEditing );
+		const newValue = ! expanded;
+		setExpanded( newValue );
 		if ( onExpand ) {
-			onExpand( newIsEditing );
+			onExpand( newValue );
 		}
 	};
 
