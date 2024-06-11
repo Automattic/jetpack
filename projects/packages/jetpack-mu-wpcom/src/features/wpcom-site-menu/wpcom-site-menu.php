@@ -208,11 +208,11 @@ add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
  * This is needed because on Simple Sites we don't expose the about and contribute pages.
  * Although really needed only on Simple, it would make sense to have the same behavior on AT.
  *
- * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object. On Simple sites it's a different class.
  *
  * @return void
  */
-function replace_wp_logo_menu_on_masterbar( WP_Admin_Bar $wp_admin_bar ) {
+function replace_wp_logo_menu_on_masterbar( $wp_admin_bar ) {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
