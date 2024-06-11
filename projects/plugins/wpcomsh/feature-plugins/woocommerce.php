@@ -6,8 +6,6 @@
  * @package wpcomsh
  */
 
-use Automattic\Jetpack\Status;
-
 /**
  * Redirect to Design With AI page with `ref=entrepreneur-signup` in the URL.
  * Also deletes the `_wc_activation_redirect` transient which is used for first-time woo onboarding.
