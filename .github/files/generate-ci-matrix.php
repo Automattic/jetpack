@@ -91,7 +91,7 @@ $matrix[] = array(
 
 // Add wpcomsh tests.
 $matrix[] = array(
-	'name'         => 'PHP tests: PHP 7.4 WP latest with WPCOMSH',
+	'name'         => 'PHP tests: PHP 8.1 WP latest with WPCOMSH',
 	'script'       => 'test-php',
 	'php'          => '8.1',
 	'wp'           => 'latest',
