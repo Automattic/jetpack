@@ -234,18 +234,19 @@ const ConnectionStatusCard: FC< ConnectionStatusCardProps > = ( {
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { brokenModules } = lifecycleStats;
-	const tracksEventData = useMemo( () => {
-		return {
-			isUserConnected: isUserConnected,
-			isRegistered: isRegistered,
-		};
-	}, [ isUserConnected, isRegistered ] );
-
 	const products = useAllProducts();
 	const hasProductsThatRequireUserConnection =
 		getProductSlugsThatRequireUserConnection( products ).length > 0;
 	const hasUserConnectionBrokenModules = brokenModules.needs_user_connection.length > 0;
 	const hasSiteConnectionBrokenModules = brokenModules.needs_site_connection.length > 0;
+	const tracksEventData = useMemo( () => {
+		return {
+			isUserConnected: isUserConnected,
+			isRegistered: isRegistered,
+			userConnectionBrokenModules: brokenModules.needs_user_connection.join( ', ' ),
+			siteConnectionBrokenModules: brokenModules.needs_site_connection.join( ', ' ),
+		};
+	}, [ isUserConnected, isRegistered, brokenModules ] );
 
 	/**
 	 * Open the Manage Connection Dialog, and register the connection type as part of the Tracks event recorded
