@@ -138,7 +138,7 @@ function uncompress_package( $package ) {
 	}
 
 	$was_uncompressed = $zip_handler->extractTo( $tmp_package_folder );
-	if ( $was_uncompressed !== true ) {
+	if ( ! $was_uncompressed ) {
 		return new WP_Error( 'process_failed', 'The zip file could not be decompressed.' );
 	}
 

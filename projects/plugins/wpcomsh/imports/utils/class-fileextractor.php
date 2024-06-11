@@ -60,7 +60,7 @@ class FileExtractor {
 		$extracted = $zip->extractTo( $destination );
 		$zip->close();
 
-		if ( $extracted !== true ) {
+		if ( ! $extracted ) {
 			return new WP_Error( 'zipfile_extract_failure', __( 'The ZIP file could not be extracted.', 'wpcomsh' ) );
 		}
 		return true;
