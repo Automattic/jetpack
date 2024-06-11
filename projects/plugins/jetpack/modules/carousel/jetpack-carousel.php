@@ -993,7 +993,8 @@ class Jetpack_Carousel {
 		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
-
+		$attr['tabindex']               = '0';
+		$attr['role']                   = 'button';
 		return $attr;
 	}
 
