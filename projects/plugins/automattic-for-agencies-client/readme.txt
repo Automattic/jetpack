@@ -12,15 +12,15 @@ Securely connect your clients’ sites to the Automattic for Agencies Sites Dash
 
 == Description ==
 
-[Automattic for Agencies](https://automattic.com/for/agencies/) is a new agency program that combines the best of Woo, WordPress.com, Jetpack, and Pressable under one roof. [Learn more about Automattic for Agencies](https://automattic.com/for-agencies/).
+Automattic for Agencies is a new agency program that combines the best of Woo, WordPress.com, Jetpack, and Pressable under one roof. [Learn more about Automattic for Agencies](https://automattic.com/for-agencies/).
 
 This lightweight plugin securely connects your clients’ sites to the Automattic for Agencies Sites Dashboard, enabling you to manage them from one place and to be notified immediately if any site is experiencing security or performance issues.
 
 This plugin will also enhance the overall Automattic for Agencies portal experience:
 
 
-- With plugin updates across the sites you manage in just a few clicks
-- Downtime monitoring so you’ll instantly know if a client’s site needs attention
+- With plugin updates across the sites you manage in just a few clicks.
+- Downtime monitoring so you’ll instantly know if a client’s site needs attention.
 - And more to come.
 
 Like other Automattic products, this plugin connects to WordPress.com’s servers to provide the best end-user experience. We only sync what’s absolutely necessary to provide our program experience. When connecting your site to the Automattic for Agencies Sites Dashboard, you agree to [our Terms of Service](https://wordpress.com/tos/).
@@ -35,7 +35,9 @@ Once connected, your site will display within Automattic for Agencies.
 
 **To remove a site from Automattic for Agencies:**
 
-To remove a site from Automattic for Agencies, simply navigate to Plugins > Installed Plugins, within wp-admin for the site you want to remove. Find the Automattic for Agencies plugin and click “Deactivate.” You’ll be prompted to confirm. Once deactivated, your site will be removed from Automattic for Agencies.
+- To remove a site from Automattic for Agencies, simply navigate to Plugins > Installed Plugins, within wp-admin for the site you want to remove.
+- Find the Automattic for Agencies plugin and click “Deactivate.”
+- You’ll be prompted to confirm. Once deactivated, your site will be removed from Automattic for Agencies.
 
 == Screenshots ==
 
