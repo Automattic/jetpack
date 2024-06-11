@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a43be6fa0bdd3482ac7dea876f44534e",
+    "content-hash": "040e219da5028c0df7b81e48ff179a9a",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1988,7 +1988,7 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "dev-master",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
@@ -2008,7 +2008,6 @@
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.5"
             },
-            "default-branch": true,
             "type": "wordpress-dropin",
             "autoload": {
                 "psr-4": {
@@ -5332,8 +5331,7 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-post-list": 20,
         "automattic/jetpack-mu-wpcom": 20,
-        "automattic/jetpack-changelogger": 20,
-        "automattic/wordbless": 20
+        "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
@@ -5341,5 +5339,8 @@
         "php": ">=7.4"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.4"
+    },
     "plugin-api-version": "2.6.0"
 }
