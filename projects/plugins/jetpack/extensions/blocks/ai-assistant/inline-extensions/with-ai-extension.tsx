@@ -450,6 +450,24 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ adjustBlockPadding, adjustPosition, clientId, controlObserver, id, showAiControl ] );
 
+		// Hide the AI Control when the user starts typing in the block.
+		useEffect( () => {
+			if ( showAiControl ) {
+				const element = ownerDocument.current.getElementById( id );
+
+				const handleKeyDown = () => {
+					setShowAiControl( false );
+					element?.removeEventListener( 'keydown', handleKeyDown );
+				};
+
+				element?.addEventListener( 'keydown', handleKeyDown );
+
+				return () => {
+					element?.removeEventListener( 'keydown', handleKeyDown );
+				};
+			}
+		}, [ showAiControl, id ] );
+
 		const aiInlineExtensionContent = (
 			<>
 				<BlockEdit { ...props } />
