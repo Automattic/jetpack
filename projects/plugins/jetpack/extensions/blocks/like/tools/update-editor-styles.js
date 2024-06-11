@@ -79,12 +79,21 @@ function processCSS( css ) {
 		}
 
 		.wpl-avatars {
-			margin: 0 0 4px 0;
+			margin: 0;
 			padding-left: 0;
+			align-content: unset;
+
+			li {
+				margin: 0;
+			}
 
 			li a:focus {
 				outline: none;
 				box-shadow: none;
+			}
+
+			li a img {
+				vertical-align: unset;
 			}
 		}
 
