@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Clean up the creating connection spinner for confirm button

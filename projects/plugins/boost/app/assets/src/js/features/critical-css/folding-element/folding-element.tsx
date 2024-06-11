@@ -1,6 +1,6 @@
 import useMeasure from 'react-use-measure';
 import { animated, useSpring } from '@react-spring/web';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useState } from 'react';
 import ChevronDown from '$svg/chevron-down';
 import ChevronUp from '$svg/chevron-up';
@@ -40,7 +40,7 @@ const FoldingElement: React.FC< PropTypes > = ( {
 	return (
 		<>
 			<button
-				className={ classNames( 'components-button is-link', styles[ 'foldable-element-control' ], {
+				className={ clsx( 'components-button is-link', styles[ 'foldable-element-control' ], {
 					visible: expanded,
 				} ) }
 				onClick={ handleOnExpand }

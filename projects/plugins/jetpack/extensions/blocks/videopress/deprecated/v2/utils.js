@@ -1,5 +1,4 @@
 import TokenList from '@wordpress/token-list';
-import classnames from 'classnames/dedupe';
 
 // Aspect ratios at the time of deprecation.
 export const ASPECT_RATIOS = [
@@ -25,31 +24,24 @@ export const ASPECT_RATIOS = [
  */
 export const filterVideoPressClasses = ( className, videoPressClassNames ) => {
 	// Filter out VideoPress specific styles from className attribute.
-	const aspectRatioClassNames = ASPECT_RATIOS.reduce(
-		( accumulator, { className: ratioClass } ) => {
-			accumulator[ ratioClass ] = false;
-			return accumulator;
-		},
-		{ 'wp-has-aspect-ratio': false }
+
+	const aspectRatioClassNames = ASPECT_RATIOS.map( ratio => ratio.className );
+
+	const customClassTokenList = new TokenList( className );
+	customClassTokenList.remove(
+		...aspectRatioClassNames,
+		'wp-block-embed',
+		'is-type-video',
+		'is-provider-videopress'
 	);
 
-	const customClasses = classnames( className, {
-		...aspectRatioClassNames,
-		'wp-block-embed': false,
-		'is-type-video': false,
-		'is-provider-videopress': false,
-	} );
+	const videoPressClassTokenList = new TokenList( className );
+	videoPressClassTokenList.add( videoPressClassNames );
 
-	// Filter the custom CSS classes from the VideoPress specific class list.
-	const customClassList = new TokenList( customClasses );
-	let videoPressClasses = classnames( className, videoPressClassNames );
-
-	customClassList.forEach( customClass => {
-		videoPressClasses = videoPressClasses.replace( customClass, '' );
-	} );
+	videoPressClassTokenList.remove( ...customClassTokenList );
 
 	return {
-		className: customClasses,
-		videoPressClassNames: videoPressClasses.trim(),
+		className: customClassTokenList.value,
+		videoPressClassNames: videoPressClassTokenList.value,
 	};
 };

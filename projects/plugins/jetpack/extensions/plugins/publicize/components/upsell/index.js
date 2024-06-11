@@ -12,7 +12,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import { external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 
 const getDescriptions = () => ( {
@@ -129,7 +129,7 @@ export default function UpsellNotice() {
 				onClick={ goToCheckoutPage }
 				target="_top"
 				icon={ external }
-				className={ classNames( 'jetpack-publicize__upsell-button is-primary', {
+				className={ clsx( 'jetpack-publicize__upsell-button is-primary', {
 					'jetpack-upgrade-plan__hidden': ! checkoutUrl,
 				} ) }
 				isBusy={ isRedirecting }

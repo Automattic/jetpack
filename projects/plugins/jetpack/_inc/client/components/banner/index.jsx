@@ -1,5 +1,5 @@
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -177,7 +177,7 @@ export class Banner extends Component {
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
 
-		const classes = classNames(
+		const classes = clsx(
 			'dops-banner',
 			className,
 			{ 'has-call-to-action': callToAction },

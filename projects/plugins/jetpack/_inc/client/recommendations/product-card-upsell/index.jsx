@@ -1,7 +1,7 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import { isFirstMonthTrial } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import PropTypes from 'prop-types';
 import React, { useEffect, useMemo } from 'react';
@@ -93,7 +93,7 @@ const ProductCardUpsellComponent = ( {
 
 	return (
 		<div
-			className={ classNames( 'jp-recommendations-product-card-upsell', {
+			className={ clsx( 'jp-recommendations-product-card-upsell', {
 				'with-header': !! header,
 			} ) }
 		>
