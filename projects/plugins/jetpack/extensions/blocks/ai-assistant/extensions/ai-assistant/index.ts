@@ -56,10 +56,12 @@ const releasedInlineExtensions = [
 	'core/paragraph',
 	'core/list-item',
 	'core/list',
+	'jetpack/contact-form',
+	...JETPACK_FORM_CHILDREN_BLOCKS,
 ];
 
 // Temporarily keep track of inline extensions that are being worked on.
-const unreleasedInlineExtensions = [ 'jetpack/contact-form', ...JETPACK_FORM_CHILDREN_BLOCKS ];
+const unreleasedInlineExtensions = [];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...

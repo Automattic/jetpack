@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -19,7 +19,7 @@ import type React from 'react';
 const IndeterminateProgressBar: React.FC< IndeterminateProgressBarProps > = ( { className } ) => {
 	return (
 		<div
-			className={ classnames( className, styles[ 'indeterminate-progress-bar' ] ) }
+			className={ clsx( className, styles[ 'indeterminate-progress-bar' ] ) }
 			aria-label={ __( 'Indeterminate Progress Bar', 'jetpack' ) }
 		/>
 	);

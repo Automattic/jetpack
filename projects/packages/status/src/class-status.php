@@ -171,12 +171,12 @@ class Status {
 	/**
 	 * If is a staging site.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 3.3.0
 	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
-		_deprecated_function( __FUNCTION__, '$$next-version$$', 'in_safe_mode' );
+		_deprecated_function( __FUNCTION__, '3.3.0', 'in_safe_mode' );
 		$cached = Cache::get( 'is_staging_site' );
 		if ( null !== $cached ) {
 			return $cached;
@@ -265,7 +265,7 @@ class Status {
 	/**
 	 * If the site is in safe mode.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.3.0
 	 *
 	 * @return bool
 	 */
@@ -281,7 +281,7 @@ class Status {
 		/**
 		 * Filters in_safe_mode check.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.3.0
 		 *
 		 * @param bool $in_safe_mode If the current site is in safe mode.
 		 */
@@ -297,7 +297,7 @@ class Status {
 	 * This method checks for core WP_ENVIRONMENT_TYPE setting
 	 * Using the jetpack_is_development_site filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.3.0
 	 *
 	 * @return bool
 	 */
@@ -310,7 +310,7 @@ class Status {
 		/**
 		 * Filters is_development_site check.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.3.0
 		 *
 		 * @param bool $is_dev_site If the current site is a staging or dev site.
 		 */

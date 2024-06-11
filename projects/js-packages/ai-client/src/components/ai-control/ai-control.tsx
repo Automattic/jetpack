@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PlainText } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
@@ -54,14 +54,14 @@ export default function AIControl( {
 }: AIControlProps ): ReactElement {
 	return (
 		<div
-			className={ classNames( 'jetpack-components-ai-control__container-wrapper', className ) }
+			className={ clsx( 'jetpack-components-ai-control__container-wrapper', className ) }
 			ref={ wrapperRef }
 		>
 			{ error }
 			<div className="jetpack-components-ai-control__container">
 				{ banner }
 				<div
-					className={ classNames( 'jetpack-components-ai-control__wrapper', {
+					className={ clsx( 'jetpack-components-ai-control__wrapper', {
 						'is-transparent': isTransparent,
 					} ) }
 				>

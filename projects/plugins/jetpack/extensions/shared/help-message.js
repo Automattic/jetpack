@@ -1,9 +1,9 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import GridiconNoticeOutline from 'gridicons/dist/notice-outline';
 import './help-message.scss';
 
 export default ( { children = null, isError = false, ...props } ) => {
-	const classes = classNames( 'help-message', {
+	const classes = clsx( 'help-message', {
 		'help-message-is-error': isError,
 	} );
 

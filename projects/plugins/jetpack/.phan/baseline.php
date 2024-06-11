@@ -51,8 +51,8 @@ return [
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanTypeComparisonToArray : 9 occurrences
+    // PhanDeprecatedClass : 8 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
-    // PhanDeprecatedClass : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
@@ -515,7 +515,7 @@ return [
         'modules/wordads/php/class-wordads-api.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/wordads/php/class-wordads-params.php' => ['PhanTypeMismatchReturn'],
         'modules/wordads/php/class-wordads-sidebar-widget.php' => ['PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
-        'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanPluginUseReturnValueInternalKnown'],
+        'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanPluginUseReturnValueInternalKnown'],
         'modules/wpcom-block-editor/functions.editor-type.php' => ['PhanUndeclaredFunction'],
         'sal/class.json-api-date.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternalProbablyReal'],
         'sal/class.json-api-links.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],

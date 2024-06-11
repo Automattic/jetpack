@@ -46,7 +46,7 @@
 		"@wordpress/element": "6.0.0",
 		"@wordpress/i18n": "5.0.0",
 		"@wordpress/icons": "10.0.0",
-		"classnames": "2.3.2",
+		"clsx": "2.1.1",
 		"fast-json-stable-stringify": "2.1.0",
 		"lodash": "4.17.21",
 		"photon": "4.0.0",

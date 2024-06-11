@@ -5,7 +5,7 @@ import {
 	GoogleSearchPreview,
 } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import { FormLabel, FormTextarea } from 'components/forms';
@@ -145,7 +145,7 @@ export const SEO = withModuleSettingsFormHelpers(
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
 
-			const frontPageMetaCharCountClasses = classNames( {
+			const frontPageMetaCharCountClasses = clsx( {
 				'jp-seo-front-page-description-count': true,
 				'jp-seo-front-page-description-count-max':
 					frontPageMetaDescription.length >= this.constants.frontPageMetaMaxLength,
