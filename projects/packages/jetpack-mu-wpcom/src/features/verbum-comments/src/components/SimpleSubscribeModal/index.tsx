@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { useEffect, useState, useRef } from 'preact/hooks';
 import { translate } from '../../i18n';
 import { userInfo, userLoggedIn, commentUrl, subscribeModalStatus } from '../../state';
@@ -6,7 +7,6 @@ import {
 	getSubscriptionModalViewCount,
 	setSubscriptionModalViewCount,
 	shouldShowSubscriptionModal,
-	classNames,
 } from '../../utils';
 import { SimpleSubscribeModalLoggedIn, SimpleSubscribeSetModalShowLoggedIn } from './logged-in';
 import { SimpleSubscribeModalLoggedOut } from './logged-out';
@@ -90,7 +90,7 @@ export const SimpleSubscribeModal = ( { closeModalHandler, email }: SimpleSubscr
 	return (
 		<div ref={ modalContainerRef } className="verbum-simple-subscribe-modal">
 			<div
-				className={ classNames( 'verbum-simple-subscribe-modal__content', {
+				className={ clsx( 'verbum-simple-subscribe-modal__content', {
 					'has-iframe': hasIframe,
 				} ) }
 			>

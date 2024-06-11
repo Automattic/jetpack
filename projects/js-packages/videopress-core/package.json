@@ -24,8 +24,8 @@
 	"devDependencies": {
 		"jest": "*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/preset-react": "7.23.3",
+		"@babel/core": "7.24.7",
+		"@babel/preset-react": "7.24.7",
 		"@types/jest": "29.5.12",
 		"tslib": "2.5.0",
 		"typescript": "5.0.4",

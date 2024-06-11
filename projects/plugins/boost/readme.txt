@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.0 - 2024-06-10
+### 3.4.1-beta - 2024-06-11
 #### Added
 - Page Cache: Added cache rebuild functionality.
 - Page Cache: Remove the advanced-cache.php when the Cache module is disabled.
