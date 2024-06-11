@@ -3,7 +3,6 @@ const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 module.exports = {
 	root: true,
 	extends: [
-		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/jest' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/prettier' ),
 	],
