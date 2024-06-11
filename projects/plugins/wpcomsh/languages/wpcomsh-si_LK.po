@@ -1999,7 +1999,7 @@ msgstr ""
 #: widgets/class-jetpack-posts-i-like-widget.php:25
 #: widgets/class-jetpack-posts-i-like-widget.php:32
 msgid "Posts I Like"
-msgstr "මම ක��මති ලිපි"
+msgstr "මම කැමති ලිපි"
 
 #: widgets/class-music-player-widget.php:91
 msgid "Choose songs"

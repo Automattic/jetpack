@@ -1390,7 +1390,7 @@ msgstr "העדכונים מנוהלים על ידי WordPress.com"
 
 #: notices/plan-notices.php:130
 msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "תוקף תוכנית Creator עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">ל��פעיל מחדש את התוכנית Creator</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+msgstr "תוקף תוכנית Creator עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Creator</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."

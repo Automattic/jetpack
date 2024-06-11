@@ -1932,7 +1932,7 @@ msgstr "(ច្រើនបំផុត គឺ ១៥)"
 
 #: widgets/class-wpcom-widget-recent-comments.php:373
 msgid "Number of comments to show:"
-msgstr "ចំនួន​ម���ិ​ដែល​ត្រូវ​បង្ហាញ:"
+msgstr "ចំនួន​មតិ​ដែល​ត្រូវ​បង្ហាញ:"
 
 #: widgets/class-wpcom-widget-recent-comments.php:306
 msgid "There are no public comments available to display."

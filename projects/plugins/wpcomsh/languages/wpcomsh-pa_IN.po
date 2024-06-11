@@ -1933,7 +1933,7 @@ msgstr "(ਵੱਧ ਤੋਂ ਵੱਧ 15)"
 
 #: widgets/class-wpcom-widget-recent-comments.php:373
 msgid "Number of comments to show:"
-msgstr "ਦਿਖਾਉਣ ���ਈ ਟਿੱਪਣੀਆਂ ਦੀ ਗਿਣਤੀ:"
+msgstr "ਦਿਖਾਉਣ ਲਈ ਟਿੱਪਣੀਆਂ ਦੀ ਗਿਣਤੀ:"
 
 #: widgets/class-wpcom-widget-recent-comments.php:306
 msgid "There are no public comments available to display."

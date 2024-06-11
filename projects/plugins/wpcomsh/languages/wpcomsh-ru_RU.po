@@ -1326,7 +1326,7 @@ msgstr "Срок действия тарифного плана Explorer для 
 
 #: notices/plan-notices.php:89
 msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "Срок действия тарифного плана Starter для <strong>%3$s</strong> истекает %2$s. <a href=\"%1$s\">Продлите подписку</a>, чтобы сохранить возможности плана Starter, например: 6 ГБ дискового пространства, о��ключение рекламы WordPress.com и содержимое только для подписчиков."
+msgstr "Срок действия тарифного плана Starter для <strong>%3$s</strong> истекает %2$s. <a href=\"%1$s\">Продлите подписку</a>, чтобы сохранить возможности плана Starter, например: 6 ГБ дискового пространства, отключение рекламы WordPress.com и содержимое только для подписчиков."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
