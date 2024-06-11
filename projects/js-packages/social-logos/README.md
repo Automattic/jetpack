@@ -48,4 +48,4 @@ So to summarize:
 
 Social Logos is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
 
-This license does not convey any intellectual property rights to third-party trademarks that may be included in the library; such marks remain subject to all rights and guidelines of use of their respective owners. Jetpack and Automattic are not affiliated with any of those brands and the icons are being provided solely for user’s convenience.
+This license to use the software library does not convey any intellectual property rights to third-party trademarks that may be included in the library. The logos are included with the library solely for the user’s convenience in gathering them all in one place. Before using any trademark, please review the proper usage guidelines of its owner.
