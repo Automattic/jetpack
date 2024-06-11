@@ -120,9 +120,6 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"config": {
-		"platform": {
-			"php": "7.4"
-		},
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true,
 			"composer/installers": true,
