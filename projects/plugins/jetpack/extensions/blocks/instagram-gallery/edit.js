@@ -3,7 +3,7 @@ import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { find, isEmpty, isEqual, map, times } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import metadata from './block.json';
@@ -57,8 +57,8 @@ const InstagramGalleryEdit = props => {
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
-	const blockClasses = classnames( blockProps.className, { [ `align${ align }` ]: align } );
-	const gridClasses = classnames(
+	const blockClasses = clsx( blockProps.className, { [ `align${ align }` ]: align } );
+	const gridClasses = clsx(
 		'wp-block-jetpack-instagram-gallery__grid',
 		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
 		{ 'is-stacked-on-mobile': isStackedOnMobile }
@@ -192,7 +192,7 @@ const InstagramGalleryEdit = props => {
 				<div className={ gridClasses } style={ gridStyle }>
 					{ times( isSelected ? count : unselectedCount, index => (
 						<span
-							className={ classnames( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
+							className={ clsx( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
 							key={ index }
 							style={ photoStyle }
 						>

@@ -1,7 +1,7 @@
 import { InnerBlocks } from '@wordpress/block-editor';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -35,7 +35,7 @@ function JetpackFieldMultiple( props ) {
 		[ clientId ]
 	);
 
-	const classes = classnames( className, 'jetpack-field jetpack-field-multiple', {
+	const classes = clsx( className, 'jetpack-field jetpack-field-multiple', {
 		'is-selected': isSelected,
 		'has-placeholder': ( options && options.length ) || innerBlocks.length,
 	} );

@@ -9,8 +9,8 @@ import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
-import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
+import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
@@ -18,29 +18,27 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
-	const { isRegistered, isUserConnected, hasConnectedOwner } = useMyJetpackConnection();
 	const { siteIsRegistering, handleRegisterSite } = useConnection( {
 		skipUserConnection: true,
 		apiRoot,
 		apiNonce,
 		from: 'my-jetpack',
+		redirectUri: null,
+		autoTrigger: false,
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
+	const redBubbleSlug = 'missing-connection';
+	const connectionError = redBubbleAlerts[ redBubbleSlug ];
 
 	useEffect( () => {
-		if ( ! Object.keys( redBubbleAlerts ).includes( 'missing-site-connection' ) ) {
+		if ( ! connectionError ) {
 			return;
 		}
 
 		const productSlugsThatRequireUserConnection =
 			getProductSlugsThatRequireUserConnection( products );
-		const requiresUserConnection =
-			! hasConnectedOwner && ! isUserConnected && productSlugsThatRequireUserConnection.length > 0;
-
-		if ( ! requiresUserConnection && isRegistered ) {
-			return;
-		}
+		const requiresUserConnection = connectionError.type === 'user';
 
 		const onActionButtonClick = () => {
 			if ( requiresUserConnection ) {
@@ -62,6 +60,8 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 						onClose: resetNotice,
 					},
 				} );
+				delete redBubbleAlerts[ redBubbleSlug ];
+				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
 			} );
 		};
 
@@ -95,9 +95,9 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			title: __( 'Missing site connection', 'jetpack-my-jetpack' ),
 		};
 
-		const noticeOptions = {
-			id: requiresUserConnection ? 'user-connection-notice' : 'site-connection-notice',
-			level: 'info',
+		const noticeOptions: NoticeOptions = {
+			id: redBubbleSlug,
+			level: connectionError.is_error ? 'error' : 'info',
 			actions: [
 				{
 					label: requiresUserConnection
@@ -112,6 +112,10 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			// If this notice gets into a loading state, we want to show it above the rest
 			priority: NOTICE_PRIORITY_HIGH + ( siteIsRegistering ? 1 : 0 ),
 			isRedBubble: true,
+			tracksArgs: {
+				type: connectionError.type,
+				isError: connectionError.is_error,
+			},
 		};
 
 		const messageContent = requiresUserConnection ? (
@@ -130,9 +134,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		} );
 	}, [
 		handleRegisterSite,
-		hasConnectedOwner,
-		isRegistered,
-		isUserConnected,
 		navToConnection,
 		products,
 		recordEvent,
@@ -140,6 +141,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		resetNotice,
 		setNotice,
 		siteIsRegistering,
+		connectionError,
 	] );
 };
 

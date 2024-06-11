@@ -1,7 +1,7 @@
 import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 
 const defaultOpen = '09:00';
@@ -14,10 +14,10 @@ class DayEdit extends Component {
 		return (
 			<Fragment key={ intervalIndex }>
 				<div className="business-hours__row">
-					<div className={ classNames( day.name, 'business-hours__day' ) }>
+					<div className={ clsx( day.name, 'business-hours__day' ) }>
 						{ intervalIndex === 0 && this.renderDayToggle() }
 					</div>
-					<div className={ classNames( day.name, 'business-hours__hours' ) }>
+					<div className={ clsx( day.name, 'business-hours__hours' ) }>
 						<TextControl
 							type="time"
 							label={ __( 'Opening', 'jetpack' ) }
@@ -55,8 +55,8 @@ class DayEdit extends Component {
 				</div>
 				{ intervalIndex === day.hours.length - 1 && (
 					<div className="business-hours__row business-hours-row__add">
-						<div className={ classNames( day.name, 'business-hours__day' ) }>&nbsp;</div>
-						<div className={ classNames( day.name, 'business-hours__hours' ) }>
+						<div className={ clsx( day.name, 'business-hours__day' ) }>&nbsp;</div>
+						<div className={ clsx( day.name, 'business-hours__hours' ) }>
 							<Button
 								variant="link"
 								label={ __( 'Add Hours', 'jetpack' ) }
@@ -180,10 +180,8 @@ class DayEdit extends Component {
 		const { day } = this.props;
 		return (
 			<div className="business-hours__row business-hours-row__closed">
-				<div className={ classNames( day.name, 'business-hours__day' ) }>
-					{ this.renderDayToggle() }
-				</div>
-				<div className={ classNames( day.name, 'closed', 'business-hours__hours' ) }>&nbsp;</div>
+				<div className={ clsx( day.name, 'business-hours__day' ) }>{ this.renderDayToggle() }</div>
+				<div className={ clsx( day.name, 'closed', 'business-hours__hours' ) }>&nbsp;</div>
 				<div className="business-hours__remove">&nbsp;</div>
 			</div>
 		);

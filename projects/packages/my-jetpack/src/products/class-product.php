@@ -432,7 +432,7 @@ abstract class Product {
 	 * return all the products it contains.
 	 * Empty array by default.
 	 *
-	 * @return Array Product slugs
+	 * @return array Product slugs
 	 */
 	public static function get_supported_products() {
 		return array();
@@ -445,48 +445,48 @@ abstract class Product {
 	 */
 	public static function get_status() {
 		if ( ! static::is_plugin_installed() ) {
-			$status = 'plugin_absent';
+			$status = Products::STATUS_PLUGIN_ABSENT;
 			if ( static::has_paid_plan_for_product() ) {
-				$status = 'plugin_absent_with_plan';
+				$status = Products::STATUS_PLUGIN_ABSENT_WITH_PLAN;
 			}
 		} elseif ( static::is_active() ) {
-			$status = 'active';
+			$status = Products::STATUS_ACTIVE;
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
-				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
-					$status = 'needs_first_site_connection';
+				if ( ! Jetpack_Options::get_option( 'id' ) ) {
+					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
-					$status = 'site_connection_error';
+					$status = Products::STATUS_SITE_CONNECTION_ERROR;
 				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-				$status = 'user_connection_error';
+				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			} elseif ( static::is_upgradable() ) {
-				$status = 'can_upgrade';
+				$status = Products::STATUS_CAN_UPGRADE;
 			}
 			// Check specifically for inactive modules, which will prevent a product from being active
 		} elseif ( static::$module_name && ! static::is_module_active() ) {
-			$status = 'module_disabled';
+			$status = Products::STATUS_MODULE_DISABLED;
 			// If there is not a plan associated with the disabled module, encourage a plan first
 			// Getting a plan set up should help resolve any connection issues
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
 			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
-				$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
+				$status = static::$has_free_offering ? Products::STATUS_NEEDS_PURCHASE_OR_FREE : Products::STATUS_NEEDS_PURCHASE;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
-				if ( ! \Jetpack_Options::get_option( 'id' ) ) {
-					$status = 'needs_first_site_connection';
+				if ( ! Jetpack_Options::get_option( 'id' ) ) {
+					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
-					$status = 'site_connection_error';
+					$status = Products::STATUS_SITE_CONNECTION_ERROR;
 				}
 			} elseif ( static::$requires_user_connection && ! ( new Connection_Manager() )->has_connected_owner() ) {
-				$status = 'user_connection_error';
+				$status = Products::STATUS_USER_CONNECTION_ERROR;
 			}
 		} elseif ( ! static::has_any_plan_for_product() ) {
-			$status = static::$has_free_offering ? 'needs_purchase_or_free' : 'needs_purchase';
+			$status = static::$has_free_offering ? Products::STATUS_NEEDS_PURCHASE_OR_FREE : Products::STATUS_NEEDS_PURCHASE;
 		} else {
-			$status = 'inactive';
+			$status = Products::STATUS_INACTIVE;
 		}
 		return $status;
 	}
