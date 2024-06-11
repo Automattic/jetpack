@@ -20,9 +20,6 @@ export default function GalleryImageSave( props ) {
 	}
 
 	const img = (
-		// Disable reason: Image itself is not meant to be interactive, but should
-		// be accessible (allowing keyboard navigation to the next image in the gallery).
-		/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/no-noninteractive-tabindex */
 		<img
 			alt={ alt }
 			data-height={ height }
@@ -32,10 +29,7 @@ export default function GalleryImageSave( props ) {
 			data-width={ width }
 			src={ url }
 			data-amp-layout={ 'responsive' }
-			tabIndex={ 0 }
-			role={ 'button' }
 		/>
-		/* eslint-enable jsx-a11y/no-noninteractive-element-to-interactive-role, jsx-a11y/no-noninteractive-tabindex */
 	);
 
 	return (
