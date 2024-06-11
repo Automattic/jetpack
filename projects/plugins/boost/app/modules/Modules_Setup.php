@@ -94,10 +94,6 @@ class Modules_Setup implements Has_Setup {
 	}
 
 	private function init_modules( $modules ) {
-		if ( empty( $modules ) ) {
-			return;
-		}
-
 		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
