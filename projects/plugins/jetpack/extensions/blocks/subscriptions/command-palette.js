@@ -108,7 +108,7 @@ function CommandPalette() {
 					label: __( 'Limit post access to paid subscribers', 'jetpack' ),
 					icon: paywallIcon,
 					callback: ( { close } ) => {
-						tracks.recordEvent( 'editor_command_palette_access_paid_click' );
+						tracks.recordEvent( 'jetpack_editor_command_palette_access_paid_click' );
 						addPaywallBlock();
 						selectAccess( accessOptions.paid_subscribers.key );
 
@@ -125,7 +125,7 @@ function CommandPalette() {
 					label: __( 'Limit post access to free subscribers', 'jetpack' ),
 					icon: paywallIcon,
 					callback: ( { close } ) => {
-						tracks.recordEvent( 'editor_command_palette_access_subscribers_click' );
+						tracks.recordEvent( 'jetpack_editor_command_palette_access_subscribers_click' );
 						addPaywallBlock();
 						selectAccess( accessOptions.subscribers.key );
 
@@ -146,7 +146,7 @@ function CommandPalette() {
 					),
 					icon: people,
 					callback: ( { close } ) => {
-						tracks.recordEvent( 'editor_command_palette_access_everyone_click' );
+						tracks.recordEvent( 'jetpack_editor_command_palette_access_everyone_click' );
 						removePaywallBlock();
 						selectAccess( accessOptions.everybody.key );
 
