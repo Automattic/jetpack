@@ -7,7 +7,7 @@ import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 
 /**
@@ -25,14 +25,14 @@ const Input = ( {
 } ) => {
 	return (
 		<div
-			className={ classnames( className, 'input-wrapper', {
+			className={ clsx( className, 'input-wrapper', {
 				disabled: disabled,
 			} ) }
 		>
 			<>
 				{ ( loading || icon ) && (
 					<div
-						className={ classnames( 'icon-wrapper', {
+						className={ clsx( 'icon-wrapper', {
 							loader: loading,
 						} ) }
 					>
@@ -41,7 +41,7 @@ const Input = ( {
 				) }
 				<input
 					aria-disabled={ disabled }
-					className={ classnames( 'input', {
+					className={ clsx( 'input', {
 						'with-icon': icon !== null,
 					} ) }
 					disabled={ disabled }
@@ -97,12 +97,8 @@ const SearchInput = ( {
 			onKeyUp={ onKeyUpHandler }
 			value={ searchText }
 			endAdornment={
-				<div className={ classnames( 'icon-wrapper', { hidden: ! searchText } ) }>
-					<Icon
-						icon={ closeSmall }
-						onClick={ clearInput }
-						className={ classnames( 'clear-icon' ) }
-					/>
+				<div className={ clsx( 'icon-wrapper', { hidden: ! searchText } ) }>
+					<Icon icon={ closeSmall } onClick={ clearInput } className={ clsx( 'clear-icon' ) } />
 				</div>
 			}
 		/>

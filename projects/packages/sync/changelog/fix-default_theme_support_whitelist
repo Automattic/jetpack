@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Defaults: Add new item to default_theme_support_whitelist to prevent failing sync tests

@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import React from 'react';
 
@@ -12,7 +12,7 @@ interface SectionHeaderProps {
 }
 
 const SectionHeader = ( { label, children, className }: SectionHeaderProps ) => {
-	const classes = classNames( className, 'dops-section-header' );
+	const classes = clsx( className, 'dops-section-header' );
 
 	return (
 		<Card compact className={ classes }>

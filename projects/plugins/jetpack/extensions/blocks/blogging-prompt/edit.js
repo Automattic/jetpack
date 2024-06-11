@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import './editor.scss';
 import { usePromptTags } from './use-prompt-tags';
 
@@ -157,7 +157,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			</InspectorControls>
 		</>
 	);
-	const labelClassnames = classnames( [ 'jetpack-blogging-prompt__label' ], {
+	const labelClassnames = clsx( [ 'jetpack-blogging-prompt__label' ], {
 		'is-bloganuary-icon': isBloganuary,
 	} );
 

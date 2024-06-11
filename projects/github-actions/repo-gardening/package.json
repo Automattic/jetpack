@@ -16,7 +16,7 @@
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
 		"compare-versions": "3.6.0",
-		"glob": "7.1.6",
+		"glob": "10.4.1",
 		"moment": "2.29.4",
 		"node-fetch": "2.6.7"
 	},

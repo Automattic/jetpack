@@ -12,7 +12,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -265,7 +265,7 @@ export default function ProductInterstitial( {
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
-								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
 								{ bundle ? (
 									<ProductDetailCard
