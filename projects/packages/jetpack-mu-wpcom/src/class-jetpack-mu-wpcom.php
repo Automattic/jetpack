@@ -45,11 +45,16 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_replace_site_visibility' ) );
 
-		// This feature runs only on simple sites.
+		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
+		}
+
+		// These features run only on atomic sites.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -332,5 +337,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_replace_site_visibility() {
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+	}
+
+	/**
+	 * Load the Jetpack Custom CSS feature.
+	 */
+	public static function load_custom_css() {
+		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
+		require_once __DIR__ . '/features/custom-css/custom-css.php';
 	}
 }
