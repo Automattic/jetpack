@@ -13,6 +13,8 @@ use Automattic\Jetpack\Redirect;
  * @package automattic/jetpack
  */
 
+
+if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 /**
  * Class Jetpack_Custom_CSS_Enhancements
  */
@@ -1317,6 +1319,7 @@ try {
 		</div>
 		<?php
 	}
+}
 }
 
 Jetpack_Custom_CSS_Enhancements::add_hooks();
