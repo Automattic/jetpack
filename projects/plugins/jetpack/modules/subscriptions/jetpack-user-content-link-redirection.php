@@ -11,18 +11,14 @@
 
 use Automattic\Jetpack\Connection\Client;
 
-// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This logic is hit from links in Newsletter emails.
-
 /**
  * Render a page containing an iframe to track and redirect the user content link in emails.
  */
 function jetpack_user_content_link_redirection() {
-	// TODO: delete this check when the one in line 22 is deleted
 	if ( empty( $_SERVER['QUERY_STRING'] ) ) {
 		return;
 	}
 
-	// TODO: this check acts as a feature flag to enable the domain checking logic for testing.
 	if ( isset( $_GET['user_content_redirect_domain_checking'] ) ) {
 		if ( empty( $_SERVER['QUERY_STRING'] ) || ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_GET['blog_id'] ) ) {
 			wp_safe_redirect( get_home_url() );
