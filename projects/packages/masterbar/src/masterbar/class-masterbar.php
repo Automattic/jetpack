@@ -344,6 +344,14 @@ class Masterbar {
 				'enqueue' => true,
 			)
 		);
+
+		wp_enqueue_script(
+			'a8c_wpcom_masterbar_overrides',
+			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
+			array( 'jquery' ),
+			Main::PACKAGE_VERSION,
+			false
+		);
 	}
 
 	/**
@@ -766,6 +774,69 @@ class Masterbar {
 				),
 			)
 		);
+
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			return;
+		}
+
+		$id = 'user-actions';
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'my-account',
+				'id'     => $id,
+			)
+		);
+
+		$logout_url = wp_logout_url();
+		$logout_url = add_query_arg( 'context', 'masterbar', $logout_url );
+
+		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
+		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
+		$user_info .= '<span class="username">' . $this->user_login . '</span>';
+
+		$blog_id = Connection_Manager::get_site_id( true );
+
+		$args = array();
+		if ( $blog_id ) {
+			$args['site'] = $blog_id;
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => $id,
+				'id'     => 'user-info',
+				'title'  => $user_info,
+				'meta'   => array(
+					'class'    => 'user-info user-info-item',
+					'tabindex' => -1,
+				),
+			)
+		);
+
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => $id,
+				'id'     => 'profile',
+				'title'  => esc_html__( 'Profile', 'jetpack-masterbar' ),
+				'href'   => Redirect::get_url( 'calypso-me', $args ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			)
+		);
+
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => $id,
+				'id'     => 'logout',
+				'title'  => esc_html__( 'Log Out', 'jetpack-masterbar' ),
+				'href'   => $logout_url,
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			)
+		);
 	}
 
 	/**
@@ -830,6 +901,31 @@ class Masterbar {
 				),
 			)
 		);
+
+		/** This filter is documented in modules/masterbar.php */
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+			return;
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			// Restore dashboard menu toggle that is needed on mobile views.
+			if ( is_admin() ) {
+				$wp_admin_bar->add_menu(
+					array(
+						'id'    => 'menu-toggle',
+						'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . esc_html__( 'Menu', 'jetpack-masterbar' ) . '</span>',
+						'href'  => '#',
+					)
+				);
+			}
+
+			/**
+			 * Fires when menu items are added to the masterbar "My Sites" menu.
+			 *
+			 * @since jetpack-5.4.0
+			 */
+			do_action( 'jetpack_masterbar' );
+		}
 	}
 
 	/**
