@@ -21,7 +21,7 @@ import {
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
@@ -188,7 +188,7 @@ const Admin = () => {
 			header={ <JetpackVideoPressLogo /> }
 		>
 			<div
-				className={ classnames( styles[ 'files-overlay' ], {
+				className={ clsx( styles[ 'files-overlay' ], {
 					[ styles.hover ]: isDraggingOver && canUpload && ! loading,
 				} ) }
 			>

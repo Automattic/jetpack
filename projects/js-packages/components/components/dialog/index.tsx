@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import Col from '../layout/col';
 import Container from '../layout/container';
@@ -38,7 +38,7 @@ const Dialog: React.FC< DialogProps > = ( {
 	 */
 	const hideSecondarySection = ! isTwoSections && isSmall;
 
-	const classNames = classnames( {
+	const classNames = clsx( {
 		[ styles[ 'one-section-style' ] ]: ! isTwoSections,
 		[ styles[ 'is-viewport-small' ] ]: isSmall,
 	} );

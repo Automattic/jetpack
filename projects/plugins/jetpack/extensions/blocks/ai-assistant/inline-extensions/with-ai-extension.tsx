@@ -11,7 +11,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import React from 'react';
 /*
@@ -92,7 +92,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// The block's id to find it in the DOM for the positioning adjustments
 		// The classname is used by nested blocks to determine which block's toolbar to display when the input is focused.
 		const { id, className } = useBlockProps( {
-			className: classNames( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
+			className: clsx( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
 		} );
 
 		// Jetpack AI Assistant feature functions.

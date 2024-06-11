@@ -3,7 +3,7 @@ import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { availableNetworks } from './available-networks';
 import styles from './styles.module.scss';
 import { useShareButtonText } from './useShareButtonText';
@@ -54,7 +54,7 @@ export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButt
 
 	return (
 		<div
-			className={ classnames(
+			className={ clsx(
 				styles[ 'share-buttons' ],
 				// If we are showing the text, we will show the buttons vertically.
 				{ [ styles.vertical ]: buttonStyle.includes( 'text' ) }

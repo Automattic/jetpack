@@ -11,7 +11,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -193,7 +193,7 @@ export const TimestampInput = ( {
 
 	return (
 		<div
-			className={ classNames( styles[ 'timestamp-input-wrapper' ], {
+			className={ clsx( styles[ 'timestamp-input-wrapper' ], {
 				[ styles[ 'is-disabled' ] ]: disabled,
 			} ) }
 		>

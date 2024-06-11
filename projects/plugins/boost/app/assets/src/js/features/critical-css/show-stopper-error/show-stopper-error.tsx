@@ -10,6 +10,7 @@ import NumberedList from '../numbered-list/numbered-list';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
 import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -40,6 +41,11 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 						<FoldingElement
 							labelExpandedText={ __( 'Learn what to do', 'jetpack-boost' ) }
 							labelCollapsedText={ __( 'Learn what to do', 'jetpack-boost' ) }
+							onExpand={ ( isExpanded: boolean ) => {
+								if ( isExpanded ) {
+									recordBoostEvent( 'critical_css_learn_more_expanded', {} );
+								}
+							} }
 						>
 							<div className="raw-error">
 								<p>{ __( 'Please follow the troubleshooting steps below', 'jetpack-boost' ) }</p>

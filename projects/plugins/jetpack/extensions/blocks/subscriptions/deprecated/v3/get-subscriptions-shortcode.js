@@ -4,7 +4,7 @@ import {
 	getFontSizeClass,
 } from '@wordpress/block-editor';
 import { RawHTML } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import definedAttributes from './attributes';
 
 export const DEFAULT_BORDER_RADIUS_VALUE = 0;
@@ -59,13 +59,13 @@ export default function getSubscriptionsShortcode(
 		? getGradientClass( emailFieldGradient )
 		: undefined;
 
-	const sharedClasses = classnames(
+	const sharedClasses = clsx(
 		borderRadius === 0 ? 'no-border-radius' : undefined,
 		fontSizeClass,
 		borderClass
 	);
 
-	const submitButtonClasses = classnames(
+	const submitButtonClasses = clsx(
 		sharedClasses,
 		textColor ? 'has-text-color' : undefined,
 		textColorClass,
@@ -74,7 +74,7 @@ export default function getSubscriptionsShortcode(
 		buttonGradientClass
 	);
 
-	const emailFieldClasses = classnames(
+	const emailFieldClasses = clsx(
 		sharedClasses,
 		emailFieldBackgroundClass,
 		emailFieldGradientClass
@@ -91,7 +91,7 @@ export default function getSubscriptionsShortcode(
 			: customButtonBackgroundColor;
 
 	const getBlockClassName = () => {
-		return classnames(
+		return clsx(
 			className,
 			'wp-block-jetpack-subscriptions__supports-newline',
 			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,

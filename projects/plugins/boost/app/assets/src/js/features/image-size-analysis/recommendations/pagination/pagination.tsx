@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useState, useEffect, useMemo } from 'react';
 import ChevronLeft from '$svg/chevron-left';
 import ChevronRight from '$svg/chevron-right';
@@ -37,7 +37,7 @@ const PaginationArrow: React.FC< PaginationLinkProps > = ( {
 	);
 
 	if ( inactive ) {
-		return <span className={ classNames( styles.page, styles.inactive ) }>{ children }</span>;
+		return <span className={ clsx( styles.page, styles.inactive ) }>{ children }</span>;
 	}
 
 	return (
@@ -94,7 +94,7 @@ const Pagination: React.FC< PaginationProps > = ( { group, current, total } ) =>
 								) : (
 									<Link
 										to={ `/image-size-analysis/${ group }/${ paginationPage }` }
-										className={ classNames( styles.page, {
+										className={ clsx( styles.page, {
 											[ styles.current ]: paginationPage === current,
 										} ) }
 									>
