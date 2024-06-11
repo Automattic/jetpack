@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "64878728dabfc672c44fa54685bfad27",
+    "content-hash": "a43be6fa0bdd3482ac7dea876f44534e",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -550,7 +550,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "cf83aeaf8ac5dbc2d0218720a8ea61f0f2073e3c"
+                "reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -585,7 +585,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.9.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1279,7 +1279,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "a73f14c137cb5bfa1ed40ff0927573261dee3d1b"
+                "reference": "51130b6feb1e67769587bd503d52f17207303c6a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1306,7 +1306,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -1413,7 +1413,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
+                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1438,7 +1438,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1475,7 +1475,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "80e8e2fb9c54cab5cd0e3bebcd9d95275d61fbb8"
+                "reference": "6b8af670d924432fb2457a8eb59cb32330bfc25a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1508,7 +1508,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -5341,8 +5341,5 @@
         "php": ">=7.4"
     },
     "platform-dev": [],
-    "platform-overrides": {
-        "php": "7.4"
-    },
     "plugin-api-version": "2.6.0"
 }
