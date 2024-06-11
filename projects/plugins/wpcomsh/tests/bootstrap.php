@@ -7,13 +7,22 @@
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 $_core_dir  = getenv( 'WP_CORE_DIR' );
+$wp_branch  = getenv( 'WP_BRANCH' );
 
 if ( ! $_tests_dir ) {
-	$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+	if ( $wp_branch ) {
+		$_tests_dir = '/tmp/wordpress-' . $wp_branch;
+	} else {
+		$_tests_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress-tests-lib';
+	}
 }
 
 if ( ! $_core_dir ) {
-	$_core_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress/';
+	if ( $wp_branch ) {
+		$_core_dir = '/tmp/wordpress-' . $wp_branch . '/src';
+	} else {
+		$_core_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress/';
+	}
 }
 
 define( 'IS_ATOMIC', true );
