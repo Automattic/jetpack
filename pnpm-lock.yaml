@@ -3199,6 +3199,9 @@ importers:
       '@types/jquery':
         specifier: 3.5.29
         version: 3.5.29
+      '@wordpress/browserslist-config':
+        specifier: 6.0.0
+        version: 6.0.0
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
