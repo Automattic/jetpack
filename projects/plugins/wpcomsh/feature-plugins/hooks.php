@@ -337,7 +337,7 @@ add_action( 'admin_menu', 'wpcomsh_maybe_remove_jetpack_dashboard_menu_item', 10
 
 /**
  * Remove Jetpack > Manage menu item as part of the wpcom navigation redesign.
- * For more context, see 5824-gh-Automattic/dotcom-forge.
+ * For more context, see https://github.com/Automattic/dotcom-forge/issues/5824.
  */
 function wpcomsh_remove_jetpack_manage_menu_item() {
 	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! wpcom_is_nav_redesign_enabled() ) {
