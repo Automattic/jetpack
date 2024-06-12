@@ -83,7 +83,7 @@ export default class JetpackBoostPage extends WpPage {
 		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
 
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
-		await this.page.waitFor( {
+		await score.waitFor( {
 			state: 'visible',
 			timeout: 40 * 1000,
 		} );
