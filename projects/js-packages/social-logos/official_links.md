@@ -1,0 +1,59 @@
+Official links:
+
+- Amazon: https://advertising.amazon.com/resources/ad-policy/brand-usage
+- Behance: https://www.behance.net/
+- Blogger/Blogspot: https://about.google/brand-resource-center/
+- Bluesky: https://bsky.social/about/blog/press-faq
+- CodePen: https://blog.codepen.io/documentation/logos/
+- Deezer: https://deezerbrand.com/
+- Digg: https://digg.com/
+- Discord: https://discord.com/branding
+- Dribbble: https://dribbble.com/
+- Dropbox: https://www.dropbox.com/branding
+- Eventbrite: https://www.eventbrite.com/
+- Facebook: https://about.meta.com/brand/resources/
+- Fediverse: https://en.wikipedia.org/wiki/File:Fediverse_logo_proposal.svg
+- RSS feed: https://www.rssboard.org/rss-specification
+- Flickr: https://www.flickrhelp.com/hc/en-us/articles/4404071066260-Brand-guidelines
+- Foursquare: https://foursquare.com/legal/trademark
+- Ghost: https://ghost.org/docs/logos/
+- git: https://git-scm.com/downloads/logos
+- GitHub: https://github.com/logos
+- Google: https://about.google/brand-resource-center/
+- Instagram: https://about.google/brand-resource-center/
+- JSON feed: https://www.jsonfeed.org/
+- LINE: https://line.me/en/logo
+- LinkedIn: https://brand.linkedin.com/
+- Mastodon: https://joinmastodon.org/branding
+- Medium: https://medium.design/logos-and-brand-guidelines-f1a01a733592
+- Messenger: https://about.meta.com/brand/resources/
+- Micro.blog: https://micro.blog/
+- Nextdoor: https://about.nextdoor.com/nextdoor-brand-use-guidelines/
+- Patreon: https://www.patreon.com/brand
+- Pinterest: https://business.pinterest.com/brand-guidelines/
+- Pocket: https://blog.getpocket.com/press/
+- Quora: https://www.quora.com/
+- Reddit: https://www.redditinc.com/brand
+- Skype: https://www.skype.com/en/legal/brand-guidelines/
+- Snapchat: https://snap.com/brand-guidelines
+- SoundCloud: https://soundcloud.com/
+- Spotify: https://developer.spotify.com/documentation/design
+- Squarespace: https://www.squarespace.com/brand-guidelines
+- Stack Exchange: https://policies.stackoverflow.co/company/trademark-guidance/
+- Stack Overflow: https://policies.stackoverflow.co/company/trademark-guidance/
+- StumbleUpon: https://www.stumbleupon.com/
+- Telegram: https://telegram.org/
+- Threads: https://about.meta.com/brand/resources/
+- TikTok: https://tiktokbrandbook.com/d/HhXfjVK1Poj9/brand-guidelines#/welcome/bringing-our-brand-to-life-1611756141
+- Tripadvisor: https://tripadvisor.mediaroom.com/logo-guidelines
+- Tumblr: https://www.tumblr.com/logo
+- Twitch: https://brand.twitch.com/
+- Untappd: https://untappd.com/
+- Vimeo: https://vimeo.com/
+- VK: https://vk.company/en/press/identity/
+- WhatsApp: https://about.meta.com/brand/resources/
+- WooCommerce: https://woocommerce.com/brand-and-logo-guidelines/
+- WordPress: https://wordpress.org/about/logos/
+- X: https://about.x.com/en/who-we-are/brand-toolkit
+- Xanga: https://xanga.com/
+- YouTube: https://about.google/brand-resource-center/
