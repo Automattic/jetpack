@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-partner-coupon",
-	"version": "0.2.79",
+	"version": "0.2.80-alpha",
 	"description": "This package aims to add components to make it easier to redeem partner coupons",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/partner-coupon/#readme",
 	"bugs": {
@@ -21,8 +21,8 @@
 	"devDependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/preset-react": "7.23.3",
+		"@babel/core": "7.24.7",
+		"@babel/preset-react": "7.24.7",
 		"@testing-library/dom": "10.1.0",
 		"@testing-library/react": "15.0.7",
 		"@testing-library/user-event": "14.5.2",
