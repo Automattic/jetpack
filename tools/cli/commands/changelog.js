@@ -686,12 +686,11 @@ async function promptCommand( argv ) {
 }
 
 /**
- * Prompts for for the readme
+ * Prompts for the file to squash.
  *
- * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @returns {string} 'readme' or 'changelog'.
  */
-async function promptForFile( argv ) {
+async function promptForFile() {
 	const response = await enquirer.prompt( {
 		type: 'select',
 		name: 'file',
