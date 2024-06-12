@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: Added checks to avoid undefined offset notices.
