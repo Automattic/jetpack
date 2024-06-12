@@ -64,12 +64,16 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	public static function record_event( $event ) {
+		error_log( 'Jetpack_Tracks_Client::record_event is deprecated. Use Jetpack_Tracks_Event::record_event instead.' );
+		error_log( print_r( $event, true ) );
+
 		if ( ! self::$terms_of_service ) {
 			self::$terms_of_service = new \Automattic\Jetpack\Terms_Of_Service();
 		}
 
 		// Don't track users who have opted out or not agreed to our TOS, or are not running an active Jetpack.
 		if ( ! self::$terms_of_service->has_agreed() || ! empty( $_COOKIE['tk_opt-out'] ) ) {
+			error_log( 'Jetpack_Tracks_Client::record_event: User has not agreed to TOS or has opted out.' );
 			return false;
 		}
 
@@ -77,15 +81,18 @@ class Jetpack_Tracks_Client {
 			$event = new Jetpack_Tracks_Event( $event );
 		}
 		if ( is_wp_error( $event ) ) {
+			error_log( 'Jetpack_Tracks_Client::record_event: Invalid event object.' );
 			return $event;
 		}
 
 		$pixel = $event->build_pixel_url( $event );
 
 		if ( ! $pixel ) {
+			error_log( 'Jetpack_Tracks_Client::record_event: Cannot generate tracks pixel for given input.' );
 			return new WP_Error( 'invalid_pixel', 'cannot generate tracks pixel for given input', 400 );
 		}
 
+		error_log( 'Jetpack_Tracks_Client::record_event: Sending pixel' );
 		return self::record_pixel( $pixel );
 	}
 
@@ -111,14 +118,18 @@ class Jetpack_Tracks_Client {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			error_log( 'Jetpack_Tracks_Client::record_pixel: ' . $response->get_error_message() );
 			return $response;
 		}
 
 		$code = isset( $response['response']['code'] ) ? $response['response']['code'] : 0;
 
 		if ( 200 !== $code ) {
+			error_log( 'Jetpack_Tracks_Client::record_pixel: Tracks pixel request failed with code ' . $code );
 			return new WP_Error( 'request_failed', 'Tracks pixel request failed', $code );
 		}
+
+		error_log( 'Jetpack_Tracks_Client::record_pixel: Tracks pixel request succeeded' );
 
 		return true;
 	}
