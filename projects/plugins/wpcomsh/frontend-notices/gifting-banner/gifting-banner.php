@@ -171,7 +171,7 @@ class Gifting_Banner {
 
 	/**
 	 * Get hosting plan purchase from the current site.
-	 * See: 1118-gh-Automattic/wpcomsh
+	 * See: https://github.com/Automattic/wpcomsh/pull/1118
 	 *
 	 * @return object|null
 	 */
