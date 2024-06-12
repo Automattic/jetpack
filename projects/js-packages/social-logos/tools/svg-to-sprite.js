@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 const svgDir = 'build/svg-clean';
-const srcSpriteDir = 'src/svg-sprite';
-const srcCssDir = 'src/css';
+const srcExampleHTML = 'src/svg-sprite/example.html';
+const srcExampleCSS = 'src/css/example.css';
 const destSpriteDir = 'build/svg-sprite';
 const destSpriteFilename = `${ destSpriteDir }/social-logos.svg`;
 
@@ -36,8 +36,8 @@ const svgText = sprites
 fs.writeFileSync( destSpriteFilename, svgText, 'utf8' );
 
 // Copy example files.
-fs.cpSync( `${ srcSpriteDir }/example.html`, `${ destSpriteDir }/example.html` );
-fs.cpSync( `${ srcCssDir }/example.css`, `${ destSpriteDir }/example.css` );
+fs.cpSync( `${ srcExampleHTML }`, `${ destSpriteDir }/example.html` );
+fs.cpSync( `${ srcExampleCSS }`, `${ destSpriteDir }/example.css` );
 
 // Inject SVG into example file.
 fs.writeFileSync(
