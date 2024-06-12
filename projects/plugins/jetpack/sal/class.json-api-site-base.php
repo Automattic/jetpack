@@ -1348,7 +1348,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Returns the 'site_goals' option if set (eg. share, promote, educate, sell, showcase).
+	 * Returns the set site goals option ( siteGoals or site_goals ) if set (eg. share, promote, educate, sell, showcase).
 	 *
 	 * @return string|array|null
 	 **/
