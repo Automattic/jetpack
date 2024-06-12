@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'components/gridicon';
 import Popover from 'components/popover';
 import analytics from 'lib/analytics';
@@ -36,7 +36,7 @@ export default class extends React.Component {
 	};
 
 	render() {
-		const classes = classNames(
+		const classes = clsx(
 			'dops-info-popover',
 			'dops-info-popover-button',
 			{ is_active: this.state.showPopover },
@@ -57,7 +57,7 @@ export default class extends React.Component {
 					ignoreContext={ this.props.ignoreContext }
 					position={ this.props.position }
 					onClose={ this._onClose }
-					className={ classNames( 'dops-info-popover__tooltip', this.props.className ) }
+					className={ clsx( 'dops-info-popover__tooltip', this.props.className ) }
 					rootClassName={ this.props.rootClassName }
 				>
 					{ this.props.children }

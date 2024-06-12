@@ -5,7 +5,7 @@ import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, info, warning } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -167,7 +167,7 @@ export const LocalVideoList = ( {
 							: errorMessageReadError
 					}
 				>
-					<div className={ classnames( styles[ 'title-adornment' ], styles.error ) }>
+					<div className={ clsx( styles[ 'title-adornment' ], styles.error ) }>
 						<Icon icon={ warning } />
 					</div>
 				</Tooltip>

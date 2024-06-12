@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import uid from 'component-uid';
 import RootChild from 'components/root-child';
 import debugFactory from 'debug';
@@ -375,7 +375,7 @@ class Popover extends Component {
 			return null;
 		}
 
-		const classes = classNames( 'dops-popover', this.props.className, this.state.positionClass );
+		const classes = clsx( 'dops-popover', this.props.className, this.state.positionClass );
 
 		this.debug( 'rendering ...' );
 

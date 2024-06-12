@@ -11,7 +11,7 @@ import TableRowHover from '../table-row-hover/table-row-hover';
 import { removeGetParams } from '$lib/utils/remove-get-params';
 import { recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import styles from './image-size-row.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 interface ImageSizeRowProps {
 	enableTransition: boolean;
@@ -78,7 +78,7 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				<Pill color="#d0e6b8">{ potentialSize } KB</Pill>
 			</div>
 
-			<div className={ classNames( styles[ 'hover-content' ], 'jb-table-row__hover-content' ) }>
+			<div className={ clsx( styles[ 'hover-content' ], 'jb-table-row__hover-content' ) }>
 				<TableRowHover
 					device_type={ details.device_type }
 					edit_url={ details.page.edit_url }
@@ -89,11 +89,11 @@ const TableRowContent: React.FC< ContentProps > = ( { title, details, toggleImag
 				/>
 			</div>
 
-			<div className={ classNames( styles.device, 'jb-table-row__device' ) }>
+			<div className={ clsx( styles.device, 'jb-table-row__device' ) }>
 				<Device device={ details.device_type } />
 			</div>
 
-			<div className={ classNames( styles.page, 'jb-table-row__page' ) }>
+			<div className={ clsx( styles.page, 'jb-table-row__page' ) }>
 				<a href={ details.page.url } className={ styles.link }>
 					{ details.page.title }
 				</a>
@@ -107,7 +107,7 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 	const potentialSize = getPotentialSize( details );
 	return (
 		<>
-			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
+			<div className={ clsx( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
 				<h4 className={ styles.header }>{ __( 'Potential Size', 'jetpack-boost' ) }</h4>
 				<div className={ styles.pills }>
 					<Pill color={ pillColor }>{ Math.round( details.image.weight.current ) } KB</Pill>
@@ -116,7 +116,7 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 				</div>
 			</div>
 
-			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
+			<div className={ clsx( styles[ 'expanded-info' ], styles[ 'mobile-only' ] ) }>
 				<h4 className={ styles.header }>{ __( 'Device', 'jetpack-boost' ) }</h4>
 				<div className={ styles[ 'expanded-icon' ] }>
 					<Device device={ details.device_type } />
@@ -128,7 +128,7 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 				</span>
 			</div>
 
-			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'image-details' ] ) }>
+			<div className={ clsx( styles[ 'expanded-info' ], styles[ 'image-details' ] ) }>
 				<h4 className={ styles.header }>{ __( 'Image Details', 'jetpack-boost' ) }</h4>
 				<div className={ styles.row }>
 					<div>{ __( 'File Dimensions', 'jetpack-boost' ) }</div>
@@ -156,7 +156,7 @@ const Expanded: React.FC< { details: IsaImage } > = ( { details } ) => {
 				</div>
 			</div>
 
-			<div className={ classNames( styles[ 'expanded-info' ], styles[ 'fix-options' ] ) }>
+			<div className={ clsx( styles[ 'expanded-info' ], styles[ 'fix-options' ] ) }>
 				<h4 className={ styles.header }>{ __( 'How to fix', 'jetpack-boost' ) }</h4>
 				<p>{ details.instructions }</p>
 				{ details.page.edit_url && (

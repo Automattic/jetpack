@@ -4,7 +4,7 @@ import { Spinner, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
@@ -114,7 +114,7 @@ export default function GeneratedImagePreview( {
 			<BaseControl label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }>
 				<div className={ styles.container }>
 					<img
-						className={ classNames( {
+						className={ clsx( {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }

@@ -1,8 +1,9 @@
+import clsx from 'clsx';
 import useSubscriptionApi from '../hooks/useSubscriptionApi';
 import { translate } from '../i18n';
 import { Close } from '../images';
 import { isTrayOpen, subscriptionSettings, userInfo } from '../state';
-import { serviceData, classNames, isFastConnection } from '../utils';
+import { serviceData, isFastConnection } from '../utils';
 import { NewCommentEmail } from './new-comment-email';
 import { NewPostsEmail } from './new-posts-email';
 import { NewPostsNotifications } from './new-posts-notifications';
@@ -74,7 +75,7 @@ export const LoggedIn = ( { toggleTray, logout }: LoggedInProps ) => {
 
 	return (
 		<div
-			className={ classNames( 'verbum-subscriptions logged-in', {
+			className={ clsx( 'verbum-subscriptions logged-in', {
 				'no-options': ! hasSubOptions,
 			} ) }
 		>

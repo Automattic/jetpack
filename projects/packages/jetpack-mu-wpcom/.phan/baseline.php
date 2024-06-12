@@ -14,10 +14,10 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
+    // PhanUndeclaredFunction : 4 occurrences
     // PhanNoopNew : 3 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences
-    // PhanUndeclaredFunction : 3 occurrences
     // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanParamTooMany : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
@@ -25,7 +25,6 @@ return [
     // PhanTypeMismatchArgumentInternal : 2 occurrences
     // PhanTypeMismatchDefault : 2 occurrences
     // PhanTypeMissingReturn : 2 occurrences
-    // PhanUndeclaredFunctionInCallable : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
@@ -54,7 +53,6 @@ return [
         'src/features/marketplace-products-updater/class-marketplace-products-updater.php' => ['PhanTypeMismatchDimFetch', 'PhanTypeMismatchReturn'],
         'src/features/media/heif-support.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/features/verbum-comments/class-verbum-comments.php' => ['PhanImpossibleTypeComparison', 'PhanNoopNew', 'PhanParamTooMany', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredFunction'],
-        'src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanUndeclaredFunctionInCallable'],
         'src/features/wpcom-block-editor/functions.editor-type.php' => ['PhanUndeclaredFunction'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-launchpad.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-site-migration-migrate-guru-key.php' => ['PhanUndeclaredClassMethod'],
