@@ -388,7 +388,7 @@ class Posts extends Module {
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
-		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
+		if ( isset( $args[1] ) && isset( $args[2] ) && $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
 			return $args;
 		}
 
