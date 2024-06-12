@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Build: Better error handling.

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # Start in the right folder.
 root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
 cd "$root_dir"
@@ -25,6 +27,7 @@ sed -E -i.bak 's|<svg><defs/>|<svg xmlns="http://www.w3.org/2000/svg">|' "$dest_
 
 # Copy example files.
 cp "$src_sprite_dir/"* "$dest_sprite_dir"
+cp "$src_css_dir/example.css" "$dest_sprite_dir"
 
 # Inject SVG into example file.
 sed -i.bak "s|{{SVG_HERE}}|$(cat "$dest_sprite_filename")|" "$dest_sprite_dir/example.html" && rm "$dest_sprite_dir/example.html.bak"
