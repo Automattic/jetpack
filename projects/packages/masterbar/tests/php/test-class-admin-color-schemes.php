@@ -158,7 +158,9 @@ class Test_Admin_Color_Schemes extends TestCase {
 		update_user_option( static::$user_id, 'admin_color', 'coffee' );
 		set_current_screen( 'edit-post' );
 		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
 		do_action( 'admin_enqueue_scripts' );
 		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
 	}
 }

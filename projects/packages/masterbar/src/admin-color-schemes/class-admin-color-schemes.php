@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Unifies admin color scheme selection across WP.com sites.
  */
@@ -16,9 +18,20 @@ class Admin_Color_Schemes {
 	 * Admin_Color_Schemes constructor.
 	 */
 	public function __construct() {
+		// We want to register the admin color schemes across all environments.
 		add_action( 'admin_init', array( $this, 'register_admin_color_schemes' ) );
-		add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+		// We don't want to make the admin_color available in users REST API endpoint for Simple sites.
+		if ( false === ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
+		}
+
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+			add_filter( 'css_do_concat', 'disable_css_concat_for_color_schemes', 10, 2 );
+		} elseif ( false === ( new Host() )->is_wpcom_platform() ) {
+			// @todo Self-hosted sites. Remove this line when we disable the module for self-hosted.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+		}
 	}
 
 	/**
@@ -56,10 +69,11 @@ class Admin_Color_Schemes {
 	 * Get the admin color scheme URL based on the environment
 	 *
 	 * @param string $color_scheme  The color scheme to get the URL for.
+	 * @param string $file          The file name (optional, default: colors.css).
 	 * @return string
 	 */
-	public function get_admin_color_scheme_url( $color_scheme ) {
-		return plugins_url( '../../dist/admin-color-schemes/colors/' . $color_scheme . '/colors.css', __FILE__ );
+	public function get_admin_color_scheme_url( $color_scheme, $file = 'colors.css' ) {
+		return plugins_url( '../../dist/admin-color-schemes/colors/' . $color_scheme . '/' . $file, __FILE__ );
 	}
 
 	/**
@@ -189,6 +203,29 @@ class Admin_Color_Schemes {
 				array(),
 				Main::PACKAGE_VERSION
 			);
+			wp_enqueue_style(
+				'jetpack-core-color-schemes-overrides-sidebar-notice',
+				$this->get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
+				array(),
+				Main::PACKAGE_VERSION
+			);
 		}
+	}
+
+	/**
+	 * Currently, the selected color scheme CSS (with id = "colors") is concatenated (by Jetpack Boost / Page Optimize),
+	 * and is output before the default color scheme CSS, making it lose in specificity.
+	 *
+	 * To prevent this, we disable CSS concatenation for color schemes.
+
+	 * @param boolean $do_concat  Whether to concat the CSS file.
+	 * @param string  $handle     The file handle.
+	 * @return boolean
+	 */
+	public function disable_css_concat_for_color_schemes( $do_concat, $handle ) {
+		if ( $handle === 'colors' ) {
+			return false;
+		}
+		return $do_concat;
 	}
 }

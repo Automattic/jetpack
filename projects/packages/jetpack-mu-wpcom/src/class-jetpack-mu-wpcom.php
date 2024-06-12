@@ -77,7 +77,6 @@ class Jetpack_Mu_Wpcom {
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
-		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
@@ -94,9 +93,11 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-		// Only load the Calypsoify feature on WoA sites.
+		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
+			\Automattic\Jetpack\Masterbar\Main::init();
 		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
