@@ -27,7 +27,7 @@ class Admin_Color_Schemes {
 
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
-			add_filter( 'css_do_concat', 'disable_css_concat_for_color_schemes', 10, 2 );
+			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
 		} elseif ( false === ( new Host() )->is_wpcom_platform() ) {
 			// @todo Self-hosted sites. Remove this line when we disable the module for self-hosted.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
