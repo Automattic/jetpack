@@ -1,11 +1,27 @@
+import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import ConnectionStatusCard from '../index';
+import type { StateProducts, MyJetpackInitialState } from '../../../data/types';
+
+interface TestMyJetpackInitialState {
+	lifecycleStats: Pick<
+		MyJetpackInitialState[ 'lifecycleStats' ],
+		'historicallyActiveModules' | 'brokenModules'
+	>;
+	products: {
+		items: {
+			'anti-spam': Pick<
+				StateProducts[ 'anti-spam' ],
+				'requires_user_connection' | 'status' | 'pricing_for_ui'
+			>;
+		};
+	};
+}
 
 const resetInitialState = () => {
-	global.window.myJetpackInitialState = {
+	( window.myJetpackInitialState as unknown as TestMyJetpackInitialState ) = {
 		lifecycleStats: {
 			historicallyActiveModules: [],
 			brokenModules: {
@@ -18,8 +34,17 @@ const resetInitialState = () => {
 				'anti-spam': {
 					requires_user_connection: false,
 					status: 'inactive',
-					pricingForUi: {
-						productTerm: 'year',
+					// This property is needed as it is used when the `useAllProducts` hook is called
+					// in the connection status card component
+					pricing_for_ui: {
+						product_term: 'year',
+						available: false,
+						wpcom_product_slug: '',
+						currency_code: '',
+						full_price: 0,
+						discount_price: 0,
+						coupon_discount: 0,
+						is_introductory_offer: false,
 					},
 				},
 			},
@@ -33,7 +58,7 @@ const setConnectionStore = ( {
 	hasConnectedOwner = false,
 } = {} ) => {
 	let storeSelect;
-	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
+	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ) );
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
@@ -75,8 +100,8 @@ describe( 'ConnectionStatusCard', () => {
 
 	describe( 'When the site is not registered and has broken modules', () => {
 		const setup = () => {
-			global.window.myJetpackInitialState.lifecycleStats.brokenModules.needs_site_connection = [
-				'module1',
+			window.myJetpackInitialState.lifecycleStats.brokenModules.needs_site_connection = [
+				'anti-spam',
 			];
 			return render( <ConnectionStatusCard { ...testProps } /> );
 		};
@@ -119,9 +144,7 @@ describe( 'ConnectionStatusCard', () => {
 		describe( 'There are products that require user connection', () => {
 			const setup = () => {
 				setConnectionStore( { isRegistered: true } );
-				global.window.myJetpackInitialState.products.items[
-					'anti-spam'
-				].requires_user_connection = true;
+				window.myJetpackInitialState.products.items[ 'anti-spam' ].requires_user_connection = true;
 				return render( <ConnectionStatusCard { ...testProps } /> );
 			};
 
@@ -142,8 +165,8 @@ describe( 'ConnectionStatusCard', () => {
 	describe( 'When the user has not connected their WordPress.com account and there are broken modules', () => {
 		const setup = () => {
 			setConnectionStore( { isRegistered: true } );
-			global.window.myJetpackInitialState.lifecycleStats.brokenModules.needs_user_connection = [
-				'module1',
+			window.myJetpackInitialState.lifecycleStats.brokenModules.needs_user_connection = [
+				'anti-spam',
 			];
 			return render( <ConnectionStatusCard { ...testProps } /> );
 		};

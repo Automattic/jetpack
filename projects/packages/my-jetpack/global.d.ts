@@ -9,6 +9,7 @@ declare module '@wordpress/components';
 declare module '@wordpress/compose';
 declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
+declare module '@automattic/jetpack-connection';
 
 type JetpackModule =
 	| 'anti-spam'
