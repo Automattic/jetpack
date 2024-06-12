@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Suppress buggy `jsx-a11y/label-has-associated-control` lint.
+
+
