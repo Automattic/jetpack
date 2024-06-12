@@ -1,7 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
-
+// @phan-file-suppress PhanRedefinedClassReference,PhanRedefineFunction,PhanRedefineClass
 /**
  * Alternate Custom CSS source for 4.7 compat.
  *
@@ -156,6 +156,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				$main_post_id = wp_is_post_revision( $post['ID'] );
 				$post         = get_post( $main_post_id, ARRAY_A );
 			}
+			// @phan-suppress-next-line PhanTypeArraySuspiciousNullable
 			if ( 'custom_css' === $post['post_type'] ) {
 				$fields['post_content']          = __( 'CSS', 'jetpack-mu-wpcom' );
 				$fields['post_content_filtered'] = __( 'Preprocessor', 'jetpack-mu-wpcom' );
@@ -247,10 +248,14 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			}
 			?>
 			<div class="wrap">
-				<?php self::revisions_switcher_box( $stylesheet ); ?>
+				<?php
+				if ( is_string( $stylesheet ) ) {
+					self::revisions_switcher_box( $stylesheet );
+				}
+				?>
 				<h1>
 					<?php
-					if ( $post ) {
+					if ( $post && is_string( $stylesheet ) ) {
 						printf( 'Custom CSS for &#8220;%1$s&#8221;', wp_get_theme( $stylesheet )->Name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					} else {
 						esc_html_e( 'Custom CSS', 'jetpack-mu-wpcom' );
@@ -340,6 +345,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				array(
 					array(
 						'autofocus' => array(
+							// @phan-suppress-next-line PhanPluginMixedKeyNoKey
 							'section' => 'custom_css',
 						),
 					),
@@ -371,6 +377,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				'_jp_css_settings',
 				array(
 					/** This filter is documented in modules/custom-css/custom-css.php */
+					// @phan-suppress-next-line PhanUndeclaredFunction
 					'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 					'areThereCssRevisions' => self::are_there_css_revisions(),
 					'revisionsUrl'         => self::get_revisions_url(),
@@ -515,7 +522,8 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				$warnings = array();
 
 				safecss_class();
-				$csstidy           = new csstidy();
+				$csstidy = new csstidy();
+				// @phan-suppress-next-line PhanTypeMismatchArgument
 				$csstidy->optimise = new safecss( $csstidy );
 
 				$csstidy->set_cfg( 'remove_bslash', false );
@@ -971,7 +979,9 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		public static function editor_max_image_size( $dims, $size = 'medium', $context = null ) {
 			list( $width, $height ) = $dims;
 
-			if ( 'large' === $size && 'edit' === $context ) {
+			// @phan-suppress-next-line PhanUndeclaredClassInCallable
+			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::get_content_width' ) && 'large' === $size && 'edit' === $context ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
 				$width = Jetpack::get_content_width();
 			}
 
@@ -1011,7 +1021,11 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				return;
 			}
 
-			$GLOBALS['content_width'] = Jetpack::get_content_width();
+			// @phan-suppress-next-line PhanUndeclaredClassInCallable
+			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::get_content_width' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
+				$GLOBALS['content_width'] = Jetpack::get_content_width();
+			}
 		}
 
 		/**
@@ -1056,7 +1070,11 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 * Enable CSS module.
 		 */
 		public static function custom_css_loaded() {
-			Jetpack::enable_module_configurable( __FILE__ );
+			// @phan-suppress-next-line PhanUndeclaredClassInCallable
+			if ( class_exists( 'Jetpack' ) && is_callable( 'Jetpack::enable_module_configurable' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredClassMethod
+				Jetpack::enable_module_configurable( __FILE__ );
+			}
 			add_filter( 'jetpack_module_configuration_url_custom-css', array( __CLASS__, 'jetpack_custom_css_configuration_url' ) );
 		}
 
@@ -1154,7 +1172,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 						$revisions = wp_get_post_revisions( $data['post']->ID, array( 'posts_per_page' => 1 ) );
 						if ( ! $revisions ) {
 							?>
-							<option value="<?php echo esc_url( add_query_arg( 'id', $data['post']->ID, menu_page_url( 'editcss', 0 ) ) ); ?>" <?php disabled( $stylesheet, $theme_stylesheet ); ?>>
+							<option value="<?php echo esc_url( add_query_arg( 'id', $data['post']->ID, menu_page_url( 'editcss', false ) ) ); ?>" <?php disabled( $stylesheet, $theme_stylesheet ); ?>>
 								<?php echo esc_html( $data['label'] ); ?>
 								<?php
 									// translators: how long ago the stylesheet was modified.
