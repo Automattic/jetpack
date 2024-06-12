@@ -327,7 +327,7 @@ add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
  * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
  * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
  * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
- * More detail here: 235-gh-Automattic/automated-transfer
+ * More detail here: https://github.com/Automattic/automated-transfer/issues/235
  *
  * @param array $exif_data The file exif data.
  *
