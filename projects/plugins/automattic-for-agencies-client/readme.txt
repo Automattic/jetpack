@@ -44,13 +44,10 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.2.0 - 2024-05-28
-#### Added
-- Add autotagger and autorelease to composer.json to enable auto-tagging and auto-release actions
-
+### 0.2.1 - 2024-06-12
 #### Changed
-- Updated package dependencies.
-
-#### Removed
-- Remove the Plugin Installer package dependency.
+- Dashboard: switch to a smaller and faster dependency (`clsx`) to handle class names.
+- Dashboard: update the connection screen's messaging to make our Terms of Service clearer.
+- Dependencies: remove the 'jetpack-identity-crisis' dependency.
+- Dependencies: update multiple dependencies. [#37669], [#37767], [#37776],
 
