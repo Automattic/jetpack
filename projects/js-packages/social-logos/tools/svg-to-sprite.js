@@ -36,7 +36,7 @@ const svgText = sprites
 fs.writeFileSync( destSpriteFilename, svgText, 'utf8' );
 
 // Copy example files.
-fs.cpSync( `${ srcSpriteDir }/.`, `${ destSpriteDir }/.`, { recursive: true } );
+fs.cpSync( `${ srcSpriteDir }/example.html`, `${ destSpriteDir }/example.html` );
 fs.cpSync( `${ srcCssDir }/example.css`, `${ destSpriteDir }/example.css` );
 
 // Inject SVG into example file.
