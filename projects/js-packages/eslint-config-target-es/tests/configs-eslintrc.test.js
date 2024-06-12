@@ -29,7 +29,7 @@ afterEach( () => {
 function loadConfig( name ) {
 	let config;
 	jest.isolateModules( () => {
-		config = require( `../src/configs/${ name }.js` );
+		config = require( `../src/eslintrc/${ name }.js` );
 	} );
 	return config;
 }
