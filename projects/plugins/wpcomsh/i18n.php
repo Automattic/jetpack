@@ -134,7 +134,7 @@ add_filter( 'pre_determine_locale', 'wpcomsh_allow_en_locale_override' );
  * Filter to hook into the `gettext` filter for requests against the `jetpack-mu-wpcom`
  * text domain, as those translations are loaded into the `wpcomsh` text domain.
  *
- * @see 1727-gh-Automattic/wpcomsh
+ * @see https://github.com/Automattic/wpcomsh/issues/1727
  *
  * @param string $translation The translated text.
  * @param string $singular    The text to translate.
