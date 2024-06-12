@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.11.1 - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
 ## 0.11.0 - 2024-06-10
 ### Added
 - Safe mode: Added new screen for staging sites. [#37023]
