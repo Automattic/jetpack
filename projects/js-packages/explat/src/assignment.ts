@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { stringify } from 'qs';
-import { version as EXPLAT_VERSION } from '../package.json';
+
+const EXPLAT_API_VERSION = '0.1.0';
 
 export const fetchExperimentAssignment = async ( {
 	experimentName,
@@ -18,6 +19,6 @@ export const fetchExperimentAssignment = async ( {
 
 	/* @todo Jetpack: dynamically replace "wpcom" with relevant platform and point to Jetpack API*/
 	return await fetch(
-		`https://public-api.wordpress.com/wpcom/v2/experiments/${ EXPLAT_VERSION }/assignments/wpcom?${ params }`
+		`https://public-api.wordpress.com/wpcom/v2/experiments/${ EXPLAT_API_VERSION }/assignments/jetpack?${ params }`
 	);
 };
