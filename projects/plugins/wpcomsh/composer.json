@@ -129,6 +129,8 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
+		"autorelease": true,
+		"autotagger": true,
 		"release-branch-prefix": "wpcomsh",
 		"installer-disable": true,
 		"changelogger": {
