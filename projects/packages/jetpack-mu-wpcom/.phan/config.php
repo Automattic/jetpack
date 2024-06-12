@@ -29,6 +29,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/wpcomsh/wpcomsh.php',                              // function wpcomsh_record_tracks_event
 		),
 		'exclude_analysis_directory_list' => array(
+			'src/features/custom-css/csstidy/',
 			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
 			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
 			'src/features/custom-css/custom-css/preprocessors/lessc.inc.php',
