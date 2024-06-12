@@ -1,0 +1,129 @@
+.launch-banner {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 16px;
+	height: 48px;
+	line-height: 48px;
+	background: #24282D;
+	position: relative;
+	z-index: 99998;
+}
+
+.launch-banner-content {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+}
+
+.launch-banner-content .my-home-button,
+.launch-banner-content .dismiss-button {
+	width: 160px;
+}
+
+.launch-banner-content .dismiss-button {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.launch-banner-content a,
+.launch-banner-content button {
+	background: none;
+	border: none;
+	min-height: 48px;
+	text-decoration: none !important;
+	color: #fff;
+	border-bottom: none;
+	font-size: 13px;
+	padding: 0 20px;
+	display: flex;
+	align-items: center;
+	outline: none;
+}
+
+.launch-banner-content .dismiss-button svg {
+	margin-right: 0;
+}
+
+.launch-banner-content a:hover,
+.launch-banner-content button:hover {
+	background: #34383D;
+	cursor: pointer;
+}
+
+.launch-banner-section.bar-controls {
+	display: flex;
+	justify-content: center;
+	flex-grow: 1;
+}
+
+.launch-banner-section.bar-controls > * {
+	border-left: 1px solid #424446;
+	font-weight: 500;
+}
+
+.launch-banner-section.bar-controls > *:last-child {
+	border-right: 1px solid #424446;
+}
+
+.launch-banner-section .icon {
+	margin-right: 5px;
+	fill: none;
+}
+
+.launch-banner-section .icon path,
+.launch-banner-section .icon rect {
+	stroke: #b0b2b3;
+}
+
+.launch-banner-section .icon.icon-home path,
+.launch-banner-section .icon.icon-dismiss path {
+	stroke: #fff;
+}
+
+.launch-banner-section .icon.icon-edit path:first-child {
+	stroke: none;
+	fill: #b0b2b3;
+}
+
+.is-mobile {
+	display: none;
+}
+
+@media screen and (max-width: 960px) {
+	.is-desktop {
+		display: none;
+	}
+
+	.is-mobile {
+		display: block;
+	}
+
+	.launch-banner-content .bar-controls a {
+		padding: 0 12px;
+	}
+
+	.launch-banner-section.bar-controls > * {
+		border-left: none;
+	}
+
+	.launch-banner-section.bar-controls > *:last-child {
+		border-right: none;
+	}
+
+	.launch-banner-section.dismiss-link a {
+		padding-right: 18px;
+	}
+}
+
+@media screen and (max-width: 460px) {
+
+	.launch-banner-section.my-home-button,
+	.launch-banner-section.dismiss-button {
+		display: none;
+	}
+
+	.launch-banner-section.bar-controls {
+		overflow-y: scroll;
+	}
+}
