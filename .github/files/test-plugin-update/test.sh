@@ -33,6 +33,11 @@ function failed {
 
 cd /var/www/html
 for SLUG in "${SLUGS[@]}"; do
+	if [[ "$SLUG" == "wpcomsh" ]]; then
+		echo "Skipping $SLUG, doesn't work on self-hosted sites."
+		continue
+	fi
+
 	for FROM in stable trunk dev; do
 		for HOW in web cli; do
 			[[ -e "$ZIPDIR/$SLUG-$FROM.zip" ]] || continue
