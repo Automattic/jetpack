@@ -96,7 +96,7 @@ const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 						<Spinner className={ styles.spinner } />
 					) }
 					<Button
-						href={ getRedirectUrl( 'jetpack-social-advanced-plan-plugin-admin-page', {
+						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
 							site: blogID ?? siteSuffix,
 							query: 'redirect_to=admin.php?page=jetpack-social',
 						} ) }
