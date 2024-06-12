@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Move protect-status and protect-models into their own shared packages.
