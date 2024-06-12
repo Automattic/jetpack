@@ -10,6 +10,7 @@ const { glob } = require( 'glob' );
 const { optimize } = require( 'svgo' );
 
 const svgo_config = {
+	js2svg: { finalNewline: true }, // force EOF newline
 	plugins: [
 		{
 			name: 'preset-default',
