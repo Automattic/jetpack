@@ -46,6 +46,7 @@ jobs:
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
+      WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
     strategy:
       fail-fast: false
       matrix:

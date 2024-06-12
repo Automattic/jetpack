@@ -321,16 +321,91 @@ gh pr create --title "Backport $PLUGINS_CHANGED Changes" --body "$(cat .github/f
 rm .github/files/TEMP_BACKPORT_RELEASE_CHANGES.md
 
 yellow "Release script complete!"
-cat <<"EOM"
 
-Next you need to merge the above PR into trunk.
+echo ''
+echo 'Next you need to merge the above PR into trunk.'
 
-If this is NOT the Jetpack core plugin, the release will shortly be tagged to
-GitHub and released to SVN and you can then smoke test the release. Once ready,
-use `./tools/stable-tag.sh <plugin>` to update the stable tag, and you're done!
+AUTO=()
+MANUALTAG=()
+MANUALTAGONLY=()
+MANUALPUB=()
+MANUALBOTH=()
+for PLUGIN in "${!PROJECTS[@]}"; do
+	F="$BASE/projects/$PLUGIN/composer.json"
+	if ! jq -e '.extra["mirror-repo"] // false' "$F" &>/dev/null; then
+		continue
+	fi
 
-If you are releasing Jetpack (the plugin), wait for the changes to appear in
-the mirror repo and conduct a GitHub release. Next, deploy the tag to SVN by
-running `./tools/deploy-to-svn.sh <plugin> <tag>`, and smoke test. When ready,
-flip the stable tag and you're all set.
-EOM
+	if ! jq -e '.extra["wp-plugin-slug"] // .extra["wp-theme-slug"] // false' "$F" &>/dev/null; then
+		if ! jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
+			MANUALTAGONLY+=( "$PLUGIN" )
+		fi
+		continue
+	fi
+
+	if jq -e '.extra["autotagger"]' "$F" &>/dev/null; then
+		if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+			AUTO+=( "$PLUGIN" )
+		else
+			MANUALPUB+=( "$PLUGIN" )
+		fi
+	else
+		if jq -e '.extra["wp-svn-autopublish"] // false' "$F" &>/dev/null; then
+			MANUALTAG+=( "$PLUGIN" )
+		else
+			MANUALBOTH+=( "$PLUGIN" )
+		fi
+	fi
+done
+
+if [[ ${#AUTO[@]} -gt 0 ]]; then
+	cat <<-EOM
+
+	For these plugins: ${AUTO[*]}
+	The release will shortly be tagged to GitHub and released to SVN and you can
+	then smoke test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
+	to update the stable tag, and you're done!
+	EOM
+fi
+
+if [[ ${#MANUALTAGONLY[@]} -gt 0 ]]; then
+	cat <<-EOM
+
+	For these plugins: ${MANUALTAGONLY[*]}
+	Wait for the changes to appear in the mirror repo and conduct a GitHub
+	release. Then you're done!
+	EOM
+fi
+
+if [[ ${#MANUALTAG[@]} -gt 0 ]]; then
+	cat <<-EOM
+
+	For these plugins: ${MANUALTAG[*]}
+	Wait for the changes to appear in the mirror repo and conduct a GitHub
+	release. The changes will then be automatically released to SVN and you can
+	then smote test the release. Once ready, use \`./tools/stable-tag.sh <plugin>\`
+	to update the stable tag, and you're done!
+	EOM
+fi
+
+if [[ ${#MANUALPUB[@]} -gt 0 ]]; then
+	cat <<-EOM
+
+	For these plugins: ${MANUALPUB[*]}
+	The release will shortly be tagged to GitHub. Once the tag appears, deploy it
+	to SVN by running \`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test.
+	When ready, flip the stable tag with \`./tools/stable-tag.sh <plugin>\` and
+	you're all set.
+	EOM
+fi
+
+if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
+	cat <<-EOM
+
+	For these plugins: ${MANUALBOTH[*]}
+	Wait for the changes to appear in the mirror repo, and conduct a GitHub
+	release. Next, deploy the tag to SVN by running
+	\`./tools/deploy-to-svn.sh <plugin> <tag>\`, and smoke test. When ready, flip
+	the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
+	EOM
+fi

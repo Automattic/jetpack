@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Build: React was missing example CSS file.

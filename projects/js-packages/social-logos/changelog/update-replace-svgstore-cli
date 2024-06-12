@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace build dep on `svgstore-cli` with `svgstore` directly, and translate `tools/svg-to-sprite` to JS.
+
+
