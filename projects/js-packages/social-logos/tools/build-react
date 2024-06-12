@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # Define some paths.
 src_css_dir=src/css
 dest_react_dir=build/react

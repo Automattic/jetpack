@@ -5,6 +5,8 @@
 #   1: One of the build steps failed
 #   2: The production build isn't clean
 
+set -eo pipefail
+
 # Start in the right folder.
 root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
 cd "$root_dir"
