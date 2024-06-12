@@ -131,6 +131,7 @@
 		"mirror-repo": "Automattic/wpcom-site-helper",
 		"autorelease": true,
 		"autotagger": true,
+		"beta-plugin-slug": "wpcomsh",
 		"release-branch-prefix": "wpcomsh",
 		"installer-disable": true,
 		"changelogger": {
