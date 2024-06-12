@@ -311,7 +311,9 @@ export default class PageActions {
 		logger.action(
 			`Waiting for element '${ selector }' to be ${ state } [timeout: ${ timeout } ms]`
 		);
-		return await this.page.locator( selector ).waitFor( { state, timeout } );
+		const element = this.page.locator( selector );
+		await element.waitFor( { state, timeout } );
+		return element;
 	}
 
 	/**
