@@ -1,5 +1,7 @@
 #!/bin/sh
 
+echo "Do not use this script anymore. Use the monorepo release tooling." >&2
+exit 1
 # Enable nicer messaging for build status.
 BLUE_BOLD='\033[1;34m';
 GREEN_BOLD='\033[1;32m';
