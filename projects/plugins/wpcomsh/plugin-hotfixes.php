@@ -72,7 +72,7 @@ add_filter( 'facebook_for_woocommerce_allow_full_batch_api_sync', 'wpcomsh_disal
  * This is a temporary fix for a page-optimize bug that causes spinner icons to show
  * all the time in the plugins list auto-update column
  *
- * @see 699-gh-Automattic/wpcomsh
+ * @see https://github.com/Automattic/wpcomsh/pull/699
  */
 function wpcomsh_patch_auto_update_spinner_style() {
 	$current_screen = get_current_screen();
