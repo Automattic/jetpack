@@ -19,10 +19,17 @@ export const settings = {
 			initialOpen: false,
 		};
 
-		const isPostPublished = useSelect(
-			select => select( editorStore ).isCurrentPostPublished(),
-			[]
-		);
+		const { isPostPublished, postType } = useSelect( select => {
+			return {
+				isPostPublished: select( editorStore ).isCurrentPostPublished(),
+				postType: select( editorStore ).getCurrentPostType(),
+			};
+		}, [] );
+
+		// If postType is still not available, simply return and wait for the next call.
+		if ( postType === null ) {
+			return;
+		}
 
 		function QRPostPanelBodyContent() {
 			return (

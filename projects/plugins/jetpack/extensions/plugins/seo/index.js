@@ -6,7 +6,9 @@ import {
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
@@ -31,6 +33,14 @@ const Seo = () => {
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),
 	};
+
+	// Those tools are only useful in the post editor.
+	const postType = select( editorStore ).getCurrentPostType();
+
+	// If postType is still not available, simply return and wait for the next call.
+	if ( postType === null ) {
+		return;
+	}
 
 	if ( canShowUpsell && requiredPlan !== false ) {
 		return (

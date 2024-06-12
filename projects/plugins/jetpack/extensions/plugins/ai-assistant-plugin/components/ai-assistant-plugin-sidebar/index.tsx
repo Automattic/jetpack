@@ -4,7 +4,9 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
+import { select } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import React from 'react';
@@ -95,6 +97,13 @@ export default function AiAssistantPluginSidebar() {
 		debug( placement );
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
+
+	const postType = select( editorStore ).getCurrentPostType();
+
+	// If postType is still not available, simply return and wait for the next call.
+	if ( postType === null ) {
+		return;
+	}
 
 	return (
 		<>

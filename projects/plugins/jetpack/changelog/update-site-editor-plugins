@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Editor functionality: ensure that features added by Jetpack to the block editor are compatible with site editor changes introduced in WordPres 6.6.
