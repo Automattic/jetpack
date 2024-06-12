@@ -119,6 +119,7 @@ class Test_Plugin_Storage extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
 
 		$this->assertFalse( $this->http_request_attempted );
+		$this->assertEmpty( get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
 	}
 
 	/**
@@ -139,6 +140,7 @@ class Test_Plugin_Storage extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
 
 		$this->assertFalse( $this->http_request_attempted );
+		$this->assertEmpty( get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
 	}
 
 	/**
@@ -159,6 +161,7 @@ class Test_Plugin_Storage extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
 
 		$this->assertFalse( $this->http_request_attempted );
+		$this->assertEmpty( get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
 	}
 
 	/**
@@ -180,6 +183,58 @@ class Test_Plugin_Storage extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
 
 		$this->assertTrue( $this->http_request_attempted );
+		$expected_stored_value = array( 'dummy-slug' => array() );
+		$this->assertEquals( $expected_stored_value, get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
+	}
+
+	/**
+	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
+	 */
+	public function test_maybe_update_active_connected_plugins_success_same_plugins() {
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		$stored_value = array( 'dummy-slug' => array() );
+		update_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME, $stored_value );
+
+		Plugin_Storage::upsert( 'dummy-slug' );
+		Plugin_Storage::configure();
+
+		set_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG, microtime() );
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10, 3 );
+		Plugin_Storage::maybe_update_active_connected_plugins();
+		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
+
+		$this->assertFalse( $this->http_request_attempted );
+		$this->assertEquals( $stored_value, get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
+	}
+
+	/**
+	 * Unit test for the `Plugin_Storage::maybe_update_active_connected_plugins()` method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Plugin_Storage::maybe_update_active_connected_plugins
+	 */
+	public function test_maybe_update_active_connected_plugins_success_same_count_different_plugins() {
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		update_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME, array( 'dummy-slug2' => array() ) );
+
+		Plugin_Storage::upsert( 'dummy-slug' );
+		Plugin_Storage::configure();
+
+		set_transient( Plugin_Storage::ACTIVE_PLUGINS_REFRESH_FLAG, microtime() );
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		add_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10, 3 );
+		Plugin_Storage::maybe_update_active_connected_plugins();
+		remove_filter( 'pre_http_request', array( $this, 'intercept_remote_request' ), 10 );
+
+		$this->assertTrue( $this->http_request_attempted );
+		$expected_stored_value = array( 'dummy-slug' => array() );
+		$this->assertEquals( $expected_stored_value, get_option( Plugin_Storage::ACTIVE_PLUGINS_OPTION_NAME ) );
 	}
 
 	/**

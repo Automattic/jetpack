@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import analytics from 'lib/analytics';
@@ -40,7 +40,7 @@ class DashActivity extends Component {
 				<DashItem
 					label={ __( 'Activity', 'jetpack' ) }
 					isModule={ false }
-					className={ classNames( {
+					className={ clsx( {
 						'jp-dash-item__is-inactive': inOfflineMode,
 					} ) }
 					pro={ false }

@@ -7,7 +7,7 @@ import {
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback, useMemo } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
@@ -19,13 +19,13 @@ import styles from './styles.module.scss';
 const ConnectionListItem = ( { text, actionText, onClick, status } ) => (
 	<div className={ styles[ 'list-item' ] }>
 		<Text
-			className={ classNames( styles[ 'list-item-text' ], {
+			className={ clsx( styles[ 'list-item-text' ], {
 				[ styles.error ]: status === 'error',
 			} ) }
 		>
 			<Icon
 				icon={ status === 'error' ? info : check }
-				className={ classNames( { [ styles.info ]: status === 'error' } ) }
+				className={ clsx( { [ styles.info ]: status === 'error' } ) }
 			/>
 			{ text }
 		</Text>
@@ -157,7 +157,7 @@ const ConnectionStatusCard = props => {
 			<div className={ styles.status }>
 				<img src={ cloud } alt="" className={ styles.cloud } />
 				<div
-					className={ classNames( styles.line, {
+					className={ clsx( styles.line, {
 						[ styles.disconnected ]: ! isRegistered || ! isUserConnected,
 					} ) }
 				/>
