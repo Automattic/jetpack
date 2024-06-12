@@ -1,4 +1,4 @@
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useAnalytics, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { useCommandLoader } from '@wordpress/commands';
@@ -24,6 +24,7 @@ function CommandPalette() {
 		</SVG>
 	);
 	const { tracks } = useAnalytics();
+	const { isLoadingModules, isModuleActive } = useModuleStatus( 'subscriptions' );
 	const { createInfoNotice } = useDispatch( 'core/notices' );
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
@@ -91,14 +92,15 @@ function CommandPalette() {
 
 			return {
 				postType: getCurrentPostType(),
-				isLoading: ! select( editorStore ).hasFinishedResolution( 'getCurrentPostType' ),
+				isLoading:
+					! select( editorStore ).hasFinishedResolution( 'getCurrentPostType' ) || isLoadingModules,
 			};
 		}, [] );
 
 		// Create the commands.
 		const commands = useMemo( () => {
-			// If postType is defined and not 'post', unregister the block.
-			if ( postType !== 'post' ) {
+			// Don't register commands
+			if ( postType !== 'post' || ! isModuleActive ) {
 				return [];
 			}
 
