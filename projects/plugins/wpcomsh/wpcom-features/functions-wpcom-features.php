@@ -59,9 +59,11 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	$blog = null;
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$site_type = 'wpcom';
-	} else {
+	} elseif ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$blog      = get_blog_details( $blog_id, false );
 		$site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
+	} else {
+		$site_type = 'jetpack';
 	}
 
 	// A8C override for certain sites.
