@@ -263,7 +263,7 @@ function generateApiQueryString( {
 	isInCustomizer = false,
 	additionalBlogIds = [],
 	highlightFields = [ 'title', 'content', 'comments' ],
-	customResults = {},
+	customResults = [],
 } ) {
 	if ( query === null ) {
 		query = '';
