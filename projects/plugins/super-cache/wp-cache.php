@@ -2920,7 +2920,7 @@ function wp_cache_plugin_notice( $plugin ) {
 add_action( 'after_plugin_row', 'wp_cache_plugin_notice' );
 
 function wp_cache_plugin_actions( $links, $file ) {
-	if( $file == 'wp-super-cache/wp-cache.php' && function_exists( 'admin_url' ) ) {
+	if ( $file === 'wp-super-cache/wp-cache.php' && function_exists( 'admin_url' ) && is_array( $links ) ) {
 		$settings_link = '<a href="' . admin_url( 'options-general.php?page=wpsupercache' ) . '">' . __( 'Settings', 'wp-super-cache' ) . '</a>';
 		array_unshift( $links, $settings_link ); // before other links
 	}
