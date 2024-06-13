@@ -1434,7 +1434,9 @@ class Colors_Manager_Common {
 
 		$colors['border'] = $colors['fg1'];
 		$colors['url']    = $colors['link'];
-		$colors['text']   = $colors['txt'];
+		if ( isset( $colors['txt'] ) ) {
+			$colors['text'] = $colors['txt'];
+		}
 
 		unset( $colors['fg1'] );
 		unset( $colors['fg2'] );
