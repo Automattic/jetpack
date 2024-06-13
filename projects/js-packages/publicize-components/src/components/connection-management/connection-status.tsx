@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
 import { Disconnect } from './disconnect';
@@ -26,7 +26,7 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 			<span className="description">
 				{ service
 					? __( 'There is an issue with this connection.', 'jetpack' )
-					: __( 'This platform is no longer supported.', 'jetpack' ) }
+					: _x( 'This platform is no longer supported.', '', 'jetpack' ) }
 			</span>
 			&nbsp;
 			{ service ? (
