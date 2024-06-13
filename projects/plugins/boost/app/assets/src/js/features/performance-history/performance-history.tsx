@@ -68,7 +68,7 @@ const PerformanceHistory = () => {
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ ( value: boolean ) => {
-						recordBoostEvent( 'performance_history_panel_toggle', {} );
+						recordBoostEvent( 'performance_history_panel_toggle', { status: value ? 'open' : 'close' } );
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }
