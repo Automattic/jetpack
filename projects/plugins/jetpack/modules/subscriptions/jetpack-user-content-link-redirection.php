@@ -9,32 +9,25 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Render a page containing an iframe to track and redirect the user content link in emails.
  */
 function jetpack_user_content_link_redirection() {
-	if ( empty( $_SERVER['QUERY_STRING'] ) ) {
-		return;
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( empty( $_SERVER['QUERY_STRING'] ) || empty( $_SERVER['HTTP_HOST'] ) || empty( $_GET['blog_id'] ) ) {
+		wp_safe_redirect( get_home_url() );
+		exit();
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['user_content_redirect_domain_checking'] ) ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( empty( $_SERVER['QUERY_STRING'] ) || ! isset( $_SERVER['HTTP_HOST'] ) || ! isset( $_GET['blog_id'] ) ) {
-			wp_safe_redirect( get_home_url() );
-			exit();
-		}
+	$request_blog_id = absint( wp_unslash( $_GET['blog_id'] ) );
+	$actual_blog_id  = Connection_Manager::get_site_id( true );
 
-		$domain_from_request = sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$blog_id = absint( wp_unslash( $_GET['blog_id'] ) );
-
-		if ( ! jetpack_user_content_link_is_same_domain( $domain_from_request, $blog_id ) ) {
-			wp_safe_redirect( get_home_url() );
-			exit();
-		}
+	if ( $actual_blog_id !== $request_blog_id ) {
+		wp_die( esc_html__( 'Invalid link.', 'jetpack' ), 400 );
+		exit();
 	}
 
 	$query_params = sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) );
@@ -67,29 +60,6 @@ EOF;
 EOF;
     // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit;
-}
-
-/**
- * Check if the domain of the request is the same as the domain of the given blog_id
- *
- * @param string $domain_from_request The domain from the request.
- * @param int    $blog_id             The blog_id to check against.
- *
- * @return bool
- */
-function jetpack_user_content_link_is_same_domain( $domain_from_request, $blog_id ) {
-	$request  = sprintf( '/sites/%d?fields=URL', $blog_id );
-	$response = Client::wpcom_json_api_request_as_blog( $request );
-	if ( is_wp_error( $response ) ) {
-		return false;
-	}
-
-	$domain_from_wpcom = wp_parse_url( json_decode( wp_remote_retrieve_body( $response ) )->URL, PHP_URL_HOST );
-	if ( $domain_from_request !== $domain_from_wpcom ) {
-		return false;
-	}
-
-	return true;
 }
 
 // The WPCOM_USER_CONTENT_LINK_REDIRECTION flag prevents this redirection logic from running
