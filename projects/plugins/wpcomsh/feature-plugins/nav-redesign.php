@@ -11,10 +11,9 @@
  * @return bool True if the nav redesign is enabled, false otherwise.
  */
 function wpcom_is_nav_redesign_enabled() {
-	$uses_wp_admin_interface      = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	$is_included_in_early_release = ! empty( get_option( 'wpcom_classic_early_release' ) );
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 
-	return $uses_wp_admin_interface && $is_included_in_early_release;
+	return $uses_wp_admin_interface;
 }
 
 /**
@@ -27,12 +26,12 @@ function is_proxied() {
 }
 
 /**
- * Adds Hosting -> Overview menu for proxied a12s.
+ * Adds Hosting -> Overview menu.
  *
  * This logic should be moved to jetpack-mu-wpcom once nav redesign is fully launched.
  */
 function add_hosting_overview_menu() {
-	if ( ! wpcom_is_nav_redesign_enabled() || ! is_proxied() ) {
+	if ( ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 
@@ -56,7 +55,7 @@ add_action( 'admin_menu', 'add_hosting_overview_menu', 999999 );
 function temporarily_hide_hosting_menus_already_in_global_site_view() {
 	global $submenu;
 
-	if ( ! wpcom_is_nav_redesign_enabled() || ! is_proxied() ) {
+	if ( ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
 
