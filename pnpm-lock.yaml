@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: m3326lysbj3juhvadq65bhecim
+pnpmfileChecksum: i2gupvr4pzna7cayhonamrk5iq
 
 importers:
 
@@ -2593,7 +2593,7 @@ importers:
         version: 12.4.0(sass@1.64.1)(webpack@5.76.0(webpack-cli@4.9.1))
       size-limit:
         specifier: 11.1.4
-        version: 11.1.4
+        version: 11.1.4(@size-limit/preset-app@11.1.4)
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
@@ -13171,6 +13171,11 @@ packages:
     resolution: {integrity: sha512-V2JAI/Z7h8sEuxU3V+Ig3XKA5FcYbI4CZ7sh6s7wvuy+TUwDZYqw7sAqrHhQ4cgcNfPKIAHAaH8VaqOdbcwJDA==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
+    peerDependencies:
+      '@size-limit/preset-app': '*'
+    peerDependenciesMeta:
+      '@size-limit/preset-app':
+        optional: true
 
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
@@ -16783,24 +16788,24 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@size-limit/file@11.1.4(size-limit@11.1.4)':
+  '@size-limit/file@11.1.4(size-limit@11.1.4(@size-limit/preset-app@11.1.4))':
     dependencies:
-      size-limit: 11.1.4
+      size-limit: 11.1.4(@size-limit/preset-app@11.1.4)
 
   '@size-limit/preset-app@11.1.4(size-limit@11.1.4)':
     dependencies:
-      '@size-limit/file': 11.1.4(size-limit@11.1.4)
-      '@size-limit/time': 11.1.4(size-limit@11.1.4)
-      size-limit: 11.1.4
+      '@size-limit/file': 11.1.4(size-limit@11.1.4(@size-limit/preset-app@11.1.4))
+      '@size-limit/time': 11.1.4(size-limit@11.1.4(@size-limit/preset-app@11.1.4))
+      size-limit: 11.1.4(@size-limit/preset-app@11.1.4)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@size-limit/time@11.1.4(size-limit@11.1.4)':
+  '@size-limit/time@11.1.4(size-limit@11.1.4(@size-limit/preset-app@11.1.4))':
     dependencies:
       estimo: 3.0.3
-      size-limit: 11.1.4
+      size-limit: 11.1.4(@size-limit/preset-app@11.1.4)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -26238,7 +26243,7 @@ snapshots:
 
   sisteransi@1.0.5: {}
 
-  size-limit@11.1.4:
+  size-limit@11.1.4(@size-limit/preset-app@11.1.4):
     dependencies:
       bytes-iec: 3.1.1
       chokidar: 3.6.0
@@ -26247,6 +26252,8 @@ snapshots:
       lilconfig: 3.1.2
       nanospinner: 1.1.0
       picocolors: 1.0.1
+    optionalDependencies:
+      '@size-limit/preset-app': 11.1.4(size-limit@11.1.4)
 
   slash@3.0.0: {}
 
