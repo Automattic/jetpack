@@ -27,6 +27,7 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 	const [ currentSpeedScore, setCurrentSpeedScore ] = useState< number | null >( null );
 	const [ previousSpeedScore, setPreviousSpeedScore ] = useState< number | null >( null );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
+	const [ hasTooltipBeenViewed, setHasTooltipBeenViewed ] = useState( false );
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 
 	const { siteUrl = '', latestBoostSpeedScores } = getMyJetpackWindowInitialState();
@@ -140,13 +141,14 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 	}, [] );
 
 	useEffect( () => {
-		if ( ! isLoading && shouldShowTooltip ) {
+		if ( ! isLoading && shouldShowTooltip && ! hasTooltipBeenViewed ) {
 			recordEvent( 'jetpack_boost_card_tooltip_viewed', {
 				feature: 'jetpack-boost',
 				position: 'my-jetpack',
 			} );
+			setHasTooltipBeenViewed( true );
 		}
-	}, [ isLoading, shouldShowTooltip, recordEvent ] );
+	}, [ isLoading, shouldShowTooltip, recordEvent, hasTooltipBeenViewed ] );
 
 	return (
 		! isSpeedScoreError && (
