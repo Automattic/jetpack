@@ -38,10 +38,8 @@ const svgo_config = {
 const rootDir = __dirname + '/..';
 process.chdir( rootDir );
 
-// Make dir if it doesn't exist.
-if ( ! fs.existsSync( destSvgDir ) ) {
-	fs.mkdirSync( destSvgDir, { recursive: true } );
-}
+// Make destination dir as needed.
+fs.mkdirSync( destSvgDir, { recursive: true } );
 
 const srcFiles = glob.sync( srcSvgDir + '/*.svg' ).sort();
 for ( const srcFile of srcFiles ) {

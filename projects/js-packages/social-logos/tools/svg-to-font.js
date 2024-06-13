@@ -90,10 +90,8 @@ ${ cssCodepoints }*/`;
 	// console.log('Wrote CSS file.');
 };
 
-// Make dir if it doesn't exist.
-if ( ! fs.existsSync( destFontDir ) ) {
-	fs.mkdirSync( destFontDir, { recursive: true } );
-}
+// Make destination dir as needed.
+fs.mkdirSync( destFontDir, { recursive: true } );
 
 const codepoints = require( path.resolve( codepointsFile ) );
 let maxCodepoint = Math.max( ...Object.values( codepoints ) );
