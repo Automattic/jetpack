@@ -74,6 +74,29 @@ $ git rebase jetpack/trunk
 $ git push -f origin update/my-changes
 ```
 
+### Updating an external contributor's PR
+
+If you're working directly with Jetpack trunk and need to update an external contributor's PR, these commands will be helpful:
+
+```sh
+## Add the external contributors forked Jetpack repository (for example git remote add octocat https://github.com/octocat/jetpack.git).
+git remote add namefortheremote https://github.com/nameofremote/jetpack.git
+
+# Ask git to bring in the changes that are currently on the forked Jetpack repo's trunk branch.
+git fetch namefortheremote
+
+## Checkout the forked repositories branch (for example git checkout fix/broken-jetpack-thing).
+git checkout name-of-remote-branch
+
+## Rebase the current branch onto origin/trunk
+git rebase origin/trunk
+
+## Push the updated branch to the forked branch (for example, git push -f octocat fix/broken-jetpack-thing).
+git push -f namefortheremote name-of-remote-branch
+```
+
+Once the PR is updated, you can then remove the new remote: `git checkout trunk`, and `git remote remove namefortheremote`.
+
 ### Tips for common issues when merging
 
 #### Dealing with lock files
