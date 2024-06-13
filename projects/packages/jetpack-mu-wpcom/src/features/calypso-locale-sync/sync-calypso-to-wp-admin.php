@@ -44,6 +44,19 @@ function sync_calypso_locale_to_wp_admin() {
 	}
 }
 
+function woy() {
+	// Get user connection
+	$connection_manager = new Connection_Manager( 'jetpack' );
+	if ( ! $connection_manager->is_user_connected( get_current_user_id() ) ) {
+		return;
+	}
+	// Get user locale
+	$user_data = $connection_manager->get_connected_user_data( get_current_user_id() );
+	echo var_export( $user_data, true );
+}
+
+add_action( 'admin_init', 'woy' );
+
 /**
  * Get Jetpack locale name.
  *
