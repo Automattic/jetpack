@@ -22,7 +22,7 @@ function jetpack_user_content_link_redirection() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$request_blog_id = absint( wp_unslash( $_GET['blog_id'] ) );
+	$request_blog_id = intval( sanitize_text_field( wp_unslash( $_GET['blog_id'] ) ) );
 	$actual_blog_id  = Connection_Manager::get_site_id( true );
 
 	if ( $actual_blog_id !== $request_blog_id ) {
