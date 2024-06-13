@@ -5,20 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.4.1-beta] - 2024-06-11
+## [3.4.1-beta] - 2024-06-13
 ### Added
-- Page Cache: Added cache rebuild functionality. [#37151]
-- Page Cache: Remove the advanced-cache.php when the Cache module is disabled. [#37643]
-- Page Cache: Allow easy migration from WPSC to Boost Cache. [#36818]
 - Critical CSS: Add a friendly error if css gen library is broken or missing. [#37283]
+- Page Cache: Added cache rebuild functionality. [#37151]
+- Page Cache: Allow easy migration from WPSC to Boost Cache. [#36818]
+- Page Cache: Remove the advanced-cache.php when the Cache module is disabled. [#37643]
 
 ### Changed
 - Critical CSS: Improve source providers collecting logic. [#37095]
 - Critical CSS: Improve UI when errors are present. [#37658]
-- Minification: Change minification library. [#37700]
-- Minification: Skip files ending in `.min.js` and `.min.css` from minification. [#37700]
 - Dependency: Remove the explicit Plugin Install dependency. [#37430]
 - Dependency: Updated package dependencies. [#37348] [#37379] [#37380] [#37669]
+- Minification: Change minification library. [#37700]
+- Minification: Skip files ending in `.min.js` and `.min.css` from minification. [#37700]
 
 ## [3.3.1] - 2024-05-15
 ### Fixed
