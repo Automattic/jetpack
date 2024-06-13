@@ -28,7 +28,7 @@ if [[ ! -f composer.json ]]; then
 	exit 1
 fi
 
-SLUG="$(jq -r '.extra.autorelease.slug? // .extra["wp-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
+SLUG="$(jq -r '.extra.autorelease.slug? // .extra["wp-plugin-slug"] // .extra["beta-plugin-slug"] // ( .name | sub( "^.*/"; "" ) )' composer.json)"
 if [[ -z "$SLUG" ]]; then
 	echo '::error::Failed to get slug from composer.json.'
 	exit 1
