@@ -383,7 +383,7 @@ function wpcomsh_auto_update_new_plugins_by_default( $pre_auto_update_plugins ) 
 	 */
 	if (
 		defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST &&
-		HOUR_IN_SECONDS < ( time() - get_option( 'auto_updater.lock', 0 ) )
+		HOUR_IN_SECONDS < ( time() - (int) get_option( 'auto_updater.lock', 0 ) )
 	) {
 		$look_for_new_plugins = true;
 	}
