@@ -55,16 +55,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 */
 		public static function init() {
 			Assets::register_script(
-				'jetpack-codemirror',
-				'custom-css/js/codemirror.min.js',
-				__FILE__,
-				array(
-					'in-footer' => true,
-					'css_path'  => 'custom-css/css/codemirror.css',
-				)
-			);
-
-			Assets::register_script(
 				'jetpack-customizer-css',
 				'../../build/core-customizer-css/core-customizer-css.js',
 				__FILE__,
