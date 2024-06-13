@@ -30,7 +30,7 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
 			) : (
 				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name }
+					{ connection.display_name || connection.external_display }
 				</ExternalLink>
 			) }
 			{ isUpdating ? (

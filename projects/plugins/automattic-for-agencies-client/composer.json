@@ -62,6 +62,7 @@
 		"release-branch-prefix": "automattic-for-agencies-client",
 		"beta-plugin-slug": "automattic-for-agencies-client",
 		"wp-plugin-slug": "automattic-for-agencies-client",
+		"wp-svn-autopublish": true,
 		"changelogger": {
 			"versioning": "semver"
 		}
@@ -72,6 +73,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_2_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_automattic_for_agencies_clientⓥ0_2_2_alpha"
 	}
 }

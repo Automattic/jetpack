@@ -288,7 +288,7 @@ class REST_Endpoints {
 						'required'    => false,
 					),
 					'only_range_edges'        => array(
-						'description' => __( 'Should only range endges be returned', 'jetpack-sync' ),
+						'description' => __( 'Should only range edges be returned', 'jetpack-sync' ),
 						'type'        => 'boolean',
 						'required'    => false,
 					),

@@ -57,17 +57,73 @@ function processCSS( css ) {
 	const customRule2 = `
 	/* Overrides to fix CSS conflicts within editor. */
 .wpl-likebox {
-	// Prevents color conflict by
+	// Prevents color and outline conflict by
 	// .wp-block-post-content a:where(:not(.wp-element-button))
 	a {
 		color: #2C3338 !important;
 		text-decoration: none !important;
+		outline: none !important;
 	}
 
 	// Prevents focus state conflict by
 	// a:where(:not(.wp-element-button)):focus
 	a:focus {
 		text-decoration: none !important;
+		outline: none !important;
+	}
+
+	// Prevent a number of editor and theme conflicts
+	&.wpl-new-layout {
+		* {
+			cursor: default;
+		}
+
+		.wpl-avatars {
+			margin: 0;
+			padding-left: 0;
+			align-content: unset;
+
+			li {
+				margin: 0;
+			}
+
+			li a:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+			li a img {
+				vertical-align: unset;
+			}
+		}
+
+		.wpl-count:focus,
+		.wpl-count a:focus,
+		.wpl-count-text:focus,
+		.wpl-count-text a:focus {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	// Prevents hover state conflicts on the button element.
+	.wpl-button a:hover {
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
+	}
+
+	.wpl-button.like a:hover:before {
+		background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m9.00081 2 1.95699 4.26814h4.3763l-3.6666 3.39117 1.2473 4.34069-3.91399-2.25-3.914 2.25 1.24734-4.34069-3.66667-3.39117h2.18817 2.18816z' stroke='%232c3338' stroke-linecap='round' stroke-width='1.5'/%3E%3C/svg%3E");
+	}
+}
+
+// Format buttons correctly when displayed in columns
+@container (max-width: 320px) {
+	.wpl-button {
+		min-width: auto;
+	}
+
+	.wpl-button a span {
+		display: none;
 	}
 }
 `;

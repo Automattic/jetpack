@@ -118,6 +118,9 @@ const DocumentationSection = ( {
 						href={ getSupportLinkCriticalCss( errorType ) }
 						target="_blank"
 						rel="noopener noreferrer"
+						onClick={ () => {
+							recordBoostEvent( 'critical_css_learn_more', {} );
+						} }
 					/>
 				),
 			} ) }
@@ -162,7 +165,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							{
 								...actionLinkInterpolateVar( () => {
 									recordBoostEvent( 'critical_css_retry', {
-										errorType: 'CssGenLibraryFailure',
+										error_type: 'CssGenLibraryFailure',
 									} );
 
 									retry();
@@ -186,7 +189,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							className="secondary"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_retry', {
-									errorType: 'UnknownError',
+									error_type: 'UnknownError',
 								} );
 
 								retry();

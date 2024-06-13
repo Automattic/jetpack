@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: E2E tests: Replace discouraged `waitForSelector()`
+
+
