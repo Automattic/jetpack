@@ -1,13 +1,16 @@
 {
+	// Don't show these files in VS Code.
 	"files.exclude": {
 		"**/.DS_Store/**": true
 	},
+	// Don't search these files in VS Code.
 	"search.exclude": {
 		"**/.cache/**": true,
 		"**/jetpack_vendor/**": true,
 		"**/node_modules/**": true,
 		"**/vendor/**": true
 	},
+	// Don't run Intelephense on these files.
 	"intelephense.files.exclude": [
 		"**/.cache/**",
 		"**/.git/**",
@@ -20,6 +23,7 @@
 	],
 	"phpCodeSniffer.autoExecutable": true,
 	"phpCodeSniffer.standard": "Automatic",
+	// Have PHPCS ignore these files.
 	"phpCodeSniffer.exclude": [
 		"**/.git/**",
 		"**/.svn/**",
@@ -28,5 +32,6 @@
 		"**/jetpack_vendor/**",
 		"**/vendor/**"
 	],
+	// Use this wp-prettier from this path.
 	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
 }
