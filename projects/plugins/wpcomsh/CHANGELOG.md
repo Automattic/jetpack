@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.7 - 2024-06-13
+### Added
+- Initial version. [#37737]
+
 ## 3.22.6 - 2024-06-13
 ### Added
 - Initial version. [#37737]
