@@ -9,7 +9,7 @@
 - Bump wpcomsh version.
 
 ## 3.22.10 - 2024-06-13
-## Changed
+### Changed
 - Update read access cookie arguments.
 
 ## 3.22.9 - 2024-06-13
