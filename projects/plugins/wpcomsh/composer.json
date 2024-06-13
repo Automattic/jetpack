@@ -73,26 +73,31 @@
 			}
 		},
 		{
+			"name": "automattic/custom-fonts",
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/Automattic/custom-fonts.git"
 		},
 		{
+			"name": "automattic/custom-fonts-typekit",
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/Automattic/custom-fonts-typekit.git"
 		},
 		{
+			"name": "automattic/at-pressable-podcasting",
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/automattic/at-pressable-podcasting.git"
 		},
 		{
+			"name": "automattic/text-media-widget-styles",
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/Automattic/text-media-widget-styles.git"
 		},
 		{
+			"name": "automattic/wc-calypso-bridge",
 			"type": "vcs",
 			"no-api": true,
 			"url": "https://github.com/Automattic/wc-calypso-bridge.git"
@@ -125,7 +130,7 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_22_14"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_22_15_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
