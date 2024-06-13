@@ -162,7 +162,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							{
 								...actionLinkInterpolateVar( () => {
 									recordBoostEvent( 'critical_css_retry', {
-										errorType: 'CssGenLibraryFailure',
+										error_type: 'CssGenLibraryFailure',
 									} );
 
 									retry();
@@ -186,7 +186,7 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 							className="secondary"
 							onClick={ () => {
 								recordBoostEvent( 'critical_css_retry', {
-									errorType: 'UnknownError',
+									error_type: 'UnknownError',
 								} );
 
 								retry();
