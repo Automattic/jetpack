@@ -118,6 +118,9 @@ const DocumentationSection = ( {
 						href={ getSupportLinkCriticalCss( errorType ) }
 						target="_blank"
 						rel="noopener noreferrer"
+						onClick={ () => {
+							recordBoostEvent( 'critical_css_learn_more', {} );
+						} }
 					/>
 				),
 			} ) }
