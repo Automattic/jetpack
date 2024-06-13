@@ -54,36 +54,44 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 * Things that we do on init.
 		 */
 		public static function init() {
-
-			wp_register_style( 'jetpack-codemirror', plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
-			wp_register_style( 'jetpack-customizer-css', plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array(), '20140728' );
-			wp_register_script( 'jetpack-codemirror', plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-
-			$src = Assets::get_file_url_for_environment(
-				'_inc/build/custom-css/custom-css/js/core-customizer-css.core-4.9.min.js',
-				'modules/custom-css/custom-css/js/core-customizer-css.core-4.9.js'
-			);
-			wp_register_script(
-				'jetpack-customizer-css',
-				$src,
+			Assets::register_script(
+				'jetpack-codemirror',
+				'custom-css/js/codemirror.min.js',
+				__FILE__,
 				array(
-					'jquery',
-					'customize-controls',
-					'underscore',
-				),
-				JETPACK__VERSION,
-				true
+					'in-footer' => true,
+					'css_path'  => 'custom-css/css/codemirror.css',
+				)
 			);
 
-			wp_register_script(
+			Assets::register_script(
+				'jetpack-customizer-css',
+				'../../build/core-customizer-css/core-customizer-css.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'customize-controls',
+						'underscore',
+					),
+					'in-footer'    => true,
+					'nonmin_path'  => 'custom-css/js/core-customizer-css.core-4.9.js',
+					'css_path'     => '../../build/customizer-control/customizer-control.css',
+				)
+			);
+
+			Assets::register_script(
 				'jetpack-customizer-css-preview',
-				Assets::get_file_url_for_environment(
-					'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
-					'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
-				),
-				array( 'jquery', 'customize-selective-refresh' ),
-				JETPACK__VERSION,
-				true
+				'../../build/core-customizer-css-preview/core-customizer-css-preview.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'customize-selective-refresh',
+					),
+					'in-footer'    => true,
+					'nonmin_path'  => 'custom-css/js/core-customizer-css-preview.js',
+				)
 			);
 
 			remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
