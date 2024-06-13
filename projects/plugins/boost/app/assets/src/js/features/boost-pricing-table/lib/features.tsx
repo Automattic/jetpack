@@ -179,7 +179,7 @@ export const boostFeatureList: FeatureItem[] = [
 			tooltipInfo: __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ),
 			tooltipPlacement: 'bottom-start',
 		},
-		free: <PricingTableItem isIncluded={ true } />,
+		free: <PricingTableItem isIncluded={ false } />,
 		premium: <PricingTableItem isIncluded={ true } label={ __( 'Included', 'jetpack-boost' ) } />,
 	},
 	{
