@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.13 - 2024-06-13
+### Removed
+- Untangling: Remove temporary code that hides Hosting menu options. [#37848]
+
 ## 3.22.12 - 2024-06-10
 ### Other Changes
 - Update language files.
@@ -21,6 +25,7 @@
 - Bump wpcomsh version.
 
 ## 3.22.8 - 2024-06-06
+
 - Prevent non array/object from working.
 
 ## 3.22.7 - 2024-06-05
