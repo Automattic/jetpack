@@ -1,11 +1,4 @@
 <?php
-/**
- * Dummy function until #37797 is merged.
- *
- * @param string $source The source button of the migration.
- */
-function wpsc_notify_migration_to_boost( $source ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-}
 
 /**
  * Get shared configuration for each migration button.
