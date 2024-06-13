@@ -102,12 +102,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 4.4.0 - 2024-06-05
+### 4.5.0 - 2024-06-13
 #### Changed
-- Social | Removed the top "Connect accounts" on the admin page
-- Social | Updated upgrade nudges to use the new plan
+- Move the admin upsell to the toggle section
 - Updated package dependencies.
-- Updated the editor nudge text and logic
+
+#### Removed
+- Removed the social basic plan from the admin page
+
+#### Fixed
+- Updated wp.org screenshots
 
 == Upgrade Notice ==
 
