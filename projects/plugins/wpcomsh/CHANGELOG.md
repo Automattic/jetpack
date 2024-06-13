@@ -1,12 +1,14 @@
 # Changelog
 
 ## 3.22.9 - 2024-06-13
+### Fixed
+- Do not override text color if it is not set on the theme.
+
 ### Other Changes
 - Update jetpack-mu-wpcom version.
 - Bump wpcomsh version.
 
 ## 3.22.8 - 2024-06-13
-### Fixed
 - Prevent non array/object from working.
 
 ## 3.22.7 - 2024-06-13
