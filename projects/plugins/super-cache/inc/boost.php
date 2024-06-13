@@ -12,12 +12,6 @@ function wpsc_get_boost_migration_config() {
 }
 
 /**
- * Display the secondary button next to the "Update Status" button.
- */
-function wpsc_jetpack_boost_install_secondary_button() {
-}
-
-/**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
  */
