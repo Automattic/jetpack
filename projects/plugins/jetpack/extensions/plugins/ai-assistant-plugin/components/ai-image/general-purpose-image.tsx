@@ -8,7 +8,6 @@ import {
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Tooltip } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -51,23 +50,27 @@ const getSiteType = () => {
 };
 const SITE_TYPE = getSiteType();
 
+/**
+ * The type for the callback function that is called when the user selects an image.
+ */
+type SetImageCallbackProps = {
+	id: number;
+	url: string;
+};
+
 export default function GeneralPurposeImage( {
 	busy,
 	disabled,
 	placement,
 	onClose = () => {},
+	onSetImage = () => {},
 }: {
 	busy: boolean;
 	disabled: boolean;
 	placement: string;
 	onClose?: () => void;
+	onSetImage?: ( image: SetImageCallbackProps ) => void;
 } ) {
-	const { toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditPost } =
-		useDispatch( 'core/edit-post' );
-	const { editPost, toggleEditorPanelOpened: toggleEditorPanelOpenedFromEditor } =
-		useDispatch( 'core/editor' );
-	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
-
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
 	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
 	const [ current, setCurrent ] = useState( 0 );
@@ -75,7 +78,6 @@ export default function GeneralPurposeImage( {
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
 
-	const { enableComplementaryArea } = useDispatch( 'core/interface' );
 	const { generateImageWithParameters } = useImageGenerator();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
@@ -104,19 +106,6 @@ export default function GeneralPurposeImage( {
 	const notEnoughRequests = requestsBalance < featuredImageCost;
 
 	const postContent = usePostContent();
-
-	// Handle deprecation and move of toggle action from edit-post.
-	// https://github.com/WordPress/gutenberg/blob/fe4d8cb936df52945c01c1863f7b87b58b7cc69f/packages/edit-post/CHANGELOG.md?plain=1#L19
-	const toggleEditorPanelOpened =
-		toggleEditorPanelOpenedFromEditor ?? toggleEditorPanelOpenedFromEditPost;
-	const isEditorPanelOpened = useSelect( select => {
-		const isOpened =
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/editor' ) as any ).isEditorPanelOpened ??
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			( select( 'core/edit-post' ) as any ).isEditorPanelOpened;
-		return isOpened;
-	}, [] );
 
 	/*
 	 * Function to update the requests count after a featured image generation.
@@ -223,7 +212,10 @@ export default function GeneralPurposeImage( {
 					updateRequestsCount();
 					saveToMediaLibrary( image )
 						.then( savedImage => {
-							updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
+							updateImages(
+								{ libraryId: savedImage.id, libraryUrl: savedImage.url, generating: false },
+								pointer.current
+							);
 							pointer.current += 1;
 						} )
 						.catch( () => {
@@ -302,12 +294,6 @@ export default function GeneralPurposeImage( {
 		[ setUserPrompt ]
 	);
 
-	const triggerComplementaryArea = useCallback( () => {
-		// clear any block selection, because selected blocks have precedence on settings sidebar
-		clearSelectedBlock();
-		return enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
-	}, [ clearSelectedBlock, enableComplementaryArea ] );
-
 	const handleAccept = useCallback( () => {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_featured_image_generation_use_image', {
@@ -316,49 +302,32 @@ export default function GeneralPurposeImage( {
 			site_type: SITE_TYPE,
 		} );
 
-		const setAsFeaturedImage = image => {
-			editPost( { featured_media: image } );
+		const setImage = image => {
+			onSetImage?.( { id: image.id, url: image.url } );
 			handleModalClose();
-
-			// Open the featured image panel for users to see the new image.
-			setTimeout( () => {
-				const isFeaturedImagePanelOpened = isEditorPanelOpened( 'featured-image' );
-				const isPostStatusPanelOpened = isEditorPanelOpened( 'post-status' );
-
-				// open the complementary area and then trigger the featured image panel.
-				triggerComplementaryArea().then( () => {
-					if ( ! isFeaturedImagePanelOpened ) {
-						toggleEditorPanelOpened( 'featured-image' );
-					}
-					// handle the case where the featured image panel is not present
-					if ( ! isPostStatusPanelOpened ) {
-						toggleEditorPanelOpened( 'post-status' );
-					}
-				} );
-			}, 500 );
 		};
 
 		// If the image is already in the media library, use it directly, if it failed for some reason
 		// save it to the media library and then use it.
 		if ( images[ current ].libraryId ) {
-			setAsFeaturedImage( images[ current ].libraryId );
+			setImage( {
+				id: images[ current ].libraryId,
+				url: images[ current ].libraryUrl,
+			} );
 		} else {
 			saveToMediaLibrary( images[ current ].image ).then( image => {
-				setAsFeaturedImage( image.id );
+				setImage( image );
 			} );
 		}
 	}, [
 		current,
-		editPost,
 		images,
-		isEditorPanelOpened,
 		recordEvent,
 		saveToMediaLibrary,
-		toggleEditorPanelOpened,
-		triggerComplementaryArea,
 		handleModalClose,
 		placement,
 		featuredImageActiveModel,
+		onSetImage,
 	] );
 
 	/**
@@ -392,7 +361,7 @@ export default function GeneralPurposeImage( {
 			isBusy={ currentImage?.generating }
 			disabled={ ! currentImage?.image }
 		>
-			{ __( 'Set as featured image', 'jetpack' ) }
+			{ __( 'Insert image', 'jetpack' ) }
 		</Button>
 	);
 
