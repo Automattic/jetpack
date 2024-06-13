@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: make sure plugins links is an array before using it.

@@ -179,7 +179,19 @@ export const boostFeatureList: FeatureItem[] = [
 			tooltipInfo: __( 'Fine-tune image quality settings to your liking.', 'jetpack-boost' ),
 			tooltipPlacement: 'bottom-start',
 		},
-		free: <PricingTableItem isIncluded={ true } />,
+		free: <PricingTableItem isIncluded={ false } />,
+		premium: <PricingTableItem isIncluded={ true } label={ __( 'Included', 'jetpack-boost' ) } />,
+	},
+	{
+		description: {
+			name: __( 'Image CDN Auto-Resize Lazy Images', 'jetpack-boost' ),
+			tooltipInfo: __(
+				'Optimizes lazy-loaded images by dynamically serving perfectly sized images for each device.',
+				'jetpack-boost'
+			),
+			tooltipPlacement: 'bottom-start',
+		},
+		free: <PricingTableItem isIncluded={ false } />,
 		premium: <PricingTableItem isIncluded={ true } label={ __( 'Included', 'jetpack-boost' ) } />,
 	},
 	{

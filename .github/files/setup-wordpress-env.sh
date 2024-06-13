@@ -166,6 +166,16 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	echo "::endgroup::"
 fi
 
+# Install the wpcomsh plugin used for some Jetpack integration tests.
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	echo "::group::Installing wpcomsh into WordPress"
+
+	mkdir "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins"
+	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
+
+	echo "::endgroup::"
+fi
+
 cd "/tmp/wordpress-$WP_BRANCH"
 
 cp wp-tests-config-sample.php wp-tests-config.php
