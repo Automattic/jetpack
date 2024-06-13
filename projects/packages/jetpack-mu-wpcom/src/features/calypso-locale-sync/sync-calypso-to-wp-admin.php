@@ -44,13 +44,6 @@ function sync_calypso_locale_to_wp_admin() {
 	}
 }
 
-if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-	// Not for POST requests because this syncing needs to be avoided when the locale is updated via /wp-admin/profile.php
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
-		add_filter( 'admin_init', 'sync_calypso_locale_to_wp_admin' );
-	}
-}
-
 /**
  * Get Jetpack locale name.
  *
