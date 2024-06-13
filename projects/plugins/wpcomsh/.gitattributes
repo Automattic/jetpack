@@ -39,7 +39,6 @@ composer.lock                                 production-exclude
 /vendor/**/.git*                              production-exclude
 /vendor/**/.git*/**                           production-exclude
 /vendor/**/*.md                               production-exclude
-**/*.md                                       production-exclude
 /bin/**                                       production-exclude
 /build/**                                     production-exclude
 /tests/**                                     production-exclude
