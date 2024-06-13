@@ -668,14 +668,14 @@ if ( ! function_exists( 'create_function' ) ) {
 	 * @return string The name of the function.
 	 */
 	function create_function( $args, $code ) {
-		static $i;
+		static $i = 0;
 
 		_deprecated_function( __FUNCTION__, 'trunk', 'anonymous functions' );
 
 		$namespace = 'wpcom_create_function';
 
 		do {
-			$i    = ( $i ?? 0 ) + 1;
+			++$i;
 			$name = "__{$namespace}_lambda_{$i}";
 		} while ( \function_exists( $name ) );
 
