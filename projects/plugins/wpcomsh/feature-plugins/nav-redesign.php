@@ -26,30 +26,6 @@ function is_proxied() {
 }
 
 /**
- * Adds Hosting -> Overview menu.
- *
- * This logic should be moved to jetpack-mu-wpcom once nav redesign is fully launched.
- */
-function add_hosting_overview_menu() {
-	if ( ! wpcom_is_nav_redesign_enabled() ) {
-		return;
-	}
-
-	$domain = preg_replace( '#^https?://#', '', network_site_url() );
-
-	add_submenu_page(
-		'wpcom-hosting-menu',
-		esc_attr__( 'Overview', 'wpcomsh' ),
-		esc_attr__( 'Overview', 'wpcomsh' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
-		'',
-		1
-	);
-}
-add_action( 'admin_menu', 'add_hosting_overview_menu', 999999 );
-
-/**
  * Temporarily hides the Hosting menus that are already in GSV.
  */
 function temporarily_hide_hosting_menus_already_in_global_site_view() {

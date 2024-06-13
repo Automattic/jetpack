@@ -33,7 +33,6 @@ return [
     // PhanUndeclaredVariable : 2 occurrences
     // PhanContextNotObject : 1 occurrence
     // PhanDeprecatedProperty : 1 occurrence
-    // PhanEmptyFQSENInCallable : 1 occurrence
     // PhanNoopNewNoSideEffects : 1 occurrence
     // PhanPluginRedundantAssignment : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
@@ -59,7 +58,6 @@ return [
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'feature-plugins/gutenberg-mods.php' => ['PhanUndeclaredFunctionInCallable'],
         'feature-plugins/managed-plugins.php' => ['PhanRedundantCondition', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
-        'feature-plugins/nav-redesign.php' => ['PhanEmptyFQSENInCallable'],
         'feature-plugins/sensei-pro-mods.php' => ['PhanUndeclaredClassMethod'],
         'footer-credit/theme-optimizations.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredConstant', 'PhanUndeclaredFunction'],
         'frontend-notices/gifting-banner/gifting-banner.php' => ['PhanUndeclaredFunction'],
