@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent non array/object from working.
