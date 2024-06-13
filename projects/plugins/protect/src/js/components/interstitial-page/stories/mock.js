@@ -636,4 +636,9 @@ export const jetpackProtectInitialState = {
 		post_activation_url: '',
 		class: 'Automattic\\Jetpack\\My_Jetpack\\Products\\Scan',
 	},
+	waf: {
+		config: {
+			jetpackWafAutomaticRules: true,
+		},
+	},
 };

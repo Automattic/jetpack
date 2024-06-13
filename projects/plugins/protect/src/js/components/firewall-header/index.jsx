@@ -18,25 +18,9 @@ import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
 
-const UpgradePrompt = () => {
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const firewallUrl = adminUrl + '#/firewall';
-
-	const {
-		config: { automaticRulesAvailable },
-	} = useWafData();
-
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: firewallUrl,
-		useBlogIdSuffix: true,
-	} );
-
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
-
+const UpgradePrompt = ( { automaticRulesAvailable, runScanCheckout } ) => {
 	return (
-		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
+		<Button className={ styles[ 'upgrade-button' ] } onClick={ runScanCheckout }>
 			{ ! automaticRulesAvailable
 				? __( 'Upgrade to enable automatic firewall protection', 'jetpack-protect' )
 				: __(
@@ -104,6 +88,7 @@ const FirewallSubheading = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
+	runScanCheckout,
 } ) => {
 	const allRules = wafSupported && jetpackWafAutomaticRules && jetpackWafIpList;
 	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! jetpackWafIpList;
@@ -147,7 +132,12 @@ const FirewallSubheading = ( {
 					/>
 				) }
 			</div>
-			{ ! hasRequiredPlan && <UpgradePrompt /> }
+			{ ! hasRequiredPlan && (
+				<UpgradePrompt
+					automaticRulesAvailable={ automaticRulesAvailable }
+					runScanCheckout={ runScanCheckout }
+				/>
+			) }
 		</>
 	);
 };
@@ -162,6 +152,7 @@ const FirewallHeader = ( {
 	bruteForceProtectionIsEnabled,
 	wafSupported,
 	standaloneMode,
+	runScanCheckout,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -199,6 +190,7 @@ const FirewallHeader = ( {
 								hasRequiredPlan={ hasRequiredPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 								wafSupported={ wafSupported }
+								runScanCheckout={ runScanCheckout }
 							/>
 						</>
 					) }
@@ -263,6 +255,21 @@ const ConnectedFirewallHeader = () => {
 	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
 	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 
+	// Configure the checkout
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const firewallUrl = adminUrl + '#/firewall';
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: JETPACK_SCAN_SLUG,
+		redirectUrl: firewallUrl,
+		useBlogIdSuffix: true,
+	} );
+
+	const { recordEventHandler } = useAnalyticsTracks();
+	const runScanCheckout = recordEventHandler(
+		'jetpack_protect_waf_header_get_scan_link_click',
+		run
+	);
+
 	return (
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
@@ -274,6 +281,7 @@ const ConnectedFirewallHeader = () => {
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }
 			standaloneMode={ standaloneMode }
+			runScanCheckout={ runScanCheckout }
 		/>
 	);
 };

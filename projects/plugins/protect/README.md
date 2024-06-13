@@ -15,6 +15,9 @@ If you want to force Protect to always fetch data from the server you can use th
 
 Be aware that a request to the server will be made in all admin pages! Use it only for debugging.
 
+### Storybook
+
+Run `npm run storybook:dev` from the [js-packages/storybook](/projects/js-packages/storybook/) directory.
 
 ## Contribute
 

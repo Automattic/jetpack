@@ -6,14 +6,13 @@ import { STORE_ID } from '../../state/store';
 import styles from './styles.module.scss';
 
 const Notice = ( {
+	clearNotice,
 	dismissable = false,
 	duration = null,
 	floating = false,
 	message,
 	type = 'success',
 } ) => {
-	const { clearNotice } = useDispatch( STORE_ID );
-
 	let icon;
 	switch ( type ) {
 		case 'success':
@@ -67,4 +66,25 @@ const Notice = ( {
 	);
 };
 
-export default Notice;
+const ConnectedNotice = ( {
+	dismissable = false,
+	duration = null,
+	floating = false,
+	message,
+	type = 'success',
+} ) => {
+	const { clearNotice } = useDispatch( STORE_ID );
+
+	return (
+		<Notice
+			clearNotice={ clearNotice }
+			dismissable={ dismissable }
+			duration={ duration }
+			floating={ floating }
+			message={ message }
+			type={ type }
+		/>
+	);
+};
+
+export default ConnectedNotice;

@@ -10,20 +10,22 @@ import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
-export const PaidAccordionItem = ( {
+export const PaidAccordionItemFrame = ( {
 	id,
-	title,
-	label,
-	icon,
-	fixable,
-	severity,
 	children,
+	fixable,
+	icon,
+	label,
 	onOpen,
+	severity,
+	threatsAreFixing,
+	title,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
+
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
@@ -38,8 +40,6 @@ export const PaidAccordionItem = ( {
 			return current === id ? null : id;
 		} );
 	}, [ open, onOpen, setOpen, id ] );
-
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
@@ -79,6 +79,35 @@ export const PaidAccordionItem = ( {
 				{ children }
 			</div>
 		</div>
+	);
+};
+
+export const PaidAccordionItem = ( {
+	children,
+	fixable,
+	icon,
+	id,
+	label,
+	onOpen,
+	severity,
+	title,
+} ) => {
+	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
+
+	return (
+		<PaidAccordionItemFrame
+			fixable={ fixable }
+			onOpen={ onOpen }
+			icon={ icon }
+			label={ label }
+			open={ open }
+			severity={ severity }
+			threatsAreFixing={ threatsAreFixing }
+			title={ title }
+			id={ id }
+		>
+			{ children }
+		</PaidAccordionItemFrame>
 	);
 };
 

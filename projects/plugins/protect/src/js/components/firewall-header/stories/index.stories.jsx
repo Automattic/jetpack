@@ -1,6 +1,10 @@
 import React from 'react';
 import { FirewallHeader } from '../index.jsx';
 
+window.jetpackProtectInitialState = {
+	adminUrl: 'https://example.com/wp-admin',
+};
+
 export default {
 	title: 'Plugins/Protect/Firewall Header',
 	component: FirewallHeader,

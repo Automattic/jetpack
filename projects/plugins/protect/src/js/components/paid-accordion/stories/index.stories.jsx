@@ -1,7 +1,7 @@
 import { Text } from '@automattic/jetpack-components';
 import { wordpress, plugins } from '@wordpress/icons';
 import React from 'react';
-import PaidAccordion, { PaidAccordionItem } from '..';
+import PaidAccordion, { PaidAccordionItemFrame as PaidAccordionItem } from '..';
 
 export default {
 	title: 'Plugins/Protect/Paid Accordion',
