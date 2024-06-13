@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fixed WSOD on connections UI when an old Twitter connection exists.
