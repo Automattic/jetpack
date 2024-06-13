@@ -25,8 +25,7 @@ jQuery( document ).ready( () => {
 
 	// One-click install for Boost.
 	jQuery( '.wpsc-install-boost-button' ).on( 'click', event => {
-		const source = jQuery( this ).attr( 'data-source' );
-
+		const source = jQuery( event.currentTarget ).attr( 'data-source' );
 		event.preventDefault();
 		showBoostBannerBusy( __( 'Installing…', 'wp-super-cache' ) );
 
