@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-15 11:54:07+0000\n"
+"PO-Revision-Date: 2024-06-10 07:43:53+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,30 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: es\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "%1$s en <a href=\"%2$s\">%3$s</a>"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:206
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "Puedes modificar tu Gravatar desde tu <a href=\"%s\">página de perfil</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
+msgid "Marketing"
+msgstr "Marketing"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Lo siento, no tienes permisos para acceder a esta página."
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
@@ -34,7 +58,7 @@ msgstr "Estilo clásico"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
 msgid "Admin Interface Style"
-msgstr ""
+msgstr "Estilo de la interfaz del administrador"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -64,11 +88,6 @@ msgstr "Sumérgete en el mundo de los temas de WordPress.com. Descubre los impre
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
 msgid "Find the perfect theme for your site"
 msgstr "Encuentra el tema perfecto para tu sitio"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Connections"
-msgstr "Conexiones"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
 msgid "A few catchy words to motivate your readers to comment"
@@ -199,7 +218,7 @@ msgstr "WordPress.com"
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
 msgid "Settings"
-msgstr "Axustes"
+msgstr "Ajustes"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
@@ -246,7 +265,7 @@ msgstr "Planes"
 msgid "Hosting"
 msgstr "Alojamiento"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
 msgid "All Sites"
 msgstr "Todos los sitios"
 
@@ -438,8 +457,6 @@ msgstr "Sigue las instrucciones del importador de WordPress.com para importar pu
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Visita %1$sAjustes de Jetpack%2$s para obtener más información sobre los ajustes de escritura que ofrece Jetpack."
 
-#: feature-plugins/scheduled-updates.php:37
-#: feature-plugins/scheduled-updates.php:38
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
 msgid "Scheduled Updates"
@@ -449,7 +466,7 @@ msgstr "Actualizaciones programadas"
 msgid "Verify the email address for your domains"
 msgstr "Verifica la dirección de correo electrónico de tus dominios"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
 msgid "Site setup"
 msgstr "Configuración del sitio web"
 
@@ -473,11 +490,11 @@ msgstr "Activa la opción de compartir entradas"
 msgid "Install the mobile app"
 msgstr "Instala la aplicación móvil."
 
-#: imports/utils/class-filerestorer.php:168
+#: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
 msgstr "No se ha restaurado ningún archivo."
 
-#: imports/utils/class-filerestorer.php:98
+#: imports/utils/class-filerestorer.php:97
 msgid "No files are queued."
 msgstr "No hay archivos en cola."
 
@@ -533,12 +550,12 @@ msgstr "Error de importación de SQL."
 msgid "SQL file not exists"
 msgstr "El archivo de SQL no existe."
 
-#: imports/class-backup-import-manager.php:389
-#: imports/class-backup-import-manager.php:430
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
 msgid "No backup import found."
 msgstr "No se ha encontrado ninguna copia de seguridad."
 
-#: imports/class-backup-import-manager.php:375
+#: imports/class-backup-import-manager.php:371
 msgid "An import is already running."
 msgstr "Ya se está ejecutando una importación."
 
@@ -674,7 +691,7 @@ msgstr "Contacto heredado"
 msgid "Enhanced Ownership"
 msgstr "Propiedad mejorada"
 
-#: notices/anyone-can-register-notice.php:78
+#: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "La <a href=\"%2$s\">opción «Cualquiera puede registrarse»</a> está activa. En este momento, el perfil por defecto es %1$s. %4$s <strong>Considera desactivar esta opción si no se necesita el registro abierto.<strong>"
 
@@ -699,7 +716,7 @@ msgid "File not exists"
 msgstr "El archivo no existe"
 
 #: imports/class-backup-import-manager.php:326
-#: imports/class-backup-import-manager.php:349
+#: imports/class-backup-import-manager.php:345
 msgid "Could not determine importer type."
 msgstr "No se puede determinar el tipo de importador"
 
@@ -736,8 +753,8 @@ msgstr "Pon un nombre a tu sitio"
 msgid "Claim your free one-year domain"
 msgstr "Solicita tu dominio gratuito de un año"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:148
-#: frontend-notices/gifting-banner/gifting-banner.php:173
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "Regalar"
@@ -835,7 +852,7 @@ msgstr "Elige un plan"
 msgid "Personalize newsletter"
 msgstr "Personalizar newsletter"
 
-#: vendor/automattic/jetpack-config/src/class-config.php:135
+#: vendor/automattic/jetpack-config/src/class-config.php:189
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "No se puede cargar la clase %1$s. Utiliza el compositor para añadir el paquete que lo contiene y comprueba si necesitas utilizar el cargador automático de Jetpack"
 
@@ -1046,27 +1063,27 @@ msgstr "¡Qué suerte! Los diseñadores de tu tema han elegido fuentes específi
 msgid "Uncheck to disable"
 msgstr "Desmarcar para desactivar"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
 msgid "Spotify Feed ID"
 msgstr "ID de feed de Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
 msgid "Apple Podcasts Feed ID"
 msgstr "ID de feed de Apple Podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
 msgid "Title"
 msgstr "Título:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
 msgid "Podcast RSS Feed"
 msgstr "Feed RSS del Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Spotify"
 msgstr "Escuchar en Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
 msgid "Listen on Apple Podcasts"
 msgstr "Escuchar en Apple Podcasts"
 
@@ -1078,113 +1095,97 @@ msgstr "Muestra información sobre tu podcast y permite a los visitantes suscrib
 msgid "Podcast"
 msgstr "Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
 msgid "Select iTunes category:"
 msgstr "Seleccionar categoría de iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
 msgid "Set podcast category"
 msgstr "Establecer categoría de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
-msgid "Set podcast keywords"
-msgstr "Establecer palabras clave del podcast"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
 msgid "Set podcast image"
 msgstr "Establecer imagen de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
 msgstr "Borrar"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"
 msgstr "Si"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
 msgid "No"
 msgstr "Non"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
 msgid "Set podcast as explicit"
 msgstr "Establecer podcast como explícito"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
 msgid "Set podcast copyright"
 msgstr "Establecer derechos de autor de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
 msgid "Set podcast summary"
 msgstr "Establecer resumen de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
 msgid "Set podcast author"
 msgstr "Configurar autor del posdcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
-msgid "Set podcast subtitle"
-msgstr "Establecer subtítulo de podcast"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
 msgid "Set podcast title"
 msgstr "Establecer título de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "Esta es la URL que envías a iTunes o al servicio de podcasting."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
 msgid "Your podcast feed: %1$s"
 msgstr "El feed de tu podcast: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
 msgid "Select podcast category:"
 msgstr "Seleccionar categoría de podcast:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
 msgid "Blog category for podcasts"
 msgstr "Categoría de blog para podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 3"
 msgstr "Categoría de podcast 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
 msgid "Podcast category 2"
 msgstr "Categoría de podcast 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
 msgid "Podcast category 1"
 msgstr "Categoría de podcast 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
-msgid "Podcast keywords"
-msgstr "Palabras claves de podcast"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Podcast image"
 msgstr "Imagen de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Mark as explicit"
 msgstr "Marcar como explícito"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast copyright"
 msgstr "Derechos de autor de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast summary"
 msgstr "Resumen de podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast talent name"
 msgstr "Nombre del artista del podcast"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
-msgid "Podcast subtitle"
-msgstr "Subtítulo de podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1199,31 +1200,31 @@ msgid "Podcasting"
 msgstr "Podcasting"
 
 #. translators: %s is the Twitter account name
-#: widgets/class-jetpack-widget-twitter.php:74
+#: widgets/class-jetpack-widget-twitter.php:67
 msgid "Tweets by %s"
 msgstr "Tuits de %s"
 
-#: private-site/logged-in-banner.php:165
+#: private-site/logged-in-banner.php:163
 msgid "Next steps"
 msgstr "Siguientes pasos"
 
-#: notices/anyone-can-register-notice.php:106
+#: notices/anyone-can-register-notice.php:112
 msgid "This may pose a security risk to your site."
 msgstr "Esto puede suponer un riesgo para la seguridad de tu sitio."
 
-#: notices/anyone-can-register-notice.php:101
+#: notices/anyone-can-register-notice.php:106
 msgid "It allows a user to post content."
 msgstr "Permite a un usuario publicar contenido."
 
-#: notices/anyone-can-register-notice.php:96
+#: notices/anyone-can-register-notice.php:100
 msgid "It allows a user to post/modify/delete all content."
 msgstr "Permite a un usuario publicar, modificar y eliminar todo el contenido."
 
-#: notices/anyone-can-register-notice.php:91
+#: notices/anyone-can-register-notice.php:94
 msgid "It allows a user control over your orders and products."
 msgstr "Permite a un usuario controlar tus pedidos y productos."
 
-#: notices/anyone-can-register-notice.php:86
+#: notices/anyone-can-register-notice.php:88
 msgid "It allows a user full control over your site and its contents."
 msgstr "Permite a un usuario un control total sobre tu sitio y su contenido."
 
@@ -1239,21 +1240,21 @@ msgstr "No se ha podido abrir el archivo ZIP."
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "La CDN de imágenes está desactivada porque tu sitio está marcado como privado. Si las miniaturas de las imágenes no se muestran en la biblioteca de medios, puedes cambiar al modo Próximamente.  <a href=\"%1$s\" target=_blank>Más información</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:263
+#: frontend-notices/gifting-banner/gifting-banner.php:250
 msgid "Gift the author a WordPress.com plan."
 msgstr "Regala al autor un plan de WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:251
+#: frontend-notices/gifting-banner/gifting-banner.php:238
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Regala al autor un plan de WordPress.com antes de que caduque en %d día."
 msgstr[1] "Regala al autor un plan de WordPress.com antes de que caduque en %d días."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:240
+#: frontend-notices/gifting-banner/gifting-banner.php:227
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Regala al autor una mejora de WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: frontend-notices/gifting-banner/gifting-banner.php:200
 msgid "This site's plan has expired."
 msgstr "El plan del sitio ha caducado."
 
@@ -1277,37 +1278,37 @@ msgstr "El plan Creator <strong>%3$s</strong> caduca el día %2$s. <a href=\"%1$
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Has usado todo tu espacio disponible. Por favor, borra archivos antes de subir más."
 
-#: private-site/logged-in-banner.php:129
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "Cambiar el tema"
 
-#: private-site/logged-in-banner.php:128
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "Cambiar"
 
-#: private-site/logged-in-banner.php:115
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "Editar página"
 
-#: private-site/logged-in-banner.php:115
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "Editar entrada"
 
-#: private-site/logged-in-banner.php:114
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "Editar"
 
-#: private-site/logged-in-banner.php:165
+#: private-site/logged-in-banner.php:163
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "Mi página de inicio"
 
-#: private-site/logged-in-banner.php:88
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr "Publica tu web"
 
-#: private-site/logged-in-banner.php:84
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "Actualizar"
 
@@ -1331,7 +1332,7 @@ msgstr "El plan Starter para <strong>%3$s</strong> caduca el día %2$s. <a href=
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Actualmente, estás usando PHP <strong>%1$s</strong>, que ya no tendrá actualizaciones de seguridad a partir del día %2$s. Actualiza a la versión PHP %3$s o superior cambiando tus <a href=\"%4$s\">ajustes de alojamiento</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:219
+#: frontend-notices/gifting-banner/gifting-banner.php:206
 msgid "Enjoy this site?"
 msgstr "¿Te gusta este sitio?"
 
@@ -1361,7 +1362,7 @@ msgstr "Solo con proxy: puedes ver esto porque tienes proxy. No lo utilices si n
 msgid "You do not have permission to access this page."
 msgstr "No tienes autorización para acceder a esta página"
 
-#: feature-plugins/masterbar.php:106
+#: feature-plugins/masterbar.php:105
 msgid "Set your color scheme on WordPress.com."
 msgstr "Establece tu combinación de colores en WordPress.com."
 
@@ -1382,9 +1383,9 @@ msgstr "WordPress.com proporcionaba funcionalidades y herramientas preinstaladas
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:505
-#: feature-plugins/managed-plugins.php:516
-#: feature-plugins/managed-plugins.php:527
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
 msgid "Updates managed by WordPress.com"
 msgstr "WordPress.com gestiona estas mejoras"
 
@@ -1427,56 +1428,57 @@ msgstr "Cuota de espacio del disco"
 msgid "Disk space used"
 msgstr "Espacio del disco utilizado"
 
-#: widgets/class-wpcom-category-cloud-widget.php:179
+#: widgets/class-wpcom-category-cloud-widget.php:210
 msgid "Click for more information"
 msgstr "Haz clic para obtener más información"
 
-#: widgets/class-wpcom-category-cloud-widget.php:178
+#: widgets/class-wpcom-category-cloud-widget.php:208
 msgid "Count items in sub-categories toward parent total."
 msgstr "Incluye los elementos de las subcategorías en el recuento del total superior."
 
-#: widgets/class-wpcom-category-cloud-widget.php:168
+#: widgets/class-wpcom-category-cloud-widget.php:200
 msgid "Maximum font percentage:"
 msgstr "Porcentaje Máximo de Fuente:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:161
+#: widgets/class-wpcom-category-cloud-widget.php:194
 msgid "Minimum font percentage:"
 msgstr "Porcentaje de fuente mínima:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:156
+#: widgets/class-wpcom-category-cloud-widget.php:189
 msgid "Category IDs, separated by commas"
 msgstr "Identificadores de categorías separados por comas"
 
-#: widgets/class-wpcom-category-cloud-widget.php:153
+#: widgets/class-wpcom-category-cloud-widget.php:187
 msgid "Exclude:"
 msgstr "Excluir:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:146
+#: widgets/class-wpcom-category-cloud-widget.php:181
 msgid "Maximum number of categories to show:"
 msgstr "Número máximo de categorías para mostrar:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:117
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
 msgstr "Si usas más <a href=\"%s\">categorías</a> en tu sitio, aparecerán aquí."
 
-#: widgets/class-wpcom-category-cloud-widget.php:18
+#: widgets/class-wpcom-category-cloud-widget.php:29
 msgid "Your most used categories in cloud format."
 msgstr "Las categorias más utilizado en una nube."
 
-#: widgets/class-wpcom-category-cloud-widget.php:16
-#: widgets/class-wpcom-category-cloud-widget.php:45
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
 msgid "Category Cloud"
 msgstr "Nube de categorías"
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack está desconectado y el sitio es privado. Vuelve a conectar Jetpack para gestionar la configuración de visibilidad del sitio."
 
-#: private-site/logged-in-banner.php:83
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Actualiza la visibilidad"
 
-#: private-site/logged-in-banner.php:87
+#: private-site/logged-in-banner.php:85
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Publicar el sitio web"
@@ -1622,51 +1624,51 @@ msgstr "Muestra tus últimas fotos Instagram."
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:159
+#: widgets/class-aboutme-widget.php:148
 msgid "Biography"
 msgstr "Biografía"
 
-#: widgets/class-aboutme-widget.php:152
+#: widgets/class-aboutme-widget.php:141
 msgid "Headline"
 msgstr "Titular"
 
-#: widgets/class-aboutme-widget.php:145
+#: widgets/class-aboutme-widget.php:134
 msgid "Photo"
 msgstr "Foto"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:130
 msgid "Don't Display Name"
 msgstr "No mostrar el nombre"
 
-#: widgets/class-aboutme-widget.php:139
+#: widgets/class-aboutme-widget.php:128
 msgid "Display Small"
 msgstr "Mostrar tamaño pequeño"
 
-#: widgets/class-aboutme-widget.php:137
+#: widgets/class-aboutme-widget.php:126
 msgid "Display Medium"
 msgstr "Mostrar tamaño mediano"
 
-#: widgets/class-aboutme-widget.php:135
+#: widgets/class-aboutme-widget.php:124
 msgid "Display Large"
 msgstr "Mostrar tamaño grande"
 
-#: widgets/class-aboutme-widget.php:133
+#: widgets/class-aboutme-widget.php:122
 msgid "Display X-Large"
 msgstr "Mostrar tamaño extra grande"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:111
 msgid "Your about.me URL"
 msgstr "Tu URL de about.me"
 
-#: widgets/class-aboutme-widget.php:115
+#: widgets/class-aboutme-widget.php:104
 msgid "Widget title"
 msgstr "Nombre de Widget"
 
-#: widgets/class-aboutme-widget.php:106
+#: widgets/class-aboutme-widget.php:97
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "El widget about.me dejará de estar disponible a partir del 1 de julio de 2016. A partir del entonces, el widget mostrará un simple enlace de texto a tu perfil de about.me. Elimina este widget."
 
-#: widgets/class-aboutme-widget.php:40
+#: widgets/class-aboutme-widget.php:41
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
 msgstr "El widget about.me ya no está disponible. Para eliminarlo, <a href=\"%s\">revisa los ajustes</a>. Este mensaje no se muestra a los visitantes de tu sitio."
 
@@ -1687,71 +1689,71 @@ msgstr "Mostrar tu perfil de about.me en miniatura"
 msgid "Unable to fetch the requested data."
 msgstr "No se pueden recuperar los datos solicitados."
 
-#: footer-credit/theme-optimizations.php:37
+#: footer-credit/theme-optimizations.php:59
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Crea un blog o un sitio web gratuitos con WordPress.com"
 
-#: footer-credit/theme-optimizations.php:32
+#: footer-credit/theme-optimizations.php:54
 msgid "Create a free website at WordPress.com"
 msgstr "Crea un sitio web gratuito con WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:102
+#: footer-credit/footer-credit/footer-credit.php:104
 msgid "Powered by WordPress.com"
 msgstr "Ofrecido por WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
-#: footer-credit/footer-credit/footer-credit.php:99
-#: footer-credit/theme-optimizations.php:30
-#: footer-credit/theme-optimizations.php:35
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:52
+#: footer-credit/theme-optimizations.php:57
 msgid "Blog at WordPress.com"
 msgstr "Blog de WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/footer-credit/footer-credit.php:102
 msgid "A WordPress.com Website"
 msgstr "Un sitio web WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:101
 msgid "WordPress.com Logo"
 msgstr "Logo de WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:40
-#: footer-credit/footer-credit/footer-credit.php:206
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
 msgid "Create a website or blog at WordPress.com"
 msgstr "Crea un sitio web o blog en WordPress.com"
 
-#: footer-credit/footer-credit/customizer.php:85
+#: footer-credit/footer-credit/customizer.php:103
 msgid "Footer Credit"
 msgstr "Créditos a pie de página"
 
-#: footer-credit/footer-credit/customizer.php:62
+#: footer-credit/footer-credit/customizer.php:80
 msgid "Upgrade to Business"
 msgstr "Actualiza a la versión Business"
 
-#: footer-credit/footer-credit/customizer.php:54
+#: footer-credit/footer-credit/customizer.php:72
 msgid "Hide (Business Plan Required)"
 msgstr "Ocultar (se necesita un plan Business)"
 
-#: footer-credit/footer-credit/customizer.php:52
+#: footer-credit/footer-credit/customizer.php:70
 msgid "Hide"
 msgstr "Ocultar"
 
-#: footer-credit/footer-credit/customizer.php:41
+#: footer-credit/footer-credit/customizer.php:59
 msgid "Default"
 msgstr "Por Defecto"
 
-#: footer-credit/footer-credit-optimizations.php:161
+#: footer-credit/footer-credit-optimizations.php:171
 msgid "Design by"
 msgstr "Diseño de"
 
-#: footer-credit/footer-credit-optimizations.php:149
+#: footer-credit/footer-credit-optimizations.php:157
 msgid "by"
 msgstr "por"
 
-#: footer-credit/footer-credit-optimizations.php:132
+#: footer-credit/footer-credit-optimizations.php:138
 msgid "Theme"
 msgstr "Tema"
 
-#: footer-credit/footer-credit-optimizations.php:116
+#: footer-credit/footer-credit-optimizations.php:119
 msgid "Proudly powered by WordPress"
 msgstr "Creado con orgullo con WordPress"
 
@@ -1779,7 +1781,7 @@ msgstr "Guardar"
 msgid "Activate &amp; Save"
 msgstr "Activar y guardar"
 
-#: private-site/private-site.php:179
+#: private-site/private-site.php:178
 msgid "Manage your site visibility settings"
 msgstr "Gestiona los ajustes de visibilidad de tu sitio"
 
@@ -1897,140 +1899,131 @@ msgid "Email"
 msgstr "Email"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:129
-#: widgets/class-wpcom-widget-reservations.php:22
+#: widgets/class-aboutme-widget.php:118
+#: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "Nombre"
 
-#: widgets/class-wpcom-widget-reservations.php:16
+#: widgets/class-wpcom-widget-reservations.php:33
 msgid "Reservation Inquiry"
 msgstr "Consulta acerca de una reserva"
 
-#: widgets/class-wpcom-widget-reservations.php:10
-#: widgets/class-wpcom-widget-reservations.php:15
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
 msgid "Reservations"
 msgstr "Reservas"
 
-#: widgets/class-wpcom-widget-recent-comments.php:408
+#: widgets/class-wpcom-widget-recent-comments.php:476
 msgid "Show comments from:"
 msgstr "Mostrar comentarios desde:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:403
+#: widgets/class-wpcom-widget-recent-comments.php:471
 msgid "Text background color:"
 msgstr "Color de fondo del texto:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:397
+#: widgets/class-wpcom-widget-recent-comments.php:465
 msgid "Avatar background color:"
 msgstr "Color de fondo del avatar:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:386
+#: widgets/class-wpcom-widget-recent-comments.php:454
 msgid "No Avatars"
 msgstr "Sin avatares"
 
-#: widgets/class-wpcom-widget-recent-comments.php:379
+#: widgets/class-wpcom-widget-recent-comments.php:447
 msgid "(at most 15)"
 msgstr "(15 como máximo)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:373
+#: widgets/class-wpcom-widget-recent-comments.php:441
 msgid "Number of comments to show:"
 msgstr "Número de comentarios a mostrar:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:306
+#: widgets/class-wpcom-widget-recent-comments.php:362
 msgid "There are no public comments available to display."
 msgstr "No hay comentarios públicos disponibles para mostrar."
 
-#. translators: comments widget: 1: comment author, 2: post link
-#: widgets/class-wpcom-widget-recent-comments.php:297
-#: widgets/class-wpcom-widget-recent-comments.php:330
-msgctxt "widgets"
-msgid "%1$s on %2$s"
-msgstr "%1$s en %2$s"
-
-#: widgets/class-wpcom-widget-recent-comments.php:269
+#: widgets/class-wpcom-widget-recent-comments.php:312
 msgid "Anonymous"
 msgstr "Anónimo"
 
-#: widgets/class-wpcom-widget-recent-comments.php:35
+#: widgets/class-wpcom-widget-recent-comments.php:56
 msgid "Display your site's most recent comments"
 msgstr "Mostrar los comentarios más recientes de tu sitio web."
 
-#: widgets/class-wpcom-widget-recent-comments.php:32
-#: widgets/class-wpcom-widget-recent-comments.php:152
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
 msgid "Recent Comments"
 msgstr "Comentarios recientes"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:273
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:277
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "No has puesto un Me gusta en ninguna entrada en los últimos días. Cuando lo hagas, el widget <a href=\"%s\">Entradas que me gustan</a> las mostrará."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:263
+#: widgets/class-jetpack-posts-i-like-widget.php:265
 msgid "on"
 msgstr "en"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:240
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:242
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s en %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:116
+#: widgets/class-jetpack-posts-i-like-widget.php:117
 msgid "Author's likes to display:"
 msgstr "Los me gusta del autor para mostrar:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "Grid"
 msgstr "Rejilla"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:97
+#: widgets/class-jetpack-posts-i-like-widget.php:98
 msgid "List"
 msgstr "Lista"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:95
+#: widgets/class-jetpack-posts-i-like-widget.php:96
 msgid "Display as:"
 msgstr "Mostrar como:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:90
+#: widgets/class-jetpack-posts-i-like-widget.php:91
 msgid "Number of posts to show (1 to 15):"
 msgstr "Número de entradas que se mostrarán (de 1 a 15):"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:27
+#: widgets/class-jetpack-posts-i-like-widget.php:22
 msgid "A list of the posts I most recently liked"
 msgstr "Una lista con las publicaciones que te han gustado recientemente."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:25
-#: widgets/class-jetpack-posts-i-like-widget.php:32
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
 msgid "Posts I Like"
 msgstr "Entradas que me gustan"
 
-#: widgets/class-music-player-widget.php:91
+#: widgets/class-music-player-widget.php:96
 msgid "Choose songs"
 msgstr "Elegir canciones"
 
-#: widgets/class-music-player-widget.php:19
-#: widgets/class-music-player-widget.php:96
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
 msgid "Music Player"
 msgstr "Reproductor de música"
 
-#: widgets/class-music-player-widget.php:17
+#: widgets/class-music-player-widget.php:16
 msgid "A multi-song music player"
 msgstr "Un reproductor de múltiples canciones"
 
-#: widgets/class-jetpack-i-voted-widget.php:36
+#: widgets/class-jetpack-i-voted-widget.php:30
 msgid "I Voted"
 msgstr "He votado"
 
-#: widgets/class-jetpack-i-voted-widget.php:33
+#: widgets/class-jetpack-i-voted-widget.php:27
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "Muestra a tus lectores que has votado con una pegatina \"He votado\"."
 
-#: widgets/class-gravatar-widget.php:204
-msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr "Puede modificar su Gravatar desde su <a href=\"/wp-admin/profile.php\">página de perfil</a>."
-
-#: widgets/class-gravatar-widget.php:203
+#: widgets/class-gravatar-widget.php:200
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Texto mostrado después del Gravatar. Esto es opcional y puede servir para describirte a ti mismo o la temática de tu blog."
 
-#: widgets/class-gravatar-widget.php:202
+#: widgets/class-gravatar-widget.php:199
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Enlace Gravatar. Es una URL opcional que se usará cuando alguien haga clic en tu Gravatar:"
 
@@ -2038,120 +2031,121 @@ msgstr "Enlace Gravatar. Es una URL opcional que se usará cuando alguien haga c
 msgid "Gravatar alignment:"
 msgstr "Alineación de Gravatar:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:178
 msgid "Size:"
 msgstr "Tamaño:"
 
-#: widgets/class-gravatar-widget.php:172
+#: widgets/class-gravatar-widget.php:175
 msgid "Custom Email Address:"
 msgstr "Dirección de correo electrónico personalizada:"
 
-#: widgets/class-gravatar-widget.php:159
+#: widgets/class-gravatar-widget.php:162
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "Selecciona un usuario o selecciona \"personalizar\" e introduce una dirección de correo personalizada."
 
-#: widgets/class-gravatar-widget.php:154
+#: widgets/class-gravatar-widget.php:157
 msgid "Center"
 msgstr "Center"
 
-#: widgets/class-gravatar-widget.php:153
+#: widgets/class-gravatar-widget.php:156
 msgid "Right"
 msgstr "Derecha"
 
-#: widgets/class-gravatar-widget.php:152
+#: widgets/class-gravatar-widget.php:155
 msgid "Left"
 msgstr "Izquierda"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
-#: widgets/class-gravatar-widget.php:151
-#: widgets/class-widget-top-clicks.php:125
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: widgets/class-gravatar-widget.php:154
+#: widgets/class-widget-top-clicks.php:162
 msgid "None"
 msgstr "Nada"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:151
 msgid "Extra Large (256 pixels)"
 msgstr "Extra Grande (256 píxeles)"
 
-#: widgets/class-gravatar-widget.php:147
+#: widgets/class-gravatar-widget.php:150
 msgid "Large (128 pixels)"
 msgstr "Grande (128 pixels)"
 
-#: widgets/class-gravatar-widget.php:146
+#: widgets/class-gravatar-widget.php:149
 msgid "Medium (96 pixels)"
 msgstr "Medio (96 pixels)"
 
-#: widgets/class-gravatar-widget.php:145
+#: widgets/class-gravatar-widget.php:148
 msgid "Small (64 pixels)"
 msgstr "Pequeña (64 pixeles)"
 
-#: widgets/class-gravatar-widget.php:102
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
 msgstr "Necesitas escoger un usuario o introducir una dirección de correo electrónico en tus ajustes del <a href=\"%s\">widget Gravatar</a>"
 
-#: widgets/class-gravatar-widget.php:25
+#: widgets/class-gravatar-widget.php:20
 msgid "Gravatar"
 msgstr "Gravatar"
 
-#: widgets/class-gravatar-widget.php:22
+#: widgets/class-gravatar-widget.php:17
 msgid "Insert a Gravatar image"
 msgstr "Insertar una imagen de Gravatar."
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:64
+#: widgets/class-wpcom-freshly-pressed-widget.php:83
 msgid "Choose an image to display in your sidebar:"
 msgstr "Elige una imagen para mostrar en tu barra lateral:"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:13
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
 msgid "Freshly Pressed"
 msgstr "Más recientes"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:10
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Mostrar un distintivo para Freshly Pressed en tu barra lateral"
 
-#: widgets/class-widget-authors-grid.php:126
-#: widgets/class-wpcom-widget-recent-comments.php:384
+#: widgets/class-widget-authors-grid.php:142
+#: widgets/class-wpcom-widget-recent-comments.php:452
 msgid "Avatar Size (px):"
 msgstr "Tamaño del avatar (px):"
 
-#: widgets/class-widget-authors-grid.php:121
+#: widgets/class-widget-authors-grid.php:137
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "Muestra todos los autores (incluidos los que no hayan escrito ninguna entrada)"
 
-#: widgets/class-gravatar-widget.php:157
-#: widgets/class-jetpack-i-voted-widget.php:70
-#: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:145
-#: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
-#: widgets/class-widget-authors-grid.php:115
-#: widgets/class-widget-top-clicks.php:47
-#: widgets/class-wpcom-category-cloud-widget.php:139
-#: widgets/class-wpcom-freshly-pressed-widget.php:60
-#: widgets/class-wpcom-tag-cloud-widget.php:129
-#: widgets/class-wpcom-widget-recent-comments.php:367
-#: widgets/class-wpcom-widget-reservations.php:38
-#: widgets/tlkio/class-tlkio-widget.php:58
+#: widgets/class-gravatar-widget.php:160
+#: widgets/class-jetpack-i-voted-widget.php:81
+#: widgets/class-jetpack-posts-i-like-widget.php:86
+#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:131
+#: widgets/class-widget-top-clicks.php:72
+#: widgets/class-wpcom-category-cloud-widget.php:175
+#: widgets/class-wpcom-freshly-pressed-widget.php:79
+#: widgets/class-wpcom-tag-cloud-widget.php:123
+#: widgets/class-wpcom-widget-recent-comments.php:435
+#: widgets/class-wpcom-widget-reservations.php:60
+#: widgets/tlkio/class-tlkio-widget.php:75
 msgid "Title:"
 msgstr "Título:"
 
-#: widgets/class-widget-authors-grid.php:51
+#: widgets/class-widget-authors-grid.php:62
 msgid "Authors"
 msgstr "Autores"
 
-#: widgets/class-widget-authors-grid.php:14
+#: widgets/class-widget-authors-grid.php:17
 msgid "Show a grid of author avatar images."
 msgstr "Mostrar una cuadrícula en las imágenes de avatar de autor."
 
-#: widgets/class-widget-authors-grid.php:11
+#: widgets/class-widget-authors-grid.php:14
 msgid "Author Grid"
 msgstr "Cuadrícula de autor"
 
-#: private-site/private-site.php:647
+#: private-site/private-site.php:650
 msgid "Private Site"
 msgstr "Sitio privado"
 
-#: private-site/private-site.php:457 private-site/private-site.php:574
-#: private-site/private-site.php:797
+#: private-site/private-site.php:460 private-site/private-site.php:577
+#: private-site/private-site.php:809
 msgid "This site is private."
 msgstr "Este sitio es privado."
 
