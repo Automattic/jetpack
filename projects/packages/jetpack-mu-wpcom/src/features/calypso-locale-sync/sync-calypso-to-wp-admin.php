@@ -53,9 +53,10 @@ function woy() {
 	// Get user locale
 	$user_data = $connection_manager->get_connected_user_data( get_current_user_id() );
 	echo var_export( $user_data, true );
+	die();
 }
 
-add_action( 'admin_init', 'woy' );
+add_action( 'load-profile.php', 'woy' );
 
 /**
  * Get Jetpack locale name.
