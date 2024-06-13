@@ -139,6 +139,15 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	useEffect( () => {
+		if ( ! isLoading && shouldShowTooltip ) {
+			recordEvent( 'jetpack_boost_card_tooltip_viewed', {
+				feature: 'jetpack-boost',
+				position: 'my-jetpack',
+			} );
+		}
+	}, [ isLoading, shouldShowTooltip, recordEvent ] );
+
 	return (
 		! isSpeedScoreError && (
 			<div className="mj-boost-speed-score">
