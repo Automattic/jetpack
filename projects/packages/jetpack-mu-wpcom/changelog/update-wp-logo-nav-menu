@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Replace the wp-admin/about.php links with a link to wp-admin/ main page. This is needed for Simple Sites where we restrict access to the about.php and contribute.php
