@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Modules;
 use WC_Product;
 use WP_Error;
 use WP_REST_Request;
@@ -19,7 +19,7 @@ use WP_REST_Server;
 
 /**
  * Registers the REST routes for Blaze Dashboard.
- * It bascially forwards the requests to the WordPress.com REST API.
+ * It basically forwards the requests to the WordPress.com REST API.
  */
 class Dashboard_REST_Controller {
 	/**
@@ -329,8 +329,8 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->is_jetpack_synced() ) {
-			return new WP_Error( 'jetpack_not_synced', 'Content not ready yet. Please try again later.' );
+		if ( ! $this->is_posts_synced() ) {
+			return new WP_Error( 'posts_not_synced', 'Content not ready yet. Please try again later.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -391,8 +391,8 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->is_jetpack_synced() ) {
-			return new WP_Error( 'jetpack_not_synced', 'Content not ready yet. Please try again later.' );
+		if ( ! $this->is_posts_synced() ) {
+			return new WP_Error( 'posts_not_synced', 'Content not ready yet. Please try again later.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -901,11 +901,19 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Check if the Jetpack is sync.
+	 * Check if the posts are synced.
 	 *
-	 * @return bool True if is sync false otherwise.
+	 * @return bool True if is sync, false otherwise.
 	 */
-	private function is_jetpack_synced(): bool {
-		return Health::STATUS_IN_SYNC === Health::get_status();
+	private function is_posts_synced(): bool {
+
+		/** The Full Sync Module.
+		 *
+		 * @var \Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module
+		 */
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		$posts_config     = (int) $full_sync_module->get_status()['config']['posts'] ?? 0;
+
+		return 1 === $posts_config;
 	}
 }
