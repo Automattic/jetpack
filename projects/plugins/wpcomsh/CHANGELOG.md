@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.12 - 2024-06-13
+### Other Changes
+- Update language files.
+
 ## 3.22.11 - 2024-06-13
 ### Other Changes
 - Bump wpcomsh version.
