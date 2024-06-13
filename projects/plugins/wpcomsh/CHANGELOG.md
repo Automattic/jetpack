@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.10 - 2024-06-13
+## Changed
+- Update read access cookie arguments.
+
 ## 3.22.9 - 2024-06-13
 ### Fixed
 - Do not override text color if it is not set on the theme.
