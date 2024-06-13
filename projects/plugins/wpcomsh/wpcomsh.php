@@ -675,7 +675,7 @@ if ( ! function_exists( 'create_function' ) ) {
 		$namespace = 'wpcom_create_function';
 
 		do {
-			++$i;
+			$i    = ( $i ?? 0 ) + 1;
 			$name = "__{$namespace}_lambda_{$i}";
 		} while ( \function_exists( $name ) );
 
