@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.11 - 2024-06-13
+### Other Changes
+- Bump wpcomsh version.
+
 ## 3.22.10 - 2024-06-13
 ## Changed
 - Update read access cookie arguments.
