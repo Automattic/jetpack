@@ -1,3 +1,6 @@
+// This is a managed VS Code settings file.
+// It is copied into place by `tools/install-vscode-settings.sh`.
+// If you no longer want the settings managed, remove these comments.
 {
 	// Don't show these files in VS Code.
 	"files.exclude": {
