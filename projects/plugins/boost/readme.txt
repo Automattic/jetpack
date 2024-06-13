@@ -183,7 +183,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.1 - 2024-06-13
+### 3.4.2 - 2024-06-13
 #### Added
 - Critical CSS: Add a friendly error if css gen library is broken or missing.
 - Page Cache: Added cache rebuild functionality.
