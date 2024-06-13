@@ -175,7 +175,13 @@
 	height: auto;
 }
 
-#wpsc-notice-boost-migrate a.button.button-primary {
-	background-color: var(--jp-black);
-	color: var(--jp-white);
+#wpsc-notice-boost-migrate {
+	width: 80%;
+	margin: 0 auto;
+	margin-top: 10px;
+
+	a.button.button-primary {
+		background-color: var(--jp-black);
+		color: var(--jp-white);
+	}
 }
