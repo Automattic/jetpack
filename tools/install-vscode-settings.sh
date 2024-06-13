@@ -10,25 +10,34 @@
 # Go to monorepo root.
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-# Abort if settings file already exists.
-if [[ -f .vscode/settings.json ]]; then
-	echo "Settings file exists; aborting."
-	exit
-fi
+template_file=.vscode/settings.dist.jsonc
+dest_file=.vscode/settings.json
 
 # Abort if repo settings file is missing.
-if [[ ! -f .vscode/settings.dist.json ]]; then
+if [[ ! -f "$template_file" ]]; then
 	echo "Repo settings template is missing; aborting."
 	exit 1
 fi
 
-# Create symlink.
-cp .vscode/settings.dist.json .vscode/settings.json
+# Abort if settings file already exists and managed comment is missing.
+managed_comment='// This is a managed VS Code settings file.'
+if [[ -f "$dest_file" ]]; then
+	if diff -q "$template_file" "$dest_file" > /dev/null; then
+		echo 'Managed settings are up to date; no changes needed.'
+		exit
+  elif [[ $(head -1 "$dest_file") != "$managed_comment" ]]; then
+		echo "Custom settings file; aborting."
+		exit
+	fi
+fi
+
+# Copy file into place.
+cp "$template_file" "$dest_file"
 
 # Verify success.
-if [[ ! -f .vscode/settings.json ]]; then
-	echo "Failed to create settings file!"
+if [[ ! -f "$dest_file" ]] || ! diff -q "$template_file" "$dest_file" > /dev/null; then
+	echo "Error copying settings into place!"
 	exit 2
 fi
 
-echo "Copied VS Code settings into place: .vscode/settings.json"
+echo "Copied managed settings into place."
