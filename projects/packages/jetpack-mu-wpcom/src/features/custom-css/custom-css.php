@@ -7,7 +7,7 @@
  *
  * @since 4.4.2
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-mu-wpcom
  */
 
 use Automattic\Jetpack\Assets;
