@@ -32,7 +32,10 @@ function wpcom_admin_interface_display() {
 	echo '</fieldset>';
 }
 
-if ( ! empty( get_option( 'wpcom_classic_early_release' ) ) || ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+if (
+	! empty( get_option( 'wpcom_classic_early_release' ) ) ||
+	( function_exists( 'wpcom_is_simple_classic_released' ) && wpcom_is_simple_classic_released() ) ||
+	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
 
