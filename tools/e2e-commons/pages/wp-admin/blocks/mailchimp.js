@@ -50,8 +50,8 @@ export default class MailchimpBlock extends EditorCanvas {
 		} else {
 			logger.step( `Connecting Mailchimp` );
 
-			const formSelector = await this.canvas().waitForSelector( this.setupFormBtnSel );
-			const hrefProperty = await formSelector.getProperty( 'href' );
+			const formSelector = this.canvas().locator( this.setupFormBtnSel );
+			const hrefProperty = await formSelector.getAttribute( 'href' );
 			const connectionsUrl = await hrefProperty.jsonValue();
 			// const wpComTab = await this.clickAndWaitForNewPage( this.setupFormBtnSel );
 
@@ -105,7 +105,7 @@ export default class MailchimpBlock extends EditorCanvas {
 			await this.canvas().click( this.recheckConnectionLnkSel );
 		}
 
-		await this.canvas().waitForSelector( this.joinBtnSel );
+		await this.canvas().locator( this.joinBtnSel ).waitFor();
 	}
 
 	/**
@@ -141,9 +141,9 @@ export default class MailchimpBlock extends EditorCanvas {
 		const submitSelector = containerSelector + " button[type='submit']";
 		const consentSelector = containerSelector + ' #wp-block-jetpack-mailchimp_consent-text';
 
-		await page.waitForSelector( containerSelector );
-		await page.waitForSelector( emailSelector );
-		await page.waitForSelector( submitSelector );
-		await page.waitForSelector( consentSelector );
+		await page.locator( containerSelector ).waitFor();
+		await page.locator( emailSelector ).waitFor();
+		await page.locator( submitSelector ).waitFor();
+		await page.locator( consentSelector ).waitFor();
 	}
 }

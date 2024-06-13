@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import { QUERY_STATS_COUNTS_KEY, getStatsHighlightsEndpoint } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
@@ -7,7 +8,6 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
-import { PRODUCT_STATUSES } from '../product-card/action-button';
 import StatsCards from './cards';
 
 const StatsSection = () => {

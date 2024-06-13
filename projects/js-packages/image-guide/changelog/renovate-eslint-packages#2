@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add missing `loadIgnorePatterns` in `.eslintrc`.
+
+

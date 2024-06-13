@@ -2,12 +2,11 @@
 /**
  * Display the Pay with PayPal Widget.
  *
+ * @html-template Jetpack_Simple_Payments_Widget::widget
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Simple_Payments_Widget $this';
-'@phan-var-force array $instance';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 <div class='jetpack-simple-payments-wrapper'>

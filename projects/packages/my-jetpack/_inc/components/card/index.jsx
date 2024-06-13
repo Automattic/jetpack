@@ -1,5 +1,5 @@
 import { Text } from '@automattic/jetpack-components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import styles from './style.module.scss';
@@ -7,7 +7,7 @@ import styles from './style.module.scss';
 export const CardWrapper = props => {
 	const { children, className } = props;
 
-	const containerClassName = classNames( styles.container, className );
+	const containerClassName = clsx( styles.container, className );
 
 	return <div className={ containerClassName }>{ children }</div>;
 };

@@ -17,6 +17,16 @@
 /**
  * @type {import("eslint").Linter.Config}
  */
+const restrictedPaths = [
+	'lib/sites-list',
+	'lib/mixins/data-observe',
+	{
+		name: 'classnames',
+		message:
+			"Please use `clsx` instead. It's a lighter and faster drop-in replacement for `classnames`.",
+	},
+];
+
 module.exports = {
 	parser: '@typescript-eslint/parser',
 	extends: [
@@ -106,8 +116,18 @@ module.exports = {
 		'no-extra-semi': 2,
 		'no-multiple-empty-lines': [ 2, { max: 1 } ],
 		'no-multi-spaces': 2,
-		'no-restricted-imports': [ 2, 'lib/sites-list', 'lib/mixins/data-observe' ],
-		'no-restricted-modules': [ 2, 'lib/sites-list', 'lib/mixins/data-observe' ],
+		'no-restricted-imports': [
+			2,
+			{
+				paths: restrictedPaths,
+			},
+		],
+		'no-restricted-modules': [
+			2,
+			{
+				paths: restrictedPaths,
+			},
+		],
 		'no-shadow': 2,
 		'no-spaced-func': 2,
 		'no-trailing-spaces': 2,
@@ -181,7 +201,10 @@ module.exports = {
 		'jsdoc/check-indentation': 1,
 		'jsdoc/check-param-names': 1, // Recommended
 		'jsdoc/check-syntax': 1,
-		'jsdoc/check-tag-names': 1, // Recommended
+		'jsdoc/check-tag-names': [
+			1, // Recommended
+			{ definedTags: [ 'jest-environment' ] },
+		],
 		'jsdoc/check-types': [
 			'error',
 			{

@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { translate } from '../i18n';
 import {
 	commentParent,
@@ -6,7 +7,6 @@ import {
 	isTrayOpen,
 	userLoggedIn,
 } from '../state';
-import { classNames } from '../utils';
 import { SettingsButton } from './settings-button';
 
 interface CommentFooterProps {
@@ -16,7 +16,7 @@ interface CommentFooterProps {
 export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
 	return (
 		<div
-			className={ classNames( 'verbum-footer', {
+			className={ clsx( 'verbum-footer', {
 				'logged-in': userLoggedIn.value,
 			} ) }
 		>
@@ -30,7 +30,7 @@ export const CommentFooter = ( { toggleTray }: CommentFooterProps ) => {
 					name="submit"
 					type="submit"
 					id="comment-submit"
-					className={ classNames( {
+					className={ clsx( {
 						'is-busy': isSavingComment.value,
 					} ) }
 					disabled={ isReplyDisabled.value }

@@ -2,13 +2,11 @@
 /**
  * Widget for Cookies and Consent.
  *
+ * @html-template Jetpack_EU_Cookie_Law_Widget::widget
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_EU_Cookie_Law_Widget $this';
-'@phan-var-force array $instance';
-'@phan-var-force array<string,string> $classes';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 
@@ -18,7 +16,7 @@
 	data-consent-expiration="<?php echo (int) $instance['consent-expiration']; ?>"
 	id="eu-cookie-law"
 >
-	<form method="post">
+	<form method="post" id="jetpack-eu-cookie-law-form">
 		<input type="submit" value="<?php echo esc_attr( $instance['button'] ); ?>" class="accept" />
 	</form>
 

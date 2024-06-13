@@ -1,5 +1,5 @@
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './styles.module.scss';
 
 const IconText = ( { icon, title, children } ) => {
@@ -8,7 +8,7 @@ const IconText = ( { icon, title, children } ) => {
 		[ '>', '>' ]
 	);
 
-	const wrapperClassNames = classnames( styles.column, {
+	const wrapperClassNames = clsx( styles.column, {
 		[ styles[ 'viewport-gt-small' ] ]: isBiggerThanSmall,
 		[ styles[ 'viewport-gt-medium' ] ]: isBiggerThanMedium,
 	} );

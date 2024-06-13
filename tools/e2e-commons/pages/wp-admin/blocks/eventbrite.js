@@ -26,7 +26,7 @@ export default class EventbriteBlock extends EditorCanvas {
 
 		await this.canvas().fill( inputSelector, this.embedUrl() );
 		await this.canvas().click( descriptionSelector );
-		await this.canvas().waitForSelector( '.wp-block-jetpack-eventbrite .components-sandbox' );
+		await this.canvas().locator( '.wp-block-jetpack-eventbrite .components-sandbox' ).waitFor();
 	}
 
 	getSelector( selector ) {
@@ -42,6 +42,6 @@ export default class EventbriteBlock extends EditorCanvas {
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ args.eventId }']`;
 
-		await page.waitForSelector( containerSelector );
+		await page.locator( containerSelector ).waitFor();
 	}
 }

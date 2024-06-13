@@ -165,7 +165,7 @@ class Plugin {
 	 */
 	public static function get_plugin( $slug, $no_cache = false ) {
 		$plugins = self::get_all_plugins( $no_cache );
-		return isset( $plugins[ $slug ] ) ? $plugins[ $slug ] : null;
+		return $plugins[ $slug ] ?? null;
 	}
 
 	/**
@@ -394,7 +394,7 @@ class Plugin {
 
 		// Initialize the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
 		if ( ! WP_Filesystem( $creds ) ) {
 			return new WP_Error( 'fs_api_error', __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
 		}
@@ -473,14 +473,14 @@ class Plugin {
 		// Cleanup after previous version of the beta plugin.
 		if ( $this->plugin_slug() === 'jetpack' && file_exists( WP_PLUGIN_DIR . '/jetpack-pressable-beta' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
-			$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+			$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
 			if ( ! WP_Filesystem( $creds ) ) {
 				// Any problems and we exit.
-				return new WP_error( 'Filesystem Problem' );
+				return new WP_Error( 'fs_error', 'Filesystem Problem' );
 			}
 			global $wp_filesystem;
 			if ( ! $wp_filesystem ) {
-				return new WP_error( '$wp_filesystem is not global' );
+				return new WP_Error( 'fs_error', 'global $wp_filesystem is not set' );
 			}
 
 			$working_dir = WP_PLUGIN_DIR . '/jetpack-pressable-beta';
@@ -558,7 +558,7 @@ class Plugin {
 	/**
 	 * Get the WordPress upgrader response for the plugin, if any.
 	 *
-	 * @return null|object
+	 * @return array{null|object,null|object} Either the update info + null, or null + the current (no-update) info, or double nulls if no dev version is known at all.
 	 */
 	public function dev_upgrader_response() {
 		$dev_info = $this->dev_info();
@@ -733,7 +733,7 @@ class Plugin {
 	 *
 	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
-	 * @return array|WP_Error ( $which, $info )
+	 * @return array{string,object{source:string,id:string,download_url:string,version:string,plugin_url?:string,update_date?:string}}|WP_Error ( $which, $info )
 	 * @throws InvalidArgumentException If `$source` is invalid.
 	 */
 	private function get_which_and_info( $source, $id ) {
@@ -760,8 +760,8 @@ class Plugin {
 
 			// Master case remains purely for back-compatibility (in case anyone has bookmarked URLs).
 			case 'master':
-				$source = 'trunk'; // Change source to trunk, then fall-through to the 'trunk' case.
 			case 'trunk':
+				$source   = 'trunk'; // Change source to trunk.
 				$id       = '';
 				$which    = 'dev';
 				$manifest = $this->get_manifest();
@@ -795,16 +795,16 @@ class Plugin {
 			case 'rc':
 				$which    = 'dev';
 				$manifest = $this->get_manifest();
-				if ( isset( $manifest->rc->download_url ) ) {
-					$info             = $manifest->rc;
-					$info->plugin_url = sprintf( 'https://github.com/%s/tree/%s', $this->mirror_repo(), $info->branch );
-					break;
+				if ( ! isset( $manifest->rc->download_url ) ) {
+					return new WP_Error(
+						'rc_missing',
+						// translators: %s: Plugin slug.
+						sprintf( __( 'No release candidate build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
+					);
 				}
-				return new WP_Error(
-					'rc_missing',
-					// translators: %s: Plugin slug.
-					sprintf( __( 'No release candidate build is available for %s.', 'jetpack-beta' ), $this->plugin_slug() )
-				);
+				$info             = $manifest->rc;
+				$info->plugin_url = sprintf( 'https://github.com/%s/tree/%s', $this->mirror_repo(), $info->branch );
+				break;
 
 			case 'release':
 				$which      = 'stable';

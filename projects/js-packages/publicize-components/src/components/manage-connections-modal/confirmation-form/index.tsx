@@ -53,12 +53,11 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  */
 export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
-	const { existingConnections, isCreatingConnection } = useSelect( select => {
+	const { existingConnections } = useSelect( select => {
 		const store = select( socialStore );
 
 		return {
 			existingConnections: store.getConnections(),
-			isCreatingConnection: store.isCreatingConnection(),
 		};
 	}, [] );
 
@@ -146,7 +145,16 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 				shared: formData.get( 'shared' ) === '1' ? true : undefined,
 			};
 
-			await createConnection( data );
+			const accountInfo = accounts.not_connected.find(
+				option => option.value === external_user_ID
+			);
+
+			// Do not await the connection creation to unblock the UI
+			createConnection( data, {
+				display_name: accountInfo?.label,
+				profile_picture: accountInfo?.profile_picture,
+				service_name: service.ID,
+			} );
 
 			onComplete();
 		},
@@ -156,6 +164,8 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 			keyringResult.ID,
 			onComplete,
 			service.multiple_external_user_ID_support,
+			service.ID,
+			accounts.not_connected,
 		]
 	);
 
@@ -196,6 +206,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						<div className={ styles[ 'accounts-list' ] }>
 							{ accounts.not_connected.map( ( option, index ) => {
 								return (
+									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
 									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
 										<input
 											type="radio"
@@ -259,15 +270,8 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 					{ __( 'Cancel', 'jetpack' ) }
 				</Button>
 				{ accounts.not_connected.length ? (
-					<Button
-						form="connection-confirmation-form"
-						type="submit"
-						disabled={ isCreatingConnection }
-						isLoading={ isCreatingConnection }
-					>
-						{ isCreatingConnection
-							? _x( 'Connecting…', 'Connecting a social media account', 'jetpack' )
-							: __( 'Confirm', 'jetpack' ) }
+					<Button form="connection-confirmation-form" type="submit">
+						{ __( 'Confirm', 'jetpack' ) }
 					</Button>
 				) : null }
 			</div>

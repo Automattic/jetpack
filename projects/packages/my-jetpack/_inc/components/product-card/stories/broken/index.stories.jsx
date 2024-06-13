@@ -1,7 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { arrowUp } from '@wordpress/icons';
 import React from 'react';
-import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
+import { PRODUCT_STATUSES } from '../../../../constants';
+import ProductCard from '../index.jsx';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};

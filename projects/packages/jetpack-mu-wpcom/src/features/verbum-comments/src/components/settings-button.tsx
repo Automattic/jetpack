@@ -1,5 +1,6 @@
+import clsx from 'clsx';
 import { userInfo } from '../state';
-import { classNames, hasSubscriptionOptionsVisible } from '../utils';
+import { hasSubscriptionOptionsVisible } from '../utils';
 
 interface SettingsButtonProps {
 	expanded: boolean;
@@ -20,7 +21,7 @@ export const SettingsButton = ( { expanded, toggleSubscriptionTray }: SettingsBu
 			type="button"
 			aria-pressed={ expanded }
 			aria-expanded={ expanded }
-			className={ classNames( 'user-settings-button', {
+			className={ clsx( 'user-settings-button', {
 				open: expanded,
 				'no-subscriptions': ! subscriptionOptionsVisible,
 			} ) }

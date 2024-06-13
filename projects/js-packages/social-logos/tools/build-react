@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+set -eo pipefail
+
 # Define some paths.
-src_react_dir=src/react
+src_css_dir=src/css
 dest_react_dir=build/react
 
 # Start in the right folder.
@@ -13,6 +15,9 @@ mkdir -p "$dest_react_dir"
 
 # Build files using TypeScript.
 pnpm tsc
+
+# Copy example CSS.
+cp "$src_css_dir/example.css" "$dest_react_dir"
 
 # Output.
 echo "Created React files in '$dest_react_dir'."

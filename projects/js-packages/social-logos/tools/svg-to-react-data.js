@@ -7,7 +7,7 @@ const srcDataFile = 'src/react/social-logo-data.tsx';
 const fs = require( 'fs' );
 const path = require( 'path' );
 const process = require( 'process' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const xml2js = require( 'xml2js' );
 
 // Start in the right folder.
@@ -36,7 +36,8 @@ export const SocialLogoData = [`;
 
 const files = glob.sync( svgDir + '/*.svg' );
 
-files.sort( ( a, z ) => path.basename( a, '.svg' ).localeCompare( path.basename( z, '.svg' ) ) );
+// Sort for consistency.
+files.sort();
 
 files.forEach( file => {
 	// Get logo name from SVG file
@@ -54,7 +55,9 @@ files.forEach( file => {
 			attrNameProcessors: [ kebabToCamelCase ],
 		},
 		function ( err, result ) {
-			if ( ! err ) {
+			if ( err ) {
+				throw err;
+			} else {
 				const builder = new xml2js.Builder( {
 					renderOpts: { pretty: false },
 					headless: true, //omit xml header

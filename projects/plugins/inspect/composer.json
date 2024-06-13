@@ -38,7 +38,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"skip-test-php": "tests/action-skip-test-php.sh",
 		"test-php": [
 			"@composer phpunit"
 		],

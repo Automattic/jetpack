@@ -2,7 +2,7 @@ import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
@@ -61,7 +61,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 
 	return (
 		<div
-			className={ classNames( styles[ 'example-wrapper' ], {
+			className={ clsx( styles[ 'example-wrapper' ], {
 				[ styles.small ]: isSmall,
 			} ) }
 		>

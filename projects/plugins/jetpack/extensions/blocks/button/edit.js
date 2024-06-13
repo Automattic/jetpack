@@ -6,7 +6,7 @@ import {
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import useWidth from '../../shared/use-width';
 import applyFallbackStyles from './apply-fallback-styles';
 import { IS_GRADIENT_AVAILABLE } from './constants';
@@ -36,9 +36,9 @@ export function ButtonEdit( props ) {
 		: {};
 	/* eslint-enable react-hooks/rules-of-hooks */
 
-	const blockClasses = classnames( 'wp-block-button', className );
+	const blockClasses = clsx( 'wp-block-button', className );
 
-	const buttonClasses = classnames( 'wp-block-button__link', {
+	const buttonClasses = clsx( 'wp-block-button__link', {
 		'has-background': backgroundColor.color || gradientValue,
 		[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
 		'has-text-color': textColor.color,

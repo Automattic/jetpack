@@ -1,5 +1,5 @@
 import { isMobile } from '@automattic/viewport';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
 import { debounce, noop } from 'lodash';
@@ -310,7 +310,7 @@ class Search extends React.Component {
 			spellCheck: 'false',
 		};
 
-		const searchClass = classNames( this.props.additionalClasses, this.props.dir, {
+		const searchClass = clsx( this.props.additionalClasses, this.props.dir, {
 			'is-expanded-to-container': this.props.fitsContainer,
 			'is-open': isOpenUnpinnedOrQueried,
 			'is-searching': this.props.searching,
@@ -318,8 +318,8 @@ class Search extends React.Component {
 			'dops-search': true,
 		} );
 
-		const fadeDivClass = classNames( 'dops-search__input-fade', this.props.dir );
-		const inputClass = classNames( 'dops-search__input', this.props.dir );
+		const fadeDivClass = clsx( 'dops-search__input-fade', this.props.dir );
+		const inputClass = clsx( 'dops-search__input', this.props.dir );
 
 		return (
 			<div dir={ this.props.dir || null } className={ searchClass } role="search">
