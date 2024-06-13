@@ -92,8 +92,8 @@ git rebase -i the-sha
 ## Rebase the current branch onto origin/trunk.
 git rebase origin/trunk
 
-## Push the updated branch to the forked branch. Note that using --force-with-lease won't work due to an existing GitHub CLI issue, but -force will)
-git push -force
+## Push the updated branch to the forked branch. Note that using --force-with-lease won't work due to an existing GitHub CLI issue, but --force will)
+git push --force
 ```
 
 ### Tips for common issues when merging
