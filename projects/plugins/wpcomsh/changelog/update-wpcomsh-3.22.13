@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+do not override text color if it is not set on the theme.
