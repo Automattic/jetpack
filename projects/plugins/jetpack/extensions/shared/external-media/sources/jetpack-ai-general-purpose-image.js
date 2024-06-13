@@ -8,7 +8,7 @@ function JetpackAIGeneralPurposeImage( { onClose = () => {}, onSelect } ) {
 		<GeneralPurposeImage
 			placement={ FEATURED_IMAGE_PLACEMENT_MEDIA_SOURCE_DROPDOWN }
 			onClose={ onClose }
-			onUseImage={ onSelect }
+			onSetImage={ onSelect }
 		/>
 	);
 }
