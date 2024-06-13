@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Cast to int for better PHP compatibility.
+
+
