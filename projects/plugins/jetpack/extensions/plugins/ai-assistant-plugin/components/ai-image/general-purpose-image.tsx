@@ -212,7 +212,10 @@ export default function GeneralPurposeImage( {
 					updateRequestsCount();
 					saveToMediaLibrary( image )
 						.then( savedImage => {
-							updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
+							updateImages(
+								{ libraryId: savedImage.id, libraryUrl: savedImage.url, generating: false },
+								pointer.current
+							);
 							pointer.current += 1;
 						} )
 						.catch( () => {
@@ -300,14 +303,17 @@ export default function GeneralPurposeImage( {
 		} );
 
 		const setImage = image => {
-			onSetImage?.( { id: image.libraryId, url: image.url } );
+			onSetImage?.( { id: image.id, url: image.url } );
 			handleModalClose();
 		};
 
 		// If the image is already in the media library, use it directly, if it failed for some reason
 		// save it to the media library and then use it.
 		if ( images[ current ].libraryId ) {
-			setImage( images[ current ] );
+			setImage( {
+				id: images[ current ].libraryId,
+				url: images[ current ].libraryUrl,
+			} );
 		} else {
 			saveToMediaLibrary( images[ current ].image ).then( image => {
 				setImage( image );
