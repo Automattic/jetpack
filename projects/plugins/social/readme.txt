@@ -13,8 +13,6 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 == Description ==
 ### Write once, publish everywhere.
 
-*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
-
 **Grow your following by sharing your content with Jetpack Social!**
 
 It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Tumblr. Increase your audience by engaging your site's viewers & your social followers.
