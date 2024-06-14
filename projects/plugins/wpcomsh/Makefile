@@ -108,16 +108,7 @@ i18n:
 	@ git commit $(BUILD_SRC)/languages -m "Update language files"
 
 ## tag
-tag: checkbeforetag
-	$(shell git tag v$(PLUGIN_VERSION_STRING))
-	@ echo "tag v$(PLUGIN_VERSION_STRING) added."
-	@ echo $(PUSH_TAG)
-ifeq ($(PUSH_RELEASE_TAG), true)
-	$(shell git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING))
-	@ echo "tag pushed to $(GIT_REMOTE_NAME)."
-else
-	@ echo "run 'git push $(GIT_REMOTE_NAME) v$(PLUGIN_VERSION_STRING)' before creating the release"
-endif
+tag: echo "This script is disabled, please use the 'tools/release-plugin.sh wpcomsh' script from the Monorepo root."
 
 ## CI & other testing
 test-public-access: build
