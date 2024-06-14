@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './performance-history.module.scss';
 import { useEffect } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 const PerformanceHistoryBody = () => {
 	const [ performanceHistoryState ] = useSingleModuleState( 'performance_history' );
@@ -67,6 +68,7 @@ const PerformanceHistory = () => {
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ ( value: boolean ) => {
+						recordBoostEvent( 'performance_history_panel_toggle', { status: value ? 'open' : 'close' } );
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }

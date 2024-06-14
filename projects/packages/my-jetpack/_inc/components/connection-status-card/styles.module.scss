@@ -31,8 +31,12 @@
 			border-top-style: dashed;
 		}
 
-		.disconnected {
+		.error {
 			border-color: var( --jp-red );
+		}
+
+		.warning {
+			border-color: var( --jp-yellow-40 );
 		}
 	}
 
@@ -54,6 +58,17 @@
 			&.error {
 				color: var( --jp-red );
 				fill: var( --jp-red );
+			}
+
+			&.warning {
+				color: var( --jp-yellow-40 );
+				fill: var( --jp-yellow-40 );
+			}
+
+			&.success {
+				svg {
+					fill: var( --jp-green-50 );
+				}
 			}
 		}
 	}

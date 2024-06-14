@@ -1,0 +1,50 @@
+# Files not needed to be distributed in the package.
+.gitattributes    export-ignore
+.github/          export-ignore
+package.json      export-ignore
+
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+# /src/js/example.min.js  production-include
+# Files to include in Automattic/wpcom-site-helper
+/vendor/**                                    production-include
+/vendor/autoload.php                          production-include
+/vendor/automattic/**                         production-include
+/vendor/composer/**                           production-include
+/vendor/tubalmartin/**                        production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# Remember to end all directories with `/**` to properly tag every file.
+.eslintignore                                 production-exclude
+.dockerignore                                 production-exclude
+.editorconfig                                 production-exclude
+composer.lock                                 production-exclude
+/.circleci/**                                 production-exclude
+/.gitignore                                   production-exclude
+/.phpcsignore                                 production-exclude
+/.phpcs.dir.xml                               production-exclude
+/.phpcs.dir.phpcompatibility.xml              production-exclude
+/changelog/**                                 production-exclude
+/jetpack_vendor/automattic/**/README.md       production-exclude
+/jetpack_vendor/automattic/**/src/css/*.scss  production-exclude
+/jetpack_vendor/automattic/**/composer.json   production-exclude
+/node_modules/**                              production-exclude
+/phpunit.xml.dist                             production-exclude
+/README.md                                    production-exclude
+**/*/*.md                                     production-exclude
+/vendor/automattic/**/src/css/*.scss          production-exclude
+/vendor/automattic/**/composer.json           production-exclude
+/vendor/automattic/jetpack-autoloader/**      production-exclude
+/vendor/automattic/jetpack-changelogger/**    production-exclude
+/vendor/automattic/jetpack-composer-plugin/** production-exclude
+/vendor/**/.git*                              production-exclude
+/vendor/**/.git*/**                           production-exclude
+/vendor/**/*.md                               production-exclude
+/bin/**                                       production-exclude
+/build/**                                     production-exclude
+/tests/**                                     production-exclude
+/.circleci/**                                 production-exclude
+.*ntrc                                        production-exclude
+Makefile                                      production-exclude
+*.mdown                                       production-exclude
+error_log                                     production-exclude

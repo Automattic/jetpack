@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Refactored Image CDN features to use sub modules. Add sub modules to Jetpack sync.
+
+
