@@ -35,7 +35,7 @@ test( 'Jetpack Social sidebar', async ( { page } ) => {
 		await blockEditor.waitForEditor();
 
 		logger.action( 'Close "Welcome to the block editor" dialog' );
-		await blockEditor.resolveWelcomeGuide();
+		await blockEditor.closeWelcomeGuide();
 
 		await blockEditor.setTitle( 'Jetpack Social test post' );
 	} );
