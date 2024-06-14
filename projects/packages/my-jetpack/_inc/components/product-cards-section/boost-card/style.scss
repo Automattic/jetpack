@@ -12,18 +12,16 @@ $border_radius: math.div($bar-height, 2);
     column-gap: 1em;
     margin: 8px 0 8px;
     &--letter {
-        > button {
-            all: unset;
-            font-size: var(--font-title-small);
-            font-weight: bold;
-            line-height: $bar_height;
-            color: var(--jp-green);
-            padding: 0 5px;
-            border-radius: var(--jp-border-radius);
-            cursor: pointer;
-            &:focus {
-                outline: 1px dotted var( --jp-black );
-            }
+        all: unset;
+        font-size: var(--font-title-small);
+        font-weight: bold;
+        line-height: $bar_height;
+        color: var(--jp-green);
+        padding: 0 5px;
+        border-radius: var(--jp-border-radius);
+        cursor: pointer;
+        &:focus {
+            outline: 1px dotted var( --jp-black );
         }
     }
 }

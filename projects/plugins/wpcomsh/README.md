@@ -4,8 +4,6 @@ A helper for connecting WordPress.com sites to external host infrastructure.
 
 # WordPress.com Site Helper
 
-[![PHP Lint](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml) [![WPCloud Unit Testing](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml)
-
 With the help of this mu-plugin, an Atomic site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
 ## Development
