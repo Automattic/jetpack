@@ -2,6 +2,8 @@
 // It is copied into place by `tools/install-vscode-settings.sh`.
 // If you no longer want the settings managed, remove these comments.
 {
+	// Define schema to allow auto-completion.
+	"$schema": "vscode://schemas/settings/workspace",
 	// Don't show these files in VS Code.
 	"files.exclude": {
 		"**/.DS_Store/**": true
