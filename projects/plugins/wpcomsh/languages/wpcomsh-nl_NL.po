@@ -1,0 +1,2218 @@
+# Translation of WordPress.com - Site Helper in Dutch
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-05-31 14:54:02+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: nl\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "%1$s op <a href=\"%2$s\">%3$s</a>"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:206
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "Je kan je Gravatar aanpassen op je <a href=\"%s\">profielpagina</a>."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
+msgid "Marketing"
+msgstr "Marketing"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "Je hebt geen toestemming om deze pagina te bekijken."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
+msgid "Plugins"
+msgstr "Plugins"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr "Gebruik het oude dashboard van WordPress.com om je site te beheren."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Default style"
+msgstr "Standaardstijl"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Use WP-Admin to manage your site."
+msgstr "Gebruik WP-Admin om je site te beheren."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Classic style"
+msgstr "Klassieke stijl"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
+msgid "Admin Interface Style"
+msgstr "Stijl van beheerdersinterface"
+
+#: wpcom-plugins/plugins.php:42
+msgid "Explore plugins"
+msgstr "Bekijk plugins"
+
+#: wpcom-plugins/plugins.php:40
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "Toegang tot een breed aanbod gratis en betaalde plugins die de functies en mogelijkheden van je site kunnen verbeteren."
+
+#: wpcom-plugins/plugins.php:39
+msgid "Flex your site's features with plugins"
+msgstr "Breid het functieaanbod van je site uit met plugins"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
+msgid "Theme Showcase"
+msgstr "Thema galerij"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
+msgid "Explore themes"
+msgstr "Thema's verkennen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "Duik in de wereld van WordPress.com-thema's. Ontdek de responsieve en prachtige ontwerpen die je site tot leven brengen."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
+msgid "Find the perfect theme for your site"
+msgstr "Vind het perfecte thema voor je site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Een paar pakkende worden om het commentaar van je lezers te motiveren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
+msgid "Enable blocks in comments"
+msgstr "Blokken inschakelen in reacties"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "Laat bezoekers gebruikmaken van een WordPress.com-, of Facebook-account om te reageren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "Pas je Commentaar-formulier aan met een leuke groet en kleurschema."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
+msgid "Color Scheme"
+msgstr "Kleurenschema"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
+msgid "Greeting Text"
+msgstr "Begroetingstekst"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
+msgid "Allow Blocks"
+msgstr "Blokken toestaan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Dark"
+msgstr "Donker"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Light"
+msgstr "Licht "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Transparent"
+msgstr "Transparant"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
+msgid "Launch your store"
+msgstr "Lanceer je winkel"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
+msgid "Add a domain"
+msgstr "Een domein toevoegen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
+msgid "Grow your business"
+msgstr "Laat je bedrijf groeien"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
+msgid "Collect sales tax"
+msgstr "Btw innen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
+msgid "Get paid with WooPayments"
+msgstr "Krijg betaald met WooPayments"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
+msgid "Add your products"
+msgstr "Je producten toevoegen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
+msgid "Customize your store"
+msgstr "Je winkel aanpassen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
+msgid "Sunset"
+msgstr "Zonsondergang"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
+msgid "Sakura"
+msgstr "Sakura"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
+msgid "Powder Snow"
+msgstr "Poedersneeuw"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
+msgid "Nightfall"
+msgstr "Zonsondergang"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
+msgid "Contrast"
+msgstr "Contrast"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
+msgid "Classic Dark"
+msgstr "Klassiek donker"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
+msgid "Classic Bright"
+msgstr "Classic Bright"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
+msgid "Classic Blue"
+msgstr "Classic Blue"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
+msgid "Aquatic"
+msgstr "Oceaan"
+
+#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
+msgid "Overview"
+msgstr "Overzicht"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr "Deel '%s' via Jetpack Social"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
+msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
+msgstr "Om toegang te krijgen tot instellingen voor abonnementen, domeinen, e-mails enz., klik je op 'Hosting' in de zijbalk."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
+msgid "WordPress.com"
+msgstr "WordPress.com"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
+msgid "Settings"
+msgstr "Instellingen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
+msgid "Monetize"
+msgstr "Geld verdienen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
+msgid "Monitoring"
+msgstr "Monitoring"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
+msgid "Configuration"
+msgstr "Configuratie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
+msgid "Purchases"
+msgstr "Aankopen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
+msgid "Emails"
+msgstr "E-mails"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
+msgid "Domains"
+msgstr "Domeinen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
+msgid "Add-ons"
+msgstr "Add-ons"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
+msgid "Plans"
+msgstr "Abonnementen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
+msgid "Hosting"
+msgstr "Hosting"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
+msgid "All Sites"
+msgstr "Alle sites"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
+msgid "Error: please try commenting again."
+msgstr "Fout: probeer nogmaals te reageren."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
+msgid "Error: your Facebook login has expired."
+msgstr "Fout: je Facebooklogin is verlopen."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
+msgid "Cancel reply"
+msgstr "Annuleer Reactie"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
+msgid "Leave a reply to %s"
+msgstr "Geef een reactie op %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
+msgid "Leave a comment"
+msgstr "Geef een reactie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "Mijn naam, e-mailadres en website bewaren in deze browser voor de volgende keer wanneer ik een reactie plaats."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Comment sent successfully"
+msgstr "Reactie verzonden"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Subscribe"
+msgstr "Abonneer"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Enter your email address"
+msgstr "Voer je e-mailadres in"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "Heb je interesse in updates voor blogberichten? Klik simpelweg op de onderstaande knop om op de hoogte te blijven!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Never miss a beat!"
+msgstr "Mis nooit een slag!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Continue reading"
+msgstr "Lees verder"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "Abonneer je nu om meer te lezen en toegang te krijgen tot het volledige archief."
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Discover more from %s"
+msgstr "Ontdek meer van %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Loading your comment..."
+msgstr "Je reactie laden …"
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
+msgid "We'll keep you in the loop!"
+msgstr "We houden je op de hoogte!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Optional"
+msgstr "Optioneel"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Website"
+msgstr "Website"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a reply..."
+msgstr "Schrijf een reactie..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new comments"
+msgstr "E-mails voor nieuwe reacties"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Email me new posts"
+msgstr "E-mail me nieuwe berichten"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Notify me of new posts"
+msgstr "Breng me op de hoogte van nieuwe berichten"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Weekly"
+msgstr "Wekelijks"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Comment"
+msgstr "Reactie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Reply"
+msgstr "Beantwoorden"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Daily"
+msgstr "Dagelijks"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Instantly"
+msgstr "Direct"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "(Address never made public)"
+msgstr "(Adres wordt niet getoond)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Log out"
+msgstr "Uitloggen"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
+msgid "Logged in via %s"
+msgstr "Ingelogd via %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a comment."
+msgstr "Log in om een opmerking te plaatsen."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Log in to leave a reply."
+msgstr "Log in om een reactie achter te laten."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a comment. (log in optional)"
+msgstr "Laat een reactie achter. (inloggen optioneel)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Leave a reply. (log in optional)"
+msgstr "Laat een reactie achter. (inloggen optioneel)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Website (optional)"
+msgstr "Website (optioneel)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Email (address never made public)"
+msgstr "E-mail (adres wordt niet getoond)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "Ontvang web- en mobiele meldingen voor berichten op deze site."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "Log in of geef je naam en e-mailadres op om een reactie achter te laten."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "Log in of geef je naam en e-mailadres op om een reactie achter te laten."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Write a comment..."
+msgstr "Laat een reactie achter..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "Aan de slag"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "Gebruik de begeleide importer van WordPress.com om berichten en reacties te importeren van o.a. Medium, Substack, Squarespace, en Wix."
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr "Ga naar %1$sJetpack-instellingen%2$s voor meer schrijfinstellingen van Jetpack."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
+msgid "Scheduled Updates"
+msgstr "Geplande updates"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
+msgid "Verify the email address for your domains"
+msgstr "Verifieer het e-mailadres voor je domeinen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
+msgid "Site setup"
+msgstr "Siteconfiguratie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
+msgid "Finish Sensei setup"
+msgstr "Voltooi de Sensei-installatie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
+msgid "Finish store setup"
+msgstr "Voltooi de winkelconfiguratie"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
+msgid "Update your site's design"
+msgstr "Pas het ontwerp van je site aan"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
+msgid "Enable post sharing"
+msgstr "Berichten delen inschakelen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
+msgid "Install the mobile app"
+msgstr "De mobiele app installeren"
+
+#: imports/utils/class-filerestorer.php:167
+msgid "No files are restored."
+msgstr "Geen bestanden hersteld."
+
+#: imports/utils/class-filerestorer.php:97
+msgid "No files are queued."
+msgstr "Geen bestanden in de wachtrij geplaatst."
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "Tijdelijke tabellen ontbreken."
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "Het tijdelijke voorvoegsel is gelijk aan het huidige voorvoegsel."
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "Fout met updatelinks."
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "Fout met updateberichten."
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "De site is niet gekoppeld."
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "Jetpack is niet geïnstalleerd."
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "Fout bij opslaan van whitelistopties."
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "Startpagina-URL ontbreekt."
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "Site-URL ontbreekt."
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "De site-URL is ongeldig."
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "De startpagina-URL is ongeldig."
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "SQL-import mislukt"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "SQL-bestand bestaat niet"
+
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
+msgid "No backup import found."
+msgstr "Geen back-upimport gevonden."
+
+#: imports/class-backup-import-manager.php:371
+msgid "An import is already running."
+msgstr "Er wordt al een import uitgevoerd."
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "De back-upimport is geannuleerd."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
+msgid "Next steps for your site"
+msgstr "Volgende stappen voor je site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
+msgid "Add the Subscribe Block to your site"
+msgstr "Voeg het blok Abonneren toe aan je site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
+msgid "Import existing subscribers"
+msgstr "Bestaande abonnees importeren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
+msgid "View site metrics"
+msgstr "Sitestatistieken bekijken"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
+msgid "Set up ssh"
+msgstr "SSH instellen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
+msgid "Install a custom plugin"
+msgstr "Een aangepaste plugin installeren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
+msgid "Choose a theme"
+msgstr "Kies een thema"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
+msgid "Set up an offer for your supporters"
+msgstr "Stel een aanbieding in voor je fans"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+msgid "Connect a Stripe account to collect payments"
+msgstr "Koppel een Stripe-account om betalingen te ontvangen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
+msgid "Add your About page"
+msgstr "Voeg je Over ons-pagina toe"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
+msgid "Manage your paid Newsletter plan"
+msgstr "Beheer je betaalde nieuwsbrievenabonnement"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
+msgid "Connect your social media accounts"
+msgstr "Koppel je social media-accounts"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+msgid "Manage your subscribers"
+msgstr "Je abonnees beheren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
+msgid "Write 3 posts"
+msgstr "Schrijf 3 berichten"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+msgid "Get your first 10 subscribers"
+msgstr "Krijg je eerste 10 abonnees"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+msgid "Enable subscribers modal"
+msgstr "Abonneerscherm inschakelen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Customize welcome message"
+msgstr "Welkomstbericht aanpassen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
+msgid "Earn money with your newsletter"
+msgstr "Verdien geld met je nieuwsbrief"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+msgid "Update your About page"
+msgstr "Maak je Over pagina "
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Migrate content"
+msgstr "Content migreren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
+msgid "Verify email address"
+msgstr "E-mailadres verifiëren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "Voorkomt het aanmaken van nieuwe en bewerken van bestaande berichten en pagina’s, en sluit reacties voor de hele site."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "Activeer vergrendelde modus"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "Vergrendelde modus"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "Om eigenaar te worden van de site, moet de persoon die je aanwijst contact met ons opnemen via %s met een kopie van de overlijdensakte."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "Kies iemand die voor je site zorgt als je overlijdt."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "Nalatenschapscontact"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "Betere eigendomsprotocollen"
+
+#: notices/anyone-can-register-notice.php:79
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "De <a href=\"%2$s\">‘Iedereen mag registreren’-optie</a> is momenteel actief. De huidige standaardrol is %1$s. %4$s <strong>Overweeg deze optie uit te schakelen als open registratie niet nodig is.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "De <a href=\"%2$s\">‘Iedereen mag registreren’-optie</a> is momenteel actief. De huidige standaardrol is %1$s. %4$s <a href=\"%3$s\"><strong>Overweeg deze optie uit te schakelen als open registratie niet nodig is.</strong></a>."
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "Het TAR-bestand kon niet uitgepakt worden."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "Bestandstype wordt niet ondersteund"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "Kon map niet aanmaken"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "Bestanden bestaan niet"
+
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:345
+msgid "Could not determine importer type."
+msgstr "Kon type importeur niet bepalen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
+msgid "Share your site"
+msgstr "Je site delen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+msgid "Edit a page"
+msgstr "Een pagina bewerken"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "Je site bevat premium stijlen. Upgrade nu om ze te publiceren en vele andere functies te ontgrendelen."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
+msgid "Customize your domain"
+msgstr "Personaliseer je domein"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Add a new page"
+msgstr "Nieuwe pagina toevoegen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
+msgid "Drive traffic to your site"
+msgstr "Zorg dat mensen je site bezoeken"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
+msgid "Give your site a name"
+msgstr "Geef je site een naam"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Claim your free one-year domain"
+msgstr "Haal je gratis eenjarige domein op"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
+msgctxt "verb"
+msgid "Gift"
+msgstr "Cadeau geven"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+msgid "Thumbnail"
+msgstr "Thumbnail"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "Delen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
+msgid "Upgrade plan"
+msgstr "Upgrade abonnement"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
+msgid "Create paid Newsletter"
+msgstr "Maak een betaalde nieuwsbrief"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
+msgid "Set up payment method"
+msgstr "Betaalmethode instellen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
+msgid "Choose a domain"
+msgstr "Kies een domein"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
+msgid "Launch your blog"
+msgstr "Lanceer je blog"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
+msgid "Edit site design"
+msgstr "Site-ontwerp bewerken"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
+msgid "Set up your site"
+msgstr "Configureer je site"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
+msgid "Name your blog"
+msgstr "Geef je blog een naam"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
+msgid "Personalize your site"
+msgstr "Personaliseer je website"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
+msgid "Upload your first video"
+msgstr "Upload je eerste video"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
+msgid "Set up your video site"
+msgstr "Je videosite instellen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+msgid "Launch your site"
+msgstr "Je site lanceren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
+msgid "Add links"
+msgstr "Link toevoegen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
+msgid "Personalize Link in Bio"
+msgstr "Personaliseer je Link in bio"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
+msgid "Select a design"
+msgstr "Selecteer een ontwerp"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Start writing"
+msgstr "Begin met schrijven"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Write your first post"
+msgstr "Schrijf je eerste bericht"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
+msgid "Add subscribers"
+msgstr "Abonnees toevoegen"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
+msgid "Choose a plan"
+msgstr "Kies een abonnement"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize newsletter"
+msgstr "Personaliseer je nieuwsbrief"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:189
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "Kan klasse %1$s niet laden Voeg het pakket dat het bevat toe met een composer en zorg dat je de Jetpack autoloader vereist"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Tekstdomein-aliassen moeten worden geregistreerd voor de %1$s-haak. Deze kennisgeving werd getriggerd door het %2$s-domein."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "Script \"%s\" is afhankelijk van wp-i18n maar specificeert \"tekstdomein” niet"
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "latin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "Ultra Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "Ultra Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "Ultra Bold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "Extra Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "Extra Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "Extra Bold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "Bold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "Bold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "Vet"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "Semibold Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "Semibold Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "Semibold"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "Medium Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "Medium cursief"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "Medium"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "Schuin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "Cursief"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "Standaard"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "Licht schuin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "Lichtcursief"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "Licht"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "Extra lichtschuin"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "Extra licht cursief"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "Extra licht"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "Thin Oblique"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "Thin Italic"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "Thin"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "Zeer groot"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "Groot"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "Normale grootte"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "Normaal"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "Klein"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "Klein"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "Standaard lettertype voor het thema"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "Lettertypes"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "Koppen"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "Standaard lettertype"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "Sitetitel"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "Je hebt een Typekit-kit-ID toegevoegd via onze verouderde interface. Deze wordt niet meer ondersteund. Vink het onderstaande selectievak uit en klik op Opslaan om je kit van deze blog te verwijderen en onze eenvoudige nieuwe interface voor het kiezen van lettertypen te gebruiken."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "Mazzelaar! De ontwerpers van jouw thema's kozen specifieke lettertypen die je normaalgesproken niet kan kiezen. Haal het vinkje hieronder weg en klik op \"Opslaan\" als je niet blij bent met deze lettertypen en graag andere lettertypen wilt kiezen."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "Haal het vinkje weg om"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+msgid "Spotify Feed ID"
+msgstr "Spotify Feed ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+msgid "Apple Podcasts Feed ID"
+msgstr "Apple Podcasts Feed ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+msgid "Title"
+msgstr "Titel:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+msgid "Podcast RSS Feed"
+msgstr "Podcast RSS Feed"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Spotify"
+msgstr "Luister op Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+msgid "Listen on Apple Podcasts"
+msgstr "Luister op Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "Toon informatie over je Podcast en geef je bezoekers de mogelijkheid om zich via iTunes te abonneren."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "Podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+msgid "Select iTunes category:"
+msgstr "Selecteer iTunes categorie:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+msgid "Set podcast category"
+msgstr "Stel categorie voor podcast in"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+msgid "Set podcast image"
+msgstr "Podcastafbeelding instellen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+msgid "Clean"
+msgstr "Wissen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+msgid "Yes"
+msgstr "Ja"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+msgid "No"
+msgstr "Nee"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+msgid "Set podcast as explicit"
+msgstr "Stel podcast als expliciet in"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+msgid "Set podcast copyright"
+msgstr "Podcast copyright instellen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+msgid "Set podcast summary"
+msgstr "Stel podcastoverzicht in"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+msgid "Set podcast author"
+msgstr "Auteur van podcast instellen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+msgid "Set podcast title"
+msgstr "Podcasttitel instellen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "Dit is de URL die je naar iTunes of podcastservice verzendt."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+msgid "Your podcast feed: %1$s"
+msgstr "Je podcastfeed: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+msgid "Select podcast category:"
+msgstr "Selecteer podcastcategorie:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+msgid "Blog category for podcasts"
+msgstr "Blogcategorie voor podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 3"
+msgstr "Podcast categorie 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast category 2"
+msgstr "Podcastcategorie 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+msgid "Podcast category 1"
+msgstr "Podcast categorie 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Podcast image"
+msgstr "Podcast-afbeelding"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Mark as explicit"
+msgstr "Als grof taalgebruik markeren"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast copyright"
+msgstr "Podcast copyright"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast summary"
+msgstr "Podcastoverzicht"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast talent name"
+msgstr "Naam van podcasttalent"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "Podcasttitel"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "Categorie als feed instellen"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "Podcasten"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:67
+msgid "Tweets by %s"
+msgstr "Tweets van %s"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "Vervolgstappen"
+
+#: notices/anyone-can-register-notice.php:112
+msgid "This may pose a security risk to your site."
+msgstr "Dit kan een veiligheidsrisico voor je website zijn."
+
+#: notices/anyone-can-register-notice.php:106
+msgid "It allows a user to post content."
+msgstr "Hiermee kan een gebruiker inhoud plaatsen."
+
+#: notices/anyone-can-register-notice.php:100
+msgid "It allows a user to post/modify/delete all content."
+msgstr "Hiermee kan een gebruiker alle inhoud plaatsen/bewerken/verwijderen."
+
+#: notices/anyone-can-register-notice.php:94
+msgid "It allows a user control over your orders and products."
+msgstr "Hiermee geef je een gebruiker controle over jouw bestellingen en producten."
+
+#: notices/anyone-can-register-notice.php:88
+msgid "It allows a user full control over your site and its contents."
+msgstr "Hiermee geef je een gebruiker volledige controle over jouw site en de inhoud daarvan."
+
+#: imports/utils/class-fileextractor.php:64
+msgid "The ZIP file could not be extracted."
+msgstr "Het zip-bestand kon niet uitgepakt worden."
+
+#: imports/utils/class-fileextractor.php:57
+msgid "The ZIP file could not be opened."
+msgstr "Het zip-bestand kon niet geopend worden."
+
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "Het afbeeldings-CDN is uitgeschakeld omdat je site als Privé is aangemerkt. Als de miniatuurweergave van afbeeldingen niet worden weergegeven in je mediabibliotheek, kun je overschakelen naar de modus Binnenkort beschikbaar.  <a href=\"%1$s\" target=_blank>Meer informatie</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:250
+msgid "Gift the author a WordPress.com plan."
+msgstr "Geef de auteur een WordPress.com-abonnement cadeau."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:238
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Geef de auteur een WordPress.com-abonnement cadeau, voordat het abonnement over %d dag verloopt."
+msgstr[1] "Geef de auteur een WordPress.com-abonnement cadeau, voordat het abonnement over %d dagen verloopt."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:227
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Geef de auteur een WordPress.com-upgrade cadeau."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:200
+msgid "This site's plan has expired."
+msgstr "Het abonnement van deze site is verlopen."
+
+#: notices/plan-notices.php:135
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Entrepreneur-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Entrepeneur-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:109
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Pro-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Pro-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:104
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Entrepreneur-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Entrepeneur-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:99
+msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Creator-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Creator-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "Je gebruikt alle beschikbare ruimte. Verwijder bestanden voor het uploaden."
+
+#: private-site/logged-in-banner.php:127
+msgid "Change theme"
+msgstr "Thema wijzigen"
+
+#: private-site/logged-in-banner.php:126
+msgid "Change"
+msgstr "Wijzigen"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit page"
+msgstr "Pagina bewerken"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit post"
+msgstr "Bericht bewerken"
+
+#: private-site/logged-in-banner.php:112
+msgid "Edit"
+msgstr "Bewerk"
+
+#: private-site/logged-in-banner.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
+msgid "My Home"
+msgstr "Mijn startpagina"
+
+#: private-site/logged-in-banner.php:86
+msgid "Launch"
+msgstr "Opstarten"
+
+#: private-site/logged-in-banner.php:82
+msgid "Update"
+msgstr "Bijwerken"
+
+#: notices/plan-notices.php:125
+msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "Het Explorer-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Explorer-abonnement te behouden, zoals het genereren van inkomsten via je site, VideoPress en Google Analytics-ondersteuning."
+
+#: notices/plan-notices.php:120
+msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "Het Starter-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Starter-abonnement te behouden zoals 6 GB oplsagruimte, geen WordPress.com-advertenties en exclusieve content voor abonnees."
+
+#: notices/plan-notices.php:94
+msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "Het Explorer-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Explorer-abonnement te behouden, zoals het genereren van inkomsten via je site, VideoPress en Google Analytics-ondersteuning."
+
+#: notices/plan-notices.php:89
+msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "Het Starter-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Starter-abonnement te behouden zoals 6 GB oplsagruimte, geen WordPress.com-advertenties en exclusieve content voor abonnees."
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr "Je maakt momenteel gebruik van PHP <strong>%1$s</strong>, dat vanaf %2$s niet langer beveiligingsupdates zal ontvangen. Update naar PHP %3$s of hoger door je <a href=\"%4$s\">hosting-configuratie</a> aan te passen."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:206
+msgid "Enjoy this site?"
+msgstr "Vind je deze site leuk?"
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:130
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Let op! Zoekmachines worden momenteel ontmoedigd om je site te indexeren. Als je wilt dat zoekmachines je site opnemen in hun zoekresultaten, moet je je site lanceren. %1$sKlik hier%2$s om de privacyinstellingen van je site te veranderen."
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "Let op! Je site heeft momenteel de status \"Binnenkort beschikbaar\". Als je wilt dat zoekmachines je site opnemen in hun zoekresultaten, moet je je site lanceren. %1$sKlik hier%2$s om de privacyinstellingen van je site te veranderen."
+
+#: feature-plugins/class-theme-homepage-switcher.php:111
+msgid "Home"
+msgstr "Home"
+
+#: feature-plugins/class-template-first-themes.php:170
+msgid "Blog"
+msgstr "Blog"
+
+#: feature-plugins/hooks.php:244
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "Alleen geproxied: Je kan dit zien omdat jij geproxied bent. Gebruik dit niet als je niet weet waarom je je hier bevindt."
+
+#: feature-plugins/hooks.php:233
+msgid "You do not have permission to access this page."
+msgstr "Je hebt onvoldoende rechten om deze pagina op te vragen."
+
+#: feature-plugins/masterbar.php:105
+msgid "Set your color scheme on WordPress.com."
+msgstr "Stel je kleurenschema in op WordPress.com."
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "Additional CSS"
+msgstr "Extra CSS"
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "CSS"
+msgstr "CSS"
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "WordPress.com heeft functionaliteit en tools vooraf geïnstalleerd en geactiveerd op alle Atomic-sites"
+
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
+msgid "Updates managed by WordPress.com"
+msgstr "Updates beheerd door WordPress.com"
+
+#: notices/plan-notices.php:130
+msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Creator-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Creator-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:140
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Pro-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Pro-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: private-site/access-denied-preview-login-template.php:63
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr "Deze site is privé. Je moet inloggen op het voorbeeld om deze te zien."
+
+#: private-site/access-denied-preview-login-template.php:60
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr "Deze site is privé. Je moet inloggen als een gebruiker met rechten voordat je dit kunt bekijken."
+
+#: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "Start je eigen site"
+
+#: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "Bouw een website. Verkoop je spullen. Schrijf een blog. En nog veel meer."
+
+#: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Binnenkort beschikbaar"
+
+#: notices/storage-notices.php:116
+msgid "Disk space quota"
+msgstr "Schijfruimte-quota"
+
+#: notices/storage-notices.php:112
+msgid "Disk space used"
+msgstr "Schijfruimte gebruikt"
+
+#: widgets/class-wpcom-category-cloud-widget.php:210
+msgid "Click for more information"
+msgstr "Klik voor meer informatie"
+
+#: widgets/class-wpcom-category-cloud-widget.php:208
+msgid "Count items in sub-categories toward parent total."
+msgstr "Items in subcategorieën bij bovenliggend totaal rekenen."
+
+#: widgets/class-wpcom-category-cloud-widget.php:200
+msgid "Maximum font percentage:"
+msgstr "Maximum lettertype percentage: "
+
+#: widgets/class-wpcom-category-cloud-widget.php:194
+msgid "Minimum font percentage:"
+msgstr "Minimum lettertype percentage:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:189
+msgid "Category IDs, separated by commas"
+msgstr "Categorie-ID's, gescheiden door komma's"
+
+#: widgets/class-wpcom-category-cloud-widget.php:187
+msgid "Exclude:"
+msgstr "Uitsluiten:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:181
+msgid "Maximum number of categories to show:"
+msgstr "Maximaal aantal weer te geven categorieën:"
+
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
+msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
+msgstr "Als je meer <a href=\"%s\">categorieën</a> gebruikt op je site, zullen ze hier verschijnen."
+
+#: widgets/class-wpcom-category-cloud-widget.php:29
+msgid "Your most used categories in cloud format."
+msgstr "De categorieën die je het meest gebruikt in cloud-indeling."
+
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
+msgid "Category Cloud"
+msgstr "Categoriewolk"
+
+#: private-site/private-site.php:171
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "Jetpack is losgekoppeld en je site is privé. Koppel Jetpack opnieuw om zichtbaarheidsinstellingen van de site te beheren."
+
+#: private-site/logged-in-banner.php:81
+msgid "Update visibility"
+msgstr "Zichtbaarheid bijwerken"
+
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
+msgid "Launch site"
+msgstr "Site lanceren"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
+msgid "Dismiss"
+msgstr "Negeren"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "Op dit moment gebruik je <strong>%1$s</strong> van de <strong>%2$s</strong> uploadlimiet (%3$s%%)."
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter-gebruikersnaam:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "Vervang de huidige widget door de 'Twitter Timeline'-widget. Deze widget verdwijnt binnenkort en de nieuwe widget biedt veel meer aanpassingsmogelijkheden."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Twitter Updates "
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "Gelieve je Twitter-gebruikersnaam voor de <a href=\"%s\">Twitter-widget</a> te configureren."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Toon je Tweets van Twitter"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "Taxonomie:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "Het is niet mogelijk de tagwolk te tonen, daar er geen taxonomieën zijn die voor de tagwolk-widget ondersteuning bieden."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "Aantal tags tonen"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "Maximumaantal weergegeven tags"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "Aantal tags:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Tags"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Tagwolk"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "Een wolk van de meest gebruikte tags."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Tekst om tussen Tweet en tijdstempel weer te geven:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Laat volg-knop zien"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Retweets ook opnemen"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Tweets verbergen die door Publicize zijn uitgevoerd"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Verberg reacties"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Maximum aantal Tweets om te tonen:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Fout: Zorg ervoor dat je Twitter account %1$sopenbaar%2$s is."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Oeps: Twitter reageert niet. Wacht svp een paar minuten en ververs deze pagina."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Apps"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "Het kan tot %d minuten duren voordat nieuwe afbeeldingen op je site worden weergegeven."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "Aantal kolommen:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Lay-out"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "Aantal weergeven:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Afbeeldingen"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "Widget-titel"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Geen afbeeldingen van Instagram gevonden."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "Er is een fout opgetreden bij het ophalen van je afbeeldingen vanuit Instagram. Over enkele minuten wordt er een nieuwe poging gedaan."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "Laat je nieuwste Instagram-foto's zien."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/class-aboutme-widget.php:148
+msgid "Biography"
+msgstr "Biografie"
+
+#: widgets/class-aboutme-widget.php:141
+msgid "Headline"
+msgstr "Koptekst"
+
+#: widgets/class-aboutme-widget.php:134
+msgid "Photo"
+msgstr "Foto"
+
+#: widgets/class-aboutme-widget.php:130
+msgid "Don't Display Name"
+msgstr "Naam niet weergeven"
+
+#: widgets/class-aboutme-widget.php:128
+msgid "Display Small"
+msgstr "Weergeven in Small"
+
+#: widgets/class-aboutme-widget.php:126
+msgid "Display Medium"
+msgstr "Weergeven in Medium"
+
+#: widgets/class-aboutme-widget.php:124
+msgid "Display Large"
+msgstr "Weergeven in Large"
+
+#: widgets/class-aboutme-widget.php:122
+msgid "Display X-Large"
+msgstr "Weergeven in X-Large"
+
+#: widgets/class-aboutme-widget.php:111
+msgid "Your about.me URL"
+msgstr "Jouw about.me URL"
+
+#: widgets/class-aboutme-widget.php:104
+msgid "Widget title"
+msgstr "Widgettitel"
+
+#: widgets/class-aboutme-widget.php:97
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr "De widget about.me is niet meer beschikbaar na 1 juli 2016. Na deze datum geeft de widget een simpele tekstlink weer naar het about.me-profiel. Verwijder deze widget."
+
+#: widgets/class-aboutme-widget.php:41
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr "De widget about.me is niet meer beschikbaar. <a href=\"%s\">Ga naar je instellingen</a> om deze widget te verwijderen. Deze melding wordt niet getoond aan bezoekers van je site."
+
+#: widgets/class-aboutme-widget.php:20
+msgid "About.me Widget"
+msgstr "Over.mij Widget"
+
+#: widgets/class-aboutme-widget.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "Toon je over.mij profiel met miniatuurweergave"
+
+#: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
+msgid "Unable to fetch the requested data."
+msgstr "Kan de aangevraagde gegevens niet ophalen."
+
+#: footer-credit/theme-optimizations.php:59
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Maak een gratis website of blog op WordPress.com"
+
+#: footer-credit/theme-optimizations.php:54
+msgid "Create a free website at WordPress.com"
+msgstr "Maak een gratis website op WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:104
+msgid "Powered by WordPress.com"
+msgstr "Mogelijk gemaakt door WordPress.com"
+
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:52
+#: footer-credit/theme-optimizations.php:57
+msgid "Blog at WordPress.com"
+msgstr "Blog op WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:102
+msgid "A WordPress.com Website"
+msgstr "Een WordPress.com website"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "WordPress.com Logo"
+msgstr "WordPress.com logo"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
+msgid "Create a website or blog at WordPress.com"
+msgstr "Maak een website of blog op WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:103
+msgid "Footer Credit"
+msgstr "Inhoud voettekst"
+
+#: footer-credit/footer-credit/customizer.php:80
+msgid "Upgrade to Business"
+msgstr "Upgraden naar Business"
+
+#: footer-credit/footer-credit/customizer.php:72
+msgid "Hide (Business Plan Required)"
+msgstr "Verberg (Business abonnement vereist)"
+
+#: footer-credit/footer-credit/customizer.php:70
+msgid "Hide"
+msgstr "Verbergen"
+
+#: footer-credit/footer-credit/customizer.php:59
+msgid "Default"
+msgstr "Standaard"
+
+#: footer-credit/footer-credit-optimizations.php:171
+msgid "Design by"
+msgstr "Design van"
+
+#: footer-credit/footer-credit-optimizations.php:157
+msgid "by"
+msgstr "door"
+
+#: footer-credit/footer-credit-optimizations.php:138
+msgid "Theme"
+msgstr "Thema"
+
+#: footer-credit/footer-credit-optimizations.php:119
+msgid "Proudly powered by WordPress"
+msgstr "Mogelijk gemaakt door WordPress"
+
+#: customizer-fixes/customizer-fixes.php:26
+msgid "Save Settings"
+msgstr "Instellingen opslaan"
+
+#: customizer-fixes/customizer-fixes.php:25
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "Weet je zeker dat je niet-opgeslagen wijzigingen wilt verwerpen?"
+
+#: customizer-fixes/customizer-fixes.php:24
+msgid "Saved"
+msgstr "Opgeslagen"
+
+#: customizer-fixes/customizer-fixes.php:23
+msgid "Save Changes"
+msgstr "Sla Wijzigingen Op"
+
+#: customizer-fixes/customizer-fixes.php:22
+msgid "Save"
+msgstr "Opslaan"
+
+#: customizer-fixes/customizer-fixes.php:21
+msgid "Activate &amp; Save"
+msgstr "Activeren en opslaan"
+
+#: private-site/private-site.php:178
+msgid "Manage your site visibility settings"
+msgstr "De zichtbaarheidsinstellingen van je site beheren"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr "Deze plugin is geïnstalleerd door WordPress.com en biedt de functies van je abonnement."
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr "%s wordt automatisch voor je beheerd."
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Hoeveel items wil je tonen?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Op categorie filteren"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "Tonen voor reacties"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "Weergeven voor pagina's"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "Tonen voor berichten"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "Hoogst gewaardeerde"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "Een lijst met je top beoordeelde berichten, pagina's of opmerkingen."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "Top Clicks zijn berekend met behulp van 48-72 uur statistieken. Het duurt een tijdje om te veranderen."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "Te tonen URL's:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "Laat lengte zien:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "Vermeld de links op je blog waar het meest op geklikt wordt."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "Populairste koppelingen"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "Hoogte (in pixels):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "Kanaal:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io-webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "Voeg een webchat van tlk.io toe."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Tonen:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "E-mailonderwerp:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "E-mailadres ontvanger:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "Vertrek"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "Aankomst"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# Kinderen"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# Volwassenen"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Bericht"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Telefoon"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "E-mailadres"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: widgets/class-aboutme-widget.php:118
+#: widgets/class-wpcom-widget-reservations.php:39
+msgid "Name"
+msgstr "Naam"
+
+#: widgets/class-wpcom-widget-reservations.php:33
+msgid "Reservation Inquiry"
+msgstr "Reserveringsverzoek"
+
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
+msgid "Reservations"
+msgstr "Reserveringen"
+
+#: widgets/class-wpcom-widget-recent-comments.php:476
+msgid "Show comments from:"
+msgstr "Reacties weergeven van:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:471
+msgid "Text background color:"
+msgstr "Tekst achtergrond kleur:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:465
+msgid "Avatar background color:"
+msgstr "Achtergrondkleur avatar:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:454
+msgid "No Avatars"
+msgstr "Geen avatars"
+
+#: widgets/class-wpcom-widget-recent-comments.php:447
+msgid "(at most 15)"
+msgstr "(maximaal 15)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:441
+msgid "Number of comments to show:"
+msgstr "Aantal te tonen reacties:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:362
+msgid "There are no public comments available to display."
+msgstr "Er zijn geen openbare reacties beschikbaar om weer te geven."
+
+#: widgets/class-wpcom-widget-recent-comments.php:312
+msgid "Anonymous"
+msgstr "Anoniem"
+
+#: widgets/class-wpcom-widget-recent-comments.php:56
+msgid "Display your site's most recent comments"
+msgstr "Geef de meest recente reacties van je site weer"
+
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
+msgid "Recent Comments"
+msgstr "Recente reacties"
+
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:277
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "Je hebt recentelijk geen berichten geliket. Zodra je dit doet, geeft de widget <a href=\"%s\">Berichten die ik like</a> ze weer."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:265
+msgid "on"
+msgstr "op"
+
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:242
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s op %2$s"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:117
+msgid "Author's likes to display:"
+msgstr "Auteurs 'likes' te weergeven:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:99
+msgid "Grid"
+msgstr "Raster"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:98
+msgid "List"
+msgstr "Lijst"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:96
+msgid "Display as:"
+msgstr "Weergeven als"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:91
+msgid "Number of posts to show (1 to 15):"
+msgstr "Aantal weer te geven berichten (1 tot 15):"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:22
+msgid "A list of the posts I most recently liked"
+msgstr "Een lijst met de berichten die ik pas geleden leuk vond"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
+msgid "Posts I Like"
+msgstr "Berichten die ik leuk vind"
+
+#: widgets/class-music-player-widget.php:96
+msgid "Choose songs"
+msgstr "Kies liedjes"
+
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
+msgid "Music Player"
+msgstr "Muziekspeler"
+
+#: widgets/class-music-player-widget.php:16
+msgid "A multi-song music player"
+msgstr "Een muziekspeler voor meerdere songs"
+
+#: widgets/class-jetpack-i-voted-widget.php:30
+msgid "I Voted"
+msgstr "Ik heb gestemd"
+
+#: widgets/class-jetpack-i-voted-widget.php:27
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "Laat je lezers zien dat je gestemd hebt met een 'Ik heb gestemd'-sticker."
+
+#: widgets/class-gravatar-widget.php:200
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Tekst die wordt getoond na de Gravatar. Dit is optioneel en kan je gebruiken om jezelf te beschrijven of om duidelijk te maken waar je blog over gaat. "
+
+#: widgets/class-gravatar-widget.php:199
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar link. Dit is een optionele URL die wordt gebruikt wanneer men op je Gravatar klikt:"
+
+#: widgets/class-gravatar-widget.php:189
+msgid "Gravatar alignment:"
+msgstr "Gravatar uitlijning:"
+
+#: widgets/class-gravatar-widget.php:178
+msgid "Size:"
+msgstr "Grootte:"
+
+#: widgets/class-gravatar-widget.php:175
+msgid "Custom Email Address:"
+msgstr "Aangepast e-mailadres:"
+
+#: widgets/class-gravatar-widget.php:162
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "Selecteer een gebruiker of kies 'aangepast' en voer een aangepast e-mailadres in."
+
+#: widgets/class-gravatar-widget.php:157
+msgid "Center"
+msgstr "Gecentreerd"
+
+#: widgets/class-gravatar-widget.php:156
+msgid "Right"
+msgstr "Rechts"
+
+#: widgets/class-gravatar-widget.php:155
+msgid "Left"
+msgstr "Links"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: widgets/class-gravatar-widget.php:154
+#: widgets/class-widget-top-clicks.php:162
+msgid "None"
+msgstr "Geen"
+
+#: widgets/class-gravatar-widget.php:151
+msgid "Extra Large (256 pixels)"
+msgstr "Extra groot (256 pixels)"
+
+#: widgets/class-gravatar-widget.php:150
+msgid "Large (128 pixels)"
+msgstr "Groot (128 pixels)"
+
+#: widgets/class-gravatar-widget.php:149
+msgid "Medium (96 pixels)"
+msgstr "Medium (96 pixels)"
+
+#: widgets/class-gravatar-widget.php:148
+msgid "Small (64 pixels)"
+msgstr "Klein (64 pixels)"
+
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "Je moet een gebruiker of een e-mailadres in je <a href=\"%s\">Gravatar Widget</a> instellingen kiezen."
+
+#: widgets/class-gravatar-widget.php:20
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/class-gravatar-widget.php:17
+msgid "Insert a Gravatar image"
+msgstr "Voeg een Gravatar afbeelding in"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:83
+msgid "Choose an image to display in your sidebar:"
+msgstr "Kies een afbeelding om in je zijbalk weer te geven:"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
+msgid "Freshly Pressed"
+msgstr "Nieuwe berichten"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "Geef een Vers van de pers badge op je zijbalk weer"
+
+#: widgets/class-widget-authors-grid.php:142
+#: widgets/class-wpcom-widget-recent-comments.php:452
+msgid "Avatar Size (px):"
+msgstr "Avatar formaat (px):"
+
+#: widgets/class-widget-authors-grid.php:137
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Toon alle auteurs (inclusief de auteurs die geen berichten geschreven hebben)"
+
+#: widgets/class-gravatar-widget.php:160
+#: widgets/class-jetpack-i-voted-widget.php:81
+#: widgets/class-jetpack-posts-i-like-widget.php:86
+#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:131
+#: widgets/class-widget-top-clicks.php:72
+#: widgets/class-wpcom-category-cloud-widget.php:175
+#: widgets/class-wpcom-freshly-pressed-widget.php:79
+#: widgets/class-wpcom-tag-cloud-widget.php:123
+#: widgets/class-wpcom-widget-recent-comments.php:435
+#: widgets/class-wpcom-widget-reservations.php:60
+#: widgets/tlkio/class-tlkio-widget.php:75
+msgid "Title:"
+msgstr "Titel:"
+
+#: widgets/class-widget-authors-grid.php:62
+msgid "Authors"
+msgstr "Auteurs"
+
+#: widgets/class-widget-authors-grid.php:17
+msgid "Show a grid of author avatar images."
+msgstr "Toon een raster met avatarafbeeldingen van auteurs."
+
+#: widgets/class-widget-authors-grid.php:14
+msgid "Author Grid"
+msgstr "Auteur raster"
+
+#: private-site/private-site.php:650
+msgid "Private Site"
+msgstr "Privésite"
+
+#: private-site/private-site.php:460 private-site/private-site.php:577
+#: private-site/private-site.php:809
+msgid "This site is private."
+msgstr "Deze site is prive."
+
+#: private-site/access-denied-coming-soon-template.php:55
+#: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "Inloggen"
+
+#: private-site/access-denied-private-site-template.php:47
+msgid "Switch user"
+msgstr "Van gebruiker wisselen"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr "Je moet zijn ingelogd als een gebruiker die toestemming heeft om deze site te bekijken."
+
+#: privacy/class-wp-privacy-participating-plugins.php:181
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+"Opmerking: deze tool geeft alleen privacybeleidgegevens weer van\n"
+"WordPress en deelnemende plugins. Hieronder vallen niet de privacybeleidgegevens\n"
+"voor niet-deelnemende plugins. Het is jouw verantwoordelijkheid om\n"
+"privacybeleidgegevens voor niet-deelnemende plugins afzonderlijk te verkrijgen."
+
+#: privacy/class-wp-privacy-participating-plugins.php:126
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+"Opmerking: deze tool exporteert uitsluitend de persoonsgegevens die WordPress en\n"
+"deelnemende plugins hebben opgeslagen. De persoonsgegevens die niet-deelnemende plugins hebben opgeslagen\n"
+"worden niet geëxporteerd. Het is jouw verantwoordelijkheid om persoonsgegevens die\n"
+"niet-deelnemende plugins hebben opgeslagen afzonderlijk te exporteren. De geëxporteerde persoonsgegevens\n"
+"bevatten op dit moment alleen de volgende items:"
+
+#: privacy/class-wp-privacy-participating-plugins.php:74
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+"Opmerking: deze tool wist uitsluitend de persoonsgegevens die WordPress en\n"
+"deelnemende plugins hebben opgeslagen. De geregistreerde gebruikers en persoonsgegevens die\n"
+"niet-deelnemende plugins hebben opgeslagen worden niet gewist. Het is jouw verantwoordelijkheid om\n"
+"geregistreerde gebruikers en persoonsgegevens die niet-deelnemende\n"
+"plugins hebben opgeslagen te wissen. De gewiste persoonsgegevens bevatten op dit moment alleen de volgende\n"
+"items:"
+
+#: logo-tool/logo-tool.php:80
+msgid "Create logo"
+msgstr "Maak logo"
+
+#: logo-tool/logo-tool.php:68
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "Een logo toevoegen om weer te geven op je site. Geen logo? Schaf vandaag nog een professioneel logo aan. Klik op 'Logo aanmaken' om te beginnen."
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr "Sitehulp van WP.com"

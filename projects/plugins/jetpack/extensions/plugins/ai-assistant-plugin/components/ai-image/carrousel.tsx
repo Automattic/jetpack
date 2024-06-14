@@ -14,6 +14,7 @@ import './carrousel.scss';
 export type CarrouselImageData = {
 	image?: string;
 	libraryId?: number | string;
+	libraryUrl?: string;
 	generating?: boolean;
 	error?: {
 		message: string;

@@ -297,6 +297,34 @@ describe( 'bin/eslint-changed.js', () => {
 	} );
 
 	describe( 'Git mode', function () {
+		// Apparently eslint deprecated a bunch of rules still in eslint:recommended.
+		const usedDeprecatedRules = [
+			{
+				replacedBy: [],
+				ruleId: 'indent',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'quotes',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'linebreak-style',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'semi',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'no-extra-semi',
+			},
+			{
+				replacedBy: [],
+				ruleId: 'no-mixed-spaces-and-tabs',
+			},
+		];
+
 		/**
 		 * Set up a temporary directory with a git repo.
 		 *
@@ -464,7 +492,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -507,7 +535,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'console.log( "Hello, world?" );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -550,7 +578,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "console.log( '¡Hola, mundo!' )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -589,7 +617,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var x;\nconsole.log( 'Hello, world!' );\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -642,7 +670,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'var x = 1;\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, 'modified.js' ),
@@ -670,7 +698,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: 'var x = \'Hello\';\nx += ", world!";\nconsole.log( x );\n',
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -712,7 +740,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, '2.js' ),
@@ -747,7 +775,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -801,7 +829,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 				{
 					filePath: path.join( tmpdir, '3.js' ),
@@ -825,7 +853,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );
@@ -882,7 +910,7 @@ describe( 'bin/eslint-changed.js', () => {
 					fixableWarningCount: 0,
 					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
 					suppressedMessages: [],
-					usedDeprecatedRules: [],
+					usedDeprecatedRules,
 				},
 			];
 			expect( output ).toEqual( expectOutput );

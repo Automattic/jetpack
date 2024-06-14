@@ -83,9 +83,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async getInsertedBlock( blockName ) {
-		const blockElement = await this.canvasPage
-			.canvas()
-			.waitForSelector( this.insertedBlockSel( blockName ) );
+		const blockElement = this.canvasPage.canvas().locator( this.insertedBlockSel( blockName ) );
 		return blockElement.getAttribute( 'data-block' );
 	}
 
@@ -124,6 +122,6 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async waitForEditor() {
-		await this.canvasPage.canvas().waitForSelector( "h1[aria-label='Add title']" );
+		await this.canvasPage.canvas().locator( "h1[aria-label='Add title']" ).waitFor();
 	}
 }
