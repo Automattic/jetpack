@@ -183,20 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.2 - 2024-06-13
-#### Added
-- Critical CSS: Add a friendly error if css gen library is broken or missing.
-- Page Cache: Added cache rebuild functionality.
-- Page Cache: Allow easy migration from WPSC to Boost Cache.
-- Page Cache: Remove the advanced-cache.php when the Cache module is disabled.
-
-#### Changed
-- Critical CSS: Improve source providers collecting logic.
-- Critical CSS: Improve UI when errors are present.
-- Dependency: Remove the explicit Plugin Install dependency.
-- Dependency: Updated package dependencies.
-- Minification: Change minification library.
-- Minification: Skip files ending in `.min.js` and `.min.css` from minification.
+### 3.4.3 - 2024-06-14
+#### Fixed
+- Compatibility: Include a missing dependency required for Compatibility with WP Optimize
 
 --------
 
