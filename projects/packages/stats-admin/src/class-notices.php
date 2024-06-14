@@ -20,6 +20,7 @@ class Notices {
 	const OPT_OUT_NEW_STATS_NOTICE_ID       = 'opt_out_new_stats';
 	const NEW_STATS_FEEDBACK_NOTICE_ID      = 'new_stats_feedback';
 	const OPT_IN_NEW_STATS_NOTICE_ID        = 'opt_in_new_stats';
+	const GDPR_COOKIE_CONSENT_NOTICE_ID     = 'gdpr_cookie_consent';
 
 	const VIEWS_TO_SHOW_FEEDBACK      = 3;
 	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;
@@ -70,6 +71,10 @@ class Notices {
 		$stats_views              = intval( Stats_Options::get_option( 'views' ) );
 		$odyssey_stats_changed_at = intval( Stats_Options::get_option( 'odyssey_stats_changed_at' ) );
 
+		// Check if Jetpack is integrated with the Complianz plugin, which blocks the Stats.
+		$complianz_options_integrations = get_option( 'complianz_options_integrations' );
+		$is_jetpack_blocked_by_gdpr     = is_array( $complianz_options_integrations ) && $complianz_options_integrations['jetpack'];
+
 		return array_merge(
 			$notices_wpcom,
 			array(
@@ -87,7 +92,8 @@ class Notices {
 				self::OPT_OUT_NEW_STATS_NOTICE_ID  => $new_stats_enabled
 					&& $stats_views < self::VIEWS_TO_SHOW_FEEDBACK
 					&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
-			)
+			),
+			array( self::GDPR_COOKIE_CONSENT_NOTICE_ID => $is_jetpack_blocked_by_gdpr )
 		);
 	}
 
