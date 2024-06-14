@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fixed broken connections reconnect link to point it to new connections UI
