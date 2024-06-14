@@ -1350,7 +1350,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
-			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
 		}
 

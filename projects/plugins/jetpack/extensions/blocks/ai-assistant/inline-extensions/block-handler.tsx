@@ -27,6 +27,7 @@ export class BlockHandler {
 	public feature: string = 'ai-assistant';
 	public adjustPosition: boolean = true;
 	public startOpen: boolean = false;
+	public hideOnBlockFocus: boolean = true;
 
 	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
 		this.clientId = clientId;

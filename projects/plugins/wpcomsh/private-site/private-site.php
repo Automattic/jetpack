@@ -350,7 +350,7 @@ function get_closest_thumbnail_size_url( $args ) {
  * @return array|WP_Error
  */
 function get_read_access_cookies( $args ) {
-	$user = get_user_by( 'id', intval( $args['user_id'] ) );
+	$user = get_user_by( 'id', intval( $args[0] ) );
 	if ( ! $user ) {
 		return new WP_Error(
 			'account_not_found',
@@ -365,7 +365,7 @@ function get_read_access_cookies( $args ) {
 	add_filter(
 		'auth_cookie_expiration',
 		function () use ( $args ) {
-			return $args['expiration'];
+			return $args[1];
 		},
 		1000
 	);
@@ -377,7 +377,7 @@ function get_read_access_cookies( $args ) {
 		'set_logged_in_cookie',
 		function ( $_cookie, $args ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
 			$logged_in_cookie            = $_cookie;
-			$logged_in_cookie_expiration = $args['expiration'];
+			$logged_in_cookie_expiration = $args[1];
 		},
 		10,
 		2

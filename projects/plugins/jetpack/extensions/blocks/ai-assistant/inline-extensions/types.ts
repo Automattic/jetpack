@@ -21,6 +21,7 @@ export interface IBlockHandler {
 	feature: string;
 	adjustPosition?: boolean;
 	startOpen?: boolean;
+	hideOnBlockFocus?: boolean;
 }
 
 export type BlockEditorSelect = {

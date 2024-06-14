@@ -26,17 +26,30 @@
 		"@wordpress/browserslist-config": "6.0.0",
 		"eslint": "8.57.0",
 		"eslint-plugin-es-x": "7.7.0",
+		"globals": "15.4.0",
 		"jest": "29.7.0"
 	},
 	"peerDependencies": {
 		"eslint": ">=4.19.1",
-		"eslint-plugin-es-x": "^7.1.0"
+		"eslint-plugin-es-x": "^7.6.0",
+		"globals": ">=15.4.0"
+	},
+	"peerDependenciesMeta": {
+		"globals": {
+			"optional": true
+		}
 	},
 	"exports": {
-		".": "./src/configs/all.js",
-		"./language": "./src/configs/language.js",
-		"./builtins": "./src/configs/builtins.js",
-		"./all": "./src/configs/all.js",
+		".": "./src/eslintrc/all.js",
+		"./language": "./src/eslintrc/language.js",
+		"./builtins": "./src/eslintrc/builtins.js",
+		"./all": "./src/eslintrc/all.js",
+		"./rc/language": "./src/eslintrc/language.js",
+		"./rc/builtins": "./src/eslintrc/builtins.js",
+		"./rc/all": "./src/eslintrc/all.js",
+		"./flat/language": "./src/flatconfig/language.js",
+		"./flat/builtins": "./src/flatconfig/builtins.js",
+		"./flat/all": "./src/flatconfig/all.js",
 		"./functions": "./src/funcs.js"
 	}
 }
