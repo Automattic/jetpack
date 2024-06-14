@@ -185,7 +185,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 == Changelog ==
 ### 3.4.3 - 2024-06-14
 #### Fixed
-- Compatibility: Include a missing dependency required for Compatibility with WP Optimize
+- Compatibility: Include a missing dependency required for compatibility with WP Optimize.
 
 --------
 

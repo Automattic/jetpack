@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.4.3] - 2024-06-14
 ### Fixed
-- Compatibility: Include a missing dependency required for Compatibility with WP Optimize [#37873]
+- Compatibility: Include a missing dependency required for compatibility with WP Optimize. [#37873]
 
 ## [3.4.2] - 2024-06-13
 ### Added
