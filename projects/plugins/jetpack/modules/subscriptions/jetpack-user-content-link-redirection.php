@@ -12,13 +12,13 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
- * Render a page containing an iframe to track and redirect the user content link in emails.
+ * Render a page with an iframe to track and redirect user content links in emails.
  *
- * This function is hooked to the `init` action and will render a page containing an iframe
- * pointing to subscribe.wordpress.com which will track and return the destination url for the
- * iframe parent to redirect to.
- * This function will redirect to the home page if the request is missing the required parameters.
- * This function will return a 400 error if the request blog_id does not match the actual blog_id.
+ * Hooked to the `init` action, this function renders a page with an iframe pointing to
+ * subscribe.wordpress.com to track and return the destination URL for redirection.
+ *
+ * Redirects to the site's home page if required parameters are missing.
+ * Returns a 400 error if the request's `blog_id` doesn't match the actual `blog_id`.
  *
  * @return never
  */
