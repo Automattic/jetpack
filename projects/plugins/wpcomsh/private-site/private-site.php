@@ -9,7 +9,6 @@
 namespace Private_Site;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
-use Automattic\Jetpack\Status;
 use Jetpack;
 use WP_Error;
 use WP_REST_Request;
@@ -65,7 +64,6 @@ function admin_init() {
 	 * @see https://github.com/WordPress/wordpress-develop/blob/fd479f953731bbf522b32b9d95eeb68bc455c418/src/wp-admin/options-reading.php#L178-L202
 	 */
 	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
-		add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
 		// Prevent wp-admin from touching blog_public option.
 		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
 	}
@@ -160,40 +158,6 @@ function muplugins_loaded() {
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
 add_action( 'muplugins_loaded', '\Private_Site\muplugins_loaded' );
-
-/**
- * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
- */
-function privatize_blog_priv_selector() {
-	$has_jetpack_connection = is_jetpack_connected();
-
-	if ( ! $has_jetpack_connection && site_is_private() ) {
-		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'wpcomsh' );
-	} elseif ( ! $has_jetpack_connection || ! class_exists( 'Status' ) ) {
-		return;
-	} else {
-		$status          = new Status();
-		$site_slug       = $status->get_site_suffix();
-		$settings_url    = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
-		$manage_label    = __( 'Manage your site visibility settings', 'wpcomsh' );
-		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
-	}
-
-	?>
-<noscript>
-<p><?php echo wp_kses_post( $escaped_content ); ?></p>
-</noscript>
-<script>
-( function() {
-	var widgetArea = document.querySelector( '.option-site-visibility td' );
-	if ( ! widgetArea ) {
-		return;
-	}
-	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ); ?>';
-} )()
-</script>
-		<?php
-}
 
 /**
  * Fetches an option from the Jetpack cloud site.
@@ -386,7 +350,7 @@ function get_closest_thumbnail_size_url( $args ) {
  * @return array|WP_Error
  */
 function get_read_access_cookies( $args ) {
-	$user = get_user_by( 'id', intval( $args['user_id'] ) );
+	$user = get_user_by( 'id', intval( $args[0] ) );
 	if ( ! $user ) {
 		return new WP_Error(
 			'account_not_found',
@@ -401,7 +365,7 @@ function get_read_access_cookies( $args ) {
 	add_filter(
 		'auth_cookie_expiration',
 		function () use ( $args ) {
-			return $args['expiration'];
+			return $args[1];
 		},
 		1000
 	);
@@ -413,7 +377,7 @@ function get_read_access_cookies( $args ) {
 		'set_logged_in_cookie',
 		function ( $_cookie, $args ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
 			$logged_in_cookie            = $_cookie;
-			$logged_in_cookie_expiration = $args['expiration'];
+			$logged_in_cookie_expiration = $args[1];
 		},
 		10,
 		2

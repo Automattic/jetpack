@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-14 20:10:07+0000\n"
+"PO-Revision-Date: 2024-05-29 09:54:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,30 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ja_JP\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "<a href=\"%2$s\">%3$s</a> に対する %1$s"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:206
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "<a href=\"%s\">プロフィールページ</a>から Gravatar を編集できます。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
+msgid "Marketing"
+msgstr "マーケティング"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "このページにアクセスする権限がありません。"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
@@ -34,7 +58,7 @@ msgstr "クラシックスタイル"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
 msgid "Admin Interface Style"
-msgstr ""
+msgstr "管理インターフェースのスタイル"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -64,11 +88,6 @@ msgstr "WordPress.com テーマの詳細を確認します。 サイトに生命
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
 msgid "Find the perfect theme for your site"
 msgstr "サイトにぴったりなテーマを見つけましょう"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Connections"
-msgstr "連携"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
 msgid "A few catchy words to motivate your readers to comment"
@@ -246,7 +265,7 @@ msgstr "プラン"
 msgid "Hosting"
 msgstr "ホスティング"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:197
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
 msgid "All Sites"
 msgstr "すべてのサイト"
 
@@ -438,8 +457,6 @@ msgstr "WordPress.com のガイド付きインポーターを使用して、Medi
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Jetpack のその他の投稿設定は、%1$s「Jetpack 設定」%2$sにアクセスしてください。"
 
-#: feature-plugins/scheduled-updates.php:37
-#: feature-plugins/scheduled-updates.php:38
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
 msgid "Scheduled Updates"
@@ -449,7 +466,7 @@ msgstr "更新を予約しました"
 msgid "Verify the email address for your domains"
 msgstr "ドメインのメールアドレスを確認"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
 msgid "Site setup"
 msgstr "サイトのセットアップ"
 
@@ -473,11 +490,11 @@ msgstr "投稿のシェアを有効化"
 msgid "Install the mobile app"
 msgstr "モバイルアプリをインストール"
 
-#: imports/utils/class-filerestorer.php:168
+#: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
 msgstr "復元されたファイルはありません。"
 
-#: imports/utils/class-filerestorer.php:98
+#: imports/utils/class-filerestorer.php:97
 msgid "No files are queued."
 msgstr "待機リストにファイルはありません。"
 
@@ -533,12 +550,12 @@ msgstr "SQL インポートに失敗しました"
 msgid "SQL file not exists"
 msgstr "SQL ファイルが存在しません"
 
-#: imports/class-backup-import-manager.php:389
-#: imports/class-backup-import-manager.php:430
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
 msgid "No backup import found."
 msgstr "バックアップインポートが見つかりません。"
 
-#: imports/class-backup-import-manager.php:375
+#: imports/class-backup-import-manager.php:371
 msgid "An import is already running."
 msgstr "インポートはすでに実行中です。"
 
@@ -674,7 +691,7 @@ msgstr "レガシーの連絡先"
 msgid "Enhanced Ownership"
 msgstr "所有権の強化"
 
-#: notices/anyone-can-register-notice.php:78
+#: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "現在、<a href=\"%2$s\">「誰でも登録可能」オプション</a>が有効になっています。 現在のデフォルト権限グループは%1$sです。 %4$s <strong>登録を公開する必要がない場合はこのオプションを無効にすることをご検討ください。<strong>"
 
@@ -699,7 +716,7 @@ msgid "File not exists"
 msgstr "ファイルが存在しません"
 
 #: imports/class-backup-import-manager.php:326
-#: imports/class-backup-import-manager.php:349
+#: imports/class-backup-import-manager.php:345
 msgid "Could not determine importer type."
 msgstr "インポーターのタイプを特定できませんでした"
 
@@ -736,8 +753,8 @@ msgstr "サイトに名前を付けてください。"
 msgid "Claim your free one-year domain"
 msgstr "1年間無料のドメインを取得する"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:148
-#: frontend-notices/gifting-banner/gifting-banner.php:173
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "おくる"
@@ -835,7 +852,7 @@ msgstr "プランを選択"
 msgid "Personalize newsletter"
 msgstr "ニュースレターをカスタマイズ"
 
-#: vendor/automattic/jetpack-config/src/class-config.php:135
+#: vendor/automattic/jetpack-config/src/class-config.php:189
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "クラス %1$s を読み込めません。Composer を使用してそれを含むパッケージを追加し、Jetpack autoloader が必要であることを確認してください"
 
@@ -1046,27 +1063,27 @@ msgstr "お使いのテーマのデザイナーが、他のテーマでは使用
 msgid "Uncheck to disable"
 msgstr "チェックを外して無効化"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
 msgid "Spotify Feed ID"
 msgstr "Spotify フィード ID"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
 msgid "Apple Podcasts Feed ID"
 msgstr "Apple Podcasts フィード ID"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
 msgid "Title"
 msgstr "タイトル:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
 msgid "Podcast RSS Feed"
 msgstr "ポッドキャスト RSS フィード"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Spotify"
 msgstr "Spotify で視聴する"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
 msgid "Listen on Apple Podcasts"
 msgstr "Apple Podcasts で聴く"
 
@@ -1078,113 +1095,97 @@ msgstr "ポッドキャストについての情報を表示し、訪問者が iT
 msgid "Podcast"
 msgstr "ポッドキャスト"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
 msgid "Select iTunes category:"
 msgstr "iTunes カテゴリーを選択:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
 msgid "Set podcast category"
 msgstr "ポッドキャスト用のカテゴリーを設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
-msgid "Set podcast keywords"
-msgstr "ポッドキャストのキーワードを設定"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
 msgid "Set podcast image"
 msgstr "ポッドキャストの画像を設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
 msgstr "クリーン"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"
 msgstr "はい"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
 msgid "No"
 msgstr "いいえ"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
 msgid "Set podcast as explicit"
 msgstr "ポッドキャストを成人向けとして設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
 msgid "Set podcast copyright"
 msgstr "ポッドキャストの著作権表示を設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
 msgid "Set podcast summary"
 msgstr "ポッドキャストの概要文を設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
 msgid "Set podcast author"
 msgstr "ポッドキャスト作者を設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
-msgid "Set podcast subtitle"
-msgstr "ポッドキャストのサブタイトルを設定"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
 msgid "Set podcast title"
 msgstr "ポッドキャストのタイトルを設定"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "これは iTunes またはポッドキャストサービスに送信する URL です。"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
 msgid "Your podcast feed: %1$s"
 msgstr "Podcast フィード: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
 msgid "Select podcast category:"
 msgstr "ポッドキャストカテゴリーを選択:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
 msgid "Blog category for podcasts"
 msgstr "ポッドキャスト用ブログカテゴリー"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 3"
 msgstr "ポッドキャストカテゴリー 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
 msgid "Podcast category 2"
 msgstr "ポッドキャストカテゴリー 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
 msgid "Podcast category 1"
 msgstr "ポッドキャストカテゴリー 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
-msgid "Podcast keywords"
-msgstr "ポッドキャストキーワード"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Podcast image"
 msgstr "ポッドキャスト画像"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Mark as explicit"
 msgstr "露骨な表現を含むとしてマーク"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast copyright"
 msgstr "ポッドキャスト著作権"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast summary"
 msgstr "ポッドキャストの概要"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast talent name"
 msgstr "ポッドキャスト出演者名"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
-msgid "Podcast subtitle"
-msgstr "ポッドキャストサブタイトル"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1199,31 +1200,31 @@ msgid "Podcasting"
 msgstr "ポッドキャスト"
 
 #. translators: %s is the Twitter account name
-#: widgets/class-jetpack-widget-twitter.php:74
+#: widgets/class-jetpack-widget-twitter.php:67
 msgid "Tweets by %s"
 msgstr "%s のツイート "
 
-#: private-site/logged-in-banner.php:165
+#: private-site/logged-in-banner.php:163
 msgid "Next steps"
 msgstr "次のステップ"
 
-#: notices/anyone-can-register-notice.php:106
+#: notices/anyone-can-register-notice.php:112
 msgid "This may pose a security risk to your site."
 msgstr "これはサイトにセキュリティリスクをもたらす可能性があります。"
 
-#: notices/anyone-can-register-notice.php:101
+#: notices/anyone-can-register-notice.php:106
 msgid "It allows a user to post content."
 msgstr "ユーザーはコンテンツの投稿ができます。"
 
-#: notices/anyone-can-register-notice.php:96
+#: notices/anyone-can-register-notice.php:100
 msgid "It allows a user to post/modify/delete all content."
 msgstr "ユーザーはすべてのコンテンツの投稿 / 修正 / 削除ができます。"
 
-#: notices/anyone-can-register-notice.php:91
+#: notices/anyone-can-register-notice.php:94
 msgid "It allows a user control over your orders and products."
 msgstr "ユーザーは注文と商品の管理ができます。"
 
-#: notices/anyone-can-register-notice.php:86
+#: notices/anyone-can-register-notice.php:88
 msgid "It allows a user full control over your site and its contents."
 msgstr "ユーザーはサイトとそのコンテンツを自由に管理できます。"
 
@@ -1239,20 +1240,20 @@ msgstr "ZIP ファイルを開けませんでした。"
 msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr "サイトが「非公開」として設定されているため、画像 CDN が無効になっています。 メディアライブラリにポスター画像が表示されない場合は、「まもなく公開予定」モードに切り替えられます。  <a href=\"%1$s\" target=_blank>さらに詳しく</a>。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:263
+#: frontend-notices/gifting-banner/gifting-banner.php:250
 msgid "Gift the author a WordPress.com plan."
 msgstr "投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:251
+#: frontend-notices/gifting-banner/gifting-banner.php:238
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "%d日以内に期限が切れる前に投稿者に WordPress.com プランをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:240
+#: frontend-notices/gifting-banner/gifting-banner.php:227
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "投稿者に WordPress.com のアップグレードをプレゼントします。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: frontend-notices/gifting-banner/gifting-banner.php:200
 msgid "This site's plan has expired."
 msgstr "このサイトのプランは終了しました。"
 
@@ -1276,37 +1277,37 @@ msgstr "<strong>%3$s</strong> の Creator プランは%2$sに有効期限が切�
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "容量の割り当て上限に達しました。アップロードする前にファイルを削除してください。"
 
-#: private-site/logged-in-banner.php:129
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr "テーマを変更"
 
-#: private-site/logged-in-banner.php:128
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr "変更"
 
-#: private-site/logged-in-banner.php:115
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr "ページを編集"
 
-#: private-site/logged-in-banner.php:115
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr "投稿の編集"
 
-#: private-site/logged-in-banner.php:114
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr "編集する"
 
-#: private-site/logged-in-banner.php:165
+#: private-site/logged-in-banner.php:163
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "ホーム"
 
-#: private-site/logged-in-banner.php:88
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr "サイトを公開"
 
-#: private-site/logged-in-banner.php:84
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr "更新"
 
@@ -1330,7 +1331,7 @@ msgstr "<strong>%3$s</strong> の Starter プランは%2$sに有効期限が切�
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "現在使用している PHP <strong>%1$s</strong> は、%2$s以降、セキュリティ更新情報を受信できなくなります。 <a href=\"%4$s\">ホスティングの設定</a>を変更して、PHP %3$s以上に更新してください。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:219
+#: frontend-notices/gifting-banner/gifting-banner.php:206
 msgid "Enjoy this site?"
 msgstr "このサイトを楽しめましたか ?"
 
@@ -1360,7 +1361,7 @@ msgstr "プロキシ経由のみ: プロキシを経由している場合に、�
 msgid "You do not have permission to access this page."
 msgstr "このページへのアクセス権がありません。"
 
-#: feature-plugins/masterbar.php:106
+#: feature-plugins/masterbar.php:105
 msgid "Set your color scheme on WordPress.com."
 msgstr "WordPress.com の配色を設定します。"
 
@@ -1381,9 +1382,9 @@ msgstr "すべてのアトミックサイトにプレインストールおよび
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:505
-#: feature-plugins/managed-plugins.php:516
-#: feature-plugins/managed-plugins.php:527
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
 msgid "Updates managed by WordPress.com"
 msgstr "WordPress.com が管理する更新"
 
@@ -1426,56 +1427,57 @@ msgstr "ディスク領域クォータ"
 msgid "Disk space used"
 msgstr "使用済みディスク領域"
 
-#: widgets/class-wpcom-category-cloud-widget.php:179
+#: widgets/class-wpcom-category-cloud-widget.php:210
 msgid "Click for more information"
 msgstr "クリックして詳細を表示"
 
-#: widgets/class-wpcom-category-cloud-widget.php:178
+#: widgets/class-wpcom-category-cloud-widget.php:208
 msgid "Count items in sub-categories toward parent total."
 msgstr "サブカテゴリー内の項目を親項目の合計としてカウントします。"
 
-#: widgets/class-wpcom-category-cloud-widget.php:168
+#: widgets/class-wpcom-category-cloud-widget.php:200
 msgid "Maximum font percentage:"
 msgstr "最大のフォントサイズの割合: "
 
-#: widgets/class-wpcom-category-cloud-widget.php:161
+#: widgets/class-wpcom-category-cloud-widget.php:194
 msgid "Minimum font percentage:"
 msgstr "最小フォントサイズの割合:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:156
+#: widgets/class-wpcom-category-cloud-widget.php:189
 msgid "Category IDs, separated by commas"
 msgstr "コンマ区切りのカテゴリー ID"
 
-#: widgets/class-wpcom-category-cloud-widget.php:153
+#: widgets/class-wpcom-category-cloud-widget.php:187
 msgid "Exclude:"
 msgstr "除外ページ:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:146
+#: widgets/class-wpcom-category-cloud-widget.php:181
 msgid "Maximum number of categories to show:"
 msgstr "表示するカテゴリーの上限数:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:117
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
 msgstr "サイトでもっと<a href=\"%s\">カテゴリー</a>を使えば、ここに表示されます。"
 
-#: widgets/class-wpcom-category-cloud-widget.php:18
+#: widgets/class-wpcom-category-cloud-widget.php:29
 msgid "Your most used categories in cloud format."
 msgstr "よく使うカテゴリーをクラウド形式で表示"
 
-#: widgets/class-wpcom-category-cloud-widget.php:16
-#: widgets/class-wpcom-category-cloud-widget.php:45
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
 msgid "Category Cloud"
 msgstr "カテゴリークラウド"
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:171
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack の連携が解除されており、サイトが非公開です。Jetpack を再度連携すると、サイトの公開方法を管理できます。"
 
-#: private-site/logged-in-banner.php:83
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "公開状態を更新"
 
-#: private-site/logged-in-banner.php:87
+#: private-site/logged-in-banner.php:85
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "サイトの立ち上げ"
@@ -1621,51 +1623,51 @@ msgstr "最新の Instagram の写真を表示"
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:159
+#: widgets/class-aboutme-widget.php:148
 msgid "Biography"
 msgstr "バイオグラフィー"
 
-#: widgets/class-aboutme-widget.php:152
+#: widgets/class-aboutme-widget.php:141
 msgid "Headline"
 msgstr "ヘッドライン"
 
-#: widgets/class-aboutme-widget.php:145
+#: widgets/class-aboutme-widget.php:134
 msgid "Photo"
 msgstr "写真"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:130
 msgid "Don't Display Name"
 msgstr "名前を表示しない"
 
-#: widgets/class-aboutme-widget.php:139
+#: widgets/class-aboutme-widget.php:128
 msgid "Display Small"
 msgstr "小サイズで表示"
 
-#: widgets/class-aboutme-widget.php:137
+#: widgets/class-aboutme-widget.php:126
 msgid "Display Medium"
 msgstr "中サイズで表示"
 
-#: widgets/class-aboutme-widget.php:135
+#: widgets/class-aboutme-widget.php:124
 msgid "Display Large"
 msgstr "大サイズで表示"
 
-#: widgets/class-aboutme-widget.php:133
+#: widgets/class-aboutme-widget.php:122
 msgid "Display X-Large"
 msgstr "特大サイズで表示"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:111
 msgid "Your about.me URL"
 msgstr "about.me URL"
 
-#: widgets/class-aboutme-widget.php:115
+#: widgets/class-aboutme-widget.php:104
 msgid "Widget title"
 msgstr "ウィジェット名"
 
-#: widgets/class-aboutme-widget.php:106
+#: widgets/class-aboutme-widget.php:97
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "about.me ウィジェットは2016年7月1日から利用できなくなります。同日以降は、ウィジェットにはご自分の about.me プロフィールへのシンプルなテキストリンクが表示されます。このウィジェットを削除してください。"
 
-#: widgets/class-aboutme-widget.php:40
+#: widgets/class-aboutme-widget.php:41
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
 msgstr "about.me ウィジェットが利用できなくなっています。このウィジェットを削除するには、<a href=\"%s\">設定に移動</a>してください。このメッセージはサイトの訪問者には表示されません。"
 
@@ -1686,71 +1688,71 @@ msgstr "about.me プロフィールをサムネイル付きで表示"
 msgid "Unable to fetch the requested data."
 msgstr "リクエストされたデータを取得できませんでした。"
 
-#: footer-credit/theme-optimizations.php:37
+#: footer-credit/theme-optimizations.php:59
 msgid "Create a free website or blog at WordPress.com"
 msgstr "WordPress.com で無料サイトやブログを作成"
 
-#: footer-credit/theme-optimizations.php:32
+#: footer-credit/theme-optimizations.php:54
 msgid "Create a free website at WordPress.com"
 msgstr "WordPress.com で無料サイトを作成"
 
-#: footer-credit/footer-credit/footer-credit.php:102
+#: footer-credit/footer-credit/footer-credit.php:104
 msgid "Powered by WordPress.com"
 msgstr "WordPress.com ホスティング"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
-#: footer-credit/footer-credit/footer-credit.php:99
-#: footer-credit/theme-optimizations.php:30
-#: footer-credit/theme-optimizations.php:35
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:52
+#: footer-credit/theme-optimizations.php:57
 msgid "Blog at WordPress.com"
 msgstr "WordPress.com Blog"
 
-#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/footer-credit/footer-credit.php:102
 msgid "A WordPress.com Website"
 msgstr "WordPress.com サイト"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:101
 msgid "WordPress.com Logo"
 msgstr "WordPress.com ロゴ"
 
-#: footer-credit/footer-credit/footer-credit.php:40
-#: footer-credit/footer-credit/footer-credit.php:206
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
 msgid "Create a website or blog at WordPress.com"
 msgstr "WordPress.com でサイトを作成"
 
-#: footer-credit/footer-credit/customizer.php:85
+#: footer-credit/footer-credit/customizer.php:103
 msgid "Footer Credit"
 msgstr "フッタークレジット"
 
-#: footer-credit/footer-credit/customizer.php:62
+#: footer-credit/footer-credit/customizer.php:80
 msgid "Upgrade to Business"
 msgstr "ビジネスへアップグレード"
 
-#: footer-credit/footer-credit/customizer.php:54
+#: footer-credit/footer-credit/customizer.php:72
 msgid "Hide (Business Plan Required)"
 msgstr "非表示 (要ビジネスプラン)"
 
-#: footer-credit/footer-credit/customizer.php:52
+#: footer-credit/footer-credit/customizer.php:70
 msgid "Hide"
 msgstr "非表示"
 
-#: footer-credit/footer-credit/customizer.php:41
+#: footer-credit/footer-credit/customizer.php:59
 msgid "Default"
 msgstr "デフォルト"
 
-#: footer-credit/footer-credit-optimizations.php:161
+#: footer-credit/footer-credit-optimizations.php:171
 msgid "Design by"
 msgstr "Design by"
 
-#: footer-credit/footer-credit-optimizations.php:149
+#: footer-credit/footer-credit-optimizations.php:157
 msgid "by"
 msgstr "by"
 
-#: footer-credit/footer-credit-optimizations.php:132
+#: footer-credit/footer-credit-optimizations.php:138
 msgid "Theme"
 msgstr "テーマ"
 
-#: footer-credit/footer-credit-optimizations.php:116
+#: footer-credit/footer-credit-optimizations.php:119
 msgid "Proudly powered by WordPress"
 msgstr "Proudly powered by WordPress"
 
@@ -1778,7 +1780,7 @@ msgstr "保存"
 msgid "Activate &amp; Save"
 msgstr "有効化して保存"
 
-#: private-site/private-site.php:179
+#: private-site/private-site.php:178
 msgid "Manage your site visibility settings"
 msgstr "サイトの公開方法を管理する"
 
@@ -1896,140 +1898,131 @@ msgid "Email"
 msgstr "メール"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:129
-#: widgets/class-wpcom-widget-reservations.php:22
+#: widgets/class-aboutme-widget.php:118
+#: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "名前"
 
-#: widgets/class-wpcom-widget-reservations.php:16
+#: widgets/class-wpcom-widget-reservations.php:33
 msgid "Reservation Inquiry"
 msgstr "予約お問合せ"
 
-#: widgets/class-wpcom-widget-reservations.php:10
-#: widgets/class-wpcom-widget-reservations.php:15
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
 msgid "Reservations"
 msgstr "予約"
 
-#: widgets/class-wpcom-widget-recent-comments.php:408
+#: widgets/class-wpcom-widget-recent-comments.php:476
 msgid "Show comments from:"
 msgstr "以下のコメントを表示:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:403
+#: widgets/class-wpcom-widget-recent-comments.php:471
 msgid "Text background color:"
 msgstr "テキスト背景色:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:397
+#: widgets/class-wpcom-widget-recent-comments.php:465
 msgid "Avatar background color:"
 msgstr "アバターの背景色"
 
-#: widgets/class-wpcom-widget-recent-comments.php:386
+#: widgets/class-wpcom-widget-recent-comments.php:454
 msgid "No Avatars"
 msgstr "アバター画像なし"
 
-#: widgets/class-wpcom-widget-recent-comments.php:379
+#: widgets/class-wpcom-widget-recent-comments.php:447
 msgid "(at most 15)"
 msgstr "(最大 15)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:373
+#: widgets/class-wpcom-widget-recent-comments.php:441
 msgid "Number of comments to show:"
 msgstr "表示するコメント数:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:306
+#: widgets/class-wpcom-widget-recent-comments.php:362
 msgid "There are no public comments available to display."
 msgstr "現在表示できる公開コメントがありません。"
 
-#. translators: comments widget: 1: comment author, 2: post link
-#: widgets/class-wpcom-widget-recent-comments.php:297
-#: widgets/class-wpcom-widget-recent-comments.php:330
-msgctxt "widgets"
-msgid "%1$s on %2$s"
-msgstr "%2$s に %1$s より"
-
-#: widgets/class-wpcom-widget-recent-comments.php:269
+#: widgets/class-wpcom-widget-recent-comments.php:312
 msgid "Anonymous"
 msgstr "匿名"
 
-#: widgets/class-wpcom-widget-recent-comments.php:35
+#: widgets/class-wpcom-widget-recent-comments.php:56
 msgid "Display your site's most recent comments"
 msgstr "サイトの最新のコメントを表示"
 
-#: widgets/class-wpcom-widget-recent-comments.php:32
-#: widgets/class-wpcom-widget-recent-comments.php:152
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
 msgid "Recent Comments"
 msgstr "最近のコメント"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:273
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:277
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "最近「いいね」を付けた投稿はありません。「いいね」を付けると、<a href=\"%s\">「いいね」した投稿</a>ウィジェットにそれらが表示されるようになります。"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:263
+#: widgets/class-jetpack-posts-i-like-widget.php:265
 msgid "on"
 msgstr ": "
 
-#: widgets/class-jetpack-posts-i-like-widget.php:240
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:242
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s (%2$s)"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:116
+#: widgets/class-jetpack-posts-i-like-widget.php:117
 msgid "Author's likes to display:"
 msgstr "表示する投稿者の「いいね」:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "Grid"
 msgstr "グリッド"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:97
+#: widgets/class-jetpack-posts-i-like-widget.php:98
 msgid "List"
 msgstr "リスト"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:95
+#: widgets/class-jetpack-posts-i-like-widget.php:96
 msgid "Display as:"
 msgstr "表示形式:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:90
+#: widgets/class-jetpack-posts-i-like-widget.php:91
 msgid "Number of posts to show (1 to 15):"
 msgstr "表示する投稿数 (1〜15):"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:27
+#: widgets/class-jetpack-posts-i-like-widget.php:22
 msgid "A list of the posts I most recently liked"
 msgstr "最近「いいね」をつけた投稿一覧"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:25
-#: widgets/class-jetpack-posts-i-like-widget.php:32
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
 msgid "Posts I Like"
 msgstr "「いいね」した投稿"
 
-#: widgets/class-music-player-widget.php:91
+#: widgets/class-music-player-widget.php:96
 msgid "Choose songs"
 msgstr "曲を選択"
 
-#: widgets/class-music-player-widget.php:19
-#: widgets/class-music-player-widget.php:96
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
 msgid "Music Player"
 msgstr "音楽プレーヤー"
 
-#: widgets/class-music-player-widget.php:17
+#: widgets/class-music-player-widget.php:16
 msgid "A multi-song music player"
 msgstr "複数の曲を含むミュージックプレーヤー"
 
-#: widgets/class-jetpack-i-voted-widget.php:36
+#: widgets/class-jetpack-i-voted-widget.php:30
 msgid "I Voted"
 msgstr "投票済み"
 
-#: widgets/class-jetpack-i-voted-widget.php:33
+#: widgets/class-jetpack-i-voted-widget.php:27
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "「投票済み」ステッカーで、あなたが投票済みであることを読者に示しましょう。"
 
-#: widgets/class-gravatar-widget.php:204
-msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
-msgstr "<a href=\"/wp-admin/profile.php\">プロフィールページ</a>から Gravatar を編集できます。"
-
-#: widgets/class-gravatar-widget.php:203
+#: widgets/class-gravatar-widget.php:200
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Gravatar の後に表示するテキスト。入力は必須ではありませんが、あなた自身やブログについて説明するのに使えます。"
 
-#: widgets/class-gravatar-widget.php:202
+#: widgets/class-gravatar-widget.php:199
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Gravatar リンク。あなたの Gravatar をクリックしたときに表示されるリンク先です (オプション)。"
 
@@ -2037,120 +2030,121 @@ msgstr "Gravatar リンク。あなたの Gravatar をクリックしたとき�
 msgid "Gravatar alignment:"
 msgstr "Gravatar 配置:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:178
 msgid "Size:"
 msgstr "サイズ:"
 
-#: widgets/class-gravatar-widget.php:172
+#: widgets/class-gravatar-widget.php:175
 msgid "Custom Email Address:"
 msgstr "カスタムメールアドレス:"
 
-#: widgets/class-gravatar-widget.php:159
+#: widgets/class-gravatar-widget.php:162
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "ユーザーを選択するか、「カスタム」を選んでメールアドレスを入力します。"
 
-#: widgets/class-gravatar-widget.php:154
+#: widgets/class-gravatar-widget.php:157
 msgid "Center"
 msgstr "中央"
 
-#: widgets/class-gravatar-widget.php:153
+#: widgets/class-gravatar-widget.php:156
 msgid "Right"
 msgstr "右"
 
-#: widgets/class-gravatar-widget.php:152
+#: widgets/class-gravatar-widget.php:155
 msgid "Left"
 msgstr "左"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
-#: widgets/class-gravatar-widget.php:151
-#: widgets/class-widget-top-clicks.php:125
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: widgets/class-gravatar-widget.php:154
+#: widgets/class-widget-top-clicks.php:162
 msgid "None"
 msgstr "なし"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:151
 msgid "Extra Large (256 pixels)"
 msgstr "特大 (256ピクセル)"
 
-#: widgets/class-gravatar-widget.php:147
+#: widgets/class-gravatar-widget.php:150
 msgid "Large (128 pixels)"
 msgstr "大 (128ピクセル)"
 
-#: widgets/class-gravatar-widget.php:146
+#: widgets/class-gravatar-widget.php:149
 msgid "Medium (96 pixels)"
 msgstr "中 (96ピクセル)"
 
-#: widgets/class-gravatar-widget.php:145
+#: widgets/class-gravatar-widget.php:148
 msgid "Small (64 pixels)"
 msgstr "小 (64ピクセル)"
 
-#: widgets/class-gravatar-widget.php:102
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
 msgstr "ユーザーを選択するか、<a href=\"%s\">Gravatar ウィジェット</a>設定でメールアドレスを入力する必要があります。"
 
-#: widgets/class-gravatar-widget.php:25
+#: widgets/class-gravatar-widget.php:20
 msgid "Gravatar"
 msgstr "Gravatar"
 
-#: widgets/class-gravatar-widget.php:22
+#: widgets/class-gravatar-widget.php:17
 msgid "Insert a Gravatar image"
 msgstr "Gravatar 画像を挿入"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:64
+#: widgets/class-wpcom-freshly-pressed-widget.php:83
 msgid "Choose an image to display in your sidebar:"
 msgstr "サイドバーに表示する画像を選択:"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:13
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
 msgid "Freshly Pressed"
 msgstr "注目の記事"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:10
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Freshly Pressed バッジをサイドバーに表示"
 
-#: widgets/class-widget-authors-grid.php:126
-#: widgets/class-wpcom-widget-recent-comments.php:384
+#: widgets/class-widget-authors-grid.php:142
+#: widgets/class-wpcom-widget-recent-comments.php:452
 msgid "Avatar Size (px):"
 msgstr "アバター画像サイズ (ピクセル):"
 
-#: widgets/class-widget-authors-grid.php:121
+#: widgets/class-widget-authors-grid.php:137
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "すべての投稿者を表示 (まだ投稿がない人も含む)"
 
-#: widgets/class-gravatar-widget.php:157
-#: widgets/class-jetpack-i-voted-widget.php:70
-#: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:145
-#: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
-#: widgets/class-widget-authors-grid.php:115
-#: widgets/class-widget-top-clicks.php:47
-#: widgets/class-wpcom-category-cloud-widget.php:139
-#: widgets/class-wpcom-freshly-pressed-widget.php:60
-#: widgets/class-wpcom-tag-cloud-widget.php:129
-#: widgets/class-wpcom-widget-recent-comments.php:367
-#: widgets/class-wpcom-widget-reservations.php:38
-#: widgets/tlkio/class-tlkio-widget.php:58
+#: widgets/class-gravatar-widget.php:160
+#: widgets/class-jetpack-i-voted-widget.php:81
+#: widgets/class-jetpack-posts-i-like-widget.php:86
+#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:131
+#: widgets/class-widget-top-clicks.php:72
+#: widgets/class-wpcom-category-cloud-widget.php:175
+#: widgets/class-wpcom-freshly-pressed-widget.php:79
+#: widgets/class-wpcom-tag-cloud-widget.php:123
+#: widgets/class-wpcom-widget-recent-comments.php:435
+#: widgets/class-wpcom-widget-reservations.php:60
+#: widgets/tlkio/class-tlkio-widget.php:75
 msgid "Title:"
 msgstr "タイトル:"
 
-#: widgets/class-widget-authors-grid.php:51
+#: widgets/class-widget-authors-grid.php:62
 msgid "Authors"
 msgstr "投稿者"
 
-#: widgets/class-widget-authors-grid.php:14
+#: widgets/class-widget-authors-grid.php:17
 msgid "Show a grid of author avatar images."
 msgstr "投稿者アバター画像一覧を表示"
 
-#: widgets/class-widget-authors-grid.php:11
+#: widgets/class-widget-authors-grid.php:14
 msgid "Author Grid"
 msgstr "投稿者グリッド"
 
-#: private-site/private-site.php:647
+#: private-site/private-site.php:650
 msgid "Private Site"
 msgstr "非公開サイト"
 
-#: private-site/private-site.php:457 private-site/private-site.php:574
-#: private-site/private-site.php:797
+#: private-site/private-site.php:460 private-site/private-site.php:577
+#: private-site/private-site.php:809
 msgid "This site is private."
 msgstr "このサイトはプライベート設定です。"
 
