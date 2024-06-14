@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Include the missing dependency
+Compatibility: Include a missing dependency required for Compatibility with WP Optimize
