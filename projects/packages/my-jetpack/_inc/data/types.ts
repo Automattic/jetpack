@@ -19,7 +19,8 @@ export type BackupCountStats = {
 	total_audio_count: number;
 };
 
-type StateProducts = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
+export type MyJetpackInitialState = Window[ 'myJetpackInitialState' ];
+export type StateProducts = Window[ 'myJetpackInitialState' ][ 'products' ][ 'items' ];
 export type ProductSnakeCase = StateProducts[ string ];
 
 export type ProductCamelCase = ToCamelCase< ProductSnakeCase > & {
