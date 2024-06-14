@@ -56,7 +56,7 @@
 	},
 	"scripts": {
 		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
+			"SCRIPT_DEBUG=true ./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-php": [
 			"@composer phpunit"
