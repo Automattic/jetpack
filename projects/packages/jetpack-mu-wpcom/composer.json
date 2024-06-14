@@ -36,7 +36,6 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-php": [
-			"pnpm run build-production",
 			"@composer phpunit"
 		],
 		"build-production": "pnpm run build-production-js",
