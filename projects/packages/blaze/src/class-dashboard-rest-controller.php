@@ -901,19 +901,27 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Check if the posts are synced.
+	 * Check if a Full Sync of posts happened.
 	 *
 	 * @return bool True if is sync, false otherwise.
 	 */
 	private function is_posts_synced(): bool {
+		// On WordPress.com Simple, Sync is not present, so we consider always synced.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
 
-		/** The Full Sync Module.
-		 *
-		 * @var \Automattic\Jetpack\Sync\Modules\Full_Sync $full_sync_module
-		 */
 		$full_sync_module = Modules::get_module( 'full-sync' );
-		$posts_config     = (int) $full_sync_module->get_status()['config']['posts'] ?? 0;
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 
-		return 1 === $posts_config;
+		// Is not synced if Full sync is in progress.
+		if ( ! $full_sync_module || ( $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) ) {
+			return false;
+		}
+
+		// Check if the posts sync happened.
+		$posts_config = $full_sync_module->get_status()['config']['posts'] ?? 0;
+
+		return 1 === (int) $posts_config;
 	}
 }
