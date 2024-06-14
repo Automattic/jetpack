@@ -53,11 +53,12 @@ export default class BlockEditorPage extends WpPage {
 	//endregion
 
 	async closeWelcomeGuide() {
-		const isWelcomeGuideActive = await this.page
+		const isWelcomeGuideVisible = await this.page
 			.getByText( 'Welcome to the block editor', { exact: true } )
 			.isVisible();
 
-		if ( isWelcomeGuideActive ) {
+		if ( isWelcomeGuideVisible ) {
+			logger.step( 'Closing welcome guide.' );
 			await this.page.getByRole( 'button', { name: 'Close', exact: true } ).click();
 		}
 	}
