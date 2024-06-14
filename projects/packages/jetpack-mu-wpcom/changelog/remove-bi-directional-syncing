@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove bi-directional profile syncing between Atomic and Simple sites
