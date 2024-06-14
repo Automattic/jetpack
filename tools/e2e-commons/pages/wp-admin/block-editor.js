@@ -52,18 +52,13 @@ export default class BlockEditorPage extends WpPage {
 
 	//endregion
 
-	async resolveWelcomeGuide( show = false ) {
-		const isWelcomeGuideActive = await this.page.evaluate( () =>
-			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
-		);
+	async closeWelcomeGuide() {
+		const isWelcomeGuideActive = await this.page
+			.getByText( 'Welcome to the block editor', { exact: true } )
+			.isVisible();
 
-		if ( show !== isWelcomeGuideActive ) {
-			await this.page.evaluate( () =>
-				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
-			);
-
-			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
-			await this.reload();
+		if ( isWelcomeGuideActive ) {
+			await this.page.getByRole( 'button', { name: 'Close', exact: true } ).click();
 		}
 	}
 
