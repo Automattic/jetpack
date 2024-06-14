@@ -10,6 +10,23 @@ declare module '@wordpress/compose';
 declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
 
+type JetpackModule =
+	| 'anti-spam'
+	| 'backup'
+	| 'boost'
+	| 'crm'
+	| 'creator'
+	| 'extras'
+	| 'jetpack-ai'
+	| 'scan'
+	| 'search'
+	| 'social'
+	| 'security'
+	| 'protect'
+	| 'videopress'
+	| 'stats'
+	| 'ai';
+
 interface Window {
 	myJetpackInitialState?: {
 		siteSuffix: string;
@@ -43,8 +60,11 @@ interface Window {
 			videoPressStats: boolean;
 		};
 		lifecycleStats: {
-			historicallyActiveModules: Array< string >;
-			brokenModules: Array< string >;
+			historicallyActiveModules: JetpackModule[];
+			brokenModules: {
+				needs_site_connection: JetpackModule[];
+				needs_user_connection: JetpackModule[];
+			};
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
