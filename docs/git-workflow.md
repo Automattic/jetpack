@@ -83,8 +83,8 @@ This method assumes you are using the `gh` shorthand from the [Github CLI](https
 # Use the Github CLI to checkout the PR with the PR number - for example gh pr checkout 12345.
 gh pr checkout xxxxx
 
-# Run merge-base to check where that branch differed from trunk - example git merge-base update/broken-jetpack-feature.
-git merge-base forkedbranchname
+# Run merge-base to check where that branch differed from trunk - example git merge-base update/broken-jetpack-feature trunk.
+git merge-base forkedbranchname trunk
 
 ## With the SHA returned from the above command, we can rebase from that.
 git rebase -i the-sha
