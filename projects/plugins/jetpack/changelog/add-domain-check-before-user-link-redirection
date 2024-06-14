@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Fixed a problem with white screens or wrong redirections on the newsletter links.
+User Content Link Tracking: check domain before redirecting to subscribe.wordpress.com
