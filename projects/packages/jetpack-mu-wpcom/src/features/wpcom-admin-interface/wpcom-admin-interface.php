@@ -32,9 +32,10 @@ function wpcom_admin_interface_display() {
 	echo '</fieldset>';
 }
 
-// Display the admin interface settings on atomic sites or simple classic sites.
 if (
+	// The option should always be available on atomic sites.
 	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
+	// The option will be shown if the simple site has already changed to Classic which means they should have already passed the experiment gate.
 	( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
