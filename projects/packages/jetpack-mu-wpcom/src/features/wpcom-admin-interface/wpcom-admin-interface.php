@@ -32,11 +32,10 @@ function wpcom_admin_interface_display() {
 	echo '</fieldset>';
 }
 
+// Display the admin interface settings on atomic sites or simple classic sites.
 if (
-	! empty( get_option( 'wpcom_classic_early_release' ) ) ||
-	// @phan-suppress-next-line PhanUndeclaredFunction -- Defined in wpcom, which Phan doesn't know about yet.
-	( function_exists( 'wpcom_is_simple_classic_released' ) && wpcom_is_simple_classic_released() ) ||
-	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
+	( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
 
