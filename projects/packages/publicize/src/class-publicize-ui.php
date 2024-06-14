@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Current_Plan;
 
 /**
  * Only user facing pieces of Publicize are found here.
@@ -179,6 +180,7 @@ class Publicize_UI {
 					'connectionsUrl'              => esc_url( $this->publicize_settings_url ),
 					'isEnhancedPublishingEnabled' => $this->publicize->has_enhanced_publishing_feature(),
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
+					'isReshareSupported'          => Current_Plan::supports( 'republicize' ),
 				)
 			),
 			'before'
@@ -643,7 +645,7 @@ jQuery( function($) {
 				<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 				<input type="hidden" name="wpas[0]" value="1" />
 			<?php endif; ?>
-			<?php if ( $is_post_published ) : ?>
+			<?php if ( $is_post_published && Current_Plan::supports( 'republicize' ) ) : ?>
 				<button type="button" class="hide-if-no-js button" id="publicize-share-now">
 					<?php esc_html_e( 'Share now', 'jetpack-publicize-pkg' ); ?>
 				</button>

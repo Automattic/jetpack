@@ -2,7 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
-const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled, resharePath } =
+const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled, resharePath, isReshareSupported } =
 	window.jetpackSocialClassicEditorOptions;
 const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
@@ -191,6 +191,10 @@ jQuery( function ( $ ) {
 
 	shareNowButton.on( 'click', function ( e ) {
 		e.preventDefault();
+
+		if ( ! isReshareSupported ) {
+			return;
+		}
 
 		hideNotice();
 
