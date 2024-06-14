@@ -1,6 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { getIconColor } from './block-icons';
 
 import './icons.scss';
@@ -209,7 +209,7 @@ export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_J
 
 	return (
 		<SVG
-			className={ classNames( 'jetpack-logo', className ) }
+			className={ clsx( 'jetpack-logo', className ) }
 			width={ size }
 			height={ size }
 			viewBox={ `${ borderOffset } ${ borderOffset } ${ 32 - borderOffset * 2 } ${

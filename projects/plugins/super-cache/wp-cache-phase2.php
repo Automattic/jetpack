@@ -2541,7 +2541,7 @@ function wp_cache_get_ob( &$buffer ) {
 	}
 
 	if ( $added_cache && isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
-		update_option( 'wpsupercache_count', ( get_option( 'wpsupercache_count' ) + 1 ) );
+		update_option( 'wpsupercache_count', (int) get_option( 'wpsupercache_count' ) + 1 );
 		$last_urls = (array) get_option( 'supercache_last_cached' );
 		if ( count( $last_urls ) >= 10 ) {
 			$last_urls = array_slice( $last_urls, 1, 9 );

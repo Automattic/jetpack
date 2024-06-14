@@ -1,34 +1,17 @@
 # Social Logos
 A repository of all the social logos used on WordPress.com.
 
-Each logo was pulled from the official branding resource of each service. Branding guidelines were adhered to as much as possible.
+Where possible, each logo was pulled from the official branding resource of each service. Branding guidelines were adhered to as much as possible. For your convenience, we've compiled a list of official links [here](./official_links.md).
 
 Some logos include an official alternate version, if it's provided by the guideline resource. Sometimes it is desirable to have a visually consistent row of icons, all enclosed with the same shape. If the guidelines permit it, then an alternate version was created with a 18dp square or 20dp circle.
 
 For example, the Tumblr guidelines state that it's ok to enclose the logo in any shape, so there's an alternate logo with an 18dp square.
 
-Official guideline resources:
-
-- Facebook: https://www.facebookbrand.com
-- Twitter: https://about.twitter.com/company/brand-assets
-- Instagram: https://www.instagram-brand.com
-- LinkedIn: https://brand.linkedin.com
-- Google+: https://developers.google.com/+/branding-guidelines and http://gplus-brand.appspot.com
-- Pinterest: https://business.pinterest.com/en/brand-guidelines
-- Squarespace: http://www.squarespace.com/brand-guidelines/
-- reddit: https://www.reddit.com/about/alien/
-- Mastodon: https://joinmastodon.org/branding
-- Fediverse: https://commons.wikimedia.org/wiki/File:Fediverse_logo_proposal.svg
-- Nextdoor: https://about.nextdoor.com/gb/media/
-- http://findguidelin.es
-- Threads: https://en.wikipedia.org/wiki/File:Threads_(app)_logo.svg
-- X: https://about.twitter.com/en/who-we-are/brand-toolkit
-
 ## Using the SocialLogo component in your project:
 
-Note that this component requires [react](https://www.npmjs.com/package/react) to be installed in your project.
+Note that this component requires [React](https://www.npmjs.com/package/react) to be installed in your project.
 
-SocialLogo renders a single social-logo svg based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px. 
+SocialLogo renders a single social logo SVG based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px. 
 
 There's a gallery with all the available icons in https://wpcalypso.wordpress.com/devdocs/design/social-logo.
 
@@ -64,3 +47,5 @@ So to summarize:
 ## License
 
 Social Logos is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).
+
+This license to use the software library does not convey any intellectual property rights to third-party trademarks that may be included in the library. The logos are included with the library solely for the user’s convenience in gathering them all in one place. Before using any trademark, please review the proper usage guidelines of its owner.

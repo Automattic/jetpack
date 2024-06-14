@@ -14,7 +14,12 @@
 }
 
 .connection-name {
-	display: inline-block;
+	display: flex;
+	align-items: center;
+
+	:global(.components-spinner) {
+		margin-top: 0px;
+	}
 
 	span.profile-link,
 	.profile-link:global(.components-external-link) {

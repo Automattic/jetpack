@@ -1,6 +1,6 @@
 {
 	"editor.codeActionsOnSave": {
-		"source.fixAll.eslint": true,
+		"source.fixAll.eslint": "explicit"
 	},
 	"files.exclude": {
 		"**/.cache/**": true,
@@ -25,7 +25,7 @@
 		"**/packages/**/wordpress/**",
 		"**/projects/**/wordpress/**",
 		"**/plugins/**/wordpress/**",
-		"**/vendor/**",		
+		"**/vendor/**",
 	],
 	"phpCodeSniffer.autoExecutable": true,
 	"phpCodeSniffer.standard": "Automatic",

@@ -14,7 +14,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import { useCallback, useState, useEffect } from 'react';
 /**
@@ -157,12 +157,12 @@ export default function () {
 	return (
 		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
-				<Col className={ classnames( styles[ 'product-interstitial__section' ] ) }>
+				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
 						<GoBackLink onClick={ onClickGoBack } />
 					</div>
 					<div
-						className={ classnames(
+						className={ clsx(
 							styles[ 'product-interstitial__section-wrapper-wide' ],
 							styles[ 'product-interstitial__product-header' ]
 						) }
@@ -173,7 +173,7 @@ export default function () {
 						</div>
 					</div>
 				</Col>
-				<Col className={ classnames( styles[ 'product-interstitial__section' ] ) }>
+				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__hero-section' ] }>
 						<div className={ styles[ 'product-interstitial__hero-content' ] }>
 							<h1 className={ styles[ 'product-interstitial__hero-heading' ] }>{ description }</h1>

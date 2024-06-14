@@ -155,53 +155,53 @@ class Test_Status extends TestCase {
 	/**
 	 * Test when wp_get_environment_type is local.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status::is_development_site
 	 */
 	public function test_is_staging_wp_get_environment_type_local() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'local' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_development_site' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status_obj->is_staging_site() );
+		$this->assertFalse( $this->status_obj->is_development_site() );
 	}
 
 	/**
 	 * Test when wp_get_environment_type is staging.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status::is_development_site
 	 */
 	public function test_is_staging_wp_get_environment_type_staging() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'staging' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
+		Filters\expectApplied( 'jetpack_is_development_site' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status_obj->is_staging_site() );
+		$this->assertTrue( $this->status_obj->is_development_site() );
 	}
 
 	/**
 	 * Test when wp_get_environment_type is production.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status::is_development_site
 	 */
 	public function test_is_staging_wp_get_environment_type_production() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_is_development_site' )->once()->with( false )->andReturn( false );
 
-		$this->assertFalse( $this->status_obj->is_staging_site() );
+		$this->assertFalse( $this->status_obj->is_development_site() );
 	}
 
 	/**
 	 * Test when wp_get_environment_type is a random value.
 	 *
-	 * @covers Automattic\Jetpack\Status::is_staging_site
+	 * @covers Automattic\Jetpack\Status::is_development_site
 	 */
 	public function test_is_staging_wp_get_environment_type_random() {
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'random_string' );
 
-		Filters\expectApplied( 'jetpack_is_staging_site' )->once()->with( true )->andReturn( true );
+		Filters\expectApplied( 'jetpack_is_development_site' )->once()->with( true )->andReturn( true );
 
-		$this->assertTrue( $this->status_obj->is_staging_site() ); // We assume a site is a staging site for any non-local or non-production value.
+		$this->assertTrue( $this->status_obj->is_development_site() ); // We assume a site is a staging site for any non-local or non-production value.
 	}
 
 	/**
@@ -329,85 +329,6 @@ class Test_Status extends TestCase {
 	protected function clean_mock_wpdb_get_var() {
 		global $wpdb;
 		unset( $wpdb );
-	}
-
-	/**
-	 * Tests known staging sites.
-	 *
-	 * @dataProvider get_is_staging_site_known_hosting_providers_data
-	 * @covers Automattic\Jetpack\Status::is_staging_site
-	 *
-	 * @param string $site_url Site URL.
-	 * @param bool   $expected Expected return.
-	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url, $expected ) {
-		$this->site_url = $site_url;
-		$result         = $this->status_obj->is_staging_site();
-		$this->assertSame(
-			$expected,
-			$result,
-			sprintf(
-				'Expected %1$s to return %2$s for is_staging_site()',
-				$site_url,
-				var_export( $expected, 1 ) // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-			)
-		);
-	}
-
-	/**
-	 * Known hosting providers.
-	 *
-	 * Including a couple of general RegEx checks (subdir, ending slash).
-	 *
-	 * @return array
-	 */
-	public function get_is_staging_site_known_hosting_providers_data() {
-		return array(
-			'wpengine'              => array(
-				'http://bjk.staging.wpengine.com',
-				true,
-			),
-			'kinsta'                => array(
-				'http://test.staging.kinsta.com',
-				true,
-			),
-			'dreampress'            => array(
-				'http://ebinnion.stage.site',
-				true,
-			),
-			'newspack'              => array(
-				'http://test.newspackstaging.com',
-				true,
-			),
-			'wpengine_subdirectory' => array(
-				'http://bjk.staging.wpengine.com/staging',
-				true,
-			),
-			'wpengine_endslash'     => array(
-				'http://bjk.staging.wpengine.com/',
-				true,
-			),
-			'not_a_staging_site'    => array(
-				'http://staging.wpengine.com.example.com/',
-				false,
-			),
-			'pantheon_dev'          => array(
-				'http://dev-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_test'         => array(
-				'http://test-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_multi'        => array(
-				'http://multidev-env-site-name.pantheonsite.io',
-				true,
-			),
-			'pantheon_live'         => array(
-				'http://live-site-name.pantheonsite.io',
-				false,
-			),
-		);
 	}
 
 	/**
@@ -553,7 +474,6 @@ class Test_Status extends TestCase {
 			array( 'is_multi_network', 'is_multisite', null ),
 			array( 'is_single_user_site', 'get_transient', null ),
 			array( 'is_local_site', null, 'jetpack_is_local_site' ),
-			array( 'is_staging_site', null, 'jetpack_is_staging_site' ),
 		);
 	}
 

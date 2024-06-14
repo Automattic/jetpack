@@ -850,6 +850,7 @@ class Defaults {
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',
+		'editor-spacing-sizes',
 		'editor-style', // deprecated.
 		'editor-styles',
 		'html5',

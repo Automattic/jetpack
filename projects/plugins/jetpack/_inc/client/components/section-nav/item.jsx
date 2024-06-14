@@ -1,7 +1,7 @@
 /** @ssr-ready **/
 
 import { ExternalLink } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Count from 'components/count';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -32,7 +32,7 @@ class NavItem extends React.PureComponent {
 			'is-external': this.props.isExternalLink,
 		};
 		itemClasses[ 'dops-section-nav-' + itemClassPrefix ] = true;
-		const itemClassName = classNames( itemClasses );
+		const itemClassName = clsx( itemClasses );
 		let onClick;
 
 		if ( ! this.props.disabled ) {

@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.12.2-alpha
+ * Version: 1.13.0-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -1062,13 +1062,7 @@ table.wpsc-settings-table {
 	if ( 'preload' === $curr_tab ) {
 		if ( true == $super_cache_enabled && ! defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
-			$count = wpsc_post_count();
-			if ( $count > 1000 ) {
-				$min_refresh_interval = 720;
-			} else {
-				$min_refresh_interval = 30;
-			}
-			wpsc_preload_settings( $min_refresh_interval );
+			wpsc_preload_settings();
 			$currently_preloading = false;
 
 			echo '<div id="wpsc-preload-status"></div>';
@@ -2926,7 +2920,7 @@ function wp_cache_plugin_notice( $plugin ) {
 add_action( 'after_plugin_row', 'wp_cache_plugin_notice' );
 
 function wp_cache_plugin_actions( $links, $file ) {
-	if( $file == 'wp-super-cache/wp-cache.php' && function_exists( 'admin_url' ) ) {
+	if ( $file === 'wp-super-cache/wp-cache.php' && function_exists( 'admin_url' ) && is_array( $links ) ) {
 		$settings_link = '<a href="' . admin_url( 'options-general.php?page=wpsupercache' ) . '">' . __( 'Settings', 'wp-super-cache' ) . '</a>';
 		array_unshift( $links, $settings_link ); // before other links
 	}
@@ -3945,7 +3939,18 @@ function wpsc_post_count() {
 
 	return $count;
 }
-function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
+
+/**
+ * Get the minimum interval in minutes between preload refreshes.
+ * Filter the default value of 10 minutes using the `wpsc_minimum_preload_interval` filter.
+ *
+ * @return int
+ */
+function wpsc_get_minimum_preload_interval() {
+	return apply_filters( 'wpsc_minimum_preload_interval', 10 );
+}
+
+function wpsc_preload_settings() {
 	global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 
 	if ( isset( $_POST[ 'action' ] ) == false || $_POST[ 'action' ] != 'preload' )
@@ -3965,14 +3970,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		return;
 	}
 
-	if ( $min_refresh_interval == 'NA' ) {
-		$count = wpsc_post_count();
-		if ( $count > 1000 ) {
-			$min_refresh_interval = 720;
-		} else {
-			$min_refresh_interval = 30;
-		}
-	}
+	$min_refresh_interval = wpsc_get_minimum_preload_interval();
 
 	// Set to true if the preload interval is changed, and a reschedule is required.
 	$force_preload_reschedule = false;

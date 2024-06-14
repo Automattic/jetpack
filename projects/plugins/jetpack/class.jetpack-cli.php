@@ -986,8 +986,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
-					if ( $status->is_staging_site() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+					if ( $status->in_safe_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in safe mode.', 'jetpack' ) );
 						return;
 					}
 				}

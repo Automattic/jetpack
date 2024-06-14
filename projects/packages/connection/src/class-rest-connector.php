@@ -444,7 +444,7 @@ class REST_Connector {
 
 		$connection_status = array(
 			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
-			'isStaging'         => $status->is_staging_site(),
+			'isStaging'         => $status->in_safe_mode(), // TODO deprecate this.
 			'isRegistered'      => $connection->is_connected(),
 			'isUserConnected'   => $connection->is_user_connected(),
 			'hasConnectedOwner' => $connection->has_connected_owner(),

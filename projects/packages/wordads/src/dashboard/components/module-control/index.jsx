@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import React, { useCallback } from 'react';
@@ -72,7 +72,7 @@ export default function WordAdsModuleControl( {
 	return (
 		<div className="jp-form-settings-group jp-form-wordads-settings-group">
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': true,
 					'jp-form-settings-disable': false,
 				} ) }

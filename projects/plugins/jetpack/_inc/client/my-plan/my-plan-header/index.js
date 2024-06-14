@@ -3,7 +3,7 @@ import { ExternalLink } from '@wordpress/components';
 import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import { ProductActivated } from 'components/product-activated';
@@ -573,7 +573,7 @@ class MyPlanHeader extends React.Component {
 						</span>
 					) }
 					<div
-						className={ classnames( 'jp-landing__licensing-actions-item', {
+						className={ clsx( 'jp-landing__licensing-actions-item', {
 							'no-licenses': ! hasDetachedUserLicenses,
 							'no-purchases': ! showPurchasesLink,
 						} ) }

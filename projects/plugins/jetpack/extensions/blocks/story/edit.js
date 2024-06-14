@@ -4,7 +4,7 @@ import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { get, pick } from 'lodash';
 import metadata from './block.json';
 import Controls from './controls';
@@ -145,7 +145,7 @@ export default withNotices( function StoryEdit( {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( 'wp-block-jetpack-story', 'wp-story', blockProps.className ) }
+			className={ clsx( 'wp-block-jetpack-story', 'wp-story', blockProps.className ) }
 		>
 			{ content }
 		</div>

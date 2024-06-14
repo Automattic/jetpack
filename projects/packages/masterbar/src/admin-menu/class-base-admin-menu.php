@@ -256,13 +256,6 @@ abstract class Base_Admin_Menu {
 	 */
 	public function enqueue_scripts() {
 		$assets_base_path = '../../dist/admin-menu/';
-		if ( $this->is_rtl() ) {
-			$css_path = 'admin-menu.rtl.css';
-		} else {
-			$css_path = 'admin-menu.css';
-		}
-
-		$css_path = $assets_base_path . $css_path;
 
 		Assets::register_script(
 			'jetpack-admin-menu',

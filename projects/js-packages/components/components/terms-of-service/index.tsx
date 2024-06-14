@@ -1,6 +1,6 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { getRedirectUrl } from '../../../components';
 import Text from '../text';
 import type { TermsOfServiceProps } from './types';
@@ -11,7 +11,7 @@ const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 	multipleButtons,
 	agreeButtonLabel,
 } ) => (
-	<Text className={ classNames( className, 'terms-of-service' ) }>
+	<Text className={ clsx( className, 'terms-of-service' ) }>
 		{ multipleButtons ? (
 			<MultipleButtonsText multipleButtonsLabels={ multipleButtons } />
 		) : (

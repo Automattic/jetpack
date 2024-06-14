@@ -1,7 +1,7 @@
 import { Spinner } from '@wordpress/components';
 import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 function MediaItem( props ) {
 	const onClick = event => {
@@ -25,7 +25,7 @@ function MediaItem( props ) {
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null, thumbnail = null } = thumbnails;
 	const alt = title || caption || name;
-	const classes = classnames( {
+	const classes = clsx( {
 		'jetpack-external-media-browser__media__item': true,
 		'jetpack-external-media-browser__media__item__selected': isSelected,
 		'jetpack-external-media-browser__media__folder': type === 'folder',

@@ -22,7 +22,7 @@ import {
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -279,7 +279,7 @@ function VideoFramePicker( {
 		<div className="poster-panel__frame-picker">
 			<div
 				ref={ playerWrapperRef }
-				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
+				className={ clsx( 'poster-panel__frame-picker__sandbox-wrapper', {
 					'is-player-ready': playerIsReady,
 					'is-generating-poster': isGeneratingPoster,
 				} ) }
@@ -554,7 +554,7 @@ export default function PosterPanel( {
 			/>
 
 			<div
-				className={ classnames( 'poster-panel__frame-wrapper', {
+				className={ clsx( 'poster-panel__frame-wrapper', {
 					'is-selected': pickPosterFromFrame,
 				} ) }
 			>
@@ -568,7 +568,7 @@ export default function PosterPanel( {
 			</div>
 
 			<div
-				className={ classnames( 'poster-panel__image-wrapper', {
+				className={ clsx( 'poster-panel__image-wrapper', {
 					'is-selected': ! pickPosterFromFrame,
 				} ) }
 			>

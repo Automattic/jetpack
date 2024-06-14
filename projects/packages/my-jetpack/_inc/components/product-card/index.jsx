@@ -1,11 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
-import ActionButton, { PRODUCT_STATUSES } from './action-button';
+import ActionButton from './action-button';
 import Status from './status';
 import styles from './style.module.scss';
 
@@ -93,7 +94,7 @@ const ProductCard = inprops => {
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 
-	const containerClassName = classNames( {
+	const containerClassName = clsx( {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
@@ -194,7 +195,7 @@ const ProductCard = inprops => {
 	return (
 		<Card
 			title={ name }
-			className={ classNames( styles.container, containerClassName ) }
+			className={ clsx( styles.container, containerClassName ) }
 			headerRightContent={ null }
 		>
 			<Description />

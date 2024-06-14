@@ -2,7 +2,7 @@ import { Button, JetpackIcon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import styles from './style.module.scss';
 import './style.global.scss';
@@ -37,7 +37,7 @@ export function GoldenTokenTooltip( { productName, giftedDate } ) {
 		className: styles.container,
 	};
 
-	const wrapperClassNames = classNames( styles.wrapper, 'golden-token-icon-tooltip' );
+	const wrapperClassNames = clsx( styles.wrapper, 'golden-token-icon-tooltip' );
 
 	return (
 		<div className={ wrapperClassNames }>

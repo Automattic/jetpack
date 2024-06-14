@@ -1671,13 +1671,6 @@ class Jetpack {
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All provided text.
 		}
-		// Throw up a notice if using staging mode.
-		if ( ( new Status() )->is_staging_site() ) {
-			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), esc_url( Redirect::get_url( 'jetpack-support-staging-sites' ) ) );
-
-			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All provided text.
-		}
 	}
 
 	/**
@@ -2403,7 +2396,7 @@ class Jetpack {
 	 * @param bool $catch True to start catching, False to stop.
 	 *
 	 * @static
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.5
 	 * @see \Automattic\Jetpack\Errors
 	 */
 	public static function catch_errors( $catch ) {

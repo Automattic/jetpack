@@ -304,12 +304,19 @@ function jetpack_boost_page_optimize_build_output() {
 				);
 			}
 
-			// Minify CSS.
-			$buf     = Minify::css( $buf );
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.css$/', $fullpath ) ) {
+				// Minify CSS.
+				$buf = Minify::css( $buf );
+			}
 			$output .= "$buf";
 		} else {
-			// Minify JS
-			$buf     = Minify::js( $buf );
+			// If filename indicates it's already minified, don't minify it again.
+			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
+				// Minify JS
+				$buf = Minify::js( $buf );
+			}
+
 			$output .= "$buf;\n";
 		}
 	}

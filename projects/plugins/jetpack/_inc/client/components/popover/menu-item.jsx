@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 import React from 'react';
 
@@ -13,7 +13,7 @@ class MenuItem extends React.Component {
 		const onMouseOver = this.props.focusOnHover ? this._onMouseOver : null;
 		return (
 			<button
-				className={ classnames( 'dops-popover__menu-item', this.props.className ) }
+				className={ clsx( 'dops-popover__menu-item', this.props.className ) }
 				role="menuitem"
 				disabled={ this.props.disabled }
 				onClick={ this.props.onClick }

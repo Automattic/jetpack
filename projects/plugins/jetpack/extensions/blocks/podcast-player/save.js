@@ -1,5 +1,5 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export default function save( { attributes } ) {
 	const blockProps = useBlockProps.save();
@@ -11,7 +11,7 @@ export default function save( { attributes } ) {
 	return (
 		<a
 			{ ...blockProps }
-			className={ classNames( blockProps.className, 'jetpack-podcast-player__direct-link' ) }
+			className={ clsx( blockProps.className, 'jetpack-podcast-player__direct-link' ) }
 			href={ url }
 		>
 			{ url }

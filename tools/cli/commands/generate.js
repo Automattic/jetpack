@@ -1015,10 +1015,10 @@ function findVersionFromPnpmLock( pkg ) {
 	}
 
 	const version = Object.keys( findVersionFromPnpmLock.packages ).reduce( ( value, cur ) => {
-		if ( ! cur.startsWith( '/' + pkg + '@' ) ) {
+		if ( ! cur.startsWith( pkg + '@' ) ) {
 			return value;
 		}
-		const ver = cur.substring( pkg.length + 2 ).replace( /\(.*/, '' );
+		const ver = cur.substring( pkg.length + 1 );
 		return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
 	}, null );
 	return version || '*';

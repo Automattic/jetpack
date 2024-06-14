@@ -226,6 +226,12 @@ export function mapInternalPromptTypeToBackendPromptType(
 		[ PROMPT_TYPE_USER_PROMPT ]: 'ai-assistant-user-prompt',
 	};
 
+	// Handle specific Jetpack Form AI migration.
+	// This should be an exception since it's was feature made before inline extensions.
+	if ( extension === 'form-ai' ) {
+		return 'form-ai-extension';
+	}
+
 	if ( extension ) {
 		return `${ map[ promptType ] }-${ extension }-extension`;
 	}

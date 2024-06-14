@@ -7,6 +7,7 @@
  * @package automattic/jetpack
  */
 
+_deprecated_file( __FILE__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor' );
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Modules;
@@ -14,6 +15,8 @@ use Automattic\Jetpack\Status\Host;
 
 /**
  * WordPress.com Block editor for Jetpack
+ *
+ * @deprecated 13.6
  */
 class Jetpack_WPCOM_Block_Editor {
 	/**
@@ -32,8 +35,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Singleton
+	 *
+	 * @deprecated 13.6
 	 */
 	public static function init() {
+		_deprecated_function( __METHOD__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::init' );
 		static $instance = false;
 
 		if ( ! $instance ) {
@@ -45,8 +51,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Jetpack_WPCOM_Block_Editor constructor.
+	 *
+	 * @deprecated 13.6
 	 */
 	private function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::__construct' );
 		$this->set_cookie_args = array();
 		add_action( 'init', array( $this, 'init_actions' ) );
 	}

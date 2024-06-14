@@ -9,7 +9,7 @@ import { createTokenAuth } from '@octokit/auth-token';
 import { Octokit } from '@octokit/rest';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import glob from 'glob';
+import { glob } from 'glob';
 
 /**
  * List secrets.

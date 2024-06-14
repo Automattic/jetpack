@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Add a phan suppression to ignore the one Phan issue being reported here. It's a parameter contravariance needed to continue supporting Composer 2.2.
-
-

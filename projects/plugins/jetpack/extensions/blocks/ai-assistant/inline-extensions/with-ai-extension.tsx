@@ -11,6 +11,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import React from 'react';
 /*
@@ -32,7 +33,11 @@ import type {
 } from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
 import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 import type { PromptTypeProp } from '../lib/prompt';
-import type { PromptMessagesProp, PromptItemProps } from '@automattic/jetpack-ai-client';
+import type {
+	PromptMessagesProp,
+	PromptItemProps,
+	RequestingStateProp,
+} from '@automattic/jetpack-ai-client';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -41,6 +46,7 @@ const blockExtensionMapper = {
 	'core/paragraph': 'paragraph',
 	'core/list-item': 'list-item',
 	'core/list': 'list',
+	'jetpack/contact-form': 'form-ai',
 };
 
 // Defines where the block controls should be placed in the toolbar
@@ -80,8 +86,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const [ action, setAction ] = useState< string >( '' );
 		// The last request made by the user, to be used when the user clicks the "Try Again" button.
 		const lastRequest = useRef< RequestOptions | null >( null );
-		// State to display the AI Control or not.
-		const [ showAiControl, setShowAiControl ] = useState( false );
+		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
+		const requestingStateRef = useRef< RequestingStateProp | null >( null );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -91,7 +97,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}, [] );
 		// The block's id to find it in the DOM for the positioning adjustments
 		// The classname is used by nested blocks to determine which block's toolbar to display when the input is focused.
-		const { id, className } = useBlockProps();
+		const { id, className } = useBlockProps( {
+			className: clsx( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
+		} );
+
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
 
@@ -115,7 +124,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			getContent,
 			behavior,
 			isChildBlock,
+			feature,
+			adjustPosition,
+			startOpen,
+			hideOnBlockFocus,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
+
+		// State to display the AI Control or not.
+		const [ showAiControl, setShowAiControl ] = useState( startOpen );
 
 		// Called when the user clicks the "Ask AI Assistant" button.
 		const handleAskAiAssistant = useCallback( () => {
@@ -177,12 +193,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				onBlockSuggestion( suggestion );
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
-				adjustBlockPadding();
+				if ( adjustPosition ) {
+					adjustBlockPadding();
+				}
 
 				// Scroll to the bottom when a new suggestion is received.
 				snapToBottom();
 			},
-			[ onBlockSuggestion, adjustBlockPadding, snapToBottom ]
+			[ onBlockSuggestion, adjustPosition, snapToBottom, adjustBlockPadding ]
 		);
 
 		// Called after the last suggestion chunk is received.
@@ -225,7 +243,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 				// Make sure the block element has the necessary bottom padding, as it can be replaced or changed
 				setTimeout( () => {
-					adjustBlockPadding();
+					if ( adjustPosition ) {
+						adjustBlockPadding();
+					}
 					focusInput();
 				}, 100 );
 			},
@@ -234,8 +254,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				onBlockDone,
 				increaseRequestsCount,
 				getContent,
-				adjustBlockPadding,
+				adjustPosition,
 				focusInput,
+				adjustBlockPadding,
 			]
 		);
 
@@ -269,9 +290,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			onError,
 			askQuestionOptions: {
 				postId,
-				feature: 'ai-assistant',
+				feature,
 			},
 		} );
+
+		// Save the requesting state to use it in the hideOnBlockFocus effect.
+		useEffect( () => {
+			requestingStateRef.current = requestingState;
+		}, [ requestingState ] );
 
 		// Called when a suggestion from the toolbar is requested, like "Change tone".
 		const handleRequestSuggestion = useCallback< OnRequestSuggestion >(
@@ -381,6 +407,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				return;
 			}
 
+			if ( ! adjustPosition ) {
+				return;
+			}
+
 			// Once when the AI Control is displayed
 			if ( showAiControl && ! controlObserver.current && controlRef.current ) {
 				// Save the block bottom padding to reset it later.
@@ -430,7 +460,34 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					controlObserver.current.disconnect();
 				}
 			};
-		}, [ adjustBlockPadding, clientId, controlObserver, id, showAiControl ] );
+		}, [ adjustBlockPadding, adjustPosition, clientId, controlObserver, id, showAiControl ] );
+
+		// Hide the AI Control when the block is focused.
+		useEffect( () => {
+			if ( ! hideOnBlockFocus ) {
+				return;
+			}
+
+			if ( showAiControl ) {
+				const element = ownerDocument.current.getElementById( id );
+
+				const handleFocusInBlock = () => {
+					// If the AI Control is requesting or suggesting, don't hide it, as the block focus is programmatic.
+					if ( [ 'requesting', 'suggesting' ].includes( requestingStateRef.current as string ) ) {
+						return;
+					}
+
+					setShowAiControl( false );
+					element?.removeEventListener( 'focusin', handleFocusInBlock );
+				};
+
+				element?.addEventListener( 'focusin', handleFocusInBlock );
+
+				return () => {
+					element?.removeEventListener( 'focusin', handleFocusInBlock );
+				};
+			}
+		}, [ hideOnBlockFocus, showAiControl, id ] );
 
 		const aiInlineExtensionContent = (
 			<>

@@ -1,7 +1,7 @@
 /** @ssr-ready **/
 
 import { getWindowInnerWidth } from '@automattic/viewport';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SelectDropdown from 'components/select-dropdown';
 import DropdownItem from 'components/select-dropdown/item';
 import { debounce } from 'lodash';
@@ -54,7 +54,7 @@ class NavTabs extends React.Component {
 			return child && React.cloneElement( child, { ref: self.tabRefs[ 'tab-' + index ] } );
 		} );
 
-		const tabsClassName = classNames( {
+		const tabsClassName = clsx( {
 			'dops-section-nav-tabs': true,
 			'is-dropdown': this.state.isDropdown,
 			'is-open': this.state.isDropdownOpen,

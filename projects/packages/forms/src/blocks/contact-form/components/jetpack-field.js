@@ -1,6 +1,6 @@
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
@@ -25,7 +25,7 @@ const JetpackField = props => {
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
 
-	const classes = classnames( 'jetpack-field', {
+	const classes = clsx( 'jetpack-field', {
 		'is-selected': isSelected,
 		'has-placeholder': ! isEmpty( placeholder ),
 	} );

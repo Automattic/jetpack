@@ -18,6 +18,10 @@ export interface IBlockHandler {
 	getContent: () => string;
 	behavior: BlockBehavior;
 	isChildBlock?: boolean;
+	feature: string;
+	adjustPosition?: boolean;
+	startOpen?: boolean;
+	hideOnBlockFocus?: boolean;
 }
 
 export type BlockEditorSelect = {

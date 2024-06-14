@@ -5,7 +5,10 @@
  * @package automattic/jetpack-masterbar
  */
 
+namespace Automattic\Jetpack\Masterbar;
+
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use WP_User;
 
 /**
  * Hides profile fields for WordPress.com connected users.
@@ -62,4 +65,4 @@ function jetpack_masterbar_hide_profile_fields( $user ) {
 	<?php
 }
 
-add_action( 'personal_options', 'jetpack_masterbar_hide_profile_fields' );
+add_action( 'personal_options', __NAMESPACE__ . '\jetpack_masterbar_hide_profile_fields' );

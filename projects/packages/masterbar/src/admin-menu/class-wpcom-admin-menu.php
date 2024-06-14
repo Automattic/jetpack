@@ -412,38 +412,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
-	 * Adds Plugins menu.
-	 */
-	public function add_plugins_menu() {
-		// TODO: Remove wpcom_menu (/wp-content/admin-plugins/wpcom-misc.php).
-		$count = '';
-		if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
-			$update_data = wp_get_update_data();
-			$count       = sprintf(
-				'<span class="update-plugins count-%s"><span class="plugin-count">%s</span></span>',
-				$update_data['counts']['plugins'],
-				number_format_i18n( $update_data['counts']['plugins'] )
-			);
-		}
-
-		add_menu_page(
-			esc_attr__( 'Plugins', 'jetpack-masterbar' ),
-			sprintf(
-				/* translators: %s: Number of pending plugin updates. */
-				__( 'Plugins %s', 'jetpack-masterbar' ),
-				$count
-			),
-			'activate_plugins',
-			'plugins.php',
-			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
-			'dashicons-admin-plugins',
-			65
-		);
-
-		parent::add_plugins_menu();
-	}
-
-	/**
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 *
 	 * @return never

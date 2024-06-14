@@ -1,5 +1,5 @@
-import classNames from 'classnames';
 import Clipboard from 'clipboard';
+import clsx from 'clsx';
 import Button from 'components/button';
 import { omit, noop } from 'lodash';
 import PropTypes from 'prop-types';
@@ -42,7 +42,7 @@ export default class ClipboardButton extends React.Component {
 	};
 
 	render() {
-		const classes = classNames( 'dops-clipboard-button', this.props.className );
+		const classes = clsx( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
 				rna={ this.props.rna }

@@ -131,6 +131,10 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 						'If you see an error only when not logged into your WordPress site (i.e.: in "Incognito Mode"), then check for plugins which might be enforcing access permissions on your pages. For example, a plugin which only allows authenticated users to view specific areas of your site.',
 						'jetpack-boost'
 					),
+					__(
+						'Once you have resolved the error, please <retry>try again</retry>.',
+						'jetpack-boost'
+					),
 				],
 				closingParagraph: __(
 					'If the page is only accessible to users who are logged in to your WordPress site, or should not be a part of your site then it is safe to ignore this error.',

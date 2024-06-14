@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Exit codes:
+#   0: All is well
+#   1: One of the build steps failed
+#   2: The production build isn't clean
+
+set -eo pipefail
+
 # Start in the right folder.
 root_dir="$(dirname "${BASH_SOURCE[0]}")/.."
 cd "$root_dir"
@@ -8,23 +15,26 @@ cd "$root_dir"
 echo 'Starting full build...'
 
 # Run through full build flow.
-./tools/clean &&
-./tools/svg-optimize &&
+if ./tools/clean &&
+./tools/svg-optimize.js &&
 # Disabling this for now until we figure out the proper place for it.
 # ./tools/svg-to-php &&
-./tools/svg-to-sprite &&
+./tools/svg-to-sprite.js &&
 ./tools/svg-to-font.js &&
 ./tools/svg-to-react-data.js &&
-./tools/build-react &&
-echo 'Build complete.' ||
-echo 'Build failure!'
+./tools/build-react; then
+	echo 'Build complete.'
+else
+	echo 'Build failure!'
+	exit 1
+fi
 
 if [[ $1 == '--prod' ]]; then
 	echo 'Checking for changed source files...'
 	if ! git diff --exit-code --stat './src'; then
 		echo 'Production builds should not change the ./src folder!'
 		echo 'Did you forget to commit changes to ./src/react/social-logo-data.jsx?'
-		exit 1
+		exit 2
 	fi
 	echo 'Build is clean.'
 fi

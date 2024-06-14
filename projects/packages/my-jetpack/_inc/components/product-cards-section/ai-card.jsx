@@ -2,8 +2,8 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import ProductCard from '../connected-product-card';
-import { PRODUCT_STATUSES } from '../product-card/action-button';
 
 const AiCard = ( { admin } ) => {
 	const { userConnectionData } = useConnection();

@@ -13,7 +13,7 @@ import { dispatch, withSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { getWidgetIdFromBlock } from '@wordpress/widgets';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import emailValidator from 'email-validator';
 import { get, isEmpty, pick, trimEnd } from 'lodash';
 import HelpMessage from '../../shared/help-message';
@@ -438,7 +438,7 @@ export const SimplePaymentsEdit = ( {
 				<div>
 					<TextControl
 						aria-describedby={ `${ instanceId }-title-error` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-title', {
+						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
 						} ) }
 						label={ __( 'Item name', 'jetpack' ) }
@@ -471,7 +471,7 @@ export const SimplePaymentsEdit = ( {
 						/>
 						<TextControl
 							aria-describedby={ `${ instanceId }-price-error` }
-							className={ classNames( 'simple-payments__field', 'simple-payments__field-price', {
+							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
 							} ) }
 							label={ __( 'Price', 'jetpack' ) }
@@ -497,7 +497,7 @@ export const SimplePaymentsEdit = ( {
 
 					<TextControl
 						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
+						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,
 						} ) }
 						label={ __( 'Email', 'jetpack' ) }

@@ -1,14 +1,10 @@
-const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
-	output: {
-		...jetpackWebpackConfig.output,
-		path: path.resolve( './build' ),
-	},
+	output: jetpackWebpackConfig.output,
 	optimization: {
 		...jetpackWebpackConfig.optimization,
 	},
