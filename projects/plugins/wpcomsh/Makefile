@@ -108,7 +108,8 @@ i18n:
 	@ git commit $(BUILD_SRC)/languages -m "Update language files"
 
 ## tag
-tag: echo "This script is disabled, please use the 'tools/release-plugin.sh wpcomsh' script from the Monorepo root."
+tag:
+        @ echo "This script is disabled, please use the 'tools/release-plugin.sh wpcomsh' script from the Monorepo root."
 
 ## CI & other testing
 test-public-access: build
