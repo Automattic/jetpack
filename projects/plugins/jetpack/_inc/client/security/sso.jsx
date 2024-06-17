@@ -127,8 +127,11 @@ export const SSO = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const isSSOActive = this.props.getOptionValue( 'sso' ),
-				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
+			const isSSOActive = this.props.getOptionValue( 'sso' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
+			const isTwoStepEnforced =
+				!! this.props.getModule( 'sso' )?.options?.jetpack_sso_require_two_step?.default;
+
 			return (
 				<>
 					<SettingsCard
@@ -194,12 +197,14 @@ export const SSO = withModuleSettingsFormHelpers(
 								/>
 								<ToggleControl
 									checked={
-										isSSOActive &&
-										this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false )
+										( isSSOActive &&
+											this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false ) ) ||
+										isTwoStepEnforced
 									}
 									disabled={
 										! isSSOActive ||
 										unavailableInOfflineMode ||
+										isTwoStepEnforced ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
 									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
@@ -211,6 +216,11 @@ export const SSO = withModuleSettingsFormHelpers(
 												'jetpack'
 											) }
 										</span>
+									}
+									help={
+										isTwoStepEnforced
+											? __( 'Two-Step Authentication is enforced on this site.', 'jetpack' )
+											: null
 									}
 								/>
 							</FormFieldset>
