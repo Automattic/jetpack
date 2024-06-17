@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.25.0';
+	const PACKAGE_VERSION = '4.25.1-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -773,6 +773,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		if ( wp_doing_ajax() ) {
+			return array();
+		}
+
 		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
 		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
 			$red_bubble_slugs['welcome-banner-active'] = null;
@@ -789,24 +793,6 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
-		$broken_modules = self::check_for_broken_modules();
-
-		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'user',
-				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
-		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
-			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
-				'type'     => 'site',
-				'is_error' => true,
-			);
-			return $red_bubble_slugs;
-		}
-
 		if (
 			! ( new Connection_Manager() )->is_user_connected() &&
 			! ( new Connection_Manager() )->has_connected_owner()
