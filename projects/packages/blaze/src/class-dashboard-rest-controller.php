@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Health;
 use WC_Product;
 use WP_Error;
 use WP_REST_Request;
@@ -901,27 +901,16 @@ class Dashboard_REST_Controller {
 	}
 
 	/**
-	 * Check if a Full Sync of posts happened.
+	 * Check if the Health status code is sync.
 	 *
 	 * @return bool True if is sync, false otherwise.
 	 */
 	private function are_posts_ready(): bool {
-		// On WordPress.com Simple, Sync is not present, so we consider always synced.
+		// On WordPress.com Simple, Sync is not present, so we consider always ready.
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return true;
 		}
 
-		$full_sync_module = Modules::get_module( 'full-sync' );
-		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
-
-		// Is not synced if Full sync is in progress.
-		if ( ! $full_sync_module || ( $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) ) {
-			return false;
-		}
-
-		// Check if the posts sync happened.
-		$posts_config = $full_sync_module->get_status()['config']['posts'] ?? 0;
-
-		return 1 === (int) $posts_config;
+		return Health::STATUS_IN_SYNC === Health::get_status();
 	}
 }
