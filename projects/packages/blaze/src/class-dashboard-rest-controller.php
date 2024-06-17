@@ -329,8 +329,8 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->is_posts_synced() ) {
-			return new WP_Error( 'posts_not_synced', 'Content not ready yet. Please try again later.' );
+		if ( ! $this->are_posts_ready() ) {
+			return new WP_Error( 'posts_not_ready', 'Posts not ready yet. Please try again later.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -391,8 +391,8 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
-		if ( ! $this->is_posts_synced() ) {
-			return new WP_Error( 'posts_not_synced', 'Content not ready yet. Please try again later.' );
+		if ( ! $this->are_posts_ready() ) {
+			return new WP_Error( 'posts_not_ready', 'Posts not ready yet. Please try again later.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -905,7 +905,7 @@ class Dashboard_REST_Controller {
 	 *
 	 * @return bool True if is sync, false otherwise.
 	 */
-	private function is_posts_synced(): bool {
+	private function are_posts_ready(): bool {
 		// On WordPress.com Simple, Sync is not present, so we consider always synced.
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return true;
