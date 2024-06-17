@@ -21,9 +21,7 @@ $ pnpm jetpack build --deps projects/wpcomsh
 $ pnpm jetpack rsync projects/wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins 
 
 # From the root of a wp.org install
-$ mkdir -p wp-content/mu-plugins
 $ cd wp-content/mu-plugins
-$ cd jetpack/projects/plugins/wpcomsh
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
 # define 'IS_ATOMIC', 'ATOMIC_SITE_ID' and 'ATOMIC_CLIENT_ID' as true so the loader will require wpcomsh
