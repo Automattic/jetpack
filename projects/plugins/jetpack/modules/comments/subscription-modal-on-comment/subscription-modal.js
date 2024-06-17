@@ -23,6 +23,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				'jetpack-subscription-modal-on-comment-scroll-to',
 				destinationUrl.hash
 			);
+			// eslint-disable-next-line no-empty
 		} catch ( e ) {}
 		// For avoiding Firefox reload, we need to force reload bypassing the cache.
 		window.location.reload( true );
@@ -88,6 +89,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 					reloadOnCloseSubscriptionModal( data.url );
 					return;
 				}
+				// eslint-disable-next-line no-empty
 			} catch ( e ) {}
 
 			new Image().src =
