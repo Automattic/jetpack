@@ -55,21 +55,6 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Whether to use the v1 admin UI.
-	 */
-	public function use_admin_ui_v1(): bool {
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
-			return true;
-		}
-
-		// Otherwise, check the constant and the plan feature.
-		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
-			|| $this->has_connections_management_feature();
-	}
-
-	/**
 	 * Force user connection before showing the Publicize UI.
 	 */
 	public function force_user_connection() {

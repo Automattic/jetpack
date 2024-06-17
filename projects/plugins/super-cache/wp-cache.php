@@ -339,7 +339,7 @@ function wpsc_is_boost_installed() {
 	$plugins = array_keys( get_plugins() );
 
 	foreach ( $plugins as $plugin ) {
-		if ( str_contains( $plugin, 'jetpack-boost.php' ) ) {
+		if ( str_contains( $plugin, 'jetpack-boost/jetpack-boost.php' ) ) {
 			return true;
 		}
 	}
