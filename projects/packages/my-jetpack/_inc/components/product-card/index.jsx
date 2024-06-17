@@ -84,7 +84,8 @@ const ProductCard = inprops => {
 		secondaryAction,
 		children,
 		onInstallStandalone,
-		onActivateStandalone,
+		onMouseEnter,
+		onMouseLeave,
 	} = props;
 
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -168,21 +169,6 @@ const ProductCard = inprops => {
 	);
 
 	/**
-	 * Use a Tracks event to count a standalone plugin activation request
-	 */
-	// eslint-disable-next-line no-unused-vars
-	const activateStandaloneHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
-				product: slug,
-			} );
-			onActivateStandalone();
-		},
-		[ slug, onActivateStandalone, recordEvent ]
-	);
-
-	/**
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
@@ -197,6 +183,8 @@ const ProductCard = inprops => {
 			title={ name }
 			className={ clsx( styles.container, containerClassName ) }
 			headerRightContent={ null }
+			onMouseEnter={ onMouseEnter }
+			onMouseLeave={ onMouseLeave }
 		>
 			<Description />
 
@@ -265,6 +253,8 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.CAN_UPGRADE,
 		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,
+	onMouseEnter: PropTypes.func,
+	onMouseLeave: PropTypes.func,
 };
 
 export { PRODUCT_STATUSES };
