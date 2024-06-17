@@ -137,7 +137,10 @@
 		"autorelease": true,
 		"autotagger": true,
 		"beta-plugin-slug": "wpcomsh",
-		"release-branch-prefix": "wpcomsh",
+		"release-branch-prefix": [
+			"wpcomsh",
+			"weekly"
+		],
 		"installer-disable": true,
 		"changelogger": {
 			"versioning": "semver"
