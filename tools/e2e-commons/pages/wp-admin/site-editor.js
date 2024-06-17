@@ -61,9 +61,9 @@ export default class SiteEditorPage extends WpPage {
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
 		await this.click( `.editor-block-list-item-jetpack-${ blockName }` );
 
-		const blockElement = await this.canvasPage
+		const blockElement = this.canvasPage
 			.canvas()
-			.waitForSelector( `div[data-type='jetpack/${ blockName }']` );
+			.locator( `div[data-type='jetpack/${ blockName }']` );
 		const blockId = await blockElement.getAttribute( 'data-block' );
 		logger.info( `Block inserted: {name: ${ blockName }, id: ${ blockId }}` );
 		await this.canvasPage.canvas().focus( `#block-${ blockId }` );

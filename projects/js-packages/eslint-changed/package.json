@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.0.8",
+	"version": "2.0.9-alpha",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/eslint-changed/#readme",
 	"type": "module",

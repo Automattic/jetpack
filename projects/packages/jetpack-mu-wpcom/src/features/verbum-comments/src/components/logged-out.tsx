@@ -1,7 +1,8 @@
+import clsx from 'clsx';
 import { useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { commentParent } from '../state';
-import { classNames, serviceData } from '../utils';
+import { serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
 
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
@@ -87,12 +88,12 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 						<>
 							<div className="verbum-subscriptions__login-header">{ getLoginCommentText() }</div>
 							<div
-								className={ classNames( 'verbum-logins', {
+								className={ clsx( 'verbum-logins', {
 									'logging-in': activeService,
 								} ) }
 							>
 								<div
-									className={ classNames( 'verbum-logins__social-buttons', {
+									className={ clsx( 'verbum-logins__social-buttons', {
 										'show-form-content': ! mustLogIn,
 									} ) }
 								>
@@ -108,7 +109,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 												type="button"
 												key={ service }
 												onClick={ e => handleClick( e, service ) }
-												className={ classNames( 'social-button', service, {
+												className={ clsx( 'social-button', service, {
 													active: service === activeService,
 												} ) }
 											>
@@ -119,7 +120,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 								</div>
 								{ [ 'wordpress', 'facebook' ].includes( activeService ) && (
 									<div
-										className={ classNames( 'verbum-login__social-loading', {
+										className={ clsx( 'verbum-login__social-loading', {
 											'must-login': mustLogIn,
 										} ) }
 									>

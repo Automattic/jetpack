@@ -1,3 +1,12 @@
 @import "variables";
 @import "../admin";
 @import "sidebar-notice";
+
+#wpadminbar:not(.mobile) li:hover .ab-icon:before,
+#wpadminbar:not(.mobile) li:hover .ab-item:before {
+    color: $menu-submenu-current-text;
+}
+
+#wpadminbar #wp-admin-bar-user-info .display-name {
+	color: $menu-submenu-text;
+}

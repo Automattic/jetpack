@@ -16,7 +16,7 @@
 	data-consent-expiration="<?php echo (int) $instance['consent-expiration']; ?>"
 	id="eu-cookie-law"
 >
-	<form method="post">
+	<form method="post" id="jetpack-eu-cookie-law-form">
 		<input type="submit" value="<?php echo esc_attr( $instance['button'] ); ?>" class="accept" />
 	</form>
 

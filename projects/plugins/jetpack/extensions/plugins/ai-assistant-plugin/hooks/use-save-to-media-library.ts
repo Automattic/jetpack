@@ -19,7 +19,7 @@ export default function useSaveToMediaLibrary() {
 		[]
 	) as BlockEditorStore[ 'selectors' ];
 
-	const saveToMediaLibrary = ( url: string ): Promise< { id: string } > => {
+	const saveToMediaLibrary = ( url: string ): Promise< { id: string; url: string } > => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const settings = getSettings() as any;
 

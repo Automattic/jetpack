@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Updated `eslint-plugin-es-x` adds additional rules: `es-x/no-arraybuffer-prototype-transfer`, `es-x/no-object-map-groupby`, `es-x/no-promise-withresolvers`, `es-x/no-resizable-and-growable-arraybuffers`, `es-x/no-set-prototype-difference`, `es-x/no-set-prototype-intersection`, `es-x/no-set-prototype-isdisjointfrom`, `es-x/no-set-prototype-issubsetof`, `es-x/no-set-prototype-issupersetof`, `es-x/no-set-prototype-symmetricdifference`, and `es-x/no-set-prototype-union`.

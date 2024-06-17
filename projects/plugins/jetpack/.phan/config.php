@@ -39,6 +39,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/crm/includes/ZeroBSCRM.Core.Extensions.php', // functions zeroBSCRM_isExtensionInstalled, zeroBSCRM_extension_install_jetpackforms
 
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/class-jetpack-mu-wpcom.php', // class Jetpack_Mu_Wpcom
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/features/launchpad/launchpad.php', // function wpcom_launchpad_is_fse_next_steps_modal_hidden
 		),
 	)

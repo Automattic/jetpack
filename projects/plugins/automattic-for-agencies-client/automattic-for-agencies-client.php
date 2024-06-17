@@ -4,9 +4,9 @@
  * Plugin Name: Automattic for Agencies Client
  * Plugin URI: https://wordpress.org/plugins/automattic-for-agencies-client
  * Description: Securely connect your clients’ sites to the Automattic for Agencies Sites Dashboard. Manage your sites from one place and see what needs attention.
- * Version: 0.2.1-alpha
+ * Version: 0.2.2-alpha
  * Author: Automattic
- * Author URI: https://jetpack.com/
+ * Author URI: https://automattic.com/for-agencies/
  * License: GPLv2 or later
  * Text Domain: automattic-for-agencies-client
  *

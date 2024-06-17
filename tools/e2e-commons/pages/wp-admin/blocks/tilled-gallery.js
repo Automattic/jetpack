@@ -56,7 +56,7 @@ export default class TiledGallery extends EditorCanvas {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( '.tiled-gallery__gallery' );
+		await page.locator( '.tiled-gallery__gallery' ).waitFor();
 	}
 
 	#getSelector( selector ) {
