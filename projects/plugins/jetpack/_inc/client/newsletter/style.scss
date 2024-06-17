@@ -78,9 +78,9 @@
 
 .byline-preview {
 	display: flex;
-    align-items: center;
-    flex-flow: row;
-    margin: 0 0 20px;
+	align-items: center;
+	flex-flow: row;
+	margin: 0 0 20px;
 }
 
 .byline-preview__gravatar {
@@ -98,7 +98,7 @@
 	font-size: 11px;
 	color: var(--jp-gray-20);
 	text-transform: uppercase;
-	display:block;
+	display: block;
 	margin-bottom: 4px;
 }
 
@@ -106,4 +106,7 @@
 	margin-left: 60px;
 	margin-bottom: 12px;
 	margin-top: -12px;
+}
+.jp-settings-container .help-info a.components-button {
+	text-decoration: none;
 }
