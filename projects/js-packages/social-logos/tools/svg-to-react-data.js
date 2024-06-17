@@ -15,7 +15,7 @@ const rootDir = __dirname + '/..';
 process.chdir( rootDir );
 
 /**
- * Transforms kebab case names to camel case
+ * Transforms kebab case names to camel case.
  * @param {string} name - e.g.: foo-bar-baz
  * @returns {string} e.g.: fooBarBaz
  */
@@ -26,10 +26,8 @@ function kebabToCamelCase( name ) {
 	} );
 }
 
-// Make dir if it doesn't exist.
-if ( ! fs.existsSync( destReactDir ) ) {
-	fs.mkdirSync( destReactDir, { recursive: true } );
-}
+// Make destination dir as needed.
+fs.mkdirSync( destReactDir, { recursive: true } );
 
 let socialLogoData = `/** This is a generated file. Do not edit. */
 export const SocialLogoData = [`;

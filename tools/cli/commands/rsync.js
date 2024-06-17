@@ -61,10 +61,16 @@ export async function rsyncInit( argv ) {
 	let finalDest;
 	if ( argv.dest.match( /\/(?:mu-)?plugins\/?$/ ) ) {
 		// Pull the actual plugin slug from composer.json.
-		const pluginComposerJson = await fs.readFile(
-			projectDir( `plugins/${ argv.plugin }/composer.json` )
+		const pluginComposerJson = JSON.parse(
+			await fs.readFile( projectDir( `plugins/${ argv.plugin }/composer.json` ) )
 		);
-		const wpPluginSlug = JSON.parse( pluginComposerJson ).extra[ 'wp-plugin-slug' ];
+		const wpPluginSlug =
+			pluginComposerJson?.extra?.[ 'wp-plugin-slug' ] ??
+			pluginComposerJson?.extra?.[ 'beta-plugin-slug' ];
+		if ( ! wpPluginSlug ) {
+			console.error( chalk.red( `Failed to determine plugin slug for ${ argv.plugin }.` ) );
+			process.exit( 1 );
+		}
 		finalDest = path.join( argv.dest, wpPluginSlug + '/' );
 	} else {
 		finalDest = path.join( argv.dest, '/' );

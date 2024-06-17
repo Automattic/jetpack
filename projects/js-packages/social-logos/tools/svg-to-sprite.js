@@ -16,10 +16,8 @@ const svgstore = require( 'svgstore' );
 const rootDir = __dirname + '/..';
 process.chdir( rootDir );
 
-// Make dir if it doesn't exist.
-if ( ! fs.existsSync( destSpriteDir ) ) {
-	fs.mkdirSync( destSpriteDir, { recursive: true } );
-}
+// Make destination dir as needed.
+fs.mkdirSync( destSpriteDir, { recursive: true } );
 
 // Generate SVG.
 const sprites = svgstore( { inline: true } );
