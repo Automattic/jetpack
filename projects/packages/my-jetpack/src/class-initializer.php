@@ -809,6 +809,24 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
+		$broken_modules = self::check_for_broken_modules();
+
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
 		if (
 			! ( new Connection_Manager() )->is_user_connected() &&
 			! ( new Connection_Manager() )->has_connected_owner()
