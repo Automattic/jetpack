@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Add names in composer.json `repositories` to make Renovate happy. No change to functionality.
-
-
