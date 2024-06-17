@@ -16,10 +16,10 @@ echo 'Starting full build...'
 
 # Run through full build flow.
 if ./tools/clean &&
-./tools/svg-optimize &&
+./tools/svg-optimize.js &&
 # Disabling this for now until we figure out the proper place for it.
 # ./tools/svg-to-php &&
-./tools/svg-to-sprite &&
+./tools/svg-to-sprite.js &&
 ./tools/svg-to-font.js &&
 ./tools/svg-to-react-data.js &&
 ./tools/build-react; then

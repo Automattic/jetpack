@@ -19,7 +19,7 @@ function getCriticalCssErrorSetInterpolateVars( errorSet: ErrorSet ) {
 	const interpolateVars: InterpolateVars = {
 		...actionLinkInterpolateVar( () => {
 			recordBoostEvent( 'critical_css_retry', {
-				errorType: errorSet.type,
+				error_type: errorSet.type,
 			} );
 
 			retry();

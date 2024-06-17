@@ -4,19 +4,10 @@ import useProductInfo from '..';
 jest.mock( '@wordpress/api-fetch', () => {
 	return jest.fn( () => {
 		return Promise.resolve( {
-			basic: {
+			v1: {
 				currency_code: 'USD',
 				cost: 120,
 				introductory_offer: null,
-			},
-			advanced: {
-				currency_code: 'USD',
-				cost: 240,
-				introductory_offer: {
-					cost_per_interval: 720,
-					interval_count: 1,
-					interval_unit: 'month',
-				},
 			},
 		} );
 	} );
@@ -30,13 +21,9 @@ describe( 'useProductInfo', () => {
 			const [ productInfo ] = result.current;
 			expect( productInfo ).toEqual( {
 				currencyCode: 'USD',
-				basic: {
+				v1: {
 					price: 10,
 					introOffer: null,
-				},
-				advanced: {
-					price: 20,
-					introOffer: 60,
 				},
 			} );
 		} );
