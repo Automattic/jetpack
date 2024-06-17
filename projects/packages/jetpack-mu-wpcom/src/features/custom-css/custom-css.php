@@ -56,7 +56,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		public static function init() {
 			Assets::register_script(
 				'jetpack-customizer-css',
-				'../../build/core-customizer-css/core-customizer-css.js',
+				'custom-css/js/core-customizer-css.core-4.9.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
@@ -65,14 +65,13 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 						'underscore',
 					),
 					'in-footer'    => true,
-					'nonmin_path'  => 'custom-css/js/core-customizer-css.core-4.9.js',
-					'css_path'     => '../../build/customizer-control/customizer-control.css',
+					'css_path'     => 'custom-css/css/customizer-control.css',
 				)
 			);
 
 			Assets::register_script(
 				'jetpack-customizer-css-preview',
-				'../../build/core-customizer-css-preview/core-customizer-css-preview.js',
+				'custom-css/js/core-customizer-css-preview.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
@@ -80,7 +79,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 						'customize-selective-refresh',
 					),
 					'in-footer'    => true,
-					'nonmin_path'  => 'custom-css/js/core-customizer-css-preview.js',
 				)
 			);
 
