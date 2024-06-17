@@ -348,6 +348,8 @@ class Jetpack_Social {
 		// Add connectionData if we are using the new Connection UI.
 		if ( $social_state['useAdminUiV1'] ) {
 			$initial_state['connectionData'] = $social_state['connectionData'];
+
+			$initial_state['connectionRefreshPath'] = $social_state['connectionRefreshPath'];
 		}
 
 		wp_localize_script(

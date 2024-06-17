@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+User Content Link Tracking: check domain before redirecting to subscribe.wordpress.com
