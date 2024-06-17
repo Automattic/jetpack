@@ -11,16 +11,20 @@ With the help of this mu-plugin, an Atomic site is transformed into a WP.com sit
 ### Quick Start
 
 ```
-# From the root of a wp.org install
-$ mkdir -p wp-content/mu-plugins
-$ cd wp-content/mu-plugins
+# Clone the Monorepo somewhere locally
 $ git clone git@github.com:Automattic/jetpack.git
 $ cd jetpack
 $ pnpm install
 $ pnpm jetpack build --deps projects/wpcomsh
+
+# Specify your development server and path to sync the code to your wp.org install 
+$ pnpm jetpack rsync projects/wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins 
+
+# From the root of a wp.org install
+$ mkdir -p wp-content/mu-plugins
+$ cd wp-content/mu-plugins
 $ cd jetpack/projects/plugins/wpcomsh
-$ jetpack rsync plugins/wpcomsh # specify your development server and path and copy the loader to mu-plugins,
-$ # last step not necessary for development Atomic sites. 
+$ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
 # define 'IS_ATOMIC', 'ATOMIC_SITE_ID' and 'ATOMIC_CLIENT_ID' as true so the loader will require wpcomsh
 
@@ -34,7 +38,8 @@ To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin instal
 You will also need to go through [the Monorepo install procedure](https://developer.jetpack.com/docs/jetpack-development/developer-environment/)
 
 1. Build the wpcomsh plugin using [the Monorepo tools](https://developer.jetpack.com/docs/jetpack-development/jetpack-cli/#build).
-2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
+2. Synchronize the code using `jetpack rsync` into the `wp-content/mu-plugins` folder.
+3. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
    It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
 
 If you want to add some new code to wpcomsh, it's as easy as [creating a pull request](https://developer.jetpack.com/docs/jetpack-development/creating-a-pull-request/) to the plugin code. Make sure to test thoroughly on a WoA dev blog and send the PR to your team for review.
