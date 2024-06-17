@@ -4,13 +4,11 @@
 vendor/
 jetpack_vendor/
 /.nova/
-/.vscode/
 /logs
 /allure-results/
 
 ## FILES
 .DS_Store
-*.code-workspace
 *.swp
 # Custom environment for Docker compose (used by docker-compose.yml)
 /.env
@@ -56,4 +54,6 @@ phpcs.xml
 # This file indicates we're in draft mode, which reduces checks
 .jetpack-draft
 
-.vscode/settings.json
+# VS Code setting files
+*.code-workspace
+/.vscode/settings.json
