@@ -2,9 +2,11 @@
 	0% {
 		overflow: hidden;
 	}
+
 	99% {
 		overflow: hidden;
 	}
+
 	100% {
 		overflow: unset;
 	}
@@ -14,9 +16,11 @@
 	0% {
 		overflow: unset;
 	}
+
 	1% {
 		overflow: hidden;
 	}
+
 	100% {
 		overflow: hidden;
 	}
@@ -27,15 +31,18 @@
 	transition: grid-template-rows 500ms;
 	display: grid;
 	position: relative;
+
 	.tree-dropdown {
 		animation: categories-slide-down 500ms;
 		overflow: unset;
 	}
+
 	&.hide {
 		.tree-dropdown {
 			animation: categories-slide-up 500ms;
 			overflow: hidden;
 		}
+
 		grid-template-rows: 0fr;
 	}
 }
@@ -60,11 +67,43 @@
 }
 
 .sender-name-example {
-	font-size: var( --font-body-small );
-	color: var( --jp-gray-20 );
+	font-size: var(--font-body-small);
+	color: var(--jp-gray-20);
 	margin-top: 8px;
 }
 
 #jp-settings-subscriptions .jp-form-fieldset:not(:first-of-type) {
 	margin-top: 24px;
+}
+
+.byline-preview {
+	display: flex;
+    align-items: center;
+    flex-flow: row;
+    margin: 0 0 20px;
+}
+
+.byline-preview__gravatar {
+	border-radius: 50%;
+	width: 32px;
+	height: 32px;
+	margin-right: 8px;
+}
+
+.byline-preview__author {
+	margin-right: 8px;
+}
+
+.byline-preview__label {
+	font-size: 11px;
+	color: var(--jp-gray-20);
+	text-transform: uppercase;
+	display:block;
+	margin-bottom: 4px;
+}
+
+.help-info {
+	margin-left: 60px;
+	margin-bottom: 12px;
+	margin-top: -12px;
 }

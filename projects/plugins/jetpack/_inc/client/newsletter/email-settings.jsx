@@ -4,6 +4,7 @@ import {
 	getRedirectUrl,
 	Container,
 	Col,
+	Button as JetpackButton,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -16,8 +17,15 @@ import analytics from 'lib/analytics';
 import { useCallback, useState } from 'react';
 import { connect } from 'react-redux';
 import { isUnavailableInOfflineMode, isUnavailableInSiteConnectionMode } from 'state/connection';
-import { getSiteTitle } from 'state/initial-state';
+import {
+	getSiteTitle,
+	getUserGravatar,
+	getDisplayName,
+	getNewsetterDateExample,
+	getSiteAdminUrl,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
+import BylinePreview from './byline-preview';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
 
 const featuredImageInEmailSupportUrl = 'https://wordpress.com/support/featured-images/';
@@ -25,6 +33,9 @@ const subscriptionsAndNewslettersSupportUrl =
 	'https://wordpress.com/support/subscriptions-and-newsletters/';
 const FEATURED_IMAGE_IN_EMAIL_OPTION = 'wpcom_featured_image_in_email';
 const SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION = 'wpcom_subscription_emails_use_excerpt';
+const GRAVATER_OPTION = 'jetpack_gravatar_in_email';
+const AUTHOR_OPTION = 'jetpack_author_in_email';
+const POST_DATE_OPTION = 'jetpack_post_date_in_email';
 const REPLY_TO_OPTION = 'jetpack_subscriptions_reply_to';
 const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 
@@ -34,13 +45,31 @@ const EmailSettings = props => {
 		subscriptionsModule,
 		unavailableInOfflineMode,
 		isFeaturedImageInEmailEnabled,
+		isGravatarEnabled,
+		isAuthorEnabled,
+		isPostDateEnabled,
 		subscriptionEmailsUseExcerpt,
 		subscriptionReplyTo,
 		subscriptionFromName,
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
+		gravatar,
+		adminUrl,
+		displayName,
+		dateExample,
 		siteName,
 	} = props;
+
+	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
+	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
+	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
+
+	const [ bylineState, setBylineState ] = useState( {
+		isGravatarEnabled,
+		isAuthorEnabled,
+		isPostDateEnabled,
+	} );
 
 	const handleEnableFeaturedImageInEmailToggleChange = useCallback( () => {
 		const value = ! isFeaturedImageInEmailEnabled;
@@ -50,6 +79,32 @@ const EmailSettings = props => {
 		} );
 	}, [ isFeaturedImageInEmailEnabled, updateFormStateAndSaveOptionValue ] );
 
+	const handleEnableGravatarToggleChange = useCallback( () => {
+		const value = ! isGravatarEnabled;
+		updateFormStateAndSaveOptionValue( GRAVATER_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_gravatar_in_email', {
+			value,
+		} );
+		setBylineState( { ...bylineState, isGravatarEnabled: value } );
+	}, [ isGravatarEnabled, updateFormStateAndSaveOptionValue, setBylineState, bylineState ] );
+
+	const handleEnableAuthorToggleChange = useCallback( () => {
+		const value = ! isAuthorEnabled;
+		updateFormStateAndSaveOptionValue( AUTHOR_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_author_in_email', {
+			value,
+		} );
+		setBylineState( { ...bylineState, isAuthorEnabled: value } );
+	}, [ isAuthorEnabled, updateFormStateAndSaveOptionValue, setBylineState, bylineState ] );
+
+	const handleEnablePostDateToggleChange = useCallback( () => {
+		const value = ! isPostDateEnabled;
+		updateFormStateAndSaveOptionValue( POST_DATE_OPTION, value );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_toggle_post_data_in_email', {
+			value,
+		} );
+		setBylineState( { ...bylineState, isPostDateEnabled: value } );
+	}, [ isPostDateEnabled, updateFormStateAndSaveOptionValue, setBylineState, bylineState ] );
 	const handleSubscriptionEmailsUseExcerptChange = useCallback(
 		value => {
 			updateFormStateAndSaveOptionValue(
@@ -69,7 +124,6 @@ const EmailSettings = props => {
 		[ updateFormStateAndSaveOptionValue ]
 	);
 
-	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
 	const featuredImageInputDisabled =
 		disabled || isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] );
 	const excerptInputDisabled =
@@ -134,6 +188,81 @@ const EmailSettings = props => {
 					}
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
+			</SettingsGroup>
+
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode
+				module={ subscriptionsModule }
+				className="newsletter-group"
+			>
+				<FormLegend className="jp-form-label-wide">{ __( 'Email Byline', 'jetpack' ) }</FormLegend>
+				<BylinePreview
+					isGravatarEnabled={ bylineState.isGravatarEnabled }
+					isAuthorEnabled={ bylineState.isAuthorEnabled }
+					isPostDateEnabled={ bylineState.isPostDateEnabled }
+					gravatar={ gravatar }
+					displayName={ displayName }
+					dateExample={ dateExample }
+				/>
+
+				<ToggleControl
+					disabled={ gravatarInputDisabled }
+					checked={ isGravatarEnabled }
+					toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show author avatar in the email byline.', 'jetpack' ) }
+						</span>
+					}
+					onChange={ handleEnableGravatarToggleChange }
+				/>
+				<div className="help-info">
+					{ __(
+						'We use Gravatar, a service that associates an avatar image with your primary email.',
+						'jetpack'
+					) }
+
+					<JetpackButton
+						isExternalLink={ true }
+						href="https://gravatar.com/profile/avatars"
+						variant="secondary"
+						size="small"
+					>
+						{ __( 'Update your Gravatar', 'jetpack' ) }
+					</JetpackButton>
+				</div>
+				<ToggleControl
+					disabled={ authorInputDisabled }
+					checked={ isAuthorEnabled }
+					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show author display name in the email byline.', 'jetpack' ) }
+						</span>
+					}
+					onChange={ handleEnableAuthorToggleChange }
+				/>
+
+				<ToggleControl
+					disabled={ postDateInputDisabled }
+					checked={ isPostDateEnabled }
+					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show post date in the email byline.', 'jetpack' ) }
+						</span>
+					}
+					onChange={ handleEnablePostDateToggleChange }
+				/>
+				<div className="help-info">
+					{ __( "You can customize the date format in your site's general settings.", 'jetpack' ) }
+					<br />
+					<JetpackButton href={ adminUrl + 'options-general.php' } variant="secondary" size="small">
+						{ __( 'Update Date Format', 'jetpack' ) }
+					</JetpackButton>
+				</div>
 			</SettingsGroup>
 
 			<SettingsGroup
@@ -217,7 +346,6 @@ const EmailSettings = props => {
 					</Col>
 				</Container>
 			</SettingsGroup>
-
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
@@ -278,12 +406,19 @@ export default withModuleSettingsFormHelpers(
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			isFeaturedImageInEmailEnabled: ownProps.getOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION ),
+			isGravatarEnabled: ownProps.getOptionValue( GRAVATER_OPTION ),
+			isPostDateEnabled: ownProps.getOptionValue( POST_DATE_OPTION ),
+			isAuthorEnabled: ownProps.getOptionValue( AUTHOR_OPTION ),
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
 			siteName: getSiteTitle( state ),
+			gravatar: getUserGravatar( state ),
+			displayName: getDisplayName( state ),
+			adminUrl: getSiteAdminUrl( state ),
 			subscriptionReplyTo: ownProps.getOptionValue( REPLY_TO_OPTION ),
 			subscriptionFromName: ownProps.getOptionValue( FROM_NAME_OPTION ),
+			dateExample: getNewsetterDateExample( state ),
 			unavailableInOfflineMode: isUnavailableInOfflineMode( state, SUBSCRIPTIONS_MODULE_NAME ),
 			unavailableInSiteConnectionMode: isUnavailableInSiteConnectionMode(
 				state,

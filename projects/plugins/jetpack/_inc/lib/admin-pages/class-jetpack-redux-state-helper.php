@@ -247,6 +247,7 @@ class Jetpack_Redux_State_Helper {
 			'socialInitialState'            => self::get_publicize_initial_state(),
 			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
+			'newsletterDateExample'         => gmdate( preg_replace( '/[\/,.\s-]*(Y|y)[\/,.\s-]*/', '', get_option( 'date_format' ) ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme() && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
@@ -528,6 +529,7 @@ function jetpack_current_user_data() {
 		'isConnected' => $is_user_connected,
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
+		'displayName' => $current_user->display_name,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
 		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
