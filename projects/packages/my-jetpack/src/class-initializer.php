@@ -744,22 +744,33 @@ class Initializer {
 	 * @return array
 	 */
 	public static function check_for_broken_modules() {
-		$broken_modules              = array(
+		$is_user_connected = ( new Connection_Manager() )->is_user_connected() || ( new Connection_Manager() )->has_connected_owner();
+		$is_site_connected = ( new Connection_Manager() )->is_connected();
+		$broken_modules    = array(
 			'needs_site_connection' => array(),
 			'needs_user_connection' => array(),
 		);
-		$products                    = Products::get_products();
+
+		if ( $is_user_connected && $is_site_connected ) {
+			return $broken_modules;
+		}
+
+		$products                    = Products::get_products_classes();
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 
-		foreach ( $historically_active_modules as $module ) {
-			$product = $products[ $module ];
+		foreach ( $products as $product ) {
+			if ( ! in_array( $product::$slug, $historically_active_modules, true ) ) {
+				continue;
+			}
 
-			// If the site or user is disconnected, and the product requires a user connection
-			// mark the product as a broken module needing user connection
-			if ( in_array( $product['status'], Products::$broken_module_statuses, true ) && $product['requires_user_connection'] ) {
-				$broken_modules['needs_user_connection'][] = $module;
-			} elseif ( $product['status'] === Products::STATUS_SITE_CONNECTION_ERROR ) {
-				$broken_modules['needs_site_connection'][] = $module;
+			if ( $product::$requires_user_connection && ! $is_user_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_user_connection'], true ) ) {
+					$broken_modules['needs_user_connection'][] = $product::$slug;
+				}
+			} elseif ( ! $is_site_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_site_connection'], true ) ) {
+					$broken_modules['needs_site_connection'][] = $product::$slug;
+				}
 			}
 		}
 
