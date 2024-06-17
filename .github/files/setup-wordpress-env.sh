@@ -70,6 +70,12 @@ for PLUGIN in projects/plugins/*/composer.json; do
 
 	echo "::group::Installing plugin $NAME into WordPress"
 
+	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
+		echo "::endgroup::"
+		echo "Skipping install of plugin $NAME, requires PHP $( jq -r '.require.php // ""' "$DIR/composer.json" )"
+		continue
+	fi
+
 	if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$DIR/composer.json" > /dev/null; then
 		{ composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
 		if [[ $CODE -eq 3 ]]; then
@@ -157,6 +163,16 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	fi
 
 	cd "$BASE"
+	echo "::endgroup::"
+fi
+
+# Install the wpcomsh plugin used for some Jetpack integration tests.
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	echo "::group::Installing wpcomsh into WordPress"
+
+	mkdir "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins"
+	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
+
 	echo "::endgroup::"
 fi
 

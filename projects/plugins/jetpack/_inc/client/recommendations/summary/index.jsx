@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { JetpackLoadingIcon } from 'components/jetpack-loading-icon';
 import { isEmpty } from 'lodash';
 import React, { useEffect } from 'react';
@@ -188,14 +188,14 @@ const SummaryComponent = props => {
 		<div className="jp-recommendations-summary">
 			<div className="jp-recommendations-summary__main">
 				<div
-					className={ classNames( 'jp-recommendations-summary__content', {
+					className={ clsx( 'jp-recommendations-summary__content', {
 						isLoading: isFetchingMainData,
 					} ) }
 				>
 					{ mainContent }
 				</div>
 				<div
-					className={ classNames( 'jp-recommendations-summary__sidebar', {
+					className={ clsx( 'jp-recommendations-summary__sidebar', {
 						isLoading: isFetchingSidebarData,
 					} ) }
 				>
@@ -204,7 +204,7 @@ const SummaryComponent = props => {
 			</div>
 			{ undersideCards && (
 				<div
-					className={ classNames( 'jp-recommendations-summary__underside', {
+					className={ clsx( 'jp-recommendations-summary__underside', {
 						isLoading: isFetchingBottomSectionData,
 					} ) }
 				>

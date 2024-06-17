@@ -191,7 +191,6 @@ Fetch Jetpack's current connection status.
 ```json
 {
 	"isActive": true,
-	"isStaging": false,
 	"offlineMode": {
 		"isActive":false,
 		"constant":false,

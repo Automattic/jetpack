@@ -4,7 +4,7 @@
 import { Button as WPButton, Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
@@ -36,7 +36,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		...componentProps
 	} = props;
 
-	const className = classNames( styles.button, propsClassName, {
+	const className = clsx( styles.button, propsClassName, {
 		[ styles.normal ]: size === 'normal',
 		[ styles.small ]: size === 'small',
 		[ styles.icon ]: Boolean( icon ),
@@ -73,7 +73,7 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		<WPButton
 			target={ externalTarget }
 			variant={ variant }
-			className={ classNames( className, { 'has-text': !! icon && hasChildren } ) }
+			className={ clsx( className, { 'has-text': !! icon && hasChildren } ) }
 			icon={ ! isExternalLink ? icon : undefined }
 			iconSize={ iconSize }
 			disabled={ disabled }

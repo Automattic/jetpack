@@ -21,7 +21,7 @@ if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 	function wp_cache_is_enabled() {}
 }
 
-if ( ! function_exists( 'wpcom_site_has_feature' ) ) {
+if ( ! function_exists( 'wpcom_site_has_feature' ) && false === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 	/**
 	 * Mock feature support.
 	 *

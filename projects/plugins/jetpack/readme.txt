@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, jwidavid, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.4.3
+Stable tag: 13.5
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
@@ -326,32 +326,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.5-beta - 2024-06-03
+### 13.6-a.3 - 2024-06-17
 #### Enhancements
-- AI Assistant: Enable inline Heading extension.
-- AI Assistant: Fallback to transformation when multiple blocks are selected.
-- AI Assistant: Move List and List Item extensions to production.
-- AI Assistant: Move Paragraph extension to production.
-- Newsletter: Add "From" name setting.
-- Newsletter: Add "Reply to" name setting.
-- Notifications: Change icon.
-- Social: Add connection management to editor.
-- Social: Add the new Jetpack Social plan.
-- Social: Add width to connection management container.
-- SSO: Improve accessibility of tooltips on WP Admin users page.
-- Stats: Deprecate old Stats experience.
-- Subscribe block: Add button-only style.
-- Subscribe block: Allow in the Navigation block.
-- Subscriptions: Add a toggle to automatically add Subscribe block to site navigation.
-- WordAds: Add inline ads within post content.
-
-#### Improved compatibility
-- Block Editor: Remove External Link icon styling fix now that the change has been made in WordPress itself.
-- Change how Jetpack social connections are stored on the local site.
+- AI Assistant: Hide input when user types on extended block.
 
 #### Bug fixes
-- Slideshow: Ensures autoplay works properly.
-- WordAds: Prevent fatal error when post content is null.
+- Like block: Fix editor styling.
 
 --------
 

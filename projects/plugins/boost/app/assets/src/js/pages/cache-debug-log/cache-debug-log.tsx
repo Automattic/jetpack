@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 import Header from '$layout/header/header';
 import Footer from '$layout/footer/footer';
 import styles from './cache-debug-log.module.scss';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { CopyToClipboard } from '@automattic/jetpack-components';
 import { useDebugLog } from '$features/page-cache/lib/stores';
 
@@ -12,7 +12,7 @@ const CacheDebugLog = () => {
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 			<Header subPageTitle={ __( 'Cache Log Viewer', 'jetpack-boost' ) } />
-			<div className={ classNames( 'jb-section jb-section--main', styles.section ) }>
+			<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 				<div className="jb-container">
 					<header className={ styles.header }>
 						<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>

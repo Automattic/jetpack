@@ -1,0 +1,102 @@
+/*
+ * Put all the styles in this file which are needed in wp-admin.
+ */
+
+/************* Jetpack **************/
+
+/* Connection block in "General" tab. */
+.dops-navigation + div > .dops-card.dops-foldable-card:first-child:not(.has-expanded-summary) {
+	display: none;
+}
+
+/* SSO block in "Security" tab */
+.dops-navigation + div > .dops-card.dops-foldable-card.has-expanded-summary[data-reactid*="module-card_sso"] {
+	display: none;
+}
+
+/* "Disconnect Jetpack" link in JP Footer */
+#jp-plugin-container .jp-footer > .jp-footer__links > .jp-footer__link-item:last-child {
+	display: none;
+}
+
+/* Hide the "Plans" page in Jetpack Dashboard */
+.dops-navigation .dops-section-nav-tab__link[href*="jetpack-plans"] {
+	display: none;
+}
+
+/* Hide the Jetpack Plans box in Jetpack Dashboard */
+#jp-plugin-container .jp-landing__plans {
+	display: none;
+}
+
+/* Hide the connections info and disconnect button in Jetpack Dashboard */
+#jp-plugin-container .jp-lower .jp-dash-section-header__connections,
+#jp-plugin-container .jp-lower .jp-connection-type {
+	display: none;
+}
+
+/************* Plugins Page **************/
+
+.wp-list-table tr[data-slug="akismet"] > *,
+.wp-list-table tr[data-slug="full-site-editing"] > *,
+.wp-list-table tr[data-slug="gutenberg"] > *,
+.wp-list-table tr[data-slug="jetpack"] > *,
+.wp-list-table tr[data-slug="layout-grid"] > *,
+.wp-list-table tr[data-slug="coblocks"] > *,
+.wp-list-table tr[data-slug="page-optimize"] > * {
+	-webkit-box-shadow: none !important;
+	box-shadow: none !important; /* Can otherwise be overridden by https://core.trac.wordpress.org/browser/tags/5.2.1/src/wp-admin/css/list-tables.css#L1217 */
+}
+
+/*
+ * Atomic notifications customized to standout. Based on Calypso notifications.
+ */
+.wpcomsh-notice, .rtl .wpcomsh-notice {
+	border: none;
+	background: #2D3337;
+	box-sizing: border-box;
+	color: #fff;
+	display: flex;
+	line-height: 1.5;
+	position: relative;
+	width: 100%;
+	padding: 0;
+}
+
+.wpcomsh-notice a{
+	color: #fff;
+}
+
+.wpcomsh-notice .dashicons-info{
+	height: 24px;
+	width: 24px;
+	font-size: 26px;
+}
+
+.notice__icon-wrapper {
+	align-items: center;
+	align-self: stretch;
+	display: flex;
+	flex-shrink: 0;
+	justify-content: center;
+	position: relative;
+	width: 47px;
+}
+
+.notice__icon-wrapper.notice__icon-wrapper-pink {
+	background: #e34c84; /* studio-pink-40 */
+}
+
+.notice__icon-wrapper.notice__icon-wrapper-orange {
+	background: #d67709; /* studio-orange-40 */
+}
+
+.notice__icon-wrapper.notice__icon-wrapper-red {
+	background: #e65054; /* studio-red-40 */
+}
+
+.notice__content {
+	flex-grow: 1;
+	font-size: .875rem;
+	padding: 13px;
+}

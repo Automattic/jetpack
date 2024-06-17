@@ -446,43 +446,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test information about connection status in staging mode.
-	 *
-	 * @since 4.4.0
-	 */
-	public function test_jetpack_connection_status_staging() {
-
-		StatusCache::clear();
-		Jetpack_Options::update_option( 'id', 1234 );
-		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
-
-		add_filter( 'jetpack_is_staging_site', '__return_true' );
-
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'connection' );
-
-		// Success, connected site.
-		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData(
-			array(
-				'isActive'    => true,
-				'isStaging'   => true,
-				'offlineMode' => array(
-					'isActive'        => false,
-					'constant'        => false,
-					'url'             => false,
-					'filter'          => false,
-					'wpLocalConstant' => false,
-				),
-			),
-			$response
-		);
-
-		remove_filter( 'jetpack_is_staging_site', '__return_true' );
-		StatusCache::clear();
-	}
-
-	/**
 	 * Test information about connection status in dev mode.
 	 *
 	 * @since 4.4.0

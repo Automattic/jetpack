@@ -35,6 +35,16 @@ const renderError = supportURL => {
 	);
 };
 
+const renderComparisonUrls = ( wpcomHostName, currentHostName ) => {
+	return (
+		<div>
+			<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
+			<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
+			<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
+		</div>
+	);
+};
+
 /**
  * The "start fresh" card.
  *
@@ -47,6 +57,7 @@ const CardFresh = props => {
 		startFreshCallback = () => {},
 		customContent = {},
 		hasError = false,
+		isDevelopmentSite,
 	} = props;
 
 	const wpcomHostName = extractHostname( props.wpcomHomeUrl );
@@ -72,31 +83,63 @@ const CardFresh = props => {
 				</h4>
 
 				<p>
-					{ createInterpolateElement(
-						customContent.startFreshCardBodyText ||
-							sprintf(
-								/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
-								__(
-									'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
-									'jetpack'
-								),
-								currentHostName,
-								wpcomHostName
-							),
-						{
-							hostname: <strong />,
-							em: <em />,
-							strong: <strong />,
-						}
-					) }
+					{ ! isDevelopmentSite
+						? createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									sprintf(
+										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+										__(
+											'<hostname>%1$s</hostname> settings, stats, and subscribers will start fresh. <hostname>%2$s</hostname> will keep its data as is.',
+											'jetpack'
+										),
+										currentHostName,
+										wpcomHostName
+									),
+								{
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+								}
+						  )
+						: createInterpolateElement(
+								customContent.startFreshCardBodyText ||
+									sprintf(
+										/* translators: %1$s: The current site domain name. %2$s: The original site domain name. */
+										__(
+											'<p><strong>Recommended for</strong></p>' +
+												'<list><item>development sites</item><item>sites that need access to all Jetpack features</item></list>' +
+												'<p><strong>Please note</strong> that creating a fresh connection for <hostname>%1$s</hostname> would require restoring the connection on <hostname>%2$s</hostname> if that site is cloned back to production. ' +
+												'<safeModeLink>Learn more</safeModeLink>.</p>',
+											'jetpack'
+										),
+										currentHostName,
+										wpcomHostName
+									),
+								{
+									p: <p />,
+									hostname: <strong />,
+									em: <em />,
+									strong: <strong />,
+									list: <ul />,
+									item: <li />,
+									safeModeLink: (
+										<a
+											href={
+												customContent.supportURL || getRedirectUrl( 'jetpack-support-safe-mode' )
+											}
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								}
+						  ) }
 				</p>
 			</div>
 
 			<div className="jp-idc__idc-screen__card-action-bottom">
-				<div className="jp-idc__idc-screen__card-action-sitename">{ wpcomHostName }</div>
-				<Dashicon icon="minus" className="jp-idc__idc-screen__card-action-separator" />
-				<div className="jp-idc__idc-screen__card-action-sitename">{ currentHostName }</div>
-
+				<div>
+					{ ! isDevelopmentSite ? renderComparisonUrls( wpcomHostName, currentHostName ) : null }
+				</div>
 				<Button
 					className="jp-idc__idc-screen__card-action-button"
 					label={ buttonLabel }
@@ -125,6 +168,8 @@ CardFresh.propTypes = {
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
 	hasError: PropTypes.bool,
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default CardFresh;

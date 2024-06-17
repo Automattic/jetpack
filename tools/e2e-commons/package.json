@@ -19,7 +19,7 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.43.0",
+		"@playwright/test": "1.44.1",
 		"@slack/web-api": "6.10.0",
 		"allure-playwright": "2.9.2",
 		"axios": "1.6.8",

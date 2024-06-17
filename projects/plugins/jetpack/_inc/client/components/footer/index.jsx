@@ -1,6 +1,6 @@
 import { getRedirectUrl, JetpackFooter, ThemeProvider } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import DevCard from 'components/dev-card';
 import analytics from 'lib/analytics';
 import React from 'react';
@@ -76,7 +76,7 @@ export class Footer extends React.Component {
 	};
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-footer' );
+		const classes = clsx( this.props.className, 'jp-footer' );
 		const version = this.props.currentVersion;
 		const menu = [];
 
@@ -140,7 +140,7 @@ export class Footer extends React.Component {
 
 		return (
 			<ThemeProvider>
-				<div className={ classNames( 'jp-footer', classes ) }>
+				<div className={ clsx( 'jp-footer', classes ) }>
 					<div className="jp-footer__container">
 						<JetpackFooter
 							menu={ menu }

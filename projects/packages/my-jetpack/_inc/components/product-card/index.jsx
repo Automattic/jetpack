@@ -1,11 +1,12 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
-import ActionButton, { PRODUCT_STATUSES } from './action-button';
+import ActionButton from './action-button';
 import Status from './status';
 import styles from './style.module.scss';
 
@@ -83,7 +84,8 @@ const ProductCard = inprops => {
 		secondaryAction,
 		children,
 		onInstallStandalone,
-		onActivateStandalone,
+		onMouseEnter,
+		onMouseLeave,
 	} = props;
 
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -93,7 +95,7 @@ const ProductCard = inprops => {
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 
-	const containerClassName = classNames( {
+	const containerClassName = clsx( {
 		[ styles.plugin_absent ]: isAbsent,
 		[ styles[ 'is-purchase-required' ] ]: isPurchaseRequired,
 		[ styles[ 'is-link' ] ]: isAbsent,
@@ -167,21 +169,6 @@ const ProductCard = inprops => {
 	);
 
 	/**
-	 * Use a Tracks event to count a standalone plugin activation request
-	 */
-	// eslint-disable-next-line no-unused-vars
-	const activateStandaloneHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
-				product: slug,
-			} );
-			onActivateStandalone();
-		},
-		[ slug, onActivateStandalone, recordEvent ]
-	);
-
-	/**
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
@@ -194,8 +181,10 @@ const ProductCard = inprops => {
 	return (
 		<Card
 			title={ name }
-			className={ classNames( styles.container, containerClassName ) }
+			className={ clsx( styles.container, containerClassName ) }
 			headerRightContent={ null }
+			onMouseEnter={ onMouseEnter }
+			onMouseLeave={ onMouseLeave }
 		>
 			<Description />
 
@@ -264,6 +253,8 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.CAN_UPGRADE,
 		PRODUCT_STATUSES.MODULE_DISABLED,
 	] ).isRequired,
+	onMouseEnter: PropTypes.func,
+	onMouseLeave: PropTypes.func,
 };
 
 export { PRODUCT_STATUSES };

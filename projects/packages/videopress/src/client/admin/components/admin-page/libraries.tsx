@@ -5,7 +5,7 @@ import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 /**
@@ -92,7 +92,7 @@ const VideoLibraryWrapper = ( {
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
+							className={ clsx( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ onSearchHandler }
 							value={ searchQuery }
 							loading={ isFetching }

@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { Component, Fragment } from 'react';
 import { getConstrastingColor } from '../lib/colors';
 import { MULTISITE_NO_GROUP_VALUE, OVERLAY_FOCUS_ANCHOR_ID } from '../lib/constants';
@@ -226,7 +226,7 @@ class SearchResults extends Component {
 	render() {
 		return (
 			<div
-				className={ classNames( 'jetpack-instant-search__search-results-wrapper', {
+				className={ clsx( 'jetpack-instant-search__search-results-wrapper', {
 					'has-colophon': this.props.showPoweredBy,
 				} ) }
 			>

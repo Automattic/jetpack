@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -32,10 +32,8 @@ const ProgressBar: React.FC< ProgressBarProps > = ( {
 	};
 
 	return (
-		<div
-			className={ classnames( className, styles.wrapper, { [ styles.small ]: size === 'small' } ) }
-		>
-			<div className={ classnames( progressClassName, styles.progress ) } style={ style }></div>
+		<div className={ clsx( className, styles.wrapper, { [ styles.small ]: size === 'small' } ) }>
+			<div className={ clsx( progressClassName, styles.progress ) } style={ style }></div>
 		</div>
 	);
 };

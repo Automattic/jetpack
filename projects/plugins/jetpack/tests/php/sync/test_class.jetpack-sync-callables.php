@@ -791,6 +791,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				$post_type_object->supports = array();
 			}
 			$synced_post_type = Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
+			if ( isset( $synced_post_type->labels->template_name ) ) {
+				$post_type_object->labels->template_name = $synced_post_type->labels->template_name;
+			}
 			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :' . $post_type . ' not equal' );
 		}
 	}

@@ -203,7 +203,7 @@ class WPCOM_Site_Management_Widget {
 									),
 									array(
 										'name' => __( 'Logs', 'jetpack-mu-wpcom' ),
-										'href' => "/site-monitoring/$domain/php",
+										'href' => "/site-logs/$domain/php",
 									),
 									array(
 										'name' => __( 'Staging Site', 'jetpack-mu-wpcom' ),

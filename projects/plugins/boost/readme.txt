@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
 Tested up to: 6.5
 Requires PHP: 7.0
-Stable tag: 3.2.2
+Stable tag: 3.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,22 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.3.0 - 2024-05-08
-#### Added
-- General: Add endpoint to list source providers.
-- General: Add end to end tests for modules.
-- Auto-Resize Lazy Images: Added feature to optimize lazy loading image performance
-- JS Concatenation: Added compatibility with event-tickets by The Events Calendar.
-- Speed Score: Add the speed changed popup back.
-
-#### Changed
-- Cache: remove Beta tag
-- General: improved compatibility with WP 6.4.
-- Image CDN: Update UI.
-
+### 3.4.3 - 2024-06-14
 #### Fixed
-- CLI: Fix fatal error when using 'activate' without a module name.
-- Critical CSS: Update the way generation library is loaded.
+- Compatibility: Include a missing dependency required for Compatibility with WP Optimize
 
 --------
 

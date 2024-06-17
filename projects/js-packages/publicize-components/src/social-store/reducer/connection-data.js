@@ -1,11 +1,11 @@
 import {
 	ADD_CONNECTION,
-	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
+	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
 } from '../actions/constants';
@@ -19,6 +19,11 @@ import {
  */
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {
+		case TOGGLE_CONNECTIONS_MODAL:
+			return {
+				...state,
+				isConnectionsModalOpen: action.isOpen,
+			};
 		case ADD_CONNECTION:
 			return {
 				...state,
@@ -50,12 +55,6 @@ const connectionData = ( state = {}, action ) => {
 				deletingConnections: [ ...deleting ],
 			};
 		}
-
-		case CREATING_CONNECTION:
-			return {
-				...state,
-				creatingConnection: action.creating,
-			};
 
 		case UPDATE_CONNECTION:
 			return {

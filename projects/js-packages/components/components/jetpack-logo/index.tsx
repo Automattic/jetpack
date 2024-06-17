@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { JetpackLogoProps } from './types';
 
@@ -18,7 +18,7 @@ const JetpackLogo: React.FC< JetpackLogoProps > = ( {
 			x="0px"
 			y="0px"
 			viewBox={ viewBox }
-			className={ classnames( 'jetpack-logo', className ) }
+			className={ clsx( 'jetpack-logo', className ) }
 			aria-labelledby="jetpack-logo-title"
 			height={ height }
 			{ ...otherProps }

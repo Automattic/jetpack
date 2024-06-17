@@ -3,7 +3,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import AppsBadge from 'components/apps-badge';
 import analytics from 'lib/analytics';
 import detectMobileDevice from 'lib/device-detector';
@@ -168,7 +168,7 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 				alt=""
 			/>
 			<img
-				className={ classNames( 'jp-recommendation-sidebar-mobile__jetpack-icon', {
+				className={ clsx( 'jp-recommendation-sidebar-mobile__jetpack-icon', {
 					underside: underside,
 				} ) }
 				src={ imagePath + '/recommendations/jetpack-icon.svg' }

@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import SupportInfo from 'components/support-info';
 import { includes, noop } from 'lodash';
@@ -54,9 +54,9 @@ export const SettingsGroup = inprops => {
 	}
 
 	return (
-		<div className={ classNames( 'jp-form-settings-group', props.className ) }>
+		<div className={ clsx( 'jp-form-settings-group', props.className ) }>
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': props.hasChild,
 					'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
 				} ) }

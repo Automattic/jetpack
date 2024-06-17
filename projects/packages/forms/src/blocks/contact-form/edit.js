@@ -27,7 +27,7 @@ import { compose, withInstanceId } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { forwardRef, Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
@@ -107,7 +107,7 @@ export const JetpackContactFormEdit = forwardRef(
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 			useModuleStatus( 'contact-form' );
 
-		const formClassnames = classnames( className, 'jetpack-contact-form', {
+		const formClassnames = clsx( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 		} );
 		const isSalesForceExtensionEnabled =

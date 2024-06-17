@@ -4,7 +4,7 @@ import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
@@ -111,13 +111,13 @@ export default function SearchModuleControl( {
 
 	return (
 		<div
-			className={ classNames( {
+			className={ clsx( {
 				'jp-form-settings-group jp-form-search-settings-group': true,
 				'jp-form-search-settings-group--disabled': isDisabledFromOverLimit,
 			} ) }
 		>
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': true,
 				} ) }
 			>

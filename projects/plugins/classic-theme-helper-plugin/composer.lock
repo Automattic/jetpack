@@ -192,7 +192,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "4851293db36b3c568391618cd733ab7618c95ae6"
+                "reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -210,7 +210,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -218,7 +218,7 @@
                 "mirror-repo": "Automattic/jetpack-classic-theme-helper",
                 "textdomain": "jetpack-classic-theme-helper",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-classic-theme-helper.php"
+                    "::PACKAGE_VERSION": "src/class-main.php"
                 }
             },
             "autoload": {
@@ -494,7 +494,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "69718826f522bd13aee8e82fa6276c992fb13fe9"
+                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -519,7 +519,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -912,16 +912,16 @@
         },
         {
             "name": "mockery/mockery",
-            "version": "1.6.11",
+            "version": "1.6.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mockery/mockery.git",
-                "reference": "81a161d0b135df89951abd52296adf97deb0723d"
+                "reference": "1f4efdd7d3beafe9807b08156dfcb176d18f1699"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/81a161d0b135df89951abd52296adf97deb0723d",
-                "reference": "81a161d0b135df89951abd52296adf97deb0723d",
+                "url": "https://api.github.com/repos/mockery/mockery/zipball/1f4efdd7d3beafe9807b08156dfcb176d18f1699",
+                "reference": "1f4efdd7d3beafe9807b08156dfcb176d18f1699",
                 "shasum": ""
             },
             "require": {
@@ -991,7 +991,7 @@
                 "security": "https://github.com/mockery/mockery/security/advisories",
                 "source": "https://github.com/mockery/mockery"
             },
-            "time": "2024-03-21T18:34:15+00:00"
+            "time": "2024-05-16T03:13:13+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -1705,7 +1705,7 @@
         },
         {
             "name": "roots/wordpress",
-            "version": "6.5.3",
+            "version": "6.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/roots/wordpress.git",
@@ -1736,7 +1736,7 @@
             ],
             "support": {
                 "issues": "https://github.com/roots/wordpress/issues",
-                "source": "https://github.com/roots/wordpress/tree/6.5.3"
+                "source": "https://github.com/roots/wordpress/tree/6.5.4"
             },
             "funding": [
                 {
@@ -1819,22 +1819,22 @@
         },
         {
             "name": "roots/wordpress-no-content",
-            "version": "6.5.3",
+            "version": "6.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress.git",
-                "reference": "6.5.3"
+                "reference": "6.5.4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://downloads.wordpress.org/release/wordpress-6.5.3-no-content.zip",
-                "shasum": "adeffdc339d34eab4209e88b17966d8917e36e91"
+                "url": "https://downloads.wordpress.org/release/wordpress-6.5.4-no-content.zip",
+                "shasum": "bb4d48b2f6f47f4c06061460c83f8453e9809af5"
             },
             "require": {
                 "php": ">= 7.0.0"
             },
             "provide": {
-                "wordpress/core-implementation": "6.5.3"
+                "wordpress/core-implementation": "6.5.4"
             },
             "suggest": {
                 "ext-curl": "Performs remote request operations.",
@@ -1885,7 +1885,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2024-05-07T16:02:20+00:00"
+            "time": "2024-06-06T12:30:39+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -2852,16 +2852,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v7.0.7",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "c981e0e9380ce9f146416bde3150c79197ce9986"
+                "reference": "9b008f2d7b21c74ef4d0c3de6077a642bc55ece3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/c981e0e9380ce9f146416bde3150c79197ce9986",
-                "reference": "c981e0e9380ce9f146416bde3150c79197ce9986",
+                "url": "https://api.github.com/repos/symfony/console/zipball/9b008f2d7b21c74ef4d0c3de6077a642bc55ece3",
+                "reference": "9b008f2d7b21c74ef4d0c3de6077a642bc55ece3",
                 "shasum": ""
             },
             "require": {
@@ -2925,7 +2925,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v7.0.7"
+                "source": "https://github.com/symfony/console/tree/v7.1.1"
             },
             "funding": [
                 {
@@ -2941,7 +2941,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-18T09:29:19+00:00"
+            "time": "2024-05-31T14:57:53+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -3330,16 +3330,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.0.7",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "3839e56b94dd1dbd13235d27504e66baf23faba0"
+                "reference": "febf90124323a093c7ee06fdb30e765ca3c20028"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/3839e56b94dd1dbd13235d27504e66baf23faba0",
-                "reference": "3839e56b94dd1dbd13235d27504e66baf23faba0",
+                "url": "https://api.github.com/repos/symfony/process/zipball/febf90124323a093c7ee06fdb30e765ca3c20028",
+                "reference": "febf90124323a093c7ee06fdb30e765ca3c20028",
                 "shasum": ""
             },
             "require": {
@@ -3371,7 +3371,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.0.7"
+                "source": "https://github.com/symfony/process/tree/v7.1.1"
             },
             "funding": [
                 {
@@ -3387,7 +3387,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-18T09:29:19+00:00"
+            "time": "2024-05-31T14:57:53+00:00"
         },
         {
             "name": "symfony/service-contracts",
@@ -3474,16 +3474,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v7.0.7",
+            "version": "v7.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "e405b5424dc2528e02e31ba26b83a79fd4eb8f63"
+                "reference": "60bc311c74e0af215101235aa6f471bcbc032df2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/e405b5424dc2528e02e31ba26b83a79fd4eb8f63",
-                "reference": "e405b5424dc2528e02e31ba26b83a79fd4eb8f63",
+                "url": "https://api.github.com/repos/symfony/string/zipball/60bc311c74e0af215101235aa6f471bcbc032df2",
+                "reference": "60bc311c74e0af215101235aa6f471bcbc032df2",
                 "shasum": ""
             },
             "require": {
@@ -3497,6 +3497,7 @@
                 "symfony/translation-contracts": "<2.5"
             },
             "require-dev": {
+                "symfony/emoji": "^7.1",
                 "symfony/error-handler": "^6.4|^7.0",
                 "symfony/http-client": "^6.4|^7.0",
                 "symfony/intl": "^6.4|^7.0",
@@ -3540,7 +3541,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v7.0.7"
+                "source": "https://github.com/symfony/string/tree/v7.1.1"
             },
             "funding": [
                 {
@@ -3556,7 +3557,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-18T09:29:19+00:00"
+            "time": "2024-06-04T06:40:14+00:00"
         },
         {
             "name": "theseer/tokenizer",

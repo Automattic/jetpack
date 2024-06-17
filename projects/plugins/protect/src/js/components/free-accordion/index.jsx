@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
 import styles from './styles.module.scss';
 
@@ -11,7 +11,7 @@ export const FreeAccordionItem = ( { id, title, label, icon, children, onOpen } 
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
 
-	const bodyClassNames = classNames( styles[ 'accordion-body' ], {
+	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );

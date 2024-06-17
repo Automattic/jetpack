@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.1] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.32.0] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669] [#37706]
+
+### Fixed
+- Allow users to add multiple options to a dropdown field [#37739]
+- Avoid PHP notice when form is submitted to the wrong URL [#37672]
+
 ## [0.31.4] - 2024-05-27
 ### Changed
 - Update dependencies. [#37356]
@@ -581,6 +594,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.32.1]: https://github.com/automattic/jetpack-forms/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/automattic/jetpack-forms/compare/v0.31.4...v0.32.0
 [0.31.4]: https://github.com/automattic/jetpack-forms/compare/v0.31.3...v0.31.4
 [0.31.3]: https://github.com/automattic/jetpack-forms/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/automattic/jetpack-forms/compare/v0.31.1...v0.31.2
