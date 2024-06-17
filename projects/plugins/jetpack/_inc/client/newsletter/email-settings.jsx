@@ -198,6 +198,7 @@ const EmailSettings = props => {
 				className="newsletter-group"
 			>
 				<FormLegend className="jp-form-label-wide">{ __( 'Email Byline', 'jetpack' ) }</FormLegend>
+				<p>{ __( 'Appears just below your post title.', 'jetpack' ) }</p>
 				<BylinePreview
 					isGravatarEnabled={ bylineState.isGravatarEnabled }
 					isAuthorEnabled={ bylineState.isAuthorEnabled }
@@ -223,7 +224,7 @@ const EmailSettings = props => {
 						'We use Gravatar, a service that associates an avatar image with your primary email.',
 						'jetpack'
 					) }
-
+					<br />
 					<JetpackButton
 						isExternalLink={ true }
 						href="https://gravatar.com/profile/avatars"
