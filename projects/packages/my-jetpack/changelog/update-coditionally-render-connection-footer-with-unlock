@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Update connection footer to conditionally render warnings or errors

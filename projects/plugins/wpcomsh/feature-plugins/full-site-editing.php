@@ -16,9 +16,6 @@ function wpcomsh_maybe_disable_fse() {
 }
 add_filter( 'a8c_disable_full_site_editing', 'wpcomsh_maybe_disable_fse' );
 
-// Enable the navigation sidebar for all sites.
-add_filter( 'a8c_enable_nav_sidebar', '__return_true' );
-
 // Enable block patterns API.
 add_filter( 'a8c_enable_block_patterns_api', '__return_true' );
 
