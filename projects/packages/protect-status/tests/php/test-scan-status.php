@@ -10,6 +10,9 @@ namespace Automattic\Jetpack\Protect_Status;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Protect_Models\Extension_Model;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 

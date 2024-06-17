@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Protect_Status;
 
+use Automattic\Jetpack\Protect_Models\Extension_Model;
+use Automattic\Jetpack\Protect_Models\Status_Model;
+
 /**
  * Class that handles fetching and caching the Status of vulnerabilities check from the WPCOM servers
  */

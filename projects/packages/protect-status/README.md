@@ -20,8 +20,6 @@ Then use it: (Example)
 ```php
 use Automattic\Jetpack\Protect_Status\Status;
 
-Status::init_api();
-
 $protect_status = Status::get_status();
 
 ## Using this package in your WordPress plugin
