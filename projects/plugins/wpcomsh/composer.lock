@@ -761,7 +761,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/jetpack-mu-wpcom",
-				"reference": "1c93aab1f82018ad7524c7ce5a33fa7bc94bfd0f"
+				"reference": "e2e15a701703485ceb9b37f1cd919c85ddb3c5b6"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -805,7 +805,7 @@
 			},
 			"scripts": {
 				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "pnpm run build-production", "@composer phpunit" ],
+				"test-php": [ "@composer phpunit" ],
 				"build-production": [ "pnpm run build-production-js" ],
 				"build-development": [ "pnpm run build-js" ],
 				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
