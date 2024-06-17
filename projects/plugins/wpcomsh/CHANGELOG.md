@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.22.16 - 2024-06-17
+### Changed
+- Fixed readme, added accurate links. [#37901]
+
 ## 3.22.15 - 2024-06-17
 ### Added
 - Added a prefix for wpcomsh weekly shipping. [#37857]
