@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove check for broken modules from red bubble connection check
