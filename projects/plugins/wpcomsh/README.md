@@ -20,7 +20,7 @@ $ pnpm jetpack build --deps projects/wpcomsh
 # Specify your development server and path to sync the code to your wp.org install 
 $ pnpm jetpack rsync projects/wpcomsh USER@HOST:/path/to/wordpress/wp-content/mu-plugins 
 
-# From the root of a wp.org install
+# From the root of the wp.org install you rsynced to (assuming it didn't already have wpcomsh installed)
 $ cd wp-content/mu-plugins
 $ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
 
