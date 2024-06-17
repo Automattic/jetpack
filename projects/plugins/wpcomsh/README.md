@@ -14,11 +14,13 @@ With the help of this mu-plugin, an Atomic site is transformed into a WP.com sit
 # From the root of a wp.org install
 $ mkdir -p wp-content/mu-plugins
 $ cd wp-content/mu-plugins
-$ git clone git@github.com:Automattic/wpcomsh.git
-$ cd wpcomsh
-$ composer install # installs the composer dependencies
-$ cd ..
-$ ln -s wpcomsh/wpcomsh-loader.php ./ # or copy the loader to mu-plugins
+$ git clone git@github.com:Automattic/jetpack.git
+$ cd jetpack
+$ pnpm install
+$ pnpm jetpack build --deps projects/wpcomsh
+$ cd jetpack/projects/plugins/wpcomsh
+$ jetpack rsync plugins/wpcomsh # specify your development server and path and copy the loader to mu-plugins,
+$ # last step not necessary for development Atomic sites. 
 
 # define 'IS_ATOMIC', 'ATOMIC_SITE_ID' and 'ATOMIC_CLIENT_ID' as true so the loader will require wpcomsh
 
@@ -28,14 +30,14 @@ define( 'ATOMIC_CLIENT_ID', true );
 ```
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
-You will also need to install [Composer](https://getcomposer.org/)
 
-1. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site.
+You will also need to go through [the Monorepo install procedure](https://developer.jetpack.com/docs/jetpack-development/developer-environment/)
+
+1. Build the wpcomsh plugin using [the Monorepo tools](https://developer.jetpack.com/docs/jetpack-development/jetpack-cli/#build).
 2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/mu-plugins`.
    It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugins in `wp-content/plugins`.
-3. From the project root run `composer install` to install composer based dependencies.
 
-If you want to add some new code to wpcomsh, create a new git branch, push to it and then create a Pull Request (PR) against the `trunk` branch on [wpcomsh GitHub](https://github.com/Automattic/wpcomsh/). Make sure to test thoroughly on a WoA dev blog and send the PR to your team for review.
+If you want to add some new code to wpcomsh, it's as easy as [creating a pull request](https://developer.jetpack.com/docs/jetpack-development/creating-a-pull-request/) to the plugin code. Make sure to test thoroughly on a WoA dev blog and send the PR to your team for review.
 
 When working on wpcomsh, follow the [WP.org coding standards](https://codex.wordpress.org/WordPress_Coding_Standards) and make sure to add enough logging (either by returning `WP_Error` and/or by using `error_log`) where needed.
 
@@ -53,7 +55,7 @@ Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwardin
 
 #### Unit Testing
 
-`wpcomsh` runs `phpunit` on CircleCI for every PR.
+`wpcomsh` runs `phpunit` on GitHub CI for every PR.
 
 Please try to add unit tests whenever you are adding new features, or modifying existing ones.
 
