@@ -91,6 +91,8 @@ class Initializer {
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
+		self::setup_historically_active_jetpack_modules_sync();
+
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -208,7 +210,6 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
 			'my_jetpack_main_app',
