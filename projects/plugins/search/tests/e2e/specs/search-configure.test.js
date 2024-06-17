@@ -1,5 +1,5 @@
+import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
-import { SearchConfigure } from '../pages/wp-admin/index.js';
 import {
 	disableInstantSearch,
 	enableInstantSearch,
@@ -10,7 +10,7 @@ import {
 	setDefaultSort,
 	clearSearchPlanInfo,
 } from '../helpers/search-helper.js';
-import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
+import { SearchConfigure } from '../pages/wp-admin/index.js';
 import playwrightConfig from '../playwright.config.mjs';
 
 test.describe( 'Search Configure', () => {
@@ -72,6 +72,9 @@ test.describe( 'Search Configure', () => {
 		} );
 	} );
 
+	/**
+	 * Check the settings.
+	 */
 	async function checkSettings() {
 		// Settings changed.
 		expect( await searchConfigure.isDarkTheme(), "Theme should be 'dark'" ).toBeTruthy();

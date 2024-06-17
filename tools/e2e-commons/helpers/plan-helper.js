@@ -1,9 +1,13 @@
 import fs from 'fs';
-import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
-import logger from '../logger.js';
-import config from 'config';
 import path from 'path';
+import config from 'config';
+import logger from '../logger.js';
+import { execWpCommand, resolveSiteUrl } from './utils-helper.js';
 
+/**
+ * Persist plan data.
+ * @param {string} planType - Jetpack plan slug.
+ */
 export async function persistPlanData( planType = 'jetpack_complete' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteId = await getSiteId();
@@ -16,15 +20,34 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 	await execWpCommand( cmd );
 }
 
+/**
+ * Activate e2e-plan-data-interceptor plugin
+ * @returns {string} output
+ */
 export async function activatePlanDataInterceptor() {
 	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
 }
 
+/**
+ * Get site ID
+ *
+ * @returns {string} ID
+ */
 async function getSiteId() {
 	const output = await execWpCommand( 'jetpack options get id' );
 	return output.split( ':' )[ 1 ].trim();
 }
 
+/**
+ * Get plan data.
+ *
+ * @param {*} id - ID.
+ * @param {string} siteUrl - Site URL.
+ * @param {string} planType - Jetpack plan slug.
+ * @param {string} siteName - Site name.
+ * @param {string} description - Description
+ * @returns {object} data
+ */
 function getPlanData(
 	id,
 	siteUrl,
@@ -234,8 +257,8 @@ function getPlanData(
 /**
  * Returns a JSON representation of Jetpack plan data.
  *
- * @param {string} type Jetpack plan slug.
- * @return {JSON} JSON Jetpack plan object.
+ * @param {string} type - Jetpack plan slug.
+ * @returns {JSON} JSON Jetpack plan object.
  */
 function getPlan( type ) {
 	switch ( type ) {
@@ -524,6 +547,11 @@ function getPlan( type ) {
 	}
 }
 
+/**
+ * Sync plan data.
+ *
+ * @param {page} page - Playwright page instance.
+ */
 export async function syncPlanData( page ) {
 	let isSame = false;
 	let fePlan = null;
