@@ -18,8 +18,12 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			return;
 		}
 
-		localStorage.setItem( 'jetpack-subscription-modal-on-comment-scroll-to', destinationUrl.hash );
-
+		try {
+			localStorage.setItem(
+				'jetpack-subscription-modal-on-comment-scroll-to',
+				destinationUrl.hash
+			);
+		} catch ( e ) {}
 		// For avoiding Firefox reload, we need to force reload bypassing the cache.
 		window.location.reload( true );
 	}
@@ -68,21 +72,23 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		}
 
 		if ( ! hasLoaded ) {
-			const storedCount = parseInt(
-				sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
-			);
-			const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
-			sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
+			try {
+				const storedCount = parseInt(
+					sessionStorage.getItem( 'jetpack-subscription-modal-shown-count' )
+				);
+				const showCount = ( isNaN( storedCount ) ? 0 : storedCount ) + 1;
+				sessionStorage.setItem( 'jetpack-subscription-modal-shown-count', showCount );
 
-			if ( showCount > 5 ) {
-				new Image().src =
-					document.location.protocol +
-					'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
-					Math.random();
+				if ( showCount > 5 ) {
+					new Image().src =
+						document.location.protocol +
+						'//pixel.wp.com/g.gif?v=wpcom-no-pv&x_jetpack-subscribe-modal-comm=hidden_views_limit&r=' +
+						Math.random();
 
-				reloadOnCloseSubscriptionModal( data.url );
-				return;
-			}
+					reloadOnCloseSubscriptionModal( data.url );
+					return;
+				}
+			} catch ( e ) {}
 
 			new Image().src =
 				document.location.protocol +
