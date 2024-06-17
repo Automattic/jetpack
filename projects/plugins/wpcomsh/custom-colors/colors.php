@@ -1375,6 +1375,9 @@ class Colors_Manager_Common {
 	 * @return array
 	 */
 	public static function sanitize_colors( $set_colors ) {
+		if ( ! is_array( $set_colors ) && ! is_object( $set_colors ) ) {
+			return array();
+		}
 		// let's make sure all of our keys/values are proper
 		$colors_wanted = array();
 		$cats          = self::get_color_slots();
@@ -1431,7 +1434,9 @@ class Colors_Manager_Common {
 
 		$colors['border'] = $colors['fg1'];
 		$colors['url']    = $colors['link'];
-		$colors['text']   = $colors['txt'];
+		if ( isset( $colors['txt'] ) ) {
+			$colors['text'] = $colors['txt'];
+		}
 
 		unset( $colors['fg1'] );
 		unset( $colors['fg2'] );

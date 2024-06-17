@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-wpcomsh",
+	"name": "automattic/wpcomsh",
 	"description": "A helper for connecting WordPress.com sites to external host infrastructure.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
@@ -125,7 +125,7 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_22_6"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_22_15_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",

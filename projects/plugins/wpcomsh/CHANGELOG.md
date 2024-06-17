@@ -1,6 +1,45 @@
 # Changelog
 
-## 3.22.6 - 2024-06-13
+## 3.22.14 - 2024-06-14
+### Changed
+- Changed the composer package slug to wpcomsh. [#37861]
+
+### Removed
+- General: removing action status icons. [#37881]
+
+## 3.22.13 - 2024-06-13
+### Removed
+- Untangling: Remove temporary code that hides Hosting menu options. [#37848]
+
+## 3.22.12 - 2024-06-10
+### Other Changes
+- Update language files.
+
+## 3.22.11 - 2024-06-13
+### Other Changes
+- Bump wpcomsh version.
+
+## 3.22.10 - 2024-06-07
+### Changed
+- Update read access cookie arguments.
+
+## 3.22.9 - 2024-06-06
+### Fixed
+- Do not override text color if it is not set on the theme.
+
+### Other Changes
+- Update jetpack-mu-wpcom version.
+- Bump wpcomsh version.
+
+## 3.22.8 - 2024-06-06
+
+- Prevent non array/object from working.
+
+## 3.22.7 - 2024-06-05
+### Added
+- Add create_function polyfill.
+
+## 3.22.6 - 2024-06-04
 ### Added
 - Initial version. [#37737]
 

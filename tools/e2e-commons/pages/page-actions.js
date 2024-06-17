@@ -8,6 +8,10 @@ import pwConfig from '../playwright.config.mjs';
  * It is supposed to be the base of a page object, extended by any page or page component class
  */
 export default class PageActions {
+	/**
+	 * @type {import('@playwright/test').PlaywrightTestArgs['page']} The page instance
+	 */
+	page;
 	constructor( page, pageName, selectors, timeoutOverride = null ) {
 		this.page = page;
 		this.selectors = selectors;

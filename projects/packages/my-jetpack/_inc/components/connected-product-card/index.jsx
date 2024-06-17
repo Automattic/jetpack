@@ -25,6 +25,8 @@ const ConnectedProductCard = ( {
 	secondaryAction = null,
 	upgradeInInterstitial = false,
 	primaryActionOverride,
+	onMouseEnter,
+	onMouseLeave,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
@@ -80,8 +82,9 @@ const ConnectedProductCard = ( {
 			slug={ slug }
 			onActivate={ handleActivate }
 			onInstallStandalone={ installStandalonePlugin }
-			onActivateStandalone={ installStandalonePlugin }
 			upgradeInInterstitial={ upgradeInInterstitial }
+			onMouseEnter={ onMouseEnter }
+			onMouseLeave={ onMouseLeave }
 		>
 			{ children }
 		</ProductCard>
@@ -96,6 +99,8 @@ ConnectedProductCard.propTypes = {
 	additionalActions: PropTypes.array,
 	primaryActionOverride: PropTypes.object,
 	secondaryAction: PropTypes.object,
+	onMouseEnter: PropTypes.func,
+	onMouseLeave: PropTypes.func,
 };
 
 export default ConnectedProductCard;

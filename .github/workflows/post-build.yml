@@ -120,7 +120,7 @@ jobs:
             )"
             echo "$JSON"
             echo "::endgroup::"
-            ZIPURL="$(jq -r '.artifacts[] | select( .name == "jetpack-build" ) | .archive_download_url' <<<"$JSON")"
+            ZIPURL="$(jq -r '.artifacts | map( select( .name == "jetpack-build" ) ) | sort_by( .created_at ) | last | .archive_download_url // empty' <<<"$JSON")"
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
             if [[ -n "$ZIPURL" ]]; then
               break
