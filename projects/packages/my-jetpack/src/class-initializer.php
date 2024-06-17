@@ -773,6 +773,10 @@ class Initializer {
 	 * @return array
 	 */
 	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		if ( wp_doing_ajax() ) {
+			return array();
+		}
+
 		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
 		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
 			$red_bubble_slugs['welcome-banner-active'] = null;
