@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.25.1] - 2024-06-17
 ### Fixed
-- Remove check for broken modules from red bubble connection check [#37911]
+- Remove check for broken modules from red bubble connection check [#37911] 
 
 ## [4.25.0] - 2024-06-17
 ### Changed
