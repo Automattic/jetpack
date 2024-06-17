@@ -6,6 +6,8 @@
  * @since 9.1.0
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */
