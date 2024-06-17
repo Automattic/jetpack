@@ -1,6 +1,17 @@
 <?php
 
 /**
+ * Get shared configuration for each migration button.
+ */
+function wpsc_get_boost_migration_config() {
+	return array(
+		'install_url'  => wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' ),
+		'activate_url' => admin_url( 'plugins.php' ),
+		'is_installed' => wpsc_is_boost_installed(),
+	);
+}
+
+/**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
  */
