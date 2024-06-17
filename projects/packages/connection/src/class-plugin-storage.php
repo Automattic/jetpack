@@ -204,9 +204,12 @@ class Plugin_Storage {
 
 		// If a plugin was activated or deactivated.
 		// self::$plugins is populated in Config::ensure_options_connection().
-		$number_of_plugins_differ = count( self::$plugins ) !== count( (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
+		$configured_plugin_keys = array_keys( self::$plugins );
+		$stored_plugin_keys     = array_keys( (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
+		sort( $configured_plugin_keys );
+		sort( $stored_plugin_keys );
 
-		if ( $number_of_plugins_differ ) {
+		if ( $configured_plugin_keys !== $stored_plugin_keys ) {
 			self::update_active_plugins_option();
 		}
 	}

@@ -37,6 +37,6 @@ export default class WordAdsBlock extends EditorCanvas {
 	static async isRendered( page ) {
 		// We check for either the ads placeholder div, or the iframes if the ads are loaded.
 		const containerSelector = ".entry-content iframe[src*='wordads'],main .wpa .wpa-about";
-		await page.waitForSelector( containerSelector );
+		await page.locator( containerSelector ).waitFor();
 	}
 }

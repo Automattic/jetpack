@@ -10,7 +10,7 @@
 	display: none;
 }
 
-/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-01-23T11:29:16.073Z */
+/* Fetched below from https://widgets.wp.com/likes/style.css at 2024-06-11T14:41:11.500Z */
 .wpl-likebox {
 	container-type:inline-size;
 }
@@ -19,12 +19,13 @@
 	font-family:"Open Sans",sans-serif!important;
 }
 .wpl-button {
-	min-width:73px;
+	min-width:40px;
+	overflow:hidden;
 }
 .wpl-button a {
 	text-decoration:none;
 	display:flex;
-	margin:1px 7px 8px 1px;
+	margin:1px 6px 8px 1px;
 	font-size:13px;
 	font-family:"Open Sans",sans-serif;
 	font-weight:500;
@@ -34,7 +35,15 @@
 	box-shadow:0 1px 2px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.12);
 	text-shadow:none;
 	line-height:23px;
-	padding:4px 10px 3px;
+	padding:4px 10px 3px 9px;
+	min-height:30px;
+	min-width:33px;
+	box-sizing:border-box;
+	align-items:center;
+}
+.rtl .wpl-button a {
+	margin:1px 1px 8px 6px;
+	padding:4px 9px 3px 10px;
 }
 .wpl-button a:hover {
 	box-shadow:0 1px 2px rgba(0,0,0,.22),0 0 0 1px rgba(0,0,0,.22);
@@ -48,9 +57,8 @@
 	width:16px;
 	height:16px;
 	text-align:center;
-	top:3px;
-	margin-left:-1px;
-	margin-right:1px;
+	margin-left:0;
+	margin-right:-1px;
 	content:"";
 	background-size:16px 16px;
 	min-width:16px;
@@ -74,22 +82,15 @@
 	background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m1 0h16v16h-16z' fill='%23fff'/%3E%3Cpath d='m16.0163 5.56587-1.4511-1.43412v8.99325c0 .7597-.6226 1.375-1.3913 1.375h-4.86955v-1.375h4.86955v-8.99325l-1.4511 1.43412-.9837-.97212 3.1305-3.09375 3.1304 3.09375zm-11.19021 6.30243v-8.9933h4.86956v-1.375h-4.86956c-.7687 0-1.39131.61531-1.39131 1.375v8.9933l-1.45113-1.4342-.98365.9721 3.13043 3.0938 3.13044-3.0938-.98365-.9721z' fill='%230675c4' stroke='%230675c4' stroke-width='.14'/%3E%3C/svg%3E");
 }
 .rtl .wpl-button.like a:before,.rtl .wpl-button.liked a:before {
-	margin-left:1px;
-	margin-right:-1px;
+	margin-right:0;
+	margin-left:-1px;
 }
 .wpl-button.like a span,.wpl-button.liked a span,.wpl-button.reblog a span {
-	margin-left:3px;
+	margin-left:5px;
+	text-wrap:nowrap;
 }
-@container (max-width:320px) {
-	.wpl-button {
-		min-width:auto;
-	}
-	.wpl-button a {
-		padding-bottom:10px;
-	}
-	.wpl-button a span {
-		display:none;
-	}
+.rtl .wpl-button.like a span,.rtl .wpl-button.liked a span,.rtl .wpl-button.reblog a span {
+	margin-right:5px;
 }
 .wpl-count {
 	clear:both;
@@ -99,7 +100,7 @@
 .wpl-count-text {
 	line-height:1.6;
 }
-.wpl-likebox.wpl-new-layout .wpl-count,.wpl-likebox.wpl-new-layout .wpl-count a,.wpl-likebox.wpl-new-layout .wpl-count-text,.wpl-likebox.wpl-new-layout .wpl-count-text a {
+.wpl-likebox .wpl-count,.wpl-likebox .wpl-count a,.wpl-likebox .wpl-count-text,.wpl-likebox .wpl-count-text a {
 	font-size:12px!important;
 }
 .wpl-button {
@@ -114,6 +115,9 @@
 	list-style:none;
 	overflow:hidden;
 	height:34px;
+}
+.wpl-avatars:empty {
+	display:none;
 }
 .wpl-avatars li {
 	margin:0;
@@ -167,68 +171,122 @@ a.comment-like-link.loading:before {
 	transition:opacity 2s;
 	opacity:0;
 }
-.wpl-likebox.wpl-new-layout {
+.wpl-likebox {
 	display:flex;
 	align-items:center;
 }
-.wpl-likebox.wpl-new-layout .wpl-avatars {
+.wpl-likebox .wpl-avatars {
 	display:inline-flex;
 	flex-direction:row-reverse;
 	align-items:center;
 	justify-content:center;
 	margin-bottom:4px;
 	flex-wrap:wrap;
+	align-content:end;
+	min-width:30px;
 }
-.rtl .wpl-likebox.wpl-new-layout .wpl-avatars {
-	justify-content:flex-end;
-	margin-right:8px;
-	overflow:initial;
-	flex-wrap:wrap;
-}
-.wpl-likebox.wpl-new-layout .wpl-avatars li,.rtl .wpl-likebox.wpl-new-layout .wpl-avatars li {
-	margin-bottom:10px;
+.wpl-likebox .wpl-avatars li,.rtl .wpl-likebox .wpl-avatars li {
+	margin-bottom:1px;
 	margin-top:1px;
 }
-.wpl-likebox.wpl-new-layout .wpl-avatars li a {
+.wpl-likebox .wpl-avatars li a {
 	position:relative;
 	margin:0;
 }
-.wpl-likebox.wpl-new-layout .wpl-avatars li:not(:first-child) a {
+.wpl-likebox .wpl-avatars li:not(:first-child) a {
 	margin-right:-4px;
 }
-.rtl .wpl-likebox.wpl-new-layout .wpl-avatars li:not(:first-child) a {
+.rtl .wpl-likebox .wpl-avatars li:not(:first-child) a {
 	margin-left:-4px;
+	margin-right:0;
 }
-.wpl-likebox.wpl-new-layout .wpl-avatars li a img {
+.wpl-likebox .wpl-avatars li a img {
 	border:solid 1.5px rgba(255,255,255,.5);
 	border-radius:50%;
 	width:26px;
 	height:26px;
 }
-.wpl-likebox.wpl-new-layout .wpl-count {
-	margin-left:8px;
+.wpl-likebox .wpl-count {
+	margin-left:4px;
 	margin-bottom:4px;
 	clear:none;
 	white-space:nowrap;
 }
-.rtl .wpl-likebox.wpl-new-layout .wpl-count {
-	margin-left:0;
-	margin-right:12px;
+.rtl .wpl-likebox .wpl-count {
+	margin-right:4px;
+	margin-bottom:4px;
+	clear:none;
 	white-space:nowrap;
 }
 
 /* Overrides to fix CSS conflicts within editor. */
 .wpl-likebox {
-	// Prevents color conflict by
+	// Prevents color and outline conflict by
 	// .wp-block-post-content a:where(:not(.wp-element-button))
 	a {
 		color: #2C3338 !important;
 		text-decoration: none !important;
+		outline: none !important;
 	}
 
 	// Prevents focus state conflict by
 	// a:where(:not(.wp-element-button)):focus
 	a:focus {
 		text-decoration: none !important;
+		outline: none !important;
+	}
+
+	// Prevent a number of editor and theme conflicts
+	&.wpl-new-layout {
+		* {
+			cursor: default;
+		}
+
+		.wpl-avatars {
+			margin: 0;
+			padding-left: 0;
+			align-content: unset;
+
+			li {
+				margin: 0;
+			}
+
+			li a:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+			li a img {
+				vertical-align: unset;
+			}
+		}
+
+		.wpl-count:focus,
+		.wpl-count a:focus,
+		.wpl-count-text:focus,
+		.wpl-count-text a:focus {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	// Prevents hover state conflicts on the button element.
+	.wpl-button a:hover {
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
+	}
+
+	.wpl-button.like a:hover:before {
+		background-image:url("data:image/svg+xml,%3Csvg fill='none' height='16' viewBox='0 0 18 16' width='16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='m9.00081 2 1.95699 4.26814h4.3763l-3.6666 3.39117 1.2473 4.34069-3.91399-2.25-3.914 2.25 1.24734-4.34069-3.66667-3.39117h2.18817 2.18816z' stroke='%232c3338' stroke-linecap='round' stroke-width='1.5'/%3E%3C/svg%3E");
+	}
+}
+
+// Format buttons correctly when displayed in columns
+@container (max-width: 320px) {
+	.wpl-button {
+		min-width: auto;
+	}
+
+	.wpl-button a span {
+		display: none;
 	}
 }

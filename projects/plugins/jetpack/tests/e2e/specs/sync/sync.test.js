@@ -132,7 +132,7 @@ test.describe( 'Sync', () => {
 	async function publishPost( title, page ) {
 		logger.sync( 'Publishing new post' );
 		const blockEditor = await BlockEditorPage.visit( page );
-		await blockEditor.resolveWelcomeGuide( false );
+		await blockEditor.closeWelcomeGuide();
 		await blockEditor.setTitle( title );
 		await blockEditor.selectPostTitle();
 		await blockEditor.publishPost();

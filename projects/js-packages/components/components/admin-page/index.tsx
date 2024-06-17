@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import JetpackFooter from '../jetpack-footer';
 import JetpackLogo from '../jetpack-logo';
 import Col from '../layout/col';
@@ -25,7 +25,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 	showBackground = true,
 	header,
 } ) => {
-	const rootClassName = classNames( styles[ 'admin-page' ], {
+	const rootClassName = clsx( styles[ 'admin-page' ], {
 		[ styles.background ]: showBackground,
 	} );
 

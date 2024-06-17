@@ -4,7 +4,7 @@ import { ResponsiveWrapper, Spinner, VisuallyHidden } from '@wordpress/component
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { isVideo } from '../../hooks/use-media-restrictions';
 import { SELECTABLE_MEDIA_TYPES } from '../../hooks/use-media-restrictions/restrictions';
 import VideoPreview from '../video-preview';
@@ -63,7 +63,7 @@ export default function MediaPicker( {
 			}
 
 			return (
-				<div className={ classNames( styles[ 'preview-wrapper' ], wrapperClassName ) }>
+				<div className={ clsx( styles[ 'preview-wrapper' ], wrapperClassName ) }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
 						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
 						<Icon icon={ closeSmall } />

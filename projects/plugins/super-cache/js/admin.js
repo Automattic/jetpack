@@ -24,7 +24,8 @@ jQuery( document ).ready( () => {
 	} );
 
 	// One-click install for Boost.
-	jQuery( '#wpsc-install-boost-button' ).on( 'click', event => {
+	jQuery( '.wpsc-install-boost-button' ).on( 'click', event => {
+		const source = jQuery( event.currentTarget ).attr( 'data-source' );
 		event.preventDefault();
 		showBoostBannerBusy( __( 'Installing…', 'wp-super-cache' ) );
 
@@ -36,7 +37,7 @@ jQuery( document ).ready( () => {
 			} )
 			.done( response => {
 				if ( response.success ) {
-					activateBoost();
+					activateBoost( source );
 				} else {
 					showBoostBannerError( response.data );
 				}
@@ -53,9 +54,10 @@ jQuery( document ).ready( () => {
 	} );
 
 	// Handle activate button click.
-	jQuery( '#wpsc-activate-boost-button' ).on( 'click', event => {
+	jQuery( '.wpsc-activate-boost-button' ).on( 'click', event => {
+		const source = jQuery( event.currentTarget ).attr( 'data-source' );
 		event.preventDefault();
-		activateBoost();
+		activateBoost( source );
 	} );
 
 	// Helper function to show Boost Banner work in progress.
@@ -89,13 +91,14 @@ jQuery( document ).ready( () => {
 	};
 
 	// Activate Jetpack Boost.
-	const activateBoost = () => {
+	const activateBoost = source => {
 		showBoostBannerBusy( __( 'Activating…', 'wp-super-cache' ) );
 
 		jQuery
 			.post( ajaxurl, {
 				action: 'wpsc_activate_boost',
 				_ajax_nonce: wpscAdmin.boostActivateNonce,
+				source: source,
 			} )
 			.done( response => {
 				if ( response.success ) {

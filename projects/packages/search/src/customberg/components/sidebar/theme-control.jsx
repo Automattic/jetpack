@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import ThemeIcon from './theme-icon';
 
 /* eslint-disable react/jsx-no-bind */
@@ -18,7 +18,7 @@ export default function ThemeControl( { disabled, value, onChange } ) {
 	return (
 		<div className="jp-search-configure-theme-buttons components-base-control">
 			<Button
-				className={ classNames( {
+				className={ clsx( {
 					'jp-search-configure-theme-button--selected': value === 'light',
 				} ) }
 				disabled={ disabled }
@@ -31,7 +31,7 @@ export default function ThemeControl( { disabled, value, onChange } ) {
 				</span>
 			</Button>
 			<Button
-				className={ classNames( {
+				className={ clsx( {
 					'jp-search-configure-theme-button--selected': value === 'dark',
 				} ) }
 				disabled={ disabled }

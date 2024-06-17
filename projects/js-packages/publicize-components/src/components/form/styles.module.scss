@@ -64,3 +64,14 @@ p.auto-share-title {
 	display: block;
 	margin-bottom: 1rem;
 }
+
+.broken-connection-btn {
+	&:global(.components-button.is-link) {
+		font-size: inherit;
+		font-weight: inherit;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}

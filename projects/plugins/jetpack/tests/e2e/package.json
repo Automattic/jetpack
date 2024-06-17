@@ -34,7 +34,7 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.43.0",
+		"@playwright/test": "1.44.1",
 		"allure-playwright": "2.9.2",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "workspace:*"

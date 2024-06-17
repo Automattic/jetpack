@@ -14,7 +14,7 @@ import React from 'react';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import FeaturedImage from '../featured-image';
+import { FeaturedImage } from '../ai-image';
 import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -60,7 +60,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 			<PanelRow className="jetpack-ai-proofread-control__header">
 				<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
-					<Proofread busy={ false } disabled={ requireUpgrade } />
+					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 			{ isAIFeaturedImageAvailable && (
@@ -139,7 +139,11 @@ export default function AiAssistantPluginSidebar() {
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread busy={ false } disabled={ requireUpgrade } />
+					<Proofread
+						placement={ PLACEMENT_PRE_PUBLISH }
+						busy={ false }
+						disabled={ requireUpgrade }
+					/>
 					{ requireUpgrade && (
 						<Upgrade
 							placement={ PLACEMENT_PRE_PUBLISH }

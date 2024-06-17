@@ -1,6 +1,17 @@
 <?php
 
 /**
+ * Get shared configuration for each migration button.
+ */
+function wpsc_get_boost_migration_config() {
+	return array(
+		'install_url'  => wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' ),
+		'activate_url' => admin_url( 'plugins.php' ),
+		'is_installed' => wpsc_is_boost_installed(),
+	);
+}
+
+/**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
  */
@@ -34,3 +45,15 @@ function wpsc_track_move_from_boost() {
 	do_action( 'jb_cache_moved_to_wpsc' );
 }
 add_action( 'wpsc_created_advanced_cache', 'wpsc_track_move_from_boost' );
+
+/**
+ * Notify Jetpack Boost that Boost Cache will be used instead of WP Super Cache.
+ *
+ * @param string $source The source of the migration: 'notice', 'banner', 'try_button'.
+ */
+function wpsc_notify_migration_to_boost( $source ) {
+	if ( ! in_array( $source, array( 'notice', 'banner', 'try_button' ), true ) ) {
+		return;
+	}
+	set_transient( 'jb_cache_moved_to_boost', $source, WEEK_IN_SECONDS );
+}

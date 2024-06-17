@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
-import classNames from 'classnames';
-import { PRODUCT_STATUSES } from './action-button';
+import clsx from 'clsx';
+import { PRODUCT_STATUSES } from '../../constants';
 import styles from './style.module.scss';
 import { PRODUCT_STATUSES_LABELS } from '.';
 
@@ -25,7 +25,7 @@ const getStatusClassName = status => {
 
 const Status = ( { status, isFetching, isInstallingStandalone } ) => {
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
-	const statusClassName = classNames( styles.status, getStatusClassName( status ), {
+	const statusClassName = clsx( styles.status, getStatusClassName( status ), {
 		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
 	} );
 

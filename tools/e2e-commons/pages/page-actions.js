@@ -8,6 +8,10 @@ import pwConfig from '../playwright.config.mjs';
  * It is supposed to be the base of a page object, extended by any page or page component class
  */
 export default class PageActions {
+	/**
+	 * @type {import('@playwright/test').PlaywrightTestArgs['page']} The page instance
+	 */
+	page;
 	constructor( page, pageName, selectors, timeoutOverride = null ) {
 		this.page = page;
 		this.selectors = selectors;
@@ -311,7 +315,9 @@ export default class PageActions {
 		logger.action(
 			`Waiting for element '${ selector }' to be ${ state } [timeout: ${ timeout } ms]`
 		);
-		return await this.page.waitForSelector( selector, { state, timeout } );
+		const element = this.page.locator( selector ).first();
+		await element.waitFor( { state, timeout } );
+		return element;
 	}
 
 	/**

@@ -8,7 +8,7 @@
 
 import { Button } from '@automattic/jetpack-components';
 import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
@@ -22,7 +22,7 @@ import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conve
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
-import { ManageConnectionsModalWithTrigger as ManageConnectionsModal } from '../manage-connections-modal';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
@@ -99,8 +99,14 @@ export default function PublicizeForm() {
 
 	refreshConnections();
 
+	const { openConnectionsModal } = useDispatch( socialStore );
+
 	return (
 		<Wrapper>
+			{
+				// Render modal only once
+				useAdminUiV1 ? <ManageConnectionsModal /> : null
+			}
 			{ hasConnections ? (
 				<>
 					<PanelRow>
@@ -150,13 +156,9 @@ export default function PublicizeForm() {
 										) }
 									</span>
 									{ useAdminUiV1 ? (
-										<ManageConnectionsModal
-											trigger={
-												<Button variant="secondary" size="small">
-													{ __( 'Connect an account', 'jetpack' ) }
-												</Button>
-											}
-										/>
+										<Button variant="secondary" size="small" onClick={ openConnectionsModal }>
+											{ __( 'Connect an account', 'jetpack' ) }
+										</Button>
 									) : (
 										<ExternalLink href={ connectionsAdminUrl }>
 											{ __( 'Connect an account', 'jetpack' ) }

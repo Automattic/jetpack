@@ -28,7 +28,7 @@
 		"prepare:e2e": "pnpm jetpack docker --type e2e --name t1 exec-silent -- chown -R www-data .htaccess wp-config.php wp-content"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.43.0",
+		"@playwright/test": "1.44.1",
 		"allure-playwright": "2.9.2",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "workspace:*"

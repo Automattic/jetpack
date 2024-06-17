@@ -355,6 +355,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @see https://github.com/Automattic/jetpack/pull/33955
 		 */
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+
+		// hide duplicate link to scan history that is shown in the untangling UI
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	}
 
 	/**

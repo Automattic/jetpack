@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2024-06-13
+### Changed
+- Internal updates.
+
+## [3.1.0] - 2024-06-10
+### Added
+- Staging: deprecating staging mode and separating the logic into is_development_site and in_safe_mode [#37023]
+
 ## [3.0.2] - 2024-06-04
 ### Fixed
 - Defaults: Add new item to default_theme_support_whitelist to prevent failing sync tests. [#37701]
@@ -1172,6 +1180,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.1.1]: https://github.com/Automattic/jetpack-sync/compare/v3.1.0...v3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-sync/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/Automattic/jetpack-sync/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/Automattic/jetpack-sync/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/Automattic/jetpack-sync/compare/v2.16.6...v3.0.0

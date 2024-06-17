@@ -30,6 +30,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Site_Health;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
@@ -129,6 +130,8 @@ class Jetpack_Boost {
 
 		// Setup Site Health panel functionality.
 		Site_Health::init();
+
+		Super_Cache_Tracking::setup();
 	}
 
 	/**
@@ -161,7 +164,7 @@ class Jetpack_Boost {
 		Analytics::record_user_event( 'activate_plugin' );
 
 		$page_cache_status = new Status( Page_Cache::get_slug() );
-		if ( $page_cache_status->is_enabled() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
+		if ( $page_cache_status->get() && Boost_Cache_Settings::get_instance()->get_enabled() ) {
 			Page_Cache_Setup::run_setup();
 		}
 	}
@@ -198,6 +201,7 @@ class Jetpack_Boost {
 			array(
 				'jetpack_sync_callable_whitelist' => array(
 					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
+					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
 					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
 					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Modules_Index::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
 					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),

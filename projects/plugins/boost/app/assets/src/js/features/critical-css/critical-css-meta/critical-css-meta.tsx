@@ -6,6 +6,7 @@ import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { RegenerateCriticalCssSuggestion, useRegenerationReason } from '..';
 import { useLocalCriticalCssGenerator } from '../local-generator/local-generator-provider';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
+import { isFatalError } from '../lib/critical-css-errors';
 
 /**
  * Critical CSS Meta - the information and options displayed under the Critical CSS toggle on the
@@ -16,6 +17,7 @@ export default function CriticalCssMeta() {
 	const [ hasRetried, retry ] = useRetryRegenerate();
 	const [ regenerateReason ] = useRegenerationReason();
 	const { progress } = useLocalCriticalCssGenerator();
+	const showFatalError = isFatalError( cssState );
 
 	if ( cssState.status === 'pending' ) {
 		return (
@@ -36,6 +38,7 @@ export default function CriticalCssMeta() {
 			<Status
 				cssState={ cssState }
 				isCloud={ false }
+				showFatalError={ showFatalError }
 				hasRetried={ hasRetried }
 				retry={ retry }
 				highlightRegenerateButton={ !! regenerateReason }
@@ -45,7 +48,9 @@ export default function CriticalCssMeta() {
 				) }
 			/>
 
-			<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+			{ ! showFatalError && (
+				<RegenerateCriticalCssSuggestion regenerateReason={ regenerateReason } />
+			) }
 		</>
 	);
 }
