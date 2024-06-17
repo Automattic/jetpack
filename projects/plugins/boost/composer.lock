@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "472030e40fbd0ad6136ecac59429e3b4",
+    "content-hash": "4f685df5d6026797b0ed3ae6316ba901",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -482,16 +482,16 @@
         },
         {
             "name": "automattic/jetpack-connection",
-            "version": "v2.10.0",
+            "version": "v2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-connection.git",
-                "reference": "01ac01f9271b7b35bb3afc9246ad70e2229ff9e7"
+                "reference": "292d6536e61087d32940bd02ea2ec73528774b06"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/01ac01f9271b7b35bb3afc9246ad70e2229ff9e7",
-                "reference": "01ac01f9271b7b35bb3afc9246ad70e2229ff9e7",
+                "url": "https://api.github.com/repos/Automattic/jetpack-connection/zipball/292d6536e61087d32940bd02ea2ec73528774b06",
+                "reference": "292d6536e61087d32940bd02ea2ec73528774b06",
                 "shasum": ""
             },
             "require": {
@@ -548,9 +548,9 @@
             ],
             "description": "Everything needed to connect to the Jetpack infrastructure",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.10.0"
+                "source": "https://github.com/Automattic/jetpack-connection/tree/v2.10.1"
             },
-            "time": "2024-06-10T13:27:17+00:00"
+            "time": "2024-06-12T13:06:28+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
@@ -932,23 +932,23 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v4.24.6",
+            "version": "v4.25.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "24f92c0ded9ae3b490f584f05dca3e6abbb67338"
+                "reference": "1e0cb80e6aee01a6d7875954d0459377c38dc9f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/24f92c0ded9ae3b490f584f05dca3e6abbb67338",
-                "reference": "24f92c0ded9ae3b490f584f05dca3e6abbb67338",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/1e0cb80e6aee01a6d7875954d0459377c38dc9f3",
+                "reference": "1e0cb80e6aee01a6d7875954d0459377c38dc9f3",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-admin-ui": "^0.4.2",
                 "automattic/jetpack-assets": "^2.1.12",
                 "automattic/jetpack-boost-speed-score": "^0.3.11",
-                "automattic/jetpack-connection": "^2.10.0",
+                "automattic/jetpack-connection": "^2.10.1",
                 "automattic/jetpack-constants": "^2.0.3",
                 "automattic/jetpack-jitm": "^3.1.12",
                 "automattic/jetpack-licensing": "^2.0.5",
@@ -975,7 +975,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.24.x-dev"
+                    "dev-trunk": "4.25.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -999,9 +999,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.24.6"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.25.1"
             },
-            "time": "2024-06-11T13:07:20+00:00"
+            "time": "2024-06-17T23:12:23+00:00"
         },
         {
             "name": "automattic/jetpack-password-checker",
