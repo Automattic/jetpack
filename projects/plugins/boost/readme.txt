@@ -183,9 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.3 - 2024-06-14
-#### Fixed
-- Compatibility: Include a missing dependency required for Compatibility with WP Optimize
+### 3.4.4 - 2024-06-18
+#### Fixes
+- My Jetpack: Update My Jetpack to a more stable version.
 
 --------
 
