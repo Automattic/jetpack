@@ -508,6 +508,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
+		if ( wp_doing_ajax() ) {
+			return;
+		}
+
 		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
 			self::update_historically_active_jetpack_modules();
 			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
