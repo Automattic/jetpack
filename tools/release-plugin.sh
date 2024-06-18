@@ -29,7 +29,7 @@ function usage {
 if ! command -v gh &> /dev/null; then
 	yellow "This tool requires the GitHub CLI, which was not found."
 	if command -v brew &> /dev/null; then
-		proceed_p "Install the GitHub CLI via brew?"
+		proceed_p "Install the GitHub CLI via brew?" "" Y
 		brew install gh
 	else
 		die "Please install the GitHub CLI before proceeding"
@@ -45,7 +45,7 @@ fi
 # Make sure we're signed into the GitHub CLI.
 if ! gh auth status --hostname github.com &> /dev/null; then
 	yellow "You are not signed into the GitHub CLI."
-	proceed_p "Sign in to the GitHub CLI?"
+	proceed_p "Sign in to the GitHub CLI?" "" Y
 	gh auth login
 fi
 
@@ -141,7 +141,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	echo "Releasing $PLUGIN ${PROJECTS[$PLUGIN]}"
 done
 
-proceed_p "" "Proceed releasing above projects?"
+proceed_p "" "Proceed releasing above projects?" Y
 
 # Figure out which release branch prefixes to use.
 PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
@@ -150,13 +150,13 @@ mapfile -t PREFIXES <<<"$TMP"
 [[ ${#PREFIXES[@]} -eq 0 ]] && die "Could not determine prefixes for projects ${!PROJECTS[*]}"
 if [[ ${#PREFIXES[@]} -gt 1 ]]; then
 	yellow "The specified set of plugins will require multiple release branches: ${PREFIXES[*]}"
-	proceed_p ""
+	proceed_p "" "" Y
 fi
 
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
-	proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
+	proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?" Y
 	git checkout trunk && git pull
 fi
 
@@ -167,7 +167,7 @@ fi
 yellow "Checking out prerelease branch."
 # Check out and push pre-release branch
 if git rev-parse --verify prerelease &>/dev/null; then
-	proceed_p "Existing prerelease branch found." "Delete it?"
+	proceed_p "Existing prerelease branch found." "Delete it?" Y
 	git branch -D prerelease
 fi
 
@@ -295,7 +295,7 @@ git checkout prerelease
 
 # If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
 if [[ -v PROJECTS["plugins/jetpack"] ]]; then
-  if proceed_p "Do you want to start a new cycle for Jetpack?"; then
+  if proceed_p "Do you want to start a new cycle for Jetpack?" "" Y; then
     pnpm jetpack release plugins/jetpack version -a --init-next-cycle
     git add --all
     git commit -am "Init new cycle"
