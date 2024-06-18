@@ -9,9 +9,7 @@ jQuery( document ).ready( () => {
 	const ajaxurl = window.ajaxurl;
 	const wpscAdmin = window.wpscAdmin;
 
-	const link = jQuery( '.wpsc-install-action-button' );
-	const label = link.find( 'label' );
-	const spinner = link.find( '.spinner' );
+	let link, label, spinner, errorMessage, originalText;
 
 	// Dismiss Boost banner.
 	jQuery( '.wpsc-boost-dismiss' ).on( 'click', function () {
@@ -28,6 +26,11 @@ jQuery( document ).ready( () => {
 		const source = jQuery( event.currentTarget ).attr( 'data-source' );
 		event.preventDefault();
 		showBoostBannerBusy( __( 'Installing…', 'wp-super-cache' ) );
+		link = jQuery( event.currentTarget );
+		label = link.find( 'label' );
+		originalText = label.text();
+		spinner = link.find( '.spinner' );
+		errorMessage = link.prev( '.wpsc-boost-migration-error' );
 
 		jQuery
 			.post( ajaxurl, {
@@ -56,6 +59,11 @@ jQuery( document ).ready( () => {
 	// Handle activate button click.
 	jQuery( '.wpsc-activate-boost-button' ).on( 'click', event => {
 		const source = jQuery( event.currentTarget ).attr( 'data-source' );
+		link = jQuery( event.currentTarget );
+		label = link.find( 'label' );
+		originalText = label.text();
+		spinner = link.find( '.spinner' );
+		errorMessage = link.prev( '.wpsc-boost-migration-error' );
 		event.preventDefault();
 		activateBoost( source );
 	} );
@@ -70,12 +78,7 @@ jQuery( document ).ready( () => {
 	// Helper function to reset Boost Banner button.
 	const resetBoostBannerButton = () => {
 		link.attr( 'disabled', false );
-		jQuery( '#wpsc-activate-boost-button' )
-			.find( 'label' )
-			.text( __( 'Activate Jetpack Boost', 'wp-super-cache' ) );
-		jQuery( '#wpsc-install-boost-button' )
-			.find( 'label' )
-			.text( __( 'Install Jetpack Boost', 'wp-super-cache' ) );
+		label.text( originalText );
 		spinner.removeClass( 'is-active' ).hide();
 	};
 
@@ -83,7 +86,7 @@ jQuery( document ).ready( () => {
 	const showBoostBannerError = err => {
 		resetBoostBannerButton();
 
-		jQuery( '#wpsc-boost-banner-error' )
+		errorMessage
 			.text(
 				err || __( 'An error occurred while trying to activate Jetpack Boost', 'wp-super-cache' )
 			)
