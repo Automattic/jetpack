@@ -91,8 +91,6 @@ class Initializer {
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
-		self::setup_historically_active_jetpack_modules_sync();
-
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
