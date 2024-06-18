@@ -166,6 +166,7 @@ class Initializer {
 	 */
 	public static function admin_init() {
 		self::$site_info = self::get_site_info();
+		self::update_historically_active_jetpack_modules();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		// Product statuses are constantly changing, so we never want to cache the page.
@@ -508,11 +509,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
-		if ( wp_doing_ajax() ) {
-			return;
-		}
-
-		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
+		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
 			self::update_historically_active_jetpack_modules();
 			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
 		}
@@ -523,7 +520,6 @@ class Initializer {
 			'jetpack_user_authorized',
 			'jetpack_unlinked_user',
 			'activated_plugin',
-			'my_jetpack_init',
 		);
 
 		foreach ( $actions as $action ) {
