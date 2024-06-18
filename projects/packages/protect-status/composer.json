@@ -8,7 +8,8 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-protect-models": "@dev"
+		"automattic/jetpack-protect-models": "@dev",
+		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
