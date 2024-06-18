@@ -21,6 +21,11 @@ function wpsc_jetpack_boost_notice() {
 		return;
 	}
 
+	// Don't show the admin notice if Jetpack Boost is too old.
+	if ( ! wpsc_is_boost_current() ) {
+		return;
+	}
+
 	// Don't show the banner if Super Cache is using features that Boost doesn't support.
 	if ( ! wpsc_is_boost_compatible() ) {
 		return;
@@ -184,5 +189,9 @@ function wpsc_is_boost_compatible() {
  * @return bool True if Jetpack Boost is same as or newer than version 3.4.0
  */
 function wpsc_is_boost_current() {
-	return defined( 'JETPACK_BOOST_VERSION' ) && version_compare( JETPACK_BOOST_VERSION, '3.4.0', '>=' );
+	if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
+		return version_compare( JETPACK_BOOST_VERSION, '3.4.0', '>=' );
+	} else {
+		return true; // don't care if Boost is not installed
+	}
 }
