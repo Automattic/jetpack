@@ -310,7 +310,7 @@ final class Image_CDN {
 	public static function parse_dimensions_from_filename( $src ) {
 		$width_height_string = array();
 
-		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:\?.*)?$#i', $src, $width_height_string ) ) {
 			$width  = (int) $width_height_string[1];
 			$height = (int) $width_height_string[2];
 
