@@ -4,7 +4,7 @@ Tags: social media automation, social media scheduling, auto share, social shari
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
-Stable tag: 2.3.0
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,16 +102,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 4.5.0 - 2024-06-13
-#### Changed
-- Move the admin upsell to the toggle section
-- Updated package dependencies.
-
-#### Removed
-- Removed the social basic plan from the admin page
-
+### 4.5.1 - 2024-06-18
 #### Fixed
-- Updated wp.org screenshots
+- My Jetpack: Update My Jetpack to a more stable version.
 
 == Upgrade Notice ==
 
