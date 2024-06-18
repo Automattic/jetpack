@@ -73,7 +73,7 @@ class Notices {
 
 		// Check if Jetpack is integrated with the Complianz plugin, which blocks the Stats.
 		$complianz_options_integrations  = get_option( 'complianz_options_integrations' );
-		$is_jetpack_blocked_by_complianz = isset( $complianz_options_integrations['jetpack'] ) && $complianz_options_integrations['jetpack'];
+		$is_jetpack_blocked_by_complianz = ! isset( $complianz_options_integrations['jetpack'] ) || $complianz_options_integrations['jetpack'];
 		$is_complianz_installed          = $notices_wpcom[ self::GDPR_COOKIE_CONSENT_NOTICE_ID ];
 
 		return array_merge(
