@@ -1,6 +1,7 @@
 import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
@@ -219,7 +220,19 @@ export const SSO = withModuleSettingsFormHelpers(
 									}
 									help={
 										isTwoStepEnforced
-											? __( 'Two-Step Authentication is enforced on this site.', 'jetpack' )
+											? createInterpolateElement(
+													__(
+														'Two-Step Authentication has been enabled by a site administrator. <link>Learn more</link>.',
+														'jetpack'
+													),
+													{
+														link: (
+															<ExternalLink
+																href={ getRedirectUrl( 'jetpack-support-force-2fa' ) }
+															/>
+														),
+													}
+											  )
 											: null
 									}
 								/>
