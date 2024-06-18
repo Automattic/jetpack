@@ -1162,16 +1162,16 @@
 		},
 		{
 			"name": "automattic/jetpack-publicize",
-			"version": "v0.46.1",
+			"version": "v0.46.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-publicize.git",
-				"reference": "5f4d02a4c3c50622c1f06722d64366d55b743f63"
+				"reference": "7cbc4c45fad4688cd307e46efc97b2ac2319756e"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/5f4d02a4c3c50622c1f06722d64366d55b743f63",
-				"reference": "5f4d02a4c3c50622c1f06722d64366d55b743f63",
+				"url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/7cbc4c45fad4688cd307e46efc97b2ac2319756e",
+				"reference": "7cbc4c45fad4688cd307e46efc97b2ac2319756e",
 				"shasum": ""
 			},
 			"require": {
@@ -1217,9 +1217,9 @@
 			],
 			"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-publicize/tree/v0.46.1"
+				"source": "https://github.com/Automattic/jetpack-publicize/tree/v0.46.0"
 			},
-			"time": "2024-06-17T14:02:51+00:00"
+			"time": "2024-06-13T08:48:52+00:00"
 		},
 		{
 			"name": "automattic/jetpack-redirect",
@@ -1388,20 +1388,20 @@
 		},
 		{
 			"name": "automattic/jetpack-sync",
-			"version": "v3.1.1",
+			"version": "v3.1.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-sync.git",
-				"reference": "99a0868a9416ff2b0e55800180016057bca27f7b"
+				"reference": "164c55ea23b90ad23837485d1a856c43a252f588"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/99a0868a9416ff2b0e55800180016057bca27f7b",
-				"reference": "99a0868a9416ff2b0e55800180016057bca27f7b",
+				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/164c55ea23b90ad23837485d1a856c43a252f588",
+				"reference": "164c55ea23b90ad23837485d1a856c43a252f588",
 				"shasum": ""
 			},
 			"require": {
-				"automattic/jetpack-connection": "^2.10.1",
+				"automattic/jetpack-connection": "^2.10.0",
 				"automattic/jetpack-constants": "^2.0.3",
 				"automattic/jetpack-ip": "^0.2.2",
 				"automattic/jetpack-password-checker": "^0.3.1",
@@ -1451,9 +1451,9 @@
 			],
 			"description": "Everything needed to allow syncing to the WP.com infrastructure.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.1.1"
+				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.1.0"
 			},
-			"time": "2024-06-13T13:17:30+00:00"
+			"time": "2024-06-10T13:27:39+00:00"
 		}
 	],
 	"packages-dev": [
