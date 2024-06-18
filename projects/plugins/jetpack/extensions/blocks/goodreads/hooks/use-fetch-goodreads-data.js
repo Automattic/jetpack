@@ -82,12 +82,13 @@ export default function useFetchGoodreadsData( input ) {
 
 		const goodreadsId = extractGoodreadsId( input );
 
-		if ( input.length && ! goodreadsId ) {
+		if ( ! isError && input.length ) {
 			setIsFetchingData( true );
-			findProfileLink( input );
-		} else if ( ! isError && input.length ) {
-			setIsFetchingData( true );
-			fetchData( goodreadsId );
+			if ( ! goodreadsId ) {
+				findProfileLink( input );
+			} else {
+				fetchData( goodreadsId );
+			}
 		}
 	}, [ input, isError ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
