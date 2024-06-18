@@ -328,7 +328,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.6-a.5 - 2024-06-18
 #### Bug fixes
-- User Content Link Tracking: check domain before redirecting to subscribe.wordpress.com
+- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
 
 --------
 
