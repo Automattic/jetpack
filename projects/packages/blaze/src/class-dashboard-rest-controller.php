@@ -330,7 +330,7 @@ class Dashboard_REST_Controller {
 		}
 
 		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts not ready yet. Please try again later.' );
+			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -392,7 +392,7 @@ class Dashboard_REST_Controller {
 		}
 
 		if ( ! $this->are_posts_ready() ) {
-			return new WP_Error( 'posts_not_ready', 'Posts not ready yet. Please try again later.' );
+			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
