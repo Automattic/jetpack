@@ -129,7 +129,9 @@ class Posts extends Module {
 		if ( 'post' === $object_type ) {
 			$post = get_post( (int) $id );
 			if ( $post ) {
-				return $this->filter_post_content_and_add_links( $post );
+				$filtered_post            = $this->filter_post_content( $post );
+				$filtered_post_with_links = $this->add_links( $filtered_post );
+				return $filtered_post_with_links;
 			}
 		}
 
