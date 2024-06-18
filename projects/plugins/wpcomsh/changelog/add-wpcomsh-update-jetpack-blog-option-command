@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added new wpcomsh command for creating jetpack_connection_active_plugins blog option
