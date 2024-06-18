@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync:Moved the add links part of the expand posts functionality in dedicated sync requests to before_send insetad of before_enqueue  
