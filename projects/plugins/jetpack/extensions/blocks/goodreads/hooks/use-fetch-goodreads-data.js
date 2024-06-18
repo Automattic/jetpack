@@ -46,6 +46,31 @@ export default function useFetchGoodreadsData( input ) {
 		}
 	};
 
+	const findProfileLink = async input => {
+		// Checks for alternative format - eg. https://www.goodreads.com/photomatt
+		testEmbedUrl( input )
+			.then( response => {
+				const goodreadsId = extractGoodreadsId( response );
+				if ( goodreadsId ) {
+					setGoodreadsUserId( goodreadsId );
+				} else {
+					setIs404( true );
+				}
+			} )
+			.catch( () => {
+				setIs404( true );
+			} )
+			.finally( () => {
+				setIsFetchingData( false );
+			} );
+	};
+
+	const extractGoodreadsId = input => {
+		const regex = /\/(user|author)\/show\/(\d+)/;
+		const match = input.match( regex );
+		return match ? parseInt( match[ 2 ], 10 ) : false;
+	};
+
 	useEffect( () => {
 		// Needs to be reset because user can edit URLs.
 		setIsError( false );
@@ -55,14 +80,12 @@ export default function useFetchGoodreadsData( input ) {
 			setIsError( true );
 		}
 
-		const regex = /\/(user|author)\/show\/(\d+)/;
-		const goodreadsId = input.match( regex ) ? parseInt( input.match( regex )[ 2 ] ) : false;
+		const goodreadsId = extractGoodreadsId( input );
 
 		if ( input.length && ! goodreadsId ) {
-			setIsError( true );
-		}
-
-		if ( ! isError && input.length ) {
+			setIsFetchingData( true );
+			findProfileLink( input );
+		} else if ( ! isError && input.length ) {
 			setIsFetchingData( true );
 			fetchData( goodreadsId );
 		}
