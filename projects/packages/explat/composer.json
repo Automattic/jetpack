@@ -16,13 +16,24 @@
 		]
 	},
 	"scripts": {
-		"build-development": "echo 'Add your build step to composer.json, please!'",
-		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-js-watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run test --watch"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
 		]
 	},
 	"repositories": [
