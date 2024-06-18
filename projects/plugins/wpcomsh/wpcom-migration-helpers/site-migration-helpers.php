@@ -63,7 +63,7 @@ add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_migration_option' );
  * Logs the start and end of an AIOWP migration import and any errors that occur during the import.
  */
 function aiowp_migration_logging_helper() {
-	if ( ! class_exists( 'Ai1wm_Main_Controller' ) || ! class_exists( 'Jetpack_Options' ) ) {
+	if ( ! class_exists( 'Ai1wm_Main_Controller' ) ) {
 		return;
 	}
 
@@ -74,7 +74,6 @@ function aiowp_migration_logging_helper() {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_start',
 				array(
-					'blogid'         => (int) Jetpack_Options::get_option( 'id' ),
 					'migration_tool' => 'aiowp',
 				)
 			);
@@ -90,7 +89,6 @@ function aiowp_migration_logging_helper() {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_done',
 				array(
-					'blogid'         => (int) Jetpack_Options::get_option( 'id' ),
 					'migration_tool' => 'aiowp',
 				)
 			);

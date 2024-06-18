@@ -99,7 +99,6 @@ class Jetpack_Tracks_Client {
 		// Add the Request Timestamp and URL terminator just before the HTTP request.
 		$pixel .= '&_rt=' . self::build_timestamp() . '&_=_';
 
-		error_log( 'Jetpack_Tracks_Client::record_pixel: ' . $pixel );
 		$response = wp_remote_get(
 			$pixel,
 			array(
