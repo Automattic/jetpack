@@ -423,7 +423,7 @@ function wpsc_jetpack_boost_install_banner() {
 						?>
 					</p>
 
-					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+					<div class="wpsc-boost-migration-error" style="display:none; color:red; margin-bottom: 20px;"></div>
 
 					<a data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button <?php echo esc_attr( $button_class ); ?>">
 						<div class="spinner" style="display:none; margin-top: 8px"></div>
