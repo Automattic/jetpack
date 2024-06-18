@@ -73,28 +73,32 @@ class Notices {
 
 		// Check if Jetpack is integrated with the Complianz plugin, which blocks the Stats.
 		$complianz_options_integrations  = get_option( 'complianz_options_integrations' );
-		$is_jetpack_blocked_by_complianz = is_array( $complianz_options_integrations ) && $complianz_options_integrations['jetpack'];
+		$is_jetpack_blocked_by_complianz = isset( $complianz_options_integrations['jetpack'] ) && $complianz_options_integrations['jetpack'];
 		$is_complianz_installed          = $notices_wpcom[ self::GDPR_COOKIE_CONSENT_NOTICE_ID ];
 
 		return array_merge(
 			$notices_wpcom,
 			array(
 				// Show Opt-in notice 30 days after the new stats being disabled.
-				self::OPT_IN_NEW_STATS_NOTICE_ID   => ! $new_stats_enabled
+				self::OPT_IN_NEW_STATS_NOTICE_ID    => ! $new_stats_enabled
 					&& $odyssey_stats_changed_at < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
 					&& ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
 
 				// Show feedback notice after 3 views of the new stats.
-				self::NEW_STATS_FEEDBACK_NOTICE_ID => $new_stats_enabled
+				self::NEW_STATS_FEEDBACK_NOTICE_ID  => $new_stats_enabled
 					&& $stats_views >= self::VIEWS_TO_SHOW_FEEDBACK
 					&& ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ),
 
 				// Show opt-out notice before 3 views of the new stats, where 3 is included.
-				self::OPT_OUT_NEW_STATS_NOTICE_ID  => $new_stats_enabled
+				self::OPT_OUT_NEW_STATS_NOTICE_ID   => $new_stats_enabled
 					&& $stats_views < self::VIEWS_TO_SHOW_FEEDBACK
 					&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
-			),
-			array( self::GDPR_COOKIE_CONSENT_NOTICE_ID => $is_complianz_installed && $is_jetpack_blocked_by_complianz )
+
+				// GDPR cookie consent notice for Complianz users.
+				self::GDPR_COOKIE_CONSENT_NOTICE_ID => $is_complianz_installed
+					&& $is_jetpack_blocked_by_complianz
+					&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
+			)
 		);
 	}
 
