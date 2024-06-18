@@ -45,10 +45,10 @@ function wpsc_jetpack_boost_notice() {
 	</p>
 
 	<p>
+		<div class="wpsc-boost-migration-error" style="display:none; color:red; margin-bottom: 20px;"></div>
 		<a data-source='notice' class='button button-primary <?php echo esc_attr( $button_class ); ?>' href="<?php echo esc_url( $button_url ); ?>">
-			<span>
-				<?php esc_html_e( 'Migrate now', 'wp-super-cache' ); ?>
-			</span>
+			<div class="spinner" style="display:none; margin-top: 8px"></div>
+			<label><?php esc_html_e( 'Migrate now', 'wp-super-cache' ); ?></label>
 		</a>
 	</p>
 	</div>
