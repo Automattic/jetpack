@@ -564,6 +564,17 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
+		 * Set up Jetpack active plugins blog option (jetpack_connection_active_plugins).
+		 *
+		 * @subcommand setup-jetpack-active-plugins
+		 */
+		public function setup_jetpack_active_plugins( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
+			$jetpack_plugins = Automattic\Jetpack\Connection\Plugin_Storage::get_all();
+			update_option( 'jetpack_connection_active_plugins', $jetpack_plugins );
+			WP_CLI::log( wp_json_encode( $jetpack_plugins, JSON_PRETTY_PRINT ) );
+		}
+
+		/**
 		 * Import a backup .zip file.
 		 *
 		 * ## OPTIONS
