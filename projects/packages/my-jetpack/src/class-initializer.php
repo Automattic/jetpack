@@ -515,10 +515,8 @@ class Initializer {
 		}
 
 		$actions = array(
-			'jetpack_site_before_disconnected',
 			'jetpack_site_registered',
 			'jetpack_user_authorized',
-			'jetpack_unlinked_user',
 			'activated_plugin',
 		);
 
