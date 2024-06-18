@@ -119,4 +119,13 @@ jQuery( document ).ready( () => {
 				);
 			} );
 	};
+
+	// Dismiss admin notice
+	jQuery( '.boost-notice' ).on( 'click', '.notice-dismiss', event => {
+		event.preventDefault();
+		jQuery.post( ajaxurl, {
+			action: 'wpsc_dismiss_boost_notice',
+			_ajax_nonce: wpscAdmin.boostNoticeDismissNonce,
+		} );
+	} );
 } );
