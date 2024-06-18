@@ -1305,7 +1305,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "a17a4ebcea4f0a0c47916c0457fe23106ad6ae5c"
+                "reference": "f188536acdc40d4d174907d96875313f111fbdb7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1329,7 +1329,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
