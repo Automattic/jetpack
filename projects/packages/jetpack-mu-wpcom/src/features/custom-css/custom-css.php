@@ -56,7 +56,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		public static function init() {
 			Assets::register_script(
 				'jetpack-customizer-css',
-				'custom-css/js/core-customizer-css.core-4.9.js',
+				'../../build/core-customizer-css/core-customizer-css.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
@@ -65,13 +65,13 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 						'underscore',
 					),
 					'in-footer'    => true,
-					'css_path'     => 'custom-css/css/customizer-control.css',
+					'css_path'     => '../../build/customizer-control/customizer-control.css',
 				)
 			);
 
 			Assets::register_script(
 				'jetpack-customizer-css-preview',
-				'custom-css/js/core-customizer-css-preview.js',
+				'../../build/core-customizer-css-preview/core-customizer-css-preview.js',
 				__FILE__,
 				array(
 					'dependencies' => array(
