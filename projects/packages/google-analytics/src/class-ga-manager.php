@@ -81,8 +81,8 @@ class GA_Manager {
 		add_filter( 'site_settings_endpoint_get', array( $this, 'site_settings_fetch' ), 10, 2 );
 		add_filter( 'site_settings_endpoint_update_wga', array( $this, 'site_settings_update' ), 10, 2 );
 		add_filter( 'site_settings_endpoint_update_jetpack_wga', array( $this, 'site_settings_update' ) );
-		add_action( 'jetpack_activate_module_google-analytics', array( $this, 'module_status_updated' ) );
-		add_action( 'jetpack_deactivate_module_google-analytics', array( $this, 'module_status_updated' ) );
+		add_action( 'jetpack_activate_module_google-analytics', array( $this, 'set_status_from_module' ) );
+		add_action( 'jetpack_deactivate_module_google-analytics', array( $this, 'set_status_from_module' ) );
 	}
 
 	/**
@@ -147,6 +147,7 @@ class GA_Manager {
 		$wga['code'] = $value['code'];
 
 		if ( ! array_key_exists( 'is_active', $wga ) ) {
+			// The `is_active` flag is missing from the settings, add a default value based on the module status.
 			$wga['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
 		}
 
@@ -196,15 +197,15 @@ class GA_Manager {
 	}
 
 	/**
-	 * Update the `is_active` settings flag when module status changes.
+	 * Update the `is_active` settings flag depending on the Google Analytics module status.
 	 *
 	 * @return void
 	 */
-	public function module_status_updated() {
+	public function set_status_from_module() {
 		$option_name = $this->get_google_analytics_option_name();
 
 		$wga       = get_option( $option_name, array() );
-		$is_active = ( new Modules() )->is_active( 'google-analytics' );
+		$is_active = ( new Modules() )->is_active( 'google-analytics', false );
 
 		if ( $is_active !== $wga['is_active'] ) {
 			$wga['is_active'] = $is_active;
@@ -240,7 +241,7 @@ class GA_Manager {
 	public function get_google_analytics_settings() {
 		$settings = get_option( $this->get_google_analytics_option_name() );
 
-		// Save the `is_active` property depending on the module status.
+		// The `is_active` flag is missing from the settings, add a value based on the module status.
 		if ( is_array( $settings ) && ! array_key_exists( 'is_active', $settings ) ) {
 			$settings['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
 		}
