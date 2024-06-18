@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.6-a.5 - 2024-06-18
+### Bug fixes
+- User Content Link Tracking: check domain before redirecting to subscribe.wordpress.com [#37798]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bump Jetpack lock file. [#37870]
+- Fixed missing css vars for sso modal [#37924]
+
 ## 13.6-a.3 - 2024-06-17
 ### Enhancements
 - AI Assistant: Hide input when user types on extended block. [#37801]
