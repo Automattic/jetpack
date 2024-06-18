@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d93707e0127e4b653ef7cbe67245bc39",
+    "content-hash": "ffe5ca5833543183c0d52b550b9ac02a",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1343,7 +1343,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "a17a4ebcea4f0a0c47916c0457fe23106ad6ae5c"
+                "reference": "f188536acdc40d4d174907d96875313f111fbdb7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1367,7 +1367,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
