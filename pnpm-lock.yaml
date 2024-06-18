@@ -1881,7 +1881,26 @@ importers:
         version: 4.9.1(webpack@5.76.0)
 
   projects/packages/explat:
+    dependencies:
+      '@automattic/explat-client':
+        specifier: 0.1.0
+        version: 0.1.0
+      '@automattic/explat-client-react-helpers':
+        specifier: 0.1.0
+        version: 0.1.0
+      cookie:
+        specifier: 0.4.1
+        version: 0.4.1
+      qs:
+        specifier: 6.12.1
+        version: 6.12.1
     devDependencies:
+      '@types/cookie':
+        specifier: 0.6.0
+        version: 0.6.0
+      '@types/qs':
+        specifier: 6.9.15
+        version: 6.9.15
       jest:
         specifier: 29.7.0
         version: 29.7.0
@@ -4776,6 +4795,12 @@ packages:
   '@automattic/color-studio@2.6.0':
     resolution: {integrity: sha512-2LzB6bbQw1vayZxZy5Y+DnCYU7x8tPu+rZhNkWD7V8QZTSJMJO65XKZhYaCByC+C5OegXyGyZzcqEOHHdj5iiQ==}
 
+  '@automattic/explat-client-react-helpers@0.1.0':
+    resolution: {integrity: sha512-p8yaBt3byJCIXQSNuw/oWnvu6khK8FFozPdQVnXCIbW+OO9pylBrZz+1VIzdPH7+0YjV0hRA0KGeiVp+uNCemw==}
+
+  '@automattic/explat-client@0.1.0':
+    resolution: {integrity: sha512-+yYhjlWUTN/hTvL70ZCsrSn5GBxnEWmUdQU4n1K592JyB+c+nUhvo7rd1rnHa5qDPKX3vQsjYS0SSOKvlo7iww==}
+
   '@automattic/format-currency@1.0.1':
     resolution: {integrity: sha512-RY2eiUlDiqNSHiJzz2YmH/mw4IjAUO5hkxbwcVGHJkBZowdq/WcSG2yhXc8N9cV9N1fTO/ryCuJvGnpHUe+mAg==}
 
@@ -7141,6 +7166,9 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
+
+  '@types/cookie@0.6.0':
+    resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
 
   '@types/cross-spawn@6.0.6':
     resolution: {integrity: sha512-fXRhhUkG4H3TQk5dBhQ7m/JDdSNHKwR2BBia62lhwEIq9xGiQKLxd6LymNhn47SjXhsUEPmxi+PKw2OkW4LLjA==}
@@ -14463,6 +14491,16 @@ snapshots:
 
   '@automattic/color-studio@2.6.0': {}
 
+  '@automattic/explat-client-react-helpers@0.1.0':
+    dependencies:
+      '@automattic/explat-client': 0.1.0
+      react: 18.3.1
+      tslib: 2.6.3
+
+  '@automattic/explat-client@0.1.0':
+    dependencies:
+      tslib: 2.6.3
+
   '@automattic/format-currency@1.0.1':
     dependencies:
       tslib: 2.5.0
@@ -18088,6 +18126,8 @@ snapshots:
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 20.14.2
+
+  '@types/cookie@0.6.0': {}
 
   '@types/cross-spawn@6.0.6':
     dependencies:
