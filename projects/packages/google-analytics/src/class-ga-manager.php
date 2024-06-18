@@ -81,6 +81,8 @@ class GA_Manager {
 		add_filter( 'site_settings_endpoint_get', array( $this, 'site_settings_fetch' ), 10, 2 );
 		add_filter( 'site_settings_endpoint_update_wga', array( $this, 'site_settings_update' ), 10, 2 );
 		add_filter( 'site_settings_endpoint_update_jetpack_wga', array( $this, 'site_settings_update' ) );
+		add_action( 'jetpack_activate_module_google-analytics', array( $this, 'module_status_updated' ) );
+		add_action( 'jetpack_deactivate_module_google-analytics', array( $this, 'module_status_updated' ) );
 	}
 
 	/**
@@ -191,6 +193,24 @@ class GA_Manager {
 		do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
 		return $is_updated ? $wga : null;
+	}
+
+	/**
+	 * Update the `is_active` settings flag when module status changes.
+	 *
+	 * @return void
+	 */
+	public function module_status_updated() {
+		$option_name = $this->get_google_analytics_option_name();
+
+		$wga       = get_option( $option_name, array() );
+		$is_active = ( new Modules() )->is_active( 'google-analytics' );
+
+		if ( $is_active !== $wga['is_active'] ) {
+			$wga['is_active'] = $is_active;
+		}
+
+		update_option( $option_name, $wga );
 	}
 
 	/**
