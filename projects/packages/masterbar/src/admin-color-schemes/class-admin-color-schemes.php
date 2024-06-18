@@ -15,6 +15,13 @@ use Automattic\Jetpack\Status\Host;
 class Admin_Color_Schemes {
 
 	/**
+	 * A list of core color schemes to override.
+	 *
+	 * @var array
+	 */
+	const CORE_COLOR_SCHEMES = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
+
+	/**
 	 * Admin_Color_Schemes constructor.
 	 */
 	public function __construct() {
@@ -25,11 +32,10 @@ class Admin_Color_Schemes {
 			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
 		}
 
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) { // Classic sites.
 			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
-		} elseif ( false === ( new Host() )->is_wpcom_platform() ) {
-			// @todo Self-hosted sites. Remove this line when we disable the module for self-hosted.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
+		} else { // Default and self-hosted sites.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
 		}
 	}
@@ -194,15 +200,23 @@ class Admin_Color_Schemes {
 	 * Enqueues current color-scheme overrides for core color schemes
 	 */
 	public function enqueue_core_color_schemes_overrides() {
-		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
-		$color_scheme       = get_user_option( 'admin_color' );
-		if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
+		$color_scheme = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, static::CORE_COLOR_SCHEMES, true ) ) {
 			wp_enqueue_style(
 				'jetpack-core-color-schemes-overrides',
 				$this->get_admin_color_scheme_url( $color_scheme ),
 				array(),
 				Main::PACKAGE_VERSION
 			);
+		}
+	}
+
+	/**
+	 * Enqueues current color-scheme sidebar notice overrides for core color schemes
+	 */
+	public function enqueue_color_scheme_for_sidebar_notice() {
+		$color_scheme = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, static::CORE_COLOR_SCHEMES, true ) ) {
 			wp_enqueue_style(
 				'jetpack-core-color-schemes-overrides-sidebar-notice',
 				$this->get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
