@@ -12,6 +12,50 @@ function wpsc_get_boost_migration_config() {
 }
 
 /**
+ * Display an admin notice to install Jetpack Boost.
+ */
+function wpsc_jetpack_boost_notice() {
+	// Don't show the banner if Boost is installed, or the banner has been dismissed.
+	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_admin_notice' );
+	if ( $is_dismissed ) {
+		return;
+	}
+
+	$config       = wpsc_get_boost_migration_config();
+	$button_url   = $config['is_installed'] ? $config['activate_url'] : $config['install_url'];
+	$button_class = $config['is_installed'] ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+
+	?>
+	<div id="wpsc-notice-boost-migrate" class="notice boost-notice notice-success is-dismissible">
+	<h3>
+		<?php esc_html_e( 'Migrate to Jetpack Boost', 'wp-super-cache' ); ?>
+	</h3>
+	<p>
+		<?php esc_html_e( 'Your WP Super Cache setup is compatible with Boost\'s new caching feature. Continue to cache as you currently do and enhance your site\'s speed using our highly-rated performance solutions.', 'wp-super-cache' ); ?>
+	</p>
+
+	<p>
+		<a data-source='notice' class='button button-primary <?php echo esc_attr( $button_class ); ?>' href="<?php echo esc_url( $button_url ); ?>">
+			<span>
+				<?php esc_html_e( 'Migrate now', 'wp-super-cache' ); ?>
+			</span>
+		</a>
+	</p>
+	</div>
+	<?php
+}
+if ( isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', 'wpsc_jetpack_boost_notice' );
+}
+
+function wpsc_dismiss_boost_notice() {
+	check_ajax_referer( 'wpsc_dismiss_boost_notice', 'nonce' );
+	update_user_option( get_current_user_id(), 'wpsc_dismissed_boost_admin_notice', '1' );
+	wp_die();
+}
+add_action( 'wp_ajax_wpsc_dismiss_boost_notice', 'wpsc_dismiss_boost_notice' );
+
+/**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
  */
