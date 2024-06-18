@@ -95,7 +95,7 @@ class Notices {
 
 				// GDPR cookie consent notice for Complianz users.
 				self::GDPR_COOKIE_CONSENT_NOTICE_ID => class_exists( 'COMPLIANZ' ) && $is_jetpack_blocked_by_complianz
-					&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
+					&& ! $this->is_notice_hidden( self::GDPR_COOKIE_CONSENT_NOTICE_ID ),
 			)
 		);
 	}
