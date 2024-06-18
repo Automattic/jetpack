@@ -326,12 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.3 - 2024-06-17
-#### Enhancements
-- AI Assistant: Hide input when user types on extended block.
-
+### 13.6-a.5 - 2024-06-18
 #### Bug fixes
-- Like block: Fix editor styling.
+- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
 
 --------
 
