@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "d7b7116ca5b37394df14c62aee5b2cdd",
+	"content-hash": "06211b04d023711304b8d413e30424c0",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -875,16 +875,16 @@
 		},
 		{
 			"name": "automattic/jetpack-my-jetpack",
-			"version": "v4.24.7",
+			"version": "v4.25.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-				"reference": "740d9357fd36b64fb3bc20a20d9261ee70868b04"
+				"reference": "1e0cb80e6aee01a6d7875954d0459377c38dc9f3"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/740d9357fd36b64fb3bc20a20d9261ee70868b04",
-				"reference": "740d9357fd36b64fb3bc20a20d9261ee70868b04",
+				"url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/1e0cb80e6aee01a6d7875954d0459377c38dc9f3",
+				"reference": "1e0cb80e6aee01a6d7875954d0459377c38dc9f3",
 				"shasum": ""
 			},
 			"require": {
@@ -918,7 +918,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.24.x-dev"
+					"dev-trunk": "4.25.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -942,9 +942,9 @@
 			],
 			"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.24.7"
+				"source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v4.25.1"
 			},
-			"time": "2024-06-13T08:48:58+00:00"
+			"time": "2024-06-17T23:12:23+00:00"
 		},
 		{
 			"name": "automattic/jetpack-password-checker",
@@ -1162,16 +1162,16 @@
 		},
 		{
 			"name": "automattic/jetpack-publicize",
-			"version": "v0.46.0",
+			"version": "v0.46.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-publicize.git",
-				"reference": "7cbc4c45fad4688cd307e46efc97b2ac2319756e"
+				"reference": "5f4d02a4c3c50622c1f06722d64366d55b743f63"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/7cbc4c45fad4688cd307e46efc97b2ac2319756e",
-				"reference": "7cbc4c45fad4688cd307e46efc97b2ac2319756e",
+				"url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/5f4d02a4c3c50622c1f06722d64366d55b743f63",
+				"reference": "5f4d02a4c3c50622c1f06722d64366d55b743f63",
 				"shasum": ""
 			},
 			"require": {
@@ -1217,9 +1217,9 @@
 			],
 			"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-publicize/tree/v0.46.0"
+				"source": "https://github.com/Automattic/jetpack-publicize/tree/v0.46.1"
 			},
-			"time": "2024-06-13T08:48:52+00:00"
+			"time": "2024-06-17T14:02:51+00:00"
 		},
 		{
 			"name": "automattic/jetpack-redirect",
@@ -1388,20 +1388,20 @@
 		},
 		{
 			"name": "automattic/jetpack-sync",
-			"version": "v3.1.0",
+			"version": "v3.1.1",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-sync.git",
-				"reference": "164c55ea23b90ad23837485d1a856c43a252f588"
+				"reference": "99a0868a9416ff2b0e55800180016057bca27f7b"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/164c55ea23b90ad23837485d1a856c43a252f588",
-				"reference": "164c55ea23b90ad23837485d1a856c43a252f588",
+				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/99a0868a9416ff2b0e55800180016057bca27f7b",
+				"reference": "99a0868a9416ff2b0e55800180016057bca27f7b",
 				"shasum": ""
 			},
 			"require": {
-				"automattic/jetpack-connection": "^2.10.0",
+				"automattic/jetpack-connection": "^2.10.1",
 				"automattic/jetpack-constants": "^2.0.3",
 				"automattic/jetpack-ip": "^0.2.2",
 				"automattic/jetpack-password-checker": "^0.3.1",
@@ -1451,9 +1451,9 @@
 			],
 			"description": "Everything needed to allow syncing to the WP.com infrastructure.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.1.0"
+				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.1.1"
 			},
-			"time": "2024-06-10T13:27:39+00:00"
+			"time": "2024-06-13T13:17:30+00:00"
 		}
 	],
 	"packages-dev": [
@@ -1888,16 +1888,16 @@
 		},
 		{
 			"name": "myclabs/deep-copy",
-			"version": "1.11.1",
+			"version": "1.12.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/myclabs/DeepCopy.git",
-				"reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c"
+				"reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
-				"reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
+				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+				"reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
 				"shasum": ""
 			},
 			"require": {
@@ -1905,11 +1905,12 @@
 			},
 			"conflict": {
 				"doctrine/collections": "<1.6.8",
-				"doctrine/common": "<2.13.3 || >=3,<3.2.2"
+				"doctrine/common": "<2.13.3 || >=3 <3.2.2"
 			},
 			"require-dev": {
 				"doctrine/collections": "^1.6.8",
 				"doctrine/common": "^2.13.3 || ^3.2.2",
+				"phpspec/prophecy": "^1.10",
 				"phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
 			},
 			"type": "library",
@@ -1935,7 +1936,7 @@
 			],
 			"support": {
 				"issues": "https://github.com/myclabs/DeepCopy/issues",
-				"source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
+				"source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
 			},
 			"funding": [
 				{
@@ -1943,7 +1944,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2023-03-08T13:26:56+00:00"
+			"time": "2024-06-12T14:39:25+00:00"
 		},
 		{
 			"name": "nikic/php-parser",
