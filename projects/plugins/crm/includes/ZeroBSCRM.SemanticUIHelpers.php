@@ -2,11 +2,6 @@
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
- * V2.2
- *
- * Copyright 2017 ZeroBSCRM.com
- *
- * Date: 30/07/2017
  */
 
 #} Outputs html label
