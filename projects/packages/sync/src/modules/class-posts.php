@@ -227,6 +227,10 @@ class Posts extends Module {
 	 * @access public
 	 */
 	public function init_before_send() {
+
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_send_jetpack_sync_save_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_send_jetpack_published_post' ) );
+
 		// meta.
 		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
 		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
@@ -325,18 +329,6 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Process content before send.
-	 *
-	 * @param array $args Arguments of the `wp_insert_post` hook.
-	 *
-	 * @return array
-	 */
-	public function expand_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $update, $previous_state ) = $args;
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
-	}
-
-	/**
 	 * Filter all blacklisted post types and add filtered post content.
 	 *
 	 * @param array $args Hook arguments.
@@ -349,7 +341,7 @@ class Posts extends Module {
 			return false;
 		}
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+		return array( $post_id, $this->filter_post_content( $post ), $update, $previous_state );
 	}
 
 	/**
@@ -360,8 +352,34 @@ class Posts extends Module {
 	 */
 	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
 		list( $post_id, $flags, $post ) = $args;
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			return false;
+		}
+		$filtered_post            = $this->filter_post_content( $post );
+		$filtered_post_with_links = $this->add_links( $filtered_post );
+		return array( $post_id, $flags, $filtered_post_with_links );
+	}
 
-		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
+	/**
+	 * Add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array Hook arguments.
+	 */
+	public function filter_jetpack_sync_before_send_jetpack_published_post( $args ) {
+		list( $post_id, $flags, $filtered_post ) = $args;
+		return array( $post_id, $flags, $this->add_links( $filtered_post ) );
+	}
+
+	/**
+	 * Add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array Hook arguments.
+	 */
+	public function filter_jetpack_sync_before_send_jetpack_sync_save_post( $args ) {
+		list( $post_id, $filtered_post, $update, $previous_state ) = $args;
+		return array( $post_id, $this->add_links( $filtered_post ), $update, $previous_state );
 	}
 
 	/**
@@ -455,7 +473,7 @@ class Posts extends Module {
 	 *
 	 * @param \WP_Post $post_object Post object.
 	 */
-	public function filter_post_content_and_add_links( $post_object ) {
+	public function filter_post_content( $post_object ) {
 		global $post;
 
 		// Used to restore the post global.
@@ -572,6 +590,22 @@ class Posts extends Module {
 
 		$this->add_embed();
 
+		$filtered_post = $post;
+
+		// Restore global post.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$post = $current_post;
+
+		return $filtered_post;
+	}
+
+	/**
+	 * Add links to the post object.
+	 *
+	 * @param \WP_Post $post Post object.
+	 * @return \WP_Post Post object with added links.
+	 */
+	public function add_links( $post ) {
 		if ( has_post_thumbnail( $post->ID ) ) {
 			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
 			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
@@ -585,14 +619,7 @@ class Posts extends Module {
 		if ( function_exists( 'amp_get_permalink' ) ) {
 			$post->amp_permalink = amp_get_permalink( $post->ID );
 		}
-
-		$filtered_post = $post;
-
-		// Restore global post.
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$post = $current_post;
-
-		return $filtered_post;
+		return $post;
 	}
 
 	/**
@@ -742,7 +769,6 @@ class Posts extends Module {
 
 		// Only Send Pulished Post event if post_type is not blacklisted.
 		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
-
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
@@ -883,7 +909,8 @@ class Posts extends Module {
 	 */
 	private function expand_posts( $post_ids ) {
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
-		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
+		$posts = array_map( array( $this, 'filter_post_content' ), $posts );
+		$posts = array_map( array( $this, 'add_links' ), $posts );
 		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 		return $posts;
 	}

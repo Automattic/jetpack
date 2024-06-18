@@ -51,11 +51,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1 );
-		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$filtered_post            = $post_sync_module->filter_post_content( $this->post );
 		$this->assertNotEmpty( $filtered_post->post_content, 'Filtered post content is empty for stings of allowed length.' );
 
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH );
-		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$filtered_post            = $post_sync_module->filter_post_content( $this->post );
 		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
 	}
 
@@ -67,7 +67,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
-		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->post = $post_sync_module->filter_post_content( $this->post );
+		$this->post = $post_sync_module->add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
 	}
 
@@ -78,7 +79,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
-		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
+		$this->post = $post_sync_module->filter_post_content( $this->post );
+		$this->post = $post_sync_module->add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
@@ -523,13 +525,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
-		$post_sync_module->filter_post_content_and_add_links( $this->post );
+		$post_sync_module->filter_post_content( $this->post );
 
 		$this->assertSame( $post_id, $post->ID );
 
 		// Test with post global not set.
 		$post = null;
-		$post_sync_module->filter_post_content_and_add_links( $this->post );
+		$post_sync_module->filter_post_content( $this->post );
 		$this->assertNull( $post );
 	}
 

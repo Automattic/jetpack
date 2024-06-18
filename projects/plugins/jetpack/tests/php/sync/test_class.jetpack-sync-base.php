@@ -138,7 +138,14 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$local_posts = array_map(
 			array(
 				$posts_sync_module,
-				'filter_post_content_and_add_links',
+				'filter_post_content',
+			),
+			$local->get_posts()
+		);
+		$local_posts = array_map(
+			array(
+				$posts_sync_module,
+				'add_links',
 			),
 			$local->get_posts()
 		);
