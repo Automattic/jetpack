@@ -2,7 +2,6 @@ import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
-import GalleryImageEdit from '../gallery-image/edit';
 import GalleryImageSave from '../gallery-image/save';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
 import Mosaic from './mosaic';
@@ -32,16 +31,15 @@ export default class Layout extends Component {
 
 		const ariaLabel = sprintf(
 			/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
-			__( 'Open image %1$d of %2$d in full-screen', 'jetpack' ),
+			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
 			i + 1,
 			images.length
 		);
-		const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
 		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
 
 		return (
-			<Image
+			<GalleryImageSave
 				alt={ img.alt }
 				aria-label={ ariaLabel }
 				columns={ columns }
@@ -78,7 +76,6 @@ export default class Layout extends Component {
 			layoutStyle,
 			roundedCorners,
 			onResize,
-			style,
 			isSave,
 			columnWidths,
 		} = this.props;
@@ -89,7 +86,6 @@ export default class Layout extends Component {
 
 		return (
 			<div
-				style={ style }
 				className={ clsx( className, {
 					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
 				} ) }
