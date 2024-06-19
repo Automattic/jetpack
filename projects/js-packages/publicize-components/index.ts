@@ -3,7 +3,6 @@
 //store for the components, but at the moment they're tied.
 import './src/social-store';
 
-export { default as Connection } from './src/components/connection';
 export { default as ConnectionVerify } from './src/components/connection-verify';
 export { default as Form } from './src/components/form';
 export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
