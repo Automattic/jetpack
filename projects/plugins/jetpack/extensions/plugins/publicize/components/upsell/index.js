@@ -17,10 +17,7 @@ import useUpgradeFlow from '../../../../shared/use-upgrade-flow';
 
 const getDescriptions = () => ( {
 	start: __( 'Start sharing your posts by connecting your social media accounts.', 'jetpack' ),
-	enabled: __(
-		'Click on the social icons below to control where you want to share your post.',
-		'jetpack'
-	),
+	enabled: __( 'Enable the social media accounts where you want to share your post.', 'jetpack' ),
 	disabled: __( 'Use this tool to share your post on all your social media accounts.', 'jetpack' ),
 	reshare: __(
 		'Enable the social media accounts where you want to re-share your post, then click on the "Share post" button below.',
