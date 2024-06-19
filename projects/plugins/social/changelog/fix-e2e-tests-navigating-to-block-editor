@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed E2E tests navigating to block editor

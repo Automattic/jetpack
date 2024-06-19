@@ -339,7 +339,7 @@ function wpsc_is_boost_installed() {
 	$plugins = array_keys( get_plugins() );
 
 	foreach ( $plugins as $plugin ) {
-		if ( str_contains( $plugin, 'jetpack-boost.php' ) ) {
+		if ( str_contains( $plugin, 'jetpack-boost/jetpack-boost.php' ) ) {
 			return true;
 		}
 	}
@@ -371,10 +371,17 @@ add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
 function wpsc_ajax_activate_boost() {
 	check_ajax_referer( 'activate-boost' );
 
+	if ( ! isset( $_POST['source'] ) ) {
+		wp_send_json_error( 'no source specified' );
+	}
+
+	$source = sanitize_text_field( wp_unslash( $_POST['source'] ) );
 	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
 	if ( is_wp_error( $result ) ) {
 		wp_send_json_error( $result->get_error_message() );
 	}
+
+	wpsc_notify_migration_to_boost( $source );
 
 	wp_send_json_success();
 }
@@ -390,12 +397,10 @@ function wpsc_jetpack_boost_install_banner() {
 		return;
 	}
 
-	$install_url  = wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' );
-	$activate_url = admin_url( 'plugins.php' );
-	$is_installed = wpsc_is_boost_installed();
-	$button_url   = $is_installed ? $activate_url : $install_url;
-	$button_label = $is_installed ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
-	$button_id    = $is_installed ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+	$config       = wpsc_get_boost_migration_config();
+	$button_url   = $config['is_installed'] ? $config['activate_url'] : $config['install_url'];
+	$button_label = $config['is_installed'] ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
+	$button_class = $config['is_installed'] ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
 	$plugin_url   = plugin_dir_url( __FILE__ );
 
 	?>
@@ -419,7 +424,7 @@ function wpsc_jetpack_boost_install_banner() {
 
 					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
 
-					<a href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button" id="<?php echo esc_attr( $button_id ); ?>">
+					<a data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button <?php echo esc_attr( $button_class ); ?>">
 						<div class="spinner" style="display:none; margin-top: 8px"></div>
 						<label><?php echo esc_html( $button_label ); ?></label>
 					</a>
@@ -2078,7 +2083,6 @@ function wpsc_config_file_notices() {
 	echo '<div class="error"><p><strong>' . $msg . '</strong></p></div>';
 }
 add_action( 'admin_notices', 'wpsc_config_file_notices' );
-
 function wpsc_dismiss_indexhtml_warning() {
 		check_ajax_referer( "wpsc-index-dismiss" );
 		update_site_option( 'wp_super_cache_index_detected', 3 );
@@ -2799,7 +2803,7 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 					@unlink( $dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
 				} else {
 					$meta = json_decode( wp_cache_get_legacy_cache( $dir . 'meta/' . $file ), true );
-					if (  $curr_blog_id && $curr_blog_id !== (int)$meta['blog_id'] ) {
+					if ( $curr_blog_id && $curr_blog_id !== (int) $meta['blog_id'] ) {
 						continue;
 					}
 					@unlink( $dir . $file);

@@ -1,5 +1,27 @@
 # Changelog
 
+## 3.22.16 - 2024-06-17
+### Changed
+- Fixed readme, added accurate links. [#37901]
+
+## 3.22.15 - 2024-06-17
+### Added
+- Added a prefix for wpcomsh weekly shipping. [#37857]
+
+### Changed
+- WooCommerce Calypso Brdige version update to 2.5.2 [#37883]
+
+### Removed
+- Disable WP.com custom editor navigation bar. [#37893]
+- Removed obsolete scripts and makefile targets. [#37880]
+
+## 3.22.14 - 2024-06-14
+### Changed
+- Changed the composer package slug to wpcomsh. [#37861]
+
+### Removed
+- General: removing action status icons. [#37881]
+
 ## 3.22.13 - 2024-06-13
 ### Removed
 - Untangling: Remove temporary code that hides Hosting menu options. [#37848]

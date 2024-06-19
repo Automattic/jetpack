@@ -945,7 +945,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "155eb8f5b45531011bc7a61b238441293fad0342"
+				"reference": "6e2a4eeba8a8ec86da45e3f7dbe2b6eb508ce12c"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -980,7 +980,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.24.x-dev"
+					"dev-trunk": "4.25.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2037,16 +2037,16 @@
 		},
 		{
 			"name": "myclabs/deep-copy",
-			"version": "1.11.1",
+			"version": "1.12.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/myclabs/DeepCopy.git",
-				"reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c"
+				"reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
-				"reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
+				"url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+				"reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
 				"shasum": ""
 			},
 			"require": {
@@ -2054,11 +2054,12 @@
 			},
 			"conflict": {
 				"doctrine/collections": "<1.6.8",
-				"doctrine/common": "<2.13.3 || >=3,<3.2.2"
+				"doctrine/common": "<2.13.3 || >=3 <3.2.2"
 			},
 			"require-dev": {
 				"doctrine/collections": "^1.6.8",
 				"doctrine/common": "^2.13.3 || ^3.2.2",
+				"phpspec/prophecy": "^1.10",
 				"phpunit/phpunit": "^7.5.20 || ^8.5.23 || ^9.5.13"
 			},
 			"type": "library",
@@ -2084,7 +2085,7 @@
 			],
 			"support": {
 				"issues": "https://github.com/myclabs/DeepCopy/issues",
-				"source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
+				"source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
 			},
 			"funding": [
 				{
@@ -2092,7 +2093,7 @@
 					"type": "tidelift"
 				}
 			],
-			"time": "2023-03-08T13:26:56+00:00"
+			"time": "2024-06-12T14:39:25+00:00"
 		},
 		{
 			"name": "nikic/php-parser",

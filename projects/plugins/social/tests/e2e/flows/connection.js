@@ -11,9 +11,9 @@ export async function connect( page, premium = false ) {
 	socialPage = await JetpackSocialPage.init( page );
 
 	if ( premium ) {
-		socialPage.getSocial();
+		await socialPage.getSocial();
 		// todo add purchase steps
 	} else {
-		socialPage.startForFree();
+		await socialPage.startForFree();
 	}
 }

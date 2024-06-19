@@ -89,7 +89,7 @@ else
 	if [[ "${PREFIXES[$PREFIX]}" == *$'\n'* ]]; then
 		info "Plugin $PLUGIN_NAME uses prefix $PREFIX, which is used in multiple plugins:"
 		echo "   ${PREFIXES[$PREFIX]//$'\n'/$'\n   '}"
-		proceed_p '' 'Release all these plugins?'
+		proceed_p '' 'Release all these plugins?' Y
 		mapfile -t DIRS <<<"${PREFIXES[$PREFIX]}"
 	fi
 fi
@@ -128,7 +128,7 @@ if [[ -n "$COMMITS" ]]; then
 	info "The current branch is behind $TMP."
 	echo "$COMMITS"
 	# shellcheck disable=SC2310
-	if proceed_p "" "Pull?"; then
+	if proceed_p "" "Pull?" Y; then
 		git pull
 	else
 		proceed_p " " "Continue anyway?"
@@ -225,7 +225,7 @@ fi
 if isnotempty git ls-remote --heads origin "$BRANCH"; then
 	die "Release branch $BRANCH has already been pushed. Aborting."
 elif isnotempty git branch --list "$BRANCH"; then
-	proceed_p "Release branch $BRANCH already exists locally, but has not been pushed." "Delete it?"
+	proceed_p "Release branch $BRANCH already exists locally, but has not been pushed." "Delete it?" Y
 	git branch -D "$BRANCH"
 fi
 
@@ -263,10 +263,10 @@ EOM
 PUSH_MSG=" after you push"
 if $INTERACTIVE; then
 	# shellcheck disable=SC2310
-	if proceed_p "" "Check changes and push?"; then
+	if proceed_p "" "Check changes and push?" Y; then
 		git log -p "$BASE_REF".."$BRANCH" || true
 		# shellcheck disable=SC2310
-		if proceed_p "" "Push it now?"; then
+		if proceed_p "" "Push it now?" Y; then
 			git push -u origin "$BRANCH"
 			PUSH_MSG=
 		fi
