@@ -743,10 +743,11 @@ final class Image_CDN {
 
 			$intermediate = true; // For the fourth array item returned by the image_downsize filter.
 
+			$registered_size = self::find_registered_image_size( $size );
+
 			// If an image is requested with a size known to WordPress, use that size's settings with Photon.
-			// WP states that `add_image_size()` should use a string for the name, but doesn't enforce that.
-			// Due to differences in how Core and Photon check for the registered image size, we check both types.
-			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
+			if ( $registered_size ) {
+				$size       = $registered_size;
 				$image_args = self::image_sizes();
 				$image_args = $image_args[ $size ];
 
@@ -1221,6 +1222,30 @@ final class Image_CDN {
 		}
 
 		return is_array( self::$image_sizes ) ? self::$image_sizes : array();
+	}
+
+	/**
+	 * Find registered image size name if it exists.
+	 *
+	 * @param string|int|int[] $size Image size name if registered, or false if not.
+	 */
+	protected static function find_registered_image_size( $size ) {
+		$sizes = self::image_sizes();
+
+		// WP states that `add_image_size()` should use a string for the name, but doesn't enforce that.
+		if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
+			return $size;
+		}
+
+		if ( is_array( $size ) && isset( $size[0] ) && isset( $size[1] ) ) {
+			foreach ( $sizes as $name => $args ) {
+				if ( $args['width'] === $size[0] && $args['height'] === $size[1] ) {
+					return $name;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
