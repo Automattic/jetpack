@@ -69,9 +69,7 @@ export default function FeaturedImage( {
 	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
 
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
-	// const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
 	const [ current, setCurrent ] = useState( 0 );
-	// const pointer = useRef( 0 );
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
 
@@ -79,9 +77,6 @@ export default function FeaturedImage( {
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
-
-	// const currentImage = images[ current ];
-	// const currentPointer = images[ pointer.current ];
 
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
