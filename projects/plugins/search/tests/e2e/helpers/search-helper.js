@@ -82,7 +82,7 @@ export async function clearSearchPlanInfo() {
  * NOTE: The route sometimes is not persisted after page reloads so would need to
  * call the function again to make sure.
  *
- * @param {object} page - instance of a Playwright Page type
+ * @param {page} page - instance of a Playwright Page type
  * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
  */
 export async function searchAPIRoute( page ) {
