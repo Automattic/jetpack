@@ -604,7 +604,6 @@ class REST_Connector {
 			'isConnected' => $is_user_connected,
 			'isMaster'    => $is_master_user,
 			'username'    => $current_user->user_login,
-			'displayName' => $current_user->display_name,
 			'id'          => $current_user->ID,
 			'blogId'      => $blog_id,
 			'wpcomUser'   => $wpcom_user_data,
