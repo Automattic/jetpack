@@ -1,4 +1,7 @@
-jQuery( document ).ready( () => {
+/**
+ * Handle the buttons for the Boost migration.
+ */
+function handleMigrationButtons() {
 	// Don't run on versions of WordPress too old for the block editor and the translation methods it brings.
 	// All the install / activate options are plain links with meaningful destinations anyway.
 	if ( ! window.wp || ! window.wp.i18n ) {
@@ -131,4 +134,8 @@ jQuery( document ).ready( () => {
 			_ajax_nonce: wpscAdmin.boostNoticeDismissNonce,
 		} );
 	} );
+}
+
+jQuery( document ).ready( () => {
+	handleMigrationButtons();
 } );
