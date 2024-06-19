@@ -1,10 +1,12 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/*" ],
-		"outDir": "./build/"
+		"typeRoots": [ "./node_modules/@types/", "src/client/*" ],
+		"outDir": "./build/",
+		"sourceMap": false,
+		"target": "esnext"
 	},
 	// List all sources and source-containing subdirs.
-	"include": [ "./src/client", "src/client/utils.ts" ],
+	"include": [ "./src/client" ],
 	"files": [ "./global.d.ts" ]
 }

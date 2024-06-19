@@ -15,9 +15,11 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm exec tsc --pretty",
+		"build": "pnpm run clean && pnpm run compile",
+		"compile": "tsc --build --pretty",
 		"clean": "rm -rf build/",
-		"test": "jest tests"
+		"test": "jest tests/client",
+		"watch": "tsc --watch --pretty"
 	},
 	"devDependencies": {
 		"@types/cookie": "0.6.0",
