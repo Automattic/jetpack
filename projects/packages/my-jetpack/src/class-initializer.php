@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.25.1';
+	const PACKAGE_VERSION = '4.25.2-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -90,6 +90,8 @@ class Initializer {
 
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-my-jetpack' );
+
+		self::setup_historically_active_jetpack_modules_sync();
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
@@ -507,18 +509,15 @@ class Initializer {
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
-		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
+		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
 			self::update_historically_active_jetpack_modules();
 			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
 		}
 
 		$actions = array(
-			'jetpack_site_before_disconnected',
 			'jetpack_site_registered',
 			'jetpack_user_authorized',
-			'jetpack_unlinked_user',
 			'activated_plugin',
-			'my_jetpack_init',
 		);
 
 		foreach ( $actions as $action ) {
@@ -744,22 +743,34 @@ class Initializer {
 	 * @return array
 	 */
 	public static function check_for_broken_modules() {
-		$broken_modules              = array(
+		$connection        = new Connection_Manager();
+		$is_user_connected = $connection->is_user_connected() || $connection->has_connected_owner();
+		$is_site_connected = $connection->is_connected();
+		$broken_modules    = array(
 			'needs_site_connection' => array(),
 			'needs_user_connection' => array(),
 		);
-		$products                    = Products::get_products();
+
+		if ( $is_user_connected && $is_site_connected ) {
+			return $broken_modules;
+		}
+
+		$products                    = Products::get_products_classes();
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 
-		foreach ( $historically_active_modules as $module ) {
-			$product = $products[ $module ];
+		foreach ( $products as $product ) {
+			if ( ! in_array( $product::$slug, $historically_active_modules, true ) ) {
+				continue;
+			}
 
-			// If the site or user is disconnected, and the product requires a user connection
-			// mark the product as a broken module needing user connection
-			if ( in_array( $product['status'], Products::$broken_module_statuses, true ) && $product['requires_user_connection'] ) {
-				$broken_modules['needs_user_connection'][] = $module;
-			} elseif ( $product['status'] === Products::STATUS_SITE_CONNECTION_ERROR ) {
-				$broken_modules['needs_site_connection'][] = $module;
+			if ( $product::$requires_user_connection && ! $is_user_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_user_connection'], true ) ) {
+					$broken_modules['needs_user_connection'][] = $product::$slug;
+				}
+			} elseif ( ! $is_site_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_site_connection'], true ) ) {
+					$broken_modules['needs_site_connection'][] = $product::$slug;
+				}
 			}
 		}
 
@@ -793,10 +804,26 @@ class Initializer {
 	 * @return array
 	 */
 	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
-		if (
-			! ( new Connection_Manager() )->is_user_connected() &&
-			! ( new Connection_Manager() )->has_connected_owner()
-		) {
+		$broken_modules = self::check_for_broken_modules();
+		$connection     = new Connection_Manager();
+
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'user',
 				'is_error' => false,
@@ -804,7 +831,7 @@ class Initializer {
 			return $red_bubble_slugs;
 		}
 
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! $connection->is_connected() ) {
 			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
 				'type'     => 'site',
 				'is_error' => false,

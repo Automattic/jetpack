@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove the need for api requests in broken modules check
