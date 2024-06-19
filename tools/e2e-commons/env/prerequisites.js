@@ -108,7 +108,7 @@ async function buildPrerequisites( state, page ) {
  * Ensure connected state.
  * @param {boolean} requiredConnected - Whether the site should be connected.
  */
-export async function ensureConnectedState( requiredConnected = undefined ) {
+export async function ensureConnectedState( requiredConnected = false ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
