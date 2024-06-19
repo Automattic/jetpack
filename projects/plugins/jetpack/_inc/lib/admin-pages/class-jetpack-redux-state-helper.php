@@ -530,6 +530,7 @@ function jetpack_current_user_data() {
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'displayName' => $current_user->display_name,
+		'email'       => $current_user->user_email,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
 		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),

@@ -4,14 +4,17 @@ import {
 	getRedirectUrl,
 	Container,
 	Col,
+	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportInfo from 'components/support-info';
 import TextInput from 'components/text-input';
 import analytics from 'lib/analytics';
 import { useCallback, useState } from 'react';
@@ -23,6 +26,7 @@ import {
 	getDisplayName,
 	getNewsetterDateExample,
 	getSiteAdminUrl,
+	getCurrenUserEmailAddress,
 } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import BylinePreview from './byline-preview';
@@ -54,6 +58,7 @@ const EmailSettings = props => {
 		updateFormStateAndSaveOptionValue,
 		unavailableInSiteConnectionMode,
 		gravatar,
+		email,
 		adminUrl,
 		displayName,
 		dateExample,
@@ -189,7 +194,6 @@ const EmailSettings = props => {
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
 			</SettingsGroup>
-
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
@@ -197,8 +201,16 @@ const EmailSettings = props => {
 				module={ subscriptionsModule }
 				className="newsletter-group"
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Email Byline', 'jetpack' ) }</FormLegend>
-				<p>{ __( 'Appears just below your post title.', 'jetpack' ) }</p>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Email Byline', 'jetpack' ) }
+					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
+				</FormLegend>
+				<p>
+					{ __(
+						'Customize the information you want to display below your post title in emails.',
+						'jetpack'
+					) }
+				</p>
 				<BylinePreview
 					isGravatarEnabled={ bylineState.isGravatarEnabled }
 					isAuthorEnabled={ bylineState.isAuthorEnabled }
@@ -207,32 +219,52 @@ const EmailSettings = props => {
 					displayName={ displayName }
 					dateExample={ dateExample }
 				/>
-
-				<ToggleControl
-					disabled={ gravatarInputDisabled }
-					checked={ isGravatarEnabled }
-					toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show author avatar in the email byline.', 'jetpack' ) }
-						</span>
-					}
-					onChange={ handleEnableGravatarToggleChange }
-				/>
-				<div className="help-info">
-					{ __(
-						'We use Gravatar, a service that associates an avatar image with your primary email.',
-						'jetpack'
+				<div className="email-settings__gravatar">
+					<ToggleControl
+						disabled={ gravatarInputDisabled }
+						checked={ isGravatarEnabled }
+						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Show author avatar on your emails', 'jetpack' ) }
+							</span>
+						}
+						onChange={ handleEnableGravatarToggleChange }
+					/>
+					{ bylineState.isGravatarEnabled && (
+						<div className="email-settings__help-info">
+							<div className="email-settings__gravatar-help-info">
+								<img src={ gravatar } className="email-settings__gravatar-image" alt="" />
+								<div>
+									<div className="email-settings__gravatar-help-text">
+										{ __(
+											'We use Gravatar, a service that associates an avatar image with your primary email address.',
+											'jetpack'
+										) }
+									</div>
+									<JetpackButton
+										isExternalLink={ true }
+										href="https://gravatar.com/profile/avatars"
+										variant="secondary"
+										size="small"
+									>
+										{ __( 'Update your Gravatar', 'jetpack' ) }
+									</JetpackButton>
+								</div>
+							</div>
+						</div>
 					) }
-					<br />
-					<JetpackButton
-						isExternalLink={ true }
-						href="https://gravatar.com/profile/avatars"
-						variant="secondary"
-						size="small"
-					>
-						{ __( 'Update your Gravatar', 'jetpack' ) }
-					</JetpackButton>
+					<SupportInfo
+						text={ sprintf(
+							// translators: %s is the user's email address
+							__(
+								"The avatar comes from Gravatar, a universal avatar service. Your image may also appear on other sites using Gravatar when you're logged in with %s.",
+								'jetpack'
+							),
+							email
+						) }
+						privacyLink="https://support.gravatar.com/profiles/profile-access/"
+					/>
 				</div>
 				<ToggleControl
 					disabled={ authorInputDisabled }
@@ -240,7 +272,7 @@ const EmailSettings = props => {
 					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Show author display name in the email byline.', 'jetpack' ) }
+							{ __( 'Show author display name', 'jetpack' ) }
 						</span>
 					}
 					onChange={ handleEnableAuthorToggleChange }
@@ -252,20 +284,31 @@ const EmailSettings = props => {
 					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Show post date in the email byline.', 'jetpack' ) }
+							{ __( 'Add the post date', 'jetpack' ) }
 						</span>
 					}
 					onChange={ handleEnablePostDateToggleChange }
 				/>
-				<div className="help-info">
-					{ __( "You can customize the date format in your site's general settings.", 'jetpack' ) }
-					<br />
-					<JetpackButton href={ adminUrl + 'options-general.php' } variant="secondary" size="small">
-						{ __( 'Update Date Format', 'jetpack' ) }
-					</JetpackButton>
-				</div>
+				{ bylineState.isPostDateEnabled && (
+					<div className="email-settings__help-info">
+						{ createInterpolateElement(
+							__(
+								'You can customize the date format in your site’s <settingsLink>general settings</settingsLink>',
+								'jetpack'
+							),
+							{
+								settingsLink: (
+									<JetpackButton
+										variant="link"
+										isExternalLink={ true }
+										href={ adminUrl + 'options-general.php' }
+									/>
+								),
+							}
+						) }
+					</div>
+				) }
 			</SettingsGroup>
-
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
@@ -413,6 +456,7 @@ export default withModuleSettingsFormHelpers(
 			subscriptionEmailsUseExcerpt: ownProps.getOptionValue(
 				SUBSCRIPTION_EMAILS_USE_EXCERPT_OPTION
 			),
+			email: getCurrenUserEmailAddress( state ),
 			siteName: getSiteTitle( state ),
 			gravatar: getUserGravatar( state ),
 			displayName: getDisplayName( state ),

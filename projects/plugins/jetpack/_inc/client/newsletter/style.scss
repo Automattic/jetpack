@@ -77,36 +77,62 @@
 }
 
 .byline-preview {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	flex-flow: row;
-	margin: 0 0 20px;
+	margin-bottom: 24px;
+	padding: 16px;
+	background-color: var(--jp-gray-0);
+}
+
+.byline-preview__label {
+	height: 24px;
+	line-height: 24px;
+	margin-right: 8px;
 }
 
 .byline-preview__gravatar {
 	border-radius: 50%;
-	width: 32px;
-	height: 32px;
-	margin-right: 8px;
+	width: 24px;
+	height: 24px;
+	margin: 0 8px 0 0;
 }
 
-.byline-preview__author {
-	margin-right: 8px;
-}
-
-.byline-preview__label {
-	font-size: 11px;
-	color: var(--jp-gray-20);
-	text-transform: uppercase;
-	display: block;
-	margin-bottom: 4px;
-}
-
-.help-info {
+.email-settings__help-info {
 	margin-left: 60px;
 	margin-bottom: 12px;
 	margin-top: -12px;
+	color: #747474;
+	padding-right: 48px;
 }
-.jp-settings-container .help-info a.components-button {
+
+.jp-settings-container .email-settings__help-info a.components-button {
 	text-decoration: none;
+}
+
+.jp-settings-container .email-settings__help-info a.components-button.is-link {
+	text-decoration: underline;
+}
+
+.email-settings__gravatar-help-info {
+	display: flex;
+	align-items: center;
+}
+
+.email-settings__gravatar {
+	position: relative;
+	margin-right: -48px;
+}
+.email-settings__gravatar .jp-support-info {
+	top: 3px;
+}
+.email-settings__gravatar-image {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	margin-right: 16px;
+}
+
+.email-settings__gravatar-help-text {
+	margin-bottom: 8px;
 }
