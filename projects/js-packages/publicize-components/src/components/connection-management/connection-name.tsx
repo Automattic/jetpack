@@ -1,12 +1,15 @@
 import { ExternalLink, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
 type ConnectionNameProps = {
 	connection: Connection;
+	linkToProfile?: boolean;
+	className?: string;
 };
 
 /**
@@ -16,7 +19,11 @@ type ConnectionNameProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionName( { connection }: ConnectionNameProps ) {
+export function ConnectionName( {
+	connection,
+	className,
+	linkToProfile = true,
+}: ConnectionNameProps ) {
 	const isUpdating = useSelect(
 		select => {
 			return select( socialStore ).getUpdatingConnections().includes( connection.connection_id );
@@ -24,13 +31,15 @@ export function ConnectionName( { connection }: ConnectionNameProps ) {
 		[ connection.connection_id ]
 	);
 
+	const name = connection.display_name || connection.external_display;
+
 	return (
-		<div className={ styles[ 'connection-name' ] }>
-			{ ! connection.profile_link ? (
-				<span className={ styles[ 'profile-link' ] }>{ connection.display_name }</span>
+		<div className={ clsx( styles[ 'connection-name' ], className ) } title={ name }>
+			{ ! linkToProfile || ! connection.profile_link ? (
+				<span className={ styles[ 'profile-link' ] }>{ name }</span>
 			) : (
 				<ExternalLink className={ styles[ 'profile-link' ] } href={ connection.profile_link }>
-					{ connection.display_name || connection.external_display }
+					{ name }
 				</ExternalLink>
 			) }
 			{ isUpdating ? (
