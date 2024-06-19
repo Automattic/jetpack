@@ -1,7 +1,8 @@
+import apiFetch from '@wordpress/api-fetch';
 import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
-const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled } =
+const { ajaxUrl, connectionsUrl, isEnhancedPublishingEnabled, resharePath, isReshareSupported } =
 	window.jetpackSocialClassicEditorOptions;
 const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
@@ -158,4 +159,83 @@ jQuery( function ( $ ) {
 	if ( $( '#pub-connection-tests' ).length ) {
 		publicizeConnTestStart();
 	}
+
+	//#region Share post NOW
+	const shareNowButton = $( '#publicize-share-now' );
+	const shareNowNotice = $( '#publicize-share-now-notice' );
+	const publicizeForm = $( '#publicize-form' );
+	const connections = publicizeForm.find( 'li input[type="checkbox"]' );
+
+	const showNotice = ( text, type = 'warning' ) => {
+		shareNowNotice
+			.removeClass( 'notice-warning notice-success hidden' )
+			.addClass( 'publicize__notice-warning notice-' + type )
+			.text( text );
+	};
+
+	const hideNotice = () => {
+		shareNowNotice.removeClass( 'publicize__notice-warning' ).addClass( 'hidden' ).text( '' );
+	};
+
+	const getEnabledConnections = () => {
+		return connections.filter( ( index, element ) => {
+			return $( element ).prop( 'checked' );
+		} );
+	};
+
+	const getDisabledConnections = () => {
+		return connections.filter( ( index, element ) => {
+			return ! $( element ).prop( 'checked' );
+		} );
+	};
+
+	shareNowButton.on( 'click', function ( e ) {
+		e.preventDefault();
+
+		if ( ! isReshareSupported ) {
+			return;
+		}
+
+		hideNotice();
+
+		if ( ! getEnabledConnections().length ) {
+			showNotice(
+				__( 'Please select at least one connection to share with.', 'jetpack-publicize-pkg' )
+			);
+			return;
+		}
+
+		const postId = $( 'input[name="post_ID"]' ).val();
+
+		const path = resharePath.replace( '{postId}', postId );
+
+		const skipped_connections = getDisabledConnections()
+			.map( ( index, element ) => {
+				return $( element ).data( 'id' );
+			} )
+			.toArray();
+
+		const message = $( 'textarea[name="wpas_title"]' ).val();
+
+		shareNowButton.prop( 'disabled', true ).text( __( 'Sharing…', 'jetpack-publicize-pkg' ) );
+
+		apiFetch( {
+			path,
+			method: 'POST',
+			data: {
+				message,
+				skipped_connections,
+			},
+		} )
+			.then( () => {
+				showNotice( __( 'Your post has been shared!', 'jetpack-publicize-pkg' ), 'success' );
+			} )
+			.catch( () => {
+				showNotice( __( 'An error occurred while sharing your post.', 'jetpack-publicize-pkg' ) );
+			} )
+			.finally( () => {
+				shareNowButton.prop( 'disabled', false ).text( __( 'Share now', 'jetpack-publicize-pkg' ) );
+			} );
+	} );
+	//#endregion
 } );

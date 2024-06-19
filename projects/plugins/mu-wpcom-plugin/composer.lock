@@ -185,6 +185,84 @@
             }
         },
         {
+            "name": "automattic/jetpack-blaze",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/blaze",
+                "reference": "792f0dabc3e885b741dc4313f953fe2f4c29e978"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-plans": "@dev",
+                "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-sync": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-blaze",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.21.x-dev"
+                },
+                "textdomain": "jetpack-blaze",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-dashboard.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Attract high-quality traffic to your site using Blaze.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-blocks",
             "version": "dev-trunk",
             "dist": {
@@ -775,12 +853,91 @@
             }
         },
         {
+            "name": "automattic/jetpack-masterbar",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/masterbar",
+                "reference": "649e2a37061b3ccb7242a48423b1497e348a30de"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-blaze": "@dev",
+                "automattic/jetpack-compat": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-device-detection": "@dev",
+                "automattic/jetpack-jitm": "@dev",
+                "automattic/jetpack-logo": "@dev",
+                "automattic/jetpack-plans": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/patchwork-redefine-exit": "@dev",
+                "automattic/wordbless": "dev-master",
+                "brain/monkey": "2.6.1",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-masterbar",
+                "textdomain": "jetpack-masterbar",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-main.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "test-php": [
+                    "pnpm run build-production",
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-mu-wpcom",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "572557dc75d57d3d1a24aed00fc6cfbbf784f618"
+                "reference": "7ff93b7e86792a3647a0defcdffa63cf5c8fa97f"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -789,6 +946,7 @@
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-masterbar": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
@@ -811,7 +969,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.35.x-dev"
+                    "dev-trunk": "5.36.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {

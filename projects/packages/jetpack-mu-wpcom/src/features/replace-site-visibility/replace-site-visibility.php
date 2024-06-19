@@ -34,7 +34,7 @@ function replace_site_visibility() {
 		return;
 	} else {
 		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
-		$manage_label = __( 'Manage your site visibility settings', 'jetpack-mu-wpcom' );
+		$manage_label = __( 'Manage your privacy settings', 'jetpack-mu-wpcom' );
 	}
 
 	$escaped_content = '<a href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
