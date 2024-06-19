@@ -9,7 +9,7 @@ This component is useful to indicate something is new.
 import { Chip } from '@automattic/jetpack-components';
 render() {
 	return (
-		<Chip variant="new" text="New" />
+		<Chip type="new" text="New" />
 	);
 }
 ```
