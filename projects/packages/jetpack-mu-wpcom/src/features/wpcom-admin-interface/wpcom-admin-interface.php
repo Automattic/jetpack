@@ -44,7 +44,7 @@ if (
 /**
  * Track the wpcom_admin_interface_changed event.
  *
- * @param array $value The new value.
+ * @param string $value The new value.
  * @return void
  */
 function wpcom_admin_interface_track_changed_event( $value ) {
@@ -65,9 +65,9 @@ function wpcom_admin_interface_track_changed_event( $value ) {
  * @access private
  * @since 4.20.0
  *
- * @param array $new_value The new settings value.
- * @param array $old_value The old settings value.
- * @return array The value to update.
+ * @param string $new_value The new settings value.
+ * @param string $old_value The old settings value.
+ * @return string The value to update.
  */
 function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 	if ( $new_value === $old_value ) {
@@ -89,6 +89,11 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 			// We can remove this code if the related code in wpcom_admin_interface_display is removed.
 			add_action(
 				'update_option_wpcom_admin_interface',
+				/**
+				 * Redirects to the WordPress.com home page when the admin interface is changed to Calypso.
+				 *
+				 * @return never
+				*/
 				function () {
 					wp_safe_redirect( 'https://wordpress.com/home/' . wpcom_get_site_slug() );
 					exit;
