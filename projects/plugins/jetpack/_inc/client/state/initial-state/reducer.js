@@ -58,12 +58,18 @@ export function getInitialStateConnectedPlugins( state ) {
 	return get( state.jetpack.initialState, 'connectedPlugins', {} );
 }
 
+/**
+ * Returns the email address of the connected user if they are the current user.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {string}  The email address of the current user.       .
+ */
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
 }
 
 /**
- * Returns an object of plugins that are using the Jetpack connection.
+ * Returns the current users email address.
  *
  * @param   {object}  state - Global state tree
  * @returns {string}  The email address of the current user.       .
