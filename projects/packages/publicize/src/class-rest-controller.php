@@ -31,8 +31,7 @@ class REST_Controller {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SOCIAL_BASIC_YEARLY    = 'jetpack_social_basic_yearly';
-	const JETPACK_SOCIAL_ADVANCED_YEARLY = 'jetpack_social_advanced_yearly';
+	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
 
 	/**
 	 * Constructor
@@ -326,8 +325,7 @@ class REST_Controller {
 
 		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		return array(
-			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
-			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+			'v1' => $products->{self::JETPACK_SOCIAL_V1_YEARLY},
 		);
 	}
 

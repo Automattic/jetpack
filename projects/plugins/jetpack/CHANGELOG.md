@@ -2,6 +2,68 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.6-a.5 - 2024-06-18
+### Bug fixes
+- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com. [#37798]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Bump Jetpack lock file. [#37870]
+- Fixed missing CSS vars for SSO modal [#37924]
+
+## 13.6-a.3 - 2024-06-17
+### Enhancements
+- AI Assistant: Hide input when user types on extended block. [#37801]
+
+### Bug fixes
+- Like block: Fix editor styling. [#37719]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added ability to test Jetpack together with wpcomsh. [#37737]
+- Color Schemes: Fix Sakura color issues on masterbar. [#37806]
+- EU Cookie Law widget: add id attribute to consent form. [#37839]
+- Fixed E2E tests navigating to block editor. [#37875]
+- Fixed PHP Unit tests for WP trunk. [#37785]
+- Fixed Uncaught TypeError in for recommendations CTA. [#37808]
+- Jetpack admin-menu endpoint: Require masterbar menu load file only on self-hosted sites. [#37891]
+- Jetpack AI: register ai-general-purpose-image-generator beta flag to control the changes we are doing to the image generation tool. [#37749]
+- Jetpack AI Image: create first draft of the General Purpose image generator. [#37782]
+- Jetpack AI Image: make the general purpose generator set the image on the image block. [#37834]
+- Return site_goals option for a site. [#37809]
+- Social: Fixed broken connections reconnect link to point it to new connections UI. [#37869]
+- Top Posts & Pages Block: Require that one content type is always set to display. [#36305]
+- Updated package dependencies. [#37767] [#37776] [#37795] [#37796]
+
+## 13.6-a.1 - 2024-06-10
+### Bug fixes
+- External media: Ensure connect URL has the correct blog ID and verification values. [#37689]
+- Slideshow: Ensure whole block is selectable in the editor. [#37683]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add onboarding_segment to site endpoint. [#37751]
+- Add placement on Proofread tracking. [#37763]
+- Add support for custom behavior on AI Inline Extensions. [#37589]
+- Admin menu: Add link to Customizer in sites with block-based theme and custom CSS. [#37761]
+- AI Featured Image: Let the backend decide the model for the image generation. [#37668]
+- Calypsoify: Deprecating functions and the class. [#37453]
+- Change codebase to use clsx instead of classnames. [#37708]
+- Classic Theme Helper: Move code from module to package. [#37260]
+- Comics CPT: Add deprecation warning. [#37605]
+- External Media: Remove unneeded return value. [#37703]
+- Fix scroll on typing inside inline extensions. [#37753]
+- Jetpack AI: Expose the upgrade URL on the feature endpoint, considering current plan and site type. [#37721]
+- Memberships: Fix paid content access in some cases of mixed products. [#37527]
+- Move AI Form inline extensions version to production. [#37754]
+- Move AI Form to inline extension. [#37589]
+- Payments Block: Localize block variations. [#37661]
+- Random Redirect: Add deprecation warning. [#37609]
+- Subscribe overlay: Use home URL in skip link. [#37711]
+- Updated package dependencies. [#37669] [#37706]
+- Updated recommendation links for Social. [#37693]
+- Updated recommendations section links for Social. [#37678]
+- Use correct const to check for inline extensions availability. [#37758]
+- Wordpress.com: Make Jetpack Scan link visible on atomic sites that defaults to wp-admin. [#37724]
+- WPCOM Block Editor: Deprecated functionality and moved it to mu-wpcom. [#37324]
+
 ## 13.5 - 2024-06-04
 ### Enhancements
 - AI Assistant: Add AI Assistant to Paragraph, Heading, List, and List Item blocks. [#37495] [#37386] [#37613]

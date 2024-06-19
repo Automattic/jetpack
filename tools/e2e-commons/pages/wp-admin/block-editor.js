@@ -52,18 +52,14 @@ export default class BlockEditorPage extends WpPage {
 
 	//endregion
 
-	async resolveWelcomeGuide( show = false ) {
-		const isWelcomeGuideActive = await this.page.evaluate( () =>
-			wp.data.select( 'core/edit-post' ).isFeatureActive( 'welcomeGuide' )
-		);
+	async closeWelcomeGuide() {
+		const isWelcomeGuideVisible = await this.page
+			.getByText( 'Welcome to the block editor', { exact: true } )
+			.isVisible();
 
-		if ( show !== isWelcomeGuideActive ) {
-			await this.page.evaluate( () =>
-				wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'welcomeGuide' )
-			);
-
-			logger.step( `Refreshing page to reflect 'welcomeGuide' feature toggle` );
-			await this.reload();
+		if ( isWelcomeGuideVisible ) {
+			logger.step( 'Closing welcome guide.' );
+			await this.page.getByRole( 'button', { name: 'Close', exact: true } ).click();
 		}
 	}
 
@@ -83,9 +79,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async getInsertedBlock( blockName ) {
-		const blockElement = await this.canvasPage
-			.canvas()
-			.waitForSelector( this.insertedBlockSel( blockName ) );
+		const blockElement = this.canvasPage.canvas().locator( this.insertedBlockSel( blockName ) );
 		return blockElement.getAttribute( 'data-block' );
 	}
 
@@ -124,6 +118,6 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async waitForEditor() {
-		await this.canvasPage.canvas().waitForSelector( "h1[aria-label='Add title']" );
+		await this.canvasPage.canvas().locator( "h1[aria-label='Add title']" ).waitFor();
 	}
 }

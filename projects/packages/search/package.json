@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.44.9-alpha",
+	"version": "0.44.10",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -64,14 +64,14 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/plugin-transform-react-jsx": "7.23.4",
-		"@babel/preset-env": "7.24.0",
-		"@babel/preset-react": "7.23.3",
-		"@babel/preset-typescript": "7.23.3",
-		"@babel/runtime": "7.24.0",
+		"@babel/core": "7.24.7",
+		"@babel/plugin-transform-react-jsx": "7.24.7",
+		"@babel/preset-env": "7.24.7",
+		"@babel/preset-react": "7.24.7",
+		"@babel/preset-typescript": "7.24.7",
+		"@babel/runtime": "7.24.7",
 		"@csstools/postcss-global-data": "2.1.1",
-		"@size-limit/preset-app": "8.2.6",
+		"@size-limit/preset-app": "11.1.4",
 		"@testing-library/dom": "10.1.0",
 		"@testing-library/preact": "3.2.3",
 		"@testing-library/react": "15.0.7",
@@ -90,7 +90,7 @@
 		"prettier": "npm:wp-prettier@3.0.3",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
-		"size-limit": "8.2.6",
+		"size-limit": "11.1.4",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},

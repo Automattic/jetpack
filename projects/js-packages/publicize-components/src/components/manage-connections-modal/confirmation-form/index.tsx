@@ -206,6 +206,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						<div className={ styles[ 'accounts-list' ] }>
 							{ accounts.not_connected.map( ( option, index ) => {
 								return (
+									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
 									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
 										<input
 											type="radio"

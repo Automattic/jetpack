@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Initializer.
@@ -57,7 +57,7 @@ class Main {
 		 * Fires after the Masterbar package is initialized.
 		 * Used mainly to ensure the package is initialized once.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 */
 		do_action( 'jetpack_masterbar_init' );
 	}

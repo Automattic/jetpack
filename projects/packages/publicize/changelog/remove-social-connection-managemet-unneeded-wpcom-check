@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed unneeded check for connection management wpcom

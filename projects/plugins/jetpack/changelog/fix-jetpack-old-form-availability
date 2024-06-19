@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Use correct const to check for inline extensions availability

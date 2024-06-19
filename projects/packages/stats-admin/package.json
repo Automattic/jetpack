@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-stats-admin",
-	"version": "0.19.2",
+	"version": "0.20.0",
 	"description": "Stats Dashboard",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/stats-admin/#readme",
 	"bugs": {

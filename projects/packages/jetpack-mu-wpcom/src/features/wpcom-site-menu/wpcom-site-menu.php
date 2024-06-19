@@ -203,6 +203,40 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
 
 /**
+ * Replace the WP logo /about.php link with /wp-admin/.
+ *
+ * This is needed because on Simple Sites we don't expose the about and contribute pages.
+ * Although really needed only on Simple, it would make sense to have the same behavior on AT.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object. On Simple sites it's a different class.
+ *
+ * @return void
+ */
+function replace_wp_logo_menu_on_masterbar( $wp_admin_bar ) {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+
+	$wp_admin_bar->remove_menu( 'wp-logo' );
+
+	$wp_logo_menu_args = array(
+		'id'    => 'wp-logo',
+		'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
+					/* translators: Hidden accessibility text. */
+					__( 'About WordPress', 'jetpack-mu-wpcom' ) .
+					'</span>',
+		'href'  => get_dashboard_url(),
+		'meta'  => array(
+			'menu_title' => __( 'About WordPress', 'jetpack-mu-wpcom' ),
+		),
+	);
+
+	$wp_admin_bar->add_node( $wp_logo_menu_args );
+}
+
+add_action( 'admin_bar_menu', 'replace_wp_logo_menu_on_masterbar', 11 );
+
+/**
  * Enqueue scripts and styles needed by the WP.com menu.
  */
 function wpcom_site_menu_enqueue_scripts() {
