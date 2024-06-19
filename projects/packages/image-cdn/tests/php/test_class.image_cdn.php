@@ -410,6 +410,17 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
+	 *
+	 * @covers Image_CDN::parse_dimensions_from_filename
+	 */
+	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
+		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';
+
+		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
+	}
+
+	/**
 	 * Tests Photon will parse the dimensions from a filename for a large value.
 	 *
 	 * @author scotchfield
