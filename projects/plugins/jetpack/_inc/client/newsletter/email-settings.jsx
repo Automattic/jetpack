@@ -263,7 +263,7 @@ const EmailSettings = props => {
 							),
 							email
 						) }
-						privacyLink="https://support.gravatar.com/profiles/profile-access/"
+						privacyLink="https://support.gravatar.com/account/data-privacy/"
 					/>
 				</div>
 				<ToggleControl
