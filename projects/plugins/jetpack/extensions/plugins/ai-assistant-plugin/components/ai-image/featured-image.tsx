@@ -69,13 +69,7 @@ export default function FeaturedImage( {
 	const { clearSelectedBlock } = useDispatch( 'core/block-editor' );
 
 	const [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] = useState( false );
-<<<<<<< HEAD
 	const [ current, setCurrent ] = useState( 0 );
-=======
-	// const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
-	const [ current, setCurrent ] = useState( 0 );
-	// const pointer = useRef( 0 );
->>>>>>> 6e8b359e7d (AI Image: Extract AI Image usage to hook)
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
 
@@ -84,12 +78,6 @@ export default function FeaturedImage( {
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
 
-<<<<<<< HEAD
-=======
-	// const currentImage = images[ current ];
-	// const currentPointer = images[ pointer.current ];
-
->>>>>>> 6e8b359e7d (AI Image: Extract AI Image usage to hook)
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
 	const planType = usePlanType( currentTier );
