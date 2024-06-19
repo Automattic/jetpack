@@ -52,7 +52,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.19.x-dev"
+			"dev-trunk": "0.20.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

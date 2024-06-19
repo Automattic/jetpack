@@ -914,7 +914,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "572557dc75d57d3d1a24aed00fc6cfbbf784f618"
+                "reference": "7080bba6447f9bd0815793ded78e5e5fb681be0e"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -945,7 +945,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.35.x-dev"
+                    "dev-trunk": "5.36.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1343,7 +1343,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "a17a4ebcea4f0a0c47916c0457fe23106ad6ae5c"
+                "reference": "f188536acdc40d4d174907d96875313f111fbdb7"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1367,7 +1367,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.19.x-dev"
+                    "dev-trunk": "0.20.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
