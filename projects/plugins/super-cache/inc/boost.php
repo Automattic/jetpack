@@ -1,4 +1,14 @@
 <?php
+/**
+ * Code to handle migration from WP Super Cache to Jetpack Boost.
+ *
+ * @package WP_Super_Cache
+ */
+
+// Minimum version of Jetpack Boost required for compatibility.
+if ( ! defined( 'MINIMUM_BOOST_VERSION' ) ) {
+	define( 'MINIMUM_BOOST_VERSION', '3.4.0' );
+}
 
 /**
  * Get shared configuration for each migration button.
@@ -190,7 +200,7 @@ function wpsc_is_boost_compatible() {
  */
 function wpsc_is_boost_current() {
 	if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
-		return version_compare( JETPACK_BOOST_VERSION, '3.4.0', '>=' );
+		return version_compare( JETPACK_BOOST_VERSION, MINIMUM_BOOST_VERSION, '>=' );
 	} else {
 		return true; // don't care if Boost is not installed
 	}
