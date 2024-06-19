@@ -29,11 +29,12 @@
 		.record-meter-bar__legend--items {
 			flex-wrap: wrap;
 		}
+
 		.record-meter-bar__items {
 			height: 0.5rem;
 			margin-bottom: 0.8em;
 		}
-	
+
 		.record-meter-bar__legend--item-circle {
 			width: 0.5rem;
 			height: 0.5rem;
@@ -66,6 +67,44 @@ p.auto-share-title {
 }
 
 .broken-connection-btn {
+	&:global(.components-button.is-link) {
+		font-size: inherit;
+		font-weight: inherit;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+.connection-list-item {
+	width: 100%;
+	margin-bottom: 0.75rem;
+
+	.connection-toggle {
+
+		label {
+			display: flex;
+			align-items: center;
+		}
+	}
+
+	.connection-wrap {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.connection-name {
+		width: 100%;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		white-space: nowrap;
+		display: inline-block;
+	}
+}
+
+.settings-button {
 	&:global(.components-button.is-link) {
 		font-size: inherit;
 		font-weight: inherit;
