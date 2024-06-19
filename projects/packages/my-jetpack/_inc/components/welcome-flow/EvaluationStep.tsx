@@ -1,7 +1,7 @@
 import { Col, Button, Text } from '@automattic/jetpack-components';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import styles from './style.module.scss';
 
@@ -82,7 +82,7 @@ const EvaluationStep = ( {
 				sm={ 6 }
 				md={ 8 }
 				lg={ 6 }
-				className={ classNames( styles[ 'banner-image-evaluation' ], {
+				className={ clsx( styles[ 'banner-image-evaluation' ], {
 					[ styles[ 'is-selected' ] ]: isSelected,
 				} ) }
 			></Col>
