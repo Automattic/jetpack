@@ -132,7 +132,7 @@ function wpsc_is_boost_compatible() {
 		return false;
 	}
 
-	if ( ! empty( $GLOBALS['wp_super_cache_late_init'] ) ) {
+	if ( isset( $GLOBALS['wp_super_cache_late_init'] ) && $GLOBALS['wp_super_cache_late_init'] === 1 ) {
 		return false;
 	}
 
@@ -144,7 +144,7 @@ function wpsc_is_boost_compatible() {
 		return false;
 	}
 
-	if ( ! empty( $GLOBALS['wp_cache_preload_on'] ) ) {
+	if ( isset( $GLOBALS['wp_cache_preload_on'] ) && $GLOBALS['wp_cache_preload_on'] === 1 ) {
 		return false;
 	}
 
@@ -156,7 +156,7 @@ function wpsc_is_boost_compatible() {
 		return false;
 	}
 
-	if ( ! empty( $GLOBALS['wp_cache_make_known_anon'] ) ) {
+	if ( isset( $GLOBALS['wp_cache_make_known_anon'] ) && $GLOBALS['wp_cache_make_known_anon'] === 1 ) {
 		return false;
 	}
 
@@ -164,7 +164,7 @@ function wpsc_is_boost_compatible() {
 		return false;
 	}
 
-	if ( ! empty( $GLOBALS['wp_cache_clear_on_post_edit'] ) ) {
+	if ( isset( $GLOBALS['wp_cache_clear_on_post_edit'] ) && $GLOBALS['wp_cache_clear_on_post_edit'] === 1 ) {
 		return false;
 	}
 
@@ -200,7 +200,7 @@ function wpsc_is_boost_compatible() {
  */
 function wpsc_is_boost_current() {
 	if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
-		return version_compare( JETPACK_BOOST_VERSION, MINIMUM_BOOST_VERSION, '>=' );
+		return version_compare( (string) JETPACK_BOOST_VERSION, MINIMUM_BOOST_VERSION, '>=' );
 	} else {
 		return true; // don't care if Boost is not installed
 	}
