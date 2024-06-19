@@ -46,9 +46,9 @@ export default function useFetchGoodreadsData( input ) {
 		}
 	};
 
-	const findProfileLink = async input => {
+	const findProfileLink = async goodreadsLink => {
 		// Checks for alternative format - eg. https://www.goodreads.com/photomatt
-		testEmbedUrl( input )
+		testEmbedUrl( goodreadsLink )
 			.then( response => {
 				const goodreadsId = extractGoodreadsId( response );
 				if ( goodreadsId ) {
@@ -65,9 +65,9 @@ export default function useFetchGoodreadsData( input ) {
 			} );
 	};
 
-	const extractGoodreadsId = input => {
+	const extractGoodreadsId = link => {
 		const regex = /\/(user|author)\/show\/(\d+)/;
-		const match = input.match( regex );
+		const match = link.match( regex );
 		return match ? parseInt( match[ 2 ] ) : false;
 	};
 
