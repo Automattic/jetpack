@@ -1,34 +1,45 @@
+import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnection from '../connection';
 import PublicizeSettingsButton from '../settings-button';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
+import { ConnectionsListItem } from './connections-list-item';
+import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
-import { useConnectionState } from './use-connection-state';
 
 export const ConnectionsList: React.FC = () => {
 	const { connections, toggleById } = useSocialMediaConnections();
 
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
-
 	const { needsUserConnection } = usePublicizeConfig();
+
+	const supportedServices = useSupportedServices();
+	const servicesByName = supportedServices.reduce< Record< string, SupportedService > >(
+		( acc, service ) => {
+			acc[ service.ID ] = service;
+			return acc;
+		},
+		{}
+	);
+
+	const onToggle = useCallback(
+		( connectionId: string ) => () => {
+			toggleById( connectionId );
+		},
+		[ toggleById ]
+	);
 
 	return (
 		<ul className={ styles[ 'connections-list' ] }>
-			{ connections.map( conn => {
-				const { display_name, id, service_name, profile_picture, connection_id } = conn;
-				const currentId = connection_id ? connection_id : id;
-
+			{ connections.map( connection => {
 				return (
-					<PublicizeConnection
-						disabled={ shouldBeDisabled( conn ) }
-						enabled={ canBeTurnedOn( conn ) && conn.enabled }
-						key={ currentId }
-						id={ currentId }
-						label={ display_name }
-						name={ service_name }
-						toggleConnection={ toggleById }
-						profilePicture={ profile_picture }
-					/>
+					<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+						<ConnectionsListItem
+							key={ connection.connection_id }
+							connection={ connection }
+							service={ servicesByName[ connection.service_name ] }
+							onToggle={ onToggle( connection.connection_id ) }
+						/>
+					</li>
 				);
 			} ) }
 			{ ! needsUserConnection ? (
