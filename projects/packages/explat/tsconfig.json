@@ -5,6 +5,6 @@
 		"outDir": "./build/"
 	},
 	// List all sources and source-containing subdirs.
-	"include": [ "./src/client" ],
+	"include": [ "./src/client", "src/client/utils.ts" ],
 	"files": [ "./global.d.ts" ]
 }
