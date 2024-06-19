@@ -94,9 +94,11 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-		// Only load the Calypsoify feature on WoA sites.
+		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
+			\Automattic\Jetpack\Masterbar\Main::init();
 		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
