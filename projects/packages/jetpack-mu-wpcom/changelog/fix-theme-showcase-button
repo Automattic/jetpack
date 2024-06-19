@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an edge case for theme showcase button rendering if only a single theme is left after deletion.
