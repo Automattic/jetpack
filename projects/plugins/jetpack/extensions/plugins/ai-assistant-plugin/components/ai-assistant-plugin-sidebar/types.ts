@@ -7,3 +7,9 @@ export type JetpackSettingsContentProps = {
 	requireUpgrade: boolean;
 	upgradeType: string;
 };
+
+export type CoreSelect = {
+	getPostType: ( postTypeName: string ) => {
+		viewable: boolean;
+	};
+};

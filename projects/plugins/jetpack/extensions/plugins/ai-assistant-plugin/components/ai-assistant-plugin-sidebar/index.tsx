@@ -22,6 +22,7 @@ import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
+	CoreSelect,
 	JetpackSettingsContentProps,
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
@@ -96,7 +97,10 @@ export default function AiAssistantPluginSidebar() {
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
-		const postTypeObject = select( coreStore ).getPostType( postTypeName );
+		// The coreStore select type lacks the getPostType method, so we need to cast it to the correct type
+		const postTypeObject = ( select( coreStore ) as unknown as CoreSelect ).getPostType(
+			postTypeName
+		);
 
 		return postTypeObject?.viewable;
 	}, [] );
