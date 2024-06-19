@@ -1835,7 +1835,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "5f7ca0b1c441e446cf4b7c73c79e62301837af07"
+				"reference": "649e2a37061b3ccb7242a48423b1497e348a30de"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1863,7 +1863,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"

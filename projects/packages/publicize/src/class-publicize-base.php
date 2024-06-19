@@ -1888,13 +1888,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
-
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = ( new Status\Host() )->is_woa_site();
-
-		$is_wpcom = $is_simple_site || $is_atomic_site;
-
-		if ( ! $is_wpcom && $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
+		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
 			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
 
 			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
