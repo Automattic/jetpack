@@ -90,7 +90,7 @@ if ( $plugin->is_active( 'stable' ) ) {
 
 	<?php
 	if ( $plugin->is_mu_plugin() ) {
-		$url = sprintf( 'https://github.com/Automattic/jetpack-beta/blob/%s/docs/testing/mu-plugin-info.md', rawurlencode( str_ends_with( JPBETA_VERSION, '-alpha' ) ? 'HEAD' : JPBETA_VERSION ) );
+		$url = sprintf( 'https://github.com/Automattic/jetpack-beta/blob/%s/docs/mu-plugin-info.md', rawurlencode( str_ends_with( JPBETA_VERSION, '-alpha' ) ? 'HEAD' : JPBETA_VERSION ) );
 		?>
 		<div id="jetpack-beta-tester__is-mu-plugin" class="dops-card">
 			<p><?php echo esc_html( $plugin->get_name() ); ?> will be installed as a mu-plugin. See <a href="<?php echo esc_url( $url ); ?>">the documentation</a> for details on what this entails, particularly if you're newly installing a stable version.</p>
