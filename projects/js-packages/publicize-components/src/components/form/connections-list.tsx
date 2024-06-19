@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeSettingsButton from '../settings-button';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionsListItem } from './connections-list-item';
 import { SettingsButton } from './settings-button';
@@ -43,8 +42,8 @@ export const ConnectionsList: React.FC = () => {
 				);
 			} ) }
 			{ ! needsUserConnection ? (
-				<li>
-					<PublicizeSettingsButton />
+				<li className={ styles[ 'connection-list-item' ] }>
+					<SettingsButton />
 				</li>
 			) : null }
 		</ul>
