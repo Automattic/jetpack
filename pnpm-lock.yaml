@@ -2327,6 +2327,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-explat':
+        specifier: workspace:*
+        version: link:../explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
@@ -19779,7 +19782,7 @@ snapshots:
       '@wordpress/hooks': 4.2.0
       gettext-parser: 1.4.0
       memize: 2.1.0
-      sprintf-js: 1.1.2
+      sprintf-js: 1.1.3
       tannin: 1.2.0
 
   '@wordpress/icons@10.2.0(react@18.3.1)':

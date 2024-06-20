@@ -42,8 +42,13 @@
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
 		"@automattic/explat-client-react-helpers": "0.1.0",
+<<<<<<< HEAD
 		"@wordpress/api-fetch": "7.2.0",
 		"@wordpress/url": "4.2.0",
+=======
+		"@wordpress/api-fetch": "7.0.0",
+		"@wordpress/url": "4.0.0",
+>>>>>>> de2e25380a (Update components to use Jetpack API)
 		"cookie": "0.4.1",
 		"qs": "6.12.1"
 	}
