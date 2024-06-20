@@ -124,3 +124,5 @@ class Main {
 		}
 	}
 }
+
+Main::init();

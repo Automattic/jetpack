@@ -100,9 +100,6 @@ class Jetpack_Mu_Wpcom {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
 		}
-		if ( class_exists( '\Automattic\Jetpack\Classic_Theme_Helper' ) ) {
-			\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
-		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();

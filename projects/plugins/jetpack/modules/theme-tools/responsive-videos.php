@@ -6,9 +6,6 @@
  */
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Classic_Theme_Helper\Main;
-
-Main::init();
 
 if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
