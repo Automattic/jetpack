@@ -615,7 +615,7 @@ class Posts extends Module {
 	 */
 	public function add_links( $post ) {
 
-		if ( ! ( $post instanceof \WP_Post ) || $post->post_status === 'jetpack_sync_blocked' || $post->post_status === 'jetpack_sync_non_registered_post_type' ) {
+		if ( isset( $post->post_status ) && in_array( $post->post_status, array( 'jetpack_sync_non_registered_post_type', 'jetpack_sync_blocked' ), true ) ) {
 			return $post;
 		}
 
