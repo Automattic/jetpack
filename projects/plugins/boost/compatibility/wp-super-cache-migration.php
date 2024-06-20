@@ -36,7 +36,7 @@ function migrate_from_super_cache() {
 	// If Super Cache has set the transient, log it to tracks, but only once.
 	if ( $migration_status && ! get_transient( 'jb_boost_migration_tracked' ) ) {
 		set_transient( 'jb_boost_migration_tracked', true, 7 * DAY_IN_SECONDS );
-		Analytics::record_user_event( 'migrated_from_wpsc', array( 'status' => $migration_status ) );
+		Analytics::record_user_event( 'migrated_from_wpsc', array( 'source' => $migration_status ) );
 	}
 
 	// Only proceed to activate Page Cache in Jetpack Boost
