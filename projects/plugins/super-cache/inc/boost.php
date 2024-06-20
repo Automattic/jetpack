@@ -68,13 +68,34 @@ if ( isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' ) { // phpcs:ign
 	add_action( 'admin_notices', 'wpsc_jetpack_boost_notice' );
 }
 
+/**
+ * Dismiss the migration admin notice by setting a user option flag.
+ */
 function wpsc_dismiss_boost_notice() {
-	check_ajax_referer( 'wpsc_dismiss_boost_notice', 'nonce' );
 	update_user_option( get_current_user_id(), 'wpsc_dismissed_boost_admin_notice', '1' );
+}
+
+/**
+ * Handler called by AJAX to dismiss the admin notice.
+ */
+function wpsc_dismiss_boost_notice_ajax_handler() {
+	check_ajax_referer( 'wpsc_dismiss_boost_notice', 'nonce' );
+	wpsc_dismiss_boost_notice();
 	wp_die();
 }
-add_action( 'wp_ajax_wpsc_dismiss_boost_notice', 'wpsc_dismiss_boost_notice' );
+add_action( 'wp_ajax_wpsc_dismiss_boost_notice', 'wpsc_dismiss_boost_notice_ajax_handler' );
 
+/**
+ * Dismiss the admin notice if the Jetpack Boost plugin is activated.
+ */
+function wpsc_dismiss_notice_on_activation() {
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	wpsc_dismiss_boost_notice();
+}
+add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_dismiss_notice_on_activation' );
 /**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
