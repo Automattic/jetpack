@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
+import ScanHistory from './components/scan-history';
 import ScanPage from './components/scan-page';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import { initStore } from './state/store';
@@ -41,6 +42,7 @@ function render() {
 					<ScrollToTop />
 					<Routes>
 						<Route path="/" element={ <ScanPage /> } />
+						<Route path="/history" element={ <ScanHistory /> } />
 						<Route path="/firewall" element={ <FirewallPage /> } />
 					</Routes>
 				</HashRouter>

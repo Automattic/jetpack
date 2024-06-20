@@ -1,9 +1,11 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
+import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
@@ -18,12 +20,15 @@ export const PaidAccordionItem = ( {
 	fixable,
 	severity,
 	children,
+	firstDetected,
+	fixedOn,
 	onOpen,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
+	const { viewingScanHistory } = useScanHistory();
 
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
@@ -55,6 +60,44 @@ export const PaidAccordionItem = ( {
 					>
 						{ title }
 					</Text>
+					{ viewingScanHistory && (
+						<>
+							{ firstDetected && (
+								<div className={ styles[ 'threat-section' ] }>
+									<Text mb={ 2 }>
+										{ sprintf(
+											/* translators: %1$s: First detected date */
+											__( 'Threat found on %1$s', 'jetpack-protect' ),
+											dateI18n( 'F jS, Y', firstDetected )
+										) }
+									</Text>
+								</div>
+							) }
+							{ fixedOn ? (
+								<div className={ styles[ 'threat-section' ] }>
+									<Text mb={ 2 }>
+										<span className={ styles[ 'fixed-badge' ] }>
+											{ __( 'Fixed', 'jetpack-protect' ) }
+										</span>
+										{ sprintf(
+											/* translators: %1$s: Fixed on date */
+											__( 'Threat fixed on %1$s', 'jetpack-protect' ),
+											dateI18n( 'F jS, Y', fixedOn )
+										) }
+									</Text>
+								</div>
+							) : (
+								<div className={ styles[ 'threat-section' ] }>
+									<Text mb={ 2 }>
+										<span className={ styles[ 'ignored-badge' ] }>
+											{ __( 'Ignored', 'jetpack-protect' ) }
+										</span>
+										{ __( 'Threat ignored', 'jetpack-protect' ) }
+									</Text>
+								</div>
+							) }
+						</>
+					) }
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />

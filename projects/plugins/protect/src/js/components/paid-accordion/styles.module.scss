@@ -117,5 +117,32 @@
 			grid-row: 1/3;
 		}
 	}
-
 }
+
+.fixed-badge {
+	color: var( --jp-white );
+	background-color: var( --jp-green );
+	font-size: 12px;
+	line-height: 1;
+	letter-spacing: -2%;
+	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
+	border-radius: 32px;
+	margin-right: var( --spacing-base ); // 8px
+	position: relative;
+	top: -1px;
+}
+
+.ignored-badge {
+	color: var( --jp-white );
+	background-color: var( --jp-gray-50 );
+	font-size: 12px;
+	line-height: 1;
+	letter-spacing: -2%;
+	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
+	border-radius: 32px;
+	margin-right: var( --spacing-base ); // 8px
+	position: relative;
+	top: -1px;
+}
+
+// todo: optimize this

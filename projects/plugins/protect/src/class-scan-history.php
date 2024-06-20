@@ -97,6 +97,18 @@ class Scan_History {
 	}
 
 	/**
+	 * Delete the cached history and its timestamp
+	 *
+	 * @return bool Whether all related history options were successfully deleted.
+	 */
+	public static function delete_option() {
+		$option_deleted           = delete_option( static::OPTION_NAME );
+		$option_timestamp_deleted = delete_option( static::OPTION_TIMESTAMP_NAME );
+
+		return $option_deleted && $option_timestamp_deleted;
+	}
+
+	/**
 	 * Gets the current history of the Jetpack Protect checks
 	 *
 	 * @param bool  $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
