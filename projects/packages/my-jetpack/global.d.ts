@@ -73,6 +73,7 @@ interface Window {
 			purchases: Array< string >;
 		};
 		myJetpackUrl: string;
+		jetpackVersion: string;
 		myJetpackVersion: string;
 		plugins: {
 			[ key: string ]: {

@@ -229,6 +229,7 @@ class Initializer {
 				'siteSuffix'             => ( new Status() )->get_site_suffix(),
 				'siteUrl'                => esc_url( get_site_url() ),
 				'blogID'                 => Connection_Manager::get_site_id( true ),
+				'jetpackVersion'         => JETPACK__VERSION,
 				'myJetpackVersion'       => self::PACKAGE_VERSION,
 				'myJetpackFlags'         => self::get_my_jetpack_flags(),
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
