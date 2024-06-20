@@ -25,6 +25,10 @@ function wpsc_get_boost_migration_config() {
  * Display an admin notice to install Jetpack Boost.
  */
 function wpsc_jetpack_boost_notice() {
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'wpsupercache' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
 	// Don't show the banner if the banner has been dismissed.
 	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_admin_notice' );
 	if ( $is_dismissed ) {
@@ -64,9 +68,7 @@ function wpsc_jetpack_boost_notice() {
 	</div>
 	<?php
 }
-if ( isset( $_GET['page'] ) && $_GET['page'] === 'wpsupercache' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	add_action( 'admin_notices', 'wpsc_jetpack_boost_notice' );
-}
+add_action( 'admin_notices', 'wpsc_jetpack_boost_notice' );
 
 /**
  * Dismiss the migration admin notice by setting a user option flag.
