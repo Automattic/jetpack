@@ -44,6 +44,8 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 			{ text }
 		</Button>
 	) : (
-		<ExternalLink href={ connectionsAdminUrl }>{ text }</ExternalLink>
+		<ExternalLink className={ styles[ 'settings-button' ] } href={ connectionsAdminUrl }>
+			{ text }
+		</ExternalLink>
 	);
 }
