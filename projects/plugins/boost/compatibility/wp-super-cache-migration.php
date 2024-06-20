@@ -10,6 +10,7 @@ namespace Automattic\Jetpack_Boost\Compatibility\Super_Cache;
 use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 
+
 /**
  * Accept migrations from WP Super Cache
  */
