@@ -121,12 +121,12 @@ export default function useAiImage( { cost }: { cost: number } ) {
 							updateRequestsCount();
 							saveToMediaLibrary( image )
 								.then( savedImage => {
-									updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
+									updateImages( { libraryId: savedImage?.id, generating: false }, pointer.current );
 									pointer.current += 1;
 									resolve( {
 										image,
-										libraryId: savedImage.id,
-										libraryUrl: savedImage.url,
+										libraryId: savedImage?.id,
+										libraryUrl: savedImage?.url,
 									} );
 								} )
 								.catch( () => {
@@ -154,6 +154,8 @@ export default function useAiImage( { cost }: { cost: number } ) {
 	}, [ current, images.length ] );
 
 	return {
+		current,
+		setCurrent,
 		processImageGeneration,
 		handlePreviousImage,
 		handleNextImage,
