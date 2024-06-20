@@ -414,7 +414,7 @@ function wpsc_jetpack_boost_install_banner() {
 					<img style="width:282px" src="<?php echo esc_url( $plugin_url . '/assets/jetpack-logo.svg' ); ?>" height="36" />
 
 					<h3>
-						<?php esc_html_e( 'Speed up your site with our  top-rated performance tool', 'wp-super-cache' ); ?>
+						<?php esc_html_e( 'Speed up your site with our top&#8209;rated performance tool', 'wp-super-cache' ); ?>
 					</h3>
 
 					<p id="wpsc-install-invitation">
