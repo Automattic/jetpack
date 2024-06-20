@@ -156,7 +156,11 @@ export default function PublicizeForm() {
 										) }
 									</span>
 									{ useAdminUiV1 ? (
-										<Button variant="secondary" size="small" onClick={ openConnectionsModal }>
+										<Button
+											variant="link"
+											className={ styles[ 'settings-button' ] }
+											onClick={ openConnectionsModal }
+										>
 											{ __( 'Connect an account', 'jetpack' ) }
 										</Button>
 									) : (
