@@ -21,7 +21,9 @@
 				"shasum": ""
 			},
 			"type": "wordpress-plugin",
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"time": "2024-06-06T16:58:27+00:00"
 		},
 		{
@@ -95,13 +97,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
 			"transport-options": {
 				"relative": true
@@ -143,15 +153,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Generic Jetpack wp-admin UI elements",
 			"transport-options": {
 				"relative": true
@@ -191,18 +213,112 @@
 				}
 			},
 			"autoload": {
-				"files": [ "actions.php" ],
-				"classmap": [ "src/" ]
+				"files": [
+					"actions.php"
+				],
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"build-development": [ "pnpm run build" ],
-				"build-production": [ "pnpm run build-production" ],
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-js": [ "pnpm run test" ],
-				"test-php": [ "@composer phpunit" ]
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-js": [
+					"pnpm run test"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Asset management utilities for Jetpack ecosystem packages",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-blaze",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/blaze",
+				"reference": "792f0dabc3e885b741dc4313f953fe2f4c29e978"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-constants": "@dev",
+				"automattic/jetpack-plans": "@dev",
+				"automattic/jetpack-redirect": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"automattic/jetpack-sync": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-blaze",
+				"changelogger": {
+					"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
+				},
+				"branch-alias": {
+					"dev-trunk": "0.21.x-dev"
+				},
+				"textdomain": "jetpack-blaze",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-dashboard.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Attract high-quality traffic to your site using Blaze.",
 			"transport-options": {
 				"relative": true
 			}
@@ -240,15 +356,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
 			"transport-options": {
 				"relative": true
@@ -290,15 +418,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"build-production": [ "pnpm run build-production" ],
-				"build-development": [ "pnpm run build" ],
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
 			"transport-options": {
 				"relative": true
@@ -340,17 +480,33 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"build-production": [ "pnpm run build-production" ],
-				"build-development": [ "pnpm run build" ],
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"test-php": [ "@composer phpunit" ]
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Features used with classic themes",
 			"transport-options": {
 				"relative": true
@@ -385,7 +541,9 @@
 					"dev-trunk": "3.0.x-dev"
 				}
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Compatibility layer with previous versions of Jetpack",
 			"transport-options": {
 				"relative": true
@@ -452,9 +610,13 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage.",
 			"transport-options": {
 				"relative": true
@@ -504,21 +666,43 @@
 					"dev-trunk": "2.10.x-dev"
 				},
 				"dependencies": {
-					"test-only": [ "packages/licensing", "packages/sync" ]
+					"test-only": [
+						"packages/licensing",
+						"packages/sync"
+					]
 				}
 			},
 			"autoload": {
-				"classmap": [ "legacy", "src/", "src/webhooks", "src/identity-crisis" ]
+				"classmap": [
+					"legacy",
+					"src/",
+					"src/webhooks",
+					"src/identity-crisis"
+				]
 			},
 			"scripts": {
-				"build-production": [ "pnpm run build-production" ],
-				"build-development": [ "pnpm run build" ],
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"test-php": [ "@composer phpunit" ]
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Everything needed to connect to the Jetpack infrastructure",
 			"transport-options": {
 				"relative": true
@@ -555,13 +739,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "A wrapper for defining constants in a more testable way.",
 			"transport-options": {
 				"relative": true
@@ -597,13 +789,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "A way to detect device types based on User-Agent header.",
 			"transport-options": {
 				"relative": true
@@ -644,13 +844,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Utilities for working with IP addresses.",
 			"transport-options": {
 				"relative": true
@@ -698,16 +906,31 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"build-production": [ "pnpm run build-production" ],
-				"build-development": [ "pnpm run build" ],
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"watch": [ "Composer\\Config::disableProcessTimeout", "pnpm run watch" ]
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Just in time messages for Jetpack",
 			"transport-options": {
 				"relative": true
@@ -743,14 +966,101 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "A logo for Jetpack",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "automattic/jetpack-masterbar",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/masterbar",
+				"reference": "649e2a37061b3ccb7242a48423b1497e348a30de"
+			},
+			"require": {
+				"automattic/jetpack-assets": "@dev",
+				"automattic/jetpack-blaze": "@dev",
+				"automattic/jetpack-compat": "@dev",
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-device-detection": "@dev",
+				"automattic/jetpack-jitm": "@dev",
+				"automattic/jetpack-logo": "@dev",
+				"automattic/jetpack-plans": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/patchwork-redefine-exit": "@dev",
+				"automattic/wordbless": "dev-master",
+				"brain/monkey": "2.6.1",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.2.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-masterbar",
+				"textdomain": "jetpack-masterbar",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-main.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"build-production": [
+					"pnpm run build-production"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-php": [
+					"pnpm run build-production",
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.",
 			"transport-options": {
 				"relative": true
 			}
@@ -761,7 +1071,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/jetpack-mu-wpcom",
-				"reference": "e2e15a701703485ceb9b37f1cd919c85ddb3c5b6"
+				"reference": "f1fded201dc3d0f247e3ec40eb36c2c70c42f3e7"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -770,6 +1080,7 @@
 				"automattic/jetpack-classic-theme-helper": "@dev",
 				"automattic/jetpack-compat": "@dev",
 				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-masterbar": "@dev",
 				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-stats-admin": "@dev",
 				"automattic/jetpack-status": "@dev",
@@ -801,17 +1112,33 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"build-production": [ "pnpm run build-production-js" ],
-				"build-development": [ "pnpm run build-js" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"pnpm run build-production-js"
+				],
+				"build-development": [
+					"pnpm run build-js"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Enhances your site with features powered by WordPress.com",
 			"transport-options": {
 				"relative": true
@@ -849,15 +1176,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Password Checker.",
 			"transport-options": {
 				"relative": true
@@ -896,17 +1235,33 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"build-production": [ "echo 'Add your build step to composer.json, please!'" ],
-				"build-development": [ "echo 'Add your build step to composer.json, please!'" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Fetch information about Jetpack Plans from wpcom",
 			"transport-options": {
 				"relative": true
@@ -948,15 +1303,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Enhance the classic view of the Admin section of your WordPress site",
 			"transport-options": {
 				"relative": true
@@ -994,13 +1361,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Utilities to build URLs to the jetpack.com/redirect/ service",
 			"transport-options": {
 				"relative": true
@@ -1037,13 +1412,21 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Utilities, related with user roles and capabilities.",
 			"transport-options": {
 				"relative": true
@@ -1087,15 +1470,27 @@
 				"textdomain": "jetpack-stats"
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Collect valuable traffic stats and insights.",
 			"transport-options": {
 				"relative": true
@@ -1139,17 +1534,33 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"build-production": [ "echo 'Add your build step to composer.json, please!'" ],
-				"build-development": [ "echo 'Add your build step to composer.json, please!'" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"build-production": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"build-development": [
+					"echo 'Add your build step to composer.json, please!'"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Stats Dashboard",
 			"transport-options": {
 				"relative": true
@@ -1189,17 +1600,29 @@
 					"dev-trunk": "3.3.x-dev"
 				},
 				"dependencies": {
-					"test-only": [ "packages/connection", "packages/identity-crisis", "packages/plans" ]
+					"test-only": [
+						"packages/connection",
+						"packages/identity-crisis",
+						"packages/plans"
+					]
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Used to retrieve information about the current status of Jetpack and the site overall.",
 			"transport-options": {
 				"relative": true
@@ -1247,19 +1670,34 @@
 					"dev-trunk": "3.1.x-dev"
 				},
 				"dependencies": {
-					"test-only": [ "packages/search", "packages/waf" ]
+					"test-only": [
+						"packages/search",
+						"packages/waf"
+					]
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Everything needed to allow syncing to the WP.com infrastructure.",
 			"transport-options": {
 				"relative": true
@@ -1306,15 +1744,27 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
-				"post-install-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ],
-				"post-update-cmd": [ "WorDBless\\Composer\\InstallDropin::copy" ]
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Runs plugin and (eventually) theme updates on a set schedule.",
 			"transport-options": {
 				"relative": true
@@ -1335,7 +1785,9 @@
 				"shasum": ""
 			},
 			"type": "wordpress-plugin",
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"time": "2024-06-06T17:20:00+00:00"
 		},
 		{
@@ -1375,12 +1827,20 @@
 				}
 			},
 			"autoload": {
-				"files": [ "wc-calypso-bridge.php" ]
+				"files": [
+					"wc-calypso-bridge.php"
+				]
 			},
 			"scripts": {
-				"test": [ "phpunit" ],
-				"phpcs": [ "phpcs -s -p" ],
-				"phpcbf": [ "phpcbf -p" ]
+				"test": [
+					"phpunit"
+				],
+				"phpcs": [
+					"phpcs -s -p"
+				],
+				"phpcbf": [
+					"phpcbf -p"
+				]
 			},
 			"time": "2024-06-14T14:44:22+00:00"
 		},
@@ -1426,7 +1886,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Kyle Robinson Young",
@@ -1567,7 +2029,9 @@
 				"ext-iconv": "Can be used as fallback when ext-mbstring is not available",
 				"ext-mbstring": "For best performance, mbstring should be installed as it is faster than ext-iconv"
 			},
-			"bin": [ "bin/pscss" ],
+			"bin": [
+				"bin/pscss"
+			],
 			"type": "library",
 			"extra": {
 				"bamarni-bin": {
@@ -1581,7 +2045,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Anthon Pang",
@@ -1596,7 +2062,13 @@
 			],
 			"description": "scssphp is a compiler for SCSS written in PHP.",
 			"homepage": "http://scssphp.github.io/scssphp/",
-			"keywords": [ "css", "less", "sass", "scss", "stylesheet" ],
+			"keywords": [
+				"css",
+				"less",
+				"sass",
+				"scss",
+				"stylesheet"
+			],
 			"support": {
 				"issues": "https://github.com/scssphp/scssphp/issues",
 				"source": "https://github.com/scssphp/scssphp/tree/v1.12.0"
@@ -1625,7 +2097,9 @@
 				"cogpowered/finediff": "0.3.*",
 				"phpunit/phpunit": "4.8.*"
 			},
-			"bin": [ "cssmin" ],
+			"bin": [
+				"cssmin"
+			],
 			"type": "library",
 			"autoload": {
 				"psr-4": {
@@ -1633,7 +2107,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Túbal Martín",
@@ -1642,7 +2118,14 @@
 			],
 			"description": "A PHP port of the YUI CSS compressor",
 			"homepage": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port",
-			"keywords": [ "compress", "compressor", "css", "cssmin", "minify", "yui" ],
+			"keywords": [
+				"compress",
+				"compressor",
+				"css",
+				"cssmin",
+				"minify",
+				"yui"
+			],
 			"support": {
 				"issues": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port/issues",
 				"source": "https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port"
@@ -1685,7 +2168,9 @@
 				"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
-			"bin": [ "bin/changelogger" ],
+			"bin": [
+				"bin/changelogger"
+			],
 			"type": "project",
 			"extra": {
 				"autotagger": true,
@@ -1713,8 +2198,12 @@
 				}
 			},
 			"scripts": {
-				"phpunit": [ "./vendor/phpunit/phpunit/phpunit --colors=always" ],
-				"test-php": [ "@composer phpunit" ],
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
 				"post-install-cmd": [
 					"[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
 				],
@@ -1722,9 +2211,16 @@
 					"[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
 				]
 			},
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
-			"keywords": [ "changelog", "cli", "dev", "keepachangelog" ],
+			"keywords": [
+				"changelog",
+				"cli",
+				"dev",
+				"keepachangelog"
+			],
 			"transport-options": {
 				"relative": true
 			}
@@ -1759,7 +2255,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"authors": [
 				{
 					"name": "Automattic Inc."
@@ -1809,7 +2307,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Franck Nijhof",
@@ -1882,7 +2382,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Marco Pivetta",
@@ -1892,7 +2394,10 @@
 			],
 			"description": "A small, lightweight utility to instantiate objects in PHP without invoking their constructors",
 			"homepage": "https://www.doctrine-project.org/projects/instantiator.html",
-			"keywords": [ "constructor", "instantiate" ],
+			"keywords": [
+				"constructor",
+				"instantiate"
+			],
 			"support": {
 				"issues": "https://github.com/doctrine/instantiator/issues",
 				"source": "https://github.com/doctrine/instantiator/tree/1.5.0"
@@ -1941,15 +2446,25 @@
 			},
 			"type": "library",
 			"autoload": {
-				"files": [ "src/DeepCopy/deep_copy.php" ],
+				"files": [
+					"src/DeepCopy/deep_copy.php"
+				],
 				"psr-4": {
 					"DeepCopy\\": "src/DeepCopy/"
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"description": "Create deep copies (clones) of your objects",
-			"keywords": [ "clone", "copy", "duplicate", "object", "object graph" ],
+			"keywords": [
+				"clone",
+				"copy",
+				"duplicate",
+				"object",
+				"object graph"
+			],
 			"support": {
 				"issues": "https://github.com/myclabs/DeepCopy/issues",
 				"source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
@@ -1986,7 +2501,9 @@
 				"ircmaxell/php-yacc": "^0.0.7",
 				"phpunit/phpunit": "^7.0 || ^8.0 || ^9.0"
 			},
-			"bin": [ "bin/php-parse" ],
+			"bin": [
+				"bin/php-parse"
+			],
 			"type": "library",
 			"extra": {
 				"branch-alias": {
@@ -1999,14 +2516,19 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Nikita Popov"
 				}
 			],
 			"description": "A PHP parser written in PHP",
-			"keywords": [ "parser", "php" ],
+			"keywords": [
+				"parser",
+				"php"
+			],
 			"support": {
 				"issues": "https://github.com/nikic/PHP-Parser/issues",
 				"source": "https://github.com/nikic/PHP-Parser/tree/v5.0.2"
@@ -2042,10 +2564,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Arne Blankerts",
@@ -2095,10 +2621,14 @@
 			},
 			"type": "library",
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Arne Blankerts",
@@ -2157,7 +2687,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "LGPL-3.0-or-later" ],
+			"license": [
+				"LGPL-3.0-or-later"
+			],
 			"authors": [
 				{
 					"name": "Juliette Reinders Folmer",
@@ -2233,10 +2765,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "PHPCSUtils/" ]
+				"classmap": [
+					"PHPCSUtils/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "LGPL-3.0-or-later" ],
+			"license": [
+				"LGPL-3.0-or-later"
+			],
 			"authors": [
 				{
 					"name": "Juliette Reinders Folmer",
@@ -2326,10 +2862,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2339,7 +2879,11 @@
 			],
 			"description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
 			"homepage": "https://github.com/sebastianbergmann/php-code-coverage",
-			"keywords": [ "coverage", "testing", "xunit" ],
+			"keywords": [
+				"coverage",
+				"testing",
+				"xunit"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
 				"security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
@@ -2380,10 +2924,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2393,7 +2941,10 @@
 			],
 			"description": "FilterIterator implementation that filters files based on a list of suffixes.",
 			"homepage": "https://github.com/sebastianbergmann/php-file-iterator/",
-			"keywords": [ "filesystem", "iterator" ],
+			"keywords": [
+				"filesystem",
+				"iterator"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-file-iterator/issues",
 				"source": "https://github.com/sebastianbergmann/php-file-iterator/tree/3.0.6"
@@ -2437,10 +2988,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2450,7 +3005,9 @@
 			],
 			"description": "Invoke callables with a timeout",
 			"homepage": "https://github.com/sebastianbergmann/php-invoker/",
-			"keywords": [ "process" ],
+			"keywords": [
+				"process"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-invoker/issues",
 				"source": "https://github.com/sebastianbergmann/php-invoker/tree/3.1.1"
@@ -2490,10 +3047,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2503,7 +3064,9 @@
 			],
 			"description": "Simple template engine.",
 			"homepage": "https://github.com/sebastianbergmann/php-text-template/",
-			"keywords": [ "template" ],
+			"keywords": [
+				"template"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-text-template/issues",
 				"source": "https://github.com/sebastianbergmann/php-text-template/tree/2.0.4"
@@ -2543,10 +3106,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2556,7 +3123,9 @@
 			],
 			"description": "Utility class for timing",
 			"homepage": "https://github.com/sebastianbergmann/php-timer/",
-			"keywords": [ "timer" ],
+			"keywords": [
+				"timer"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/php-timer/issues",
 				"source": "https://github.com/sebastianbergmann/php-timer/tree/5.0.3"
@@ -2616,7 +3185,9 @@
 				"ext-soap": "To be able to generate mocks based on WSDL files",
 				"ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
 			},
-			"bin": [ "phpunit" ],
+			"bin": [
+				"phpunit"
+			],
 			"type": "library",
 			"extra": {
 				"branch-alias": {
@@ -2624,11 +3195,17 @@
 				}
 			},
 			"autoload": {
-				"files": [ "src/Framework/Assert/Functions.php" ],
-				"classmap": [ "src/" ]
+				"files": [
+					"src/Framework/Assert/Functions.php"
+				],
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2638,7 +3215,11 @@
 			],
 			"description": "The PHP Unit Testing framework.",
 			"homepage": "https://phpunit.de/",
-			"keywords": [ "phpunit", "testing", "xunit" ],
+			"keywords": [
+				"phpunit",
+				"testing",
+				"xunit"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/phpunit/issues",
 				"security": "https://github.com/sebastianbergmann/phpunit/security/policy",
@@ -2684,7 +3265,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "PHP-FIG",
@@ -2693,7 +3276,13 @@
 			],
 			"description": "Common Container Interface (PHP FIG PSR-11)",
 			"homepage": "https://github.com/php-fig/container",
-			"keywords": [ "PSR-11", "container", "container-interface", "container-interop", "psr" ],
+			"keywords": [
+				"PSR-11",
+				"container",
+				"container-interface",
+				"container-interop",
+				"psr"
+			],
 			"support": {
 				"issues": "https://github.com/php-fig/container/issues",
 				"source": "https://github.com/php-fig/container/tree/1.1.2"
@@ -2720,10 +3309,17 @@
 			},
 			"type": "metapackage",
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT", "GPL-2.0-or-later" ],
+			"license": [
+				"MIT",
+				"GPL-2.0-or-later"
+			],
 			"description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
 			"homepage": "https://wordpress.org/",
-			"keywords": [ "blog", "cms", "wordpress" ],
+			"keywords": [
+				"blog",
+				"cms",
+				"wordpress"
+			],
 			"support": {
 				"issues": "https://github.com/roots/wordpress/issues",
 				"source": "https://github.com/roots/wordpress/tree/6.5.4"
@@ -2774,7 +3370,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"authors": [
 				{
 					"name": "John P. Bloch",
@@ -2786,7 +3384,9 @@
 				}
 			],
 			"description": "A custom installer to handle deploying WordPress with composer",
-			"keywords": [ "wordpress" ],
+			"keywords": [
+				"wordpress"
+			],
 			"support": {
 				"issues": "https://github.com/roots/wordpress-core-installer/issues",
 				"source": "https://github.com/roots/wordpress-core-installer/tree/master"
@@ -2840,7 +3440,9 @@
 			},
 			"type": "wordpress-core",
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "GPL-2.0-or-later" ],
+			"license": [
+				"GPL-2.0-or-later"
+			],
 			"authors": [
 				{
 					"name": "WordPress Community",
@@ -2849,7 +3451,11 @@
 			],
 			"description": "WordPress is open source software you can use to create a beautiful website, blog, or app.",
 			"homepage": "https://wordpress.org/",
-			"keywords": [ "blog", "cms", "wordpress" ],
+			"keywords": [
+				"blog",
+				"cms",
+				"wordpress"
+			],
 			"support": {
 				"docs": "https://developer.wordpress.org/",
 				"forum": "https://wordpress.org/support/",
@@ -2894,10 +3500,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2946,10 +3556,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -2998,10 +3612,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3051,10 +3669,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3075,7 +3697,11 @@
 			],
 			"description": "Provides the functionality to compare PHP values for equality",
 			"homepage": "https://github.com/sebastianbergmann/comparator",
-			"keywords": [ "comparator", "compare", "equality" ],
+			"keywords": [
+				"comparator",
+				"compare",
+				"equality"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/comparator/issues",
 				"source": "https://github.com/sebastianbergmann/comparator/tree/4.0.8"
@@ -3116,10 +3742,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3169,10 +3799,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3185,7 +3819,12 @@
 			],
 			"description": "Diff implementation",
 			"homepage": "https://github.com/sebastianbergmann/diff",
-			"keywords": [ "diff", "udiff", "unidiff", "unified diff" ],
+			"keywords": [
+				"diff",
+				"udiff",
+				"unidiff",
+				"unified diff"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/diff/issues",
 				"source": "https://github.com/sebastianbergmann/diff/tree/4.0.6"
@@ -3228,10 +3867,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3240,7 +3883,11 @@
 			],
 			"description": "Provides functionality to handle HHVM/PHP environments",
 			"homepage": "http://www.github.com/sebastianbergmann/environment",
-			"keywords": [ "Xdebug", "environment", "hhvm" ],
+			"keywords": [
+				"Xdebug",
+				"environment",
+				"hhvm"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/environment/issues",
 				"source": "https://github.com/sebastianbergmann/environment/tree/5.1.5"
@@ -3282,10 +3929,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3310,7 +3961,10 @@
 			],
 			"description": "Provides the functionality to export PHP variables for visualization",
 			"homepage": "https://www.github.com/sebastianbergmann/exporter",
-			"keywords": [ "export", "exporter" ],
+			"keywords": [
+				"export",
+				"exporter"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/exporter/issues",
 				"source": "https://github.com/sebastianbergmann/exporter/tree/4.0.6"
@@ -3356,10 +4010,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3368,7 +4026,9 @@
 			],
 			"description": "Snapshotting of global state",
 			"homepage": "http://www.github.com/sebastianbergmann/global-state",
-			"keywords": [ "global state" ],
+			"keywords": [
+				"global state"
+			],
 			"support": {
 				"issues": "https://github.com/sebastianbergmann/global-state/issues",
 				"source": "https://github.com/sebastianbergmann/global-state/tree/5.0.7"
@@ -3409,10 +4069,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3463,10 +4127,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3514,10 +4182,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3565,10 +4237,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3624,10 +4300,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3674,10 +4354,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3723,10 +4407,14 @@
 				}
 			},
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Sebastian Bergmann",
@@ -3771,7 +4459,10 @@
 			"require-dev": {
 				"phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.3.4"
 			},
-			"bin": [ "bin/phpcbf", "bin/phpcs" ],
+			"bin": [
+				"bin/phpcbf",
+				"bin/phpcs"
+			],
 			"type": "library",
 			"extra": {
 				"branch-alias": {
@@ -3779,7 +4470,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Greg Sherwood",
@@ -3796,7 +4489,11 @@
 			],
 			"description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
 			"homepage": "https://github.com/PHPCSStandards/PHP_CodeSniffer",
-			"keywords": [ "phpcs", "standards", "static analysis" ],
+			"keywords": [
+				"phpcs",
+				"standards",
+				"static analysis"
+			],
 			"support": {
 				"issues": "https://github.com/PHPCSStandards/PHP_CodeSniffer/issues",
 				"security": "https://github.com/PHPCSStandards/PHP_CodeSniffer/security/policy",
@@ -3873,10 +4570,14 @@
 				"psr-4": {
 					"Symfony\\Component\\Console\\": ""
 				},
-				"exclude-from-classmap": [ "/Tests/" ]
+				"exclude-from-classmap": [
+					"/Tests/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Fabien Potencier",
@@ -3889,7 +4590,12 @@
 			],
 			"description": "Eases the creation of beautiful and testable command line interfaces",
 			"homepage": "https://symfony.com",
-			"keywords": [ "cli", "command-line", "console", "terminal" ],
+			"keywords": [
+				"cli",
+				"command-line",
+				"console",
+				"terminal"
+			],
 			"support": {
 				"source": "https://github.com/symfony/console/tree/v5.4.40"
 			},
@@ -3937,10 +4643,14 @@
 				}
 			},
 			"autoload": {
-				"files": [ "function.php" ]
+				"files": [
+					"function.php"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4003,13 +4713,17 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Ctype\\": ""
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Gert de Pagter",
@@ -4022,7 +4736,12 @@
 			],
 			"description": "Symfony polyfill for ctype functions",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "ctype", "polyfill", "portable" ],
+			"keywords": [
+				"compatibility",
+				"ctype",
+				"polyfill",
+				"portable"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-ctype/tree/v1.29.0"
 			},
@@ -4070,13 +4789,17 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Intl\\Grapheme\\": ""
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4089,7 +4812,14 @@
 			],
 			"description": "Symfony polyfill for intl's grapheme_* functions",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "grapheme", "intl", "polyfill", "portable", "shim" ],
+			"keywords": [
+				"compatibility",
+				"grapheme",
+				"intl",
+				"polyfill",
+				"portable",
+				"shim"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.29.0"
 			},
@@ -4137,14 +4867,20 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Intl\\Normalizer\\": ""
 				},
-				"classmap": [ "Resources/stubs" ]
+				"classmap": [
+					"Resources/stubs"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4157,7 +4893,14 @@
 			],
 			"description": "Symfony polyfill for intl's Normalizer class and related functions",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "intl", "normalizer", "polyfill", "portable", "shim" ],
+			"keywords": [
+				"compatibility",
+				"intl",
+				"normalizer",
+				"polyfill",
+				"portable",
+				"shim"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.29.0"
 			},
@@ -4208,13 +4951,17 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Mbstring\\": ""
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4227,7 +4974,13 @@
 			],
 			"description": "Symfony polyfill for the Mbstring extension",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "mbstring", "polyfill", "portable", "shim" ],
+			"keywords": [
+				"compatibility",
+				"mbstring",
+				"polyfill",
+				"portable",
+				"shim"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-mbstring/tree/v1.29.0"
 			},
@@ -4272,14 +5025,20 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Php73\\": ""
 				},
-				"classmap": [ "Resources/stubs" ]
+				"classmap": [
+					"Resources/stubs"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4292,7 +5051,12 @@
 			],
 			"description": "Symfony polyfill backporting some PHP 7.3+ features to lower PHP versions",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "polyfill", "portable", "shim" ],
+			"keywords": [
+				"compatibility",
+				"polyfill",
+				"portable",
+				"shim"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-php73/tree/v1.29.0"
 			},
@@ -4337,14 +5101,20 @@
 				}
 			},
 			"autoload": {
-				"files": [ "bootstrap.php" ],
+				"files": [
+					"bootstrap.php"
+				],
 				"psr-4": {
 					"Symfony\\Polyfill\\Php80\\": ""
 				},
-				"classmap": [ "Resources/stubs" ]
+				"classmap": [
+					"Resources/stubs"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Ion Bazan",
@@ -4361,7 +5131,12 @@
 			],
 			"description": "Symfony polyfill backporting some PHP 8.0+ features to lower PHP versions",
 			"homepage": "https://symfony.com",
-			"keywords": [ "compatibility", "polyfill", "portable", "shim" ],
+			"keywords": [
+				"compatibility",
+				"polyfill",
+				"portable",
+				"shim"
+			],
 			"support": {
 				"source": "https://github.com/symfony/polyfill-php80/tree/v1.29.0"
 			},
@@ -4404,10 +5179,14 @@
 				"psr-4": {
 					"Symfony\\Component\\Process\\": ""
 				},
-				"exclude-from-classmap": [ "/Tests/" ]
+				"exclude-from-classmap": [
+					"/Tests/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Fabien Potencier",
@@ -4480,7 +5259,9 @@
 				}
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4553,14 +5334,20 @@
 			},
 			"type": "library",
 			"autoload": {
-				"files": [ "Resources/functions.php" ],
+				"files": [
+					"Resources/functions.php"
+				],
 				"psr-4": {
 					"Symfony\\Component\\String\\": ""
 				},
-				"exclude-from-classmap": [ "/Tests/" ]
+				"exclude-from-classmap": [
+					"/Tests/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Nicolas Grekas",
@@ -4573,7 +5360,14 @@
 			],
 			"description": "Provides an object-oriented API to strings and deals with bytes, UTF-8 code points and grapheme clusters in a unified way",
 			"homepage": "https://symfony.com",
-			"keywords": [ "grapheme", "i18n", "string", "unicode", "utf-8", "utf8" ],
+			"keywords": [
+				"grapheme",
+				"i18n",
+				"string",
+				"unicode",
+				"utf-8",
+				"utf8"
+			],
 			"support": {
 				"source": "https://github.com/symfony/string/tree/v5.4.40"
 			},
@@ -4615,10 +5409,14 @@
 			},
 			"type": "library",
 			"autoload": {
-				"classmap": [ "src/" ]
+				"classmap": [
+					"src/"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Arne Blankerts",
@@ -4676,7 +5474,9 @@
 			},
 			"type": "phpcodesniffer-standard",
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "MIT" ],
+			"license": [
+				"MIT"
+			],
 			"authors": [
 				{
 					"name": "Contributors",
@@ -4684,7 +5484,12 @@
 				}
 			],
 			"description": "PHP_CodeSniffer rules (sniffs) to enforce WordPress coding conventions",
-			"keywords": [ "phpcs", "standards", "static analysis", "wordpress" ],
+			"keywords": [
+				"phpcs",
+				"standards",
+				"static analysis",
+				"wordpress"
+			],
 			"support": {
 				"issues": "https://github.com/WordPress/WordPress-Coding-Standards/issues",
 				"source": "https://github.com/WordPress/WordPress-Coding-Standards",
@@ -4726,10 +5531,14 @@
 				}
 			},
 			"autoload": {
-				"files": [ "phpunitpolyfills-autoload.php" ]
+				"files": [
+					"phpunitpolyfills-autoload.php"
+				]
 			},
 			"notification-url": "https://packagist.org/downloads/",
-			"license": [ "BSD-3-Clause" ],
+			"license": [
+				"BSD-3-Clause"
+			],
 			"authors": [
 				{
 					"name": "Team Yoast",
@@ -4743,7 +5552,11 @@
 			],
 			"description": "Set of polyfills for changed PHPUnit functionality to allow for creating PHPUnit cross-version compatible tests",
 			"homepage": "https://github.com/Yoast/PHPUnit-Polyfills",
-			"keywords": [ "phpunit", "polyfill", "testing" ],
+			"keywords": [
+				"phpunit",
+				"polyfill",
+				"testing"
+			],
 			"support": {
 				"issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
 				"source": "https://github.com/Yoast/PHPUnit-Polyfills"
