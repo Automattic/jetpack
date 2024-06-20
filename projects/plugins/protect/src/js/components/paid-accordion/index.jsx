@@ -66,7 +66,7 @@ export const PaidAccordionItem = ( {
 								<Text className={ styles[ 'accordion-header-status' ] }>
 									{ sprintf(
 										/* translators: %1$s: First detected date */
-										__( 'Threat found on %1$s', 'jetpack-protect' ),
+										__( 'Threat found %1$s', 'jetpack-protect' ),
 										dateI18n( 'M j, Y', firstDetected )
 									) }
 									<span className={ styles[ 'accordion-header-status-separator' ] }></span>
@@ -74,7 +74,7 @@ export const PaidAccordionItem = ( {
 										<span className={ styles[ 'is-fixed' ] }>
 											{ sprintf(
 												/* translators: %s: Fixed on date */
-												__( 'Threat fixed on %s', 'jetpack-protect' ),
+												__( 'Threat fixed %s', 'jetpack-protect' ),
 												dateI18n( 'M j, Y', fixedOn )
 											) }
 										</span>

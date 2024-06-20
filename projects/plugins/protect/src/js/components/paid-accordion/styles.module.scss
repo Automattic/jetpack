@@ -62,8 +62,6 @@
 }
 
 .accordion-header-status {
-	display: flex;
-	align-items: center;
 	font-size: var( --font-body-small );
 	font-weight: normal;
 	margin-left: calc( var( --spacing-base ) * 4 ); // 32px
@@ -73,7 +71,7 @@
 .accordion-header-status-separator {
 	display: inline-block;
 	height: 4px;
-	margin: 0 12px;
+	margin: 2px 12px;
 	width: 4px;
 	background-color: var( --jp-gray-50 );
 }
