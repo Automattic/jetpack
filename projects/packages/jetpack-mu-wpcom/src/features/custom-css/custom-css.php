@@ -30,6 +30,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			add_filter( '_wp_post_revision_fields', array( __CLASS__, 'wp_post_revision_fields' ), 10, 2 );
 			add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
 
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'wp_admin_enqueue_scripts' ) );
 			add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
 
 			// Handle Sass/LESS.
@@ -54,34 +55,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 * Things that we do on init.
 		 */
 		public static function init() {
-			Assets::register_script(
-				'jetpack-customizer-css',
-				'../../build/core-customizer-css/core-customizer-css.js',
-				__FILE__,
-				array(
-					'dependencies' => array(
-						'jquery',
-						'customize-controls',
-						'underscore',
-					),
-					'in-footer'    => true,
-					'css_path'     => '../../build/customizer-control/customizer-control.css',
-				)
-			);
-
-			Assets::register_script(
-				'jetpack-customizer-css-preview',
-				'../../build/core-customizer-css-preview/core-customizer-css-preview.js',
-				__FILE__,
-				array(
-					'dependencies' => array(
-						'jquery',
-						'customize-selective-refresh',
-					),
-					'in-footer'    => true,
-				)
-			);
-
 			remove_action( 'wp_head', 'wp_custom_css_cb', 11 ); // 4.7.0 had it at 11, 4.7.1 moved it to 101.
 			remove_action( 'wp_head', 'wp_custom_css_cb', 101 );
 			add_action( 'wp_head', array( __CLASS__, 'wp_custom_css_cb' ), 101 );
@@ -477,6 +450,39 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 			}
 
 			return $return;
+		}
+
+		/**
+		 * Handle the registering of admin scripts
+		 */
+		public static function wp_admin_enqueue_scripts() {
+			Assets::register_script(
+				'jetpack-customizer-css',
+				'../../build/core-customizer-css/core-customizer-css.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'customize-controls',
+						'underscore',
+					),
+					'in-footer'    => true,
+					'css_path'     => '../../build/customizer-control/customizer-control.css',
+				)
+			);
+
+			Assets::register_script(
+				'jetpack-customizer-css-preview',
+				'../../build/core-customizer-css-preview/core-customizer-css-preview.js',
+				__FILE__,
+				array(
+					'dependencies' => array(
+						'jquery',
+						'customize-selective-refresh',
+					),
+					'in-footer'    => true,
+				)
+			);
 		}
 
 		/**

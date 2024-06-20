@@ -59,7 +59,6 @@
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
 		"test-php": [
-			"pnpm jetpack build packages/jetpack-mu-wpcom",
 			"@composer phpunit"
 		],
 		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
