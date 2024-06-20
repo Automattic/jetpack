@@ -44,7 +44,7 @@ if ( wpsc_is_boost_current() ) {
 		$button_class = '';
 		$button_label = esc_html__( 'Jetpack Boost Dashboard', 'wp-super-cache' );
 	}
-	echo "<a style='margin-left: 12px;' data-source='notice' class='button button-secondary " . esc_attr( $button_class ) . " wpsc-boost-migration-button' href='" . esc_url( $button_url ) . "'>";
+	echo "<a style='margin-left: 12px;' data-source='try_button' class='button button-secondary " . esc_attr( $button_class ) . " wpsc-boost-migration-button' href='" . esc_url( $button_url ) . "'>";
 	echo '<div class="spinner" style="display:none;"></div>';
 	echo '<label>';
 	echo esc_html( $button_label );
