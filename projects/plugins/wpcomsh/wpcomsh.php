@@ -27,6 +27,8 @@ require_once __DIR__ . '/i18n.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
+require_once __DIR__ . '/woa.php';
+
 require_once __DIR__ . '/footer-credit/footer-credit.php';
 require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.php';
 require_once __DIR__ . '/storefront/storefront.php';
