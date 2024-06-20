@@ -713,10 +713,17 @@ HTML;
 	public function should_show_subscription_modal() {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		if ( $is_current_user_subscribed ) {
+			return false;
+		}
 
-		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
+		// Are subscriptions disabled? They're always enabled on simple sites.
+		if ( ! ( new Host() )->is_wpcom_simple() || ! \Jetpack::is_module_active( 'subscriptions' ) ) {
+			return false;
+		}
 
-		return $modal_enabled && ! $is_current_user_subscribed;
+		// Is the modal enabled (by default it is)
+		return get_option( 'jetpack_verbum_subscription_modal', true );
 	}
 
 	/**
