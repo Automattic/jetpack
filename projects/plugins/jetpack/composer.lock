@@ -956,7 +956,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
+				"reference": "46c0d6c214f2940e2b5c1c5ccafbf5922a16592c"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -994,7 +994,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/import",
 						"packages/jitm",
 						"packages/post-list",
@@ -2649,7 +2648,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+				"reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2679,7 +2678,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/plans"
 					]
 				}
