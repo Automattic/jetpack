@@ -32,6 +32,7 @@ if ( ! $is_nginx && $cache_enabled && ! $wp_cache_mod_rewrite ) {
 		echo '<p><strong>' . esc_html__( 'Notice: Simple caching enabled but Supercache mod_rewrite rules from expert mode detected. Cached files will be served using those rules. If your site is working ok, please ignore this message. Otherwise, you can edit the .htaccess file in the root of your install and remove the SuperCache rules.', 'wp-super-cache' ) . '</strong></p>';
 	}
 }
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_html__( 'Update Status', 'wp-super-cache' ) . '" />';
 if ( wpsc_is_boost_current() ) {
 	$config       = wpsc_get_boost_migration_config();
@@ -43,7 +44,7 @@ if ( wpsc_is_boost_current() ) {
 		$button_class = '';
 		$button_label = esc_html__( 'Jetpack Boost Dashboard', 'wp-super-cache' );
 	}
-	echo "<a style='margin-left: 12px;' data-source='notice' class='button button-secondary {$button_class} wpsc-boost-migration-button' href='{$button_url}'>";
+	echo "<a style='margin-left: 12px;' data-source='notice' class='button button-secondary " . esc_attr( $button_class ) . " wpsc-boost-migration-button' href='" . esc_url( $button_url ) . "'>";
 	echo '<div class="spinner" style="display:none;"></div>';
 	echo '<label>';
 	echo esc_html( $button_label );
