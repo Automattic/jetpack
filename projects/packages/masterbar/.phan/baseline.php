@@ -10,14 +10,12 @@
 return [
     // # Issue statistics:
     // PhanNoopNew : 5 occurrences
-    // PhanPluginUnreachableCode : 1 occurrence
-    // PhanTypeInstantiateAbstract : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
-    // PhanTypeSuspiciousEcho : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
+    // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        'src/admin-menu/class-atomic-admin-menu.php' => ['PhanUndeclaredFunction'],
         'src/admin-menu/class-wpcom-admin-menu.php' => ['PhanTypeMismatchArgument'],
         'src/class-main.php' => ['PhanNoopNew'],
         'src/profile-edit/bootstrap.php' => ['PhanNoopNew'],

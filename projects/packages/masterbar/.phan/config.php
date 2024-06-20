@@ -30,6 +30,7 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/modules/notes.php',
 			__DIR__ . '/../../../plugins/jetpack/modules/scan/class-admin-bar-notice.php',
 			__DIR__ . '/../../../plugins/jetpack/modules/stats.php',
+			__DIR__ . '/../../../plugins/wpcomsh/feature-plugins/masterbar.php',           // function wpcomsh_is_site_sticker_active
 		),
 	)
 );

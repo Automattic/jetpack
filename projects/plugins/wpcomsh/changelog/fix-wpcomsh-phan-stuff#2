@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom Colors: Remove a use of `extract()`.

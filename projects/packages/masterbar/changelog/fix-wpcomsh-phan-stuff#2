@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove Phan suppression for `site_is_private()`. The wpcomsh function is actually `\Private_Site\site_is_private()`, so the Phan issue is real.
+
+
