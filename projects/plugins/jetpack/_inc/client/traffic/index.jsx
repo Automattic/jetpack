@@ -9,7 +9,12 @@ import {
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { getLastPostUrl, currentThemeIsBlockTheme, getSiteId } from 'state/initial-state';
+import {
+	getLastPostUrl,
+	currentThemeIsBlockTheme,
+	getSiteId,
+	isWoASite as getIsWoASite,
+} from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -48,7 +53,7 @@ export class Traffic extends React.Component {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
-			foundAnalytics = this.props.isModuleFound( 'google-analytics' ),
+			foundAnalytics = this.props.isWoASite && this.props.isModuleFound( 'google-analytics' ),
 			foundBlaze = this.props.isModuleFound( 'blaze' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -117,5 +122,6 @@ export default connect( state => {
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
 		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
+		isWoASite: getIsWoASite( state ),
 	};
 } )( Traffic );
