@@ -6,6 +6,7 @@ body.jetpack-subscribe-overlay-open {
 	--jetpack-subscribe-overlay--background-color: var(--wp--preset--color--background, var(--wp--preset--color--base, var(--wp--preset--color--contrast, #F9F9F9)));
 
 	opacity: 0;
+	visibility: hidden;
 	position: fixed;
 	z-index: 50000; /* Same as WP.com Action bar */
 	left: 0;
@@ -14,7 +15,25 @@ body.jetpack-subscribe-overlay-open {
 	height: 100%;
 	overflow: hidden;
 	background-color: var(--jetpack-subscribe-overlay--background-color);
-	transition: opacity 0.4s;
+	transition: opacity 0.4s, visibility 0.4s;
+
+	/* Those slyles should be come from the Site Editor */
+	.is-content-justification-center {
+		justify-content: center;
+	}
+
+	.is-content-justification-left {
+		justify-content: left;
+	}
+
+	.is-content-justification-right {
+		justify-content: right;
+	}
+}
+
+.jetpack-subscribe-overlay__body {
+	margin-top: -100px !important;
+	max-width: 400px;
 }
 
 .jetpack-subscribe-overlay__content {
@@ -52,6 +71,7 @@ body.admin-bar .jetpack-subscribe-overlay__close {
 
 .jetpack-subscribe-overlay.open {
 	opacity: 1;
+	visibility: visible;
 
 	.jetpack-subscribe-overlay__content {
 		top: 0;
@@ -68,6 +88,8 @@ body.admin-bar .jetpack-subscribe-overlay__close {
 
 @media screen and (max-width: 640px) {
 	.jetpack-subscribe-overlay__content {
+		margin-left: auto;
+		margin-right: auto;
 		width: 94%;
 	}
 }

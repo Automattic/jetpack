@@ -121,8 +121,8 @@ class Jetpack_Subscribe_Overlay {
 		return <<<HTML
 	<!-- wp:group {"metadata":{"name":"$group_block_name"},"style":{"dimensions":{"minHeight":"100vh"}},"layout":{"type":"flex","orientation":"vertical","justifyContent":"center","verticalAlignment":"center"}} -->
 	<div class="wp-block-group" style="min-height:100vh">
-		<!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
-		<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
+		<!-- wp:group {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"},"className":"jetpack-subscribe-overlay__body"} -->
+		<div class="wp-block-group jetpack-subscribe-overlay__body" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 
 			<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
 
