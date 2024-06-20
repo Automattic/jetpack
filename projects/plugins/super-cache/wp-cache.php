@@ -436,11 +436,13 @@ function wpsc_jetpack_boost_install_banner() {
 
 				<div class="wpsc-boost-banner-image-container">
 					<img
-						src="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?>"
+						width="350"
+						height="452"
+						src="<?php echo esc_url( $plugin_url . 'assets/boost-install-card-main.png' ); ?>"
 						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
 						alt="<?php esc_attr_e( 'An image showing a space shuttle. In the foreground are two graphs in yellow and green', 'wp-super-cache' ); ?>"
-						srcset="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?> 352w <?php echo esc_url( $plugin_url . '/assets/boost-install-card-main-2x.png' ); ?> 730w"
-						sizes="(max-width: 782px) 352px, 730px"
+						srcset="<?php echo esc_url( $plugin_url . 'assets/boost-install-card-main.png' ); ?> 400w, <?php echo esc_url( $plugin_url . 'assets/boost-install-card-main-2x.png' ); ?> 800w"
+						sizes="(max-width: 782px) 350px, 700px"
 					>
 				</div>
 			</div>
