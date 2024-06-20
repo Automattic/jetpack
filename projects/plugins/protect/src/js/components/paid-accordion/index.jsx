@@ -63,39 +63,33 @@ export const PaidAccordionItem = ( {
 					{ viewingScanHistory && (
 						<>
 							{ firstDetected && (
-								<div className={ styles[ 'threat-section' ] }>
-									<Text mb={ 2 }>
-										{ sprintf(
-											/* translators: %1$s: First detected date */
-											__( 'Threat found on %1$s', 'jetpack-protect' ),
-											dateI18n( 'F jS, Y', firstDetected )
-										) }
-									</Text>
-								</div>
-							) }
-							{ fixedOn ? (
-								<div className={ styles[ 'threat-section' ] }>
-									<Text mb={ 2 }>
-										<span className={ styles[ 'fixed-badge' ] }>
-											{ __( 'Fixed', 'jetpack-protect' ) }
+								<Text className={ styles[ 'accordion-header-status' ] }>
+									{ sprintf(
+										/* translators: %1$s: First detected date */
+										__( 'Threat found on %1$s', 'jetpack-protect' ),
+										dateI18n( 'M j, Y', firstDetected )
+									) }
+									<div className={ styles[ 'accordion-header-status-separator' ] }></div>
+									{ fixedOn ? (
+										<span className={ styles[ 'is-fixed' ] }>
+											{ sprintf(
+												/* translators: %s: Fixed on date */
+												__( 'Threat fixed on %s', 'jetpack-protect' ),
+												dateI18n( 'M j, Y', fixedOn )
+											) }
 										</span>
-										{ sprintf(
-											/* translators: %1$s: Fixed on date */
-											__( 'Threat fixed on %1$s', 'jetpack-protect' ),
-											dateI18n( 'F jS, Y', fixedOn )
-										) }
-									</Text>
-								</div>
-							) : (
-								<div className={ styles[ 'threat-section' ] }>
-									<Text mb={ 2 }>
-										<span className={ styles[ 'ignored-badge' ] }>
-											{ __( 'Ignored', 'jetpack-protect' ) }
-										</span>
-										{ __( 'Threat ignored', 'jetpack-protect' ) }
-									</Text>
-								</div>
+									) : (
+										__( 'Threat ignored.', 'jetpack-protect' )
+									) }
+								</Text>
 							) }
+							<div
+								className={ `${ styles[ 'status-badge' ] } ${
+									styles[ fixedOn ? 'fixed' : 'ignored' ]
+								}` }
+							>
+								{ fixedOn ? __( 'Fixed', 'jetpack-protect' ) : __( 'Ignored', 'jetpack-protect' ) }
+							</div>
 						</>
 					) }
 				</div>
