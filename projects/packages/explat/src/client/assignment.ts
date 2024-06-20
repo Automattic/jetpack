@@ -1,9 +1,5 @@
-/**
- * External dependencies
- */
-import { stringify } from 'qs';
-
-const EXPLAT_API_VERSION = '0.1.0';
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 export const fetchExperimentAssignment = async ( {
 	experimentName,
@@ -12,13 +8,12 @@ export const fetchExperimentAssignment = async ( {
 	experimentName: string;
 	anonId: string | null;
 } ): Promise< unknown > => {
-	const params = stringify( {
+	const params = {
 		experiment_name: experimentName,
 		anon_id: anonId ?? undefined,
-	} );
+		as_connected_user: false,
+	};
+	const assignmentsRequestUrl = addQueryArgs( 'jetpack/v4/experiments/assignments', params );
 
-	/* @todo Jetpack: dynamically replace "wpcom" with relevant platform and point to Jetpack API*/
-	return await fetch(
-		`https://public-api.wordpress.com/wpcom/v2/experiments/${ EXPLAT_API_VERSION }/assignments/jetpack?${ params }`
-	);
+	return await apiFetch( { path: assignmentsRequestUrl } );
 };
