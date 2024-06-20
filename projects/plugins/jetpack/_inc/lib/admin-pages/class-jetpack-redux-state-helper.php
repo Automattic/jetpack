@@ -247,7 +247,7 @@ class Jetpack_Redux_State_Helper {
 			'socialInitialState'            => self::get_publicize_initial_state(),
 			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
-			'newsletterDateExample'         => gmdate( preg_replace( '/[\/,.\s-]*(Y|y)[\/,.\s-]*/', '', get_option( 'date_format' ) ), time() ),
+			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme() && version_compare( $wp_version, '6.5-beta2', '>=' ),
 		);
 	}
