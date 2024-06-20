@@ -8,7 +8,6 @@
  */
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
-use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 /**
@@ -136,7 +135,6 @@ class Jetpack_Subscription_Modal_On_Comment {
 		$discover_more_from = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
 		$subscribe_text     = __( 'Subscribe now to keep reading and get access to the full archive.', 'jetpack' );
 		$continue_reading   = __( 'Continue reading', 'jetpack' );
-		$source             = ( new Host() )->is_woa_site() ? 'atomic-subscription-modal-lo' : 'jetpack-subscription-modal-lo';
 
 		return <<<HTML
 	<!-- wp:group {"style":{"spacing":{"top":"32px","bottom":"32px","left":"32px","right":"32px"},"margin":{"top":"0","bottom":"0"}},"border":{"color":"#dddddd","width":"1px"}},"layout":{"type":"constrained","contentSize":"450px"}} -->
@@ -150,7 +148,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":$source"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"atomic-subscription-modal-lo"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscription-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscription-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>
