@@ -25,7 +25,6 @@ function migrate_from_super_cache() {
 		return;
 	}
 
-
 	// If Boost has already activated the Page Cache based on WPSC migration once, we don't want to do it again.
 	// For example - if the user manually de-activates Page Cache in Boost.
 	$migration_status = get_transient( 'jb_cache_moved_to_boost' );
