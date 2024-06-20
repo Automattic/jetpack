@@ -69,7 +69,7 @@ export const PaidAccordionItem = ( {
 										__( 'Threat found on %1$s', 'jetpack-protect' ),
 										dateI18n( 'M j, Y', firstDetected )
 									) }
-									<div className={ styles[ 'accordion-header-status-separator' ] }></div>
+									<span className={ styles[ 'accordion-header-status-separator' ] }></span>
 									{ fixedOn ? (
 										<span className={ styles[ 'is-fixed' ] }>
 											{ sprintf(
