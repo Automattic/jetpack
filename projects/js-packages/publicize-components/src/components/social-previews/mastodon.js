@@ -16,7 +16,7 @@ const MastodonPreview = props => {
 			siteName: decodeEntities( getUnstableBase().name ),
 		};
 	} );
-	const { shouldUploadAttachedMedia: isSocialPost } = usePostMeta();
+	const { attachedMedia } = usePostMeta();
 
 	const user = useSelect( select => {
 		const {
@@ -40,7 +40,7 @@ const MastodonPreview = props => {
 			description={ content }
 			customText={ message }
 			customImage={ customImage }
-			isSocialPost={ isSocialPost }
+			isSocialPost={ attachedMedia.length > 0 }
 		/>
 	);
 };

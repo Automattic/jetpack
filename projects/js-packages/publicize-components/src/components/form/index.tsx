@@ -68,7 +68,7 @@ export default function PublicizeForm() {
 		[]
 	);
 
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 
@@ -77,7 +77,6 @@ export default function PublicizeForm() {
 		useMediaDetails( mediaId )[ 0 ],
 		{
 			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
 		}
 	);
 	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;

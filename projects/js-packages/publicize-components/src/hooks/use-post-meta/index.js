@@ -26,7 +26,6 @@ export function usePostMeta() {
 			0,
 			getShareMessageMaxLength()
 		);
-		const shouldUploadAttachedMedia = jetpackSocialOptions.should_upload_attached_media ?? false;
 
 		return {
 			isPublicizeEnabled,
@@ -35,7 +34,6 @@ export function usePostMeta() {
 			imageGeneratorSettings,
 			isPostAlreadyShared,
 			shareMessage,
-			shouldUploadAttachedMedia,
 		};
 	}, [] );
 

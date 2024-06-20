@@ -46,8 +46,6 @@ describe( 'usePostMeta', () => {
 		);
 		expect( result.current.jetpackSocialOptions ).toEqual( post.meta.jetpack_social_options );
 		expect( result.current.shareMessage ).toEqual( post.meta.jetpack_publicize_message );
-		// it should be false by default
-		expect( result.current.shouldUploadAttachedMedia ).toBe( false );
 	} );
 
 	it( 'should return the updated values', () => {

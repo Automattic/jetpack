@@ -21,7 +21,7 @@ export const useConnectionState = () => {
 			numberOfSharesRemaining: select( socialStore ).numberOfSharesRemaining(),
 		};
 	}, [] );
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 
@@ -30,7 +30,6 @@ export const useConnectionState = () => {
 		useMediaDetails( mediaId )[ 0 ],
 		{
 			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
 		}
 	);
 

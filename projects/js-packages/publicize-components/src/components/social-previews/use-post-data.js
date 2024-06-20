@@ -10,7 +10,7 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
  * @returns {object} The post data.
  */
 export function usePostData() {
-	const { attachedMedia, imageGeneratorSettings, shouldUploadAttachedMedia } = usePostMeta();
+	const { attachedMedia, imageGeneratorSettings } = usePostMeta();
 
 	return useSelect(
 		select => {
@@ -51,38 +51,35 @@ export function usePostData() {
 
 			const media = [];
 
-			// Attach media only if "Share as a social post" option is enabled.
-			if ( shouldUploadAttachedMedia ) {
-				if ( sigImageUrl ) {
-					media.push( {
-						type: 'image/jpeg',
-						url: sigImageUrl,
-						alt: '',
-					} );
-				} else {
-					const getMediaDetails = id => {
-						const mediaItem = getMedia( id );
-						if ( ! mediaItem ) {
-							return null;
-						}
-						return {
-							type: mediaItem.mime_type,
-							url: getMediaSourceUrl( mediaItem ),
-							alt: mediaItem.alt_text,
-						};
-					};
-
-					for ( const { id } of attachedMedia ) {
-						const mediaDetails = getMediaDetails( id );
-						if ( mediaDetails ) {
-							media.push( mediaDetails );
-						}
+			if ( sigImageUrl ) {
+				media.push( {
+					type: 'image/jpeg',
+					url: sigImageUrl,
+					alt: '',
+				} );
+			} else {
+				const getMediaDetails = id => {
+					const mediaItem = getMedia( id );
+					if ( ! mediaItem ) {
+						return null;
 					}
-					if ( 0 === media.length && featuredImageId ) {
-						const mediaDetails = getMediaDetails( featuredImageId );
-						if ( mediaDetails ) {
-							media.push( mediaDetails );
-						}
+					return {
+						type: mediaItem.mime_type,
+						url: getMediaSourceUrl( mediaItem ),
+						alt: mediaItem.alt_text,
+					};
+				};
+
+				for ( const { id } of attachedMedia ) {
+					const mediaDetails = getMediaDetails( id );
+					if ( mediaDetails ) {
+						media.push( mediaDetails );
+					}
+				}
+				if ( 0 === media.length && featuredImageId ) {
+					const mediaDetails = getMediaDetails( featuredImageId );
+					if ( mediaDetails ) {
+						media.push( mediaDetails );
 					}
 				}
 			}
@@ -101,6 +98,6 @@ export function usePostData() {
 				initialTabName: null,
 			};
 		},
-		[ shouldUploadAttachedMedia, attachedMedia, imageGeneratorSettings ]
+		[ attachedMedia, imageGeneratorSettings ]
 	);
 }

@@ -1165,7 +1165,7 @@ abstract class Publicize_Base {
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media'               => array(
+						'attached_media'           => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1182,10 +1182,7 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'should_upload_attached_media' => array(
-							'type' => 'boolean',
-						),
-						'image_generator_settings'     => array(
+						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'     => array(
