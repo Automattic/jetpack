@@ -67,8 +67,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
-		$this->post = $post_sync_module->filter_post_content( $this->post );
-		$this->post = $post_sync_module->add_links( $this->post );
+		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
 	}
 
@@ -79,8 +78,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Modules::get_module( 'posts' );
 		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
-		$this->post = $post_sync_module->filter_post_content( $this->post );
-		$this->post = $post_sync_module->add_links( $this->post );
+		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
@@ -668,6 +666,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( '', $synced_post->post_content_filtered );
 		$this->assertSame( '', $synced_post->post_excerpt_filtered );
 		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
+		$this->assertObjectNotHasProperty( 'permalink', $synced_post );
+		$this->assertObjectNotHasProperty( 'shortlink', $synced_post );
 	}
 
 	/**
@@ -723,6 +723,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
 		$this->assertEquals( 'post', $post->post_type );
+		$this->assertObjectNotHasProperty( 'permalink', $post );
+		$this->assertObjectNotHasProperty( 'shortlink', $post );
 
 		// Since the filter is not there any more the sync should happen as expected.
 		$this->post->post_content = 'foo bar';
@@ -732,6 +734,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		// no we sync the content and it looks like what we expect to be.
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
+		$this->assertObjectHasProperty( 'permalink', $synced_post );
+		$this->assertObjectHasProperty( 'shortlink', $synced_post );
 	}
 
 	/**
