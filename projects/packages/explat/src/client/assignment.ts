@@ -13,7 +13,7 @@ export const fetchExperimentAssignment = async ( {
 		anon_id: anonId ?? undefined,
 		as_connected_user: false,
 	};
-	const assignmentsRequestUrl = addQueryArgs( 'jetpack/v4/experiments/assignments', params );
+	const assignmentsRequestUrl = addQueryArgs( 'jetpack/v4/explat/assignments', params );
 
 	return await apiFetch( { path: assignmentsRequestUrl } );
 };
