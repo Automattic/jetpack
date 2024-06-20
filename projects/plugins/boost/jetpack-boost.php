@@ -241,6 +241,9 @@ function include_compatibility_files() {
 
 	// Exclude known scripts that causes problem when concatenated.
 	require_once __DIR__ . '/compatibility/js-concatenate.php';
+
+	// Migrate from WP Super Cache
+	require_once __DIR__ . '/compatibility/wp-super-cache-migration.php';
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
