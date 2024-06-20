@@ -87,7 +87,6 @@ const Summary = () => {
 								anchor={ dailyAndManualScansPopoverAnchor }
 							/>
 							<Button
-								ref={ setDailyAndManualScansPopoverAnchor }
 								variant="secondary"
 								className={ styles[ 'summary__scan-button' ] }
 								onClick={ handleHistoryClick }
