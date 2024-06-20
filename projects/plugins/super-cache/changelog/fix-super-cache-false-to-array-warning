@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: fixed a PHP warning when deactivating the plugin.
