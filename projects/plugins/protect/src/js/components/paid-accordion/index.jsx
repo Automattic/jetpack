@@ -79,7 +79,9 @@ export const PaidAccordionItem = ( {
 											) }
 										</span>
 									) : (
-										__( 'Threat ignored.', 'jetpack-protect' )
+										<span className={ styles[ 'is-ignored' ] }>
+											{ __( 'Threat ignored', 'jetpack-protect' ) }
+										</span>
 									) }
 								</Text>
 							) }
