@@ -26,8 +26,11 @@ export default function useScanHistory() {
 	const location = useLocation();
 
 	useEffect( () => {
+		// todo: improve this
 		if ( location.pathname === '/history' && ! viewingScanHistory ) {
 			setViewingScanHistory( true );
+		} else if ( location.pathname === '/' && viewingScanHistory ) {
+			setViewingScanHistory( false );
 		}
 	}, [ location.pathname, viewingScanHistory, setViewingScanHistory ] );
 

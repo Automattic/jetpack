@@ -193,9 +193,12 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
-						firstDetected,
+						firstDetected, // todo: this works but need to find a proper way to fix why this differs on initial load and re-render
+						first_detected,
 						fixedIn,
+						fixed_in,
 						fixedOn,
+						fixed_on,
 						icon,
 						fixable,
 						id,
@@ -213,9 +216,9 @@ const PaidList = ( { list } ) => {
 							description={ description }
 							diff={ diff }
 							filename={ filename }
-							firstDetected={ firstDetected }
-							fixedIn={ fixedIn }
-							fixedOn={ fixedOn }
+							firstDetected={ firstDetected ?? first_detected }
+							fixedIn={ fixedIn ?? fixed_in }
+							fixedOn={ fixedOn ?? fixed_on }
 							icon={ icon }
 							fixable={ fixable }
 							id={ id }
