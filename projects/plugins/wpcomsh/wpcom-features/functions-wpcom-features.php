@@ -60,8 +60,10 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$site_type = 'wpcom';
 	} else {
-		$blog      = get_blog_details( $blog_id, false );
-		$site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// $blog      = get_blog_details( $blog_id, false );
+		// $site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
+		$site_type = 'jetpack';
 	}
 
 	// A8C override for certain sites.
@@ -189,7 +191,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	$purchases = $wpdb->get_results(
 		$wpdb->prepare(
 			"
-					SELECT 
+					SELECT
 					    product.product_slug,
 					    product.product_id,
 					    product.billing_product_id,
