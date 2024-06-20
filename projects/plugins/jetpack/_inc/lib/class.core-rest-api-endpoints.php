@@ -2719,7 +2719,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_verbum_subscription_modal'     => array(
 				'description'       => esc_html__( 'Show subscription pop-up after commenting on a post', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
