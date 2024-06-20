@@ -63,19 +63,23 @@ class GA_Manager {
 	);
 
 	/**
-	 * This is our constructor, which is private to force the use of get_instance()
+	 * This is our constructor, which is private to force the use of get_instance().
 	 *
 	 * @return void
 	 */
 	private function __construct() {
-		// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
-		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
-		if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
-			self::$analytics = new Universal();
-			// @phan-suppress-next-line PhanNoopNew
-			new AMP_Analytics();
-		} else {
-			self::$analytics = new Legacy();
+		$settings = $this->get_google_analytics_settings();
+
+		if ( ! empty( $settings['is_active'] ) ) {
+			// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
+			// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
+			if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
+				self::$analytics = new Universal();
+				// @phan-suppress-next-line PhanNoopNew
+				new AMP_Analytics();
+			} else {
+				self::$analytics = new Legacy();
+			}
 		}
 
 		add_filter( 'site_settings_endpoint_get', array( $this, 'site_settings_fetch' ), 10, 2 );
@@ -244,6 +248,7 @@ class GA_Manager {
 		// The `is_active` flag is missing from the settings, add a value based on the module status.
 		if ( is_array( $settings ) && ! array_key_exists( 'is_active', $settings ) ) {
 			$settings['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
+			update_option( $this->get_google_analytics_option_name(), $settings );
 		}
 
 		return $settings;

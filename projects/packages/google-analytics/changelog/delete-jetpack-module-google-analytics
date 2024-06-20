@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Only activate Google Analytics tracking if it's enabled.
+
+
