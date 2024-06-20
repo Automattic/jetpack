@@ -33,7 +33,7 @@ if ( ! $is_nginx && $cache_enabled && ! $wp_cache_mod_rewrite ) {
 	}
 }
 echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . ' value="' . esc_html__( 'Update Status', 'wp-super-cache' ) . '" />';
-if( wpsc_is_boost_current() ) {
+if ( wpsc_is_boost_current() ) {
 	$config       = wpsc_get_boost_migration_config();
 	$button_url   = $config['is_installed'] ? $config['activate_url'] : $config['install_url'];
 	$button_class = $config['is_installed'] ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
@@ -45,10 +45,10 @@ if( wpsc_is_boost_current() ) {
 	}
 	echo "<a style='margin-left: 12px;' data-source='notice' class='button button-secondary {$button_class} wpsc-boost-migration-button' href='{$button_url}'>";
 	echo '<div class="spinner" style="display:none;"></div>';
-	echo "<label>";
+	echo '<label>';
 	echo esc_html( $button_label );
-	echo "</label>";
-	echo "</a>";
+	echo '</label>';
+	echo '</a>';
 }
 
 echo '</div></form>';
