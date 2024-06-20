@@ -6,170 +6,176 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Classic_Theme_Helper\Main;
 
-/**
- * Load the Responsive videos plugin
- */
-function jetpack_responsive_videos_init() {
+Main::init();
 
-	/* If the doesn't theme support 'jetpack-responsive-videos', don't continue */
-	if ( ! current_theme_supports( 'jetpack-responsive-videos' ) ) {
-		return;
+if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
+
+	/**
+	 * Load the Responsive videos plugin
+	 */
+	function jetpack_responsive_videos_init() {
+
+		/* If the doesn't theme support 'jetpack-responsive-videos', don't continue */
+		if ( ! current_theme_supports( 'jetpack-responsive-videos' ) ) {
+			return;
+		}
+
+		/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
+		add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
+		add_filter( 'video_embed_html', 'jetpack_responsive_videos_embed_html' );
+
+		/* Only wrap oEmbeds if video */
+		add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+		add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+
+		/* Wrap videos in Buddypress */
+		add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
+
+		/* Wrap Slideshare shortcodes */
+		add_filter( 'jetpack_slideshare_shortcode', 'jetpack_responsive_videos_embed_html' );
+
+		// Remove the Jetpack Responsive video wrapper in embed blocks on sites that support core Responsive embeds.
+		if ( current_theme_supports( 'responsive-embeds' ) ) {
+			add_filter( 'render_block', 'jetpack_responsive_videos_remove_wrap_oembed', 10, 2 );
+		}
+	}
+	add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
+
+	/**
+	 * Adds a wrapper to videos and enqueue script
+	 *
+	 * @param string $html The video embed HTML.
+	 * @return string
+	 */
+	function jetpack_responsive_videos_embed_html( $html ) {
+		if ( empty( $html ) || ! is_string( $html ) ) {
+			return $html;
+		}
+
+		// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return $html;
+		}
+
+		// The customizer video widget wraps videos with a class of wp-video
+		// mejs as of 4.9 apparently resizes videos too which causes issues
+		// skip the video if it is wrapped in wp-video.
+		$video_widget_wrapper = 'class="wp-video"';
+
+		$mejs_wrapped = strpos( $html, $video_widget_wrapper );
+
+		// If this is a video widget wrapped by mejs, return the html.
+		if ( false !== $mejs_wrapped ) {
+			return $html;
+		}
+
+		Assets::register_script(
+			'jetpack-responsive-videos',
+			'_inc/build/theme-tools/responsive-videos/responsive-videos.min.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'in_footer'  => true,
+				'enqueue'    => true,
+				'textdomain' => 'jetpack',
+				'css_path'   => '_inc/build/theme-tools/responsive-videos/responsive-videos.css',
+			)
+		);
+
+		return '<div class="jetpack-video-wrapper">' . $html . '</div>';
 	}
 
-	/* If the theme does support 'jetpack-responsive-videos', wrap the videos */
-	add_filter( 'wp_video_shortcode', 'jetpack_responsive_videos_embed_html' );
-	add_filter( 'video_embed_html', 'jetpack_responsive_videos_embed_html' );
+	/**
+	 * Check if oEmbed is a `$video_patterns` provider video before wrapping.
+	 *
+	 * @param mixed  $html The cached HTML result, stored in post meta.
+	 * @param string $url  he attempted embed URL.
+	 *
+	 * @return string
+	 */
+	function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
+		if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
+			return $html;
+		}
 
-	/* Only wrap oEmbeds if video */
-	add_filter( 'embed_oembed_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
-	add_filter( 'embed_handler_html', 'jetpack_responsive_videos_maybe_wrap_oembed', 10, 2 );
+		// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return $html;
+		}
 
-	/* Wrap videos in Buddypress */
-	add_filter( 'bp_embed_oembed_html', 'jetpack_responsive_videos_embed_html' );
+		$jetpack_video_wrapper = '<div class="jetpack-video-wrapper">';
 
-	/* Wrap Slideshare shortcodes */
-	add_filter( 'jetpack_slideshare_shortcode', 'jetpack_responsive_videos_embed_html' );
+		$already_wrapped = strpos( $html, $jetpack_video_wrapper );
 
-	// Remove the Jetpack Responsive video wrapper in embed blocks on sites that support core Responsive embeds.
-	if ( current_theme_supports( 'responsive-embeds' ) ) {
-		add_filter( 'render_block', 'jetpack_responsive_videos_remove_wrap_oembed', 10, 2 );
-	}
-}
-add_action( 'after_setup_theme', 'jetpack_responsive_videos_init', 99 );
+		// If the oEmbed has already been wrapped, return the html.
+		if ( false !== $already_wrapped ) {
+			return $html;
+		}
 
-/**
- * Adds a wrapper to videos and enqueue script
- *
- * @param string $html The video embed HTML.
- * @return string
- */
-function jetpack_responsive_videos_embed_html( $html ) {
-	if ( empty( $html ) || ! is_string( $html ) ) {
-		return $html;
-	}
+		/**
+		 * The oEmbed video providers.
+		 *
+		 * An allowed list of oEmbed video provider Regex patterns to check against before wrapping the output.
+		 *
+		 * @module theme-tools
+		 *
+		 * @since 3.8.0
+		 *
+		 * @param array $video_patterns oEmbed video provider Regex patterns.
+		 */
+		$video_patterns = apply_filters(
+			'jetpack_responsive_videos_oembed_videos',
+			array(
+				'https?://((m|www)\.)?youtube\.com/watch',
+				'https?://((m|www)\.)?youtube\.com/playlist',
+				'https?://youtu\.be/',
+				'https?://(.+\.)?vimeo\.com/',
+				'https?://(www\.)?dailymotion\.com/',
+				'https?://dai.ly/',
+				'https?://(www\.)?hulu\.com/watch/',
+				'https?://wordpress.tv/',
+				'https?://(www\.)?funnyordie\.com/videos/',
+				'https?://vine.co/v/',
+				'https?://(www\.)?collegehumor\.com/video/',
+				'https?://(www\.|embed\.)?ted\.com/talks/',
+			)
+		);
 
-	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		return $html;
-	}
+		// Merge patterns to run in a single preg_match call.
+		$video_patterns = '(' . implode( '|', $video_patterns ) . ')';
 
-	// The customizer video widget wraps videos with a class of wp-video
-	// mejs as of 4.9 apparently resizes videos too which causes issues
-	// skip the video if it is wrapped in wp-video.
-	$video_widget_wrapper = 'class="wp-video"';
+		$is_video = preg_match( $video_patterns, $url );
 
-	$mejs_wrapped = strpos( $html, $video_widget_wrapper );
+		// If the oEmbed is a video, wrap it in the responsive wrapper.
+		if ( false === $already_wrapped && 1 === $is_video ) {
+			return jetpack_responsive_videos_embed_html( $html );
+		}
 
-	// If this is a video widget wrapped by mejs, return the html.
-	if ( false !== $mejs_wrapped ) {
-		return $html;
-	}
-
-	Assets::register_script(
-		'jetpack-responsive-videos',
-		'_inc/build/theme-tools/responsive-videos/responsive-videos.min.js',
-		JETPACK__PLUGIN_FILE,
-		array(
-			'in_footer'  => true,
-			'enqueue'    => true,
-			'textdomain' => 'jetpack',
-			'css_path'   => '_inc/build/theme-tools/responsive-videos/responsive-videos.css',
-		)
-	);
-
-	return '<div class="jetpack-video-wrapper">' . $html . '</div>';
-}
-
-/**
- * Check if oEmbed is a `$video_patterns` provider video before wrapping.
- *
- * @param mixed  $html The cached HTML result, stored in post meta.
- * @param string $url  he attempted embed URL.
- *
- * @return string
- */
-function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
-	if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
-		return $html;
-	}
-
-	// Short-circuit for AMP responses, since custom scripts are not allowed in AMP and videos are naturally responsive.
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		return $html;
-	}
-
-	$jetpack_video_wrapper = '<div class="jetpack-video-wrapper">';
-
-	$already_wrapped = strpos( $html, $jetpack_video_wrapper );
-
-	// If the oEmbed has already been wrapped, return the html.
-	if ( false !== $already_wrapped ) {
 		return $html;
 	}
 
 	/**
-	 * The oEmbed video providers.
+	 * Remove the Jetpack Responsive video wrapper in embed blocks.
 	 *
-	 * An allowed list of oEmbed video provider Regex patterns to check against before wrapping the output.
+	 * @since 7.0.0
 	 *
-	 * @module theme-tools
+	 * @param string $block_content The block content about to be appended.
+	 * @param array  $block         The full block, including name and attributes.
 	 *
-	 * @since 3.8.0
-	 *
-	 * @param array $video_patterns oEmbed video provider Regex patterns.
+	 * @return string $block_content String of rendered HTML.
 	 */
-	$video_patterns = apply_filters(
-		'jetpack_responsive_videos_oembed_videos',
-		array(
-			'https?://((m|www)\.)?youtube\.com/watch',
-			'https?://((m|www)\.)?youtube\.com/playlist',
-			'https?://youtu\.be/',
-			'https?://(.+\.)?vimeo\.com/',
-			'https?://(www\.)?dailymotion\.com/',
-			'https?://dai.ly/',
-			'https?://(www\.)?hulu\.com/watch/',
-			'https?://wordpress.tv/',
-			'https?://(www\.)?funnyordie\.com/videos/',
-			'https?://vine.co/v/',
-			'https?://(www\.)?collegehumor\.com/video/',
-			'https?://(www\.|embed\.)?ted\.com/talks/',
-		)
-	);
+	function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
+		if (
+			isset( $block['blockName'] )
+			&& (
+				str_contains( $block['blockName'], 'core-embed' ) // pre-WP 5.6 embeds (multiple embed blocks starting with 'core-embed').
+				|| 'core/embed' === $block['blockName'] // WP 5.6 embed block format (single embed block w/ block variations).
+			)
+		) {
+			$block_content = preg_replace( '#<div class="jetpack-video-wrapper">(.*?)</div>#', '${1}', $block_content );
+		}
 
-	// Merge patterns to run in a single preg_match call.
-	$video_patterns = '(' . implode( '|', $video_patterns ) . ')';
-
-	$is_video = preg_match( $video_patterns, $url );
-
-	// If the oEmbed is a video, wrap it in the responsive wrapper.
-	if ( false === $already_wrapped && 1 === $is_video ) {
-		return jetpack_responsive_videos_embed_html( $html );
+		return $block_content;
 	}
-
-	return $html;
-}
-
-/**
- * Remove the Jetpack Responsive video wrapper in embed blocks.
- *
- * @since 7.0.0
- *
- * @param string $block_content The block content about to be appended.
- * @param array  $block         The full block, including name and attributes.
- *
- * @return string $block_content String of rendered HTML.
- */
-function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
-	if (
-		isset( $block['blockName'] )
-		&& (
-			str_contains( $block['blockName'], 'core-embed' ) // pre-WP 5.6 embeds (multiple embed blocks starting with 'core-embed').
-			|| 'core/embed' === $block['blockName'] // WP 5.6 embed block format (single embed block w/ block variations).
-		)
-	) {
-		$block_content = preg_replace( '#<div class="jetpack-video-wrapper">(.*?)</div>#', '${1}', $block_content );
-	}
-
-	return $block_content;
 }

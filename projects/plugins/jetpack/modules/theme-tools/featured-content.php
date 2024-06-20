@@ -356,6 +356,4 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy );
 		}
 	}
-
-	Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 }
