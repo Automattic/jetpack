@@ -12,12 +12,19 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import { store } from '../../social-store';
 import styles from './styles.module.scss';
 
+type SettingsButtonProps = {
+	label?: string;
+	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
+};
+
 /**
  * Manage connections button/link displayed below connections list.
  *
+ * @param {SettingsButtonProps} props - The component props.
+ *
  * @returns {import('react').ReactNode} The button/link component.
  */
-export function SettingsButton() {
+export function SettingsButton( { label, variant }: SettingsButtonProps ) {
 	const { useAdminUiV1 } = useSelect( select => {
 		return {
 			useAdminUiV1: select( store ).useAdminUiV1(),
@@ -26,17 +33,18 @@ export function SettingsButton() {
 	const { openConnectionsModal } = useDispatch( store );
 	const { connectionsAdminUrl } = usePublicizeConfig();
 
+	const text = label || __( 'Manage connections', 'jetpack' );
+
 	return useAdminUiV1 ? (
 		<Button
-			className={ styles[ 'settings-button' ] }
 			onClick={ openConnectionsModal }
-			variant="link"
+			variant={ variant }
+			size="small"
+			className={ styles[ 'settings-button' ] }
 		>
-			{ __( 'Manage connections', 'jetpack' ) }
+			{ text }
 		</Button>
 	) : (
-		<ExternalLink href={ connectionsAdminUrl }>
-			{ __( 'Manage connections', 'jetpack' ) }
-		</ExternalLink>
+		<ExternalLink href={ connectionsAdminUrl }>{ text }</ExternalLink>
 	);
 }

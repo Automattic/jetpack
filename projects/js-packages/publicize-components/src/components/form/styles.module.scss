@@ -78,13 +78,5 @@ p.auto-share-title {
 }
 
 .settings-button {
-	&:global(.components-button.is-link) {
-		margin-block: 0.5rem;
-		font-size: inherit;
-		font-weight: inherit;
-
-		&:hover {
-			text-decoration: none;
-		}
-	}
+	margin-block: 0.5rem;
 }

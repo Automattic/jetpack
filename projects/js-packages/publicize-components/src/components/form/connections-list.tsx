@@ -33,7 +33,7 @@ export const ConnectionsList: React.FC = () => {
 					);
 				} ) }
 			</ul>
-			{ ! needsUserConnection ? <SettingsButton /> : null }
+			{ ! needsUserConnection ? <SettingsButton variant="secondary" /> : null }
 		</div>
 	);
 };
