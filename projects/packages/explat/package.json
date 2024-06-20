@@ -16,16 +16,21 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run compile",
-		"compile": "tsc --build --pretty",
+		"compile": "webpack",
 		"clean": "rm -rf build/",
 		"test": "jest tests/client",
-		"watch": "tsc --watch --pretty"
+		"watch": "pnpm run build --watch"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.24.7",
 		"@types/cookie": "0.6.0",
+		"@types/node": "^20.4.2",
 		"@types/qs": "6.9.15",
 		"jest": "29.7.0",
-		"typescript": "5.0.4"
+		"typescript": "5.0.4",
+		"webpack": "5.76.0",
+		"webpack-cli": "4.9.1"
 	},
 	"exports": {
 		".": {
