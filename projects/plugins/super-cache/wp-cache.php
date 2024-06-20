@@ -392,6 +392,9 @@ add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
  * Show a Jetpack Boost installation banner (unless dismissed or installed)
  */
 function wpsc_jetpack_boost_install_banner() {
+	if ( ! wpsc_is_boost_current() ) {
+		return;
+	}
 	// Don't show the banner if Boost is installed, or the banner has been dismissed.
 	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_banner' );
 	if ( wpsc_is_boost_active() || $is_dismissed ) {
