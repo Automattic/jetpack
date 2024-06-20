@@ -3,7 +3,7 @@
  */
 import cookie from 'cookie';
 
-let initializeAnonIdPromise: null | Promise< string | null > = null;
+let initializeAnonIdPromise: Promise< string | null > | null = null;
 const anonIdPollingIntervalMilliseconds = 50;
 const anonIdPollingIntervalMaxAttempts = 100; // 50 * 100 = 5000 = 5 seconds
 
