@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Has_Activate;
-use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Setup;
@@ -17,7 +15,7 @@ class Modules_Setup implements Has_Setup {
 	/**
 	 * @var Modules_Index
 	 */
-	protected $modules = array();
+	protected $modules_index = array();
 
 	/**
 	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
@@ -25,8 +23,8 @@ class Modules_Setup implements Has_Setup {
 	protected $available_modules = array();
 
 	public function __construct() {
-		$this->modules           = new Modules_Index();
-		$this->available_modules = $this->modules->available_modules();
+		$this->modules_index     = new Modules_Index();
+		$this->available_modules = $this->modules_index->available_modules();
 	}
 
 	public function have_enabled_modules() {
@@ -91,9 +89,12 @@ class Modules_Setup implements Has_Setup {
 		REST_API::register( $feature->get_endpoints() );
 	}
 
-	public function init_modules() {
+	public function load_modules() {
+		$this->init_modules( $this->available_modules );
+	}
 
-		foreach ( $this->available_modules as $slug => $module ) {
+	private function init_modules( $modules ) {
+		foreach ( $modules as $slug => $module ) {
 
 			$this->register_always_available_endpoints( $module->feature );
 
@@ -102,6 +103,17 @@ class Modules_Setup implements Has_Setup {
 			}
 
 			Setup::add( $module->feature );
+
+			$submodules = $module->get_submodules();
+			if ( $submodules ) {
+				$submodules_instances = array();
+				foreach ( $submodules as $sub_module ) {
+					if ( $sub_module::is_available() ) {
+						$submodules_instances[] = new Module( new $sub_module() );
+					}
+				}
+				$this->init_modules( $submodules_instances );
+			}
 
 			$this->register_endpoints( $module->feature );
 
@@ -114,7 +126,7 @@ class Modules_Setup implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
-		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_modules' ) );
 		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
 
@@ -128,13 +140,13 @@ class Modules_Setup implements Has_Setup {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
-		$feature = $this->modules->get_feature_instance_by_slug( $module_slug );
-		if ( $is_activated && $feature instanceof Has_Activate ) {
-			$feature::activate();
+		$module = $this->modules_index->get_module_instance_by_slug( $module_slug );
+		if ( $is_activated && $module ) {
+			$module->on_activate();
 		}
 
-		if ( ! $is_activated && $feature instanceof Has_Deactivate ) {
-			$feature::deactivate();
+		if ( ! $is_activated && $module ) {
+			$module->on_deactivate();
 		}
 
 		if ( $module_slug === Cloud_CSS::get_slug() && $is_activated ) {

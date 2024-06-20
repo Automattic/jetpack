@@ -27,6 +27,6 @@ export default class FormBlock extends EditorCanvas {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( 'form.wp-block-jetpack-contact-form' );
+		await page.locator( 'form.wp-block-jetpack-contact-form' ).waitFor();
 	}
 }

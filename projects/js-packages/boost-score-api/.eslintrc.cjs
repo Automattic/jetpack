@@ -1,4 +1,4 @@
-const loadIgnorePatterns = require( '../../../tools/js-tools/load-eslint-ignore.js' );
+const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
 
 module.exports = {
 	root: true,

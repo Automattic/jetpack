@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
-Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
+Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.5
-Stable tag: 2.3.0
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,8 +12,6 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 == Description ==
 ### Write once, publish everywhere.
-
-*Share up to 30 times per month for free with Jetpack Social, and upgrade to share as many times as you want!*
 
 **Grow your following by sharing your content with Jetpack Social!**
 
@@ -29,11 +27,11 @@ Jetpack Social has scheduling tools that allow you to set your posts to publish 
 
 **Social Image Generator**
 
-With the Jetpack Social Advanced plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
+With the Jetpack Social plan, you can have engaging imagery created automatically using the Social Image Generator feature. You can overlay custom text onto your images and choose from a variety of styles to increase engagement on your social posts. Most importantly, you’ll save time by doing it all within the WordPress editor.
 
 **Organic Content Sharing**
 
-Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social Advanced plan only.
+Boost your social media engagement with Jetpack Social's Organic Content Sharing feature. Research indicates that manually published posts receive 50% more interaction compared to shared links. Our feature allows you to select custom images, videos, and text to share your blog posts as native social media content, enhancing engagement and saving you time. This feature is available with the Jetpack Social plan.
 
 == Installation ==
 
@@ -104,12 +102,9 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 4.4.0 - 2024-06-05
-#### Changed
-- Social | Removed the top "Connect accounts" on the admin page
-- Social | Updated upgrade nudges to use the new plan
-- Updated package dependencies.
-- Updated the editor nudge text and logic
+### 4.5.1 - 2024-06-18
+#### Fixed
+- My Jetpack: Update My Jetpack to a more stable version.
 
 == Upgrade Notice ==
 

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-super-cache",
-	"version": "1.12.2-alpha",
+	"version": "1.13.0-alpha",
 	"description": "A very fast caching engine for WordPress that produces static html files.",
 	"homepage": "https://jetpack.com",
 	"bugs": {

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.33.14-alpha",
+	"version": "0.33.17",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -31,8 +31,8 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.24.0",
-		"@babel/preset-react": "7.23.3",
+		"@babel/core": "7.24.7",
+		"@babel/preset-react": "7.24.7",
 		"@storybook/addon-actions": "8.1.6",
 		"@testing-library/dom": "10.1.0",
 		"@testing-library/react": "15.0.7",

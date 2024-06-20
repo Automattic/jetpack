@@ -1,0 +1,2218 @@
+# Translation of WordPress.com - Site Helper in Hebrew
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-06-02 14:54:03+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: he_IL\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "⁦%1$s⁩ ב-<a href=\"%2$s\">%3$s</a>"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:206
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "אפשר לשנות את ה-Gravatar שלך מ<a href=\"%s\">עמוד הפרופיל</a> שלך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
+msgid "Marketing"
+msgstr "שיווק"
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "אין לך הרשאות לגשת לעמוד זה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
+msgid "Plugins"
+msgstr "תוספים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr "להשתמש בלוח הבקרה של WordPress.com מדור קודם לניהול האתר שלך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
+msgid "Default style"
+msgstr "סגנון ברירת מחדל"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Use WP-Admin to manage your site."
+msgstr "להשתמש ב'ניהול WP' לניהול האתר שלך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
+msgid "Classic style"
+msgstr "סגנון קלאסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
+msgid "Admin Interface Style"
+msgstr "הסגנון של ממשק מנהל המערכת"
+
+#: wpcom-plugins/plugins.php:42
+msgid "Explore plugins"
+msgstr "סקירת תוספים"
+
+#: wpcom-plugins/plugins.php:40
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "ניתן לקבל גישה למגוון תוספים, חינם או בתשלום, כדי לשפר את הפונקציונליות והכלים באתר שלך."
+
+#: wpcom-plugins/plugins.php:39
+msgid "Flex your site's features with plugins"
+msgstr "לצרף תוספים שיגמישו את האפשרויות שהאתר מציע"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
+msgid "Theme Showcase"
+msgstr "ערכות עיצוב ותבניות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
+msgid "Explore themes"
+msgstr "לעיון בערכות העיצוב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "זו ההזדמנות שלך לצלול לעומק בעולם של ערכות העיצוב לבלוג של WordPress.com. כאן תהיה לך אפשרות לגלות את העיצובים הריספונסיביים והמרהיבים שממתינים להפיח חיים באתר האינטרנט שלך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
+msgid "Find the perfect theme for your site"
+msgstr "למצוא את ערכת העיצוב המושלמת לאתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "הכניסו כמה מילים שיגרמו לקוראים שלכם להגיב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
+msgid "Enable blocks in comments"
+msgstr "להפעיל בלוקים בתגובות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "מבקרים יוכלו להגיב דרך חשבונות WordPress.com או פייסבוק"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "התאמת טופס התגובה עם ברכת שלום שנונה וערכת צבעים."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
+msgid "Color Scheme"
+msgstr "סכימת צבעים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
+msgid "Greeting Text"
+msgstr "טקסט ברכה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
+msgid "Allow Blocks"
+msgstr "לאפשר בלוקים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Dark"
+msgstr "כהה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Light"
+msgstr "צבעים בהירים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Transparent"
+msgstr "שקוף"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
+msgid "Launch your store"
+msgstr "להשיק את החנות שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
+msgid "Add a domain"
+msgstr "הוספת דומיין"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
+msgid "Grow your business"
+msgstr "להגדיל את העסק שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
+msgid "Collect sales tax"
+msgstr "לגבות מס מכירה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
+msgid "Get paid with WooPayments"
+msgstr "לקבל תשלומים עם WooPayments"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
+msgid "Add your products"
+msgstr "להוסיף את המוצרים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
+msgid "Customize your store"
+msgstr "להתאים אישית את החנות שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
+msgid "Sunset"
+msgstr "שקיעה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
+msgid "Sakura"
+msgstr "פריחת הדובדבן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
+msgid "Powder Snow"
+msgstr "שלג לבן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
+msgid "Nightfall"
+msgstr "שעת בין ערביים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
+msgid "Contrast"
+msgstr "ניגודיות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
+msgid "Classic Dark"
+msgstr "כהה קלאסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
+msgid "Classic Bright"
+msgstr "בהיר קלסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
+msgid "Classic Blue"
+msgstr "כחול קלסי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
+msgid "Aquatic"
+msgstr "ימי"
+
+#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
+msgid "Overview"
+msgstr "סקירה"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr "לשתף את \"%s\" באמצעות Jetpack Social"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
+msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
+msgstr "כדי לגשת להגדרות של תוכניות, דומיינים, אימיילים וכו', יש ללחוץ על 'אחסון' בסרגל הצדי."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
+msgid "WordPress.com"
+msgstr "וורדפרס.קום"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
+msgid "Settings"
+msgstr "הגדרות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
+msgid "Monetize"
+msgstr "להפיק רווחים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
+msgid "Monitoring"
+msgstr "מעקב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
+msgid "Configuration"
+msgstr "הגדרות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
+msgid "Purchases"
+msgstr "רכישות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
+msgid "Emails"
+msgstr "הודעות אימייל"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
+msgid "Domains"
+msgstr "דומיינים (שמות מתחם)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
+msgid "Add-ons"
+msgstr "תוספים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
+msgid "Plans"
+msgstr "תוכניות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
+msgid "Hosting"
+msgstr "שירותי אחסון"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
+msgid "All Sites"
+msgstr "כל האתרים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
+msgid "Error: please try commenting again."
+msgstr "שגיאה: יש להזין את התגובה שוב."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
+msgid "Error: your Facebook login has expired."
+msgstr "שגיאה: כניסת Facebook שלך פגה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
+msgid "Cancel reply"
+msgstr "בטל תשובה"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
+msgid "Leave a reply to %s"
+msgstr "כתוב תגובה ל%s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
+msgid "Leave a comment"
+msgstr "כתיבת תגובה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "לשמור בדפדפן זה את השם, האימייל והאתר שלי לפעם הבאה שאגיב."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Comment sent successfully"
+msgstr "תגובה נשלחה בהצלחה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Subscribe"
+msgstr "הרשמה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Enter your email address"
+msgstr "יש להקליד את כתובת האימייל שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "מעניין אותך לקבל עדכון על פוסטים בבלוג? פשוט לוחצים על הכפתור שלהלן כדי להיות בעניינים!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Never miss a beat!"
+msgstr "ככה לא מפספסים שום דבר!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Continue reading"
+msgstr "להמשיך לקרוא"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "כדי להמשיך לקרוא ולקבל גישה לארכיון המלא יש להירשם עכשיו."
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Discover more from %s"
+msgstr "לגלות עוד בנושא %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Loading your comment..."
+msgstr "טוען את התגובה שלך..."
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
+msgid "We'll keep you in the loop!"
+msgstr "אנו נמשיך לעדכן אותך!"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Optional"
+msgstr "אופציונאלי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Website"
+msgstr "אתר אינטרנט"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a reply..."
+msgstr "לכתוב תגובה..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Cancel"
+msgstr "לבטל"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new comments"
+msgstr "שלחו לי אימייל על תגובות חדשות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Email me new posts"
+msgstr "שלח לי אימייל על פוסטים חדשים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Notify me of new posts"
+msgstr "שלח לי הודעות על פוסטים חדשים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Weekly"
+msgstr "אחת לשבוע"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Comment"
+msgstr "תגובה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Reply"
+msgstr "להגיב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Daily"
+msgstr "יומי"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Instantly"
+msgstr "מיידית"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "(Address never made public)"
+msgstr "(הכתובת לעולם לא תפורסם)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Log out"
+msgstr "התנתק"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
+msgid "Logged in via %s"
+msgstr "התחברת דרך %s"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a comment."
+msgstr "להתחבר כדי להגיב."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Log in to leave a reply."
+msgstr "יש להתחבר כדי להשאיר תגובה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a comment. (log in optional)"
+msgstr "להגיב. (לא נדרש להתחבר)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Leave a reply. (log in optional)"
+msgstr "להשאיר תגובה. (התחברות אופציונלית)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Website (optional)"
+msgstr "אתר אינטרנט (אופציונאלי)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Email (address never made public)"
+msgstr "אימייל (הכתובת לעולם לא תפורסם)"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "לקבל הודעות ברשת ובנייד על פוסטים באתר זה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "יש להתחבר או למסור את השם וכתובת האימייל שלך כדי להגיב."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "יש להתחבר או לספק את שמך וכתובת האימייל שלך כדי להשאיר תגובה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Write a comment..."
+msgstr "לכתוב תגובה..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "מתחילים כאן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "להשתמש במייבא של WordPress.com שידריך אותך בייבוא של פוסטים ותגובות מ-Medium, מ-Substack, מ-Squarespace, מ-Wix ועוד."
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr "להגדרות כתיבה נוספות שמופעלות על ידי Jetpack, יש לעבור אל ⁦%1$s⁩הגדרות Jetpack%2$s."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
+msgid "Scheduled Updates"
+msgstr "עדכונים מתוזמנים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
+msgid "Verify the email address for your domains"
+msgstr "לאמת את כתובת האימייל עבור הדומיינים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
+msgid "Site setup"
+msgstr "עריכת הגדרות האתר"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
+msgid "Finish Sensei setup"
+msgstr "להשלים את ההגדרה של Sensei"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
+msgid "Finish store setup"
+msgstr "להשלים את ההגדרה של החנות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
+msgid "Update your site's design"
+msgstr "לעדכן את העיצוב של האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
+msgid "Enable post sharing"
+msgstr "הפעלת השיתוף של הפוסטים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
+msgid "Install the mobile app"
+msgstr "התקנת האפליקציה למכשירים ניידים"
+
+#: imports/utils/class-filerestorer.php:167
+msgid "No files are restored."
+msgstr "לא שוחזרו קבצים"
+
+#: imports/utils/class-filerestorer.php:97
+msgid "No files are queued."
+msgstr "אין קבצים בתור."
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "טבלאות זמניות חסרות."
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "קידומת זמנית שווה לקידומת נוכחית."
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "שגיאה בעדכון קישורים."
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "שגיאה בעדכון פוסטים."
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "האתר לא מחובר."
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "Jetpack אינו מותקן."
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "שגיאה בשמירת אפשרויות רשימת היתרים."
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "כתובת URL של דף הבית חסרה."
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "כתובת URL של אתר חסרה."
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "כתובת ה-URL של האתר לא תקפה."
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "כתובת ה-URL של דף הבית לא תקפה."
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "ייבוא SQL נכשל"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "קובץ SQL לא קיים"
+
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
+msgid "No backup import found."
+msgstr "לא נמצא ייבוא גיבוי"
+
+#: imports/class-backup-import-manager.php:371
+msgid "An import is already running."
+msgstr "ייבוא כבר פועל."
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "ייבוא הגיבוי בוטל."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
+msgid "Next steps for your site"
+msgstr "השלבים הבאים בבניית האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
+msgid "Add the Subscribe Block to your site"
+msgstr "להוסיף את הבלוק 'להירשם' לאתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
+msgid "Import existing subscribers"
+msgstr "לייבא מנויים קיימים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
+msgid "View site metrics"
+msgstr "הצגת מדדי האתר"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
+msgid "Set up ssh"
+msgstr "הגדרת SSH"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
+msgid "Install a custom plugin"
+msgstr "להתקין תוסף מותאם אישית"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
+msgid "Choose a theme"
+msgstr "לבחור ערכת עיצוב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
+msgid "Set up an offer for your supporters"
+msgstr "להגדיר מבצע עבור התומכים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
+msgid "Connect a Stripe account to collect payments"
+msgstr "לחבר חשבון Stripe כדי לגבות תשלומים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
+msgid "Add your About page"
+msgstr "להוסיף עמוד 'אודות' באתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
+msgid "Manage your paid Newsletter plan"
+msgstr "לנהל את תוכנית הניוזלטר שלך בתשלום"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
+msgid "Connect your social media accounts"
+msgstr "חיבור חשבונות אישיים של רשתות חברתיות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
+msgid "Manage your subscribers"
+msgstr "לנהל את המנויים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
+msgid "Write 3 posts"
+msgstr "לכתוב שלושה פוסטים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
+msgid "Get your first 10 subscribers"
+msgstr "לקבל את 10 המנויים הראשונים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
+msgid "Enable subscribers modal"
+msgstr "להפעיל מודאל מנויים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
+msgid "Customize welcome message"
+msgstr "להתאים אישית הודעת הצטרפות"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
+msgid "Earn money with your newsletter"
+msgstr "להרוויח כסף מהניוזלטר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
+msgid "Update your About page"
+msgstr "לעדכן את עמוד 'אודות' שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
+msgid "Migrate content"
+msgstr "להעביר תוכן"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
+msgid "Verify email address"
+msgstr "לאמת את כתובת האימייל"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "אפשרות זאת מונעת יצירה של פוסטים ועמודים חדשים ועריכה של פוסטים ועמודים קיימים; היא גם סוגרת תגובות באתר כולו."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "להפעיל מצב 'נעול'"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "מצב נעול"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "כדי לקבל בעלות על האתר, נבקשך להנחות את האדם שמינית ליצור קשר עמנו דרך %s ולהציג עותק של תעודת הפטירה."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "מומלץ לבחור מישהו שיטפל באתר שלך לאחר פטירתך."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "איש קשר לענייני הורשה"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "בעלות משופרת"
+
+#: notices/anyone-can-register-notice.php:79
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "<a href=\"%2$s\">האפשרות 'כל אחד יכול להירשם'</a> פעילה כעת. התפקיד בברירת מחדל כרגע הוא '%1$s'. %4$s <strong>כדאי לשקול את השבתת האפשרות אם אין צורך בהרשמה פתוחה.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "<a href=\"%2$s\">האפשרות 'כל אחד יכול להירשם'</a> פעילה כעת. התפקיד בברירת מחדל כרגע הוא '%1$s'. %4$s <a href=\"%3$s\"><strong>כדאי לשקול את השבתת האפשרות אם אין צורך בהרשמה פתוחה.</strong></a>"
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "לא ניתן היה לחלץ את קובץ ה-TAR."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "סוג הקובץ אינו נתמך"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "לא ניתן ליצור תיקייה"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "הקובץ לא קיים"
+
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:345
+msgid "Could not determine importer type."
+msgstr "לא ניתן לקבוע סוג מייבא"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
+msgid "Share your site"
+msgstr "שיתוף האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
+msgid "Edit a page"
+msgstr "לערוך עמוד"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "האתר שלך כולל סגנונות פרימיום. כדאי לשדרג עכשיו כדי לפרסם את השינויים שביצעת בצבעים ולנצל המון אפשרויות אחרות."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
+msgid "Customize your domain"
+msgstr "להתאים אישית את הדומיין שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
+msgid "Add a new page"
+msgstr "עמוד חדש"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
+msgid "Drive traffic to your site"
+msgstr "להפנות תעבורה אל האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
+msgid "Give your site a name"
+msgstr "בחירת שם לאתר"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
+msgid "Claim your free one-year domain"
+msgstr "לקבל דומיין בחינם לשנה"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
+msgctxt "verb"
+msgid "Gift"
+msgstr "לתת מתנה"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+msgid "Thumbnail"
+msgstr "תמונה מוקטנת"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "לשתף"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
+msgid "Upgrade plan"
+msgstr "שדרוג התוכנית"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
+msgid "Create paid Newsletter"
+msgstr "ליצור ניוזלטר בתשלום"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
+msgid "Set up payment method"
+msgstr "להגדיר אמצעי תשלום"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
+msgid "Choose a domain"
+msgstr "לבחור דומיין"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
+msgid "Launch your blog"
+msgstr "להשיק את הבלוג שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
+msgid "Edit site design"
+msgstr "עריכת עיצוב האתר"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
+msgid "Set up your site"
+msgstr "להגדיר את האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
+msgid "Name your blog"
+msgstr "שם לבלוג שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
+msgid "Personalize your site"
+msgstr "להתאים אישית את האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
+msgid "Upload your first video"
+msgstr "להעלות את הסרטון הראשון שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
+msgid "Set up your video site"
+msgstr "להגדיר את אתר הסרטונים שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
+msgid "Launch your site"
+msgstr "להשיק את האתר שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
+msgid "Add links"
+msgstr "להוסיף קישורים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
+msgid "Personalize Link in Bio"
+msgstr "'קישור בביוגרפיה' מותאם אישית"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
+msgid "Select a design"
+msgstr "לבחור עיצוב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
+msgid "Start writing"
+msgstr "להתחיל לכתוב"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
+msgid "Write your first post"
+msgstr "לכתוב את הפוסט הראשון שלך"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
+msgid "Add subscribers"
+msgstr "להוסיף מנויים"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
+msgid "Choose a plan"
+msgstr "בחירת תוכנית"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
+msgid "Personalize newsletter"
+msgstr "ניוזלטר מותאם אישית"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:189
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "אין אפשרות להעלות את הסיווג %1$s. עליך להוסיף חיבלה שמכילה את הרכיב באמצעות מחבר ולוודא שדרשת פעילות של הטוען האוטומטי של Jetpack"
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "יש לרשום כינויים של Textdomain לפני רכיב ה-Hook של ⁦%1$s⁩. ההודעה הזאת הופעלה על ידי הדומיין ⁦%2$s⁩."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "קובץ ה-Script \"%s\" תלוי בנתון wp-i18n אבל לא מציין את \"textdomain\""
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "hebrew"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "מודגש מאוד מוטה (Oblique)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "מודגש מאוד נטוי (Italic)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "מודגש מאוד"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "מודגש יותר מוטה (Oblique)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "מודגש יותר נטוי (Italic)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "מודגש מאוד"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "מודגש ומוטה (Oblique)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "מודגש ונטוי (Italic)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "מודגש"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "חצי מודגש ומוטה (Oblique)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "חצי מודגש ונטוי (Italic)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "חצי מודגש"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "מוטה (Oblique) בינוני"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "נטוי (Italic) בינוני"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "בינוני"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "מוטה (Oblique)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "נטוי (Italic)"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "רגיל"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "מוטה (Oblique) עדין"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "נטוי (Italic) עדין"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "בהיר"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "מוטה (Oblique) עדין מאוד"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "נטוי (Italic) עדין מאוד"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "עדין מאוד"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "מוטה (Oblique) צר"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "נטוי (Italic) צר"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "צר"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "ענק"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "גדול"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "גודל רגיל"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "רגיל"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "קטן"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "קטנטן"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "גופן ברירת מחדל של התבנית"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "גופנים"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "כותרות"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "גופן בסיסי"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "שם האתר"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "הוספת מזהה לערכת הגופן דרך ממשק מהדור הקודם, שאינו נתמך עוד. יש לבטל את הסימון בתיבה למטה וללחוץ על 'לשמור' כדי להסיר את הערכה מהבלוג ולהשתמש בממשק החדש והידידותי שלנו להוספת גופנים."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "איזה מזל יש לך! המעצבים של ערכת העיצוב שלך בחרו בגופנים מסוימים שאחרת, לא היה ניתן לבחור בהם. אם לא אהבת את הגופנים האלו, יש להסיר את הסימון מתיבת הסימון שלמטה וללחוץ על 'שמירה' כדי לבחור בגופנים אחרים."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "ביטול הסימון להשבתה"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+msgid "Spotify Feed ID"
+msgstr "מזהה פיד ב-Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+msgid "Apple Podcasts Feed ID"
+msgstr "מזהה פיד ב-Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+msgid "Title"
+msgstr "כותרת:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+msgid "Podcast RSS Feed"
+msgstr "פיד RSS לפודקאסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Spotify"
+msgstr "להאזין ב-Spotify"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+msgid "Listen on Apple Podcasts"
+msgstr "להאזין דרך Apple Podcasts"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "להציג מידע על הפודקאסט שלך ולאפשר למשתמשים לעקוב דרך iTunes"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+msgid "Select iTunes category:"
+msgstr "בחר קטגוריית iTunes:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+msgid "Set podcast category"
+msgstr "הגדר קטגוריית פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+msgid "Set podcast image"
+msgstr "הגדר תמונת פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+msgid "Clean"
+msgstr "נקה"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+msgid "Yes"
+msgstr "כן"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+msgid "No"
+msgstr "לא"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+msgid "Set podcast as explicit"
+msgstr "הגדר פודקסט כבוטה"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+msgid "Set podcast copyright"
+msgstr "הגדר זכויות יוצרים לפודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+msgid "Set podcast summary"
+msgstr "הגדר סיכום לפודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+msgid "Set podcast author"
+msgstr "להגדיר את המחבר של הפודקאסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+msgid "Set podcast title"
+msgstr "הגדר כותרת פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "זוהי כתובת ה-URL שעליך לשלוח ל-iTunes או לשירות שמשדר את הפודקאסט."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+msgid "Your podcast feed: %1$s"
+msgstr "הפיד של הפודקאסט: ⁦%1$s⁩"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+msgid "Select podcast category:"
+msgstr "בחר קטגוריית פודקסט:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+msgid "Blog category for podcasts"
+msgstr "קטגוריית בלוג עבור פודקסטים"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 3"
+msgstr "פודקסט קטגוריה 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast category 2"
+msgstr "פודקסט קטגוריה 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+msgid "Podcast category 1"
+msgstr "פודקסט קטגוריה 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Podcast image"
+msgstr "תמונת פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Mark as explicit"
+msgstr "סמן כתוכן בוטה"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast copyright"
+msgstr "זכויות יוצרים של הפודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast summary"
+msgstr "סיכום פודקסטים"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast talent name"
+msgstr "שם המציג של הפודקאסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "כותרת פודקסט"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "הקטגוריה שיש להגדיר כהזנה"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "שידור פודקאסטים"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:67
+msgid "Tweets by %s"
+msgstr "ציוץ מאת %s"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "לשלב הבא"
+
+#: notices/anyone-can-register-notice.php:112
+msgid "This may pose a security risk to your site."
+msgstr "הפעולה הזאת עלולה להוות סיכון אבטחה לאתר שלך."
+
+#: notices/anyone-can-register-notice.php:106
+msgid "It allows a user to post content."
+msgstr "הפעולה מאפשרת למשתמש לפרסם תוכן."
+
+#: notices/anyone-can-register-notice.php:100
+msgid "It allows a user to post/modify/delete all content."
+msgstr "הפעולה מאפשרת למשתמש לפרסם/לשנות/למחוק את כל התוכן."
+
+#: notices/anyone-can-register-notice.php:94
+msgid "It allows a user control over your orders and products."
+msgstr "הפעולה מאפשרת למשתמש לשלוט בכל ההזמנות והמוצרים שלך."
+
+#: notices/anyone-can-register-notice.php:88
+msgid "It allows a user full control over your site and its contents."
+msgstr "הפעולה נותנת למשתמש שליטה מלאה על האתר שלך והתוכן שנמצא בו."
+
+#: imports/utils/class-fileextractor.php:64
+msgid "The ZIP file could not be extracted."
+msgstr "לא ניתן היה לחלץ את קובץ ה-ZIP."
+
+#: imports/utils/class-fileextractor.php:57
+msgid "The ZIP file could not be opened."
+msgstr "לא ניתן היה לפתוח את קובץ ה-ZIP."
+
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>למידע נוסף</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:250
+msgid "Gift the author a WordPress.com plan."
+msgstr "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:238
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד יום %d."
+msgstr[1] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד %d ימים."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:227
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "אפשר להעניק למחבר שדרוג ב-WordPress.com במתנה."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:200
+msgid "This site's plan has expired."
+msgstr "תוקפה של תוכנית האתר פג."
+
+#: notices/plan-notices.php:135
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "תוקף התוכנית Entrepreneur עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Entrepreneur</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: notices/plan-notices.php:109
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "התוקף של התוכנית Pro עבור <strong>%3$s</strong> יפוג בתאריך %2$s. מומלץ <a href=\"%1$s\">לחדש את התוכנית Pro</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: notices/plan-notices.php:104
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "תוקף התוכנית Entrepreneur עבור <strong>%3$s</strong> יפוג ב-%2$s. מומלץ <a href=\"%1$s\">לחדש את התוכנית Entrepreneur</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: notices/plan-notices.php:99
+msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "תוקף תוכנית Creator עבור <strong>%3$s</strong> יפוג ב-%2$s. מומלץ <a href=\"%1$s\">לחדש את התוכנית Creator</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "השתמשת במכסת נפח האחסון שלך. יש למחוק קבצים לפני העלאה."
+
+#: private-site/logged-in-banner.php:127
+msgid "Change theme"
+msgstr "החלפת ערכת עיצוב"
+
+#: private-site/logged-in-banner.php:126
+msgid "Change"
+msgstr "שינוי"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit page"
+msgstr "לערוך את העמוד"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit post"
+msgstr "עריכה"
+
+#: private-site/logged-in-banner.php:112
+msgid "Edit"
+msgstr "ערוך"
+
+#: private-site/logged-in-banner.php:163
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
+msgid "My Home"
+msgstr "הבית שלי"
+
+#: private-site/logged-in-banner.php:86
+msgid "Launch"
+msgstr "להשיק"
+
+#: private-site/logged-in-banner.php:82
+msgid "Update"
+msgstr "לעדכן"
+
+#: notices/plan-notices.php:125
+msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "תוקף התוכנית Explorer עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Explorer</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון הפיכת האתר למקור הכנסה (מונטיזציה), VideoPress ותמיכת Google Analytics."
+
+#: notices/plan-notices.php:120
+msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "תוקף תוכנית Starter עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Starter</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון שטח אחסון בנפח 6‎ GB, תוכן שזמין למנויים בלבד וביטול פרסומות של WordPress.com."
+
+#: notices/plan-notices.php:94
+msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "תוקף התוכנית Explorer עבור <strong>%3$s</strong> יפוג ב-%2$s. מומלץ <a href=\"%1$s\">לחדש את תוכנית Explorer</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון הפיכת האתר למקור הכנסה (מונטיזציה), VideoPress ותמיכת Google Analytics."
+
+#: notices/plan-notices.php:89
+msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "תוקף תוכנית Starter עבור <strong>%3$s</strong> יפוג ב-%2$s. מומלץ <a href=\"%1$s\">לחדש את תוכנית Starter</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון שטח אחסון בנפח 6‎ GB, תוכן שזמין למנויים בלבד וביטול פרסומות של WordPress.com."
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr "גרסת PHP שמשמשת אותך כרגע, <strong>%1$s</strong>, תצא משימוש ותפסיק לקבל עדכונים החל מ-%2$s. יש לעדכן את PHP לגרסה ⁦%3$s⁩ ומעלה על ידי שינוי <a href=\"%4$s\">הגדרות התצורה לאחסון</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:206
+msgid "Enjoy this site?"
+msgstr "נהנית מהאתר הזה?"
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:130
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "לתשומת ליבך! מנועי חיפוש מְנוּעים עכשיו מהאפשרות להוסיף את האתר שלך לאינדקס. אם ברצונך לאפשר למנועי חיפוש להציג את האתר הזה בתוצאות החיפוש שלהם, עליך להשיק אותו. ⁦%1$s⁩יש ללחוץ כאן⁦%2$s⁩ כדי לשנות את הגדרות הפרטיות של האתר."
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "לתשומת ליבך! האתר שלך מוגדר עכשיו למצב 'בקרוב'. אם ברצונך לאפשר למנועי חיפוש להציג את האתר הזה בתוצאות החיפוש שלהם, עליך להשיק אותו. ⁦%1$s⁩יש ללחוץ כאן⁦%2$s⁩ כדי לשנות את הגדרות הפרטיות של האתר."
+
+#: feature-plugins/class-theme-homepage-switcher.php:111
+msgid "Home"
+msgstr "דף הבית"
+
+#: feature-plugins/class-template-first-themes.php:170
+msgid "Blog"
+msgstr "אתר"
+
+#: feature-plugins/hooks.php:244
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "רק למי שבוצעה לו פעולת Proxy: באפשרותך לראות את התוכן הזה מאחר שבוצעה לך פעולת Proxy. אין להשתמש בהגדרה הזאת אם לא ידוע לך למה הגעת לכאן."
+
+#: feature-plugins/hooks.php:233
+msgid "You do not have permission to access this page."
+msgstr "אין לך הרשאות מתאימות בשביל לראות את העמוד הזה."
+
+#: feature-plugins/masterbar.php:105
+msgid "Set your color scheme on WordPress.com."
+msgstr "להגדיר את ערכת הצבעים שלך ב-WordPress.com."
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "Additional CSS"
+msgstr "CSS מותאם"
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "CSS"
+msgstr "CSS"
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "הפלטפורמה של WordPress.com מספקת פונקציונליות וכלים שמותקנים מראש ומופיעים בכל האתרים של Atomic."
+
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
+msgid "Updates managed by WordPress.com"
+msgstr "העדכונים מנוהלים על ידי WordPress.com"
+
+#: notices/plan-notices.php:130
+msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "תוקף תוכנית Creator עבור <strong>%3$s</strong> פג ב-%2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Creator</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: notices/plan-notices.php:140
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "התוקף של התוכנית Pro עבור <strong>%3$s</strong> הסתיים בתאריך %2$s. מומלץ <a href=\"%1$s\">להפעיל מחדש את התוכנית Pro</a> כדי להמשיך ליהנות מהכלים ומהאפשרויות שלה, כגון תוספים וערכות עיצוב בהתאמה אישית וגישה אל SFTP ואל phpMyAdmin."
+
+#: private-site/access-denied-preview-login-template.php:63
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr "אתר זה פרטי. עליך להתחבר לתצוגה המקדימה כדי להציג את התוכן."
+
+#: private-site/access-denied-preview-login-template.php:60
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr "אתר זה פרטי. עליך להתחבר כמשתמש עם הרשאות כדי להציג את התוכן בתצוגה מקדימה."
+
+#: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "להתחיל וליצור את האתר שלך"
+
+#: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "לבנות אתר. למכור סחורה. לכתוב בלוג. ואפשרויות רבות נוספות."
+
+#: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "בקרוב"
+
+#: notices/storage-notices.php:116
+msgid "Disk space quota"
+msgstr "מכסה לשטח אחסון בדיסק"
+
+#: notices/storage-notices.php:112
+msgid "Disk space used"
+msgstr "שטח אחסון שנוצל בדיסק"
+
+#: widgets/class-wpcom-category-cloud-widget.php:210
+msgid "Click for more information"
+msgstr "מידע נוסף כאן"
+
+#: widgets/class-wpcom-category-cloud-widget.php:208
+msgid "Count items in sub-categories toward parent total."
+msgstr "ספירת פריטים בקטגוריות משנה אל סה\"כ קטגוריות אב."
+
+#: widgets/class-wpcom-category-cloud-widget.php:200
+msgid "Maximum font percentage:"
+msgstr "אחוז גופן מירבי:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:194
+msgid "Minimum font percentage:"
+msgstr "גודל פונט מינימלי באחוזים:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:189
+msgid "Category IDs, separated by commas"
+msgstr "זיהויי קטגוריות, עם פסיקים ביניהם"
+
+#: widgets/class-wpcom-category-cloud-widget.php:187
+msgid "Exclude:"
+msgstr "לא להציג:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:181
+msgid "Maximum number of categories to show:"
+msgstr "מספר מרבי של קטגוריות להצגה:"
+
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
+msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
+msgstr "אם אתה משתמש בעוד <a href=\"%s\">קטגוריות</a> באתר שלך, הם יופיעו כאן."
+
+#: widgets/class-wpcom-category-cloud-widget.php:29
+msgid "Your most used categories in cloud format."
+msgstr "הקטגוריות הנפוצות ביותר שלך בפורמט ענן."
+
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
+msgid "Category Cloud"
+msgstr "ענן קטגוריות"
+
+#: private-site/private-site.php:171
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "השירות של Jetpack מנותק והאתר פרטי. יש לחבר מחדש את Jetpack כדי לנהל את הגדרות הנראות של האתר."
+
+#: private-site/logged-in-banner.php:81
+msgid "Update visibility"
+msgstr "לעדכן את הנראות"
+
+#: private-site/logged-in-banner.php:85
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
+msgid "Launch site"
+msgstr "השקת האתר"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
+msgid "Dismiss"
+msgstr "לסגור הודעה זו"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "אתה משתמש כרגע ב-<strong>%1$s</strong> מתוך <strong>%2$s</strong> מגבלת העלאה (%3$s%%)."
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "שם משתמש בטוויטר:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "יש לעבור לוידג'ט 'ציר הזמן של טוויטר'. וידג'ט זה ייעלם בעתיד ווידג'ט חדש יאפשר התאמה אישית רחבה יותר."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "עדכוני טוויטר"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "הגדר את שם המשתמש שלך ב-Twitter עבור <a href=\"%s\">הווידג'ט של Twitter</a>."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "הצג את הציוצים שלך מ-Twitter"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "טוויטר"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "טקסונומיה:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "ענן התגיות לא יוצג משום שאין טקסונומיות שתומכות בוידג'ט ענן תגיות."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "הצג מספר תגיות"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "מספר מרבי של תגיות מוצגות"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "מספר תגים:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "תגיות"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "ענן תגיות"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "ענן של התגיות הכי פופולריות באתר."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "טקסט לתצוגה בין הציוץ לחותמת הזמן"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "הצג לחצן 'עקוב אחרי'"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "כלול ציוצים חוזרים"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "הסתר ציוצים שנדחפו על ידי Publicize"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "הסתר תשובות"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "מספר מרבי של ציוצים להצגה:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "שגיאה: ודא שחשבון Twitter %1$sציבורי%2$s."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "שגיאה: טוויטר לא הגיב. בבקשה המתן כמה דקות ורענן את הדף."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "אפליקציות"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "ייתכן שהופעתן של תמונות חדשות באתר שלך תימשך עד %d דקות."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "מספר עמודות:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "סידור"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "מספר להצגה:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "תמונות"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "כותרת הווידג׳ט"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "לא נמצאו תמונות Instagram."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "אירעה שגיאה בעת אחזור תמונות מ-Instagram. יתבצע ניסיון נוסף בעוד מספר דקות."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "הצגת תמונות ה-Instagram האחרונות שלך."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/class-aboutme-widget.php:148
+msgid "Biography"
+msgstr "ביוגרפיה"
+
+#: widgets/class-aboutme-widget.php:141
+msgid "Headline"
+msgstr "כותרת ראשית"
+
+#: widgets/class-aboutme-widget.php:134
+msgid "Photo"
+msgstr "תמונה"
+
+#: widgets/class-aboutme-widget.php:130
+msgid "Don't Display Name"
+msgstr "אל תציג/י שם"
+
+#: widgets/class-aboutme-widget.php:128
+msgid "Display Small"
+msgstr "תצוגה קטנה"
+
+#: widgets/class-aboutme-widget.php:126
+msgid "Display Medium"
+msgstr "תצוגה בינונית"
+
+#: widgets/class-aboutme-widget.php:124
+msgid "Display Large"
+msgstr "תצוגה רחבה"
+
+#: widgets/class-aboutme-widget.php:122
+msgid "Display X-Large"
+msgstr "תצוגה רחבה"
+
+#: widgets/class-aboutme-widget.php:111
+msgid "Your about.me URL"
+msgstr "אתר ה- about.me שלך"
+
+#: widgets/class-aboutme-widget.php:104
+msgid "Widget title"
+msgstr "כותרת הווידג'ט"
+
+#: widgets/class-aboutme-widget.php:97
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr "הווידג'ט about.me לא יהיה זמין עוד אחרי 1 ביולי, 2016. לאחר מועד זה, הווידג'ט יוצג כקישור של טקסט פשוט לפרופיל שלך ב-about.me. יש להסיר את הווידג'ט."
+
+#: widgets/class-aboutme-widget.php:41
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr "הווידג'ט about.me לא זמין עוד. כדי להסיר את הווידג'ט, <a href=\"%s\">יש לעבור להגדרות שלך</a>. הודעה זו לא מוצגת למבקרים באתר שלך."
+
+#: widgets/class-aboutme-widget.php:20
+msgid "About.me Widget"
+msgstr "הוידג'ט About.me"
+
+#: widgets/class-aboutme-widget.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "הצג את פרופיל about.me שלך יחד עם תמונה ממוזערת"
+
+#: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
+msgid "Unable to fetch the requested data."
+msgstr "אין אפשרות להביא את הנתונים שביקשת."
+
+#: footer-credit/theme-optimizations.php:59
+msgid "Create a free website or blog at WordPress.com"
+msgstr "יצירה של אתר חינמי או בלוג ב־WordPress.com"
+
+#: footer-credit/theme-optimizations.php:54
+msgid "Create a free website at WordPress.com"
+msgstr "יצירה של אתר חינמי ב־WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:104
+msgid "Powered by WordPress.com"
+msgstr "מופעל על ידי WordPress.com"
+
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:52
+#: footer-credit/theme-optimizations.php:57
+msgid "Blog at WordPress.com"
+msgstr "בלוג בוורדפרס.קום"
+
+#: footer-credit/footer-credit/footer-credit.php:102
+msgid "A WordPress.com Website"
+msgstr "אתר של WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "WordPress.com Logo"
+msgstr "הלוגו של WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
+msgid "Create a website or blog at WordPress.com"
+msgstr "ליצור אתר או בלוג ב-WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:103
+msgid "Footer Credit"
+msgstr "אזכור בכותרת התחתונה"
+
+#: footer-credit/footer-credit/customizer.php:80
+msgid "Upgrade to Business"
+msgstr "שדרג לעסקי"
+
+#: footer-credit/footer-credit/customizer.php:72
+msgid "Hide (Business Plan Required)"
+msgstr "להסתיר (נדרשת תוכנית לעסקים)"
+
+#: footer-credit/footer-credit/customizer.php:70
+msgid "Hide"
+msgstr "הסתר"
+
+#: footer-credit/footer-credit/customizer.php:59
+msgid "Default"
+msgstr "ברירת מחדל"
+
+#: footer-credit/footer-credit-optimizations.php:171
+msgid "Design by"
+msgstr "עיצוב של"
+
+#: footer-credit/footer-credit-optimizations.php:157
+msgid "by"
+msgstr "של"
+
+#: footer-credit/footer-credit-optimizations.php:138
+msgid "Theme"
+msgstr "תבנית"
+
+#: footer-credit/footer-credit-optimizations.php:119
+msgid "Proudly powered by WordPress"
+msgstr "פועל על"
+
+#: customizer-fixes/customizer-fixes.php:26
+msgid "Save Settings"
+msgstr "שמירת הגדרות"
+
+#: customizer-fixes/customizer-fixes.php:25
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "האם ברצונך לבטל את השינויים שלא נשמרו?"
+
+#: customizer-fixes/customizer-fixes.php:24
+msgid "Saved"
+msgstr "נשמר"
+
+#: customizer-fixes/customizer-fixes.php:23
+msgid "Save Changes"
+msgstr "שמירת שינויים"
+
+#: customizer-fixes/customizer-fixes.php:22
+msgid "Save"
+msgstr "שמירה"
+
+#: customizer-fixes/customizer-fixes.php:21
+msgid "Activate &amp; Save"
+msgstr "להפעיל ולשמור"
+
+#: private-site/private-site.php:178
+msgid "Manage your site visibility settings"
+msgstr "לנהל את הגדרות הנראות של האתר שלך"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr "תוסף זה הותקן על ידי WordPress.com הוא מספק תכונות שמוצעות במינוי שלך לתוכנית."
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr "%s מנוהל באופן אוטומטי בשבילך."
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "כמה פריטים להציג?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "סינון לפי קטגוריה"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "הצג לקבלת תגובות"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "הצג עבור דפים"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "הצג עבור פוסטים"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "דירוגים"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "רשימה של העמודים, פוסטים ותגובות בעלי הדירוג הגבוה ביותר."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "קליקים מובילים מחושבים מסטטיסטיקה של 24-72 שעות. לוקח זמן עד שהם משתנים."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "כתובות URL לתצוגה:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "הצגת אורך:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "הצג את קישורי הבלוג שלך שלחצו עליהם הכי הרבה פעמים."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "המוקלקים ביותר"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "גובה (בפיקסלים):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "ערוץ:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "הוספת tlk.io webchat."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "להציג:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "נושא האימייל:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "כתובת אימייל של נמען:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "עזיבה"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "הגעה"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "מספר ילדים"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# מבוגרים"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "הודעה"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "טלפון"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "אימייל"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
+#: widgets/class-aboutme-widget.php:118
+#: widgets/class-wpcom-widget-reservations.php:39
+msgid "Name"
+msgstr "שם"
+
+#: widgets/class-wpcom-widget-reservations.php:33
+msgid "Reservation Inquiry"
+msgstr "בירור לגבי הזמנה"
+
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
+msgid "Reservations"
+msgstr "הזמנות"
+
+#: widgets/class-wpcom-widget-recent-comments.php:476
+msgid "Show comments from:"
+msgstr "הצגת תגובות מתוך:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:471
+msgid "Text background color:"
+msgstr "צבע רקע לטקסט:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:465
+msgid "Avatar background color:"
+msgstr "צבע רקע לאווטר:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:454
+msgid "No Avatars"
+msgstr "ללא אווטרים"
+
+#: widgets/class-wpcom-widget-recent-comments.php:447
+msgid "(at most 15)"
+msgstr "(15 לכל היותר)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:441
+msgid "Number of comments to show:"
+msgstr "כמות התגובות שיוצגו:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:362
+msgid "There are no public comments available to display."
+msgstr "אין תגובות ציבוריות הזמינות להצגה."
+
+#: widgets/class-wpcom-widget-recent-comments.php:312
+msgid "Anonymous"
+msgstr "משתמש אנונימי (לא מזוהה)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:56
+msgid "Display your site's most recent comments"
+msgstr "הצגת התגובות האחרונות באתר"
+
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
+msgid "Recent Comments"
+msgstr "תגובות אחרונות"
+
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:277
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "לא אהבת אף רשומה לאחרונה. לאחר שהפעולה בוצעה, הפוסטים יוצגו בווידג'ט <a href=\"%s\">פוסטים שאהבתי</a>."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:265
+msgid "on"
+msgstr "ב-"
+
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:242
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s ב-%2$s"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:117
+msgid "Author's likes to display:"
+msgstr "מחברים אוהבים להציג:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:99
+msgid "Grid"
+msgstr "רשת"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:98
+msgid "List"
+msgstr "רשימה"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:96
+msgid "Display as:"
+msgstr "הצג כ:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:91
+msgid "Number of posts to show (1 to 15):"
+msgstr "כמות הפוסטים שיוצגו (1 עד 15):"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:22
+msgid "A list of the posts I most recently liked"
+msgstr "רשימה של הפוסטים שאהבתי לאחרונה"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
+msgid "Posts I Like"
+msgstr "פוסטים אהובים עלי"
+
+#: widgets/class-music-player-widget.php:96
+msgid "Choose songs"
+msgstr "בחר שירים"
+
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
+msgid "Music Player"
+msgstr "נגן מוזיקה"
+
+#: widgets/class-music-player-widget.php:16
+msgid "A multi-song music player"
+msgstr "נגן מוזיקה לאחסון שירים רבים"
+
+#: widgets/class-jetpack-i-voted-widget.php:30
+msgid "I Voted"
+msgstr "הצבעתי"
+
+#: widgets/class-jetpack-i-voted-widget.php:27
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "באפשרותך להראות לקוראים שלך שהצבעתי באמצעות המדבקה 'הצבעתי'."
+
+#: widgets/class-gravatar-widget.php:200
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "הטקסט שיוצג לאחר הגראווטאר. אופציונלי, ואפשר להשתמש בזה כדי לספר אודות עצמך או הבלוג שלך."
+
+#: widgets/class-gravatar-widget.php:199
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "קישור גרוואטאר. כתובת URL אופציונלית שתשמש כאשר מישהו לוחץ על הגרוואטאר שלך."
+
+#: widgets/class-gravatar-widget.php:189
+msgid "Gravatar alignment:"
+msgstr "מיקום הגראווטר:"
+
+#: widgets/class-gravatar-widget.php:178
+msgid "Size:"
+msgstr "גודל:"
+
+#: widgets/class-gravatar-widget.php:175
+msgid "Custom Email Address:"
+msgstr "כתובת אימייל אחרת:"
+
+#: widgets/class-gravatar-widget.php:162
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "בחר משתמש או הזן כתובת אימייל אחרת."
+
+#: widgets/class-gravatar-widget.php:157
+msgid "Center"
+msgstr "למרכז"
+
+#: widgets/class-gravatar-widget.php:156
+msgid "Right"
+msgstr "לימין"
+
+#: widgets/class-gravatar-widget.php:155
+msgid "Left"
+msgstr "לשמאל"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: widgets/class-gravatar-widget.php:154
+#: widgets/class-widget-top-clicks.php:162
+msgid "None"
+msgstr "ללא"
+
+#: widgets/class-gravatar-widget.php:151
+msgid "Extra Large (256 pixels)"
+msgstr "רחב מאוד (256 פיקסלים)"
+
+#: widgets/class-gravatar-widget.php:150
+msgid "Large (128 pixels)"
+msgstr "רחב (128 פיקסלים)"
+
+#: widgets/class-gravatar-widget.php:149
+msgid "Medium (96 pixels)"
+msgstr "בינוני (96 פיקסלים)"
+
+#: widgets/class-gravatar-widget.php:148
+msgid "Small (64 pixels)"
+msgstr "קטן (64 פיקסלים)"
+
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "עליך לבחור משתמש או להזין כתובת דוא\"ל בהגדרות <a href=\"%s\">הווידג'ט של הגרוואטאר</a>."
+
+#: widgets/class-gravatar-widget.php:20
+msgid "Gravatar"
+msgstr "גראווטאר"
+
+#: widgets/class-gravatar-widget.php:17
+msgid "Insert a Gravatar image"
+msgstr "הכנסת תמונת גראווטאר"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:83
+msgid "Choose an image to display in your sidebar:"
+msgstr "בחר תמונה להצגה בסרגל הצידי:"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
+msgid "Freshly Pressed"
+msgstr "כתבות פופולריות"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "הצג תג חדש בסרגל הצידי שלך"
+
+#: widgets/class-widget-authors-grid.php:142
+#: widgets/class-wpcom-widget-recent-comments.php:452
+msgid "Avatar Size (px):"
+msgstr "גודל אוואטר (פיקסלים):"
+
+#: widgets/class-widget-authors-grid.php:137
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "הצגת כל המחברים (כולל אלו שלא כתבו אף פוסט)"
+
+#: widgets/class-gravatar-widget.php:160
+#: widgets/class-jetpack-i-voted-widget.php:81
+#: widgets/class-jetpack-posts-i-like-widget.php:86
+#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:131
+#: widgets/class-widget-top-clicks.php:72
+#: widgets/class-wpcom-category-cloud-widget.php:175
+#: widgets/class-wpcom-freshly-pressed-widget.php:79
+#: widgets/class-wpcom-tag-cloud-widget.php:123
+#: widgets/class-wpcom-widget-recent-comments.php:435
+#: widgets/class-wpcom-widget-reservations.php:60
+#: widgets/tlkio/class-tlkio-widget.php:75
+msgid "Title:"
+msgstr "כותרת:"
+
+#: widgets/class-widget-authors-grid.php:62
+msgid "Authors"
+msgstr "מחברים"
+
+#: widgets/class-widget-authors-grid.php:17
+msgid "Show a grid of author avatar images."
+msgstr "הצג רשת של תמונות אוואטאר של המחבר."
+
+#: widgets/class-widget-authors-grid.php:14
+msgid "Author Grid"
+msgstr "רשת כותבים"
+
+#: private-site/private-site.php:650
+msgid "Private Site"
+msgstr "אתר פרטי"
+
+#: private-site/private-site.php:460 private-site/private-site.php:577
+#: private-site/private-site.php:809
+msgid "This site is private."
+msgstr "אתר זה פרטי."
+
+#: private-site/access-denied-coming-soon-template.php:55
+#: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "להתחבר"
+
+#: private-site/access-denied-private-site-template.php:47
+msgid "Switch user"
+msgstr "החלפת משתמש"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr "עליך להתחבר בתור משתמש עם הרשאה לצפייה באתר זה."
+
+#: privacy/class-wp-privacy-participating-plugins.php:181
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+"לתשומת ליבך, כלי זה מציג רק מידע על מדיניות הפרטיות שסופק על ידי\n"
+"WordPress ותוספים משתתפים. הוא לא כולל מידע על מדיניות פרטיות\n"
+"של תוספים שאינם משתתפים. זוהי האחריות שלך\n"
+"להשיג מידע על מדיניות פרטיות של תוספים שאינם משתתפים באופן נפרד."
+
+#: privacy/class-wp-privacy-participating-plugins.php:126
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+"לתשומת ליבך, כלי זה רק מייצא את הנתונים האישיים שמאוחסנים על ידי WordPress\n"
+"ותוספים משתתפים. כלי זה לא מייצא נתונים אישיים שמאוחסנים על ידי\n"
+"תוספים שאינם משתתפים. זוהי האחריות שלך לייצא נתונים אישיים\n"
+"שמאוחסנים על ידי תוספים שאינם משתתפים באופן נפרד. הנתונים האישיים המיוצאים\n"
+"כוללים רק את הפריטים הבאים כרגע:"
+
+#: privacy/class-wp-privacy-participating-plugins.php:74
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+"לתשומת ליבך, כלי זה מוחק רק את הנתונים האישיים שמאוחסנים על ידי WordPress\n"
+"ותוספים משתתפים. הכלי לא מוחק משתמשים רשומים וגם לא מוחק\n"
+"נתונם אישיים שמאוחסנים על ידי תוספים שאינם משתתפים. זוהי האחריות שלך\n"
+"למחוק משתמשים רשומים, כמו גם נתונים אישיים שמאוחסנים על ידי תוספים שאינם\n"
+"משתתפים. הנתונים האישיים שנמחקים כוללים רק את הפריטים הבאים\n"
+"כרגע:"
+
+#: logo-tool/logo-tool.php:80
+msgid "Create logo"
+msgstr "יצירת לוגו"
+
+#: logo-tool/logo-tool.php:68
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "להוסיף לוגו להצגה באתר שלך. אין לך לוגו? אפשר לקנות לוגו מקצועי היום – יש ללחוץ על 'ליצור לוגו' כדי להתחיל."
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr "WP.com Site Helper"

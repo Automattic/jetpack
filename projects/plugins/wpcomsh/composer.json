@@ -1,0 +1,152 @@
+{
+	"name": "automattic/wpcomsh",
+	"description": "A helper for connecting WordPress.com sites to external host infrastructure.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4",
+		"automattic/at-pressable-podcasting": "^2.0",
+		"automattic/custom-fonts": "^3.0",
+		"automattic/custom-fonts-typekit": "^2.0",
+		"automattic/text-media-widget-styles": "^2.0",
+		"automattic/wc-calypso-bridge": "2.5.2",
+		"wordpress/classic-editor-plugin": "1.5",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-post-list": "@dev",
+		"automattic/jetpack-mu-wpcom": "@dev",
+		"tubalmartin/cssmin": "^4.1"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "0.4.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpunit/phpunit": "^9",
+		"yoast/phpunit-polyfills": "1.1.0",
+		"wp-coding-standards/wpcs": "^3.0"
+	},
+	"autoload": {
+		"classmap": [
+			"block-theme-footer-credits",
+			"customizer-fixes",
+			"custom-colors",
+			"endpoints",
+			"feature-plugins",
+			"footer-credit",
+			"frontend-notices",
+			"imports",
+			"jetpack-require-connection-owner",
+			"jetpack-token-error-header",
+			"jetpack-token-resilience",
+			"lib",
+			"logo-tool",
+			"mailpoet",
+			"notices",
+			"privacy",
+			"private-site",
+			"safeguard",
+			"share-post",
+			"storage",
+			"storefront",
+			"widgets",
+			"wpcom-features",
+			"wpcom-migration-helpers",
+			"wpcom-plugins",
+			"wpcom-themes"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		},
+		{
+			"name": "automattic/custom-fonts",
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/custom-fonts.git"
+		},
+		{
+			"name": "automattic/custom-fonts-typekit",
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/custom-fonts-typekit.git"
+		},
+		{
+			"name": "automattic/at-pressable-podcasting",
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/automattic/at-pressable-podcasting.git"
+		},
+		{
+			"name": "automattic/text-media-widget-styles",
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/text-media-widget-styles.git"
+		},
+		{
+			"name": "automattic/wc-calypso-bridge",
+			"type": "vcs",
+			"no-api": true,
+			"url": "https://github.com/Automattic/wc-calypso-bridge.git"
+		},
+		{
+			"type": "package",
+			"package": {
+				"name": "wordpress/classic-editor-plugin",
+				"version": "1.5",
+				"dist": {
+					"url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip",
+					"type": "zip"
+				},
+				"source": {
+					"url": "https://plugins.svn.wordpress.org/classic-editor/",
+					"type": "svn",
+					"reference": "tags/1.5/"
+				},
+				"autoload": {
+					"classmap": []
+				}
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"composer/installers": true,
+			"roots/wordpress-core-installer": true
+		},
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_23_0_alpha"
+	},
+	"extra": {
+		"mirror-repo": "Automattic/wpcom-site-helper",
+		"autorelease": true,
+		"autotagger": true,
+		"beta-plugin-slug": "wpcomsh",
+		"release-branch-prefix": [
+			"wpcomsh",
+			"weekly"
+		],
+		"installer-disable": true,
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"version-constants": {
+			"WPCOMSH_VERSION": "wpcomsh.php"
+		}
+	}
+}

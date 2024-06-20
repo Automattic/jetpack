@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Change codebase to use clsx instead of classnames.

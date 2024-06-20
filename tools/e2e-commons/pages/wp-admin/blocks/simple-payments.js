@@ -65,6 +65,6 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( '.jetpack-simple-payments-product' );
+		await page.locator( '.jetpack-simple-payments-product' ).waitFor();
 	}
 }

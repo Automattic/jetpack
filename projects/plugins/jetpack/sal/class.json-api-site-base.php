@@ -1348,15 +1348,19 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Returns the 'siteGoals' option if set (eg. share, promote, educate, sell, showcase), null otherwise.
+	 * Returns the 'site_goals' option if set (eg. share, promote, educate, sell, showcase).
 	 *
-	 * @return string|null
+	 * @return array
 	 **/
 	public function get_site_goals() {
-		$options = get_option( 'options' );
-		return empty( $options['siteGoals'] ) ? null : $options['siteGoals'];
-	}
+		$site_goals_option = get_option( 'site_goals' );
 
+		if ( is_array( $site_goals_option ) ) {
+			return $site_goals_option;
+		}
+
+		return array();
+	}
 	/**
 	 * Return site's launch status. Expanded in class.json-api-site-jetpack.php.
 	 *
