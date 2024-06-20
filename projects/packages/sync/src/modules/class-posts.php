@@ -129,9 +129,7 @@ class Posts extends Module {
 		if ( 'post' === $object_type ) {
 			$post = get_post( (int) $id );
 			if ( $post ) {
-				$filtered_post            = $this->filter_post_content( $post );
-				$filtered_post_with_links = $this->add_links( $filtered_post );
-				return $filtered_post_with_links;
+				return $this->filter_post_content_and_add_links( $post );
 			}
 		}
 
@@ -357,9 +355,7 @@ class Posts extends Module {
 		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 			return false;
 		}
-		$filtered_post            = $this->filter_post_content( $post );
-		$filtered_post_with_links = $this->add_links( $filtered_post );
-		return array( $post_id, $flags, $filtered_post_with_links );
+		return array( $post_id, $flags, $this->filter_post_content( $post ) );
 	}
 
 	/**
@@ -468,6 +464,16 @@ class Posts extends Module {
 		add_shortcode( 'embed', '__return_false' );
 		// Attempts to embed all URLs in a post.
 		add_filter( 'the_content', array( $wp_embed, 'autoembed' ), 8 );
+	}
+
+	/**
+	 * Expands wp_insert_post to include filtered content andd add links
+	 *
+	 * @param \WP_Post $post_object Post object.
+	 */
+	public function filter_post_content_and_add_links( $post_object ) {
+		$filtered_post = $this->filter_post_content( $post_object );
+		return $this->add_links( $filtered_post );
 	}
 
 	/**
@@ -608,6 +614,11 @@ class Posts extends Module {
 	 * @return \WP_Post Post object with added links.
 	 */
 	public function add_links( $post ) {
+
+		if ( ! ( $post instanceof \WP_Post ) || $post->post_status === 'jetpack_sync_blocked' || $post->post_status === 'jetpack_sync_non_registered_post_type' ) {
+			return $post;
+		}
+
 		if ( has_post_thumbnail( $post->ID ) ) {
 			$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
 			if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) ) {
@@ -911,8 +922,7 @@ class Posts extends Module {
 	 */
 	private function expand_posts( $post_ids ) {
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
-		$posts = array_map( array( $this, 'filter_post_content' ), $posts );
-		$posts = array_map( array( $this, 'add_links' ), $posts );
+		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
 		$posts = array_values( $posts ); // Reindex in case posts were deleted.
 		return $posts;
 	}
