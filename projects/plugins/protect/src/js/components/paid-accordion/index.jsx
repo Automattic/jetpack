@@ -46,6 +46,47 @@ export const PaidAccordionItem = ( {
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
+	const FixDetails = ( { date, isFixed } ) => (
+		<span className={ styles[ isFixed ? 'is-fixed' : 'is-ignored' ] }>
+			{ isFixed
+				? sprintf(
+						/* translators: %s: Fixed on date */
+						__( 'Threat fixed %s', 'jetpack-protect' ),
+						dateI18n( 'M j, Y', date )
+				  )
+				: __( 'Threat ignored', 'jetpack-protect' ) }
+		</span>
+	);
+
+	const ScanHistoryDetails = ( { viewingHistory, detectedAt, fixedAt } ) => {
+		if ( ! viewingHistory ) {
+			return null;
+		}
+
+		return (
+			<>
+				{ detectedAt && (
+					<Text className={ styles[ 'accordion-header-status' ] }>
+						{ sprintf(
+							/* translators: %s: First detected date */
+							__( 'Threat found %s', 'jetpack-protect' ),
+							dateI18n( 'M j, Y', detectedAt )
+						) }
+						<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+						<FixDetails date={ fixedAt || detectedAt } isFixed={ !! fixedAt } />
+					</Text>
+				) }
+				<StatusBadge status={ fixedAt ? 'fixed' : 'ignored' } />
+			</>
+		);
+	};
+
+	const StatusBadge = ( { status } ) => (
+		<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
+			{ status === 'fixed' ? __( 'Fixed', 'jetpack-protect' ) : __( 'Ignored', 'jetpack-protect' ) }
+		</div>
+	);
+
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
@@ -60,40 +101,11 @@ export const PaidAccordionItem = ( {
 					>
 						{ title }
 					</Text>
-					{ viewingScanHistory && (
-						<>
-							{ firstDetected && (
-								<Text className={ styles[ 'accordion-header-status' ] }>
-									{ sprintf(
-										/* translators: %1$s: First detected date */
-										__( 'Threat found %1$s', 'jetpack-protect' ),
-										dateI18n( 'M j, Y', firstDetected )
-									) }
-									<span className={ styles[ 'accordion-header-status-separator' ] }></span>
-									{ fixedOn ? (
-										<span className={ styles[ 'is-fixed' ] }>
-											{ sprintf(
-												/* translators: %s: Fixed on date */
-												__( 'Threat fixed %s', 'jetpack-protect' ),
-												dateI18n( 'M j, Y', fixedOn )
-											) }
-										</span>
-									) : (
-										<span className={ styles[ 'is-ignored' ] }>
-											{ __( 'Threat ignored', 'jetpack-protect' ) }
-										</span>
-									) }
-								</Text>
-							) }
-							<div
-								className={ `${ styles[ 'status-badge' ] } ${
-									styles[ fixedOn ? 'fixed' : 'ignored' ]
-								}` }
-							>
-								{ fixedOn ? __( 'Fixed', 'jetpack-protect' ) : __( 'Ignored', 'jetpack-protect' ) }
-							</div>
-						</>
-					) }
+					<ScanHistoryDetails
+						viewingHistory={ viewingScanHistory }
+						detectedAt={ firstDetected }
+						fixedAt={ fixedOn }
+					/>
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />
