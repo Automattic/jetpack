@@ -60,9 +60,8 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 		$site_type = 'wpcom';
 	} else {
-		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-		// $blog      = get_blog_details( $blog_id, false );
-		// $site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
+		$blog      = get_blog_details( $blog_id, false );
+		$site_type = is_blog_wpcom( $blog ) || is_blog_atomic( $blog ) ? 'wpcom' : 'jetpack';
 		$site_type = 'jetpack';
 	}
 
