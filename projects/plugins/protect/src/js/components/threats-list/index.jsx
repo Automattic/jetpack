@@ -140,7 +140,6 @@ const ThreatsList = () => {
 										anchor={ dailyAndManualScansPopoverAnchor }
 									/>
 									<Button
-										ref={ setDailyAndManualScansPopoverAnchor }
 										variant="secondary"
 										className={ styles[ 'list-header-button' ] }
 										onClick={ handleHistoryClick }
