@@ -212,6 +212,7 @@ class Jetpack_Protect {
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'status'             => Status::get_status( $refresh_status_from_wpcom ),
+			'viewingScanHistory' => false,
 			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
 			'installedPlugins'   => Plugins_Installer::get_plugins(),
 			'installedThemes'    => Sync_Functions::get_themes(),

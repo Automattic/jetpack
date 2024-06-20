@@ -97,6 +97,18 @@ class Scan_History {
 	}
 
 	/**
+	 * Delete the cached history and its timestamp
+	 *
+	 * @return bool Whether all related history options were successfully deleted.
+	 */
+	public static function delete_option() {
+		$option_deleted           = delete_option( static::OPTION_NAME );
+		$option_timestamp_deleted = delete_option( static::OPTION_TIMESTAMP_NAME );
+
+		return $option_deleted && $option_timestamp_deleted;
+	}
+
+	/**
 	 * Gets the current history of the Jetpack Protect checks
 	 *
 	 * @param bool  $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
@@ -289,9 +301,9 @@ class Scan_History {
 								'payload_description' => $threat->payload_description ?? null,
 								'first_detected'      => $threat->first_detected ?? null,
 								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'fixed_on'            => $threat->fixed_on,
+								'fixed_on'            => $threat->fixed_on ?? null,
 								'severity'            => $threat->severity ?? null,
-								'fixable'             => $threat->fixable,
+								'fixable'             => $threat->fixable ?? null,
 								'filename'            => $threat->filename ?? null,
 								'context'             => $threat->context ?? null,
 								'source'              => $threat->source ?? null,
@@ -343,9 +355,9 @@ class Scan_History {
 								'payload_description' => $threat->payload_description ?? null,
 								'first_detected'      => $threat->first_detected ?? null,
 								'fixed_in'            => isset( $threat->fixer->fixer ) && 'update' === $threat->fixer->fixer ? $threat->fixer->target : null,
-								'fixed_on'            => $threat->fixed_on,
+								'fixed_on'            => $threat->fixed_on ?? null,
 								'severity'            => $threat->severity ?? null,
-								'fixable'             => $threat->fixable,
+								'fixable'             => $threat->fixable ?? null,
 								'filename'            => $threat->filename ?? null,
 								'context'             => $threat->context ?? null,
 								'source'              => $threat->source ?? null,

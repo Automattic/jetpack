@@ -12,6 +12,7 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
 import styles from './styles.module.scss';
@@ -19,6 +20,7 @@ import styles from './styles.module.scss';
 const Summary = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
+	const { handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
@@ -84,6 +86,15 @@ const Summary = () => {
 								position="middle left"
 								anchor={ dailyAndManualScansPopoverAnchor }
 							/>
+							<Button
+								ref={ setDailyAndManualScansPopoverAnchor }
+								variant="secondary"
+								className={ styles[ 'summary__scan-button' ] }
+								onClick={ handleHistoryClick }
+								isLoading={ allScanHistoryIsLoading }
+							>
+								{ __( 'History', 'jetpack-protect' ) }
+							</Button>
 						</>
 					) }
 				</div>

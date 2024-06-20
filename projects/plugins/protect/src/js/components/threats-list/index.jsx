@@ -3,6 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
 import EmptyList from './empty';
@@ -14,6 +15,7 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
+	const { handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -137,6 +139,15 @@ const ThreatsList = () => {
 										position={ isSm ? 'bottom left' : 'middle left' }
 										anchor={ dailyAndManualScansPopoverAnchor }
 									/>
+									<Button
+										ref={ setDailyAndManualScansPopoverAnchor }
+										variant="secondary"
+										className={ styles[ 'list-header-button' ] }
+										onClick={ handleHistoryClick }
+										isLoading={ allScanHistoryIsLoading }
+									>
+										{ __( 'History', 'jetpack-protect' ) }
+									</Button>
 								</>
 							) }
 						</div>
