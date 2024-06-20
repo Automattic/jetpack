@@ -219,15 +219,6 @@ const ProductDetailCard = ( {
 			/* dummy arg to avoid bad minification */ 0
 		);
 	}
-	const clickHandler = useCallback( () => {
-		trackButtonClick();
-		onClick?.( mainCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
-
-	const trialClickHandler = useCallback( () => {
-		trackButtonClick( true, wpcomFreeProductSlug, detail );
-		onClick?.( trialCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -279,6 +270,16 @@ const ProductDetailCard = ( {
 					productMoniker
 			  );
 	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
+
+	const clickHandler = useCallback( () => {
+		trackButtonClick( false, null, ctaLabel );
+		onClick?.( mainCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( true, wpcomFreeProductSlug, 'Start for free' );
+		onClick?.( trialCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	return (
 		<div

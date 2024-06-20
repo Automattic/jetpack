@@ -115,10 +115,11 @@ export default function ProductInterstitial( {
 	);
 
 	const trackProductClick = useCallback(
-		( isFreePlan = false, customSlug = null ) => {
+		( isFreePlan = false, customSlug = null, ctaText ) => {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: customSlug ?? slug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				ctaText,
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent ]
