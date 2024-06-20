@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Syncs the Atomic site user profile data with wpcom when the admin interface changes to Default
