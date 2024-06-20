@@ -161,6 +161,11 @@ const EmailSettings = props => {
 	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
 	const exampleEmail =
 		subscriptionReplyTo !== 'author' ? 'donotreply@wordpress.com' : 'author-name@example.com';
+
+	//Check for feature flag
+	const urlParams = new URLSearchParams( window.location.search );
+	const isBylineEnabled = urlParams.get( 'enable-byline' ) === 'true';
+
 	return (
 		<SettingsCard
 			{ ...props }
@@ -194,121 +199,123 @@ const EmailSettings = props => {
 					onChange={ handleEnableFeaturedImageInEmailToggleChange }
 				/>
 			</SettingsGroup>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptionsModule }
-				className="newsletter-group"
-			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Email Byline', 'jetpack' ) }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
-				</FormLegend>
-				<p>
-					{ __(
-						'Customize the information you want to display below your post title in emails.',
-						'jetpack'
-					) }
-				</p>
-				<BylinePreview
-					isGravatarEnabled={ bylineState.isGravatarEnabled }
-					isAuthorEnabled={ bylineState.isAuthorEnabled }
-					isPostDateEnabled={ bylineState.isPostDateEnabled }
-					gravatar={ gravatar }
-					displayName={ displayName }
-					dateExample={ dateExample }
-				/>
-				<div className="email-settings__gravatar">
-					<ToggleControl
-						disabled={ gravatarInputDisabled }
-						checked={ isGravatarEnabled }
-						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
-						label={
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show author avatar on your emails', 'jetpack' ) }
-							</span>
-						}
-						onChange={ handleEnableGravatarToggleChange }
+			{ isBylineEnabled && (
+				<SettingsGroup
+					hasChild
+					disableInOfflineMode
+					disableInSiteConnectionMode
+					module={ subscriptionsModule }
+					className="newsletter-group"
+				>
+					<FormLegend className="jp-form-label-wide">
+						{ __( 'Email Byline', 'jetpack' ) }
+						<Chip type="new" text={ __( 'New', 'jetpack' ) } />
+					</FormLegend>
+					<p>
+						{ __(
+							'Customize the information you want to display below your post title in emails.',
+							'jetpack'
+						) }
+					</p>
+					<BylinePreview
+						isGravatarEnabled={ bylineState.isGravatarEnabled }
+						isAuthorEnabled={ bylineState.isAuthorEnabled }
+						isPostDateEnabled={ bylineState.isPostDateEnabled }
+						gravatar={ gravatar }
+						displayName={ displayName }
+						dateExample={ dateExample }
 					/>
-					{ bylineState.isGravatarEnabled && (
-						<div className="email-settings__help-info">
-							<div className="email-settings__gravatar-help-info">
-								<img src={ gravatar } className="email-settings__gravatar-image" alt="" />
-								<div>
-									<div className="email-settings__gravatar-help-text">
-										{ __(
-											'We use Gravatar, a service that associates an avatar image with your primary email address.',
-											'jetpack'
-										) }
+					<div className="email-settings__gravatar">
+						<ToggleControl
+							disabled={ gravatarInputDisabled }
+							checked={ isGravatarEnabled }
+							toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
+							label={
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Show author avatar on your emails', 'jetpack' ) }
+								</span>
+							}
+							onChange={ handleEnableGravatarToggleChange }
+						/>
+						{ bylineState.isGravatarEnabled && (
+							<div className="email-settings__help-info">
+								<div className="email-settings__gravatar-help-info">
+									<img src={ gravatar } className="email-settings__gravatar-image" alt="" />
+									<div>
+										<div className="email-settings__gravatar-help-text">
+											{ __(
+												'We use Gravatar, a service that associates an avatar image with your primary email address.',
+												'jetpack'
+											) }
+										</div>
+										<JetpackButton
+											isExternalLink={ true }
+											href="https://gravatar.com/profile/avatars"
+											variant="secondary"
+											size="small"
+										>
+											{ __( 'Update your Gravatar', 'jetpack' ) }
+										</JetpackButton>
 									</div>
-									<JetpackButton
-										isExternalLink={ true }
-										href="https://gravatar.com/profile/avatars"
-										variant="secondary"
-										size="small"
-									>
-										{ __( 'Update your Gravatar', 'jetpack' ) }
-									</JetpackButton>
 								</div>
 							</div>
+						) }
+						<SupportInfo
+							text={ sprintf(
+								// translators: %s is the user's email address
+								__(
+									"The avatar comes from Gravatar, a universal avatar service. Your image may also appear on other sites using Gravatar when you're logged in with %s.",
+									'jetpack'
+								),
+								email
+							) }
+							privacyLink="https://support.gravatar.com/account/data-privacy/"
+						/>
+					</div>
+					<ToggleControl
+						disabled={ authorInputDisabled }
+						checked={ isAuthorEnabled }
+						toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Show author display name', 'jetpack' ) }
+							</span>
+						}
+						onChange={ handleEnableAuthorToggleChange }
+					/>
+
+					<ToggleControl
+						disabled={ postDateInputDisabled }
+						checked={ isPostDateEnabled }
+						toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Add the post date', 'jetpack' ) }
+							</span>
+						}
+						onChange={ handleEnablePostDateToggleChange }
+					/>
+					{ bylineState.isPostDateEnabled && (
+						<div className="email-settings__help-info">
+							{ createInterpolateElement(
+								__(
+									'You can customize the date format in your site’s <settingsLink>general settings</settingsLink>',
+									'jetpack'
+								),
+								{
+									settingsLink: (
+										<JetpackButton
+											variant="link"
+											isExternalLink={ true }
+											href={ adminUrl + 'options-general.php' }
+										/>
+									),
+								}
+							) }
 						</div>
 					) }
-					<SupportInfo
-						text={ sprintf(
-							// translators: %s is the user's email address
-							__(
-								"The avatar comes from Gravatar, a universal avatar service. Your image may also appear on other sites using Gravatar when you're logged in with %s.",
-								'jetpack'
-							),
-							email
-						) }
-						privacyLink="https://support.gravatar.com/account/data-privacy/"
-					/>
-				</div>
-				<ToggleControl
-					disabled={ authorInputDisabled }
-					checked={ isAuthorEnabled }
-					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show author display name', 'jetpack' ) }
-						</span>
-					}
-					onChange={ handleEnableAuthorToggleChange }
-				/>
-
-				<ToggleControl
-					disabled={ postDateInputDisabled }
-					checked={ isPostDateEnabled }
-					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Add the post date', 'jetpack' ) }
-						</span>
-					}
-					onChange={ handleEnablePostDateToggleChange }
-				/>
-				{ bylineState.isPostDateEnabled && (
-					<div className="email-settings__help-info">
-						{ createInterpolateElement(
-							__(
-								'You can customize the date format in your site’s <settingsLink>general settings</settingsLink>',
-								'jetpack'
-							),
-							{
-								settingsLink: (
-									<JetpackButton
-										variant="link"
-										isExternalLink={ true }
-										href={ adminUrl + 'options-general.php' }
-									/>
-								),
-							}
-						) }
-					</div>
-				) }
-			</SettingsGroup>
+				</SettingsGroup>
+			) }
 			<SettingsGroup
 				hasChild
 				disableInOfflineMode
