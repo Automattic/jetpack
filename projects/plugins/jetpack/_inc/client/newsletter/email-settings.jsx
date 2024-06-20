@@ -208,7 +208,7 @@ const EmailSettings = props => {
 					className="newsletter-group"
 				>
 					<FormLegend className="jp-form-label-wide">
-						{ __( 'Email Byline', 'jetpack' ) }
+						{ __( 'Email byline', 'jetpack' ) }
 						<Chip type="new" text={ __( 'New', 'jetpack' ) } />
 					</FormLegend>
 					<p>
