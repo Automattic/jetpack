@@ -319,9 +319,10 @@ function wp_super_cache_admin_enqueue_scripts( $hook ) {
 		'wp-super-cache-admin',
 		'wpscAdmin',
 		array(
-			'boostDismissNonce'  => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
-			'boostInstallNonce'  => wp_create_nonce( 'updates' ),
-			'boostActivateNonce' => wp_create_nonce( 'activate-boost' ),
+			'boostNoticeDismissNonce' => wp_create_nonce( 'wpsc_dismiss_boost_notice' ),
+			'boostDismissNonce'       => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
+			'boostInstallNonce'       => wp_create_nonce( 'updates' ),
+			'boostActivateNonce'      => wp_create_nonce( 'activate-boost' ),
 		)
 	);
 }
@@ -422,9 +423,9 @@ function wpsc_jetpack_boost_install_banner() {
 						?>
 					</p>
 
-					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+					<div class="wpsc-boost-migration-error" style="display:none; color:red; margin-bottom: 20px;"></div>
 
-					<a data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button <?php echo esc_attr( $button_class ); ?>">
+					<a data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="wpsc-boost-migration-button button button-primary <?php echo esc_attr( $button_class ); ?>">
 						<div class="spinner" style="display:none; margin-top: 8px"></div>
 						<label><?php echo esc_html( $button_label ); ?></label>
 					</a>
