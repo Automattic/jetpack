@@ -36,7 +36,7 @@ class REST_Controller {
 	 *
 	 * @var string
 	 */
-	const WPCOM_API_BASE_URL = 'https://public-api.wordpress.com';
+	const WPCOM_API_BASE_URL = 'https://public-api.wordpress.com/wpcom/v2';
 
 	/**
 	 * Registers the REST routes.
