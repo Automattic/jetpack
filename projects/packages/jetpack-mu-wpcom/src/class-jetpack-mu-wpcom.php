@@ -290,6 +290,9 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
+		if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+			return;
+		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 	}
 
