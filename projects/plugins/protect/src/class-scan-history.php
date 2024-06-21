@@ -113,9 +113,13 @@ class Scan_History {
 	 *
 	 * @param bool  $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
 	 * @param array $filter The filter to apply to the data.
-	 * @return History_Model
+	 * @return History_Model|bool
 	 */
 	public static function get_scan_history( $refresh_from_wpcom = false, $filter = null ) {
+		$has_required_plan = Plan::has_required_plan();
+		if ( ! $has_required_plan ) {
+			return false;
+		}
 
 		if ( self::$history !== null ) {
 			return self::$history;
