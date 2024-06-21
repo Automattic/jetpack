@@ -6,9 +6,8 @@
  * sharing message.
  */
 
-import { Button } from '@automattic/jetpack-components';
-import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { Disabled, PanelRow } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
@@ -29,6 +28,7 @@ import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
 import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
+import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
 import styles from './styles.module.scss';
@@ -48,7 +48,6 @@ export default function PublicizeForm() {
 	const {
 		isPublicizeEnabled,
 		isPublicizeDisabledBySitePlan,
-		connectionsAdminUrl,
 		needsUserConnection,
 		userConnectionUrl,
 	} = usePublicizeConfig();
@@ -98,8 +97,6 @@ export default function PublicizeForm() {
 	}
 
 	refreshConnections();
-
-	const { openConnectionsModal } = useDispatch( socialStore );
 
 	return (
 		<Wrapper>
@@ -155,15 +152,7 @@ export default function PublicizeForm() {
 											'jetpack'
 										) }
 									</span>
-									{ useAdminUiV1 ? (
-										<Button variant="secondary" size="small" onClick={ openConnectionsModal }>
-											{ __( 'Connect an account', 'jetpack' ) }
-										</Button>
-									) : (
-										<ExternalLink href={ connectionsAdminUrl }>
-											{ __( 'Connect an account', 'jetpack' ) }
-										</ExternalLink>
-									) }
+									<SettingsButton label={ __( 'Connect an account', 'jetpack' ) } />
 								</p>
 							);
 						}

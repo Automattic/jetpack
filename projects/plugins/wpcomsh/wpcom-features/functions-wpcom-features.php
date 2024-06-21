@@ -189,7 +189,7 @@ function _wpcom_features_get_simple_site_purchases( $blog_id ) {
 	$purchases = $wpdb->get_results(
 		$wpdb->prepare(
 			"
-					SELECT 
+					SELECT
 					    product.product_slug,
 					    product.product_id,
 					    product.billing_product_id,
