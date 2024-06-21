@@ -29,6 +29,7 @@
 		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
 		"@automattic/jetpack-explat": "workspace:*",
 		"@tanstack/react-query": "5.20.5",
