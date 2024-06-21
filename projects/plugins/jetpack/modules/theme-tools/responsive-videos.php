@@ -11,8 +11,11 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
 	/**
 	 * Load the Responsive videos plugin
+	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 	 */
 	function jetpack_responsive_videos_init() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
 
 		/* If the doesn't theme support 'jetpack-responsive-videos', don't continue */
 		if ( ! current_theme_supports( 'jetpack-responsive-videos' ) ) {
@@ -43,10 +46,14 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	/**
 	 * Adds a wrapper to videos and enqueue script
 	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 *
 	 * @param string $html The video embed HTML.
 	 * @return string
 	 */
 	function jetpack_responsive_videos_embed_html( $html ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
 		if ( empty( $html ) || ! is_string( $html ) ) {
 			return $html;
 		}
@@ -86,12 +93,16 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	/**
 	 * Check if oEmbed is a `$video_patterns` provider video before wrapping.
 	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 *
 	 * @param mixed  $html The cached HTML result, stored in post meta.
 	 * @param string $url  he attempted embed URL.
 	 *
 	 * @return string
 	 */
 	function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
 		if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 			return $html;
 		}
@@ -157,12 +168,16 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 *
 	 * @since 7.0.0
 	 *
+	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 *
 	 * @param string $block_content The block content about to be appended.
 	 * @param array  $block         The full block, including name and attributes.
 	 *
 	 * @return string $block_content String of rendered HTML.
 	 */
 	function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+
 		if (
 			isset( $block['blockName'] )
 			&& (
