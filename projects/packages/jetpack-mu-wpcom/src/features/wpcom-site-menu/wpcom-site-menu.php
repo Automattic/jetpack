@@ -592,6 +592,9 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Hide the 'Help Center' icon in WordPress admin.
  */
 function hide_help_center_admin_bar() {
+	if ( ! function_exists( 'is_agency_managed_site' ) || ! is_agency_managed_site() ) {
+		return;
+	}
 	?>
 	<style>
 		#wp-admin-bar-help-center {
@@ -600,7 +603,4 @@ function hide_help_center_admin_bar() {
 	</style>
 	<?php
 }
-
-if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
-	add_action( 'admin_head', 'hide_help_center_admin_bar' );
-}
+add_action( 'admin_head', 'hide_help_center_admin_bar' );
