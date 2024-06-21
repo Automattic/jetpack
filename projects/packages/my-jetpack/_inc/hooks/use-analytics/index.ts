@@ -16,7 +16,7 @@ const useAnalytics = () => {
 		userConnectionData = {},
 	} = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
-	const { myJetpackVersion = '', jetpackVersion = '' } = getMyJetpackWindowInitialState();
+	const { myJetpackVersion = '' } = getMyJetpackWindowInitialState();
 
 	/**
 	 * Initialize tracks with user data.
@@ -44,7 +44,6 @@ const useAnalytics = () => {
 		jetpackAnalytics.tracks.recordEvent( event, {
 			...properties,
 			version: myJetpackVersion,
-			jetpackVersion,
 			isSiteConnected,
 			isUserConnected,
 			referring_plugins: connectedPluginsSlugs,
