@@ -7,7 +7,7 @@
 
 // Minimum version of Jetpack Boost required for compatibility.
 if ( ! defined( 'MINIMUM_BOOST_VERSION' ) ) {
-	define( 'MINIMUM_BOOST_VERSION', '3.4.0' );
+	define( 'MINIMUM_BOOST_VERSION', '3.4.5' );
 }
 
 /**
