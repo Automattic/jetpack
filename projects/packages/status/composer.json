@@ -54,7 +54,6 @@
 		"dependencies": {
 			"test-only": [
 				"packages/connection",
-				"packages/identity-crisis",
 				"packages/plans"
 			]
 		}
