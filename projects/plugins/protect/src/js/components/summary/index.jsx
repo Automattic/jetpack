@@ -94,9 +94,9 @@ const Summary = () => {
 							</Text>
 						) }
 					</div>
-					{ hasRequiredPlan /*&& numThreats === 0 TODO: figure this bit out... */ && (
+					{ hasRequiredPlan && ( // todo: logic needs improving
 						<>
-							{ ! viewingScanHistory ? (
+							{ ! viewingScanHistory && numThreats === 0 && (
 								<>
 									<Button
 										ref={ setDailyAndManualScansPopoverAnchor }
@@ -121,7 +121,8 @@ const Summary = () => {
 										{ __( 'History', 'jetpack-protect' ) }
 									</Button>
 								</>
-							) : (
+							) }
+							{ viewingScanHistory && (
 								<>
 									<Button
 										variant="secondary"
