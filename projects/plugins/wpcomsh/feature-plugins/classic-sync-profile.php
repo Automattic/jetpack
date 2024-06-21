@@ -38,21 +38,20 @@ function wpcom_sync_user_profile_data() {
 		if ( $user ) {
 			// Update the user's profile with the fetched data.
 			$userdata = array(
-				'ID'                => $user_id,
-				'first_name'        => $profile_data['first_name'],
-				'last_name'         => $profile_data['last_name'],
-				'nickname'          => $profile_data['nickname'],
-				'display_name'      => $profile_data['display_name'],
-				'description'       => $profile_data['description'],
-				'user_url'          => $profile_data['user_url'],
-				'locale'            => $profile_data['locale'],
-				'admin_color'       => $profile_data['admin_color'],
-				'comment_shortcuts' => 'true',
+				'ID'                   => $user_id,
+				'first_name'           => $profile_data['first_name'],
+				'last_name'            => $profile_data['last_name'],
+				'nickname'             => $profile_data['nickname'],
+				'display_name'         => $profile_data['display_name'],
+				'description'          => $profile_data['description'],
+				'user_url'             => $profile_data['user_url'],
+				'locale'               => $profile_data['locale'],
+				'admin_color'          => $profile_data['admin_color'],
+				'comment_shortcuts'    => 'true',
+				'rich_editing'         => 'true',
+				'syntax_highlighting'  => 'true',
+				'show_admin_bar_front' => 'true',
 			);
-
-			update_user_option( $user_id, 'rich_editing', 'true' ); // Not working on my test site
-			update_user_option( $user_id, 'syntax_highlighting', 'true' ); // Not working on my test site
-			update_user_option( $user_id, 'show_admin_bar_front', 'true' );
 
 			wp_update_user( $userdata );
 		}
