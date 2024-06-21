@@ -46,5 +46,9 @@
 	&.whatsapp {
 		fill: var( --color-whatsapp );
 	}
+	&.threads {
+		fill: var( --color-threads );
+		border-radius: 40%;
+	}
 }
 
