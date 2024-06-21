@@ -32,6 +32,8 @@ class Scan_Helper {
 			'core_file_modification' => "{$admin_dir}index.php",
 			'non_core_file'          => "{$admin_dir}non-core-file.php",
 			'infected_file'          => "$content_dir/index.php",
+			'fake_vulnerable_plugin' => "$content_dir/plugins/wp-super-cache.php",
+			'fake_vulnerable_theme'  => "$content_dir/themes/twentyfifteen/style.css",
 		);
 
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
@@ -128,6 +130,12 @@ class Scan_Helper {
 			die;
 		}
 
+		// Create parent directory of the file if it does not already exist
+		$parent_dir = dirname( $file );
+		if ( ! $wp_filesystem->is_dir( $parent_dir ) ) {
+			$wp_filesystem->mkdir( $parent_dir );
+		}
+
 		return $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
 	}
 
@@ -143,7 +151,7 @@ class Scan_Helper {
 			die;
 		}
 
-		return $wp_filesystem->delete( $file );
+		return $wp_filesystem->delete( $file, true );
 	}
 
 	/**
@@ -434,6 +442,113 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Checks whether the fake vulnerable plugin currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fake_vulnerable_plugin_exists() {
+		return file_exists( $this->threats['fake_vulnerable_plugin'] );
+	}
+
+	/**
+	 * Generate fake vulnerable plugin.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fake_vulnerable_plugin() {
+		$content = base64_decode(
+			'LyoKUGx1Z2luIE5hbWU6IFdQIFN1cGVyIENhY2hlClBsdWdpbiBVUkk6IGh0dHBzOi8vd29yZHByZXNzLm9yZy9wbHVnaW5zL3' .
+			'dwLXN1cGVyLWNhY2hlLwpEZXNjcmlwdGlvbjogVmVyeSBmYXN0IGNhY2hpbmcgcGx1Z2luIGZvciBXb3JkUHJlc3MuClZlcnNpb246ID' .
+			'EuNy4yCkF1dGhvcjogQXV0b21hdHRpYwpBdXRob3IgVVJJOiBodHRwczovL2F1dG9tYXR0aWMuY29tLwpMaWNlbnNlOiBHUEwyKwpMaW' .
+			'NlbnNlIFVSSTogaHR0cHM6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy9ncGwtMi4wLnR4dApUZXh0IERvbWFpbjogd3Atc3VwZXItY2FjaGUKKi8='
+		);
+
+		if ( ! $this->write_file( $this->threats['fake_vulnerable_plugin'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fake_vulnerable_plugin']}" );
+		}
+
+		return "Successfully added fake vulnerable plugin to {$this->threats['fake_vulnerable_plugin']}.";
+	}
+
+	/**
+	 * Remove fake vulnerable plugin.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fake_vulnerable_plugin() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fake_vulnerable_plugin'] );
+
+		if ( ! $this->delete_file( $this->threats['fake_vulnerable_plugin'] ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fake vulnerable plugin $relative_file_path.";
+	}
+
+	/**
+	 * Checks whether the fake vulnerable theme currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fake_vulnerable_theme_exists() {
+		return file_exists( $this->threats['fake_vulnerable_theme'] );
+	}
+
+	/**
+	 * Generate fake vulnerable theme.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fake_vulnerable_theme() {
+		$content = base64_decode(
+			'LyoKVGhlbWUgTmFtZTogVHdlbnR5IEZpZnRlZW4KVGhlbWUgVVJJOiBodHRwczovL3dvcmRwcmVzcy5vcmcvdGhlbWVzL3R3ZW' .
+			'50eWZpZnRlZW4vCkF1dGhvcjogdGhlIFdvcmRQcmVzcyB0ZWFtCkF1dGhvciBVUkk6IGh0dHBzOi8vd29yZHByZXNzLm9yZy8KRGVzY3' .
+			'JpcHRpb246IE91ciAyMDE1IGRlZmF1bHQgdGhlbWUgaXMgY2xlYW4sIGJsb2ctZm9jdXNlZCwgYW5kIGRlc2lnbmVkIGZvciBjbGFyaX' .
+			'R5LiBUd2VudHkgRmlmdGVlbidzIHNpbXBsZSwgc3RyYWlnaHRmb3J3YXJkIHR5cG9ncmFwaHkgaXMgcmVhZGFibGUgb24gYSB3aWRlIH' .
+			'ZhcmlldHkgb2Ygc2NyZWVuIHNpemVzLCBhbmQgc3VpdGFibGUgZm9yIG11bHRpcGxlIGxhbmd1YWdlcy4gV2UgZGVzaWduZWQgaXQgdX' .
+			'NpbmcgYSBtb2JpbGUtZmlyc3QgYXBwcm9hY2gsIG1lYW5pbmcgeW91ciBjb250ZW50IHRha2VzIGNlbnRlci1zdGFnZSwgcmVnYXJkbG' .
+			'VzcyBvZiB3aGV0aGVyIHlvdXIgdmlzaXRvcnMgYXJyaXZlIGJ5IHNtYXJ0cGhvbmUsIHRhYmxldCwgbGFwdG9wLCBvciBkZXNrdG9wIG' .
+			'NvbXB1dGVyLgpWZXJzaW9uOiAxLjEKTGljZW5zZTogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgdjIgb3IgbGF0ZXIKTGljZW5zZS' .
+			'BVUkk6IGh0dHA6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy9ncGwtMi4wLmh0bWwKVGFnczogYmxhY2ssIGJsdWUsIGdyYXksIHBpbmssIH' .
+			'B1cnBsZSwgd2hpdGUsIHllbGxvdywgZGFyaywgbGlnaHQsIHR3by1jb2x1bW5zLCBsZWZ0LXNpZGViYXIsIGZpeGVkLWxheW91dCwgcm' .
+			'VzcG9uc2l2ZS1sYXlvdXQsIGFjY2Vzc2liaWxpdHktcmVhZHksIGN1c3RvbS1iYWNrZ3JvdW5kLCBjdXN0b20tY29sb3JzLCBjdXN0b2' .
+			'0taGVhZGVyLCBjdXN0b20tbWVudSwgZWRpdG9yLXN0eWxlLCBmZWF0dXJlZC1pbWFnZXMsIG1pY3JvZm9ybWF0cywgcG9zdC1mb3JtYX' .
+			'RzLCBydGwtbGFuZ3VhZ2Utc3VwcG9ydCwgc3RpY2t5LXBvc3QsIHRocmVhZGVkLWNvbW1lbnRzLCB0cmFuc2xhdGlvbi1yZWFkeQpUZX' .
+			'h0IERvbWFpbjogdHdlbnR5ZmlmdGVlbgoKVGhpcyB0aGVtZSwgbGlrZSBXb3JkUHJlc3MsIGlzIGxpY2Vuc2VkIHVuZGVyIHRoZSBHUE' .
+			'wuClVzZSBpdCB0byBtYWtlIHNvbWV0aGluZyBjb29sLCBoYXZlIGZ1biwgYW5kIHNoYXJlIHdoYXQgeW91J3ZlIGxlYXJuZWQgd2l0aC' .
+			'BvdGhlcnMuCiov'
+		);
+
+		if ( ! $this->write_file( $this->threats['fake_vulnerable_theme'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fake_vulnerable_theme']}" );
+		}
+
+		// The theme also needs an index.php to be recognized as one by WordPress.
+		$index_content = '<?php // Silence is golden.';
+		if ( ! $this->write_file( dirname( $this->threats['fake_vulnerable_theme'] ) . '/index.php', $index_content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write index.php to {$this->threats['fake_vulnerable_theme']}" );
+		}
+
+		return "Successfully added fake vulnerable theme to {$this->threats['fake_vulnerable_theme']}.";
+	}
+
+	/**
+	 * Remove fake vulnerable theme.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fake_vulnerable_theme() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fake_vulnerable_theme'] );
+
+		$parent_dir = dirname( $this->threats['fake_vulnerable_theme'] );
+		if ( ! $this->delete_file( $parent_dir ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fake vulnerable theme $relative_file_path.";
+	}
+
+	/**
 	 * Handles the form submission
 	 *
 	 * @return array Associative array containing all the successes and errors.
@@ -519,6 +634,30 @@ class Scan_Helper {
 			$successes[] = $infected_file;
 		}
 
+		// Fake vulnerable plugin
+		if ( isset( $_POST['fake-vulnerable-plugin'] ) ) {
+			$fake_vulnerable_plugin = ! $this->fake_vulnerable_plugin_exists() ? $this->generate_fake_vulnerable_plugin() : null;
+		} else {
+			$fake_vulnerable_plugin = $this->fake_vulnerable_plugin_exists() ? $this->remove_fake_vulnerable_plugin() : null;
+		}
+		if ( is_wp_error( $fake_vulnerable_plugin ) ) {
+			$errors[] = $fake_vulnerable_plugin;
+		} elseif ( $fake_vulnerable_plugin ) {
+			$successes[] = $fake_vulnerable_plugin;
+		}
+
+		// Fake vulnerable theme
+		if ( isset( $_POST['fake-vulnerable-theme'] ) ) {
+			$fake_vulnerable_theme = ! $this->fake_vulnerable_theme_exists() ? $this->generate_fake_vulnerable_theme() : null;
+		} else {
+			$fake_vulnerable_theme = $this->fake_vulnerable_theme_exists() ? $this->remove_fake_vulnerable_theme() : null;
+		}
+		if ( is_wp_error( $fake_vulnerable_theme ) ) {
+			$errors[] = $fake_vulnerable_theme;
+		} elseif ( $fake_vulnerable_theme ) {
+			$successes[] = $fake_vulnerable_theme;
+		}
+
 		return array(
 			'errors'    => $errors,
 			'successes' => $successes,
@@ -532,9 +671,9 @@ class Scan_Helper {
 		$submission = $this->handle_submit();
 
 		// eicar check
-		$dir   = wp_upload_dir()['basedir'];
 		$eicar = $this->wp_file_exists( $this->threats['eicar'] ) ? 'checked="checked"' : '';
-		// suspciious link check
+
+		// suspicious link check
 		$suspicious_link = $this->wp_file_exists( $this->threats['suspicious_link'] ) ? 'checked="checked"' : '';
 
 		// core modification check
@@ -553,6 +692,12 @@ class Scan_Helper {
 		$dir    = str_replace( site_url() . '/', ABSPATH, content_url() );
 		$lines  = file( "$dir/index.php" );
 		$infect = $lines[ count( $lines ) - 1 ] === 'HTML;' ? 'checked' : '';
+
+		// fake vulnerable plugin check
+		$fake_vulnerable_plugin = $this->wp_file_exists( $this->threats['fake_vulnerable_plugin'] ) ? 'checked="checked"' : '';
+
+		// fake vulnerable theme check
+		$fake_vulnerable_theme = $this->wp_file_exists( $this->threats['fake_vulnerable_theme'] ) ? 'checked="checked"' : '';
 
 		?>
 
@@ -629,6 +774,24 @@ class Scan_Helper {
 					<strong>Infect a File Threat</strong>
 					<br>
 					Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="fake-vulnerable-plugin">
+					<input type="checkbox" name="fake-vulnerable-plugin" id="fake-vulnerable-plugin" <?php echo esc_attr( $fake_vulnerable_plugin ); ?>>
+					<strong>Create a fake vulnerable plugin</strong>
+					<br>
+					Add/Remove an fake vulnerable plugin - <code>WP Super Cache 1.7.2</code> see <a href="https://wpscan.com/plugin/wp-super-cache/">WPScan reference</a>.
+				</label>
+			</div>
+
+			<div>
+				<label for="fake-vulnerable-theme">
+					<input type="checkbox" name="fake-vulnerable-theme" id="fake-vulnerable-theme" <?php echo esc_attr( $fake_vulnerable_theme ); ?>>
+					<strong>Create a fake vulnerable theme</strong>
+					<br>
+					Add/Remove an fake vulnerable theme - <code>Twenty Fifteen 1.1</code> see <a href="https://wpscan.com/theme/twentyfifteen/">WPScan reference</a>.
 				</label>
 			</div>
 
