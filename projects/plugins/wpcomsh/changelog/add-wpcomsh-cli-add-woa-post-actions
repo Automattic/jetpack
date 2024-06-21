@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+wpcomsh: Add WP-CLI commands with hooks for WoA post-transfer/reset/clone functionality

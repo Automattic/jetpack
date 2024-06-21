@@ -47,7 +47,7 @@ return [
     'file_suppressions' => [
         'block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php' => ['PhanUndeclaredFunction'],
         'class-jetpack-plugin-compatibility.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference'],
-        'class-wpcomsh-cli-commands.php' => ['PhanTypeVoidAssignment', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredClassMethod', 'PhanUndeclaredFunctionInCallable'],
+        'class-wpcomsh-cli-commands.php' => ['PhanTypeVoidAssignment', 'PhanUndeclaredClassInCallable', 'PhanUndeclaredFunctionInCallable'],
         'custom-colors/class-palette.php' => ['PhanTypeArraySuspiciousNullable'],
         'custom-colors/colors-api.php' => ['PhanNoopNewNoSideEffects'],
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredVariable'],
@@ -82,6 +82,7 @@ return [
         'widgets/class-jetpack-posts-i-like-widget.php' => ['PhanRedundantCondition'],
         'widgets/class-pd-top-rated.php' => ['PhanRedundantCondition'],
         'widgets/class-widget-top-clicks.php' => ['PhanUndeclaredFunction'],
+        'woa.php' => ['PhanUndeclaredClassMethod'],
         'wpcom-features/class-wpcom-features.php' => ['PhanPluginMixedKeyNoKey'],
         'wpcom-features/functions-wpcom-features.php' => ['PhanImpossibleCondition', 'PhanTypeMismatchArgument', 'PhanUndeclaredClassInstanceof', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassProperty', 'PhanUndeclaredFunction', 'PhanUndeclaredMethod', 'PhanUndeclaredTypeParameter'],
         'wpcomsh.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredFunctionInCallable'],
