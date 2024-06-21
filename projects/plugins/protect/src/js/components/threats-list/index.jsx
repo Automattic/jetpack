@@ -15,7 +15,7 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
-	const { handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
+	const { viewingScanHistory, handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -102,7 +102,7 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && (
+							{ hasRequiredPlan && ! viewingScanHistory && (
 								<>
 									{ fixableList.length > 0 && (
 										<>

@@ -15,7 +15,9 @@ const ThreatAccordionItem = ( {
 	description,
 	diff,
 	filename,
+	firstDetected,
 	fixedIn,
+	fixedOn,
 	icon,
 	fixable,
 	id,
@@ -64,6 +66,8 @@ const ThreatAccordionItem = ( {
 			icon={ icon }
 			fixable={ fixable }
 			severity={ severity }
+			firstDetected={ firstDetected }
+			fixedOn={ fixedOn }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
@@ -184,7 +188,12 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
+						firstDetected, // todo: still needs a proper fix
+						first_detected,
 						fixedIn,
+						fixed_in,
+						fixedOn,
+						fixed_on,
 						icon,
 						fixable,
 						id,
@@ -202,7 +211,9 @@ const PaidList = ( { list } ) => {
 							description={ description }
 							diff={ diff }
 							filename={ filename }
-							fixedIn={ fixedIn }
+							firstDetected={ firstDetected ?? first_detected }
+							fixedIn={ fixedIn ?? fixed_in }
+							fixedOn={ fixedOn ?? fixed_on }
 							icon={ icon }
 							fixable={ fixable }
 							id={ id }

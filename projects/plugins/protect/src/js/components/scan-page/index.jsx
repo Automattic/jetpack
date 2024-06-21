@@ -1,4 +1,4 @@
-import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
+import { AdminSectionHero, Container, Col, H3, Text, Button } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -7,6 +7,7 @@ import React, { useEffect } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
 import AlertSVGIcon from '../alert-icon';
@@ -22,7 +23,11 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
+	const { viewingScanHistory, handleCurrentClick, handleHistoryClick, allScanHistoryIsLoading } =
+		useScanHistory();
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
+	// todo: need to better handle various states when were viewing history or status
+
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
 	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
@@ -30,6 +35,7 @@ const ScanPage = () => {
 		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
 		status: select( STORE_ID ).getStatus(),
 	} ) );
+
 	const { currentProgress } = status;
 	let currentScanStatus;
 	if ( 'error' === currentStatus || scanIsUnavailable ) {
@@ -78,6 +84,21 @@ const ScanPage = () => {
 						<Col>
 							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 						</Col>
+						<Col className={ styles[ 'history-button-col' ] }>
+							{ ! viewingScanHistory ? (
+								<Button
+									variant="secondary"
+									onClick={ handleHistoryClick }
+									isLoading={ allScanHistoryIsLoading }
+								>
+									{ __( 'History', 'jetpack-protect' ) }
+								</Button>
+							) : (
+								<Button variant="secondary" onClick={ handleCurrentClick }>
+									{ __( 'Current', 'jetpack-protect' ) }
+								</Button>
+							) }
+						</Col>
 					</Container>
 					<SeventyFiveLayout
 						main={
@@ -116,6 +137,21 @@ const ScanPage = () => {
 						) }
 						<Col>
 							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+						</Col>
+						<Col className={ styles[ 'history-button-col' ] }>
+							{ ! viewingScanHistory ? (
+								<Button
+									variant="secondary"
+									onClick={ handleHistoryClick }
+									isLoading={ allScanHistoryIsLoading }
+								>
+									{ __( 'History', 'jetpack-protect' ) }
+								</Button>
+							) : (
+								<Button variant="secondary" onClick={ handleCurrentClick }>
+									{ __( 'Current', 'jetpack-protect' ) }
+								</Button>
+							) }
 						</Col>
 					</Container>
 					<SeventyFiveLayout
