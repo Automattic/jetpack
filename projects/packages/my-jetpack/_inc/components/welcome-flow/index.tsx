@@ -32,10 +32,10 @@ const WelcomeFlow: FC = () => {
 	}, [ isProcessingEvaluation, siteIsRegistered ] );
 
 	const onDismissClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click' );
+		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', { currentStep } );
 		setVisible( false );
 		dismissWelcomeBanner();
-	}, [ recordEvent, dismissWelcomeBanner ] );
+	}, [ recordEvent, currentStep, dismissWelcomeBanner ] );
 
 	const handleEvaluation = useCallback(
 		( _values: { [ key in EvaluationAreas ]: boolean } ) => {
