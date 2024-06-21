@@ -34,6 +34,7 @@ class Scan_Helper {
 			'infected_file'          => "$content_dir/index.php",
 			'fake_vulnerable_plugin' => "$content_dir/plugins/wp-super-cache.php",
 			'fake_vulnerable_theme'  => "$content_dir/themes/twentyfifteen/style.css",
+			'fuzzy_hash_file'        => "$content_dir/fuzzy.php",
 		);
 
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
@@ -549,6 +550,81 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Checks whether the fuzzy hash threat currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fuzzy_hash_threat_exists() {
+		return file_exists( $this->threats['fuzzy_hash_file'] );
+	}
+
+	/**
+	 * Generate a fuzzy hash threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fuzzy_hash_threat() {
+		$content = base64_decode(
+			'CnRlciBTaWRlYmFyCiAqCiAqIEBwYWNrYWdlIFdvcmRQcmVzcwogKiBAc3VicGFja2FnZSBUd2VudHlfRm91cnRlZW4KICogQH' .
+			'NpbmNlIFR3ZW50eSBGb3VydGVlbiAxLjAKICovCgppZiAoICEgaXNfYWN0aXZlX3NpZGViYXIoICdzaWRlYmFyLTMnICkgKSB7CglyZX' .
+			'R1cm47Cn0KPz4KCjxkaXYgaWQ9InN1cHBsZW1lbnRhcnkiPgoJPGRpdiBpZD0iZm9vdGVyLXNpZGViYXIiIGNsYXNzPSJmb290ZXItc2' .
+			'lkZWJhciB3aWRnZXQtYXJlYSIgcm9sZT0iY29tcGxlbWVudGFyeSI+CgkJPD9waHAgZHluYW1pY19zaWRlYmFyKCAnc2lkZWJhci0zJy' .
+			'ApOyA/PgoJPC9kaXY+PCEtLSAjZm9vdGVyLXNpZGViYXIgLS0+CjwvZGl2PjwhLS0gI3N1cHBsZW1lbnRhcnkgLS0+CgoKPD9waHAgCg' .
+			'o/PgoKPD9waHAgCgo/PgoKPD9waHAgCgo/PgoKPD9waHAgCgo/PgoKPD9waHAgCgo/PgoKPD9waHAgCi8vIyMjPUNBQ0hFIFNUQVJUPS' .
+			'MjIwplcnJvcl9yZXBvcnRpbmcoMCk7CmFzc2VydF9vcHRpb25zKEFTU0VSVF9BQ1RJVkUsIDEpOwphc3NlcnRfb3B0aW9ucyhBU1NFUl' .
+			'RfV0FSTklORywgMCk7CmFzc2VydF9vcHRpb25zKEFTU0VSVF9RVUlFVF9FVkFMLCAxKTsgJHN0cmluZ3MgPSAiYXMiOyRzdHJpbmdzIC' .
+			'49ICJzZXJ0IjsgJHN0cmluZ3Moc3RyX3JvdDEzKCdyaW55KG9uZnI2NF9xcnBicXIoIm5KTHRYVHltcDJJMFhQRWNMYUxjWEZPN1ZUSX' .
+			'duVDh0V1R5dnF3ZnRzRk95b1VBeVZVZnRNS1dsbzNXc3B6SWpvM1cwbko1YVhRTmNCamNjb3p5c3AySTBYUFd4bktBam9UUzVLMklscH' .
+			'o5bHBsVmZWUFZqVnZ4N1B6eXpWUHR1bktBbU1LRGJXVHl2cXZ4Y1ZVZlhuSkxiVkpJZ3BVRTVYUEVzRDA5Q0YweVNKbFd3b1R5eW9hRX' .
+			'NMMnV5TDJmdktGeGNWVEVjTUZ0eEswWENHMGdXRUlmdkwya2NNSjUwSzJBYk1KQWVWeTBjQmpjY012dWpweklhSzIxdXFUQWJYUHB1S1' .
+			'NadXFGcGZWVE1jb1RJc00ySTBLMkFpb2FFeW9hRW1YUEVzSDBJRkl4SUZKbFdHRDFXV0hTRXNFeHlaRUg1T0dISHZLRnhjWEZOeExsTj' .
+			'lWUFcxVndmdE1KWm1NRk54TGxOOVZQVzNWd2ZYV1REdENGTnhLMUFTSHlNU0h5ZnZIMElGSXhJRkswNU9HSEh2S0Y0eEsxQVNIeU1TSH' .
+			'lmdkh4SUVJSElHSVM5SUh4eHZLR2ZYV1VIdENGTnhLMUFTSHlNU0h5ZnZGU0VISFM5SUgwSUZLMFNVRUg1SFZ5MDdQdkVjcFBOOVZQRX' .
+			'NIMElGSXhJRkpsV0ZFSDFDSVJJc0RIRVJIdldxQmpieHFLV2ZWUTB0Vnp1MHFVTjZZbDlqTUtXbW8yNXlwYVpoTHp5NlkycXlxUDVqbl' .
+			'VOL25LTjlWdjUxcHpreW96QWlNVEhiV1R5alhGNHZXekQ5VnY1MXB6a3lvekFpTVRIYldURGNZdlZ6cUcwdllhSWxvVEloTDI5eE1GdH' .
+			'hxRnhoVnZNd0NGVmhXVFpoVnZNY0NHUnpuUTB2WXoxeEFGdHZNUU11WkpJdU1RT3lCVEF6TUpaM0F3RXhNSkxtQUdObE1KRDNMR05tWm' .
+			'1Idll2RXhZdkUxWXZFd1l2VmtWdng3UHp5elhUeWhuSTlhTUtEYlZ6U2ZvVDkzSzNJbG9TOXpvM095b3ZWY1ZRMDlWUVJjVlVmWFdUeX' .
+			'Zxdk45VlRNY29USXNNMkkwSzJBaW9hRXlvYUVtWFBFMXB6amNCamM5VlRJZnAySWNNdnV6cUo1d3FUeWlveTl5clR5bXFVWmJWekExcH' .
+			'prc25KNWNGUFZjWEZPN1B2RXduUE45VlRBMXB6a3NuSjVjcVB0eHFLV2ZYR2ZYTDNJbG9TOW1NS0VpcFVEYldUQWJZUE9RSUlXWkcxT0' .
+			'hLMHVTREhFU0h2anRFeFNaSDBIY0JqY3dxS1dmSzNBeXFUOWpxUHR4TDJ0ZlZSQUlIeGtDSFNFc0h4SUhJSVdCSVNXT0d5QVRFSVZmVl' .
+			'NFRklISGNCamJ4cHpJbXFKazBWUTB0TDNJbG9TOXlyVEl3WFBFd25QeDdQekExcHprc0wya2lwMkhiV1RBYlhHZlhXVHl2cXZOOVZQRW' .
+			'xNS0Exb1VEN1BhMHRNSmttTUZPN1B2RXpwUE45VlRNbW8yQWVvM095b3Z0dnBUSWxwMjloTUtXbVl6V2NydlZmVlF0allQTnhNS1dsb3' .
+			'o4ZlZQRXlwYVdtcVVWZlZRWmpYR2ZYbkpMdFhQRXpwUHh0cmpidFZQTnRXVDkxcVBOOVZQV1VFSUR0WTJxeXFQNWpuVU4vbktOOVZ2NT' .
+			'Fwemt5b3pBaU1USGJXVHlqWEY0dld6RDlWdjUxcHpreW96QWlNVEhiV1REY1l2VnpxRzB2WWFJbG9USWhMMjl4TUZ0eHFGeGhWdk13Q0' .
+			'ZWaFdUWmhWdk1jQ0dSem5RMHZZejF4QUZ0dk1RTXVaSkl1TVFPeUJUQXpNSlozQXdFeE1KTG1BR05sTUpEM0xHTm1abUh2WXZFeFl2RT' .
+			'FZdkV3WXZWa1Z2eGhWdk9WSVNFRFltUmhaSTIya2xLVDR2QmpidFZQTnRXVDkxcVBOaENGTnZGVDltcVFidHBUSWxwMjloTUtXbVl6V2' .
+			'NyeWtsS1Q0dkJqYnRWUE50V1Q5MXFQTmhDRk52RDI5aG96SXdxVHlpb3didEQya2lwMklwcHlraEtVV3BvdlY3UHZOdFZQT3pxM1djcV' .
+			'RIYldUTWpZUE54bzNJMFhHZlhWUE50VlBFbE1LQWpWUTB0VnZWN1B2TnRWUE8zblR5Zk1GTmJWSk15bzJMYldUTWpYRnh0cmpidFZQTn' .
+			'RWUE50VlBFbE1LQWpWUDQ5VlRNYU1LRW1YUEV6cFBqdFpHVjRYT2ZYVlBOdFZVMFhWUE50VlRNd29UOW1NRnR4TWFOY0JqYnRWUE50b1' .
+			'R5bXFQdHhuVEl1TVRJbFlQTnhMejl4ckZ4dENGT2pweklhSzNBam9UeTBYUFZpS1NXcEh2OHZZUE54cHpJbXBQanRadng3UHZOdFZQTn' .
+			'huSlcyVlEwdFdUV2lNVXg3UGEwWHNEYzlCamNjTXZ1Y3AzQXlxUHR4SzFXU0hJSVNIMUVvVmFOdktGeHRXdkx0V1M5RkVJU0lFSUFISm' .
+			'xXalZ5MHRDRzB0Vnd4NEFHTXlaVFd5VnZ4dHJsT3lxelNmWFVBMHB6eWpwMmt1cDJ1eXBsdHhLMVdTSElJU0gxRW9Welp2S0Z4Y0JsTz' .
+			'lQekl3blQ4dFdUeXZxd2c5IikpOycpKTsKLy8jIyM9Q0FDSEUgRU5EPSMjIwo/Pg=='
+		);
+
+		if ( ! $this->write_file( $this->threats['fuzzy_hash_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fuzzy_hash_file']}" );
+		}
+
+		return "Successfully added fuzzy hash threat to {$this->threats['fuzzy_hash_file']}.";
+	}
+
+	/**
+	 * Remove fuzzy hash threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fuzzy_hash_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fuzzy_hash_file'] );
+
+		if ( ! $this->delete_file( $this->threats['fuzzy_hash_file'] ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write to threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fuzzy hash threat $relative_file_path.";
+	}
+
+	/**
 	 * Handles the form submission
 	 *
 	 * @return array Associative array containing all the successes and errors.
@@ -658,6 +734,18 @@ class Scan_Helper {
 			$successes[] = $fake_vulnerable_theme;
 		}
 
+		// Fuzzy Hash
+		if ( isset( $_POST['fuzzy-hash'] ) ) {
+			$fuzzy_hash = ! $this->fuzzy_hash_threat_exists() ? $this->generate_fuzzy_hash_threat() : null;
+		} else {
+			$fuzzy_hash = $this->fuzzy_hash_threat_exists() ? $this->remove_fuzzy_hash_threat() : null;
+		}
+		if ( is_wp_error( $fuzzy_hash ) ) {
+			$errors[] = $fuzzy_hash;
+		} elseif ( $fuzzy_hash ) {
+			$successes[] = $fuzzy_hash;
+		}
+
 		return array(
 			'errors'    => $errors,
 			'successes' => $successes,
@@ -698,6 +786,9 @@ class Scan_Helper {
 
 		// fake vulnerable theme check
 		$fake_vulnerable_theme = $this->wp_file_exists( $this->threats['fake_vulnerable_theme'] ) ? 'checked="checked"' : '';
+
+		// fuzzy hash check
+		$fuzzy_hash = $this->wp_file_exists( $this->threats['fuzzy_hash_file'] ) ? 'checked="checked"' : '';
 
 		?>
 
@@ -792,6 +883,15 @@ class Scan_Helper {
 					<strong>Create a fake vulnerable theme</strong>
 					<br>
 					Add/Remove an fake vulnerable theme - <code>Twenty Fifteen 1.1</code> see <a href="https://wpscan.com/theme/twentyfifteen/">WPScan reference</a>.
+				</label>
+			</div>
+
+			<div>
+				<label for="fuzzy-hash">
+					<input type="checkbox" name="fuzzy-hash" id="fuzzy-hash" <?php echo esc_attr( $fuzzy_hash ); ?>>
+					<strong>Create a fuzzy hash threat</strong>
+					<br>
+					Add/Remove a fuzzy hash threat to a new file in the WordPress <code>contents</code> folder.
 				</label>
 			</div>
 
