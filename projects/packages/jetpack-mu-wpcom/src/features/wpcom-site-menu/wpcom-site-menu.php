@@ -176,6 +176,9 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
+	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+		return;
+	}
 
 	/**
 	 * Don't show `All Sites` to administrators without a WordPress.com account being attached,
@@ -311,6 +314,9 @@ add_action( 'admin_enqueue_scripts', 'wpcom_site_menu_enqueue_scripts' );
  * @return array | null
  */
 function wpcom_get_sidebar_notice() {
+	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+		return null;
+	}
 	$message_path = 'calypso:sites:sidebar_notice';
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
