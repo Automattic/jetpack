@@ -67,6 +67,9 @@ Disallow: /
 User-agent: sentibot
 Disallow: /
 
+User-agent: Applebot-Extended
+Disallow: /private/
+
 AI_BLOCKS;
 
 		yield 'public, no discourage AI' => array(

@@ -6,9 +6,8 @@
  */
 namespace Automattic\Jetpack\Masterbar;
 
-use PHPUnit\Framework\TestCase;
-use WorDBless\Options as WorDBless_Options;
-use WorDBless\Users as WorDBless_Users;
+use Brain\Monkey\Functions;
+use WorDBless\BaseTestCase;
 use WP_Http;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -20,7 +19,7 @@ use WpOrg\Requests\Requests;
  *
  * @covers Automattic\Jetpack\Masterbar\Admin_Color_Schemes
  */
-class Test_Admin_Color_Schemes extends TestCase {
+class Test_Admin_Color_Schemes extends BaseTestCase {
 
 	/**
 	 * REST Server object.
@@ -38,8 +37,6 @@ class Test_Admin_Color_Schemes extends TestCase {
 
 	/**
 	 * Set up each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		global $wp_rest_server;
@@ -55,6 +52,11 @@ class Test_Admin_Color_Schemes extends TestCase {
 			)
 		);
 
+		if ( 'test_enqueue_core_color_schemes_overrides_for_classic_sites' === $this->getName() ) {
+			Functions\expect( 'wpcom_is_nav_redesign_enabled' )
+				->andReturn( true );
+		}
+
 		new Admin_Color_Schemes();
 
 		do_action( 'rest_api_init' );
@@ -62,12 +64,10 @@ class Test_Admin_Color_Schemes extends TestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
-		WorDBless_Options::init()->clear_options();
-		WorDBless_Users::init()->clear_all_users();
+		wp_dequeue_style( 'jetpack-core-color-schemes-overrides' );
+		wp_dequeue_style( 'jetpack-core-color-schemes-overrides-sidebar-notice' );
 	}
 
 	/**
@@ -153,12 +153,25 @@ class Test_Admin_Color_Schemes extends TestCase {
 		$this->assertSame( 'rest_cannot_edit', $data['code'] );
 	}
 
-	public function test_enqueue_core_color_schemes_overrides() {
+	public function test_enqueue_core_color_schemes_overrides_for_default_and_self_hosted_sites() {
 		wp_set_current_user( static::$user_id );
 		update_user_option( static::$user_id, 'admin_color', 'coffee' );
 		set_current_screen( 'edit-post' );
 		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
 		do_action( 'admin_enqueue_scripts' );
 		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
+	}
+
+	public function test_enqueue_core_color_schemes_overrides_for_classic_sites() {
+		wp_set_current_user( static::$user_id );
+		update_user_option( static::$user_id, 'admin_color', 'coffee' );
+		set_current_screen( 'edit-post' );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
+		do_action( 'admin_enqueue_scripts' );
+		$this->assertFalse( wp_style_is( 'jetpack-core-color-schemes-overrides' ) );
+		$this->assertTrue( wp_style_is( 'jetpack-core-color-schemes-overrides-sidebar-notice' ) );
 	}
 }

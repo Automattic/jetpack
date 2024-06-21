@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Map Block: Handle React's Strict Mode correctly for Mapbox maps
