@@ -92,14 +92,10 @@ export default function FeaturedImage( {
 		images,
 	} = useAiImage( { cost: featuredImageCost } );
 
-	const toggleFeaturedImageModal = useCallback( () => {
-		setIsFeaturedImageModalVisible( ! isFeaturedImageModalVisible );
-	}, [ isFeaturedImageModalVisible, setIsFeaturedImageModalVisible ] );
-
 	const handleModalClose = useCallback( () => {
-		toggleFeaturedImageModal();
+		setIsFeaturedImageModalVisible( false );
 		onClose?.();
-	}, [ toggleFeaturedImageModal, onClose ] );
+	}, [ onClose ] );
 
 	const handleGenerate = useCallback(
 		( { userPrompt }: { userPrompt?: string } ) => {
@@ -110,6 +106,7 @@ export default function FeaturedImage( {
 				site_type: siteType,
 			} );
 
+			setIsFeaturedImageModalVisible( true );
 			processImageGeneration( { userPrompt, postContent, notEnoughRequests } ).catch( error => {
 				recordEvent( 'jetpack_ai_featured_image_generation_error', {
 					placement,
