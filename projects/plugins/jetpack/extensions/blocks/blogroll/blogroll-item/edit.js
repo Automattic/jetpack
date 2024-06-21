@@ -29,7 +29,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 					</Button>
 				) }
 			/>
-			<div>
+			<div class="jetpack-blogroll-item-content">
 				<a>
 					<RichText
 						className="jetpack-blogroll-item-title"

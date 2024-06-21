@@ -24,7 +24,8 @@
 		}
 
 		.jetpack-blogroll-item-title {
-			font-size: 1.2em;
+			font-size: 0.875rem;
+			font-weight: bold;
 		}
 
 		.jetpack-blogroll-item-title, .jetpack-blogroll-item-description {
@@ -34,7 +35,7 @@
 		.jetpack-blogroll-item-information {
 			width: 100%;
 			display: flex;
-			padding: 20px 8px;
+			padding: 20px 0;
 			gap: 20px;
 			box-sizing: border-box;
 
@@ -43,6 +44,7 @@
 				flex-shrink: 0;
 				height: 48px;
 				width: 48px;
+				align-self: flex-start;
 
 				&.empty-site-icon {
 					background: url('./placeholder-site-icon.svg');
@@ -58,6 +60,10 @@
 					width: 48px;
 					height: 48px;
 				}
+			}
+
+			.jetpack-blogroll-item-content {
+				align-self: flex-start;
 			}
 		}
 

@@ -143,7 +143,7 @@ HTML;
 			<figure class="$placeholder_site_icon">
 				$site_icon_html
 			</figure>
-			<div>
+			<div class="jetpack-blogroll-item-content">
 				<a class="jetpack-blogroll-item-title" href="$url" target="$target" rel="noopener noreferrer">$name</a>
 				<div class="jetpack-blogroll-item-description">$description</div>
 			</div>

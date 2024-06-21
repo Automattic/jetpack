@@ -1,6 +1,6 @@
 .wp-block-jetpack-blogroll-item {
 	display: flex;
-	padding: 20px 8px;
+	padding: 20px 0;
 	gap: 20px;
 
 	font-style: normal;
@@ -10,6 +10,7 @@
 			margin: 0;
 			height: 48px;
 			width: 48px;
+			align-self: flex-start;
 
 			&.empty-site-icon {
 				background: url('../placeholder-site-icon.svg');
@@ -30,9 +31,13 @@
 
 	h3.jetpack-blogroll-item-title.rich-text {
 		color: inherit;
-		font-size: 1.2em;
-		font-weight: 500;
+		font-size: 0.875rem;
+		font-weight: bold;
 		margin: 0;
+	}
+
+	.jetpack-blogroll-item-content {
+		align-self: flex-start;
 	}
 
 	.jetpack-blogroll-item-description {
