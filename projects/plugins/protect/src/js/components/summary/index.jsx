@@ -19,11 +19,25 @@ import styles from './styles.module.scss';
 
 const Summary = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
-	const { handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
+	const { numThreats: currentNumThreats, lastChecked, hasRequiredPlan } = useProtectData();
+	const {
+		filter,
+		numThreats: scanHistoryNumThreats,
+		viewingScanHistory,
+		allScanHistoryIsLoading,
+		ignoredScanHistoryIsLoading,
+		fixedScanHistoryIsLoading,
+		toggleAllScanHistory,
+		toggleIgnoredScanHistory,
+		toggleFixedScanHistory,
+		handleHistoryClick,
+		handleCurrentClick,
+	} = useScanHistory();
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
+
+	const numThreats = viewingScanHistory ? scanHistoryNumThreats : currentNumThreats;
 
 	// Popover anchors
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
@@ -44,13 +58,23 @@ const Summary = () => {
 					<div>
 						<Title size="small" className={ styles.summary__title }>
 							<Icon size={ 32 } className={ styles.summary__icon } />
-							<div ref={ setDailyScansPopoverAnchor }>
-								{ sprintf(
-									/* translators: %s: Latest check date  */
-									__( 'Latest results as of %s', 'jetpack-protect' ),
-									dateI18n( 'F jS', lastChecked )
-								) }
-							</div>
+							{ ! viewingScanHistory ? (
+								<div ref={ setDailyScansPopoverAnchor }>
+									{ sprintf(
+										/* translators: %s: Latest check date  */
+										__( 'Latest results as of %s', 'jetpack-protect' ),
+										dateI18n( 'F jS', lastChecked )
+									) }
+								</div>
+							) : (
+								<div>
+									{ sprintf(
+										/* translators: %s: Filter applied */
+										__( 'Scan history of %s threats', 'jetpack-protect' ),
+										filter
+									) }
+								</div>
+							) }
 							{ ! hasRequiredPlan && (
 								<OnboardingPopover
 									id="free-daily-scans"
@@ -70,30 +94,71 @@ const Summary = () => {
 							</Text>
 						) }
 					</div>
-					{ hasRequiredPlan && numThreats === 0 && (
+					{ hasRequiredPlan /*&& numThreats === 0 TODO: figure this bit out... */ && (
 						<>
-							<Button
-								ref={ setDailyAndManualScansPopoverAnchor }
-								variant="secondary"
-								className={ styles[ 'summary__scan-button' ] }
-								isLoading={ scanIsEnqueuing }
-								onClick={ handleScanClick() }
-							>
-								{ __( 'Scan now', 'jetpack-protect' ) }
-							</Button>
-							<OnboardingPopover
-								id="paid-daily-and-manual-scans"
-								position="middle left"
-								anchor={ dailyAndManualScansPopoverAnchor }
-							/>
-							<Button
-								variant="secondary"
-								className={ styles[ 'summary__scan-button' ] }
-								onClick={ handleHistoryClick }
-								isLoading={ allScanHistoryIsLoading }
-							>
-								{ __( 'History', 'jetpack-protect' ) }
-							</Button>
+							{ ! viewingScanHistory ? (
+								<>
+									<Button
+										ref={ setDailyAndManualScansPopoverAnchor }
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										isLoading={ scanIsEnqueuing }
+										onClick={ handleScanClick() }
+									>
+										{ __( 'Scan now', 'jetpack-protect' ) }
+									</Button>
+									<OnboardingPopover
+										id="paid-daily-and-manual-scans"
+										position="middle left"
+										anchor={ dailyAndManualScansPopoverAnchor }
+									/>
+									<Button
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										onClick={ handleHistoryClick }
+										isLoading={ allScanHistoryIsLoading }
+									>
+										{ __( 'History', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) : (
+								<>
+									<Button
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										onClick={ handleCurrentClick }
+									>
+										{ __( 'Current', 'jetpack-protect' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										onClick={ toggleAllScanHistory }
+										disabled={ filter === 'all' }
+										isLoading={ allScanHistoryIsLoading }
+									>
+										{ __( 'All', 'jetpack-protect' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										onClick={ toggleIgnoredScanHistory }
+										disabled={ filter === 'ignored' }
+										isLoading={ ignoredScanHistoryIsLoading }
+									>
+										{ __( 'Ignored', 'jetpack-protect' ) }
+									</Button>
+									<Button
+										variant="secondary"
+										className={ styles[ 'summary__scan-button' ] }
+										onClick={ toggleFixedScanHistory }
+										disabled={ filter === 'fixed' }
+										isLoading={ fixedScanHistoryIsLoading }
+									>
+										{ __( 'Fixed', 'jetpack-protect' ) }
+									</Button>
+								</>
+							) }
 						</>
 					) }
 				</div>

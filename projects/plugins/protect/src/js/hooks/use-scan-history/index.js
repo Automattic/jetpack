@@ -1,6 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useMemo, useCallback, useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useMemo, useCallback, useState } from 'react';
 import API from '../../api';
 import { STORE_ID } from '../../state/store';
 
@@ -21,18 +20,6 @@ export default function useScanHistory() {
 	const [ allScanHistoryIsLoading, setAllScanHistoryIsLoading ] = useState( false );
 	const [ ignoredScanHistoryIsLoading, setIgnoredScanHistoryIsLoading ] = useState( false );
 	const [ fixedScanHistoryIsLoading, setFixedScanHistoryIsLoading ] = useState( false );
-
-	const navigate = useNavigate();
-	const location = useLocation();
-
-	useEffect( () => {
-		// todo: improve this
-		if ( location.pathname === '/history' && ! viewingScanHistory ) {
-			setViewingScanHistory( true );
-		} else if ( location.pathname === '/' && viewingScanHistory ) {
-			setViewingScanHistory( false );
-		}
-	}, [ location.pathname, viewingScanHistory, setViewingScanHistory ] );
 
 	const toggleAllScanHistory = useCallback( () => {
 		setAllScanHistoryIsLoading( true );
@@ -63,13 +50,13 @@ export default function useScanHistory() {
 
 	const handleHistoryClick = useCallback( () => {
 		toggleAllScanHistory().then( () => {
-			navigate( '/history' );
+			setViewingScanHistory( true );
 		} );
-	}, [ toggleAllScanHistory, navigate ] );
+	}, [ toggleAllScanHistory, setViewingScanHistory ] );
 
 	const handleCurrentClick = useCallback( () => {
-		navigate( '/' );
-	}, [ navigate ] );
+		setViewingScanHistory( false );
+	}, [ setViewingScanHistory ] );
 
 	const numCoreThreats = useMemo(
 		() => scanHistory.core?.threats?.length || 0,
