@@ -19,10 +19,8 @@ import styles from './styles.module.scss';
 
 const Summary = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { numThreats: currentNumThreats, lastChecked, hasRequiredPlan } = useProtectData();
 	const {
 		filter,
-		numThreats: scanHistoryNumThreats,
 		viewingScanHistory,
 		allScanHistoryIsLoading,
 		ignoredScanHistoryIsLoading,
@@ -33,11 +31,10 @@ const Summary = () => {
 		handleHistoryClick,
 		handleCurrentClick,
 	} = useScanHistory();
+	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
 	const { scan } = useDispatch( STORE_ID );
 	const Icon = getIconBySlug( 'protect' );
-
-	const numThreats = viewingScanHistory ? scanHistoryNumThreats : currentNumThreats;
 
 	// Popover anchors
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );

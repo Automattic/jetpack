@@ -23,14 +23,10 @@ import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
 const ScanPage = () => {
-	const protectData = useProtectData();
-	const scanHistory = useScanHistory();
 	const { viewingScanHistory, handleCurrentClick, handleHistoryClick, allScanHistoryIsLoading } =
-		scanHistory;
+		useScanHistory();
 
-	const source = viewingScanHistory ? scanHistory : protectData;
-	const { lastChecked, error, errorCode, errorMessage, hasRequiredPlan } = source;
-	// todo: need to better handle various states when were viewing history or status
+	const { lastChecked, error, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 
 	const activityContext = viewingScanHistory
 		? 'retrieving your scan history'
@@ -49,7 +45,6 @@ const ScanPage = () => {
 		status: select( STORE_ID ).getStatus(),
 	} ) );
 
-	// todo: this is only for scan, dont need this for the history
 	let currentScanStatus;
 	if ( status.error || scanIsUnavailable ) {
 		currentScanStatus = 'error';
