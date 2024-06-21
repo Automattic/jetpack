@@ -30,6 +30,7 @@ import {
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
@@ -83,6 +84,7 @@ export default function MyJetpackScreen() {
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
+	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -147,7 +149,7 @@ export default function MyJetpackScreen() {
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ noticeMessage && (
+					{ noticeMessage && ! isWelcomeBannerVisible && (
 						<Col>
 							{
 								<GlobalNotice
