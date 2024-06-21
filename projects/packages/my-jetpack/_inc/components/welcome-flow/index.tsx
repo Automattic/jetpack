@@ -15,7 +15,13 @@ import type { FC } from 'react';
 const WelcomeFlow: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
-	const { siteIsRegistered, siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
+	const {
+		siteIsRegistered,
+		siteIsRegistering,
+		isUserConnected,
+		isSiteConnected,
+		handleRegisterSite,
+	} = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
 	const [ visible, setVisible ] = useState( isWelcomeBannerVisible );
@@ -32,10 +38,14 @@ const WelcomeFlow: FC = () => {
 	}, [ isProcessingEvaluation, siteIsRegistered ] );
 
 	const onDismissClick = useCallback( () => {
-		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', { currentStep } );
+		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', {
+			currentStep,
+			isUserConnected,
+			isSiteConnected,
+		} );
 		setVisible( false );
 		dismissWelcomeBanner();
-	}, [ recordEvent, currentStep, dismissWelcomeBanner ] );
+	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
 
 	const handleEvaluation = useCallback(
 		( _values: { [ key in EvaluationAreas ]: boolean } ) => {
