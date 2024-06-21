@@ -8,14 +8,13 @@
 use Automattic\Jetpack\Assets;
 
 if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
-
-	/**
-	 * Load the Responsive videos plugin
-	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
-	 */
+		/**
+		 * Load the Responsive videos plugin
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 */
 	function jetpack_responsive_videos_init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 
 		/* If the doesn't theme support 'jetpack-responsive-videos', don't continue */
 		if ( ! current_theme_supports( 'jetpack-responsive-videos' ) ) {
@@ -52,7 +51,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 * @return string
 	 */
 	function jetpack_responsive_videos_embed_html( $html ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 
 		if ( empty( $html ) || ! is_string( $html ) ) {
 			return $html;
@@ -101,7 +100,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 * @return string
 	 */
 	function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 
 		if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 			return $html;
@@ -176,7 +175,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 * @return string $block_content String of rendered HTML.
 	 */
 	function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 
 		if (
 			isset( $block['blockName'] )
