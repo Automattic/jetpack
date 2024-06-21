@@ -7,6 +7,7 @@
 
 /**
  * Whether to enable "fully managed agency site" features.
+ * This is primarily used to hide WPCOM links, upsells, and features.
  *
  * @return bool True if the site is "fully managed agency site", false otherwise.
  */
