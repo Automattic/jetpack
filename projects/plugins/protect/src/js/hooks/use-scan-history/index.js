@@ -97,7 +97,7 @@ export default function useScanHistory() {
 		numFilesThreats,
 		numDatabaseThreats,
 		lastChecked: scanHistory.lastChecked || null,
-		error: scanHistory.error || null,
+		error: scanHistory.error || false,
 		errorCode: scanHistory.errorCode || null,
 		errorMessage: scanHistory.errorMessage || null,
 		core: scanHistory.core || {},
