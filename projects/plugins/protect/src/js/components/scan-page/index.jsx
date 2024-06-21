@@ -73,6 +73,7 @@ const ScanPage = () => {
 		}
 	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
 
+	// todo: improve the logic of errors, scanUnavailable, loading, etc.
 	// Error
 	if ( error ) {
 		let displayErrorMessage = errorMessage

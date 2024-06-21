@@ -48,6 +48,72 @@ const Summary = () => {
 		};
 	};
 
+	const renderScanOptions = () => (
+		<>
+			<Button
+				ref={ setDailyAndManualScansPopoverAnchor }
+				variant="secondary"
+				className={ styles[ 'summary__scan-button' ] }
+				isLoading={ scanIsEnqueuing }
+				onClick={ handleScanClick() }
+			>
+				{ __( 'Scan now', 'jetpack-protect' ) }
+			</Button>
+			<OnboardingPopover
+				id="paid-daily-and-manual-scans"
+				position="middle left"
+				anchor={ dailyAndManualScansPopoverAnchor }
+			/>
+			<Button
+				variant="secondary"
+				className={ styles[ 'summary__history-button' ] }
+				onClick={ handleHistoryClick }
+				isLoading={ allScanHistoryIsLoading }
+			>
+				{ __( 'History', 'jetpack-protect' ) }
+			</Button>
+		</>
+	);
+
+	const renderHistoryButtons = () => (
+		<>
+			<Button
+				variant="secondary"
+				className={ styles[ 'summary__scan-button' ] }
+				onClick={ handleCurrentClick }
+			>
+				{ __( 'Current', 'jetpack-protect' ) }
+			</Button>
+			<Button
+				variant="secondary"
+				className={ styles[ 'summary__history-button' ] }
+				onClick={ toggleAllScanHistory }
+				disabled={ filter === 'all' }
+				isLoading={ allScanHistoryIsLoading }
+			>
+				{ __( 'All', 'jetpack-protect' ) }
+			</Button>
+			<Button
+				variant="secondary"
+				className={ styles[ 'summary__history-button' ] }
+				onClick={ toggleIgnoredScanHistory }
+				disabled={ filter === 'ignored' }
+				isLoading={ ignoredScanHistoryIsLoading }
+			>
+				{ __( 'Ignored', 'jetpack-protect' ) }
+			</Button>
+			<Button
+				variant="secondary"
+				className={ styles[ 'summary__history-button' ] }
+				onClick={ toggleFixedScanHistory }
+				disabled={ filter === 'fixed' }
+				isLoading={ fixedScanHistoryIsLoading }
+			>
+				{ __( 'Fixed', 'jetpack-protect' ) }
+			</Button>
+		</>
+	);
+
 	return (
 		<Container fluid>
 			<Col>
@@ -91,72 +157,10 @@ const Summary = () => {
 							</Text>
 						) }
 					</div>
-					{ hasRequiredPlan && ( // todo: logic needs improving
+					{ hasRequiredPlan && (
 						<>
-							{ ! viewingScanHistory && numThreats === 0 && (
-								<>
-									<Button
-										ref={ setDailyAndManualScansPopoverAnchor }
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										isLoading={ scanIsEnqueuing }
-										onClick={ handleScanClick() }
-									>
-										{ __( 'Scan now', 'jetpack-protect' ) }
-									</Button>
-									<OnboardingPopover
-										id="paid-daily-and-manual-scans"
-										position="middle left"
-										anchor={ dailyAndManualScansPopoverAnchor }
-									/>
-									<Button
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										onClick={ handleHistoryClick }
-										isLoading={ allScanHistoryIsLoading }
-									>
-										{ __( 'History', 'jetpack-protect' ) }
-									</Button>
-								</>
-							) }
-							{ viewingScanHistory && (
-								<>
-									<Button
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										onClick={ handleCurrentClick }
-									>
-										{ __( 'Current', 'jetpack-protect' ) }
-									</Button>
-									<Button
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										onClick={ toggleAllScanHistory }
-										disabled={ filter === 'all' }
-										isLoading={ allScanHistoryIsLoading }
-									>
-										{ __( 'All', 'jetpack-protect' ) }
-									</Button>
-									<Button
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										onClick={ toggleIgnoredScanHistory }
-										disabled={ filter === 'ignored' }
-										isLoading={ ignoredScanHistoryIsLoading }
-									>
-										{ __( 'Ignored', 'jetpack-protect' ) }
-									</Button>
-									<Button
-										variant="secondary"
-										className={ styles[ 'summary__scan-button' ] }
-										onClick={ toggleFixedScanHistory }
-										disabled={ filter === 'fixed' }
-										isLoading={ fixedScanHistoryIsLoading }
-									>
-										{ __( 'Fixed', 'jetpack-protect' ) }
-									</Button>
-								</>
-							) }
+							{ ! viewingScanHistory && numThreats === 0 && renderScanOptions() }
+							{ viewingScanHistory && renderHistoryButtons() }
 						</>
 					) }
 				</div>
