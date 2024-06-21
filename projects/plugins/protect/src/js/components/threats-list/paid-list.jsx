@@ -4,6 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
@@ -28,8 +29,8 @@ const ThreatAccordionItem = ( {
 	type,
 	severity,
 } ) => {
+	const { viewingScanHistory } = useScanHistory();
 	const { setModal } = useDispatch( STORE_ID );
-
 	const { recordEvent } = useAnalyticsTracks();
 
 	const learnMoreButton = source ? (
@@ -117,9 +118,11 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-					{ __( 'Ignore threat', 'jetpack-protect' ) }
-				</Button>
+				{ ! viewingScanHistory && (
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+						{ __( 'Ignore threat', 'jetpack-protect' ) }
+					</Button>
+				) }
 				{ fixable && (
 					<Button onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
