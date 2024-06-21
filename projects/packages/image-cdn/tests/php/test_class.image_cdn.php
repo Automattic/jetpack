@@ -813,6 +813,20 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	}
 
 	/**
+	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
+	 *
+	 * @covers Image_CDN::filter_image_downsize
+	 * @since $$next-version$$
+	 */
+	public function test_image_cdn_return_false_for_image_with_null_size() {
+		$test_image = $this->helper_get_image();
+		$this->assertFalse( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( null, null ) ) );
+
+		wp_delete_attachment( $test_image );
+		$this->helper_remove_image_sizes();
+	}
+
+	/**
 	 * Tests that Photon will not return an image larger than the original via image_downsize.
 	 *
 	 * @author kraftbj
