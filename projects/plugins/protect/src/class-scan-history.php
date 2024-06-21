@@ -253,7 +253,6 @@ class Scan_History {
 								'fixed_on'       => $threat->fixed_on,
 								'fixable'        => $threat->fixable,
 								'severity'       => $threat->severity,
-								// todo: ensure we have all we need
 							)
 						);
 
@@ -307,7 +306,6 @@ class Scan_History {
 								'filename'            => $threat->filename ?? null,
 								'context'             => $threat->context ?? null,
 								'source'              => $threat->source ?? null,
-								// todo: go through and verify if all of these are necessary
 							)
 						);
 
@@ -361,7 +359,6 @@ class Scan_History {
 								'filename'            => $threat->filename ?? null,
 								'context'             => $threat->context ?? null,
 								'source'              => $threat->source ?? null,
-								// todo: go through and verify if all of these are necessary
 							)
 						);
 
