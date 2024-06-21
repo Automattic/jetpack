@@ -1,7 +1,6 @@
 import { Col, Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import styles from './style.module.scss';
 
 const EvaluationProcessingStep = () => {

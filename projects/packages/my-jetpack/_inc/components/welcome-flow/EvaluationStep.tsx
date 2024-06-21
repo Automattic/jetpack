@@ -2,17 +2,17 @@ import { Col, Button, Text } from '@automattic/jetpack-components';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import styles from './style.module.scss';
 
 export type EvaluationAreas = 'protect' | 'performance' | 'audience' | 'content' | 'unsure';
 
 const questions: { [ key in EvaluationAreas ]: string } = {
 	protect: __( 'Protect my site', 'jetpack-my-jetpack' ),
-	performance: __( "Improve my site's performance", 'jetpack-my-jetpack' ),
+	performance: __( 'Improve my site‘s performance', 'jetpack-my-jetpack' ),
 	audience: __( 'Grow my audience', 'jetpack-my-jetpack' ),
 	content: __( 'Create quality content', 'jetpack-my-jetpack' ),
-	unsure: __( "I don't know", 'jetpack-my-jetpack' ),
+	unsure: __( 'I don‘t know', 'jetpack-my-jetpack' ),
 };
 
 const defaultValues: { [ key in EvaluationAreas ]: boolean } = {
