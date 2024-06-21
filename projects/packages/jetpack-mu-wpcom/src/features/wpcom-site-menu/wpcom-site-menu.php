@@ -53,7 +53,7 @@ function wpcom_add_wpcom_menu_item() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
-	if ( ! function_exists( 'is_agency_managed_site' ) || ! is_agency_managed_site() ) {
+	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
 		return;
 	}
 
