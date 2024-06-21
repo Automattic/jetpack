@@ -1,8 +1,8 @@
 import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
-import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import useAnalytics from '../../hooks/use-analytics';
 import styles from './style.module.scss';
 
@@ -30,17 +30,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 		onActivateSite().then( () => {
 			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 			resetNotice();
-			setNotice( {
-				message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
-				options: {
-					id: 'site-connection-success-notice',
-					level: 'success',
-					actions: [],
-					priority: NOTICE_PRIORITY_HIGH,
-					hideCloseButton: false,
-					onClose: resetNotice,
-				},
-			} );
+			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 		} );
 	}, [ onActivateSite, recordEvent, resetNotice, setNotice ] );
 

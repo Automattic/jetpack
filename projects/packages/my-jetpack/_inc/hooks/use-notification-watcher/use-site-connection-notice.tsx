@@ -4,6 +4,7 @@ import { useContext, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import { useAllProducts } from '../../data/products/use-product';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
@@ -42,17 +43,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
 			handleRegisterSite().then( () => {
 				resetNotice();
-				setNotice( {
-					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
-					options: {
-						id: 'site-connection-success-notice',
-						level: 'success',
-						actions: [],
-						priority: NOTICE_PRIORITY_HIGH,
-						hideCloseButton: false,
-						onClose: resetNotice,
-					},
-				} );
+				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 				delete redBubbleAlerts[ redBubbleSlug ];
 				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
 			} );
