@@ -2,7 +2,7 @@
 /**
  * Features related to fully managed agency sites.
  *
- * @package wpcomsh
+ * @package jetpack-mu-wpcom
  */
 
 /**
