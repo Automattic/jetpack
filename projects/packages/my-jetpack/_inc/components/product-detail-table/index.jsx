@@ -138,7 +138,7 @@ const ProductDetailTableColumn = ( {
 
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
-		trackProductButtonClick( isFree, null, callToAction );
+		trackProductButtonClick( { isFreePlan: isFree, ctaText: callToAction } );
 		onProductButtonClick?.( runCheckout, detail, tier );
 	}, [
 		trackProductButtonClick,

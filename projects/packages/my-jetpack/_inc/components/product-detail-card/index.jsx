@@ -272,12 +272,12 @@ const ProductDetailCard = ( {
 	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
 
 	const clickHandler = useCallback( () => {
-		trackButtonClick( false, null, ctaLabel );
+		trackButtonClick( { ctaText: ctaLabel } );
 		onClick?.( mainCheckoutRedirect, detail );
 	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
 
 	const trialClickHandler = useCallback( () => {
-		trackButtonClick( true, wpcomFreeProductSlug, 'Start for free' );
+		trackButtonClick( { customSlug: wpcomFreeProductSlug, ctaText: 'Start for free' } );
 		onClick?.( trialCheckoutRedirect, detail );
 	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
