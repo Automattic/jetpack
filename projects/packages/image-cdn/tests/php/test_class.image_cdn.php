@@ -796,7 +796,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	/**
 	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
 	 *
-	 * @author kraftbj
 	 * @covers Image_CDN::filter_image_downsize
 	 * @since $$next-version$$
 	 */
