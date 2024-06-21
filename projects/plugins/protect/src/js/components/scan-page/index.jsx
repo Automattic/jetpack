@@ -219,7 +219,7 @@ const ScanPage = () => {
 	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
 
 	const renderSection = useMemo( () => {
-		if ( error ) {
+		if ( error || ( ! viewingScanHistory && scanIsUnavailable ) ) {
 			return (
 				<ErrorSection
 					viewingScanHistory={ viewingScanHistory }
@@ -240,6 +240,7 @@ const ScanPage = () => {
 		errorMessage,
 		errorCode,
 		viewingScanHistory,
+		scanIsUnavailable,
 		status.status,
 		status.currentProgress,
 		lastChecked,
