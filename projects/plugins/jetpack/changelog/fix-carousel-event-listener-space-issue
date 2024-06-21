@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Ensure event listeners target relevant Tiled Gallery classes for accessibility fixes.

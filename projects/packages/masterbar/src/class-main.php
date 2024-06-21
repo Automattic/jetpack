@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.1.1';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Initializer.
@@ -27,19 +27,23 @@ class Main {
 			return;
 		}
 
+		$host                    = new Host();
 		$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
 
-		if ( ! $should_use_nav_redesign ) {
+		if ( ! $should_use_nav_redesign && ! $host->is_wpcom_simple() ) {
 			new Masterbar();
 		}
 
 		new Admin_Color_Schemes();
 
-		if ( ( new Host() )->is_woa_site() ) {
+		if ( $host->is_wpcom_platform() ) {
 			new Inline_Help();
 			require_once __DIR__ . '/wp-posts-list/bootstrap.php';
-			require_once __DIR__ . '/profile-edit/bootstrap.php';
 			require_once __DIR__ . '/nudges/bootstrap.php';
+		}
+
+		if ( $host->is_woa_site() ) {
+			require_once __DIR__ . '/profile-edit/bootstrap.php';
 		}
 
 		/**

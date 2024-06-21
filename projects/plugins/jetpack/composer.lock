@@ -1347,9 +1347,10 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/google-analytics",
-				"reference": "0d84900e8c06cdb72abcc2d37f04b3dfdec33034"
+				"reference": "9aacc5acb62eda87adf12a76dcc1d006103adf5c"
 			},
 			"require": {
+				"automattic/jetpack-status": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
@@ -1364,7 +1365,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
@@ -1834,7 +1835,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "5f7ca0b1c441e446cf4b7c73c79e62301837af07"
+				"reference": "649e2a37061b3ccb7242a48423b1497e348a30de"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1862,7 +1863,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -2578,7 +2579,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/stats-admin",
-				"reference": "a17a4ebcea4f0a0c47916c0457fe23106ad6ae5c"
+				"reference": "f188536acdc40d4d174907d96875313f111fbdb7"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2602,7 +2603,7 @@
 				"autotagger": true,
 				"mirror-repo": "Automattic/jetpack-stats-admin",
 				"branch-alias": {
-					"dev-trunk": "0.19.x-dev"
+					"dev-trunk": "0.20.x-dev"
 				},
 				"textdomain": "jetpack-stats-admin",
 				"version-constants": {
