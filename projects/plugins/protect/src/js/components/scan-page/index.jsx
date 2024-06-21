@@ -219,6 +219,7 @@ const ScanPage = () => {
 	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
 
 	const renderSection = useMemo( () => {
+		// Error
 		if ( error || ( ! viewingScanHistory && scanIsUnavailable ) ) {
 			return (
 				<ErrorSection
@@ -229,6 +230,7 @@ const ScanPage = () => {
 			);
 		}
 
+		// Scanning
 		const scanningStatuses = new Set( [ 'scheduled', 'scanning', 'optimistically_scanning' ] );
 		if ( ! viewingScanHistory && ( scanningStatuses.has( status.status ) || ! lastChecked ) ) {
 			return <ScanningSection currentProgress={ status.currentProgress } />;
