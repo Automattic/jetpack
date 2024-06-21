@@ -3741,7 +3741,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 	}
 
 	uninstall_supercache( WP_CONTENT_DIR . '/cache' );
-	$file_not_deleted = false;
+	$file_not_deleted = array();
 	wpsc_remove_advanced_cache();
 	if ( @file_exists( WP_CONTENT_DIR . "/advanced-cache.php" ) ) {
 		$file_not_deleted[] = WP_CONTENT_DIR . '/advanced-cache.php';
@@ -3750,7 +3750,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 		if ( false == unlink( WPCACHECONFIGPATH . "/wp-cache-config.php" ) )
 			$file_not_deleted[] = WPCACHECONFIGPATH . '/wp-cache-config.php';
 	}
-	if ( $file_not_deleted ) {
+	if ( ! empty( $file_not_deleted ) ) {
 		$msg = __( "Dear User,\n\nWP Super Cache was removed from your blog or deactivated but some files could\nnot be deleted.\n\n", 'wp-super-cache' );
 		foreach( (array)$file_not_deleted as $path ) {
 			$msg .=  "{$path}\n";
