@@ -100,7 +100,7 @@ const EmptyList = () => {
 			<Text>
 				{ viewingScanHistory
 					? __(
-							'So far, there are no threats in scan history for the current filter.',
+							'So far, there are no threats in your scan history for the current filter.',
 							'jetpack-protect'
 					  )
 					: createInterpolateElement(

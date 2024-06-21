@@ -7,7 +7,6 @@ import {
 } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
 
 const sortThreats = ( a, b ) => b.severity - a.severity;
 
@@ -52,12 +51,7 @@ const flattenThreats = ( data, newData ) => {
  */
 const useThreatsList = () => {
 	const [ selected, setSelected ] = useState( 'all' );
-
-	const scanHistory = useScanHistory();
-	const currentData = useProtectData();
-	const { viewingScanHistory } = scanHistory;
-	const source = viewingScanHistory ? scanHistory : currentData;
-	const { plugins, themes, core, files, database } = source; // TODO: testing this out, should be improved! Maybe this could be extracted to a hook?
+	const { plugins, themes, core, files, database } = useProtectData();
 
 	const { unsortedList, item } = useMemo( () => {
 		// If a specific threat category is selected, filter for and flatten the category's threats.

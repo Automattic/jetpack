@@ -11,14 +11,9 @@ import {
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect } ) => {
-	const scanHistory = useScanHistory();
-	const currentData = useProtectData();
-	const { viewingScanHistory } = scanHistory;
-	const source = viewingScanHistory ? scanHistory : currentData;
 	const {
 		plugins,
 		themes,
@@ -27,7 +22,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		numFilesThreats,
 		numDatabaseThreats,
 		hasRequiredPlan,
-	} = source; // TODO: testing this out, should be improved! Maybe this could be extracted to a hook? Also used in Summary and useThreatsList hooks
+	} = useProtectData();
 
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
