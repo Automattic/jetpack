@@ -9,7 +9,12 @@ type TracksRecordEvent = (
 ) => void;
 
 const useAnalytics = () => {
-	const { isUserConnected, connectedPlugins, userConnectionData = {} } = useMyJetpackConnection();
+	const {
+		isUserConnected,
+		isSiteConnected,
+		connectedPlugins,
+		userConnectionData = {},
+	} = useMyJetpackConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
 	const { myJetpackVersion = '' } = getMyJetpackWindowInitialState();
 
@@ -39,6 +44,8 @@ const useAnalytics = () => {
 		jetpackAnalytics.tracks.recordEvent( event, {
 			...properties,
 			version: myJetpackVersion,
+			isSiteConnected,
+			isUserConnected,
 			referring_plugins: connectedPluginsSlugs,
 		} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
