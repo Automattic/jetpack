@@ -62,7 +62,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/abtest",
-				"reference": "d34ad925fc6dff1741b55aa33d1743080374938d"
+				"reference": "0bc2d4b9632a3f769675d66c6c4db976252670fd"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -85,7 +85,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "2.1.x-dev"
 				}
 			},
 			"autoload": {
