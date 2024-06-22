@@ -62,7 +62,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/abtest",
-				"reference": "8d7ca6c2a61f73ba22831ca8eaab113ab7db09e0"
+				"reference": "d34ad925fc6dff1741b55aa33d1743080374938d"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -111,6 +111,7 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Provides an interface to the WP.com A/B tests.",
+			"abandoned": "automattic/jetpack-explat",
 			"transport-options": {
 				"relative": true
 			}
