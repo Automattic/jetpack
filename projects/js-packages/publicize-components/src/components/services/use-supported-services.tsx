@@ -120,17 +120,14 @@ export function useSupportedServices(): Array< SupportedService > {
 		{
 			...availableServices.threads,
 			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
-			description: __( 'Share with your network.', 'jetpack' ),
+			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
 			badges: [ badgeNew ],
 			examples: [
 				() => (
 					<>
-						{ createInterpolateElement(
-							__(
-								'<strong>Connect</strong> to automatically share posts to your Threads profile.',
-								'jetpack'
-							),
-							{ strong: <strong></strong> }
+						{ __(
+							'Increase your presence in social media by sharing your posts automatically to Threads.',
+							'jetpack'
 						) }
 					</>
 				),
