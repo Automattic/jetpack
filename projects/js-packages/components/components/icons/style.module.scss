@@ -37,8 +37,11 @@
 		fill: var( --color-mastodon );
 	}
 	&.nextdoor {
-		fill: var( --color-nextdoor );
-		border-radius: 50%;
+		// Add some specificity to override the border-radius on Jetpack settings page
+		&:global(.social-logo) {
+			fill: var( --color-nextdoor );
+			border-radius: 50%;
+		}
 	}
 	&.instagram {
 		fill: var( --color-instagram );
@@ -47,8 +50,10 @@
 		fill: var( --color-whatsapp );
 	}
 	&.threads {
-		fill: var( --color-threads );
-		border-radius: 40%;
+		&:global(.social-logo) {
+			fill: var( --color-threads );
+			border-radius: 40%;
+		}
 	}
 }
 
