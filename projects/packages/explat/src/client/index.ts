@@ -7,7 +7,10 @@ import createExPlatClientReactHelpers from '@automattic/explat-client-react-help
  * Internal dependencies
  */
 import { getAnonId, initializeAnonId } from './anon';
-import { fetchExperimentAssignment } from './assignment';
+import {
+	fetchExperimentAssignmentAnonymously,
+	fetchExperimentAssignmentWithAuth,
+} from './assignment';
 import { logError } from './error';
 import { isDevelopmentMode } from './utils';
 
@@ -18,7 +21,7 @@ export const initializeExPlat = (): void => {
 initializeExPlat();
 
 const exPlatClient = createExPlatClient( {
-	fetchExperimentAssignment,
+	fetchExperimentAssignment: fetchExperimentAssignmentAnonymously,
 	getAnonId,
 	logError,
 	isDevelopmentMode,
@@ -28,3 +31,21 @@ export const { loadExperimentAssignment, dangerouslyGetExperimentAssignment } = 
 
 export const { useExperiment, Experiment, ProvideExperimentData } =
 	createExPlatClientReactHelpers( exPlatClient );
+
+const exPlatClientWithAuth = createExPlatClient( {
+	fetchExperimentAssignment: fetchExperimentAssignmentWithAuth,
+	getAnonId,
+	logError,
+	isDevelopmentMode,
+} );
+
+export const {
+	loadExperimentAssignment: loadExperimentAssignmentWithAuth,
+	dangerouslyGetExperimentAssignment: dangerouslyGetExperimentAssignmentWithAuth,
+} = exPlatClientWithAuth;
+
+export const {
+	useExperiment: useExperimentWithAuth,
+	Experiment: ExperimentWithAuth,
+	ProvideExperimentData: ProvideExperimentDataWithAuth,
+} = createExPlatClientReactHelpers( exPlatClientWithAuth );
