@@ -39,11 +39,11 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
-	const handleIgnoreThreatClick = () => {
+	const handleIgnoreOrUnignoreThreatClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
-				type: 'IGNORE_THREAT',
+				type: 'IGNORE_OR_UNIGNORE_THREAT',
 				props: { id, label, title, icon, severity },
 			} );
 		};
@@ -118,8 +118,21 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
+				{ viewingScanHistory && fixedOn === null && (
+					<Button
+						isDestructive={ true }
+						variant="secondary"
+						onClick={ handleIgnoreOrUnignoreThreatClick() }
+					>
+						{ __( 'Unignore threat', 'jetpack-protect' ) }
+					</Button>
+				) }
 				{ ! viewingScanHistory && (
-					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+					<Button
+						isDestructive={ true }
+						variant="secondary"
+						onClick={ handleIgnoreOrUnignoreThreatClick() }
+					>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
