@@ -9,7 +9,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 
 	return (
 		<>
-			<hr class="jetpack-blogroll-item-divider" />
+			<hr className="jetpack-blogroll-item-divider" />
 			<div { ...blockProps }>
 				<MediaUpload
 					multiple={ false }
@@ -20,7 +20,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 						<Button variant="link" onClick={ open } style={ { padding: 0 } }>
 							<figure>
 								<img
-									class="blogroll-item-image"
+									className="blogroll-item-image"
 									onError={ event => {
 										event.target.parentNode.classList.add( 'empty-site-icon' );
 									} }
@@ -31,7 +31,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 						</Button>
 					) }
 				/>
-				<div class="jetpack-blogroll-item-content">
+				<div className="jetpack-blogroll-item-content">
 					<a>
 						<RichText
 							className="jetpack-blogroll-item-title"
