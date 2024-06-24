@@ -111,6 +111,7 @@ describe( 'usePostMeta', () => {
 				enabled: true,
 			},
 			should_upload_attached_media: true,
+			version: 2,
 		} );
 	} );
 } );
