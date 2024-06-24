@@ -13,7 +13,7 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
  * Types
  */
 import { FEATURED_IMAGE_FEATURE_NAME } from '../types';
-import type { CarrouselImageData, CarrouselImages } from '../carrousel';
+import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
 
 export default function useAiImage( {
 	cost,

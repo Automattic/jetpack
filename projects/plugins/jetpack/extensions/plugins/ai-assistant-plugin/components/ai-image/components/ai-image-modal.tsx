@@ -11,8 +11,8 @@ import { Icon, external } from '@wordpress/icons';
 import './ai-image-modal.scss';
 import UpgradePrompt from '../../../../../blocks/ai-assistant/components/upgrade-prompt';
 import AiAssistantModal from '../../modal';
-import Carrousel, { CarrouselImages } from '../carrousel';
-import UsageCounter from '../usage-counter';
+import Carrousel, { CarrouselImages } from './carrousel';
+import UsageCounter from './usage-counter';
 
 const FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT = 'ai-image-generator';
 
