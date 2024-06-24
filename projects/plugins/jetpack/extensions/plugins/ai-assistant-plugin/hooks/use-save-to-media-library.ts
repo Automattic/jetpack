@@ -47,7 +47,7 @@ export default function useSaveToMediaLibrary() {
 									}
 
 									if ( image ) {
-										debug( 'Image uploaded to media library' );
+										debug( 'Image uploaded to media library', image );
 										resolve( image );
 									}
 

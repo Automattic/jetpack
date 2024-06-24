@@ -15,7 +15,13 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 import { FEATURED_IMAGE_FEATURE_NAME } from '../types';
 import type { CarrouselImageData, CarrouselImages } from '../carrousel';
 
-export default function useAiImage( { cost }: { cost: number } ) {
+export default function useAiImage( {
+	cost,
+	autoStart = true,
+}: {
+	cost: number;
+	autoStart?: boolean;
+} ) {
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
@@ -23,7 +29,7 @@ export default function useAiImage( { cost }: { cost: number } ) {
 	/* Images Control */
 	const pointer = useRef( 0 );
 	const [ current, setCurrent ] = useState( 0 );
-	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
+	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 
 	/* Merge the image data with the new data. */
 	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
@@ -121,12 +127,15 @@ export default function useAiImage( { cost }: { cost: number } ) {
 							updateRequestsCount();
 							saveToMediaLibrary( image )
 								.then( savedImage => {
-									updateImages( { libraryId: savedImage.id, generating: false }, pointer.current );
+									updateImages(
+										{ libraryId: savedImage?.id, libraryUrl: savedImage?.url, generating: false },
+										pointer.current
+									);
 									pointer.current += 1;
 									resolve( {
 										image,
-										libraryId: savedImage.id,
-										libraryUrl: savedImage.url,
+										libraryId: savedImage?.id,
+										libraryUrl: savedImage?.url,
 									} );
 								} )
 								.catch( () => {
@@ -154,11 +163,14 @@ export default function useAiImage( { cost }: { cost: number } ) {
 	}, [ current, images.length ] );
 
 	return {
+		current,
+		setCurrent,
 		processImageGeneration,
 		handlePreviousImage,
 		handleNextImage,
 		currentImage: images[ current ],
 		currentPointer: images[ pointer.current ],
 		images,
+		pointer,
 	};
 }
