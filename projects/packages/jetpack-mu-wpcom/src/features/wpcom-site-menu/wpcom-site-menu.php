@@ -217,12 +217,13 @@ function hide_my_sites_menu() {
 	}
 	?>
 	<style>
-		#wp-admin-bar-my-sites {
+		#wpadminbar li#wp-admin-bar-my-sites {
 			display: none;
 		}
 	</style>
 	<?php
 }
+add_action( 'admin_head', 'hide_my_sites_menu' );
 
 /**
  * Replace the WP logo /about.php link with /wp-admin/.
