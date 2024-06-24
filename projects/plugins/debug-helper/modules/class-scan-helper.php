@@ -26,6 +26,7 @@ class Scan_Helper {
 		$upload_dir    = wp_upload_dir()['basedir'];
 		$admin_dir     = str_replace( site_url() . '/', ABSPATH, admin_url() );
 		$content_dir   = str_replace( site_url() . '/', ABSPATH, content_url() );
+		$abs_dir       = ABSPATH;
 		$this->threats = array(
 			'eicar'                  => "$upload_dir/jptt_eicar.php",
 			'suspicious_link'        => "$upload_dir/jptt_suspicious_link.php",
@@ -35,6 +36,7 @@ class Scan_Helper {
 			'fake_vulnerable_plugin' => "$content_dir/plugins/wp-super-cache.php",
 			'fake_vulnerable_theme'  => "$content_dir/themes/twentyfifteen/style.css",
 			'fuzzy_hash_file'        => "$content_dir/fuzzy.php",
+			'wp_settings_file'       => "$abs_dir/wp-settings.php",
 		);
 
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
@@ -101,6 +103,21 @@ class Scan_Helper {
 		}
 
 		return $wp_filesystem->get_contents_array( $file_path );
+	}
+
+	/**
+	 * Get contents of a file as a string using the WP Filesystem API
+	 *
+	 * @param string $file_path File path.
+	 */
+	private function get_contents( $file_path ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			die;
+		}
+
+		return $wp_filesystem->get_contents( $file_path );
 	}
 
 	/**
@@ -595,6 +612,53 @@ class Scan_Helper {
 		return "Successfully removed fuzzy hash threat $relative_file_path.";
 	}
 
+	const CORE_VERSION_INCLUDE = "require ABSPATH . WPINC . '/version.php';";
+	const FAKE_VERSION_INCLUDE = "require ABSPATH . WPINC . '/version.php'; \$wp_version = '6.4.3';";
+
+	/**
+	 * Checks whether the WordPress version is currently faked on the site.
+	 *
+	 * @return bool
+	 */
+	private function wordpress_version_is_faked() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+		return strpos( $content, self::FAKE_VERSION_INCLUDE ) !== false;
+	}
+
+	/**
+	 * Enabled the WordPress version fake.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function enable_wordpress_version_fake() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+
+		$content = str_replace( self::CORE_VERSION_INCLUDE, self::FAKE_VERSION_INCLUDE, $content );
+
+		if ( ! $this->write_file( $this->threats['wp_settings_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['wp_settings_file']}" );
+		}
+
+		return "Successfully added faked WordPress version to {$this->threats['wp_settings_file']}.";
+	}
+
+	/**
+	 * Disables the WordPress version fake.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function disable_wordpress_version_fake() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+
+		$content = str_replace( self::FAKE_VERSION_INCLUDE, self::CORE_VERSION_INCLUDE, $content );
+
+		if ( ! $this->write_file( $this->threats['wp_settings_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write cleaned file to {$this->threats['wp_settings_file']}" );
+		}
+
+		return "Successfully removed faked WordPress version from {$this->threats['wp_settings_file']}.";
+	}
+
 	/**
 	 * Handles the form submission
 	 *
@@ -717,6 +781,18 @@ class Scan_Helper {
 			$successes[] = $fuzzy_hash;
 		}
 
+		// Fake WordPress Version
+		if ( isset( $_POST['fake-wordpress-version'] ) ) {
+			$fake_wordpress_version = ! $this->wordpress_version_is_faked() ? $this->enable_wordpress_version_fake() : null;
+		} else {
+			$fake_wordpress_version = $this->wordpress_version_is_faked() ? $this->disable_wordpress_version_fake() : null;
+		}
+		if ( is_wp_error( $fake_wordpress_version ) ) {
+			$errors[] = $fake_wordpress_version;
+		} elseif ( $fake_wordpress_version ) {
+			$successes[] = $fake_wordpress_version;
+		}
+
 		return array(
 			'errors'    => $errors,
 			'successes' => $successes,
@@ -752,14 +828,17 @@ class Scan_Helper {
 		$lines  = file( "$dir/index.php" );
 		$infect = $lines[ count( $lines ) - 1 ] === 'HTML;' ? 'checked' : '';
 
+		// fuzzy hash check
+		$fuzzy_hash = $this->wp_file_exists( $this->threats['fuzzy_hash_file'] ) ? 'checked="checked"' : '';
+
 		// fake vulnerable plugin check
 		$fake_vulnerable_plugin = $this->wp_file_exists( $this->threats['fake_vulnerable_plugin'] ) ? 'checked="checked"' : '';
 
 		// fake vulnerable theme check
 		$fake_vulnerable_theme = $this->wp_file_exists( $this->threats['fake_vulnerable_theme'] ) ? 'checked="checked"' : '';
 
-		// fuzzy hash check
-		$fuzzy_hash = $this->wp_file_exists( $this->threats['fuzzy_hash_file'] ) ? 'checked="checked"' : '';
+		// fake WordPress version check
+		$fake_wordpress_version = $this->wordpress_version_is_faked() ? 'checked="checked"' : '';
 
 		?>
 
@@ -840,6 +919,15 @@ class Scan_Helper {
 			</div>
 
 			<div>
+				<label for="fuzzy-hash">
+					<input type="checkbox" name="fuzzy-hash" id="fuzzy-hash" <?php echo esc_attr( $fuzzy_hash ); ?>>
+					<strong>Create a fuzzy hash threat</strong>
+					<br>
+					Add/Remove a fuzzy hash threat to a new file in the WordPress <code>contents</code> folder.
+				</label>
+			</div>
+
+			<div>
 				<label for="fake-vulnerable-plugin">
 					<input type="checkbox" name="fake-vulnerable-plugin" id="fake-vulnerable-plugin" <?php echo esc_attr( $fake_vulnerable_plugin ); ?>>
 					<strong>Create a fake vulnerable plugin</strong>
@@ -858,11 +946,17 @@ class Scan_Helper {
 			</div>
 
 			<div>
-				<label for="fuzzy-hash">
-					<input type="checkbox" name="fuzzy-hash" id="fuzzy-hash" <?php echo esc_attr( $fuzzy_hash ); ?>>
-					<strong>Create a fuzzy hash threat</strong>
+				<label for="fake-wordpress-version">
+					<input type="checkbox" name="fake-wordpress-version" id="fake-wordpress-version" <?php echo esc_attr( $fake_wordpress_version ); ?>>
+					<strong>Fake WordPress Version</strong>
 					<br>
-					Add/Remove a fuzzy hash threat to a new file in the WordPress <code>contents</code> folder.
+					This will make WordPress believe it us running version <code>6.4.3</code>  see <a href="https://wpscan.com/wordpress/643/">WPScan reference</a>.
+					<br><br>
+					Note that this will cause two things to happen:
+					<ol>
+						<li>The scan will take a while longer, because it compares against the "wrong" known core file hashes.</li>
+						<li>This will also be caught as a core file modification, as we are modifing a core file to make it happen.</li>
+					</ol>
 				</label>
 			</div>
 
