@@ -29,7 +29,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'WPSC_VERSION_ID', '1.9.1-alpha' );
+define( 'WPSC_VERSION_ID', '1.12.1' );
 
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
