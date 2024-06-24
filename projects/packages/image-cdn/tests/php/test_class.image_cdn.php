@@ -148,6 +148,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 		// add sizes that did not exist when the file was uploaded.
 		// These perfectly match the above and Photon should treat them the same.
+		add_image_size( 'jetpack_cropped_size', 165, 165, true );
 		add_image_size( 'jetpack_soft_defined_after_upload', 700, 500, false ); // Intentionally not a 1.33333 ratio.
 		add_image_size( 'jetpack_soft_undefined_after_upload', 700, 99999, false );
 		add_image_size( 'jetpack_soft_undefined_zero_after_upload', 700, 0, false );
@@ -405,6 +406,17 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 */
 	public function test_image_cdn_parse_dimensions_from_filename_valid_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg';
+
+		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
+	}
+
+	/**
+	 * Tests Photon will parse the dimensions from a filename that contains query parameters.
+	 *
+	 * @covers Image_CDN::parse_dimensions_from_filename
+	 */
+	public function test_image_cdn_parse_dimensions_from_filename_with_query_parameters() {
+		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg?foo=bar&baz=qux';
 
 		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
@@ -787,6 +799,39 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 			'fit=400%2C300',
 			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
 		);
+
+		wp_delete_attachment( $test_image );
+		$this->helper_remove_image_sizes();
+	}
+
+	/**
+	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
+	 *
+	 * @covers Image_CDN::filter_image_downsize
+	 * @since 0.4.3
+	 */
+	public function test_image_cdn_return_custom_size_array_uses_registered_crop() {
+		$test_image = $this->helper_get_image();
+
+		// Declaring the size array directly, registered size jetpack_cropped_size of 165 by 165, cropped.
+		$this->assertEquals(
+			'resize=165%2C165',
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 165, 165 ) ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->helper_remove_image_sizes();
+	}
+
+	/**
+	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
+	 *
+	 * @covers Image_CDN::filter_image_downsize
+	 * @since 0.4.3
+	 */
+	public function test_image_cdn_return_false_for_image_with_null_size() {
+		$test_image = $this->helper_get_image();
+		$this->assertFalse( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( null, null ) ) );
 
 		wp_delete_attachment( $test_image );
 		$this->helper_remove_image_sizes();

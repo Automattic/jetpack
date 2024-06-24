@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.23.0 - 2024-06-21
+### Added
+- New wpcomsh CLI command to fix PHP 7.4 plugin [#37966]
+- Wpcomsh: Update plugin dependencies [#37812]
+
+### Changed
+- Bump lock files. [#37870]
+- Site Visibility: Update link copy [#37909]
+
+## 3.22.16 - 2024-06-17
+### Changed
+- Fixed readme, added accurate links. [#37901]
+
 ## 3.22.15 - 2024-06-17
 ### Added
 - Added a prefix for wpcomsh weekly shipping. [#37857]
