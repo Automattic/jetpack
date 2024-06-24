@@ -30,7 +30,18 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					<service.icon iconSize={ isSmall ? 36 : 48 } />
 				</div>
 				<div className={ styles[ 'service-basics' ] }>
-					<span className={ styles.title }>{ service.label }</span>
+					<div className={ styles.heading }>
+						<span className={ styles.title }>{ service.label }</span>
+						{ service.badges?.length ? (
+							<div className={ styles.badges }>
+								{ service.badges.map( ( { text, style }, index ) => (
+									<span key={ index } className={ styles.badge } style={ style }>
+										{ text }
+									</span>
+								) ) }
+							</div>
+						) : null }
+					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
 					) : null }
