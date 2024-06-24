@@ -551,13 +551,12 @@ function wpcom_add_plugins_menu() {
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
-
 	add_submenu_page(
 		'plugins.php',
 		/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+		__( 'Marketplace', 'jetpack-mu-wpcom' ),
 		/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+		__( 'Marketplace', 'jetpack-mu-wpcom' ),
 		'manage_options', // Roughly means "is a site admin"
 		'https://wordpress.com/plugins/' . $domain,
 		null
