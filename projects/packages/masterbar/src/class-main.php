@@ -29,7 +29,6 @@ class Main {
 
 		$host                    = new Host();
 		$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
-		$agency_managed_site     = function_exists( 'is_agency_managed_site' ) && is_agency_managed_site();
 
 		if ( ! $should_use_nav_redesign && ! $host->is_wpcom_simple() ) {
 			new Masterbar();
@@ -43,7 +42,7 @@ class Main {
 			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
-		if ( $host->is_woa_site() && ! ( $should_use_nav_redesign || $agency_managed_site ) ) {
+		if ( $host->is_woa_site() && ! $should_use_nav_redesign ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';
 		}
 
