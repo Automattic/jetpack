@@ -251,6 +251,7 @@ export default function GeneralPurposeImage( {
 			handleNextImage={ handleNextImage }
 			acceptButton={ acceptButton }
 			generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
+			instructionsPlaceholder={ __( "Describe the image you'd like to create.", 'jetpack' ) }
 		/>
 	);
 }
