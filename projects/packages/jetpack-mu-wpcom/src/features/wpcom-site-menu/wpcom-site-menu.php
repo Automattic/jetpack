@@ -506,6 +506,7 @@ function wpcom_add_plugins_menu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+	$is_agency_managed_site  = function_exists( 'is_agency_managed_site' ) && is_agency_managed_site();
 
 	if ( $is_simple_site ) {
 		$has_plugins_menu = false;
@@ -545,24 +546,22 @@ function wpcom_add_plugins_menu() {
 		}
 	}
 
-	if ( ! $is_nav_redesign_enabled ) {
+	if ( ! $is_nav_redesign_enabled || $is_agency_managed_site ) {
 		return;
 	}
 
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 
-	if ( ! function_exists( 'is_agency_managed_site' ) || ! is_agency_managed_site() ) {
-		add_submenu_page(
-			'plugins.php',
-			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-				__( 'Marketplace', 'jetpack-mu-wpcom' ),
-			/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
-				__( 'Marketplace', 'jetpack-mu-wpcom' ),
-			'manage_options', // Roughly means "is a site admin"
-			'https://wordpress.com/plugins/' . $domain,
-			null
-		);
-	}
+	add_submenu_page(
+		'plugins.php',
+		/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
+			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+		/* translators: Name of the Plugins submenu that links to the Plugins Marketplace */
+			__( 'Marketplace', 'jetpack-mu-wpcom' ),
+		'manage_options', // Roughly means "is a site admin"
+		'https://wordpress.com/plugins/' . $domain,
+		null
+	);
 
 	if ( $is_atomic_site ) {
 		if (

@@ -17,6 +17,11 @@ function wpcomsh_plugins_show_banner() {
 		return;
 	}
 
+	// No banner for agency-managed sites.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return;
+	}
+
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
