@@ -15,8 +15,11 @@
 		fill: var( --color-bluesky );
 	}
 	&.facebook {
-		fill: var( --color-facebook );
-		border-radius: 50% !important;
+		// Add some specificity to override the border-radius on Jetpack settings page
+		&:global(.social-logo) {
+			fill: var( --color-facebook );
+			border-radius: 50%;
+		}
 	}
 	&.instagram {
 		fill: var( --color-instagram );
