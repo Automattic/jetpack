@@ -397,6 +397,22 @@ function wpcomsh_map_block_map_provider() {
 add_filter( 'wpcom_map_block_map_provider', 'wpcomsh_map_block_map_provider', 10, 0 );
 
 /**
+ * Disabled fatal error emails if the option is set.
+ *
+ * @param array $email The email arguments.
+ *
+ * @return array The email arguments.
+ */
+function wpcomsh_disable_fatal_error_emails( $email ) {
+	if ( get_option( 'wpcomsh_disable_fatal_error_emails', false ) ) {
+		$email['to'] = 'noreply@wordpress.com';
+	}
+	return $email;
+}
+
+add_filter( 'recovery_mode_email', 'wpcomsh_disable_fatal_error_emails' );
+
+/**
  * Returns the location where newsletter categories should appear
  *
  * @return string

@@ -920,7 +920,39 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::success( 'Success' );
 		}
+
+		/**
+		 * Enable or disable fatal error emails.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <command>
+		 * : get/set
+		 *
+		 * <value>
+		 * : The plugin to patch.
+		 *
+		 * @subcommand disable-fatal-error-emails
+		 */
+		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$command = $args[0];
+			$value   = (bool) $args[1];
+
+			switch ( $command ) {
+				case 'get':
+					$option = get_option( 'wpcomsh_disable_fatal_error_emails', false );
+					WP_CLI::log( $option ? 'true' : 'false' );
+					break;
+				case 'set':
+					update_option( 'wpcomsh_disable_fatal_error_emails', $value );
+					WP_CLI::success( 'Success' );
+					break;
+				default:
+					WP_CLI::error( 'Invalid command' );
+			}
+		}
 	}
+
 }
 
 if ( class_exists( 'Checksum_Plugin_Command' ) ) {
