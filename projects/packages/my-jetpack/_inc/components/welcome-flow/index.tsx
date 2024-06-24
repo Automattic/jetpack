@@ -2,6 +2,8 @@ import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
+import { QUERY_EVALUATE_KEY, REST_API_EVALUATE_SITE_RECOMMENDATIONS } from '../../data/constants';
+import useSimpleMutation from '../../data/use-simple-mutation';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -13,6 +15,16 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const WelcomeFlow: FC = () => {
+	const { mutate: startEvaluation, isPending: isProcessingEvaluation } = useSimpleMutation<
+		Record< string, number >
+	>( {
+		name: QUERY_EVALUATE_KEY,
+		query: {
+			path: REST_API_EVALUATE_SITE_RECOMMENDATIONS,
+			method: 'GET',
+		},
+		errorMessage: 'Failed to evaluate site recommendations',
+	} );
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
 	const {
@@ -25,7 +37,6 @@ const WelcomeFlow: FC = () => {
 		skipUserConnection: true,
 	} );
 	const [ visible, setVisible ] = useState( isWelcomeBannerVisible );
-	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered ) {
@@ -48,15 +59,21 @@ const WelcomeFlow: FC = () => {
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
 
 	const handleEvaluation = useCallback(
-		( _values: { [ key in EvaluationAreas ]: boolean } ) => {
-			setIsProcessingEvaluation( true );
-			setTimeout( () => {
-				// TODO: Mock "evaluation": Implement the evaluation endpoint
-				setVisible( false );
-				dismissWelcomeBanner();
-			}, 3_000 );
+		( values: { [ key in EvaluationAreas ]: boolean } ) => {
+			startEvaluation(
+				{
+					queryParams: {
+						goals: Object.keys( values ).filter( key => values[ key ] ),
+					},
+				},
+				{
+					onSuccess: _result => {
+						// TODO: Handle result
+					},
+				}
+			);
 		},
-		[ dismissWelcomeBanner ]
+		[ startEvaluation ]
 	);
 
 	if ( ! visible ) {
