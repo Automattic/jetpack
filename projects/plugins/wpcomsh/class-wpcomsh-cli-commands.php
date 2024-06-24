@@ -929,8 +929,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * <command>
 		 * : get/set
 		 *
-		 * <value>
-		 * : The plugin to patch.
+		 * [value]
+		 * : The value (when setting)
 		 *
 		 * @subcommand disable-fatal-error-emails
 		 */
