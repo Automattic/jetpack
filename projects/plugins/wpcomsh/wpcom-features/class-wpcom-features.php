@@ -776,7 +776,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
 		),
-		// LIVE_SUPPORT - Monthly plans do not get live support. https://wp.me/p7DVsv-a9N.
+		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                      => array(
 			// Premium (Excluding Monthly).
 			self::BUNDLE_PRO,
@@ -945,7 +945,7 @@ class WPCOM_Features {
 
 		/*
 		 * SCAN_MANAGED - Scan results are managed internally by Atomic guild HEs and not shown in user UI.
-		 * See https://code.a8c.com/D57207.
+		 * See D57207-code.
 		 */
 		self::SCAN_MANAGED                      => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
@@ -955,7 +955,7 @@ class WPCOM_Features {
 		/*
 		 * SCHEDULED_UPDATES - Allows users to schedule plugin and (eventually) theme updates for their sites.
 		 *
-		 * @see https://cariboup2.wordpress.com/2024/02/13/project-thread-plugin-updates-manager/
+		 * @see pcmemI-2O3-p2
 		 */
 		self::SCHEDULED_UPDATES                 => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
