@@ -2318,19 +2318,45 @@ function wp_cache_create_advanced_cache() {
 	return $ret;
 }
 
+/**
+ * Identify the advanced cache plugin used
+ *
+ * @return string The name of the advanced cache plugin, BOOST, WPSC or OTHER.
+ */
+function wpsc_identify_advanced_cache() {
+	global $wpsc_advanced_cache_filename;
+	if ( ! file_exists( $wpsc_advanced_cache_filename ) ) {
+		return false;
+	}
+	$contents = file_get_contents( $wpsc_advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+	if ( false !== str_contains( $contents, 'Boost Cache Plugin' ) ) {
+		return 'BOOST';
+	}
+
+	if ( str_contains( $contents, 'WP SUPER CACHE 0.8.9.1' ) || str_contains( $contents, 'WP SUPER CACHE 1.2' ) ) {
+		return 'WPSC';
+	}
+
+	return 'OTHER';
+}
+
 function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
 	$ret                  = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
-		$file = file_get_contents( $wpsc_advanced_cache_filename );
-		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
-			return true;
-		} elseif ( strpos( $file, 'Boost Cache Plugin' ) !== false ) {
-			$other_advanced_cache = 'BOOST';
-		} else {
-			$other_advanced_cache = true;
+		$cache_type = wpsc_identify_advanced_cache();
+		switch ( $cache_type ) {
+			case 'WPSC':
+				return true;
+			case 'BOOST':
+				$other_advanced_cache = 'BOOST';
+				break;
+			default:
+				$other_advanced_cache = true;
+				break;
 		}
 	} else {
 		$ret = wp_cache_create_advanced_cache();
