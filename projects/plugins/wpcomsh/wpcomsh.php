@@ -24,6 +24,7 @@ require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
+require_once __DIR__ . '/lib/require-lib.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
@@ -271,43 +272,6 @@ function check_site_has_pending_automated_transfer() {
 }
 
 add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
-
-/**
- * Require library helper function
- *
- * @param mixed $slug Slug of library.
- * @return void
- */
-function require_lib( $slug ) {
-	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
-		return;
-	}
-
-	$basename = basename( $slug );
-
-	$lib_dir = __DIR__ . '/lib';
-
-	/**
-	 * Filter the location of the library directory.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param string $lib_dir Path to the library directory.
-	 */
-	$lib_dir = apply_filters( 'require_lib_dir', $lib_dir );
-
-	$choices = array(
-		"$lib_dir/$slug.php",
-		"$lib_dir/$slug/0-load.php",
-		"$lib_dir/$slug/$basename.php",
-	);
-	foreach ( $choices as $file_name ) {
-		if ( is_readable( $file_name ) ) {
-			require_once $file_name;
-			return;
-		}
-	}
-}
 
 /**
  * Provides a fallback Google Maps API key when otherwise not configured by the
