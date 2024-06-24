@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.33.18] - 2024-06-21
+### Changed
+- Update dependencies.
+
+## [0.33.17] - 2024-06-17
+### Changed
+- Update type to enable JSX use [#37802]
+
+## [0.33.16] - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.33.15] - 2024-06-11
+### Changed
+- Updated package dependencies. [#37779]
+
+## [0.33.14] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## [0.33.13] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.33.12] - 2024-06-03
+### Changed
+- Connection: Update connection ToS messaging. [#37536]
+
 ## [0.33.11] - 2024-05-20
 ### Changed
 - Updated package dependencies. [#37379] [#37380] [#37382]
@@ -765,6 +793,13 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.33.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.17...v0.33.18
+[0.33.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.16...v0.33.17
+[0.33.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.15...v0.33.16
+[0.33.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.14...v0.33.15
+[0.33.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.13...v0.33.14
+[0.33.13]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.12...v0.33.13
+[0.33.12]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.11...v0.33.12
 [0.33.11]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.10...v0.33.11
 [0.33.10]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.9...v0.33.10
 [0.33.9]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.8...v0.33.9

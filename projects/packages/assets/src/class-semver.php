@@ -102,7 +102,7 @@ class Semver {
 			if ( ctype_digit( $a ) ) {
 				if ( ctype_digit( $b ) ) {
 					if ( (int) $a !== (int) $b ) {
-						return $a - $b;
+						return (int) $a - (int) $b;
 					}
 				} else {
 					return -1;

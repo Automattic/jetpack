@@ -199,6 +199,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'site_intent',
+		'site_goals',
+		'onboarding_segment',
 		'site_vertical_id',
 		'blogging_prompts_settings',
 		'launchpad_screen',
@@ -860,6 +862,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
+					break;
+				case 'site_goals':
+					$options[ $key ] = $site->get_site_goals();
+					break;
+				case 'onboarding_segment':
+					$options[ $key ] = $site->get_onboarding_segment();
 					break;
 				case 'site_vertical_id':
 					$options[ $key ] = $site->get_site_vertical_id();

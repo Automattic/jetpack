@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { JP_SEARCH_TAB_IDENTIFIER, OPTIONS_TAB_IDENTIFIER } from 'lib/constants';
 
 /**
@@ -56,7 +56,7 @@ function Tab( { enableSidebar, identifier, label, isActive } ) {
 		<Button
 			// eslint-disable-next-line react/jsx-no-bind
 			onClick={ () => enableSidebar( identifier ) }
-			className={ classNames( 'jp-search-configure-sidebar__panel-tab', {
+			className={ clsx( 'jp-search-configure-sidebar__panel-tab', {
 				'is-active': isActive,
 			} ) }
 			aria-label={ ariaLabel }

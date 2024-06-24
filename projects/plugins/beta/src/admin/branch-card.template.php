@@ -2,6 +2,10 @@
 /**
  * Template to display a branch card.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-manage.template.php
+ * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed (from render()).
+ * @html-template-var object                         $branch Branch data (from plugin-manage.template.php).
+ * @html-template-var object                         $active_branch Active branch data (from plugin-manage.template.php).
  * @package automattic/jetpack-beta
  */
 
@@ -12,27 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
-if ( ! isset( $plugin ) ) {
-	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
-}
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-$plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// @global object $branch Branch data.
-if ( ! isset( $branch ) ) {
-	throw new InvalidArgumentException( 'Template parameter $branch missing' );
-}
-$branch = $branch; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// @global object $active_branch Active branch data.
-if ( ! isset( $active_branch ) ) {
-	throw new InvalidArgumentException( 'Template parameter $active_branch missing' );
-}
-$active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// -------------
-
+// Wrap in a function to avoid leaking all the variables we create to subsequent runs.
 ( function ( $plugin, $branch, $active_branch ) {
 	$slug      = 'dev' === $branch->which ? $plugin->dev_plugin_slug() : $plugin->plugin_slug();
 	$classes   = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card', 'branch-card' );
@@ -88,7 +72,7 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 	$updater_version = sprintf( __( 'Version %s', 'default' ), $branch->version );
 
 	?>
-			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
+			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
 				<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
@@ -106,4 +90,4 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 				</div>
 			</div>
 	<?php
-} )( $plugin, $branch, $active_branch );
+} )( $plugin, $branch, $active_branch ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template.

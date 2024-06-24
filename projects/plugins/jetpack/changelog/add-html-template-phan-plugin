@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Make use of new Phan HtmlTemplatePlugin. No change to functionality.
-
-

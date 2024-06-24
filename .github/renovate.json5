@@ -26,6 +26,13 @@
 		// Monorepo packages are excluded in renovate-config.js, where we can read
 		// the list of them in code.
 
+		// Disable the packagist 'wordpress/classic-editor-plugin'. It's not in packagist, and we have a customManager for it below.
+		{
+			matchDatasources: [ 'packagist' ],
+			matchDepNames: [ 'wordpress/classic-editor-plugin' ],
+			enabled: false,
+		},
+
 		// Widen PHP dev deps to maintain support for old PHP versions we still support.
 		// When we drop an old PHP version we'll manually go through and narrow any ranges.
 		// (non-dev deps are handled in renovate-config.js where we can read the correct value for `constraints.php`)
@@ -106,7 +113,35 @@
 			depNameTemplate: 'renovate',
 			packageNameTemplate: 'ghcr.io/renovatebot/renovate',
 		},
+
+		// wpcomsh's wordpress/classic-editor-plugin fake-package.
+		{
+			customType: 'regex',
+			fileMatch: [ '^projects/plugins/wpcomsh/composer\\.json$' ],
+			matchStrings: [
+				// Alas the only option is regexing to match against the JSON. Four patterns for the four different places the version number appears.
+				// .require:
+				'"wordpress/classic-editor-plugin": "(?<currentValue>[0-9.]+)",',
+				// .repositories[].package.version
+				'"name": "wordpress/classic-editor-plugin",\\s+"version": "(?<currentValue>[0-9.]+)",',
+				// .repositories[].package.dist.url
+				'"url": "https://downloads\\.wordpress\\.org/plugin/classic-editor\\.(?<currentValue>[0-9.]+)\\.zip",',
+				// .repositories[].package.source.reference
+				'"url": "https://plugins\\.svn\\.wordpress\\.org/classic-editor/",\\s+"type": "svn",\\s+"reference": "tags/(?<currentValue>[0-9.]+)/"',
+			],
+			depNameTemplate: 'wordpress/classic-editor-plugin',
+			packageNameTemplate: 'classic-editor',
+			datasourceTemplate: 'custom.wordpress-plugin',
+		},
 	],
+	customDatasources: {
+		'wordpress-plugin': {
+			defaultRegistryUrlTemplate: 'https://api.wordpress.org/plugins/info/1.0/{{packageName}}.json',
+			transformTemplates: [
+				'{ "releases": $each( versions, function($v, $k) { $match( $k, /^[0-9.]+$/ ) ? { "version": $k } } ) }',
+			],
+		},
+	},
 
 	lockFileMaintenance: {
 		enabled: true,

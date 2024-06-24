@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Error;
@@ -272,6 +273,21 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	abstract public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
+
+	/**
+	 * Whether to use the v1 admin UI.
+	 */
+	public function use_admin_ui_v1(): bool {
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
+			return true;
+		}
+
+		// Otherwise, check the constant and the plan feature.
+		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
+			|| $this->has_connections_management_feature();
+	}
 
 	/**
 	 * Does the given user have a connection to the service on the given blog?
@@ -855,7 +871,7 @@ abstract class Publicize_Base {
 				$connection_id   = $this->get_connection_id( $connection );
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
-					// Flags based on token_id
+					// Flags based on token_id.
 					1 === (int) get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true )
 					||
 					// Old flags.
@@ -1872,6 +1888,14 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
+		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
+			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
+
+			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
+
+			return ( new Paths() )->admin_url( array( 'page' => $page ) );
+		}
+
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		$blog_id         = Connection_Manager::get_site_id( true );
@@ -2059,10 +2083,19 @@ abstract class Publicize_Base {
 	 */
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
-		if ( $has_paid_plan === null ) {
+		if ( null === $has_paid_plan ) {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
+	}
+
+	/**
+	 * Check if we have paid features enabled.
+	 *
+	 * @return bool True if we have paid features, false otherwise.
+	 */
+	public function has_paid_features() {
+		return $this->has_enhanced_publishing_feature();
 	}
 
 	/**

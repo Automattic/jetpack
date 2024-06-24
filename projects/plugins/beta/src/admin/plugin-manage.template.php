@@ -2,8 +2,12 @@
 /**
  * Jetpack Beta wp-admin manage page contents.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render
+ * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
  * @package automattic/jetpack-beta
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 use Automattic\JetpackBeta\Admin;
 use Automattic\JetpackBeta\Utils;
@@ -13,15 +17,6 @@ use Composer\Semver\Semver;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-
-// @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
-if ( ! isset( $plugin ) ) {
-	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
-}
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-$plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// -------------
 
 $manifest   = $plugin->get_manifest( true );
 $wporg_data = $plugin->get_wporg_data( true );
@@ -47,6 +42,7 @@ $active_branch = (object) array(
 	'id'     => null,
 );
 $version       = null;
+$verslug       = '';
 if ( is_plugin_active( $plugin->plugin_file() ) ) {
 	$active_branch = $existing_branch;
 	$verslug       = $plugin->plugin_slug();

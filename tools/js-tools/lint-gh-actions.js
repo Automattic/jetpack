@@ -5,7 +5,7 @@
 
 const fs = require( 'fs' );
 const chalk = require( 'chalk' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const YAML = require( 'yaml' );
 
 const isCI = !! process.env.CI;

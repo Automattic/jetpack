@@ -31,6 +31,7 @@ type ExtensionAIControlProps = {
 	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	upgradeUrl?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
 	onSend?: ( currentValue: string ) => void;
@@ -61,6 +62,7 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		upgradeUrl,
 		wrapperRef,
 		onChange,
 		onSend,
@@ -210,11 +212,16 @@ export function ExtensionAIControl(
 				code={ error.code }
 				onTryAgainClick={ tryAgainHandler }
 				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
 			/>
 		);
 	} else if ( showUpgradeMessage ) {
 		message = (
-			<UpgradeMessage requestsRemaining={ requestsRemaining } onUpgradeClick={ upgradeHandler } />
+			<UpgradeMessage
+				requestsRemaining={ requestsRemaining }
+				onUpgradeClick={ upgradeHandler }
+				upgradeUrl={ upgradeUrl }
+			/>
 		);
 	} else if ( showGuideLine ) {
 		message = <GuidelineMessage />;

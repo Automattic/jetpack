@@ -19,7 +19,7 @@ type ConnectionInfoProps = ConnectionStatusProps;
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionInfo( { connection, service, onConfirmReconnect }: ConnectionInfoProps ) {
+export function ConnectionInfo( { connection, service }: ConnectionInfoProps ) {
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
 
 	return (
@@ -27,18 +27,14 @@ export function ConnectionInfo( { connection, service, onConfirmReconnect }: Con
 			<div className={ styles[ 'connection-item' ] }>
 				<ConnectionIcon
 					serviceName={ connection.service_name }
-					label={ connection.display_name }
+					label={ connection.display_name || connection.external_display }
 					profilePicture={ connection.profile_picture }
 				/>
 				<div className={ styles[ 'connection-name-wrapper' ] }>
 					<div className={ styles[ 'connection-item-name' ] }>
 						<ConnectionName connection={ connection } />
 					</div>
-					<ConnectionStatus
-						connection={ connection }
-						service={ service }
-						onConfirmReconnect={ onConfirmReconnect }
-					/>
+					<ConnectionStatus connection={ connection } service={ service } />
 				</div>
 				<Button
 					size={ 'small' }

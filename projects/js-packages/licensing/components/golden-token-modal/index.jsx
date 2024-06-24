@@ -1,7 +1,7 @@
 import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import styles from './styles.module.scss';
@@ -59,7 +59,7 @@ function GoldenTokenModal( {
 		hasAnimated && videoRef.current.play();
 	}, [ hasAnimated ] );
 
-	const modalClassName = classNames( styles.modal, {
+	const modalClassName = clsx( styles.modal, {
 		[ styles.animating ]: hasAnimated,
 	} );
 

@@ -1036,7 +1036,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} elseif ( isset( $_POST['contact-form-id'] ) && $post->ID !== (int) $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+		} elseif ( isset( $_POST['contact-form-id'] ) && ( empty( $post ) || $post->ID !== (int) $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 			return false;
 		}
 
@@ -1350,7 +1350,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( 'publish' === $feedback_status ) {
 			// Increase count of unread feedback.
-			$unread = get_option( 'feedback_unread_count', 0 ) + 1;
+			$unread = (int) get_option( 'feedback_unread_count', 0 ) + 1;
 			update_option( 'feedback_unread_count', $unread );
 		}
 

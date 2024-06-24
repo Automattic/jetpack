@@ -1,0 +1,42 @@
+// This is a managed VS Code settings file.
+// It is copied into place by `tools/install-vscode-settings.sh`.
+// If you no longer want the settings managed, remove these comments.
+{
+	// Define schema to allow auto-completion.
+	"$schema": "vscode://schemas/settings/workspace",
+	// Don't show these files in VS Code.
+	"files.exclude": {
+		"**/.DS_Store/**": true
+	},
+	// Don't search these files in VS Code.
+	"search.exclude": {
+		"**/.cache/**": true,
+		"**/jetpack_vendor/**": true,
+		"**/node_modules/**": true,
+		"**/vendor/**": true
+	},
+	// Don't run Intelephense on these files.
+	"intelephense.files.exclude": [
+		"**/.cache/**",
+		"**/.git/**",
+		"**/.history/**",
+		"**/jetpack_vendor/**",
+		"**/packages/**/wordpress/**",
+		"**/projects/**/wordpress/**",
+		"**/plugins/**/wordpress/**",
+		"**/vendor/**"
+	],
+	"phpCodeSniffer.autoExecutable": true,
+	"phpCodeSniffer.standard": "Automatic",
+	// Have PHPCS ignore these files.
+	"phpCodeSniffer.exclude": [
+		"**/.git/**",
+		"**/.svn/**",
+		"**/.hg/**",
+		"**/.cache/**",
+		"**/jetpack_vendor/**",
+		"**/vendor/**"
+	],
+	// Use this wp-prettier from this path.
+	"prettier.prettierPath": "tools/js-tools/node_modules/prettier/index.cjs"
+}

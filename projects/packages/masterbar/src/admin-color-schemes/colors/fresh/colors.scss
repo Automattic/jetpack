@@ -1,0 +1,15 @@
+@import "variables";
+@import "../_core-overrides";
+@import "../_gutenberg";
+@import "../_inline-help";
+@import "sidebar-notice";
+
+// Fresh theme specifics
+#wpadminbar .ab-top-menu > #wp-admin-bar-blog.my-sites > .ab-item {
+  background: #23282d;
+}
+
+.site__info > .site__badge {
+  background: #dcdcde;
+  color: #1d2327;
+}

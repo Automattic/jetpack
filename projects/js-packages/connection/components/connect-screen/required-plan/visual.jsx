@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -70,7 +70,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 	return (
 		<ConnectScreenLayout
 			title={ title }
-			className={ classNames(
+			className={ clsx(
 				'jp-connection__connect-screen-required-plan',
 				isLoading ? 'jp-connection__connect-screen-required-plan__loading' : '',
 				rna ? 'rna' : ''

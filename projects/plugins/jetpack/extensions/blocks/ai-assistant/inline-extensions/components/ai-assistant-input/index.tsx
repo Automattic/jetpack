@@ -5,7 +5,7 @@ import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /*
  * Internal dependencies
@@ -18,7 +18,7 @@ import './style.scss';
  */
 import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
 import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetpack-ai-client';
-import type { ReactElement, MouseEvent } from 'react';
+import type { ReactElement } from 'react';
 
 export type AiAssistantInputProps = {
 	className?: string;
@@ -35,7 +35,7 @@ export type AiAssistantInputProps = {
 	tryAgain?: () => void;
 };
 
-const defaultClassNames = classNames(
+const defaultClassNames = clsx(
 	'jetpack-ai-assistant-extension-ai-input',
 	'wp-block' // Some themes, like Twenty Twenty, use this class to set the element's side margins.
 );
@@ -56,7 +56,7 @@ export default function AiAssistantInput( {
 }: AiAssistantInputProps ): ReactElement {
 	const [ value, setValue ] = useState( '' );
 	const [ placeholder, setPlaceholder ] = useState( __( 'Ask Jetpack AI to edit…', 'jetpack' ) );
-	const { autosaveAndRedirect } = useAICheckout();
+	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
 	const [ requestsRemaining, setRequestsRemaining ] = useState( 0 );
 	const [ showUpgradeMessage, setShowUpgradeMessage ] = useState( false );
@@ -102,18 +102,13 @@ export default function AiAssistantInput( {
 		undo?.();
 	}, [ blockType, tracks, undo ] );
 
-	const handleUpgrade = useCallback(
-		( event: MouseEvent< HTMLButtonElement > ) => {
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				placement: 'jetpack_ai_assistant_extension',
-			} );
-
-			autosaveAndRedirect( event );
-		},
-		[ autosaveAndRedirect, currentTier?.slug, requestsCount, tracks ]
-	);
+	const handleUpgrade = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			placement: 'jetpack_ai_assistant_extension',
+		} );
+	}, [ currentTier?.slug, requestsCount, tracks ] );
 
 	const handleTryAgain = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_try_again', {
@@ -158,7 +153,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			className={ classNames( defaultClassNames, className ) }
+			className={ clsx( defaultClassNames, className ) }
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }
@@ -167,6 +162,7 @@ export default function AiAssistantInput( {
 			error={ requestingError }
 			requestsRemaining={ requestsRemaining }
 			showUpgradeMessage={ showUpgradeMessage }
+			upgradeUrl={ checkoutUrl }
 			onChange={ setValue }
 			onSend={ handleSend }
 			onStop={ handleStopSuggestion }

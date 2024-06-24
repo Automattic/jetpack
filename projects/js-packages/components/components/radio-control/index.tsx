@@ -1,5 +1,5 @@
 import { RadioControl as WPRadioControl } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './styles.module.scss';
 
 interface RadioControlProps {
@@ -41,7 +41,7 @@ const RadioControl: React.FC< RadioControlProps > = ( {
 	return (
 		<WPRadioControl
 			selected={ selected }
-			className={ classNames( styles.radio, className ) }
+			className={ clsx( styles.radio, className ) }
 			disabled={ disabled }
 			help={ help }
 			label={ label }

@@ -7,7 +7,7 @@ import { select, dispatch } from '@wordpress/data';
 /**
  * Types
  */
-import type { BlockEditorDispatch, BlockEditorSelect } from './types';
+import type { BlockBehavior, BlockEditorDispatch, BlockEditorSelect } from './types';
 import type { Block, RenderHTMLRules } from '@automattic/jetpack-ai-client';
 
 export function getMarkdown( html: string ) {
@@ -22,6 +22,12 @@ export class BlockHandler {
 	public clientId: string;
 	public renderRules: RenderHTMLRules = [];
 	public firstUpdate: boolean = true;
+	public behavior: BlockBehavior = 'dropdown' as const;
+	public isChildBlock: boolean = false;
+	public feature: string = 'ai-assistant';
+	public adjustPosition: boolean = true;
+	public startOpen: boolean = false;
+	public hideOnBlockFocus: boolean = true;
 
 	constructor( clientId: string, renderRules: RenderHTMLRules = [] ) {
 		this.clientId = clientId;
@@ -55,7 +61,8 @@ export class BlockHandler {
 		this.replaceBlockContent( HTML );
 	}
 
-	public onDone(): void {
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	public onDone( suggestion: string ): void {
 		this.firstUpdate = true;
 	}
 

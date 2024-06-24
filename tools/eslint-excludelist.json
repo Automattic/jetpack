@@ -59,7 +59,6 @@
 	"projects/plugins/jetpack/extensions/blocks/podcast-player/utils.js",
 	"projects/plugins/jetpack/extensions/blocks/slideshow/transforms.js",
 	"projects/plugins/jetpack/extensions/blocks/subscriptions/edit.js",
-	"projects/plugins/jetpack/extensions/blocks/videopress/utils.js",
 	"projects/plugins/jetpack/extensions/shared/block-icons.js",
 	"projects/plugins/jetpack/extensions/shared/block-styles.js",
 	"projects/plugins/jetpack/extensions/shared/components/block-styles-selector/index.js",

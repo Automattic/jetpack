@@ -304,7 +304,7 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->is_staging_site() ) {
+		if ( ( new Status() )->in_safe_mode() ) {
 			return false;
 		}
 
@@ -342,8 +342,8 @@ class Actions {
 			if ( ( new Status() )->is_offline_mode() ) {
 				$debug['debug_details']['is_offline_mode'] = true;
 			}
-			if ( ( new Status() )->is_staging_site() ) {
-				$debug['debug_details']['is_staging_site'] = true;
+			if ( ( new Status() )->in_safe_mode() ) {
+				$debug['debug_details']['in_safe_mode'] = true;
 			}
 			$connection = new Jetpack_Connection();
 			if ( ! $connection->is_connected() ) {

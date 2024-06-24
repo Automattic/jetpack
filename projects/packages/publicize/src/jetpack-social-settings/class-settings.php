@@ -185,6 +185,7 @@ class Settings {
 		$settings['useAdminUiV1'] = false;
 
 		$settings['is_publicize_enabled'] = false;
+		$settings['hasPaidFeatures']      = false;
 
 		$connection = new Manager();
 
@@ -197,6 +198,7 @@ class Settings {
 			);
 
 			$settings['is_publicize_enabled'] = true;
+			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
 		} else {
 			$settings['connectionData'] = array(
 				'connections' => array(),

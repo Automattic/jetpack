@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.0 - 2024-06-18
+### Changed
+- Bump lock files. [#37870]
+
+## 2.1.33 - 2024-06-17
+### Changed
+- Internal updates.
+
+## 2.1.32 - 2024-06-14
+### Changed
+- Updated package dependencies. [#37767]
+
+## 2.1.31 - 2024-06-10
+### Changed
+- Internal updates.
+
+## 2.1.30 - 2024-06-06
+### Changed
+- Internal updates.
+
+## 2.1.29 - 2024-06-03
+### Changed
+- Internal updates.
+
 ## 2.1.28 - 2024-05-27
 ### Changed
 - Internal updates.

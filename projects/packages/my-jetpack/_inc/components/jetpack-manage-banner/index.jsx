@@ -45,7 +45,7 @@ const JetpackManageBanner = props => {
 				'Are you an agency or freelancer? We’re working on a new partnership program bringing together the best of Jetpack, Woo, WordPress.com, and Pressable. Get bulk discounts, referral commissions, and more.',
 				'jetpack-my-jetpack'
 			) }
-			primaryCtaLabel={ __( 'Register your interest', 'jetpack-my-jetpack' ) }
+			primaryCtaLabel={ __( 'Sign up now', 'jetpack-my-jetpack' ) }
 			primaryCtaURL={ getRedirectUrl( 'jetpack-for-agencies-register-interest' ) }
 			primaryCtaIsExternalLink={ true }
 			primaryCtaOnClick={ handleAgencyInterestClick }

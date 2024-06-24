@@ -5,6 +5,7 @@ import { useContext, useEffect } from 'react';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
+import type { NoticeOptions } from '../../context/notices/types';
 
 const useConnectionErrorsNotice = () => {
 	const { setNotice, resetNotice } = useContext( NoticeContext );
@@ -48,7 +49,7 @@ const useConnectionErrorsNotice = () => {
 		const loadingButtonLabel = __( 'Reconnecting Jetpack…', 'jetpack-my-jetpack' );
 		const restoreButtonLabel = __( 'Restore Connection', 'jetpack-my-jetpack' );
 
-		const noticeOptions = {
+		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
 			level: 'error',
 			actions: [

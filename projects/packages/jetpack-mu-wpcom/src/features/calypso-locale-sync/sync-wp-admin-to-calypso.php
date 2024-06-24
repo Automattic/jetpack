@@ -67,8 +67,3 @@ function sync_wp_admin_site_locale_with_site_default_to_calypso( $old_value, $ne
 		update_calypso_locale( $new_value ? $new_value : 'en' );
 	}
 }
-
-if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
-	add_filter( 'insert_user_meta', 'sync_wp_admin_locale_to_calypso', 8, 3 );
-	add_filter( 'update_option_WPLANG', 'sync_wp_admin_site_locale_with_site_default_to_calypso', 10, 2 );
-}

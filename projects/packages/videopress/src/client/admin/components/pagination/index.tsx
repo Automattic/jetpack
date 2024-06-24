@@ -3,7 +3,7 @@
  */
 import { Button, Text } from '@automattic/jetpack-components';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -20,7 +20,7 @@ const range = ( start, count ) => {
 const Ellipsis = () => (
 	<Button
 		size="small"
-		className={ classnames( styles.button ) }
+		className={ clsx( styles.button ) }
 		variant="tertiary"
 		disabled
 		aria-disabled
@@ -64,7 +64,7 @@ const Pagination: React.FC< PaginationProps > = ( {
 		return (
 			<Button
 				size="small"
-				className={ classnames( styles.button, isCurrent ? styles.selected : null ) }
+				className={ clsx( styles.button, isCurrent ? styles.selected : null ) }
 				variant={ isCurrent ? 'primary' : 'tertiary' }
 				disabled={ disabled }
 				aria-disabled={ disabled }
@@ -124,10 +124,10 @@ const Pagination: React.FC< PaginationProps > = ( {
 	}
 
 	return (
-		<div className={ classnames( className, styles.wrapper ) }>
+		<div className={ clsx( className, styles.wrapper ) }>
 			<Button
 				size="small"
-				className={ classnames( styles.navigation, styles.button ) }
+				className={ clsx( styles.navigation, styles.button ) }
 				variant="tertiary"
 				disabled={ disabled || currentPage === 1 }
 				aria-disabled={ disabled || currentPage === 1 }
@@ -138,7 +138,7 @@ const Pagination: React.FC< PaginationProps > = ( {
 			{ content }
 			<Button
 				size="small"
-				className={ classnames( styles.navigation, styles.button ) }
+				className={ clsx( styles.navigation, styles.button ) }
 				variant="tertiary"
 				disabled={ disabled || currentPage === numPages }
 				aria-disabled={ disabled || currentPage === numPages }
@@ -163,7 +163,7 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 
 	const { page, itemsPerPage, total, isFetching } = useVideos();
 	return total <= itemsPerPage ? (
-		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
 	) : (
 		<Pagination
 			{ ...props }
@@ -180,7 +180,7 @@ export const ConnectLocalPagination = ( props: { className?: string; disabled?: 
 	const { setPage, page, itemsPerPage, total, isFetching } = useLocalVideos();
 
 	return total < itemsPerPage ? (
-		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
 	) : (
 		<Pagination
 			{ ...props }

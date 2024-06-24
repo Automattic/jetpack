@@ -31,12 +31,12 @@ jobs:
     needs: create-matrix
     services:
       database:
-        image: mysql:5.6
+        image: mariadb:10.4
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MARIADB_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+        options: --health-cmd="healthcheck.sh --su-mysql --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=5
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: ${{ matrix.timeout }}
     env:
@@ -46,6 +46,7 @@ jobs:
       NODE_VERSION: ${{ matrix.node }}
       MONOREPO_BASE: ${{ github.workspace }}
       WITH_WOOCOMMERCE: ${{ matrix.with-woocommerce }}
+      WITH_WPCOMSH: ${{ matrix.with-wpcomsh }}
     strategy:
       fail-fast: false
       matrix:

@@ -749,6 +749,7 @@ class Jetpack_Gutenberg {
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'hasPaidFeatures'                 => $publicize->has_paid_features(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $social_initial_state['socialImageGeneratorSettings']['available'],
 				'isSocialImageGeneratorEnabled'   => $social_initial_state['socialImageGeneratorSettings']['enabled'],
@@ -763,6 +764,8 @@ class Jetpack_Gutenberg {
 			// Add connectionData if we are using the new Connection UI.
 			if ( $social_initial_state['useAdminUiV1'] ) {
 				$initial_state['social']['connectionData'] = $social_initial_state['connectionData'];
+
+				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
 			}
 		}
 

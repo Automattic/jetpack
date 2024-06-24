@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.25] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37779] [#37796]
+
+## [0.23.24] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## [0.23.23] - 2024-06-03
+### Changed
+- Internal updates.
+
 ## [0.23.22] - 2024-05-20
 ### Changed
 - Updated package dependencies. [#37379] [#37380] [#37382]
@@ -1348,6 +1361,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.23.25]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.24...v0.23.25
+[0.23.24]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.23...v0.23.24
+[0.23.23]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.22...v0.23.23
 [0.23.22]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.21...v0.23.22
 [0.23.21]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.20...v0.23.21
 [0.23.20]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.19...v0.23.20

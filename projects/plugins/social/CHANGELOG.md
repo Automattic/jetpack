@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.5.1 - 2024-06-18
+### Fixed
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## 4.5.0 - 2024-06-13
+### Changed
+- Move the admin upsell to the toggle section [#37731]
+- Updated package dependencies. [#37767] [#37776] [#37796]
+
+### Removed
+- Removed the social basic plan from the admin page [#36846]
+
+### Fixed
+- Updated wp.org screenshots [#37726]
+
+## 4.4.0 - 2024-06-05
+### Changed
+- Social | Removed the top "Connect accounts" on the admin page [#37697]
+- Social | Updated upgrade nudges to use the new plan [#37638]
+- Updated package dependencies. [#37669]
+- Updated the editor nudge text and logic [#37644]
+
 ## 4.3.0 - 2024-05-29
 ### Added
 - Add connect form/button for connection management [#37196]

@@ -1,6 +1,6 @@
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
 import GalleryImageEdit from '../gallery-image/edit';
 import GalleryImageSave from '../gallery-image/save';
@@ -32,7 +32,7 @@ export default class Layout extends Component {
 
 		const ariaLabel = sprintf(
 			/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
-			__( 'image %1$d of %2$d in gallery', 'jetpack' ),
+			__( 'Open image %1$d of %2$d in full-screen', 'jetpack' ),
 			i + 1,
 			images.length
 		);
@@ -90,7 +90,7 @@ export default class Layout extends Component {
 		return (
 			<div
 				style={ style }
-				className={ classnames( className, {
+				className={ clsx( className, {
 					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
 				} ) }
 			>

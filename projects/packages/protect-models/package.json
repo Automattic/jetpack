@@ -1,0 +1,25 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-protect-models",
+	"version": "0.1.0-alpha",
+	"description": "This package contains the models used in Protect. ",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/protect-models/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Protect Models"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/packages/protect-models"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "echo 'Not implemented.'",
+		"build-js": "echo 'Not implemented.'",
+		"build-production": "echo 'Not implemented.'",
+		"build-production-js": "echo 'Not implemented.'",
+		"clean": "true"
+	},
+	"devDependencies": {}
+}

@@ -3,7 +3,7 @@ import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import Support from './support/support';
 import Tips from './tips/tips';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './settings-page.module.scss';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import LocalCriticalCssGeneratorProvider from '$features/critical-css/local-generator/local-generator-provider';
@@ -29,7 +29,7 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 					</div>
 
 					{ children && (
-						<div className={ classNames( 'jb-section jb-section--main', styles.section ) }>
+						<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 							{ children }
 						</div>
 					) }

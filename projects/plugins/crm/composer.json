@@ -42,7 +42,7 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_3",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_4_4_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

@@ -30,7 +30,7 @@
 		"test:run": ". ./node_modules/jetpack-e2e-commons/bin/app-password.sh && playwright install && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test --config=./playwright.config.mjs"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.43.0",
+		"@playwright/test": "1.44.1",
 		"allure-playwright": "2.9.2",
 		"config": "3.3.7",
 		"jetpack-e2e-commons": "workspace:*"

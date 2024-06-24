@@ -2,7 +2,7 @@ import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
@@ -246,7 +246,7 @@ class SiteStatsComponent extends React.Component {
 						'jetpack'
 					) }
 					clickableHeader={ true }
-					className={ classNames( 'jp-foldable-settings-standalone', {
+					className={ clsx( 'jp-foldable-settings-standalone', {
 						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
@@ -284,11 +284,16 @@ class SiteStatsComponent extends React.Component {
 										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
 										disabled={
 											! isStatsActive ||
+											! optedOutOfOdyssey ||
 											unavailableInOfflineMode ||
 											this.props.isSavingAnyOption( [ 'stats' ] )
 										}
 										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
-										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
+										onChange={
+											optedOutOfOdyssey
+												? this.handleStatsOptionToggle( 'enable_odyssey_stats' )
+												: null
+										}
 										label={
 											<>
 												{ /* This toggle enables Odyssey Stats. */ }

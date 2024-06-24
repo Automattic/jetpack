@@ -9,7 +9,7 @@ import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, lifesaver } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import IconText from '../icon-text';
 import styles from './styles.module.scss';
 
@@ -25,7 +25,7 @@ const SupportSection = () => {
 		<Container
 			horizontalSpacing={ 7 }
 			horizontalGap={ 3 }
-			className={ classNames( {
+			className={ clsx( {
 				[ styles[ 'is-viewport-medium' ] ]: isAtLeastMedium,
 			} ) }
 		>

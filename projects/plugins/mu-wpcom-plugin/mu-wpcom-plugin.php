@@ -3,7 +3,7 @@
  *
  * Plugin Name: WordPress.com Features
  * Description: Test plugin for the jetpack-mu-wpcom package
- * Version: 2.1.29-alpha
+ * Version: 2.3.0-alpha
  * Author: Automattic
  * License: GPLv2 or later
  * Text Domain: jetpack-mu-wpcom-plugin

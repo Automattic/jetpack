@@ -5,15 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.53.0] - 2024-05-29
-### Added
-- Added tests for manage connections modal and services [#37582]
+## [0.54.4] - 2024-06-17
+### Fixed
+- Social: Fixed broken connections reconnect link to point it to new connections UI [#37869]
 
-### Removed
-- Social | Removed sharing buttons info from connections modal [#37593]
+## [0.54.3] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37795]
+- Updated package dependencies. [#37796]
 
 ### Fixed
-- Social | Hide "Mark as shared" for non-admin authors [#37595]
+- Social: Fixed WSOD on connections UI when an old Twitter connection exists. [#37836]
+
+## [0.54.2] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Social | Added optmistic response for connection creation [#37730]
+
+### Fixed
+- Clean up the creating connection spinner for confirm button [#37734]
+
+## [0.54.1] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.54.0] - 2024-06-03
+### Changed
+- Social | Updated upgrade nudges to use the new plan. [#37638]
+- Updated the editor nudge text and logic. [#37644]
+
+## [0.53.0] - 2024-05-29
+### Added
+- Added tests for manage connections modal and services. [#37582]
+
+### Removed
+- Social | Removed sharing buttons info from connections modal. [#37593]
+
+### Fixed
+- Social | Hide "Mark as shared" for non-admin authors. [#37595]
 
 ## [0.52.0] - 2024-05-27
 ### Added
@@ -712,6 +741,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.54.4]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.1...v0.52.0
 [0.51.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.51.0...v0.51.1

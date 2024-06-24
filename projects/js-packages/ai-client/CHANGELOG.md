@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.4] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37779]
+
+## [0.14.3] - 2024-06-10
+### Changed
+- AI Featured Image: export generic image generation request function. [#37668]
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## [0.14.2] - 2024-06-03
+### Added
+- AI Client: Add list-related fixes on MarkdownToHTML conversion. [#37564]
+- Jetpack AI: Support upgrade links on the AI Control that will open on a new tab. [#37629]
+
 ## [0.14.1] - 2024-05-27
 ### Changed
 - AI Client: Add paragraph tweaks to Markdown conversion libs. [#37461]
@@ -328,6 +343,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.14.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.1...v0.14.2
 [0.14.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.1...v0.14.0
 [0.13.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.0...v0.13.1

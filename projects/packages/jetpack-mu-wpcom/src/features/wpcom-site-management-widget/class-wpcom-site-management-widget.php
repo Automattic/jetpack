@@ -181,7 +181,7 @@ class WPCOM_Site_Management_Widget {
 					</div>
 					<div class="wpcom_site_management_widget__site-actions">
 						<a class="button-primary" href="<?php echo esc_url( "https://wordpress.com/overview/$domain" ); ?>">
-							<?php esc_html_e( 'Hosting Overview', 'jetpack-mu-wpcom' ); ?>
+							<?php esc_html_e( 'Overview', 'jetpack-mu-wpcom' ); ?>
 						</a>
 					</div>
 				</div>
@@ -194,24 +194,24 @@ class WPCOM_Site_Management_Widget {
 							<?php
 								$dev_tools_items = array(
 									array(
-										'name' => __( 'Hosting Config', 'jetpack-mu-wpcom' ),
-										'href' => "/hosting-config/$domain",
+										'name' => __( 'Deployments', 'jetpack-mu-wpcom' ),
+										'href' => "/github-deployments/$domain",
 									),
 									array(
 										'name' => __( 'Monitoring', 'jetpack-mu-wpcom' ),
 										'href' => "/site-monitoring/$domain",
 									),
 									array(
-										'name' => __( 'GitHub Deployments', 'jetpack-mu-wpcom' ),
-										'href' => "/github-deployments/$domain",
+										'name' => __( 'Logs', 'jetpack-mu-wpcom' ),
+										'href' => "/site-logs/$domain/php",
 									),
 									array(
-										'name' => __( 'PHP Logs', 'jetpack-mu-wpcom' ),
-										'href' => "/site-monitoring/$domain/php",
+										'name' => __( 'Staging Site', 'jetpack-mu-wpcom' ),
+										'href' => "/staging-site/$domain",
 									),
 									array(
-										'name' => __( 'Server Logs', 'jetpack-mu-wpcom' ),
-										'href' => "/site-monitoring/$domain/web",
+										'name' => __( 'Server Settings', 'jetpack-mu-wpcom' ),
+										'href' => "/hosting-config/$domain",
 									),
 								);
 								foreach ( $dev_tools_items as $item ) {

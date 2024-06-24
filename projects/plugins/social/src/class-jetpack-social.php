@@ -334,6 +334,7 @@ class Jetpack_Social {
 				'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 			),
 			'hasPaidPlan'                     => $publicize->has_paid_plan(),
+			'hasPaidFeatures'                 => $publicize->has_paid_features(),
 			'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 			'isSocialImageGeneratorAvailable' => $social_state['socialImageGeneratorSettings']['available'],
 			'isSocialImageGeneratorEnabled'   => $social_state['socialImageGeneratorSettings']['enabled'],
@@ -347,6 +348,8 @@ class Jetpack_Social {
 		// Add connectionData if we are using the new Connection UI.
 		if ( $social_state['useAdminUiV1'] ) {
 			$initial_state['connectionData'] = $social_state['connectionData'];
+
+			$initial_state['connectionRefreshPath'] = $social_state['connectionRefreshPath'];
 		}
 
 		wp_localize_script(

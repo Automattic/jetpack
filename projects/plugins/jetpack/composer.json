@@ -21,6 +21,7 @@
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-calypsoify": "@dev",
+		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -37,6 +38,7 @@
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-post-list": "@dev",
@@ -104,7 +106,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_5_a_6",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_6_a_6",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

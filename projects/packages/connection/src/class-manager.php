@@ -2126,7 +2126,7 @@ class Manager {
 		( new Nonce_Handler() )->clean_all();
 
 		/**
-		 * Fires when a site is disconnected.
+		 * Fires before a site is disconnected.
 		 *
 		 * @since 1.36.3
 		 */

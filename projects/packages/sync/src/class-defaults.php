@@ -186,6 +186,9 @@ class Defaults {
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
 		'wpcom_featured_image_in_email',
+		'jetpack_gravatar_in_email',
+		'jetpack_author_in_email',
+		'jetpack_post_date_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
 		'wpcom_legacy_contact',
@@ -850,6 +853,7 @@ class Defaults {
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',
+		'editor-spacing-sizes',
 		'editor-style', // deprecated.
 		'editor-styles',
 		'html5',

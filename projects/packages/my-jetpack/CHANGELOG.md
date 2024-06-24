@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.25.2] - 2024-06-21
+### Fixed
+- Remove the need for api requests in broken modules check [#37908]
+
+## [4.25.1] - 2024-06-17
+### Fixed
+- Remove check for broken modules from red bubble connection check [#37911]
+
+## [4.25.0] - 2024-06-17
+### Changed
+- Show tooltip on card hover instead of letter hover [#37858]
+- Update connection footer to conditionally render warnings or errors [#37802]
+- Update connection status card tests to TS [#37829]
+
+## [4.24.7] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## [4.24.6] - 2024-06-11
+### Changed
+- Conditionally show connection banner as error or info [#37707]
+- Updated package dependencies. [#37779]
+
+## [4.24.5] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## [4.24.4] - 2024-06-10
+### Added
+- Add mechanism to track previously working plugins [#37537]
+
+### Changed
+- Move PRODUCT_STATUSES to constants file [#37748]
+- Send user to siteless pricing page if site is not connected [#37667]
+
+## [4.24.3] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [4.24.2] - 2024-06-03
+### Changed
+- Update ToS wording. [#37536]
+- Update CTA on A4A banner in My Jetpack. [#37628]
+
 ## [4.24.1] - 2024-05-24
 ### Changed
 - Update Search to require user connection. [#37496]
@@ -1486,6 +1530,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.1...4.25.2
+[4.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.0...4.25.1
+[4.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.7...4.25.0
+[4.24.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.6...4.24.7
+[4.24.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.5...4.24.6
+[4.24.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.4...4.24.5
+[4.24.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.3...4.24.4
+[4.24.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.2...4.24.3
+[4.24.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.1...4.24.2
 [4.24.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.0...4.24.1
 [4.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.3...4.24.0
 [4.23.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.23.2...4.23.3

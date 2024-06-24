@@ -46,6 +46,10 @@ export function releaseDefine( yargs ) {
 				.option( 'add-pr-num', {
 					describe: 'Append the GH PR number to each entry',
 					type: 'boolean',
+				} )
+				.option( 'init-next-cycle', {
+					describe: 'For `version`, init the next release cycle',
+					type: 'boolean',
 				} );
 		},
 		async argv => {
@@ -164,7 +168,7 @@ export async function scriptRouter( argv ) {
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
+			argv.scriptArgs = [ argv.initNextCycle ? '-Cu' : '-u', argv.version, argv.project ];
 			argv.next =
 				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file

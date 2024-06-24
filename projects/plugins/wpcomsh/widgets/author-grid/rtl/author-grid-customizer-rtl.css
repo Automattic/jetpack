@@ -1,0 +1,11 @@
+/* This file was automatically generated on Aug 03 2016 02:34:28 */
+
+.widget_form-author_grid-checkbox-label {
+	display: inline-block;
+	padding-right: 22px;
+}
+
+.widget_form-author_grid-checkbox-label > input[type="checkbox"] {
+	 margin-right: -22px;
+	 margin-left: 6px;
+}

@@ -20,20 +20,6 @@ describe( 'ConnectionManagement', () => {
 	} );
 
 	describe( 'With connections', () => {
-		test( 'renders the spinner without connection name', () => {
-			setup( {
-				connections: [
-					{ service_name: 'twitter', connection_id: '1' },
-					{ service_name: 'facebook', connection_id: '2' },
-				],
-			} );
-			const management = getManagementPageObject();
-
-			expect( management.header ).toBeInTheDocument();
-			expect( management.addConnectionButton ).toBeInTheDocument();
-			expect( management.spinners ).toHaveLength( 2 );
-		} );
-
 		test( 'renders the component with proper connections', () => {
 			setup();
 			const management = getManagementPageObject();

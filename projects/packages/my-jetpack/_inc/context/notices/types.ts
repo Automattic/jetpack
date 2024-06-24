@@ -10,14 +10,18 @@ export type NoticeButtonAction = NoticeAction & {
 export type Notice = {
 	message: string | ReactNode;
 	title?: string;
-	options: {
-		id?: string;
-		level: string;
-		actions?: NoticeButtonAction[];
-		priority: number;
-		hideCloseButton?: boolean;
-		onClose?: () => void;
-	};
+	options: NoticeOptions;
+};
+
+export type NoticeOptions = {
+	id?: string;
+	level: 'error' | 'warning' | 'success' | 'info';
+	actions?: NoticeButtonAction[];
+	priority: number;
+	hideCloseButton?: boolean;
+	onClose?: () => void;
+	isRedBubble?: boolean;
+	tracksArgs?: Record< string, unknown >;
 };
 
 export type NoticeContextType< T = Notice > = {

@@ -1,6 +1,6 @@
 const fs = require( 'fs' );
 const { getInput } = require( '@actions/core' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const { debug } = require( './debug' );
 
 /**
@@ -131,7 +131,7 @@ function getPlaywrightReportsPaths() {
 	const paths = [];
 
 	if ( playwrightReportPath ) {
-		paths.push( ...glob.sync( playwrightReportPath ) );
+		paths.push( ...glob.sync( playwrightReportPath ).sort() );
 	} else {
 		debug( 'No Playwright report path defined.' );
 	}
@@ -157,7 +157,7 @@ function getAttachmentPath( outputPath, attachmentPath ) {
 		const globPath = attachmentPath.replace( outputPath, resultsPath );
 		debug( `Converting attachment path: ${ attachmentPath }` );
 
-		const resolvedPaths = glob.sync( globPath );
+		const resolvedPaths = glob.sync( globPath ).sort();
 
 		if ( resolvedPaths.length > 0 ) {
 			attachmentPath = resolvedPaths[ 0 ];

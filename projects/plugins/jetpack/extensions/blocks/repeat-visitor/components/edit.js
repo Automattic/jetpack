@@ -4,7 +4,7 @@ import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/compo
 import { withSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import metadata from '../block.json';
 import { CRITERIA_AFTER, CRITERIA_BEFORE } from '../constants';
 
@@ -79,7 +79,7 @@ export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) =
 	return (
 		<div
 			{ ...blockProps }
-			className={ classNames( blockProps.className, {
+			className={ clsx( blockProps.className, {
 				'wp-block-jetpack-repeat-visitor--is-unselected': ! isSelected,
 			} ) }
 		>

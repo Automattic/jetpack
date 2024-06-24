@@ -2,6 +2,8 @@
 /**
  * Jetpack Beta wp-admin template to show needed updates.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-select.template.php or plugin-manage.template.php
+ * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed (from render()).
  * @package automattic/jetpack-beta
  */
 
@@ -13,11 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// @global Plugin|null $plugin The plugin being managed, if any. May be unset, not just null.
-$plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-// -------------
-
+// Wrap in a function to avoid leaking all the variables we create to subsequent runs.
 ( function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
 	if ( isset( $plugin ) ) {
@@ -60,12 +58,12 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 		<h2><?php esc_html_e( 'Some updates are available', 'jetpack-beta' ); ?></h2>
 		<?php
 		foreach ( $updates as $file => $update ) {
-			$slug = dirname( $file );
+			$slug  = dirname( $file );
+			$isdev = false;
 			if ( JPBETA__PLUGIN_FOLDER === $slug ) {
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$name = $update->Name;
 			} else {
-				$isdev = false;
 				if ( str_ends_with( $slug, '-dev' ) ) {
 					$isdev = true;
 					$slug  = substr( $slug, 0, -4 );
@@ -98,4 +96,4 @@ $plugin = isset( $plugin ) ? $plugin : null; // phpcs:ignore WordPress.WP.Global
 		<?php } ?>
 	</div>
 	<?php
-} )( $plugin );
+} )( $plugin ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template.

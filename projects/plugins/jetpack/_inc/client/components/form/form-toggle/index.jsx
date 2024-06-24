@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Popover from 'components/popover';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -108,7 +108,7 @@ export default class FormToggle extends Component {
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
-		const toggleClasses = classNames( 'form-toggle', this.props.className, {
+		const toggleClasses = clsx( 'form-toggle', this.props.className, {
 			'is-toggling': this.props.toggling,
 		} );
 

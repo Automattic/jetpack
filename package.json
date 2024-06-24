@@ -28,13 +28,13 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "8.51.0",
+		"eslint": "8.57.0",
 		"husky": "8.0.3",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*"
 	},
 	"engines": {
 		"node": "^20.8.1",
-		"pnpm": "^8.6.2"
+		"pnpm": "^9.3.0"
 	}
 }

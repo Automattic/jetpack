@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { createFocusTrap } from 'focus-trap';
 import jQuery from 'jquery';
 import { assign, omit } from 'lodash';
@@ -129,7 +129,7 @@ class Modal extends React.Component {
 				onMouseDown={ this.handleMouseDownOverlay }
 			>
 				<div
-					className={ classNames( 'dops-modal', className ) }
+					className={ clsx( 'dops-modal', className ) }
 					style={ combinedStyle }
 					onClick={ this.handleMouseEventModal }
 					onMouseDown={ this.handleMouseEventModal }

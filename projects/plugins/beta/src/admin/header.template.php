@@ -2,6 +2,7 @@
 /**
  * Jetpack Beta wp-admin page header.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-select.template.php or plugin-manage.template.php
  * @package automattic/jetpack-beta
  */
 
