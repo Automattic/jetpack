@@ -13,7 +13,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * Displays a banner before the theme browser that links to the WP.com Theme Showcase.
  */
 function wpcom_themes_show_banner() {
-	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+	if ( is_agency_managed_site() ) {
 		return;
 	}
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
@@ -58,7 +58,7 @@ function wpcom_themes_add_theme_showcase_menu() {
 	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
-	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+	if ( is_agency_managed_site() ) {
 		return;
 	}
 

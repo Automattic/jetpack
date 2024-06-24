@@ -53,7 +53,7 @@ function wpcom_add_wpcom_menu_item() {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
-	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+	if ( is_agency_managed_site() ) {
 		return;
 	}
 
@@ -176,7 +176,7 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
 		return;
 	}
-	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+	if ( is_agency_managed_site() ) {
 		return;
 	}
 
@@ -314,7 +314,7 @@ add_action( 'admin_enqueue_scripts', 'wpcom_site_menu_enqueue_scripts' );
  * @return array | null
  */
 function wpcom_get_sidebar_notice() {
-	if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+	if ( is_agency_managed_site() ) {
 		return null;
 	}
 	$message_path = 'calypso:sites:sidebar_notice';
@@ -506,7 +506,7 @@ function wpcom_add_plugins_menu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
-	$is_agency_managed_site  = function_exists( 'is_agency_managed_site' ) && is_agency_managed_site();
+	$is_agency_managed_site  = is_agency_managed_site();
 
 	if ( $is_simple_site ) {
 		$has_plugins_menu = false;
@@ -590,7 +590,7 @@ add_action( 'admin_menu', 'wpcom_add_plugins_menu' );
  * Hide the 'Help Center' icon in WordPress admin.
  */
 function hide_help_center_admin_bar() {
-	if ( ! function_exists( 'is_agency_managed_site' ) || ! is_agency_managed_site() ) {
+	if ( ! is_agency_managed_site() ) {
 		return;
 	}
 	?>

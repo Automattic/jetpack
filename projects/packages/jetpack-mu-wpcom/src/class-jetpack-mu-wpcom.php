@@ -73,12 +73,13 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		// Shared features.
+		require_once __DIR__ . '/features/agency-managed/agency-managed.php';
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
-		require_once __DIR__ . '/features/agency-managed/agency-managed.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
@@ -290,7 +291,7 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
-		if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+		if ( is_agency_managed_site() ) {
 			return;
 		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
@@ -318,7 +319,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load WPCOM Site Management widget.
 	 */
 	public static function load_wpcom_site_management_widget() {
-		if ( function_exists( 'is_agency_managed_site' ) && is_agency_managed_site() ) {
+		if ( is_agency_managed_site() ) {
 			return;
 		}
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
