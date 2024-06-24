@@ -2301,6 +2301,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.1.0
+        version: 4.1.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -7906,6 +7909,10 @@ packages:
 
   '@wordpress/url@4.0.0':
     resolution: {integrity: sha512-eqOj2kH8azTrA7r3qIipPQuoghdMs1DzSwnjwt4Ja0BZvZLyaacL5p5p4+/nfALXgHuk3OnAsnkecevAlyTGgg==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/url@4.1.0':
+    resolution: {integrity: sha512-6Yi9EbTgUGJgsm6XtfO4By8q2+9pTzWkxzx27ShKGF+PqIgIZjiDssf2NfD/oNUevIy48LbQMbyEyK+9r2Bw9A==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/viewport@6.0.0':
@@ -18656,7 +18663,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.7
       '@wordpress/i18n': 5.0.0
-      '@wordpress/url': 4.0.0
+      '@wordpress/url': 4.1.0
 
   '@wordpress/autop@4.0.0':
     dependencies:
@@ -19996,6 +20003,11 @@ snapshots:
       '@wordpress/is-shallow-equal': 5.0.0
 
   '@wordpress/url@4.0.0':
+    dependencies:
+      '@babel/runtime': 7.24.7
+      remove-accents: 0.5.0
+
+  '@wordpress/url@4.1.0':
     dependencies:
       '@babel/runtime': 7.24.7
       remove-accents: 0.5.0

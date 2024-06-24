@@ -1,8 +1,13 @@
 import { useMutation } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
+
+type APIFetchOptionsWithQueryParams = APIFetchOptions & {
+	queryParams: Record< string, string | Array< string > | object >;
+};
 
 /**
  * Executes a mutation with the specified parameters and options. This hook is designed
@@ -18,16 +23,35 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  * @param {string} [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
  * @returns {UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
  */
-type QueryParams = {
+type QueryParams< T, E, V > = {
 	name: string;
 	query: APIFetchOptions;
-	options?: Pick< UseMutationOptions, 'onSuccess' >;
+	options?: Pick< UseMutationOptions< T, E, V >, 'onSuccess' >;
 	errorMessage?: string;
 };
-const useSimpleMutation = < T >( { name, query, options, errorMessage }: QueryParams ) => {
-	const mutationResult = useMutation< T >( {
+const useSimpleMutation = <
+	T = void,
+	E = Error,
+	V extends object = APIFetchOptionsWithQueryParams,
+>( {
+	name,
+	query,
+	options,
+	errorMessage,
+}: QueryParams< T, E, V > ) => {
+	const mutationResult = useMutation< T, E, V >( {
 		mutationKey: [ name ],
-		mutationFn: () => apiFetch< T >( query ),
+		mutationFn: ( variables?: V ) => {
+			const finalQuery = Object.assign( {}, query ); // copy object
+
+			if ( variables && 'queryParams' in variables ) {
+				// Add query parameters to the path and remove it from query options
+				finalQuery.path = addQueryArgs( finalQuery.path, variables.queryParams );
+				delete variables.queryParams;
+			}
+
+			return apiFetch< T >( { ...finalQuery, ...variables } );
+		},
 		...options,
 	} );
 

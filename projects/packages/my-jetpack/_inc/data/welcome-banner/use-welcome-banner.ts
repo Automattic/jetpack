@@ -23,7 +23,7 @@ const useWelcomeBanner = () => {
 	} );
 
 	return {
-		dismissWelcomeBanner,
+		dismissWelcomeBanner: () => dismissWelcomeBanner( null ),
 		isWelcomeBannerVisible,
 	};
 };
