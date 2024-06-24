@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added is_agency_managed_site function used to hide wpcom items
