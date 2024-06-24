@@ -57,6 +57,7 @@ export function usePostMeta() {
 			updateMeta( 'jetpack_social_options', {
 				...metaValues.jetpackSocialOptions,
 				[ key ]: value,
+				version: 2,
 			} );
 		},
 		[ metaValues.jetpackSocialOptions, updateMeta ]

@@ -1159,12 +1159,16 @@ abstract class Publicize_Base {
 					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
+				'version'                  => 2,
 			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
+						'version'                  => array(
+							'type' => 'number',
+						),
 						'attached_media'           => array(
 							'type'  => 'array',
 							'items' => array(
