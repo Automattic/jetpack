@@ -16,22 +16,26 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
+import { Breve } from '../breve';
 import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
-import {
+import Upgrade from './upgrade';
+import './style.scss';
+/**
+ * Types
+ */
+import type {
 	CoreSelect,
 	JetpackSettingsContentProps,
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_PRE_PUBLISH,
 } from './types';
-import Upgrade from './upgrade';
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
-
-import './style.scss';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 // Determine if the usage panel is enabled or not
@@ -53,6 +57,7 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
+	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 
 	return (
 		<>
@@ -65,6 +70,7 @@ const JetpackAndSettingsContent = ( {
 			) }
 			<PanelRow className="jetpack-ai-proofread-control__header">
 				<BaseControl label={ __( 'AI feedback on post', 'jetpack' ) }>
+					{ isBreveAvailable && <Breve /> }
 					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
@@ -104,6 +110,7 @@ export default function AiAssistantPluginSidebar() {
 
 		return postTypeObject?.viewable;
 	}, [] );
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
