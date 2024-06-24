@@ -11,7 +11,7 @@
 
 ### Testing with WordPress Release Candidate
 
-The WordPress 6.6 RC 1 (is planned)[https://make.wordpress.org/core/6-6/] for a release on 25th of June, 2024. Please update your site to the latest RC if you're testing at the time when it is already available.  
+The WordPress 6.6 RC 1 [is planned](https://make.wordpress.org/core/6-6/) for a release on 25th of June, 2024. Please update your site to the latest RC if you're testing at the time when it is already available.  
 
 ### Masterbar package
 
