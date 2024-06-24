@@ -4,7 +4,7 @@ Tags: Security, backup, malware, scan, performance
 Stable tag: 13.5
 Requires at least: 6.4
 Requires PHP: 7.0
-Tested up to: 6.5
+Tested up to: 6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -326,12 +326,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.3 - 2024-06-17
-#### Enhancements
-- AI Assistant: Hide input when user types on extended block.
-
+### 13.6-a.5 - 2024-06-18
 #### Bug fixes
-- Like block: Fix editor styling.
+- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
 
 --------
 

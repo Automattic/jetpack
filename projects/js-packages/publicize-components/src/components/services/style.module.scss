@@ -35,6 +35,24 @@
 		gap: 0.25rem;
 	}
 
+	.heading {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.badges {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.badge {
+		border-radius: 4px;
+		font-size: .75rem;
+		font-weight: 600;
+		padding: 2px 8px;
+	}
+
 	.title {
 		font-size: 16px;
 		line-height: 24px;
