@@ -1811,14 +1811,7 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 				esc_html__( 'No stats', 'jetpack' )
 			);
 		} else {
-			$stats_post_url = ! ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' )
-			? admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) )
-			: Redirect::get_url(
-				'calypso-stats-post',
-				array(
-					'path' => $post_id,
-				)
-			);
+			$stats_post_url = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) );
 
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
