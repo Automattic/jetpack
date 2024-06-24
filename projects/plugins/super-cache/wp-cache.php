@@ -2326,7 +2326,7 @@ function wp_cache_create_advanced_cache() {
 function wpsc_identify_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 	if ( ! file_exists( $wpsc_advanced_cache_filename ) ) {
-		return false;
+		return 'NONE';
 	}
 	$contents = file_get_contents( $wpsc_advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
