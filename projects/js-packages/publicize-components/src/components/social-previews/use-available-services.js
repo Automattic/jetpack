@@ -1,5 +1,5 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import {
 	CONNECTION_SERVICE_INSTAGRAM_BUSINESS,
@@ -63,7 +63,11 @@ export function useAvailableSerivces() {
 					: null,
 				isThreadsSupported
 					? {
-							title: __( 'Threads', 'jetpack' ),
+							title: _x(
+								'Threads',
+								'The name of the social media network - threads.net',
+								'jetpack'
+							),
 							icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
 							name: 'threads',
 							preview: Threads,
