@@ -42,7 +42,7 @@ class Main {
 			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
-		if ( $host->is_woa_site() ) {
+		if ( $host->is_woa_site() && ! $should_use_nav_redesign ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';
 		}
 
