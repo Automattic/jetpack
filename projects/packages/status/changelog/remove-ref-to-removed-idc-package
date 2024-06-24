@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Remove reference to removed identity-crisis package from composer.json `.extra.dependencies.test-only`. No change to functionality.
+
+

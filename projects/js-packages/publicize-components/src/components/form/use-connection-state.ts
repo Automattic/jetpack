@@ -52,11 +52,11 @@ export const useConnectionState = () => {
 	 */
 	const isInGoodShape = useCallback(
 		( connection: Connection ) => {
-			const { id, is_healthy, connection_id } = connection;
+			const { id, is_healthy, connection_id, status } = connection;
 			const currentId = connection_id ? connection_id : id;
 
 			// 1. Be healthy
-			const isHealthy = false !== is_healthy;
+			const isHealthy = false !== is_healthy && status !== 'broken';
 
 			// 2. Have no validation errors
 			const hasValidationErrors =

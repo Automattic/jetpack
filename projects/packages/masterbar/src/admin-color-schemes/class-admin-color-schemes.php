@@ -7,18 +7,37 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Unifies admin color scheme selection across WP.com sites.
  */
 class Admin_Color_Schemes {
 
 	/**
+	 * A list of core color schemes to override.
+	 *
+	 * @var array
+	 */
+	const CORE_COLOR_SCHEMES = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
+
+	/**
 	 * Admin_Color_Schemes constructor.
 	 */
 	public function __construct() {
+		// We want to register the admin color schemes across all environments.
 		add_action( 'admin_init', array( $this, 'register_admin_color_schemes' ) );
-		add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+		// We don't want to make the admin_color available in users REST API endpoint for Simple sites.
+		if ( false === ( new Host() )->is_wpcom_simple() ) {
+			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
+		}
+
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) { // Classic sites.
+			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
+		} else { // Default and self-hosted sites.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
+		}
 	}
 
 	/**
@@ -56,10 +75,11 @@ class Admin_Color_Schemes {
 	 * Get the admin color scheme URL based on the environment
 	 *
 	 * @param string $color_scheme  The color scheme to get the URL for.
+	 * @param string $file          The file name (optional, default: colors.css).
 	 * @return string
 	 */
-	public function get_admin_color_scheme_url( $color_scheme ) {
-		return plugins_url( '../../dist/admin-color-schemes/colors/' . $color_scheme . '/colors.css', __FILE__ );
+	public function get_admin_color_scheme_url( $color_scheme, $file = 'colors.css' ) {
+		return plugins_url( '../../dist/admin-color-schemes/colors/' . $color_scheme . '/' . $file, __FILE__ );
 	}
 
 	/**
@@ -180,9 +200,8 @@ class Admin_Color_Schemes {
 	 * Enqueues current color-scheme overrides for core color schemes
 	 */
 	public function enqueue_core_color_schemes_overrides() {
-		$core_color_schemes = array( 'blue', 'coffee', 'ectoplasm', 'fresh', 'light', 'midnight', 'modern', 'ocean', 'sunrise' );
-		$color_scheme       = get_user_option( 'admin_color' );
-		if ( in_array( $color_scheme, $core_color_schemes, true ) ) {
+		$color_scheme = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, static::CORE_COLOR_SCHEMES, true ) ) {
 			wp_enqueue_style(
 				'jetpack-core-color-schemes-overrides',
 				$this->get_admin_color_scheme_url( $color_scheme ),
@@ -190,5 +209,37 @@ class Admin_Color_Schemes {
 				Main::PACKAGE_VERSION
 			);
 		}
+	}
+
+	/**
+	 * Enqueues current color-scheme sidebar notice overrides for core color schemes
+	 */
+	public function enqueue_color_scheme_for_sidebar_notice() {
+		$color_scheme = get_user_option( 'admin_color' );
+		if ( in_array( $color_scheme, static::CORE_COLOR_SCHEMES, true ) ) {
+			wp_enqueue_style(
+				'jetpack-core-color-schemes-overrides-sidebar-notice',
+				$this->get_admin_color_scheme_url( $color_scheme, 'sidebar-notice.css' ),
+				array(),
+				Main::PACKAGE_VERSION
+			);
+		}
+	}
+
+	/**
+	 * Currently, the selected color scheme CSS (with id = "colors") is concatenated (by Jetpack Boost / Page Optimize),
+	 * and is output before the default color scheme CSS, making it lose in specificity.
+	 *
+	 * To prevent this, we disable CSS concatenation for color schemes.
+
+	 * @param boolean $do_concat  Whether to concat the CSS file.
+	 * @param string  $handle     The file handle.
+	 * @return boolean
+	 */
+	public function disable_css_concat_for_color_schemes( $do_concat, $handle ) {
+		if ( $handle === 'colors' ) {
+			return false;
+		}
+		return $do_concat;
 	}
 }

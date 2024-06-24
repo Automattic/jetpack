@@ -72,7 +72,7 @@ class Scan_History {
 	 * @return boolean
 	 */
 	public static function should_use_cache() {
-		return defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ? false : true;
+		return ! ( ( defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ) );
 	}
 
 	/**
@@ -249,14 +249,14 @@ class Scan_History {
 						// Add the threat to the found core
 						$history->core[ $found_index ]->threats[] = new Threat_Model(
 							array(
-								'id'             => $threat->id,
-								'signature'      => $threat->signature,
-								'title'          => $threat->title,
-								'description'    => $threat->description,
-								'first_detected' => $threat->first_detected,
-								'fixed_on'       => $threat->fixed_on,
-								'fixable'        => $threat->fixable,
-								'severity'       => $threat->severity,
+								'id'             => $threat->id ?? null,
+								'signature'      => $threat->signature ?? null,
+								'title'          => $threat->title ?? null,
+								'description'    => $threat->description ?? null,
+								'first_detected' => $threat->first_detected ?? null,
+								'fixed_on'       => $threat->fixed_on ?? null,
+								'fixable'        => $threat->fixable ?? null,
+								'severity'       => $threat->severity ?? null,
 							)
 						);
 
