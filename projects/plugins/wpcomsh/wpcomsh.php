@@ -86,6 +86,7 @@ require_once __DIR__ . '/endpoints/rest-api.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
+require_once __DIR__ . '/feature-plugins/classic-sync-profile.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
@@ -107,7 +108,6 @@ require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/theme-homepage-switch.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
-require_once __DIR__ . '/feature-plugins/classic-sync-profile.php';
 
 /**
  * Conditionally load the jetpack-mu-wpcom package.
