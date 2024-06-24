@@ -1,8 +1,8 @@
-import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
-import logger from '../../../logger.js';
-import EditorCanvas from './editor-canvas.js';
 import axios from 'axios';
 import { resolveSiteUrl } from '../../../helpers/utils-helper.js';
+import logger from '../../../logger.js';
+import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
+import EditorCanvas from './editor-canvas.js';
 
 export default class MailchimpBlock extends EditorCanvas {
 	constructor( blockId, page ) {
@@ -42,7 +42,7 @@ export default class MailchimpBlock extends EditorCanvas {
 	 * - Connects to Mailchimp once Connection page is loaded
 	 * - Closes WPCOM tab
 	 *
-	 * @param {boolean} isLoggedIn Whether we need to login before connecting
+	 * @param {boolean} isLoggedIn - Whether we need to login before connecting
 	 */
 	async connect( isLoggedIn = true ) {
 		if ( await this.isMailchimpConnected() ) {
@@ -113,7 +113,7 @@ export default class MailchimpBlock extends EditorCanvas {
 	 * Calls rest_route=/wpcom/v2/mailchimp and checks response for connected status
 	 * "code":"connected" => Mailchimp was connected
 	 *
-	 * @return {Promise<boolean>} true is connected, false if not_connected status code is found or call fails for any reason
+	 * @returns {Promise<boolean>} true is connected, false if not_connected status code is found or call fails for any reason
 	 */
 	async isMailchimpConnected() {
 		let connectionStatus = '';
@@ -133,7 +133,7 @@ export default class MailchimpBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {page} page - Playwright page instance
 	 */
 	static async isRendered( page ) {
 		const containerSelector = '.wp-block-jetpack-mailchimp';

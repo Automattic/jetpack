@@ -1,9 +1,18 @@
 import logger from '../logger.js';
 
+/**
+ * Wait for a block to be available.
+ *
+ * Reloads the page up to 20 times, waiting 1s between reloads, before giving up.
+ * Returns even if unsuccessful.
+ *
+ * @param {string} blockSlug - Block slug substring to search for.
+ * @param {page} page - Playwright page instance.
+ */
 export async function waitForBlock( blockSlug, page ) {
 	let block = await findAvailableBlock( blockSlug, page );
 	if ( block ) {
-		return true;
+		return;
 	}
 	let count = 0;
 	while ( count < 20 && ! block ) {
@@ -16,11 +25,24 @@ export async function waitForBlock( blockSlug, page ) {
 	}
 }
 
+/**
+ * Find available block slug by substring.
+ *
+ * @param {string} blockSlug - Block slug substring to search for.
+ * @param {page} page - Playwright page instance.
+ * @returns {string|undefined} Found slug.
+ */
 async function findAvailableBlock( blockSlug, page ) {
 	const allBlocks = await getAllAvailableBlocks( page );
 	return allBlocks.find( b => b.includes( blockSlug ) );
 }
 
+/**
+ * Get all available blocks
+ *
+ * @param {page} page - Playwright page instance.
+ * @returns {string[]} Block slugs.
+ */
 async function getAllAvailableBlocks( page ) {
 	return await page.page.evaluate( () =>
 		wp.data
