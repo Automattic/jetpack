@@ -7,14 +7,21 @@ import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
 import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
+import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
 import { store } from '../../social-store';
 import { ConnectionService } from '../../social-store/types';
+
+export type Badge = {
+	text: string;
+	style?: React.CSSProperties;
+};
 
 export interface SupportedService extends ConnectionService {
 	icon: React.ComponentType< { iconSize: number } >;
 	examples?: Array< React.ComponentType >;
 	needsCustomInputs?: boolean;
+	badges?: Array< Badge >;
 }
 
 /**
@@ -34,6 +41,11 @@ export function useSupportedServices(): Array< SupportedService > {
 				{}
 			);
 	}, [] );
+
+	const badgeNew: Badge = {
+		text: __( 'New', 'jetpack' ),
+		style: { background: '#e9eff5', color: '#0675C4' },
+	};
 
 	const supportedServices: Array< SupportedService > = [
 		{
@@ -103,6 +115,23 @@ export function useSupportedServices(): Array< SupportedService > {
 						alt={ __( 'Add Instagram photo', 'jetpack' ) }
 					/>
 				),
+			],
+		},
+		{
+			...availableServices.threads,
+			icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+			description: __( 'Share posts to your Threads feed.', 'jetpack' ),
+			badges: [ badgeNew ],
+			examples: [
+				() => (
+					<>
+						{ __(
+							'Increase your presence in social media by sharing your posts automatically to Threads.',
+							'jetpack'
+						) }
+					</>
+				),
+				() => <img src={ connectionsThreads } alt={ __( 'Add Threads connection', 'jetpack' ) } />,
 			],
 		},
 		{
