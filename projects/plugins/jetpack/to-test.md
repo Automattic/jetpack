@@ -19,7 +19,7 @@ The Masterbar module is now a Jetpack package, and we should test to make sure t
 
 #### RTL support
 
-Update your user locale to Arab and ensure the Masterbar and Admin menu is displayed as it should be. To make sure you can switch back to the current version of Jetpack and visually compare locations of text and controls.
+Update your user locale to Arabic and ensure the Masterbar and Admin menu is displayed as it should be. To make sure you can switch back to the current version of Jetpack and visually compare locations of text and controls.
 
 #### WP Admin
 
