@@ -42,6 +42,7 @@ Official links:
 - Stack Exchange: https://policies.stackoverflow.co/company/trademark-guidance/
 - Stack Overflow: https://policies.stackoverflow.co/company/trademark-guidance/
 - StumbleUpon: https://www.stumbleupon.com/
+- Substack: https://substack.com/brand
 - Telegram: https://telegram.org/
 - Threads: https://about.meta.com/brand/resources/
 - TikTok: https://tiktokbrandbook.com/d/HhXfjVK1Poj9/brand-guidelines#/welcome/bringing-our-brand-to-life-1611756141
