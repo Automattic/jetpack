@@ -55,3 +55,23 @@ function replace_site_visibility() {
 		<?php
 }
 add_action( 'blog_privacy_selector', 'replace_site_visibility' );
+
+/**
+ * Hide the "Site visibility" setting entirely if is_agency_managed_site is true.
+ */
+function wpcom_hide_site_visibility_setting() {
+	if ( ! is_agency_managed_site() ) {
+		return;
+	}
+	// Check if the current page is the reading settings page
+	$screen = get_current_screen();
+	if ( $screen->id === 'options-reading' ) {
+		echo '<style>
+            .option-site-visibility {
+                display: none;
+            }
+        </style>';
+	}
+}
+add_action( 'admin_head', 'wpcom_hide_site_visibility_setting' );
+

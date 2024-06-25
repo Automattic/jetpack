@@ -36,8 +36,8 @@ export default class EventbriteBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page}   page Playwright page instance
-	 * @param {Object} args An object of any additional required instance values
+	 * @param {page}   page - Playwright page instance
+	 * @param {object} args - An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ args.eventId }']`;

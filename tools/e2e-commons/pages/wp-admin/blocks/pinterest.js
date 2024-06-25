@@ -37,8 +37,8 @@ export default class PinterestBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page}   page Playwright page instance
-	 * @param {Object} args An object of any additional required instance values
+	 * @param {page}   page - Playwright page instance
+	 * @param {object} args - An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content span[data-pin-id='${ args.pinId }']`;
