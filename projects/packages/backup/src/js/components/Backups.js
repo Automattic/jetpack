@@ -250,28 +250,28 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					) }
 			</div>
 			<div className="lg-col-span-0 md-col-span-4 sm-col-span-0"></div>
-			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-4 sm-col-span-4">
 				<StatBlock
 					icon={ PostsIcon }
 					label={ __( 'Posts', 'jetpack-backup-pkg' ) }
 					value={ stats.posts }
 				/>
 			</div>
-			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-4 sm-col-span-4">
 				<StatBlock
 					icon={ UploadsIcon }
 					label={ __( 'Uploads', 'jetpack-backup-pkg' ) }
 					value={ stats.uploads }
 				/>
 			</div>
-			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-4 sm-col-span-4">
 				<StatBlock
 					icon={ PluginsIcon }
 					label={ __( 'Plugins', 'jetpack-backup-pkg' ) }
 					value={ stats.plugins }
 				/>
 			</div>
-			<div className="lg-col-span-2 md-col-span-2 sm-col-span-2">
+			<div className="lg-col-span-2 md-col-span-4 sm-col-span-4">
 				<StatBlock
 					icon={ ThemesIcon }
 					label={ __( 'Themes', 'jetpack-backup-pkg' ) }

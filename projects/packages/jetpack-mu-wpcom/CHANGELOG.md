@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.37.0] - 2024-06-24
+### Added
+- Added is_agency_managed_site function used to hide wpcom items [#37993]
+
+## [5.36.0] - 2024-06-21
+### Changed
+- Jetpack MU WPCOM: Added Applebot-Extended to robots.txt disallow. [#37954]
+- Masterbar: Require and use 'jetpack-masterbar' package in jetpack-mu-wpcom [#37812]
+- Site Visibility: Update link copy [#37909]
+
+### Fixed
+- Fix an edge case for theme showcase button rendering if only a single theme is left after deletion. [#37920]
+- Fix how comment modal option is retrieved [#37897]
+- Masterbar: Fix All sites icon size in small screen sizes [#37938]
+- Simple Classic: Redirect to Default interface after switching wpcom_admin_interface [#37921]
+
 ## [5.35.4] - 2024-06-18
 ### Changed
 - Update dependencies.
@@ -894,6 +910,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.37.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.36.0...v5.37.0
+[5.36.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.4...v5.36.0
 [5.35.4]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.3...v5.35.4
 [5.35.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.2...v5.35.3
 [5.35.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.1...v5.35.2

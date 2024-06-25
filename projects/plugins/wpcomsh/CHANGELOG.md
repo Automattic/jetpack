@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.24.0 - 2024-06-24
+### Added
+- Added featrue flag checks for the Threads Social Connection. [#38001]
+- wpcomsh: Add WP-CLI commands with hooks for WoA post-transfer/reset/clone functionality [#37972]
+
+## 3.23.0 - 2024-06-21
+### Added
+- New wpcomsh CLI command to fix PHP 7.4 plugin [#37966]
+- Wpcomsh: Update plugin dependencies [#37812]
+
+### Changed
+- Bump lock files. [#37870]
+- Site Visibility: Update link copy [#37909]
+
 ## 3.22.16 - 2024-06-17
 ### Changed
 - Fixed readme, added accurate links. [#37901]
