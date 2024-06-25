@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Protect_Status\REST_Controller as Status_REST_Controller;
+use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Protect;
 use WP_Error;
@@ -41,7 +41,7 @@ class REST_Controller {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
-		Status_REST_Controller::register_rest_endpoints();
+		Protect_Status_REST_Controller::register_rest_endpoints();
 
 		register_rest_route(
 			'jetpack-protect/v1',
