@@ -208,6 +208,23 @@ function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
 }
 add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
 
+/***
+ * Always hide the Core's default My Sites menu on WP.com
+ */
+function hide_my_sites_menu() {
+	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+		return;
+	}
+	?>
+	<style>
+		#wpadminbar li#wp-admin-bar-my-sites {
+			display: none;
+		}
+	</style>
+	<?php
+}
+add_action( 'admin_head', 'hide_my_sites_menu' );
+
 /**
  * Replace the WP logo /about.php link with /wp-admin/.
  *

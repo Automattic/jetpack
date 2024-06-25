@@ -10,11 +10,7 @@
 return [
     // # Issue statistics:
     // PhanNoopNew : 5 occurrences
-    // PhanPluginUnreachableCode : 1 occurrence
-    // PhanTypeInstantiateAbstract : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
-    // PhanTypeSuspiciousEcho : 1 occurrence
-    // PhanUndeclaredClassReference : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [

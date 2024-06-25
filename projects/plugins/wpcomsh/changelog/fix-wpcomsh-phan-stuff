@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Phan: Add stubs for WooPayments and some Atomic classes. Use wpcom stubs. Add some Jetpack files for stubbing too.
+
+

@@ -1,16 +1,21 @@
-import logger from '../logger.js';
+import assert from 'assert';
+import fs from 'fs';
+import config from 'config';
 import { syncJetpackPlanData, loginToWpCom, loginToWpSite } from '../flows/index.js';
+import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
 import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
 	resetWordpressInstall,
 } from '../helpers/utils-helper.js';
-import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
-import fs from 'fs';
-import config from 'config';
-import assert from 'assert';
+import logger from '../logger.js';
 
+/**
+ * Create a prerequisites builder.
+ * @param {page} page - Playwright page instance.
+ * @returns {object} Builder
+ */
 export function prerequisitesBuilder( page ) {
 	const state = {
 		clean: undefined,
@@ -65,6 +70,15 @@ export function prerequisitesBuilder( page ) {
 	};
 }
 
+/**
+ * Build prerequisites.
+ * @param {object} state - State
+ * @param {boolean} state.clean - Whether to reset the environment.
+ * @param {boolean} state.connected - Whether the site should be connected.
+ * @param {object} state.plugins - Plugins state, see ensurePluginsState()
+ * @param {object} state.modules - Modules state, see ensureModulesState()
+ * @param {page} page - Playwright page instance.
+ */
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		plugins: () => ensurePluginsState( state.plugins ),
@@ -90,7 +104,11 @@ async function buildPrerequisites( state, page ) {
 	}
 }
 
-export async function ensureConnectedState( requiredConnected = undefined ) {
+/**
+ * Ensure connected state.
+ * @param {boolean} requiredConnected - Whether the site should be connected.
+ */
+export async function ensureConnectedState( requiredConnected = false ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
 			'Site is not local, skipping connection setup. Assuming required setup is already in place.'
@@ -113,6 +131,9 @@ export async function ensureConnectedState( requiredConnected = undefined ) {
 	}
 }
 
+/**
+ * Connect Jetpack.
+ */
 async function connect() {
 	const creds = getDotComCredentials();
 	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
@@ -134,6 +155,9 @@ async function connect() {
 	fs.writeFileSync( config.get( 'temp.jetpackPrivateOptions' ), result.trim() );
 }
 
+/**
+ * Disconnect Jetpack.
+ */
 async function disconnect() {
 	await execWpCommand( 'option delete jetpack_private_options' );
 	await execWpCommand( 'option delete jetpack_sync_error_idc' );
@@ -141,6 +165,10 @@ async function disconnect() {
 	assert.ok( ! ( await isBlogTokenSet() ) );
 }
 
+/**
+ * Reset environment.
+ * @param {boolean} shouldReset - Whether to actually do it.
+ */
 async function ensureCleanState( shouldReset ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites( 'Site is not local, skipping environment reset.' );
@@ -154,6 +182,11 @@ async function ensureCleanState( shouldReset ) {
 	}
 }
 
+/**
+ * Ensure plan.
+ * @param {string} plan - Plan slug.
+ * @param {page} page - Playwright page instance.
+ */
 export async function ensurePlan( plan = undefined, page ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
@@ -169,14 +202,28 @@ export async function ensurePlan( plan = undefined, page ) {
 	await syncJetpackPlanData( page, plan, true );
 }
 
+/**
+ * Ensure user is logged in.
+ * @param {page} page - Playwright page instance.
+ */
 export async function ensureUserIsLoggedIn( page ) {
 	await loginToWpSite( page, true );
 }
 
+/**
+ * Ensure WordPress.com user is logged in.
+ * @param {page} page - Playwright page instance.
+ */
 export async function ensureWpComUserIsLoggedIn( page ) {
 	await loginToWpCom( page, true );
 }
 
+/**
+ * Ensure modules are active/inactive
+ * @param {object} modules - State
+ * @param {string[]} modules.active - Modules to activate.
+ * @param {string[]} modules.inactive - Modules to deactivate.
+ */
 export async function ensureModulesState( modules ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites(
@@ -198,6 +245,10 @@ export async function ensureModulesState( modules ) {
 	}
 }
 
+/**
+ * Activate modules.
+ * @param {string[]} modulesList - Modules
+ */
 export async function activateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Activating module ${ module }` );
@@ -206,6 +257,10 @@ export async function activateModules( modulesList ) {
 	}
 }
 
+/**
+ * Deactivate modules.
+ * @param {string[]} modulesList - Modules
+ */
 export async function deactivateModules( modulesList ) {
 	for ( const module of modulesList ) {
 		logger.prerequisites( `Deactivating module ${ module }` );
@@ -214,12 +269,23 @@ export async function deactivateModules( modulesList ) {
 	}
 }
 
+/**
+ * Check if a module is active.
+ * @param {string} module - Module
+ * @returns {boolean} If active
+ */
 export async function isModuleActive( module ) {
 	logger.prerequisites( `Checking if ${ module } module is active` );
 	const result = await execWpCommand( `jetpack options get active_modules` );
 	return result.includes( module );
 }
 
+/**
+ * Ensure plugins are active/inactive
+ * @param {object} plugins - State
+ * @param {string[]} plugins.active - Plugins to activate.
+ * @param {string[]} plugins.inactive - Plugins to deactivate.
+ */
 export async function ensurePluginsState( plugins ) {
 	if ( ! isLocalSite() ) {
 		logger.prerequisites( 'Site is not local, skipping plugins setup.' );
@@ -239,6 +305,10 @@ export async function ensurePluginsState( plugins ) {
 	}
 }
 
+/**
+ * Activate plugins.
+ * @param {string[]} pluginsList - Plugin slugs
+ */
 async function activatePlugins( pluginsList ) {
 	const activatedPlugins = [];
 	for ( const plugin of pluginsList ) {
@@ -255,6 +325,10 @@ async function activatePlugins( pluginsList ) {
 	assert.equal( pluginsList.length, activatedPlugins.length );
 }
 
+/**
+ * Deactivate plugins
+ * @param {string[]} pluginsList - Plugin slugs
+ */
 async function deactivatePlugins( pluginsList ) {
 	const deactivatedPlugins = [];
 	for ( const plugin of pluginsList ) {
@@ -271,6 +345,10 @@ async function deactivatePlugins( pluginsList ) {
 	assert.equal( pluginsList.length, deactivatedPlugins.length );
 }
 
+/**
+ * Check if blog token is set.
+ * @returns {boolean} If set.
+ */
 export async function isBlogTokenSet() {
 	const cliCmd = 'jetpack options get blog_token';
 	const result = await execWpCommand( cliCmd );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Masterbar: Fix missing private badge on admin menu for private WoA sites

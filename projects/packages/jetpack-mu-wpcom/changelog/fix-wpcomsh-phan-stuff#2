@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove use of `gutenberg_can_edit_post_type()`. Its replacement has been in WP Core since 6.1.
