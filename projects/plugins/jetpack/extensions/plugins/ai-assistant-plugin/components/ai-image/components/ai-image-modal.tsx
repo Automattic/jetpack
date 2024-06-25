@@ -41,31 +41,33 @@ export default function AiImageModal( {
 	autoStart = false,
 	autoStartAction = null,
 	generateButtonLabel = null,
+	instructionsPlaceholder = null,
 }: {
 	title: string;
 	cost: number;
 	open: boolean;
 	placement: string;
 	images: CarrouselImages;
-	currentIndex?: number;
-	onClose?: () => void;
-	onTryAgain?: ( { userPrompt }: { userPrompt?: string } ) => void;
-	onGenerate?: ( { userPrompt }: { userPrompt?: string } ) => void;
-	generating?: boolean;
-	notEnoughRequests?: boolean;
-	requireUpgrade?: boolean;
-	currentLimit?: number;
-	currentUsage?: number;
-	isUnlimited?: boolean;
-	upgradeDescription?: string;
-	hasError?: boolean;
+	currentIndex: number;
+	onClose: () => void;
+	onTryAgain: ( { userPrompt }: { userPrompt?: string } ) => void;
+	onGenerate: ( { userPrompt }: { userPrompt?: string } ) => void;
+	generating: boolean;
+	notEnoughRequests: boolean;
+	requireUpgrade: boolean;
+	currentLimit: number;
+	currentUsage: number;
+	isUnlimited: boolean;
+	upgradeDescription: string;
+	hasError: boolean;
 	postContent?: string;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: JSX.Element;
-	autoStart?: boolean;
+	autoStart: boolean;
 	autoStartAction?: ( { userPrompt }: { userPrompt?: string } ) => void;
-	generateButtonLabel?: string;
+	generateButtonLabel: string;
+	instructionsPlaceholder: string;
 } ) {
 	const [ userPrompt, setUserPrompt ] = useState( '' );
 	const triggeredAutoGeneration = useRef( false );
@@ -146,10 +148,7 @@ export default function AiImageModal( {
 									maxLength={ 1000 }
 									rows={ 2 }
 									onChange={ handleUserPromptChange }
-									placeholder={ __(
-										'Include optional instructions to generate a new image',
-										'jetpack'
-									) }
+									placeholder={ instructionsPlaceholder }
 								></textarea>
 							</div>
 						</div>
