@@ -31,6 +31,7 @@
  *      - woocommerce: Stubs from php-stubs/woocommerce.
  *      - woocommerce-internal: Stubs from .phan/stubs/woocommerce-internal-stubs.php.
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
+ *      - woopayments: Stubs from .phan/stubs/woocommerce-payments-stubs.php.
  *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, .phan/stubs/wordpress-constants.php, and .phan/stubs/wordpress-globals.jsonc.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
  *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php, plus some stuff from wpcomsh.
@@ -84,6 +85,9 @@ function make_phan_config( $dir, $options = array() ) {
 				break;
 			case 'woocommerce-packages':
 				$stubs[] = "$root/vendor/php-stubs/woocommerce-stubs/woocommerce-packages-stubs.php";
+				break;
+			case 'woopayments':
+				$stubs[] = "$root/.phan/stubs/woocommerce-payments-stubs.php";
 				break;
 			case 'wordpress':
 				$stubs[]        = "$root/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php";

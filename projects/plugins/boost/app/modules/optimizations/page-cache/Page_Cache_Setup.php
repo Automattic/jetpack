@@ -232,7 +232,7 @@ $boost_cache->serve();
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$content = file_get_contents( $config_file );
-		if ( preg_match( '#^\s*define\s*\(\s*[\'"]WP_CACHE[\'"]#m', $content ) === 1 ) {
+		if ( preg_match( '#^\s*(define\s*\(\s*[\'"]WP_CACHE[\'"]|const\s+WP_CACHE\s*=)#m', $content ) === 1 ) {
 			/*
 			 * wp-settings.php checks "if ( WP_CACHE )" so it may be truthy and
 			 * not === true to pass that check.

@@ -29,6 +29,11 @@ function wpsc_jetpack_boost_notice() {
 		return;
 	}
 
+	// hide the admin notice if Jetpack Boost Cache is already used.
+	if ( 'BOOST' === wpsc_identify_advanced_cache() ) {
+		return;
+	}
+
 	// Don't show the banner if the banner has been dismissed.
 	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_admin_notice' );
 	if ( $is_dismissed ) {
