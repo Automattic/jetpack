@@ -2385,6 +2385,19 @@ function wp_cache_check_global_config() {
 		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
 	}
 
+	if ( preg_match( '#^\s*(define\s*\(\s*[\'"]WP_CACHE[\'"]|const\s+WP_CACHE\s*=)#m', file_get_contents( $global_config_file ) ) === 1 ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( defined( 'WP_CACHE' ) && ! constant( 'WP_CACHE' ) ) {
+			?>
+			<div class="notice notice-error"><h4><?php esc_html_e( 'WP_CACHE constant set to false', 'wp-super-cache' ); ?></h4>
+			<p><?php esc_html_e( 'The WP_CACHE constant is used by WordPress to load the code that serves cached pages. Unfortunately, it is set to false. Please edit your wp-config.php and add or edit the following line above the final require_once command:', 'wp-super-cache' ); ?></p>
+			<p><code>define('WP_CACHE', true);</code></p></div>
+			<?php
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	$line = 'define(\'WP_CACHE\', true);';
 	if (
 		! is_writeable_ACLSafe( $global_config_file ) ||
