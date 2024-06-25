@@ -99,7 +99,7 @@ class Utils {
 	 * Determine if a string is truthy. If it's not a string, which can happen with
 	 * not well-formed data coming from Jetpack sites, we still consider it a truthy value.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.2.0
 	 *
 	 * @param mixed $value true, 1, "1", "t", and "true" (case insensitive) are truthy, everything else isn't.
 	 * @return bool

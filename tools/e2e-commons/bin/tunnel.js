@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
-import fs from 'fs';
+/* eslint-disable no-process-exit */
+
 import childProcess from 'child_process';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
-import config from 'config';
-import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 import axios from 'axios';
+import config from 'config';
+import localtunnel from 'localtunnel';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import localtunnel from 'localtunnel';
+import { getReusableUrlFromFile } from '../helpers/utils-helper.js';
 
 const tunnelConfig = config.get( 'tunnel' );
 
@@ -43,11 +45,17 @@ yargs( hideBin( process.argv ) )
  * ```
  * TUNNEL_URL=https://somethingsomething.ngrok.io npm run test-e2e:start
  * ```
+ *
+ * @returns {string|undefined} URL
  */
 function getTunnelOverrideURL() {
 	return process.env.TUNNEL_URL;
 }
 
+/**
+ * Save tunnel URL to file
+ * @param {string} url - URL
+ */
 function saveTunnelUrlToFile( url ) {
 	fs.writeFileSync( config.get( 'temp.tunnels' ), url );
 }
@@ -59,8 +67,8 @@ function saveTunnelUrlToFile( url ) {
  * This function forks a subprocess to do that, then exits when that subprocess indicates
  * that the tunnel actually is up so the caller can proceed with running tests or whatever.
  *
- * @param {Object} argv - Args.
- * @return {Promise<void>}
+ * @param {object} argv - Args.
+ * @returns {Promise<void>}
  */
 async function tunnelOn( argv ) {
 	const s = argv.logfile ? fs.createWriteStream( argv.logfile, { flags: 'a' } ) : 'ignore';
@@ -90,7 +98,7 @@ async function tunnelOn( argv ) {
  * Otherwise localtunnel will create randomly assigned subdomain
  * Once the tunnel is created its url will be written in the file
  *
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 async function tunnelChild() {
 	process.on( 'disconnect', () => {
@@ -139,7 +147,7 @@ async function tunnelChild() {
  * Normally the tunnel will get closed if the process running this script is killed.
  * This function forces the deletion of a tunnel, just in case things didn't go according to plan
  *
- * @return {Promise<void>}
+ * @returns {Promise<void>}
  */
 async function tunnelOff() {
 	const subdomain = await getTunnelSubdomain();
@@ -189,8 +197,8 @@ async function tunnelOff() {
  * If status is 200 we assume the tunnel is on, and off for any other status
  * This is definitely not bullet proof, as the tunnel can be on while the app is down, this returning a non 200 response
  *
- * @param {string} subdomain tunnel's subdomain
- * @return {Promise<boolean>} tunnel on - true, off - false
+ * @param {string} subdomain - tunnel's subdomain
+ * @returns {Promise<boolean>} tunnel on - true, off - false
  */
 async function isTunnelOn( subdomain ) {
 	console.log( `Checking if tunnel for ${ subdomain } is on` );
@@ -208,8 +216,8 @@ async function isTunnelOn( subdomain ) {
 /**
  * Returns the http status code for tunnel url
  *
- * @param {string} subdomain tunnel's subdomain
- * @return {Promise<number>} http status code
+ * @param {string} subdomain - tunnel's subdomain
+ * @returns {Promise<number>} http status code
  */
 async function getTunnelStatus( subdomain ) {
 	let responseStatusCode;
@@ -232,7 +240,7 @@ async function getTunnelStatus( subdomain ) {
 /**
  * Resolves the subdomain of a url written in file
  *
- * @return {Promise<*>} subdomain or undefined if file not found or subdomain cannot be extracted
+ * @returns {Promise<*>} subdomain or undefined if file not found or subdomain cannot be extracted
  */
 async function getTunnelSubdomain() {
 	let subdomain;
