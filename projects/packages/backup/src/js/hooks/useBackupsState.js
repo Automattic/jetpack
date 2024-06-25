@@ -8,6 +8,7 @@ const useBackupsState = () => {
 	const [ backupState, setBackupState ] = useState( BACKUP_STATE.LOADING );
 	const [ latestTime, setLatestTime ] = useState( '' );
 	const [ progress, setProgress ] = useState( 0 );
+	const [ isInitialBackup, setIsInitialBackup ] = useState( false );
 	const [ stats, setStats ] = useState( {
 		posts: 0,
 		uploads: 0,
@@ -39,7 +40,11 @@ const useBackupsState = () => {
 					} );
 
 					// Only the first backup can be in progress.
-					if ( null === latestBackup && 'started' === res[ 0 ].status ) {
+					if ( 'started' === res[ 0 ].status ) {
+						if ( null === latestBackup ) {
+							setIsInitialBackup( true );
+						}
+
 						latestBackup = res[ 0 ];
 						setProgress( latestBackup.percent );
 						setBackupState( BACKUP_STATE.IN_PROGRESS );
@@ -86,6 +91,7 @@ const useBackupsState = () => {
 	return {
 		backupState,
 		fetchBackupsState,
+		isInitialBackup,
 		latestTime,
 		progress,
 		stats,
