@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Google_Analytics\GA_Manager;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -422,7 +423,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
 						'site_vertical_id'                 => (string) get_option( 'site_vertical_id' ),
-						'wga'                              => $this->get_google_analytics(),
 						'jetpack_cloudflare_analytics'     => get_option( 'jetpack_cloudflare_analytics' ),
 						'disabled_likes'                   => (bool) get_option( 'disabled_likes' ),
 						'disabled_reblogs'                 => (bool) get_option( 'disabled_reblogs' ),
@@ -455,6 +455,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
+						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email' ),
+						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email' ),
+						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email' ),
 						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
@@ -512,10 +515,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 * @module json-api
 					 *
 					 * @since 3.9.3
+					 * @since 13.6 Added the API object parameter.
 					 *
 					 * @param mixed $response_item A single site setting.
+					 * @param WPCOM_JSON_API_Site_Settings_Endpoint $this The API object.
 					 */
-					$response[ $key ] = apply_filters( 'site_settings_endpoint_get', $response[ $key ] );
+					$response[ $key ] = apply_filters( 'site_settings_endpoint_get', $response[ $key ], $this );
 
 					if ( class_exists( 'Sharing_Service' ) ) {
 						$ss                                       = new Sharing_Service();
@@ -592,17 +597,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	/**
 	 * Get GA tracking code.
+	 *
+	 * @deprecated 13.6
 	 */
 	protected function get_google_analytics() {
-		$option_name = $this->get_google_analytics_option_name();
+		if ( class_exists( GA_Manager::class ) ) {
+			$option_name = GA_Manager::get_instance()->get_google_analytics_option_name();
+		} else {
+			$option_name = $this->get_google_analytics_option_name();
+		}
 
 		return get_option( $option_name );
 	}
 
 	/**
 	 * Get GA tracking code option name.
+	 *
+	 * @deprecated 13.6
 	 */
 	protected function get_google_analytics_option_name() {
+		if ( class_exists( GA_Manager::class ) ) {
+			return GA_Manager::get_instance()->get_google_analytics_option_name();
+		}
+
 		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
@@ -613,7 +630,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Updates site settings for authorized users
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function update_settings() {
 		/*
@@ -716,42 +733,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$coerce_value = ( $value ) ? 'on' : 'off';
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $value;
-					}
-					break;
-				case 'wga':
-				case 'jetpack_wga':
-					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^(UA-\d+-\d+)|(G-[A-Z0-9]+)$/i', $value['code'] ) ) {
-						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
-					}
-
-					$option_name = $this->get_google_analytics_option_name();
-
-					$wga         = get_option( $option_name, array() );
-					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics.
-
-					/**
-					 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
-					 *
-					 * @since 5.4.0
-					 *
-					 * @param array $wga Associative array of existing Google Analytics settings.
-					 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
-					 */
-					$wga = apply_filters( 'site_settings_update_wga', $wga, $value );
-
-					if ( update_option( $option_name, $wga ) ) {
-						$updated[ $key ] = $value;
-					}
-
-					$enabled_or_disabled = $wga['code'] ? 'enabled' : 'disabled';
-
-					/** This action is documented in modules/widgets/social-media-icons.php */
-					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
-
-					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-					if ( $is_wpcom ) {
-						$business_plugins = WPCOM_Business_Plugins::instance();
-						$business_plugins->activate_plugin( 'wp-google-analytics' );
 					}
 					break;
 
@@ -1214,11 +1195,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						 * @module json-api
 						 *
 						 * @since 3.9.3
+						 * @since 13.6 Added the API object parameter.
 						 *
 						 * @param mixed $response_item A single site setting value.
+						 * @param WPCOM_JSON_API_Site_Settings_Endpoint The API object parameter.
 						 */
-						$value           = apply_filters( 'site_settings_endpoint_update_' . $key, $value );
-						$updated[ $key ] = $value;
+						$value = apply_filters( 'site_settings_endpoint_update_' . $key, $value, $this );
+
+						if ( is_wp_error( $value ) ) {
+							return $value;
+						}
+
+						if ( $value ) {
+							$updated[ $key ] = $value;
+						}
 						break;
 					}
 					// no worries, we've already whitelisted and casted arguments above.

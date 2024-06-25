@@ -3,7 +3,7 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
-Tested up to: 6.5
+Tested up to: 6.6
 Requires PHP: 7.0
 Stable tag: 3.4.4
 License: GPLv2 or later
@@ -183,9 +183,14 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.4 - 2024-06-18
-#### Fixes
-- My Jetpack: Update My Jetpack to a more stable version.
+### 3.4.5-beta - 2024-06-21
+#### Added
+- Jetpack Boost: Automatically enables Page Cache when migrating from WP Super Cache.
+
+#### Changed
+- Image CDN: Improvements to more closely match WP core behavior.
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
 
 --------
 

@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Sync\Health;
 use WC_Product;
 use WP_Error;
 use WP_REST_Request;
@@ -18,7 +19,7 @@ use WP_REST_Server;
 
 /**
  * Registers the REST routes for Blaze Dashboard.
- * It bascially forwards the requests to the WordPress.com REST API.
+ * It basically forwards the requests to the WordPress.com REST API.
  */
 class Dashboard_REST_Controller {
 	/**
@@ -328,6 +329,10 @@ class Dashboard_REST_Controller {
 			return array();
 		}
 
+		if ( ! $this->are_posts_ready() ) {
+			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
+		}
+
 		// We don't use sub_path in the blaze posts, only query strings
 		if ( isset( $req['sub_path'] ) ) {
 			unset( $req['sub_path'] );
@@ -384,6 +389,10 @@ class Dashboard_REST_Controller {
 		$site_id = $this->get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return array();
+		}
+
+		if ( ! $this->are_posts_ready() ) {
+			return new WP_Error( 'posts_not_ready', 'Posts are not synced yet.' );
 		}
 
 		// We don't use sub_path in the blaze posts, only query strings
@@ -889,5 +898,19 @@ class Dashboard_REST_Controller {
 	 */
 	private function get_site_id() {
 		return Connection_Manager::get_site_id();
+	}
+
+	/**
+	 * Check if the Health status code is sync.
+	 *
+	 * @return bool True if is sync, false otherwise.
+	 */
+	private function are_posts_ready(): bool {
+		// On WordPress.com Simple, Sync is not present, so we consider always ready.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return true;
+		}
+
+		return Health::STATUS_IN_SYNC === Health::get_status();
 	}
 }

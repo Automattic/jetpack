@@ -582,7 +582,7 @@ HTML;
 	 * Check if we should show the subscription modal.
 	 */
 	public function should_show_subscription_modal() {
-		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
+		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 
