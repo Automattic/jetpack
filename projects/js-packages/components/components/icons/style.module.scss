@@ -15,9 +15,9 @@
 		fill: var( --color-bluesky );
 	}
 	&.facebook {
+		fill: var( --color-facebook );
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
-			fill: var( --color-facebook );
 			border-radius: 50%;
 		}
 	}
@@ -40,9 +40,9 @@
 		fill: var( --color-mastodon );
 	}
 	&.nextdoor {
+		fill: var( --color-nextdoor );
 		// Add some specificity to override the border-radius on Jetpack settings page
 		&:global(.social-logo) {
-			fill: var( --color-nextdoor );
 			border-radius: 50%;
 		}
 	}
@@ -53,8 +53,8 @@
 		fill: var( --color-whatsapp );
 	}
 	&.threads {
+		fill: var( --color-threads );
 		&:global(.social-logo) {
-			fill: var( --color-threads );
 			border-radius: 40%;
 		}
 	}
