@@ -1,6 +1,6 @@
-import EditorCanvas from './editor-canvas.js';
 import { expect } from '@playwright/test';
 import { BlockEditorPage } from '../index.js';
+import EditorCanvas from './editor-canvas.js';
 
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
@@ -62,7 +62,7 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {page} page - Playwright page instance
 	 */
 	static async isRendered( page ) {
 		await page.locator( '.jetpack-simple-payments-product' ).waitFor();
