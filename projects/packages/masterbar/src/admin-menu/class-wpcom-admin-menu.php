@@ -170,7 +170,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		// @todo is_simple_site_redirect accepts the blog id. How is this even working with the domain?
 		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
 			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack-masterbar' ) . '</span>';
 		}
