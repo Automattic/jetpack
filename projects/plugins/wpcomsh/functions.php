@@ -405,7 +405,7 @@ add_filter( 'wpcom_map_block_map_provider', 'wpcomsh_map_block_map_provider', 10
  */
 function wpcomsh_disable_fatal_error_emails( $email ) {
 	if ( get_option( 'wpcomsh_disable_fatal_error_emails', false ) ) {
-		$email['to'] = 'noreply@wordpress.com';
+		$email['to'] = '';
 	}
 	return $email;
 }
