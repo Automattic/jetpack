@@ -626,7 +626,7 @@ class Scan_Helper {
 	}
 
 	/**
-	 * Enabled the WordPress version fake.
+	 * Enables the WordPress version fake.
 	 *
 	 * @return string|WP_Error Success message on success, WP_Error object on failure.
 	 */
