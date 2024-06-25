@@ -22,7 +22,7 @@ export function Instagram( props ) {
 
 	return (
 		<InstagramPreviews
-			image={ image }
+			image={ image || media?.[ 0 ]?.url }
 			media={ media }
 			name={ name }
 			profileImage={ profileImage }
