@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.25.0 - 2024-06-25
+### Added
+- Added a command to disable fatal error emails. [#38010]
+- Add `atomic_managed_plugin_row_auto_update_label` filter to translate the managed plugin auto update label [#37983]
+
 ## 3.24.0 - 2024-06-24
 ### Added
 - Added featrue flag checks for the Threads Social Connection. [#38001]

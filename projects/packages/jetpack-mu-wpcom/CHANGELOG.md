@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.38.0] - 2024-06-25
+### Added
+- Hide admin interface if is_agency_managed_site [#38006]
+- Hide site visibility setting if is_agency_managed_site [#38009]
+
+### Fixed
+- Hide Core's default My Sites menu on WP.com [#38000]
+
 ## [5.37.0] - 2024-06-24
 ### Added
 - Added is_agency_managed_site function used to hide wpcom items [#37993]
@@ -910,6 +918,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.38.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.37.0...v5.38.0
 [5.37.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.36.0...v5.37.0
 [5.36.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.4...v5.36.0
 [5.35.4]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.35.3...v5.35.4
