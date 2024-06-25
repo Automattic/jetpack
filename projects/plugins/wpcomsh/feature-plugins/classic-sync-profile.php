@@ -61,14 +61,14 @@ function wpcom_sync_user_profile_data() {
 /**
  * Trigger user profile data synchronization when the admin interface setting is updated.
  *
- * @param mixed $new_value The new value of the setting.
  * @param mixed $old_value The old value of the setting.
+ * @param mixed $new_value The new value of the setting.
  * @return void
  */
-function wpcom_admin_interface_updated( $new_value, $old_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+function wpcom_admin_interface_updated( $old_value, $new_value ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	if ( $new_value === 'calypso' || empty( $new_value ) ) {
 		wpcom_sync_user_profile_data();
 	}
 }
 
-add_filter( 'pre_update_option_wpcom_admin_interface', 'wpcom_admin_interface_updated', 15, 2 );
+add_action( 'update_option_wpcom_admin_interface', 'wpcom_admin_interface_updated', 15, 2 );
