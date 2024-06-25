@@ -214,7 +214,7 @@ export const SocialLogoData = [
 	},
 	{
 		name: 'substack',
-		svg: <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"><g><path d="M22.539 8.242H1.46V5.406h21.08zM1.46 10.812V24L12 18.11 22.54 24V10.812zM22.54 0H1.46v2.836h21.08z"/></g></svg>,
+		svg: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g><path d="M19.904 9.182H4.095V7.054h15.81v2.127M4.095 11.109V21L12 16.583 19.905 21v-9.891zM19.905 3H4.095v2.127h15.81z"/></g></svg>,
 	},
 	{
 		name: 'telegram',
