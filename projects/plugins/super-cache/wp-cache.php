@@ -260,9 +260,9 @@ function wpsupercache_activate() {
 	wpsc_init();
 
 	if (
+		! wp_cache_verify_cache_dir() ||
 		! wpsc_check_advanced_cache() ||
-		! wp_cache_verify_config_file() ||
-		! wp_cache_verify_cache_dir()
+		! wp_cache_verify_config_file()
 	) {
 		$text = ob_get_contents();
 		ob_end_clean();
