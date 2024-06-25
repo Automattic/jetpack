@@ -274,6 +274,8 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 		// This is to avoid breaking caching for other plugins.
 		if ( $advanced_cache_deleted ) {
 			self::delete_wp_cache_constant();
+		} else {
+			self::cleanup_wp_cache_constant();
 		}
 
 		return true;
@@ -336,6 +338,33 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 && strpos( $line, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
 				unset( $lines[ $key ] );
 				$found = true;
+			}
+		}
+		if ( ! $found ) {
+			return;
+		}
+		$content = implode( '', $lines );
+		Filesystem_Utils::write_to_file( $config_file, $content );
+		self::clear_opcache( $config_file );
+	}
+
+	/**
+	 * Removes the comment after WP_CACHE defined in wp-config.php (if any).
+	 *
+	 * @return void
+	 */
+	public static function cleanup_wp_cache_constant() {
+		$config_file = self::find_wp_config();
+		if ( $config_file === false ) {
+			return;
+		}
+
+		$lines = file( $config_file );
+		$found = false;
+		foreach ( $lines as $key => $line ) {
+			if ( preg_match( '#define\s*\(\s*[\'"]WP_CACHE[\'"]#', $line ) === 1 && strpos( $line, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false ) {
+				$lines[ $key ] = preg_replace( '#\s*?\/\/.*$#', '', $line );
+				$found         = true;
 			}
 		}
 		if ( ! $found ) {
