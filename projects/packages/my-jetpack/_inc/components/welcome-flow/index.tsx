@@ -54,7 +54,6 @@ const WelcomeFlow: FC = () => {
 			isUserConnected,
 			isSiteConnected,
 		} );
-		setVisible( false );
 		dismissWelcomeBanner();
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
 
