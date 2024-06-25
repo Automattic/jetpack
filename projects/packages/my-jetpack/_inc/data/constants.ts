@@ -11,6 +11,7 @@ export const REST_API_SITE_PRODUCTS_ENDPOINT = `${ REST_API_NAMESPACE }/site/pro
 export const REST_API_VIDEOPRESS_FEATURED_STATS = 'videopress/v1/stats/featured';
 export const REST_API_SITE_DISMISS_BANNER = `${ REST_API_NAMESPACE }/site/dismiss-welcome-banner`;
 export const REST_API_EVALUATE_SITE_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/evaluation`;
+export const REST_API_SAVE_EVALUATION_RECOMMENDATIONS = `${ REST_API_NAMESPACE }/site/recommendations/save-evaluation`;
 
 export const getStatsHighlightsEndpoint = ( blogId: string ) =>
 	`${ ODYSSEY_STATS_API_NAMESPACE }/sites/${ blogId }/stats/highlights`;
@@ -29,3 +30,4 @@ export const QUERY_STATS_COUNTS_KEY = 'stats counts';
 export const QUERY_DISMISS_WELCOME_BANNER_KEY = 'dismiss welcome banner';
 export const QUERY_PURCHASES_KEY = 'purchases';
 export const QUERY_EVALUATE_KEY = 'evaluate site recommendations';
+export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation recommendations';

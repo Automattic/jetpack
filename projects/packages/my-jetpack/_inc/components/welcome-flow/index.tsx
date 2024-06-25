@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useCallback, useMemo, useState } from 'react';
 import { QUERY_EVALUATE_KEY, REST_API_EVALUATE_SITE_RECOMMENDATIONS } from '../../data/constants';
+import useRecommendationsSection from '../../data/recommendations-section/use-recommendations-section';
 import useSimpleMutation from '../../data/use-simple-mutation';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
@@ -15,9 +16,7 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const WelcomeFlow: FC = () => {
-	const { mutate: startEvaluation, isPending: isProcessingEvaluation } = useSimpleMutation<
-		Record< string, number >
-	>( {
+	const { mutate: startEvaluation } = useSimpleMutation< Record< string, number > >( {
 		name: QUERY_EVALUATE_KEY,
 		query: {
 			path: REST_API_EVALUATE_SITE_RECOMMENDATIONS,
@@ -27,6 +26,7 @@ const WelcomeFlow: FC = () => {
 	} );
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
+	const { saveEvaluation } = useRecommendationsSection();
 	const {
 		siteIsRegistered,
 		siteIsRegistering,
@@ -36,7 +36,7 @@ const WelcomeFlow: FC = () => {
 	} = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
-	const [ visible, setVisible ] = useState( isWelcomeBannerVisible );
+	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered ) {
@@ -60,6 +60,7 @@ const WelcomeFlow: FC = () => {
 
 	const handleEvaluation = useCallback(
 		( values: { [ key in EvaluationAreas ]: boolean } ) => {
+			setIsProcessingEvaluation( true );
 			startEvaluation(
 				{
 					queryParams: {
@@ -67,16 +68,25 @@ const WelcomeFlow: FC = () => {
 					},
 				},
 				{
-					onSuccess: _result => {
-						// TODO: Handle result
+					onSuccess: recommendations => {
+						saveEvaluation(
+							{
+								data: { recommendations },
+							},
+							{
+								onSuccess: dismissWelcomeBanner,
+								onError: () => setIsProcessingEvaluation( false ),
+							}
+						);
 					},
+					onError: () => setIsProcessingEvaluation( false ),
 				}
 			);
 		},
-		[ startEvaluation ]
+		[ dismissWelcomeBanner, saveEvaluation, startEvaluation ]
 	);
 
-	if ( ! visible ) {
+	if ( ! isWelcomeBannerVisible ) {
 		return null;
 	}
 

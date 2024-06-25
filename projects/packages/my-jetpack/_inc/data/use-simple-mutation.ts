@@ -6,7 +6,7 @@ import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-quer
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
 type APIFetchOptionsWithQueryParams = APIFetchOptions & {
-	queryParams: Record< string, string | Array< string > | object >;
+	queryParams?: Record< string, string | Array< string > | object >;
 };
 
 /**

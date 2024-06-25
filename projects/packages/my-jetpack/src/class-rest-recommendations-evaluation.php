@@ -30,6 +30,18 @@ class REST_Recommendations_Evaluation {
 				),
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/recommendations/save-evaluation/',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::save_evaluation_recommendations',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+				),
+			)
+		);
 	}
 
 	/**
@@ -82,5 +94,24 @@ class REST_Recommendations_Evaluation {
 		}
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Endpoint to save recommendations results.
+	 *
+	 * @param object $request Query request.
+	 *
+	 * @return array success response.
+	 */
+	public static function save_evaluation_recommendations( $request ) {
+		$json = $request->get_json_params();
+
+		if ( ! isset( $json['recommendations'] ) ) {
+			return new WP_Error( 'missing_recommendations', 'Recommendations are required', array( 'status' => 400 ) );
+		}
+
+		\Jetpack_Options::update_option( 'recommendations_evaluation', $json['recommendations'] );
+
+		return rest_ensure_response( array( 'success' => true ), 200 );
 	}
 }
