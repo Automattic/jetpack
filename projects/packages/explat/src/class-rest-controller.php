@@ -114,6 +114,8 @@ class REST_Controller {
 			);
 		}
 
-		return rest_ensure_response( $response );
+		return rest_ensure_response(
+			json_decode( wp_remote_retrieve_body( $response ), true )
+		);
 	}
 }
