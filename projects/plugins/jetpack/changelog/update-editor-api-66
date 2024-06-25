@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Block Editor: ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.

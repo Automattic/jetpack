@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: do not show migration notice if already using Boost Cache
