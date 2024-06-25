@@ -16,7 +16,7 @@ import { CONNECTION_SERVICE_THREADS, store } from '../../social-store';
  * @returns {React.ReactNode} The threads tab component.
  */
 export function Threads( { title, description, image, url, media } ) {
-	const { shareMessage } = usePostMeta();
+	const { shareMessage: text } = usePostMeta();
 
 	const posts = useSelect(
 		select => {
@@ -28,7 +28,7 @@ export function Threads( { title, description, image, url, media } ) {
 				{
 					name,
 					profileImage,
-					text: shareMessage + ( media.length ? ` ${ url }` : '' ),
+					text,
 					title,
 					description,
 					image,
@@ -37,7 +37,7 @@ export function Threads( { title, description, image, url, media } ) {
 				},
 			];
 		},
-		[ title, image, description, media, url, shareMessage ]
+		[ title, image, description, media, url, text ]
 	);
 
 	const threadsConnections = useSelect(
