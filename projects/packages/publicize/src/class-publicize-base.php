@@ -2052,6 +2052,10 @@ abstract class Publicize_Base {
 			$additional_connections[] = 'nextdoor';
 		}
 
+		if ( $this->has_connection_feature( 'threads' ) ) {
+			$additional_connections[] = 'threads';
+		}
+
 		return $additional_connections;
 	}
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add `atomic_managed_plugin_row_auto_update_label` filter to translate the managed plugin auto update label
