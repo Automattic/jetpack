@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: renamed WPSC_VERSION because it conflicted with other plugins
