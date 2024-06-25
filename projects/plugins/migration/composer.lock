@@ -1160,7 +1160,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
+<<<<<<< HEAD
                 "reference": "e423495d1048ef659f3277bbd74ca1d5c57a2a8c"
+=======
+                "reference": "c603faf1d87c65bc99d596d6fcba77798c178965"
+>>>>>>> ddaf6f4ee0 (Fix project version)
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
