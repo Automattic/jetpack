@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+General: Fix instance where Boost can break caching for other caching plugins when getting deactivated.
