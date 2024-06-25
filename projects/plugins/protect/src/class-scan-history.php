@@ -209,50 +209,6 @@ class Scan_History {
 		if ( isset( $scan_data->threats ) && is_array( $scan_data->threats ) ) {
 			foreach ( $scan_data->threats as $threat ) {
 				if ( isset( $threat->extension->type ) ) {
-					if ( 'core' === $threat->extension->type && in_array( $threat->status, $history->filter, true ) ) {
-						// Check if the core version does not exist in the array
-						$found_index = null;
-						foreach ( $history->core as $index => $core ) {
-							if ( $core->version === $threat->extension->version ) {
-								$found_index = $index;
-								break;
-							}
-						}
-
-						// Add the extension if it does not yet exist in the history
-						if ( null === $found_index ) {
-							$new_core        = new Extension_Model(
-								array(
-									'name'    => 'WordPress',
-									'version' => $threat->extension->version,
-									'type'    => 'core',
-									'checked' => true,
-									'threats' => array(),
-								)
-							);
-							$history->core[] = $new_core;
-							$found_index     = array_key_last( $history->core );
-						}
-
-						// Add the threat to the found core
-						$history->core[ $found_index ]->threats[] = new Threat_Model(
-							array(
-								'id'             => $threat->id ?? null,
-								'signature'      => $threat->signature ?? null,
-								'title'          => $threat->title ?? null,
-								'description'    => $threat->description ?? null,
-								'first_detected' => $threat->first_detected ?? null,
-								'fixed_on'       => $threat->fixed_on ?? null,
-								'fixable'        => $threat->fixable ?? null,
-								'severity'       => $threat->severity ?? null,
-							)
-						);
-
-						++$history->num_threats;
-						++$history->num_core_threats;
-						continue;
-					}
-
 					if ( 'plugin' === $threat->extension->type && in_array( $threat->status, $history->filter, true ) ) {
 						// Check if the plugin does not exist in the array
 						$found_index = null;
@@ -360,9 +316,42 @@ class Scan_History {
 					}
 				}
 
+				if ( 'Vulnerable.WP.Core' === $threat->signature && in_array( $threat->status, $history->filter, true ) ) {
+					// Check if the core version does not exist in the array
+					$found_index = null;
+					foreach ( $history->core as $index => $core ) {
+						if ( $core->version === $threat->version ) {
+							$found_index = $index;
+							break;
+						}
+					}
+
+					// Add the extension if it does not yet exist in the history
+					if ( null === $found_index ) {
+						$new_core        = new Extension_Model(
+							array(
+								'name'    => 'WordPress',
+								'version' => $threat->version,
+								'type'    => 'core',
+								'checked' => true,
+								'threats' => array(),
+							)
+						);
+						$history->core[] = $new_core;
+						$found_index     = array_key_last( $history->core );
+					}
+
+					// Add the threat to the found core
+					$history->core[ $found_index ]->threats[] = new Threat_Model( $threat );
+
+					++$history->num_threats;
+					++$history->num_core_threats;
+					continue;
+				}
+
 				if ( ! empty( $threat->filename ) ) {
 					if ( in_array( $threat->status, $history->filter, true ) ) {
-						$history->files[] = new Threat_Model( $threat );
+						$history->database[] = new Threat_Model( $threat );
 						++$history->num_threats;
 						continue;
 					}
