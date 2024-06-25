@@ -8,7 +8,7 @@ const siteBackupSelectors = {
 	getDaysOfBackupsSaved: state => state.siteBackupSize.daysOfBackupsSaved ?? null,
 	getBackupRetentionDays: state => state.siteBackupSize.retentionDays ?? null,
 	hasBackupSizeLoaded: state => state.siteBackupSize.loaded,
-	getBackupStoppedFlag: state => state.siteBackupSize.backupsStopped,
+	getBackupStoppedFlag: state => state.siteBackupSize.backupsStopped ?? null,
 
 	// Policies
 	isFetchingBackupPolicies: state => state.siteBackupPolicies.isFetching ?? null,
