@@ -41,32 +41,25 @@ export function usePostData() {
 
 			const media = [];
 
-			if ( sigImageUrl ) {
-				media.push( {
-					type: 'image/jpeg',
-					url: sigImageUrl,
-					alt: '',
-				} );
-			} else {
-				const getMediaDetails = id => {
-					const mediaItem = getMedia( id );
-					if ( ! mediaItem ) {
-						return null;
-					}
-					return {
-						type: mediaItem.mime_type,
-						url: getMediaSourceUrl( mediaItem ),
-						alt: mediaItem.alt_text,
-					};
+			const getMediaDetails = id => {
+				const mediaItem = getMedia( id );
+				if ( ! mediaItem ) {
+					return null;
+				}
+				return {
+					type: mediaItem.mime_type,
+					url: getMediaSourceUrl( mediaItem ),
+					alt: mediaItem.alt_text,
 				};
+			};
 
-				for ( const { id } of attachedMedia ) {
-					const mediaDetails = getMediaDetails( id );
-					if ( mediaDetails ) {
-						media.push( mediaDetails );
-					}
+			for ( const { id } of attachedMedia ) {
+				const mediaDetails = getMediaDetails( id );
+				if ( mediaDetails ) {
+					media.push( mediaDetails );
 				}
 			}
+
 			return {
 				title:
 					getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
