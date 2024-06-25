@@ -17,7 +17,7 @@ import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import {
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_DOCUMENT_SETTINGS,
-} from '../ai-assistant-plugin-sidebar/types';
+} from '../ai-assistant-plugin-sidebar/constants';
 import AiImageModal from './components/ai-image-modal';
 import useAiImage from './hooks/use-ai-image';
 import useSiteType from './hooks/use-site-type';

@@ -23,18 +23,17 @@ import { Breve } from '../breve';
 import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
+import {
+	PLACEMENT_DOCUMENT_SETTINGS,
+	PLACEMENT_JETPACK_SIDEBAR,
+	PLACEMENT_PRE_PUBLISH,
+} from './constants';
 import Upgrade from './upgrade';
 import './style.scss';
 /**
  * Types
  */
-import type {
-	CoreSelect,
-	JetpackSettingsContentProps,
-	PLACEMENT_DOCUMENT_SETTINGS,
-	PLACEMENT_JETPACK_SIDEBAR,
-	PLACEMENT_PRE_PUBLISH,
-} from './types';
+import type { CoreSelect, JetpackSettingsContentProps } from './types';
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
@@ -110,7 +109,6 @@ export default function AiAssistantPluginSidebar() {
 
 		return postTypeObject?.viewable;
 	}, [] );
-
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
