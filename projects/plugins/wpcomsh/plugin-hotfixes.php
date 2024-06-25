@@ -146,6 +146,7 @@ if ( ! function_exists( 'get_magic_quotes_gpc' ) ) {
 	/**
 	 * The get_magic_quotes_gpc function.
 	 *
+	 * @suppress PhanRedefineFunctionInternal
 	 * @return bool
 	 */
 	function get_magic_quotes_gpc() {
