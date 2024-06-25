@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Switch from Jetpack-the-plugin's `Jetpack_WPCOM_Block_Editor` class to jetpack-mu-wpcom's namespaced version.
