@@ -7,7 +7,7 @@ const projects = [
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
-	'../../social-logos/src',
+	'../../social-logos/src/react',
 	'../../shared-extension-utils/src',
 	'../../../packages/my-jetpack/_inc/components',
 	'../../../packages/search/src/dashboard/components',
