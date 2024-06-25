@@ -33,7 +33,7 @@
  *      - woocommerce-packages: Stubs from php-stubs/woocommerce.
  *      - wordpress: Stubs from php-stubs/wordpress-stubs, php-stubs/wordpress-tests-stubs, php-stubs/wp-cli-stubs, .phan/stubs/wordpress-constants.php, and .phan/stubs/wordpress-globals.jsonc.
  *      - wp-cli: Stubs from php-stubs/wp-cli-stubs.
- *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php.
+ *      - wpcom: Stubs from .phan/stubs/wpcom-stubs.php, plus some stuff from wpcomsh.
  *   - +stubs: (array) Like 'stubs', but setting this does not clear the defaults.
  *   - suppress_issue_types: (array) Issues to suppress for the entire project.
  *   - unsuppress_issue_types: (array) Default-suppressed issues to unsuppress for the project.
@@ -59,6 +59,7 @@ function make_phan_config( $dir, $options = array() ) {
 	$root = dirname( __DIR__ );
 
 	$stubs          = array();
+	$extra_stubs    = array();
 	$global_stubs   = array();
 	$internal_stubs = array();
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
@@ -97,6 +98,15 @@ function make_phan_config( $dir, $options = array() ) {
 				break;
 			case 'wpcom':
 				$stubs[] = "$root/.phan/stubs/wpcom-stubs.php";
+				if ( $dir !== "$root/projects/plugins/wpcomsh" ) {
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/nav-redesign.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/theme-optimizations.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/lib/require-lib.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/logo-tool/logo-tool.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/class-wpcom-features.php";
+					$extra_stubs[] = "$root/projects/plugins/wpcomsh/wpcom-features/functions-wpcom-features.php";
+				}
 				break;
 			default:
 				throw new InvalidArgumentException( "Unknown stub '$stub'" );
@@ -177,6 +187,7 @@ function make_phan_config( $dir, $options = array() ) {
 				"$root/.phan/stubs/phpunit-stubs.php",
 			),
 			$stubs,
+			$extra_stubs,
 			$options['file_list'],
 			$options['parse_file_list']
 		),
@@ -222,6 +233,7 @@ function make_phan_config( $dir, $options = array() ) {
 				"$root/vendor/",
 				"$root/.phan/",
 			),
+			$extra_stubs,
 			$options['exclude_analysis_directory_list'],
 			$options['parse_file_list']
 		),

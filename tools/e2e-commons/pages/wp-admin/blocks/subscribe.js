@@ -1,5 +1,5 @@
-import EditorCanvas from './editor-canvas.js';
 import { expect } from '@playwright/test';
+import EditorCanvas from './editor-canvas.js';
 export default class SubscribeBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Subscribe' );
@@ -33,7 +33,8 @@ export default class SubscribeBlock extends EditorCanvas {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {Object} frontendPage PageActions page instance
+	 * @param {object} frontendPage - PageActions page instance
+	 * @returns {boolean} Always true
 	 */
 	async isRenderedInFrontend( frontendPage ) {
 		await frontendPage.waitForElementToBeVisible(

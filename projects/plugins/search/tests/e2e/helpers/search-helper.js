@@ -2,35 +2,71 @@ import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
 import logger from 'jetpack-e2e-commons/logger.js';
 import { SearchHomepage } from '../pages/index.js';
 
+/**
+ * Enable Instant Search.
+ * @returns {string} wp-cli command output
+ */
 export async function enableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 1' );
 }
 
+/**
+ * Disable Instant Search.
+ * @returns {string} wp-cli command output
+ */
 export async function disableInstantSearch() {
 	return execWpCommand( 'option update instant_search_enabled 0' );
 }
 
+/**
+ * Set Search result format setting.
+ * @param {string} format - Setting value.
+ * @returns {string} wp-cli command output
+ */
 export async function setResultFormat( format = 'expanded' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ format }` );
 }
 
+/**
+ * Set Search theme setting.
+ * @param {string} theme - Setting value.
+ * @returns {string} wp-cli command output
+ */
 export async function setTheme( theme = 'light' ) {
 	return execWpCommand( `option update jetpack_search_result_format ${ theme }` );
 }
 
+/**
+ * Set highlight color setting.
+ * @param {string} color - Setting value.
+ * @returns {string} wp-cli command output
+ */
 export async function setHighlightColor( color = '"#FFFFFF"' ) {
 	return execWpCommand( `option update jetpack_search_highlight_color ${ color }` );
 }
 
+/**
+ * Set default sort setting.
+ * @param {string} defaultSort - Setting value.
+ * @returns {string} wp-cli command output
+ */
 export async function setDefaultSort( defaultSort = 'relevance' ) {
 	return execWpCommand( `option update jetpack_search_default_sort ${ defaultSort }` );
 }
 
+/**
+ * Enable Search auto-config
+ * @returns {string} wp-cli command output
+ */
 export async function searchAutoConfig() {
 	// Run auto config to add search widget / block with user ID `1`.
 	return await execWpCommand( 'jetpack-search auto_config 1' );
 }
 
+/**
+ * Clear Search plan info
+ * @returns {string} wp-cli command output
+ */
 export async function clearSearchPlanInfo() {
 	// When running locally, sometimes there could be data in the option - better clear it.
 	return await execWpCommand( 'option delete jetpack_search_plan_info' );
@@ -46,7 +82,7 @@ export async function clearSearchPlanInfo() {
  * NOTE: The route sometimes is not persisted after page reloads so would need to
  * call the function again to make sure.
  *
- * @param { Object } page - instance of a Playwright Page type
+ * @param {page} page - instance of a Playwright Page type
  * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
  */
 export async function searchAPIRoute( page ) {
@@ -69,18 +105,20 @@ export async function searchAPIRoute( page ) {
 
 		// deal with sorting
 		switch ( params.get( 'sort' ) ) {
-			case 'date_asc':
+			case 'date_asc': {
 				// put record 2 first
 				const tmpResult1 = body.results[ 0 ];
 				body.results[ 0 ] = body.results[ 1 ];
 				body.results[ 1 ] = tmpResult1;
 				break;
-			case 'date_desc':
+			}
+			case 'date_desc': {
 				// put record 3 first
 				const tmpResult2 = body.results[ 0 ];
 				body.results[ 0 ] = body.results[ 2 ];
 				body.results[ 2 ] = tmpResult2;
 				break;
+			}
 			case 'score_default':
 			default:
 				// the original sorting
