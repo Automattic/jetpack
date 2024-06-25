@@ -120,9 +120,9 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture } = connection;
+			const { display_name, profile_display_name, profile_picture, external_display } = connection;
 
-			displayName = 'twitter' === service ? profile_display_name : display_name;
+			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
 		}

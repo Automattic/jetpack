@@ -497,6 +497,17 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
 
 /**
+ * Get atomic managed plugin row auto update label
+ *
+ * @return string
+ */
+function wpcomsh_atomic_managed_plugin_row_auto_update_label() {
+	/* translators: Message about how a managed plugin is updated. */
+	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
+}
+add_filter( 'atomic_managed_plugin_row_auto_update_label', 'wpcomsh_atomic_managed_plugin_row_auto_update_label' );
+
+/**
  * Get atomic managed theme template auto update label
  *
  * @return string
