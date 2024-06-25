@@ -937,7 +937,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "f1fded201dc3d0f247e3ec40eb36c2c70c42f3e7"
+                "reference": "2edd9397bcc201363875e605ec9cefb80d891124"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -970,7 +970,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.36.x-dev"
+                    "dev-trunk": "5.39.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1376,7 +1376,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+                "reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1406,7 +1406,6 @@
                 "dependencies": {
                     "test-only": [
                         "packages/connection",
-                        "packages/identity-crisis",
                         "packages/plans"
                     ]
                 }
