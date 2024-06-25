@@ -59,6 +59,13 @@ const ThreatsList = () => {
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);
+			case 'wordpress':
+				return sprintf(
+					/* translators: placeholder is the amount of WordPress threats found on the site. */
+					__( '%1$s WordPress %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
+				);
 			case 'files':
 				return sprintf(
 					/* translators: placeholder is the amount of file threats found on the site. */
@@ -76,7 +83,7 @@ const ThreatsList = () => {
 			default:
 				return sprintf(
 					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-					__( '%1$s %2$s in your %3$s %4$s', 'jetpack-protect' ),
+					__( '%1$s %2$s in %3$s %4$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats',
 					item?.name,
