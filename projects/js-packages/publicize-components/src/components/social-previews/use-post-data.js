@@ -28,16 +28,6 @@ export function usePostData() {
 			// If we have a SIG token, use it to generate the image URL.
 			if ( sigImageUrl ) {
 				image = sigImageUrl;
-			} else if ( attachedMedia?.[ 0 ]?.id ) {
-				// If we don't have a SIG image, use the first image in the attached media.
-				const [ firstMedia ] = attachedMedia;
-				const isImage = firstMedia.id
-					? getMedia( firstMedia.id )?.mime_type?.startsWith( 'image/' )
-					: false;
-
-				if ( isImage && firstMedia.url ) {
-					image = firstMedia.url;
-				}
 			}
 
 			// If we still don't have an image, try to get it from the post content.
@@ -72,12 +62,6 @@ export function usePostData() {
 
 				for ( const { id } of attachedMedia ) {
 					const mediaDetails = getMediaDetails( id );
-					if ( mediaDetails ) {
-						media.push( mediaDetails );
-					}
-				}
-				if ( 0 === media.length && featuredImageId ) {
-					const mediaDetails = getMediaDetails( featuredImageId );
 					if ( mediaDetails ) {
 						media.push( mediaDetails );
 					}
