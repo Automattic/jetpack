@@ -927,16 +927,27 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * ## OPTIONS
 		 *
 		 * <command>
-		 * : get/set
+		 * : The subcommand
+		 * ---
+		 * options:
+		 *  - get
+		 *  - set
+		 * ---
 		 *
-		 * [value]
+		 * [--value=<value>]
 		 * : The value (when setting)
+		 * ---
+		 * default: 1
+		 * options:
+		 *  - 0
+		 *  - 1
+		 * ---
 		 *
 		 * @subcommand disable-fatal-error-emails
 		 */
 		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$command = $args[0];
-			$value   = (bool) $args[1];
+			$value   = (bool) $assoc_args['value'];
 
 			switch ( $command ) {
 				case 'get':
