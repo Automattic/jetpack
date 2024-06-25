@@ -104,9 +104,9 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
-		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ), 1002 );
 
 		// Sets up JITMS.
 		JITM::configure();
