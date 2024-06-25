@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.25.0
+ * Version: 3.25.1-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.25.0' );
+define( 'WPCOMSH_VERSION', '3.25.1-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -515,12 +515,10 @@ function wpcomsh_footer_rum_js() {
 	if ( 'admin_footer' === current_action() ) {
 		$service = 'atomic-wpadmin';
 
-		if ( method_exists( 'Jetpack_WPCOM_Block_Editor', 'init' ) ) {
-			$block_editor = Jetpack_WPCOM_Block_Editor::init();
-			if ( $block_editor->is_iframed_block_editor() ) {
-				$service      = 'atomic-gutenframe';
-				$allow_iframe = 'data-allow-iframe="true"';
-			}
+		$block_editor = \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor::init();
+		if ( $block_editor->is_iframed_block_editor() ) {
+			$service      = 'atomic-gutenframe';
+			$allow_iframe = 'data-allow-iframe="true"';
 		}
 	}
 
@@ -582,6 +580,7 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
+ * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );

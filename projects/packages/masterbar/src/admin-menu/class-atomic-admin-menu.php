@@ -40,7 +40,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
-				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- This is temp, pending pf4qpu-nc-p2
+				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Not worth bringing in a stub just for a callback in a remove_action call.
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
@@ -257,7 +257,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack-masterbar' ) . '</span>';
 		}
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- This is temp, pending pf4qpu-nc-p2
 		if ( ( function_exists( '\Private_Site\site_is_private' ) && \Private_Site\site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',

@@ -36,6 +36,7 @@ return make_phan_config(
 			// DO NOT add references to files in packages like this! Packages should be listed in composer.json 'require',
 			// or 'require-dev' if they're only needed in tests or build scripts.
 			__DIR__ . '/../../../plugins/vaultpress/vaultpress.php',                  // class VaultPress
+			__DIR__ . '/../../../plugins/wpcomsh/feature-plugins/masterbar.php',      // function wpcomsh_is_site_sticker_active
 			__DIR__ . '/../../../plugins/crm/includes/ZeroBSCRM.Core.Extensions.php', // functions zeroBSCRM_isExtensionInstalled, zeroBSCRM_extension_install_jetpackforms
 
 			// Make an exception to the above for packages/jetpack-mu-wpcom. Pulling in that whole package here seems more risky than beneficial.
