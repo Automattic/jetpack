@@ -2412,6 +2412,8 @@ importers:
 
   projects/packages/protect-models: {}
 
+  projects/packages/protect-status: {}
+
   projects/packages/publicize:
     dependencies:
       '@wordpress/i18n':
