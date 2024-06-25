@@ -437,6 +437,14 @@ const EmailSettings = props => {
 						{
 							label: (
 								<span className="jp-form-toggle-explanation">
+									{ __( 'Replies will be a public comment on the post', 'jetpack' ) }
+								</span>
+							),
+							value: 'comment',
+						},
+						{
+							label: (
+								<span className="jp-form-toggle-explanation">
 									{ __( "Replies will be sent to the post author's email", 'jetpack' ) }
 								</span>
 							),

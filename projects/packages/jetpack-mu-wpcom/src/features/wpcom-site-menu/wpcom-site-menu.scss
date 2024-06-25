@@ -1,10 +1,6 @@
 /**
  * Styles for All Sites menu
  */
-#wp-admin-bar-my-sites {
-	// Hide the Core's default My Sites menu
-	display: none;
-}
 #wpadminbar .wp-admin-bar-all-sites a.ab-item {
 	display: flex;
 	align-items: center;

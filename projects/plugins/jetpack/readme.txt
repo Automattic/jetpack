@@ -326,9 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.5 - 2024-06-18
-#### Bug fixes
-- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
+### 13.6-a.7 - 2024-06-24
+#### Enhancements
+- Goodreads Block: provide support for additional profile URLs.
+- Newsletter: Adding a new toggle to control the newsletter author line.
+- Newsletter: Email replies can become comments on your blog.
+- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images.
+
+#### Improved compatibility
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
 
 --------
 
