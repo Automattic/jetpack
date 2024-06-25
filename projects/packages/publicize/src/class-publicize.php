@@ -546,6 +546,7 @@ class Publicize extends Publicize_Base {
 			'mastodon'           => array(),
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
+			'threads'            => array(),
 		);
 
 		if ( 'all' === $filter ) {

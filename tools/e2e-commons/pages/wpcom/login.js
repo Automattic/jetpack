@@ -1,7 +1,7 @@
-import WpPage from '../wp-page.js';
-import logger from '../../logger.js';
 import { getDotComCredentials } from '../../helpers/utils-helper.js';
+import logger from '../../logger.js';
 import PageActions from '../page-actions.js';
+import WpPage from '../wp-page.js';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {

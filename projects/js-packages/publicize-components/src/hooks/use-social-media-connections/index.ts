@@ -13,7 +13,9 @@ export default function useSocialMediaConnections() {
 		const store = select( socialStore );
 		const connections = store.getConnections();
 		const enabledConnections = store.getEnabledConnections();
-		const skippedConnections = store.getDisabledConnections().map( connection => connection.id );
+		const skippedConnections = store
+			.getDisabledConnections()
+			.map( connection => connection.connection_id );
 
 		const hasConnections = connections.length > 0;
 		const hasEnabledConnections = enabledConnections.length > 0;

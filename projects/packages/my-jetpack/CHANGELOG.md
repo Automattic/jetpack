@@ -5,9 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.25.3] - 2024-06-24
+### Added
+- Add more default args for tracks events [#37974]
+
+## [4.25.2] - 2024-06-21
+### Fixed
+- Remove the need for api requests in broken modules check [#37908]
+
 ## [4.25.1] - 2024-06-17
 ### Fixed
-- Remove check for broken modules from red bubble connection check [#37911] 
+- Remove check for broken modules from red bubble connection check [#37911]
 
 ## [4.25.0] - 2024-06-17
 ### Changed
@@ -1526,6 +1534,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.25.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.2...4.25.3
+[4.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.1...4.25.2
 [4.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.0...4.25.1
 [4.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.7...4.25.0
 [4.24.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.6...4.24.7

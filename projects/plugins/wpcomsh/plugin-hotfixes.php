@@ -101,18 +101,3 @@ add_action(
 		</style>';
 	}
 );
-
-/**
- * Fixes an infinite redirect bug when trying to access the Site Editor
- * Gutenberg already removed it: https://github.com/WordPress/gutenberg/pull/48283
- *
- * @see https://github.com/Automattic/wp-calypso/issues/74072
- *
- * @todo: remove after Gutenberg 15.3.x lands on WoA
- */
-function wpcomsh_maybe_remove_gutenberg_site_editor_redirect() {
-	if ( has_filter( 'wp_redirect', 'gutenberg_prevent_site_editor_redirection' ) ) {
-		remove_filter( 'wp_redirect', 'gutenberg_prevent_site_editor_redirection', 1 );
-	}
-}
-add_action( 'plugins_loaded', 'wpcomsh_maybe_remove_gutenberg_site_editor_redirect' );
