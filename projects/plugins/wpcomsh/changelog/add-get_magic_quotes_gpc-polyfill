@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added polyfill for get_magic_quotes_gpc
