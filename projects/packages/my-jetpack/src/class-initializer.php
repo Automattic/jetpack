@@ -502,12 +502,7 @@ class Initializer {
 	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
 		$plugin_filenames = Products::get_all_plugin_filenames();
 
-		if ( ! $plugin ) {
-			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
-			return;
-		}
-
-		if ( in_array( $plugin, $plugin_filenames, true ) ) {
+		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
 			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
 		}
 	}
