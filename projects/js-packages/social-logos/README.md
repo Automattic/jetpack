@@ -11,7 +11,7 @@ For example, the Tumblr guidelines state that it's ok to enclose the logo in any
 
 Note that this component requires [React](https://www.npmjs.com/package/react) to be installed in your project.
 
-SocialLogo renders a single social logo SVG based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px. 
+SocialLogo renders a single social logo SVG based on an `icon` prop. It takes a size property but defaults to 24px. For greater sharpness, the icons should only be shown at either 18px, 24px, 36px or 48px.
 
 There's a gallery with all the available icons in https://wpcalypso.wordpress.com/devdocs/design/social-logo.
 
@@ -35,14 +35,25 @@ function MyComponent() {
 
 ## Notes & Pixel Grid
 
-The icon grid is based on [Gridicons](https://github.com/Automattic/gridicons) and adheres to the same rules. That is to say, the set is designed on a 24px base grid. That means logos will look their sharpest and crispest when SVGs are inserted with 24px width/height, or the icon font is used at `font-size: 24px;`. 
+The icon grid is based on [Gridicons](https://github.com/Automattic/gridicons) and adheres to the same rules. That is to say, the set is designed on a 24px base grid. That means logos will look their sharpest and crispest when SVGs are inserted with 24px width/height, or the icon font is used at `font-size: 24px;`.
 
-Logos will also scale well to other sizes, like 18px (75% size), or 36px (150% size). Normally, using icon-sets outside of their pixelgrid is a surefire way to get fuzzy icons. This is also true in the case of this logo set, however unlike custom-designed icons, this is almost unavoidable in the case of logos. The problem is, every single logo is designed with its own dimensions. If we are to respect branding guidelines (which we should), no hinting or pixel-tuning is applied to any logo added to this set. Which means even at the base 24px size, logos could appear fuzzy and less than optimal. That is the way of the world, and a tradeoff between flexibility and respecting the original logo design on one hand, and pixel-perfect logos on the other hand. 
+Logos will also scale well to other sizes, like 18px (75% size), or 36px (150% size). Normally, using icon-sets outside of their pixelgrid is a surefire way to get fuzzy icons. This is also true in the case of this logo set, however unlike custom-designed icons, this is almost unavoidable in the case of logos. The problem is, every single logo is designed with its own dimensions. If we are to respect branding guidelines (which we should), no hinting or pixel-tuning is applied to any logo added to this set. Which means even at the base 24px size, logos could appear fuzzy and less than optimal. That is the way of the world, and a tradeoff between flexibility and respecting the original logo design on one hand, and pixel-perfect logos on the other hand.
 
 So to summarize:
 
 - **Do** use Social Logos at 48px, 36px, 24px, 18px, 12px. Prioritize 24px or above if you can.
-- **Try to avoid** using Social logos at 16px, 17px, or any arbitrary pixel-size that's incompatible with the base 24px grid. For example, don't size the icon font in EMs. 
+- **Try to avoid** using Social logos at 16px, 17px, or any arbitrary pixel-size that's incompatible with the base 24px grid. For example, don't size the icon font in EMs.
+
+
+## Adding a new logo.
+
+1. Add the SVG file to the `src/svg` folder.
+2. Run the build command: `jetpack build js-packages/social-logos`
+
+You can test your changes either of these ways:
+* Using the example file: open `projects/js-packages/social-logos/build/svg-sprite/example.html` in your browser.
+* Using Storybook: in your favourite terminal navigate to `projects/js-packages/storybook` and run `pnpm run storybook:dev`.
+
 
 ## License
 
