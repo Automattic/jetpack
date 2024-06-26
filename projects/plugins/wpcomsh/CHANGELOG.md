@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.25.2 - 2024-06-26
+### Changed
+- Internal updates.
+
 ## 3.25.1 - 2024-06-25
 ### Changed
 - Hide login banner for agency-managed sites. [#38021]
