@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Place to properly deprecate Jetpack features.
@@ -132,6 +133,7 @@ class Deprecate {
 	 */
 	private function show_ga_notice() {
 		return ( new Modules() )->is_active( 'google-analytics', false )
-			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' );
+			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' )
+			&& ! ( new Host() )->is_woa_site();
 	}
 }
