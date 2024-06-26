@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.6-a.9 - 2024-06-26
+### Enhancements
+- Social: Add Threads preview to Social Previews. [#38003]
+
+### Improved compatibility
+- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary. [#37949]
+
+### Bug fixes
+- External Media: Do not display External Media options in the Caption edit field. [#37987]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- General: Load dashicon list from 'jetpack-masterbar' package for the admin-menu API endpoint. [#38025]
+- General: Remove use of `gutenberg_can_edit_post_type()`. Its replacement has been in WP Core since 6.1. [#38015]
+- General: Remove use of `gutenberg_get_block_template()`. Its replacement has been in WP Core since 5.8. [#38015]
+- Stats: Point post stats icon to wp-admin. [#38013]
+
 ## 13.6-a.7 - 2024-06-24
 ### Enhancements
 - Goodreads Block: provide support for additional profile URLs. [#37939]
