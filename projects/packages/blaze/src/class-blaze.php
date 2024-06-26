@@ -210,12 +210,12 @@ class Blaze {
 				|| ! $connection->is_connected()
 				|| ! $connection->is_user_connected()
 			) {
-				$should_initialize = false;
+				return false;
 			}
 
 			// The whole thing is powered by Sync!
 			if ( ! Sync_Settings::is_sync_enabled() ) {
-				$should_initialize = false;
+				return false;
 			}
 		}
 
