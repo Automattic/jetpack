@@ -33,6 +33,9 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		&:hover, &:focus {
 			background-color: var(--jp-white);
 		}
+		&:disabled {
+			pointer-events: none;
+		}
 	}
 }
 
