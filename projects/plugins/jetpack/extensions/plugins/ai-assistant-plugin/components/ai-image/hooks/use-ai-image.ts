@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -32,6 +33,7 @@ export default function useAiImage( {
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
 	const pointer = useRef( 0 );
@@ -49,6 +51,19 @@ export default function useAiImage( {
 			return newImages;
 		} );
 	}, [] );
+
+	/*
+	 * Function to show a snackbar notice on the editor.
+	 */
+	const showSnackbarNotice = useCallback(
+		( message: string ) => {
+			createNotice( 'success', message, {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		},
+		[ createNotice ]
+	);
 
 	/*
 	 * Function to update the requests count after a featured image generation.
@@ -134,6 +149,7 @@ export default function useAiImage( {
 							updateRequestsCount();
 							saveToMediaLibrary( image )
 								.then( savedImage => {
+									showSnackbarNotice( __( 'Image saved to media library.', 'jetpack' ) );
 									updateImages(
 										{ libraryId: savedImage?.id, libraryUrl: savedImage?.url, generating: false },
 										pointer.current
@@ -165,6 +181,7 @@ export default function useAiImage( {
 			type,
 			updateRequestsCount,
 			saveToMediaLibrary,
+			showSnackbarNotice,
 		]
 	);
 
