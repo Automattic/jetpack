@@ -28,6 +28,7 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	severity,
+	status,
 } ) => {
 	const { viewingScanHistory } = useScanHistory();
 	const { setModal } = useDispatch( STORE_ID );
@@ -69,6 +70,7 @@ const ThreatAccordionItem = ( {
 			severity={ severity }
 			firstDetected={ firstDetected }
 			fixedOn={ fixedOn }
+			status={ status }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
@@ -118,7 +120,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				{ viewingScanHistory && fixedOn === null && (
+				{ viewingScanHistory && 'ignored' === status && (
 					<Button
 						isDestructive={ true }
 						variant="secondary"
@@ -221,6 +223,7 @@ const PaidList = ( { list } ) => {
 						title,
 						type,
 						version,
+						status,
 					} ) => (
 						<ThreatAccordionItem
 							context={ context }
@@ -242,6 +245,7 @@ const PaidList = ( { list } ) => {
 							title={ title }
 							type={ type }
 							version={ version }
+							status={ status }
 						/>
 					)
 				) }
