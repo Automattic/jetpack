@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status\Cache;
+use Brain\Monkey\Functions;
 use WorDBless\BaseTestCase;
 
 /**
@@ -16,6 +17,15 @@ use WorDBless\BaseTestCase;
  * @covers Automattic\Jetpack\Masterbar\Main
  */
 class Test_Main extends BaseTestCase {
+	/**
+	 * Test setup.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		Functions\when( 'wpcom_is_nav_redesign_enabled' )->justReturn( false );
+	}
+
 	/**
 	 * Returning the environment into its initial state.
 	 *

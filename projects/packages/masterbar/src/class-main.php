@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '0.2.3-alpha';
 
 	/**
 	 * Initializer.
@@ -27,14 +27,17 @@ class Main {
 			return;
 		}
 
-		$host                    = new Host();
-		$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+		new Admin_Color_Schemes();
 
-		if ( ! $should_use_nav_redesign && ! $host->is_wpcom_simple() ) {
-			new Masterbar();
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			return;
 		}
 
-		new Admin_Color_Schemes();
+		$host = new Host();
+
+		if ( ! $host->is_wpcom_simple() ) {
+			new Masterbar();
+		}
 
 		if ( $host->is_wpcom_platform() ) {
 			new Inline_Help();
@@ -42,7 +45,7 @@ class Main {
 			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
-		if ( $host->is_woa_site() && ! $should_use_nav_redesign ) {
+		if ( $host->is_woa_site() ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';
 		}
 
@@ -53,7 +56,7 @@ class Main {
 		 *
 		 * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
 		 */
-		if ( ! $should_use_nav_redesign && apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
+		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
 			require_once __DIR__ . '/admin-menu/load.php';
 		}
 
