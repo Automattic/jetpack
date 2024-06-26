@@ -222,7 +222,7 @@ export const SSO = withModuleSettingsFormHelpers(
 										isTwoStepEnforced
 											? createInterpolateElement(
 													__(
-														'Two-Step Authentication has been enabled by a site administrator. <link>Learn more</link>.',
+														'Two-Step Authentication is enforced because the <code>jetpack_sso_require_two_step</code> filter is active. <link>Learn more</link>.',
 														'jetpack'
 													),
 													{
@@ -231,6 +231,7 @@ export const SSO = withModuleSettingsFormHelpers(
 																href={ getRedirectUrl( 'jetpack-support-force-2fa' ) }
 															/>
 														),
+														code: <code />,
 													}
 											  )
 											: null
