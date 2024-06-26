@@ -293,9 +293,9 @@ const InProgressBackup = ( { isInitialBackup, progress, showProgressBar = true }
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), [] );
 
-	const title = isInitialBackup
-		? __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' )
-		: __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
+	const firstBackupTitle = __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' );
+	const regularBackupTitle = __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
+	const title = isInitialBackup ? firstBackupTitle : regularBackupTitle;
 
 	return (
 		<div className="jp-row">
