@@ -26,7 +26,7 @@ class Deprecate {
 	 * Initialize the class.
 	 */
 	private function __construct() {
-		add_action( 'admin_notices', array( $this, 'render_ga_admin_notice' ) );
+		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 	}
 
@@ -71,16 +71,14 @@ class Deprecate {
 	 *
 	 * @return void
 	 */
-	public function render_ga_admin_notice() {
-		if ( ! $this->has_ga_notice() ) {
-			return;
+	public function render_admin_notices() {
+		if ( $this->show_ga_notice() ) {
+			$this->render_notice(
+				'jetpack-ga-admin-notice',
+				esc_html__( 'Jetpack Google Analytics will no longer be supported after August 6, 2024.', 'jetpack' )
+				. ' <a href="https://jetpack.com/support/google-analytics/" target="_blank">' . esc_html__( 'See how to keep your site intact.', 'jetpack' ) . '</a>'
+			);
 		}
-
-		$this->render_notice(
-			'jetpack-ga-admin-notice',
-			esc_html__( 'Jetpack Google Analytics will no longer be supported after August 6, 2024.', 'jetpack' )
-			. ' <a href="https://jetpack.com/support/google-analytics/" target="_blank">' . esc_html__( 'See how to keep your site intact.', 'jetpack' ) . '</a>'
-		);
 	}
 
 	/**
@@ -124,7 +122,7 @@ class Deprecate {
 	 * @return bool
 	 */
 	private function has_notices() {
-		return $this->has_ga_notice();
+		return $this->show_ga_notice();
 	}
 
 	/**
@@ -132,7 +130,7 @@ class Deprecate {
 	 *
 	 * @return bool
 	 */
-	private function has_ga_notice() {
+	private function show_ga_notice() {
 		return ( new Modules() )->is_active( 'google-analytics', false )
 			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' );
 	}
