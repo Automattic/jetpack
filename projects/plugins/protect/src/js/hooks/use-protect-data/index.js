@@ -19,7 +19,15 @@ export default function useProtectData() {
 
 	const source = viewingScanHistory ? scanHistory : status;
 
-	const numCoreThreats = useMemo( () => source.core?.threats?.length || 0, [ source.core ] );
+	const numCoreThreats = useMemo( () => {
+		if ( viewingScanHistory ) {
+			return ( source.core || [] ).reduce(
+				( numThreats, core ) => numThreats + core.threats.length,
+				0
+			);
+		}
+		return source.core?.threats?.length || 0;
+	}, [ viewingScanHistory, source.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>

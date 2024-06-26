@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.2.1-alpha';
 
 	/**
 	 * Initializer.
@@ -42,7 +42,7 @@ class Main {
 			require_once __DIR__ . '/nudges/bootstrap.php';
 		}
 
-		if ( $host->is_woa_site() ) {
+		if ( $host->is_woa_site() && ! $should_use_nav_redesign ) {
 			require_once __DIR__ . '/profile-edit/bootstrap.php';
 		}
 

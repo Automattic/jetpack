@@ -142,7 +142,7 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 	 * Filter the parent's response to include the fields
 	 * added to 1.3 (and their defaults)
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.6
 	 *
 	 * @param array $settings - the settings array.
 	 *
@@ -167,7 +167,7 @@ class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Set
 	 * @param array $wga - Array of existing Google Analytics settings.
 	 * @param array $new_values - the new values we're adding.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.6
 	 *
 	 * @return array
 	 */

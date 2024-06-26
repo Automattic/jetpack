@@ -83,7 +83,9 @@ export const PaidAccordionItem = ( {
 
 	const StatusBadge = ( { status } ) => (
 		<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
-			{ status === 'fixed' ? __( 'Fixed', 'jetpack-protect' ) : __( 'Ignored', 'jetpack-protect' ) }
+			{ 'fixed' === status
+				? __( 'Fixed', 'jetpack-protect' )
+				: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
 		</div>
 	);
 

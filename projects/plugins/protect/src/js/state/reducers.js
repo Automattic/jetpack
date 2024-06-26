@@ -46,7 +46,7 @@ const credentialsIsFetching = ( state = false, action ) => {
 	return state;
 };
 
-const viewingScanHistory = ( state = {}, action ) => {
+const viewingScanHistory = ( state = false, action ) => {
 	switch ( action.type ) {
 		case SET_VIEWING_SCAN_HISTORY:
 			return action.viewingScanHistory;
