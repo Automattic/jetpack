@@ -799,7 +799,7 @@ class Dashboard_REST_Controller {
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @param bool   $use_cache (optional) default to true.
-	 * @return array|WP_Error|WP_REST_Response $response Data.
+	 * @return array|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
