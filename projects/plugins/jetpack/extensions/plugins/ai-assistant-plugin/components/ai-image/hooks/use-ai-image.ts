@@ -12,13 +12,20 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 /**
  * Types
  */
-import { FEATURED_IMAGE_FEATURE_NAME } from '../types';
+import { FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
 import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
 
+type AiImageType = 'featured-image-generation' | 'general-image-generation';
+type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
+
 export default function useAiImage( {
+	feature,
+	type,
 	cost,
 	autoStart = true,
 }: {
+	feature: AiImageFeature;
+	type: AiImageType;
 	cost: number;
 	autoStart?: boolean;
 } ) {
@@ -103,7 +110,7 @@ export default function useAiImage( {
 				 * Make a generic call to backend and let it decide the model.
 				 */
 				const generateImagePromise = generateImageWithParameters( {
-					feature: FEATURED_IMAGE_FEATURE_NAME,
+					feature,
 					size: '1792x1024', // the size, when the generation happens with DALL-E-3
 					responseFormat: 'b64_json', // the response format, when the generation happens with DALL-E-3
 					style: 'photographic', // the style of the image, when the generation happens with Stable Diffusion
@@ -111,7 +118,7 @@ export default function useAiImage( {
 						{
 							role: 'jetpack-ai',
 							context: {
-								type: 'featured-image-generation',
+								type,
 								request: userPrompt ? userPrompt : null,
 								content: postContent,
 							},
@@ -151,7 +158,14 @@ export default function useAiImage( {
 					} );
 			} );
 		},
-		[ updateImages, generateImageWithParameters, updateRequestsCount, saveToMediaLibrary ]
+		[
+			updateImages,
+			generateImageWithParameters,
+			feature,
+			type,
+			updateRequestsCount,
+			saveToMediaLibrary,
+		]
 	);
 
 	const handlePreviousImage = useCallback( () => {

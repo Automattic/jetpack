@@ -326,15 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.7 - 2024-06-24
+### 13.6-a.9 - 2024-06-26
 #### Enhancements
-- Goodreads Block: provide support for additional profile URLs.
-- Newsletter: Adding a new toggle to control the newsletter author line.
-- Newsletter: Email replies can become comments on your blog.
-- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images.
+- Social: Add Threads preview to Social Previews.
 
 #### Improved compatibility
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.
+
+#### Bug fixes
+- External Media: Do not display External Media options in the Caption edit field.
 
 --------
 
