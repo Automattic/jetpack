@@ -920,7 +920,50 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::success( 'Success' );
 		}
+
+		/**
+		 * Enable or disable fatal error emails.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <command>
+		 * : The subcommand
+		 * ---
+		 * options:
+		 *  - get
+		 *  - set
+		 * ---
+		 *
+		 * [--value=<value>]
+		 * : The value (when setting)
+		 * ---
+		 * default: 1
+		 * options:
+		 *  - 0
+		 *  - 1
+		 * ---
+		 *
+		 * @subcommand disable-fatal-error-emails
+		 */
+		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$command = $args[0];
+			$value   = (bool) $assoc_args['value'];
+
+			switch ( $command ) {
+				case 'get':
+					$option = get_option( 'wpcomsh_disable_fatal_error_emails', false );
+					WP_CLI::log( $option ? 'true' : 'false' );
+					break;
+				case 'set':
+					update_option( 'wpcomsh_disable_fatal_error_emails', $value );
+					WP_CLI::success( 'Success' );
+					break;
+				default:
+					WP_CLI::error( 'Invalid command' );
+			}
+		}
 	}
+
 }
 
 if ( class_exists( 'Checksum_Plugin_Command' ) ) {
@@ -1176,7 +1219,9 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.24.0-alpha
+ * Version: 3.25.2-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.24.0-alpha' );
+define( 'WPCOMSH_VERSION', '3.25.2-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -24,6 +24,7 @@ require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
+require_once __DIR__ . '/lib/require-lib.php';
 
 require_once __DIR__ . '/plugin-hotfixes.php';
 
@@ -273,43 +274,6 @@ function check_site_has_pending_automated_transfer() {
 add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_automated_transfer' );
 
 /**
- * Require library helper function
- *
- * @param mixed $slug Slug of library.
- * @return void
- */
-function require_lib( $slug ) {
-	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
-		return;
-	}
-
-	$basename = basename( $slug );
-
-	$lib_dir = __DIR__ . '/lib';
-
-	/**
-	 * Filter the location of the library directory.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @param string $lib_dir Path to the library directory.
-	 */
-	$lib_dir = apply_filters( 'require_lib_dir', $lib_dir );
-
-	$choices = array(
-		"$lib_dir/$slug.php",
-		"$lib_dir/$slug/0-load.php",
-		"$lib_dir/$slug/$basename.php",
-	);
-	foreach ( $choices as $file_name ) {
-		if ( is_readable( $file_name ) ) {
-			require_once $file_name;
-			return;
-		}
-	}
-}
-
-/**
  * Provides a fallback Google Maps API key when otherwise not configured by the
  * user. This is subject to a usage quota.
  *
@@ -551,12 +515,10 @@ function wpcomsh_footer_rum_js() {
 	if ( 'admin_footer' === current_action() ) {
 		$service = 'atomic-wpadmin';
 
-		if ( method_exists( 'Jetpack_WPCOM_Block_Editor', 'init' ) ) {
-			$block_editor = Jetpack_WPCOM_Block_Editor::init();
-			if ( $block_editor->is_iframed_block_editor() ) {
-				$service      = 'atomic-gutenframe';
-				$allow_iframe = 'data-allow-iframe="true"';
-			}
+		$block_editor = \Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Block_Editor\Jetpack_WPCOM_Block_Editor::init();
+		if ( $block_editor->is_iframed_block_editor() ) {
+			$service      = 'atomic-gutenframe';
+			$allow_iframe = 'data-allow-iframe="true"';
 		}
 	}
 
@@ -618,6 +580,7 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
+ * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );
