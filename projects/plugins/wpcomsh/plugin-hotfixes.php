@@ -101,3 +101,57 @@ add_action(
 		</style>';
 	}
 );
+
+/**
+ * Polyfill the create_function function for PHP versions >= 8.0
+ * Code taken from https://github.com/php5friends/polyfill-create_function/blob/master/create_function.php
+ *
+ * Copying and distribution of this file, with or without modification,
+ * are permitted in any medium without royalty provided the copyright
+ * notice and this notice are preserved. This file is offered as-is,
+ * without any warranty.
+ */
+if ( ! function_exists( 'create_function' ) ) {
+	/**
+	 * The create_function function.
+	 *
+	 * @param string $args The args.
+	 * @param string $code The code.
+	 *
+	 * @return string The name of the function.
+	 */
+	function create_function( $args, $code ) {
+		static $i = 0;
+
+		_deprecated_function( __FUNCTION__, 'trunk', 'anonymous functions' );
+
+		$namespace = 'wpcom_create_function';
+
+		do {
+			++$i;
+			$name = "__{$namespace}_lambda_{$i}";
+		} while ( \function_exists( $name ) );
+
+		// phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
+		eval( "function {$name}({$args}) { {$code} }" );
+
+		return $name;
+	}
+}
+
+/**
+ * Polyfill the get_magic_quotes_gpc() function for PHP versions >= 8.0.
+ */
+if ( ! function_exists( 'get_magic_quotes_gpc' ) ) {
+	/**
+	 * The get_magic_quotes_gpc function.
+	 *
+	 * @suppress PhanRedefineFunctionInternal
+	 * @return bool
+	 */
+	function get_magic_quotes_gpc() {
+		_deprecated_function( __FUNCTION__, 'trunk' );
+
+		return false;
+	}
+}
