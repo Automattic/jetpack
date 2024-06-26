@@ -58,3 +58,56 @@ function wpcomsh_allow_migration_option( $options ) {
 }
 
 add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_migration_option' );
+
+/**
+ * Logs the start and end of an AIOWP migration import and any errors that occur during the import.
+ */
+function aiowp_migration_logging_helper() {
+	if ( ! class_exists( 'Ai1wm_Main_Controller' ) ) {
+		return;
+	}
+
+	// Filter that gets called when import starts
+	add_filter(
+		'ai1wm_import',
+		function ( $params = array() ) {
+			wpcomsh_record_tracks_event(
+				'wpcom_site_migration_start',
+				array(
+					'migration_tool' => 'aiowp',
+				)
+			);
+			return $params;
+		},
+		10
+	);
+
+	// Filter that gets called when import finishes or is cancelled by the user
+	add_filter(
+		'ai1wm_import',
+		function ( $params = array() ) {
+			wpcomsh_record_tracks_event(
+				'wpcom_site_migration_done',
+				array(
+					'migration_tool' => 'aiowp',
+				)
+			);
+			return $params;
+		},
+		400
+	);
+
+	// Filter that gets called when an import fails
+	add_filter(
+		'ai1wm_notification_error_toggle',
+		function ( $should_notify ) {
+			do_action(
+				'wpcomsh_log',
+				'There was an error with the AIOWP Migration.'
+			);
+			return $should_notify;
+		},
+		9
+	);
+}
+add_action( 'plugins_loaded', 'aiowp_migration_logging_helper', 10 );

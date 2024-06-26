@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -29,6 +29,30 @@ const trackVisitCustomizer = () => {
 	} );
 };
 
+const CustomizerLink = ( { children, siteAdminUrl } ) => (
+	<a
+		onClick={ trackVisitCustomizer }
+		href={ `${ siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
+		title={ __( 'Edit and add CSS directly on your site from the Customizer.', 'jetpack' ) }
+	>
+		{ children }
+	</a>
+);
+
+export const StartFreshDeprecationWarning = ( { siteAdminUrl } ) =>
+	createInterpolateElement(
+		__(
+			"The <i>Start Fresh</i> option in the <a1>CSS customization panel</a1> is enabled, which means the theme's original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> <a2>See how to keep your site intact</a2>.",
+			'jetpack'
+		),
+		{
+			i: <i />,
+			b: <b />,
+			a1: <CustomizerLink siteAdminUrl={ siteAdminUrl } />,
+			a2: <ExternalLink href={ getRedirectUrl( 'jetpack-support-custom-css' ) } />,
+		}
+	);
+
 /**
  * Custom CSS settings component.
  *
@@ -38,7 +62,7 @@ const trackVisitCustomizer = () => {
 function CustomCss( props ) {
 	const {
 		customCssActive,
-		customCssModule: { name, description, module },
+		customCssModule: { name, description, module, options },
 		isBlockThemeActive,
 		isSavingAnyOption,
 		siteAdminUrl,
@@ -92,16 +116,7 @@ function CustomCss( props ) {
 						'jetpack'
 					),
 					{
-						a: (
-							<a
-								onClick={ trackVisitCustomizer }
-								href={ `${ siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
-								title={ __(
-									'Edit and add CSS directly on your site from the Customizer.',
-									'jetpack'
-								) }
-							/>
-						),
+						a: <CustomizerLink siteAdminUrl={ siteAdminUrl } />,
 					}
 				) }
 			</div>
@@ -144,6 +159,15 @@ function CustomCss( props ) {
 	return (
 		<SettingsGroup module={ { module } } support={ supportText() }>
 			<FormLegend className="jp-form-label-wide">{ name }</FormLegend>
+			{ options?.replace && (
+				<Notice
+					className="jp-custom-css__deprecation-warning"
+					isDismissible={ false }
+					status="warning"
+				>
+					<StartFreshDeprecationWarning siteAdminUrl={ siteAdminUrl } />{ ' ' }
+				</Notice>
+			) }
 			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
 			{ toggleModule() }
