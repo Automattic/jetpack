@@ -182,7 +182,7 @@ class Boost_Cache {
 	public function ob_callback( $buffer ) {
 		if ( strlen( $buffer ) > 0 && $this->request->is_cacheable() ) {
 
-			// Do not cache the page as WordPress did not initializeq correctly
+			// Do not cache the page as WordPress did not initialize correctly.
 			if ( ! $this->do_cache ) {
 				return $buffer;
 			}
