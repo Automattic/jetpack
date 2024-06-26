@@ -7,6 +7,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSharePost from '../../hooks/use-share-post';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import { store as socialStore } from '../../social-store';
 
 /**
  * Removes the current message from resharing a post.
@@ -108,6 +109,8 @@ export function SharePostRow() {
 	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
+	const { hasConnections } = useSelect( select => select( socialStore ), [] );
+
 	// Do not render the button when the post is not published.
 	if ( ! isPostPublished ) {
 		return null;
@@ -118,6 +121,11 @@ export function SharePostRow() {
 	 * We show the upsale notice instead.
 	 */
 	if ( isRePublicizeUpgradableViaUpsell ) {
+		return null;
+	}
+
+	// Do not render the button when there are no connections.
+	if ( ! hasConnections() ) {
 		return null;
 	}
 
