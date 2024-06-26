@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Check for active modules among the unavailable ones.

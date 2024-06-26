@@ -117,6 +117,7 @@ class Test_Module_Product extends TestCase {
 	 */
 	public function test_return_error_on_activation_failure() {
 		activate_plugins( 'jetpack/jetpack.php' );
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- It's declared on the mock from ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$return_false = true;
 		$this->assertTrue( is_wp_error( Sample_Module_Product::activate() ) );
 

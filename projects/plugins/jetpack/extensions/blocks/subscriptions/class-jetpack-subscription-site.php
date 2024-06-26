@@ -190,7 +190,7 @@ class Jetpack_Subscription_Site {
 					) {
 						// translators: %s is the name of the site.
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+						$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 
 						return $content . do_blocks(
 							<<<HTML
@@ -270,7 +270,7 @@ HTML
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+					$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
 <div class="wp-block-group" style="margin-top:48px;margin-bottom:48px;padding-top:5px;padding-bottom:5px">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"36px"}}},"className":"is-style-wide"} -->

@@ -555,7 +555,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
+                "reference": "46c0d6c214f2940e2b5c1c5ccafbf5922a16592c"
             },
             "require": {
                 "php": ">=7.0"
@@ -593,7 +593,6 @@
                 "dependencies": {
                     "test-only": [
                         "packages/connection",
-                        "packages/identity-crisis",
                         "packages/import",
                         "packages/jitm",
                         "packages/post-list",
@@ -628,7 +627,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
+                "reference": "6d990be4aaded35f3ee203c976d16b9334419882"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -663,7 +662,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.10.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1071,7 +1070,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "7ff93b7e86792a3647a0defcdffa63cf5c8fa97f"
+                "reference": "e85eff68e73200925d5dd811d252df5cb600c030"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1103,7 +1102,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.36.x-dev"
+                    "dev-trunk": "5.40.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1571,7 +1570,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+                "reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1601,7 +1600,6 @@
                 "dependencies": {
                     "test-only": [
                         "packages/connection",
-                        "packages/identity-crisis",
                         "packages/plans"
                     ]
                 }
