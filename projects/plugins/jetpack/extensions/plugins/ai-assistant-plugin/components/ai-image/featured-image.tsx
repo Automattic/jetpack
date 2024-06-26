@@ -295,6 +295,7 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
+				postContent={ postContent }
 				autoStart={ placement === PLACEMENT_MEDIA_SOURCE_DROPDOWN }
 				autoStartAction={ handleGenerate }
 				images={ images }
@@ -318,6 +319,10 @@ export default function FeaturedImage( {
 				handleNextImage={ handleNextImage }
 				acceptButton={ acceptButton }
 				generateButtonLabel={ __( 'Generate again', 'jetpack' ) }
+				instructionsPlaceholder={ __(
+					'Include optional instructions to generate a new image',
+					'jetpack'
+				) }
 			/>
 		</>
 	);

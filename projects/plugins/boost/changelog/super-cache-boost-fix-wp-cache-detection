@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Detect when WP_CACHE is defined with "const" in wp-config.php
