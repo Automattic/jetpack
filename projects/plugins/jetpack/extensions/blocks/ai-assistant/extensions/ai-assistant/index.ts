@@ -26,13 +26,6 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
 );
 
-// The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
-export const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
-
-// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
-export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];
-export const EXTENDED_INLINE_BLOCKS: string[] = [];
-
 // All Jetpack Form blocks to extend
 export const JETPACK_FORM_CHILDREN_BLOCKS = [
 	'jetpack/field-name',
@@ -49,6 +42,19 @@ export const JETPACK_FORM_CHILDREN_BLOCKS = [
 	'jetpack/field-consent',
 	'jetpack/button',
 ] as const;
+
+// The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
+export const ALL_EXTENDED_BLOCKS = [
+	'core/paragraph',
+	'core/list',
+	'core/heading',
+	'jetpack/contact-form',
+	...JETPACK_FORM_CHILDREN_BLOCKS,
+];
+
+// The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
+export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];
+export const EXTENDED_INLINE_BLOCKS: string[] = [];
 
 // Temporarily keep track of inline extensions that have been released to production.
 const releasedInlineExtensions = [
@@ -152,6 +158,12 @@ function addJetpackAISupport(
 ): BlockSettingsProps {
 	// Only extend the blocks in the list.
 	if ( ! EXTENDED_TRANSFORMATIVE_BLOCKS.includes( name ) ) {
+		return settings;
+	}
+
+	// Do not extend Form blocks, as they are handled differently.
+	const formBlocks = [ 'jetpack/contact-form', ...JETPACK_FORM_CHILDREN_BLOCKS ];
+	if ( formBlocks.includes( name ) ) {
 		return settings;
 	}
 
