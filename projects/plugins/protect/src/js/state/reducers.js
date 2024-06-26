@@ -123,7 +123,7 @@ const threatsUpdating = ( state = {}, action ) => {
 const threatsAreFixing = ( state = [], action ) => {
 	switch ( action.type ) {
 		case SET_THREATS_ARE_FIXING:
-			return action.threatsAreFixing; // todo: change var back to threatIds once confirmed working
+			return action.threatIds;
 	}
 	return state;
 };
