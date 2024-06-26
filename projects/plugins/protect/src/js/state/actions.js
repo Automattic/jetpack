@@ -183,8 +183,8 @@ const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
 
-const setThreatsAreFixing = threatIds => {
-	return { type: SET_THREATS_ARE_FIXING, threatIds };
+const setThreatsAreFixing = threatsAreFixing => {
+	return { type: SET_THREATS_ARE_FIXING, threatsAreFixing }; // todo: change var back to threatIds once confirmed working
 };
 
 const ignoreThreat =
