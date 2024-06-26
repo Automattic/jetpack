@@ -90,7 +90,11 @@ export default function FeaturedImage( {
 		currentImage,
 		currentPointer,
 		images,
-	} = useAiImage( { cost: featuredImageCost } );
+	} = useAiImage( {
+		cost: featuredImageCost,
+		type: 'featured-image-generation',
+		feature: FEATURED_IMAGE_FEATURE_NAME,
+	} );
 
 	const handleModalClose = useCallback( () => {
 		setIsFeaturedImageModalVisible( false );
