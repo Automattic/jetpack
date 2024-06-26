@@ -23,7 +23,7 @@ export const BackupNowButton = ( {
 	const [ isEnqueuing, setIsEnqueuing ] = useState( false );
 	const [ enqueued, setEnqueued ] = useState( false );
 	const areBackupsStopped = useSelect( select => select( STORE_ID ).getBackupStoppedFlag() );
-	const { backupState, fetchBackupsState } = useBackupsState();
+	const { backupState, fetchBackupsState } = useBackupsState( enqueued );
 	const backupCurrentlyInProgress = backupState === BACKUP_STATE.IN_PROGRESS;
 	const disabled = isEnqueuing || enqueued || backupCurrentlyInProgress || areBackupsStopped;
 	const onClickHandler = useCallback(
