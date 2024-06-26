@@ -123,13 +123,13 @@ export default function Carrousel( {
 					>
 						{ generating ? (
 							<BlankImage contentClassName="ai-assistant-image__loading">
+								{ __( 'Creating image…', 'jetpack' ) }
 								<Spinner
 									style={ {
 										width: '50px',
 										height: '50px',
 									} }
 								/>
-								{ __( 'Creating image…', 'jetpack' ) }
 							</BlankImage>
 						) : (
 							<>
