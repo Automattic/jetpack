@@ -28,16 +28,22 @@ import WarningIcon from './icons/warning.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 export const Backups = () => {
-	const { backupState, latestTime, progress, stats } = useBackupsState();
+	const { backupState, isInitialBackup, latestTime, progress, stats } = useBackupsState();
 
 	return (
 		<div className="jp-wrap jp-content backup-panel">
 			{ BACKUP_STATE.LOADING === backupState && <Loading /> }
 			{ BACKUP_STATE.NO_BACKUPS === backupState && <InProgressBackup progress={ progress } /> }
 			{ BACKUP_STATE.NO_BACKUPS_RETRY === backupState && (
-				<InProgressBackup progress={ progress } showProgressBar={ false } />
+				<InProgressBackup
+					isInitialBackup={ isInitialBackup }
+					progress={ progress }
+					showProgressBar={ false }
+				/>
 			) }
-			{ BACKUP_STATE.IN_PROGRESS === backupState && <InProgressBackup progress={ progress } /> }
+			{ BACKUP_STATE.IN_PROGRESS === backupState && (
+				<InProgressBackup isInitialBackup={ isInitialBackup } progress={ progress } />
+			) }
 			{ BACKUP_STATE.COMPLETE === backupState && (
 				<CompleteBackup latestTime={ latestTime } stats={ stats } />
 			) }
@@ -282,10 +288,14 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 	);
 };
 
-const InProgressBackup = ( { progress, showProgressBar = true } ) => {
+const InProgressBackup = ( { isInitialBackup, progress, showProgressBar = true } ) => {
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const siteTitle = useSelect( select => select( STORE_ID ).getSiteTitle(), [] );
+
+	const firstBackupTitle = __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' );
+	const regularBackupTitle = __( 'Your backup will be ready soon', 'jetpack-backup-pkg' );
+	const title = isInitialBackup ? firstBackupTitle : regularBackupTitle;
 
 	return (
 		<div className="jp-row">
@@ -310,30 +320,34 @@ const InProgressBackup = ( { progress, showProgressBar = true } ) => {
 						</div>
 					</div>
 				) }
-				<h1>{ __( 'Your first cloud backup will be ready soon', 'jetpack-backup-pkg' ) }</h1>
-				<p>
-					{ __(
-						'The first backup usually takes a few minutes, so it will become available soon.',
-						'jetpack-backup-pkg'
-					) }
-				</p>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
-							'jetpack-backup-pkg'
-						),
-						{
-							a: (
-								<a
-									href={ getRedirectUrl( 'jetpack-backup', { site: blogID ?? domain } ) }
-									target="_blank"
-									rel="noreferrer"
-								/>
-							),
-						}
-					) }
-				</p>
+				<h1>{ title }</h1>
+				{ isInitialBackup && (
+					<>
+						<p>
+							{ __(
+								'The first backup usually takes a few minutes, so it will become available soon.',
+								'jetpack-backup-pkg'
+							) }
+						</p>
+						<p>
+							{ createInterpolateElement(
+								__(
+									'In the meanwhile, you can start getting familiar with your <a>backup management on Jetpack.com</a>.',
+									'jetpack-backup-pkg'
+								),
+								{
+									a: (
+										<a
+											href={ getRedirectUrl( 'jetpack-backup', { site: blogID ?? domain } ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+						</p>
+					</>
+				) }
 			</div>
 			<div className="lg-col-span-1 md-col-span-4 sm-col-span-0"></div>
 			<div className="backup__animation lg-col-span-6 md-col-span-2 sm-col-span-2">
