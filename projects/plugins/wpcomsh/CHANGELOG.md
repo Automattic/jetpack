@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.26.1 - 2024-06-26
+### Added
+- Site Migrations: Add tracks events for AIOWPM events. [#37902]
+
+### Changed
+- Updated custom-fonts to v3.0.4. [#38071]
+
 ## 3.26.0 - 2024-06-26
 ### Added
 - Added polyfill for get_magic_quotes_gpc [#38039]
