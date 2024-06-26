@@ -25,6 +25,9 @@ export const PaidAccordionItem = ( {
 	const setOpen = accordionData?.setOpen;
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 
+	console.log( threatsAreFixing );
+	console.log( id );
+
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
 		[ styles[ 'accordion-body-close' ] ]: ! open,
