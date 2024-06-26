@@ -48,6 +48,11 @@ function show_logged_in_banner() {
 		return;
 	}
 
+	// Hide banner for agency-managed sites.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return;
+	}
+
 	/**
 	 * Filter to make it possible for the launch banner to be hidden.
 	 *

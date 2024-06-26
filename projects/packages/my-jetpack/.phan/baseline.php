@@ -25,7 +25,6 @@ return [
     // PhanRedundantCondition : 1 occurrence
     // PhanTypeMismatchArgumentInternal : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
-    // PhanUndeclaredStaticProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -58,7 +57,6 @@ return [
         'src/products/class-videopress.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'tests/php/test-backup-product.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/test-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable'],
-        'tests/php/test-module-product.php' => ['PhanUndeclaredStaticProperty'],
         'tests/php/test-product-multiple-filenames.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'tests/php/test-products.php' => ['PhanNonClassMethodCall'],
         'tests/php/test-search-product.php' => ['PhanTypeMismatchArgumentNullable'],
