@@ -119,6 +119,18 @@
 		white-space: nowrap;
 	}
 
+	.broken-connection {
+		color: var(--jp-yellow-40);
+		white-space: nowrap;
+		font-weight: 500;
+
+		// Add some specificity to override the default button styles
+		&:global(.components-button.is-link) {
+			text-decoration: none;
+			font-size: inherit;
+		}
+	}
+
 	.service-connection-list {
 		border-top: 1px solid var(--jp-gray-5);
 		padding-top: 1rem;

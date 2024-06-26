@@ -11,7 +11,7 @@ import { SupportedService } from './use-supported-services';
 
 export type ServicesItemDetailsProps = {
 	service: SupportedService;
-	serviceConnections?: Array< Connection >;
+	serviceConnections: Array< Connection >;
 };
 
 /**
