@@ -363,11 +363,11 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function api_unignore_threat( $request ) {
-		if ( ! $request['threat_id'] ) {
-			return new WP_REST_Response( 'Missing threat ID.', 400 );
+		if ( ! $request['threat_id'] || ! $request['signature_id'] ) {
+			return new WP_REST_Response( 'Missing threat details.', 400 );
 		}
 
-		$threat_ignored = Threats::unignore_threat( $request['threat_id'] );
+		$threat_ignored = Threats::unignore_threat( $request['threat_id'], $request['signature_id'] );
 
 		if ( ! $threat_ignored ) {
 			return new WP_REST_Response( 'An error occured while attempting to unignore the threat.', 500 );

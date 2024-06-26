@@ -9,7 +9,7 @@ import ThreatSeverityBadge from '../severity';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
+const IgnoreOrUnignoreThreatModal = ( { id, signatureId, title, label, icon, severity } ) => {
 	const { viewingScanHistory } = useScanHistory();
 	const { setModal, ignoreThreat, unignoreThreat } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
@@ -26,7 +26,7 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 		return async event => {
 			event.preventDefault();
 			if ( viewingScanHistory ) {
-				unignoreThreat( id, () => {
+				unignoreThreat( id, signatureId, () => {
 					setModal( { type: null } );
 				} );
 			} else {
