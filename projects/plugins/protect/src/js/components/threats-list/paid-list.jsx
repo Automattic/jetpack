@@ -30,6 +30,8 @@ const ThreatAccordionItem = ( {
 	const { setModal } = useDispatch( STORE_ID );
 	const { recordEvent } = useAnalyticsTracks();
 
+	const fixerInProgress = threatsAreFixing.indexOf( id ) >= 0;
+
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
 			{ __( 'See more technical details of this threat', 'jetpack-protect' ) }
@@ -116,16 +118,13 @@ const ThreatAccordionItem = ( {
 				<Button
 					isDestructive={ true }
 					variant="secondary"
-					disabled={ threatsAreFixing.indexOf( id ) >= 0 }
+					disabled={ fixerInProgress }
 					onClick={ handleIgnoreThreatClick() }
 				>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 				{ fixable && (
-					<Button
-						disabled={ threatsAreFixing.indexOf( id ) >= 0 }
-						onClick={ handleFixThreatClick() }
-					>
+					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				) }
