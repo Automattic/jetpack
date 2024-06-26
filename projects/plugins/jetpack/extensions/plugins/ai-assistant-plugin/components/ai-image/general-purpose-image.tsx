@@ -222,12 +222,7 @@ export default function GeneralPurposeImage( {
 		: null;
 
 	const acceptButton = (
-		<Button
-			onClick={ handleAccept }
-			variant="primary"
-			isBusy={ currentImage?.generating }
-			disabled={ ! currentImage?.image }
-		>
+		<Button onClick={ handleAccept } variant="primary" disabled={ ! currentImage?.image }>
 			{ __( 'Insert image', 'jetpack' ) }
 		</Button>
 	);

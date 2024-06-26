@@ -272,12 +272,7 @@ export default function FeaturedImage( {
 		: null;
 
 	const acceptButton = (
-		<Button
-			onClick={ handleAccept }
-			variant="primary"
-			isBusy={ currentImage?.generating }
-			disabled={ ! currentImage?.image }
-		>
+		<Button onClick={ handleAccept } variant="primary" disabled={ ! currentImage?.image }>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
 	);
