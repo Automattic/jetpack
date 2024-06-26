@@ -746,8 +746,8 @@ class Dashboard_REST_Controller {
 	/**
 	 * Will check the posts for prices and add them to the posts array
 	 *
-	 * @param WP_REST_Request $posts The posts object.
-	 * @return array|WP_Error
+	 * @param array $posts The posts object.
+	 * @return array The list posts with the price on them (if they are woo products).
 	 */
 	protected function add_prices_in_posts( $posts ) {
 
@@ -854,7 +854,7 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param array $response_body Remote response body.
 	 * @param int   $response_code Http response code.
-	 * @return WP_Error
+	 * @return \WP_REST_Response
 	 */
 	protected function get_blaze_error( $response_body, $response_code = 500 ) {
 		if ( ! is_array( $response_body ) ) {
