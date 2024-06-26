@@ -47,12 +47,12 @@ So to summarize:
 
 ## Adding a new logo.
 
-Add the svg file to `src/svg` folder
-Run the build command `npm run build`
+1. Add the SVG file to the `src/svg` folder.
+2. Run the build command: `jetpack build js-packages/social-logos`
 
-Test out your changes.
-1. Using the example file. (Open up the `jetpack/projects/js-packages/social-logos/build/svg-sprite/example.html` in your local browser)
-2. Using Storybook, in your favourite terminal navigate to `jetpack/projects/js-packages\storybook` and run `pnpm run storybook:dev`
+You can test your changes either of these ways:
+* Using the example file: open `projects/js-packages/social-logos/build/svg-sprite/example.html` in your browser.
+* Using Storybook: in your favourite terminal navigate to `projects/js-packages/storybook` and run `pnpm run storybook:dev`.
 
 
 ## License
