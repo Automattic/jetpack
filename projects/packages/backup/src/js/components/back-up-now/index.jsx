@@ -2,6 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { BACKUP_STATE } from '../../constants';
@@ -49,19 +50,21 @@ export const BackupNowButton = ( {
 
 	useEffect( () => {
 		const statusLabels = {
-			QUEUEING: 'Queueing backup',
-			QUEUED: 'Backup enqueued',
-			IN_PROGRESS: 'Backup in progress',
+			QUEUEING: __( 'Queueing backup', 'jetpack-backup-pkg' ),
+			QUEUED: __( 'Backup enqueued', 'jetpack-backup-pkg' ),
+			IN_PROGRESS: __( 'Backup in progress', 'jetpack-backup-pkg' ),
 		};
 
 		const statusTooltipTexts = {
 			QUEUING: null,
-			QUEUED: 'A backup has been queued and will start shortly.',
-			IN_PROGRESS: 'A backup is currently in progress.',
+			QUEUED: __( 'A backup has been queued and will start shortly.', 'jetpack-backup-pkg' ),
+			IN_PROGRESS: __( 'A backup is currently in progress.', 'jetpack-backup-pkg' ),
 		};
 
 		if ( areBackupsStopped ) {
-			setCurrentTooltip( 'Cannot queue backups due to reaching storage limits.' );
+			setCurrentTooltip(
+				__( 'Cannot queue backups due to reaching storage limits.', 'jetpack-backup-pkg' )
+			);
 		} else if ( backupCurrentlyInProgress ) {
 			setCurrentTooltip( statusTooltipTexts.IN_PROGRESS );
 			setButtonContent( statusLabels.IN_PROGRESS );

@@ -22,7 +22,7 @@ const Header = () => {
 			{ showActivateLicenseLink && <ActivateLicenseLink /> }
 			{ showBackUpNowButton && (
 				<BackupNowButton variant="primary" tracksEventName="jetpack_backup_plugin_backup_now">
-					Back up now
+					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 				</BackupNowButton>
 			) }
 		</div>
