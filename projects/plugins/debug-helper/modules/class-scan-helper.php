@@ -25,7 +25,7 @@ class Scan_Helper {
 	public function __construct() {
 		$upload_dir    = wp_upload_dir()['basedir'];
 		$admin_dir     = str_replace( site_url() . '/', ABSPATH, admin_url() );
-		$content_dir   = str_replace( site_url() . '/', ABSPATH, content_url() );
+		$content_dir   = WP_CONTENT_DIR;
 		$abs_dir       = ABSPATH;
 		$this->threats = array(
 			'eicar'                  => "$upload_dir/jptt_eicar.php",
@@ -829,13 +829,13 @@ class Scan_Helper {
 		$infect = $lines[ count( $lines ) - 1 ] === 'HTML;' ? 'checked' : '';
 
 		// fuzzy hash check
-		$fuzzy_hash = $this->wp_file_exists( $this->threats['fuzzy_hash_file'] ) ? 'checked="checked"' : '';
+		$fuzzy_hash = $this->fuzzy_hash_threat_exists() ? 'checked="checked"' : '';
 
 		// fake vulnerable plugin check
-		$fake_vulnerable_plugin = $this->wp_file_exists( $this->threats['fake_vulnerable_plugin'] ) ? 'checked="checked"' : '';
+		$fake_vulnerable_plugin = $this->fake_vulnerable_plugin_exists() ? 'checked="checked"' : '';
 
 		// fake vulnerable theme check
-		$fake_vulnerable_theme = $this->wp_file_exists( $this->threats['fake_vulnerable_theme'] ) ? 'checked="checked"' : '';
+		$fake_vulnerable_theme = $this->fake_vulnerable_theme_exists() ? 'checked="checked"' : '';
 
 		// fake WordPress version check
 		$fake_wordpress_version = $this->wordpress_version_is_faked() ? 'checked="checked"' : '';
