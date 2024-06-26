@@ -495,10 +495,21 @@ class Initializer {
 	/**
 	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
 	 *
+	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
+	 *
 	 * @return void
 	 */
-	public static function queue_historically_active_jetpack_modules_update() {
-		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
+		$plugin_filenames = Products::get_all_plugin_filenames();
+
+		if ( ! $plugin ) {
+			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+			return;
+		}
+
+		if ( in_array( $plugin, $plugin_filenames, true ) ) {
+			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+		}
 	}
 
 	/**
