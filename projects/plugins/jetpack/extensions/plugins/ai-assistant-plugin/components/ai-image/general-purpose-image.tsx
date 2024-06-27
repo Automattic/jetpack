@@ -237,7 +237,7 @@ export default function GeneralPurposeImage( {
 			autoStart={ false }
 			images={ images }
 			currentIndex={ current }
-			title={ __( 'Generate a image with AI', 'jetpack' ) }
+			title={ __( 'Generate an image with AI', 'jetpack' ) }
 			cost={ generalImageCost }
 			open={ isFeaturedImageModalVisible }
 			placement={ placement }
