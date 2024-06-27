@@ -953,6 +953,8 @@ abstract class SAL_Site {
 			'view_stats'          => stats_is_blog_user( $this->blog_id ),
 			'activate_plugins'    => $this->current_user_can( 'activate_plugins' ),
 			'update_plugins'      => $this->current_user_can( 'update_plugins' ),
+			'export'              => $this->current_user_can( 'export' ),
+			'import'              => $this->current_user_can( 'import' ),
 		);
 	}
 
