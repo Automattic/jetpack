@@ -182,7 +182,7 @@ class Blaze {
 		$result = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Bail if there were no results returned.
-		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
+		if ( ! is_array( $result ) || ! isset( $result['approved'] ) ) {
 			return false;
 		}
 
