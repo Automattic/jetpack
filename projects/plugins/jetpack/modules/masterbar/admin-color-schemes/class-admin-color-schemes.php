@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Masterbar\Admin_Color_Schemes as Jetpack_Admin_Color_Schemes;
+use Automattic\Jetpack\Masterbar\Admin_Color_Schemes as Masterbar_Admin_Color_Schemes;
 
 /**
  * Unifies admin color scheme selection across WP.com sites.
@@ -31,7 +31,7 @@ class Admin_Color_Schemes {
 	 */
 	public function __construct() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Admin_Color_Schemes::__construct' );
-		$this->admin_cs_wrapper = new Jetpack_Admin_Color_Schemes();
+		$this->admin_cs_wrapper = new Masterbar_Admin_Color_Schemes();
 	}
 
 	/**

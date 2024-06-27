@@ -19,7 +19,7 @@ use Automattic\Jetpack\Masterbar;
  * @return bool
  */
 function should_customize_nav( $admin_menu_class ) {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\should_customize_nav' );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\should_customize_nav' );
 	return Masterbar\should_customize_nav( $admin_menu_class );
 }
 
@@ -32,7 +32,7 @@ function should_customize_nav( $admin_menu_class ) {
  * @see https://github.com/Automattic/jetpack/pull/36017
  */
 function hide_customizer_menu_on_block_theme() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\hide_customizer_menu_on_block_theme' );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\hide_customizer_menu_on_block_theme' );
 	return Masterbar\hide_customizer_menu_on_block_theme();
 }
 
@@ -44,7 +44,7 @@ function hide_customizer_menu_on_block_theme() {
  * @return string Class name.
  */
 function get_admin_menu_class() {
-	_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\get_admin_menu_class' );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\get_admin_menu_class' );
 	return Masterbar\get_admin_menu_class();
 }
 
@@ -71,7 +71,7 @@ if ( should_customize_nav( $admin_menu_class ) ) {
 	 * @param string $view The view the user choosed to go to.
 	 */
 	function dashboard_quick_switcher_record_usage( $screen, $view ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\dashboard_quick_switcher_record_usage' );
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\dashboard_quick_switcher_record_usage' );
 		return Masterbar\dashboard_quick_switcher_record_usage( $screen, $view );
 	}
 
