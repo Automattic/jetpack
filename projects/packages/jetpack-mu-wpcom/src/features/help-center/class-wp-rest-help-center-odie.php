@@ -34,7 +34,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_chat' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'bot_id'           => array(
 							'description' => __( 'The bot id to get the chat for.', 'jetpack-mu-wpcom' ),
@@ -69,7 +69,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
@@ -105,13 +105,13 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_last_chat_id' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 				),
 				// Set last chat ID.
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'set_last_chat_id' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 				),
 			)
 		);
@@ -123,7 +123,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'save_chat_message_feedback' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'bot_id'       => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
@@ -157,7 +157,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'send_chat_message' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
+					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
 						'bot_id'  => array(
 							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
@@ -355,14 +355,5 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Callback to determine whether the request can proceed.
-	 *
-	 * @return boolean
-	 */
-	public function permission_callback() {
-		return is_user_logged_in();
 	}
 }

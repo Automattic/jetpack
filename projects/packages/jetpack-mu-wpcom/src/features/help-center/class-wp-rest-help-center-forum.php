@@ -31,7 +31,7 @@ class WP_REST_Help_Center_Forum extends \WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'submit_new_topic' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
+				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'subject'                => array(
 						'type'     => 'string',
@@ -103,14 +103,5 @@ class WP_REST_Help_Center_Forum extends \WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Callback to determine whether the request can proceed.
-	 *
-	 * @return boolean
-	 */
-	public function permissions_check() {
-		return is_user_logged_in();
 	}
 }

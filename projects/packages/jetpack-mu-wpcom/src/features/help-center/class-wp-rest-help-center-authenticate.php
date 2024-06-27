@@ -31,7 +31,7 @@ class WP_REST_Help_Center_Authenticate extends \WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'get_chat_authentication' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
+				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'type'      => array(
 						'type'     => 'string',
@@ -75,12 +75,5 @@ class WP_REST_Help_Center_Authenticate extends \WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Callback to determine whether the user has permission to access.
-	 */
-	public function permission_callback() {
-		return is_user_logged_in();
 	}
 }

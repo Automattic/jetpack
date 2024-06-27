@@ -31,7 +31,7 @@ class WP_REST_Help_Center_Sibyl extends \WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_sibyl_questions' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 	}
@@ -58,14 +58,5 @@ class WP_REST_Help_Center_Sibyl extends \WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Callback to determine whether the request can proceed.
-	 *
-	 * @return boolean
-	 */
-	public function permission_callback() {
-		return is_user_logged_in();
 	}
 }

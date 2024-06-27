@@ -31,7 +31,7 @@ class WP_REST_Help_Center_User_Fields extends \WP_REST_Controller {
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'update_user_fields' ),
-				'permission_callback' => array( $this, 'permission_callback' ),
+				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
 					'fields' => array(
 						'type'     => 'object',
@@ -64,12 +64,5 @@ class WP_REST_Help_Center_User_Fields extends \WP_REST_Controller {
 		}
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 		return rest_ensure_response( $response );
-	}
-
-	/**
-	 * Callback to determine whether the user has permission to access.
-	 */
-	public function permission_callback() {
-		return is_user_logged_in();
 	}
 }
