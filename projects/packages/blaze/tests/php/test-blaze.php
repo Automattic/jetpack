@@ -220,6 +220,9 @@ class Test_Blaze extends BaseTestCase {
 
 			$remote_request_happened = true;
 
+			Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+			update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
 			add_filter(
 				'pre_http_request',
 				function () use ( $eligibility_details ) {
