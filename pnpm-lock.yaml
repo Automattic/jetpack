@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: i2gupvr4pzna7cayhonamrk5iq
+pnpmfileChecksum: bjkzupj7mgxhpr4jv54264ts6e
 
 importers:
 
@@ -712,8 +712,8 @@ importers:
         specifier: 7.1.0
         version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
       rollup-plugin-svelte-svg:
-        specifier: 0.2.3
-        version: 0.2.3(svelte@3.58.0)
+        specifier: 1.0.0-beta.6
+        version: 1.0.0-beta.6(svelte@3.58.0)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -9706,9 +9706,6 @@ packages:
     resolution: {integrity: sha512-MMdARuVEQziNTeJD8DgMqmhwR11BRQ/cBP+pLtYdSTnf3MIO8fFeiINEbX36ZdNlfU/7A9f3gUw49B3oQsvwBA==}
     engines: {node: '>=4.0'}
 
-  estree-walker@0.2.1:
-    resolution: {integrity: sha512-6/I1dwNKk0N9iGOU3ydzAAurz4NPo/ttxZNCqgIVbWFvWyzWBSNonRrJ5CpjDuyBfmM7ENN7WCzUi9aT/UPXXQ==}
-
   estree-walker@0.6.1:
     resolution: {integrity: sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==}
 
@@ -12982,10 +12979,10 @@ packages:
     peerDependencies:
       postcss: 8.x
 
-  rollup-plugin-svelte-svg@0.2.3:
-    resolution: {integrity: sha512-WH2KqihgVbcJT/PrjiJ/ipctrGueRdOLaaEuAIbXYqfsEzNb9krOVLyc5TL7to3cEKL6DiAa8IEe7IL1oqVolg==}
+  rollup-plugin-svelte-svg@1.0.0-beta.6:
+    resolution: {integrity: sha512-6uJb9kuaqK6p+DvkgphhGN18wvUzdT6h7MQC2B8P1omi9omC9lQC54pwaot21h6z9ibhGPLG9a1XFLeDQth/kg==}
     peerDependencies:
-      svelte: ^3.16.7
+      svelte: '*'
 
   rollup-plugin-svelte@7.1.0:
     resolution: {integrity: sha512-vopCUq3G+25sKjwF5VilIbiY6KCuMNHP1PFvx2Vr3REBNMDllKHFZN2B9jwwC+MqNc3UPKkjXnceLPEjTjXGXg==}
@@ -12993,9 +12990,6 @@ packages:
     peerDependencies:
       rollup: '>=2.0.0'
       svelte: '>=3.5.0'
-
-  rollup-pluginutils@1.5.2:
-    resolution: {integrity: sha512-SjdWWWO/CUoMpDy8RUbZ/pSpG68YHmhk5ROKNIoi2En9bJ8bTt3IhYi254RWiTclQmL7Awmrq+rZFOhZkJAHmQ==}
 
   rollup-pluginutils@2.8.2:
     resolution: {integrity: sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==}
@@ -22141,8 +22135,6 @@ snapshots:
 
   estraverse@5.3.0: {}
 
-  estree-walker@0.2.1: {}
-
   estree-walker@0.6.1: {}
 
   estree-walker@1.0.1: {}
@@ -26047,10 +26039,11 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  rollup-plugin-svelte-svg@0.2.3(svelte@3.58.0):
+  rollup-plugin-svelte-svg@1.0.0-beta.6(svelte@3.58.0):
     dependencies:
-      rollup-pluginutils: 1.5.2
+      rollup-pluginutils: 2.8.2
       svelte: 3.58.0
+      svgo: 3.3.2
 
   rollup-plugin-svelte@7.1.0(rollup@2.79.1)(svelte@3.58.0):
     dependencies:
@@ -26058,11 +26051,6 @@ snapshots:
       rollup: 2.79.1
       rollup-pluginutils: 2.8.2
       svelte: 3.58.0
-
-  rollup-pluginutils@1.5.2:
-    dependencies:
-      estree-walker: 0.2.1
-      minimatch: 3.1.2
 
   rollup-pluginutils@2.8.2:
     dependencies:
