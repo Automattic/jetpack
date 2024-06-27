@@ -6,7 +6,7 @@
  * @package automattic/jetpack-explat
  */
 
-namespace Automattic\Jetpack\Explat;
+namespace Automattic\Jetpack\ExPlat;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;

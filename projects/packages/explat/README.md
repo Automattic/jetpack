@@ -11,9 +11,9 @@ Run `composer require automattic/jetpack-explat` and `pnpm install -S "@automatt
 In the PHP method that initializes your project, call the following static method to initialize the ExPlat API and register its endpoints:
 
 ```php
-use Automattic\Jetpack\Explat;
+use Automattic\Jetpack\ExPlat;
 
-Explat::init();
+ExPlat::init();
 ```
 
 In your React code, import the `Experiment` component and start running experiments:

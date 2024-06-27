@@ -5,7 +5,7 @@
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Explat"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] ExPlat"
 	},
 	"repository": {
 		"type": "git",

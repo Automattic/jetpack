@@ -8,12 +8,12 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
-use Automattic\Jetpack\Explat\REST_Controller;
+use Automattic\Jetpack\ExPlat\REST_Controller;
 
 /**
  * Class description.
  */
-class Explat {
+class ExPlat {
 
 	/**
 	 * ExPlat package version
@@ -38,7 +38,7 @@ class Explat {
 
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
-		// Runs right after the Jetpack Explat package is initialized.
+		// Runs right after the Jetpack ExPlat package is initialized.
 		do_action( 'jetpack_explat_initialized' );
 	}
 }
