@@ -86,6 +86,7 @@ class Help_Center {
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
 			if ( $variant === 'wp-admin' ) {
+				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
 				if ( function_exists( 'gutenberg_url' ) ) {
 					wp_enqueue_style(
 						'wp-components',
