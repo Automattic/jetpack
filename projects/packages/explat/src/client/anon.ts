@@ -47,7 +47,7 @@ export const initializeAnonId = async (): Promise< string | null > => {
 				res( null );
 				return;
 			}
-			attempt = attempt + 1;
+			attempt += 1;
 			setTimeout( poll, anonIdPollingIntervalMilliseconds );
 		};
 		poll();

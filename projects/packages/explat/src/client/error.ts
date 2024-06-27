@@ -17,7 +17,6 @@ export const logError = ( error: Record< string, string > & { message: string } 
 			properties: {
 				...properties,
 				context: 'explat',
-				/* @todo Jetpack: dynamically replace "wpcom" with relevant platform. */
 				explat_client: 'jetpack',
 			},
 		};
@@ -27,7 +26,6 @@ export const logError = ( error: Record< string, string > & { message: string } 
 		} else {
 			const body = new window.FormData();
 			body.append( 'error', JSON.stringify( logStashError ) );
-			/* @todo Jetpack: point to Jetpack API. */
 			window
 				.fetch( 'https://public-api.wordpress.com/rest/v1.1/js-error', {
 					method: 'POST',
