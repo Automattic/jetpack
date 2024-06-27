@@ -7,7 +7,7 @@ declare module '*.scss';
 // These libraries don't have types, this suppresses the TypeScript errors
 declare module '@wordpress/components';
 declare module '@wordpress/compose';
-declare module '@wordpress/i18n';
+//declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
 
@@ -91,6 +91,21 @@ interface Window {
 				UpdateURI: string;
 				Network: boolean;
 				active: boolean;
+			};
+		};
+		themes: {
+			[ key: string ]: {
+				Author: string;
+				Name: string;
+				RequiresPHP: string;
+				RequiresWP: string;
+				Status: string;
+				Template: string;
+				TextDomain: string;
+				ThemeURI: string;
+				Version: string;
+				active: boolean;
+				is_block_theme: boolean;
 			};
 		};
 		products: {
