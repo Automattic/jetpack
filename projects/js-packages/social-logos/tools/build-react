@@ -3,7 +3,9 @@
 set -eo pipefail
 
 # Define some paths.
-src_css_dir=src/css
+src_css_file=src/css/example.css
+dest_css_dir=build/css
+dest_css_file="$dest_css_dir"/example.css
 dest_react_dir=build/react
 
 # Start in the right folder.
@@ -17,7 +19,10 @@ mkdir -p "$dest_react_dir"
 pnpm tsc
 
 # Copy example CSS.
-cp "$src_css_dir/example.css" "$dest_react_dir"
+if [[ ! -d "$dest_css_dir" ]]; then
+	mkdir "$dest_css_dir"
+	cp "$src_css_file" "$dest_css_file"
+fi
 
 # Output.
 echo "Created React files in '$dest_react_dir'."

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Super Cache: create the cache directory before creating the config file

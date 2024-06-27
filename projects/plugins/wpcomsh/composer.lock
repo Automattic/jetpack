@@ -28,24 +28,28 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v3.0.0",
+            "version": "v3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "e9eb1ffe861baa5cd2c107d88338a23501aa82c6"
+                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e9eb1ffe861baa5cd2c107d88338a23501aa82c6",
-                "reference": "e9eb1ffe861baa5cd2c107d88338a23501aa82c6",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e9236c34a6ecbee3bb9d2bebe698f086dd339258",
+                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
                 "phpunit/phpunit": "^7 || ^8"
             },
-            "type": "library",
-            "time": "2023-05-01T19:43:42+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A provider-agnostic WordPress plugin for changing theme fonts.",
+            "time": "2024-06-26T18:47:13+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -627,7 +631,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
+                "reference": "6d990be4aaded35f3ee203c976d16b9334419882"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -662,7 +666,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.10.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1070,7 +1074,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "96dc95c429a75a3c62911e5c8a23deb10d199740"
+                "reference": "e85eff68e73200925d5dd811d252df5cb600c030"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1102,7 +1106,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.38.x-dev"
+                    "dev-trunk": "5.40.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {

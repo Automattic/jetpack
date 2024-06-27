@@ -3,6 +3,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Alternate Custom CSS source for 4.7 compat.
@@ -30,6 +31,8 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_action( 'load-revision.php', array( __CLASS__, 'load_revision_php' ) );
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'wp_enqueue_scripts' ) );
+		add_action( 'admin_footer', array( __CLASS__, 'update_initial_state' ) );
+		add_action( 'wp_body_open', array( __CLASS__, 'display_frontend_warning' ) );
 
 		// Handle Sass/LESS.
 		add_filter( 'customize_value_custom_css', array( __CLASS__, 'customize_value_custom_css' ), 10, 2 );
@@ -351,10 +354,14 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * Handle the enqueueing and localizing for scripts to be used in the Customizer.
 	 */
 	public static function customize_controls_enqueue_scripts() {
+		global $wp_customize;
+
 		wp_enqueue_style( 'jetpack-customizer-css' );
 		wp_enqueue_script( 'jetpack-customizer-css' );
 
+		$setting      = $wp_customize->get_setting( 'jetpack_custom_css[replace]' );
 		$content_help = __( 'Set a different media width for full size images.', 'jetpack' );
+
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
 				// translators: the theme name and then the default width.
@@ -371,14 +378,16 @@ class Jetpack_Custom_CSS_Enhancements {
 				/** This filter is documented in modules/custom-css/custom-css.php */
 				'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
 				'areThereCssRevisions' => self::are_there_css_revisions(),
+				'startFresh'           => isset( $setting ) && $setting->value(),
 				'revisionsUrl'         => self::get_revisions_url(),
 				'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',
 				'l10n'                 => array(
-					'mode'           => __( 'Start Fresh', 'jetpack' ),
-					'mobile'         => __( 'On Mobile', 'jetpack' ),
-					'contentWidth'   => $content_help,
-					'revisions'      => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
-					'css_help_title' => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' ),
+					'mode'                        => __( 'Start Fresh (deprecated)', 'jetpack' ),
+					'mobile'                      => __( 'On Mobile', 'jetpack' ),
+					'contentWidth'                => $content_help,
+					'revisions'                   => _x( 'See full history', 'Toolbar button to see full CSS revision history', 'jetpack' ),
+					'css_help_title'              => _x( 'Help', 'Toolbar button to get help with custom CSS', 'jetpack' ),
+					'startFreshCustomizerWarning' => __( "The Start Fresh option in the Additional CSS panel is enabled, which means the theme's original CSS is not applied. This option will no longer be supported after August 6, 2024.", 'jetpack' ),
 				),
 			)
 		);
@@ -743,7 +752,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'wpcom_custom_css_content_width_control',
 			array(
 				'type'     => 'text',
-				'label'    => __( 'Media Width', 'jetpack' ),
+				'label'    => __( 'Media Width (deprecated)', 'jetpack' ),
 				'section'  => 'custom_css',
 				'settings' => 'jetpack_custom_css[content_width]',
 			)
@@ -786,7 +795,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				array(
 					'type'     => 'select',
 					'choices'  => $preprocessor_choices,
-					'label'    => __( 'Preprocessor', 'jetpack' ),
+					'label'    => __( 'Preprocessor (deprecated)', 'jetpack' ),
 					'section'  => 'custom_css',
 					'settings' => 'jetpack_custom_css[preprocessor]',
 				)
@@ -996,6 +1005,157 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		return $content_width;
+	}
+
+	/**
+	 * Return whether the Start Fresh option of the CSS editor is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_start_fresh_option_enabled() {
+		if ( wp_is_block_theme() ) {
+			return false;
+		}
+
+		$start_fresh = null;
+
+		// $wp_customize is not available here. Let's get the value of the `replace` option from the last
+		// customize_changeset posts.
+		$posts = get_posts(
+			array(
+				'post_type'   => 'customize_changeset',
+				'post_status' => 'trash',
+				'order_by'    => 'post_modified',
+				'order'       => 'DESC',
+			)
+		);
+
+		// Bail as soon as we find a post that defines the `replace` option.
+		foreach ( $posts as $post ) {
+			$content = $post->post_content;
+
+			if ( empty( $content ) ) {
+				continue;
+			}
+
+			$parsed_content = json_decode( $content, true );
+
+			if ( empty( $parsed_content ) ) {
+				continue;
+			}
+
+			foreach ( $parsed_content as $key => $data ) {
+				if ( str_ends_with( $key, '::jetpack_custom_css[replace]' ) ) {
+					$start_fresh = $data['value'];
+					break;
+				}
+			}
+
+			if ( isset( $start_fresh ) ) {
+				break;
+			}
+		}
+
+		return $start_fresh;
+	}
+
+	/**
+	 * Display a deprecation warning on the frontend for site admins only
+	 */
+	public static function display_frontend_warning() {
+		if ( ! current_user_can( 'edit_themes' ) || ! current_user_can( 'edit_theme_options' ) || ! self::is_start_fresh_option_enabled() ) {
+			return;
+		}
+
+		$notice  = '';
+		$notice .= '<style>';
+		$notice .= '
+.jp-custom-css__deprecation-warning {
+	position: absolute;
+	top: 2.5rem;
+	left: 50%;
+	z-index: 99999;
+	transform: translateX( -50% );
+
+	display: flex;
+	align-items: flex-start;
+	width: 80ch;
+
+	background-color: #fef8ee;
+	border: solid 1px #ccc;
+	border-left: solid 5px #f0b849;
+	box-shadow: 0 0 4px 4px rgba( 0, 0, 0, 0.1 );
+
+	font-size: 1rem;
+}
+
+.jp-custom-css__deprecation-warning p {
+	margin: 0;
+	padding: 1em;
+}
+
+.jp-custom-css__deprecation-warning button {
+	min-width: 48px;
+	min-height: 48px;
+
+	border-color: transparent;
+	background-color: transparent;
+
+	font-size: 1.25rem;
+	font-weight: bold;
+}				
+';
+		$notice .= '</style>';
+		$notice .= '<div class="jp-custom-css__deprecation-warning">';
+		$notice .= '<p>' . wp_kses(
+			sprintf(
+				// translators: 1: URL to the CSS customization panel, 2: URL to the theme stylesheet documentation.
+				__(
+					'The <i>Start Fresh</i> option in the <a href="%1$s">CSS customization panel</a> is enabled, which means the theme\'s original CSS is not applied. <b>This option will no longer be supported after August 6, 2024.</b> <a href="%2$s">See how to keep your site intact.</a>',
+					'jetpack'
+				),
+				esc_url( admin_url( 'customize.php?autofocus%5Bsection%5D=custom_css' ) ),
+				esc_url( Redirect::get_url( 'jetpack-support-custom-css' ) )
+			),
+			array(
+				'i' => array(),
+				'b' => array(),
+				'a' => array(
+					'href'   => array(),
+					'target' => array(),
+				),
+			)
+		) . '</p>';
+		$notice .= '<button aria-label="' . esc_html__( 'Dismiss', 'jetpack' ) . '">&times;</button>';
+		$notice .= '</div>';
+		$notice .= '<script>';
+		$notice .= 'document.querySelector(".jp-custom-css__deprecation-warning button").addEventListener("click", (e) => e.currentTarget.parentNode.remove() );';
+		$notice .= '</script>';
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $notice;
+	}
+
+	/**
+	 * Update the initial state to include the `replace` option (Start Fresh) in the module data.
+	 */
+	public static function update_initial_state() {
+		if ( 'toplevel_page_jetpack' !== get_current_screen()->base ) {
+			return;
+		}
+
+		$val = self::is_start_fresh_option_enabled() ? 'true' : 'false';
+
+		wp_add_inline_script(
+			'react-plugin',
+			"
+try {
+	var options = window.Initial_State?.getModules?.['custom-css']?.options || {};
+	options.replace = $val;
+} catch (e) {}
+",
+			'after'
+		);
 	}
 
 	/**

@@ -521,6 +521,7 @@ class Jetpack_XMLRPC_Server {
 	 * Getter for the local user to act as.
 	 *
 	 * @param array $request the current request data.
+	 * @return WP_User|IXR_Error|false IXR_Error if the request is missing a local_user field, WP_User object on success, or false on failure to find a user.
 	 */
 	private function fetch_and_verify_local_user( $request ) {
 		if ( empty( $request['local_user'] ) ) {
@@ -544,6 +545,7 @@ class Jetpack_XMLRPC_Server {
 	 * Gets the user object by its data.
 	 *
 	 * @param string $user_id can be any identifying user data.
+	 * @return WP_User|false WP_User object on success, false on failure.
 	 */
 	private function get_user_by_anything( $user_id ) {
 		$user = get_user_by( 'login', $user_id );

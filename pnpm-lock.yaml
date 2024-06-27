@@ -1613,6 +1613,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.0.0
         version: 7.0.0
+      '@wordpress/components':
+        specifier: 28.0.0
+        version: 28.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
@@ -1625,6 +1628,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2411,6 +2417,8 @@ importers:
         version: 4.9.1(webpack@5.76.0)
 
   projects/packages/protect-models: {}
+
+  projects/packages/protect-status: {}
 
   projects/packages/publicize:
     dependencies:
