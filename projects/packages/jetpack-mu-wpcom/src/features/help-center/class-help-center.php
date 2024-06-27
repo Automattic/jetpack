@@ -2,7 +2,7 @@
 /**
  * Help center
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace A8C\FSE;
@@ -48,10 +48,6 @@ class Help_Center {
 			return;
 		}
 
-		// $request = wp_safe_remote_get( 'https://widgets.wp.com/help-center/help-center.asset.json' );
-		// if ( is_wp_error( $request ) ) {
-		// return;
-		// }
 		$this->asset_file = json_decode( '{"dependencies":["lodash","react","react-dom","wp-a11y","wp-api-fetch","wp-components","wp-compose","wp-data","wp-data-controls","wp-date","wp-element","wp-html-entities","wp-i18n","wp-keycodes","wp-polyfill","wp-primitives","wp-url"],"version":"f5cd531a3b8c6c8517ff"}', true );
 		$this->version    = $this->asset_file['version'];
 

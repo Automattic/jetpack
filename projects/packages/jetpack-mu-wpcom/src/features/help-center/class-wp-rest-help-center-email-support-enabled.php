@@ -2,7 +2,7 @@
 /**
  * WP_REST_Help_Center_Email_Support_Enabled file.
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace A8C\FSE;
