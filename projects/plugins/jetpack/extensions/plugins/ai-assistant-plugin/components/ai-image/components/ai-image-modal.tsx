@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip } from '@wordpress/components';
+import { Button, Tooltip, KeyboardShortcuts } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -138,13 +138,24 @@ export default function AiImageModal( {
 					<div className="ai-image-modal__content">
 						<div className="ai-image-modal__user-prompt">
 							<div className="ai-image-modal__user-prompt-textarea">
-								<textarea
-									disabled={ disableInstructions }
-									maxLength={ 1000 }
-									rows={ 2 }
-									onChange={ handleUserPromptChange }
-									placeholder={ instructionsPlaceholder }
-								></textarea>
+								<KeyboardShortcuts
+									bindGlobal
+									shortcuts={ {
+										enter: () => {
+											if ( ! disableGenerateButton ) {
+												handleGenerate();
+											}
+										},
+									} }
+								>
+									<textarea
+										disabled={ disableInstructions }
+										maxLength={ 1000 }
+										rows={ 2 }
+										onChange={ handleUserPromptChange }
+										placeholder={ instructionsPlaceholder }
+									></textarea>
+								</KeyboardShortcuts>
 							</div>
 						</div>
 						{ showUpgrade && (
