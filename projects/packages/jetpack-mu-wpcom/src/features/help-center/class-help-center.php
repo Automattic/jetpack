@@ -48,13 +48,8 @@ class Help_Center {
 			return;
 		}
 
-		$this->asset_file = json_decode( '{"dependencies":["lodash","react","react-dom","wp-a11y","wp-api-fetch","wp-components","wp-compose","wp-data","wp-data-controls","wp-date","wp-element","wp-html-entities","wp-i18n","wp-keycodes","wp-polyfill","wp-primitives","wp-url"],"version":"f5cd531a3b8c6c8517ff"}', true );
-		$this->version    = $this->asset_file['version'];
-
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_script' ), 100 );
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 	}
 
 	/**
@@ -83,15 +78,66 @@ class Help_Center {
 
 	/**
 	 * Enqueue Help Center assets.
+	 *
+	 * @param string $variant The variant of the asset file to get.
 	 */
-	public function enqueue_script() {
+	public function enqueue_script( $variant ) {
 		$script_dependencies = $this->asset_file['dependencies'];
+		switch ( $variant ) {
+			case 'wp-admin':
+				// We need the following code in both cases.
+			case 'wp-admin-disconnected':
+				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+				if ( function_exists( 'gutenberg_url' ) && ! $this->is_jetpack_disconnected() ) {
+					wp_enqueue_style(
+						'wp-components',
+						gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
+						array( 'dashicons' ),
+						$this->version
+					);
+				}
+
+				// Crazy high number to prevent Jetpack removing it
+				// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
+				add_action(
+					'wp_before_admin_bar_render',
+					function () {
+						global $wp_admin_bar;
+
+						$wp_admin_bar->add_menu(
+							array(
+								'id'     => 'help-center',
+								'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+								'parent' => 'top-secondary',
+								'href'   => $this->get_help_center_url(),
+								'meta'   => array(
+									'html'   => '<div id="help-center-masterbar" />',
+									'class'  => 'menupop',
+									'target' => '_blank',
+								),
+							)
+						);
+					},
+					100000
+				);
+				break;
+			case 'gutenberg':
+				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+				if ( function_exists( 'gutenberg_url' ) ) {
+					wp_enqueue_style(
+						'wp-components',
+						gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
+						array( 'dashicons' ),
+						$this->version
+					);
+				}
+		}
 
 		// If the user is not connected, the Help Center icon will link to the support page.
 		// The disconnected version is significantly smaller than the connected version.
 		wp_enqueue_script(
 			'help-center-script',
-			'https://widgets.wp.com/help-center/help-center-gutenberg.min.js?ver=ae76d89d4fd53c91b798ssk',
+			'https://widgets.wp.com/help-center/help-center-' . $variant . '.min.js',
 			is_array( $script_dependencies ) ? $script_dependencies : array(),
 			$this->version,
 			true
@@ -99,7 +145,7 @@ class Help_Center {
 
 		wp_enqueue_style(
 			'help-center-style',
-			'https://widgets.wp.com/help-center/help-center-gutenberg' . ( is_rtl() ? '.rtl.css' : '.css' ),
+			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$this->version
 		);
@@ -328,59 +374,48 @@ class Help_Center {
 
 		return $help_url;
 	}
+	/**
+	 * Get the asset via file-system on wpcom and via network on Atomic sites.
+	 *
+	 * @param string $filepath The URL to download the asset file from.
+	 * @param bool   $parse_json Whether to parse the JSON file or not.
+	 */
+	private static function download_asset( $filepath, $parse_json = true ) {
+		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
+		if ( $accessible_directly ) {
+			if ( $parse_json ) {
+				return json_decode( file_get_contents( ABSPATH . $filepath ), true );
+			}
+			return file_get_contents( ABSPATH . $filepath );
+		} else {
+			$request = wp_remote_get( 'https://' . $filepath );
+			if ( is_wp_error( $request ) ) {
+				return null;
+			} elseif ( $parse_json ) {
+				return json_decode( wp_remote_retrieve_body( $request ), true );
+			} else {
+				return wp_remote_retrieve_body( $request );
+			}
+		}
+	}
 
 	/**
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
-
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
-		if ( ( ! $this->is_support_site() ) && ( ! is_admin() || ! $this->is_admin_bar() || $this->is_site_editor() || $this->is_block_editor() ) ) {
+		if ( ! is_admin() || ! $this->is_admin_bar() ) {
 			return;
 		}
 
-		// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
-		if ( function_exists( 'gutenberg_url' ) ) {
-			wp_enqueue_style(
-				'wp-components',
-				gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
-				array( 'dashicons' ),
-				$this->version
-			);
-		}
+		$variant  = ( $this->is_site_editor() || $this->is_block_editor() ) ? 'gutenberg' : 'wp-admin';
+		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		// Crazy high number to prevent Jetpack removing it
-		// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
-		add_action(
-			'wp_before_admin_bar_render',
-			function () {
-				global $wp_admin_bar;
+		$this->asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+		$this->version    = $this->asset_file['version'];
 
-				wp_add_inline_script(
-					'help-center-script',
-					'helpCenterData.isAdminBar = true;',
-					'before'
-				);
-
-				$wp_admin_bar->add_menu(
-					array(
-						'id'     => 'help-center',
-						'title'  => file_get_contents( plugin_dir_path( __FILE__ ) . 'src/help-icon.svg', true ),
-						'parent' => 'top-secondary',
-						'href'   => $this->get_help_center_url(),
-						'meta'   => array(
-							'html'   => '<div id="help-center-masterbar" />',
-							'class'  => 'menupop',
-							'target' => '_blank',
-						),
-					)
-				);
-			},
-			100000
-		);
-
-		$this->enqueue_script();
+		$this->enqueue_script( $variant );
 	}
 }
 
