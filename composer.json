@@ -13,7 +13,7 @@
 		"automattic/jetpack-phpcs-filter": "@dev",
 		"dealerdirect/phpcodesniffer-composer-installer": "1.0.0",
 		"phan/phan": "^5.4",
-		"php-parallel-lint/php-parallel-lint": "1.3.2",
+		"php-parallel-lint/php-parallel-lint": "1.3.2 || 1.4.0",
 		"php-stubs/woocommerce-stubs": ">=8.7",
 		"php-stubs/wordpress-stubs": ">=6.4",
 		"php-stubs/wordpress-tests-stubs": ">=6.4",
