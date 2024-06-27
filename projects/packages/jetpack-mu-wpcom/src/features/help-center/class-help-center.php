@@ -340,15 +340,10 @@ class Help_Center {
 	 * Used for the Help Center when disconnected.
 	 */
 	public function get_help_center_url() {
-		// phpcs:ignore WPCOM.I18nRules.LocalizedUrl.LocalizedUrlAssignedToVariable
 		$help_url = 'https://wordpress.com/help';
 
 		if ( ! $this->is_jetpack_disconnected() ) {
 			return false;
-		}
-
-		if ( function_exists( 'localized_wpcom_url' ) ) {
-			return localized_wpcom_url( $help_url );
 		}
 
 		return $help_url;
