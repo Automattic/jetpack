@@ -1001,7 +1001,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "8af97f65a2b748d65ebc013886022933fc6dc614"
+                "reference": "4d627f1bf93564d42135bcee1ab3f20bb0e0e6b1"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1013,8 +1013,10 @@
                 "automattic/jetpack-licensing": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-plugins-installer": "@dev",
+                "automattic/jetpack-protect-status": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
+                "automattic/jetpack-sync": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {

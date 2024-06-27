@@ -20,8 +20,10 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -209,6 +211,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+		$protect_status                 = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
@@ -222,6 +225,7 @@ class Initializer {
 					'items' => array(),
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
+				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
@@ -255,6 +259,7 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
+				'protectStatus'          => $protect_status,
 			)
 		);
 
