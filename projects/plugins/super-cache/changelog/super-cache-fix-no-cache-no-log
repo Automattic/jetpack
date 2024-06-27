@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Super Cache: don't log when cache directory is gone, to avoid PHP errors
+
+
