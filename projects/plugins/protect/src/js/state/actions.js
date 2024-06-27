@@ -230,12 +230,12 @@ const ignoreThreat =
 	};
 
 const unignoreThreat =
-	( threatId, signatureId, callback = () => {} ) =>
+	( threatId, callback = () => {} ) =>
 	async ( { dispatch } ) => {
 		dispatch( setThreatIsUpdating( threatId, true ) );
 		return await new Promise( () => {
 			return apiFetch( {
-				path: `jetpack-protect/v1/unignore-threat?threat_id=${ threatId }&signature_id=${ signatureId }`,
+				path: `jetpack-protect/v1/unignore-threat?threat_id=${ threatId }`,
 				method: 'POST',
 			} )
 				.then( () => {

@@ -29,7 +29,6 @@ const ThreatAccordionItem = ( {
 	type,
 	severity,
 	status,
-	signatureId,
 } ) => {
 	const { viewingScanHistory } = useScanHistory();
 	const { setModal } = useDispatch( STORE_ID );
@@ -46,7 +45,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'IGNORE_OR_UNIGNORE_THREAT',
-				props: { id, signatureId, label, title, icon, severity },
+				props: { id, label, title, icon, severity },
 			} );
 		};
 	};
@@ -225,8 +224,6 @@ const PaidList = ( { list } ) => {
 						type,
 						version,
 						status,
-						signature_id,
-						signatureId,
 					} ) => (
 						<ThreatAccordionItem
 							context={ context }
@@ -249,7 +246,6 @@ const PaidList = ( { list } ) => {
 							type={ type }
 							version={ version }
 							status={ status }
-							signatureId={ signatureId ?? signature_id } // todo: signature_id doesn't exist in the response, we may need to add it?
 						/>
 					)
 				) }
