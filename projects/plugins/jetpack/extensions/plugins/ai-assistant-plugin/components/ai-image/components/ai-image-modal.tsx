@@ -113,12 +113,7 @@ export default function AiImageModal( {
 
 	const generateButton = (
 		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button
-				onClick={ handleGenerate }
-				variant="secondary"
-				isBusy={ generating }
-				disabled={ disableGenerateButton }
-			>
+			<Button onClick={ handleGenerate } variant="secondary" disabled={ disableGenerateButton }>
 				{ generateButtonLabel }
 			</Button>
 		</Tooltip>

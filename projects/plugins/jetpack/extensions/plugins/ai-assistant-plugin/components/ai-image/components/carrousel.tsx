@@ -27,7 +27,7 @@ export type CarrouselImages = CarrouselImageData[];
 function AiIcon( { className }: { className?: string } ) {
 	const AiSVG = (
 		<SVG width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<G clip-path="url(#clip0_4479_1006)">
+			<G clipPath="url(#clip0_4479_1006)">
 				<Path
 					d="M7.87488 0L10.1022 5.64753L15.7498 7.87488L10.1022 10.1022L7.87488 15.7498L5.64753 10.1022L0 7.87488L5.64753 5.64753L7.87488 0Z"
 					fill="#A7AAAD"
@@ -51,20 +51,20 @@ function AiIcon( { className }: { className?: string } ) {
 	return <Icon icon={ AiSVG } width={ 42 } height={ 42 } className={ className } />;
 }
 
-function BlankImage( { children, isDotted = false } ) {
+function BlankImage( { children, isDotted = false, contentClassName = '' } ) {
 	const blankImage = (
 		<img
-			className="ai-assistant-featured-image__carrousel-image"
+			className="ai-assistant-image__carrousel-image"
 			src={ `data:image/png;base64,${ blank.base64 }` }
 			alt=""
 		/>
 	);
 
 	return (
-		<div className="ai-assistant-featured-image__blank">
+		<div className="ai-assistant-image__blank">
 			{ blankImage }
 			<div
-				className={ clsx( 'ai-assistant-featured-image__blank-content', {
+				className={ clsx( 'ai-assistant-image__blank-content', contentClassName, {
 					'is-dotted': isDotted,
 				} ) }
 			>
@@ -110,19 +110,20 @@ export default function Carrousel( {
 	);
 
 	return (
-		<div className="ai-assistant-featured-image__carrousel">
-			<div className="ai-assistant-featured-image__carrousel-images">
+		<div className="ai-assistant-image__carrousel">
+			<div className="ai-assistant-image__carrousel-images">
 				{ images.length > 1 && prevButton }
 				{ images.map( ( { image, generating, error }, index ) => (
 					<div
 						key={ `image:` + index }
-						className={ clsx( 'ai-assistant-featured-image__carrousel-image-container', {
+						className={ clsx( 'ai-assistant-image__carrousel-image-container', {
 							'is-current': current === index,
 							'is-prev': current > index,
 						} ) }
 					>
 						{ generating ? (
-							<BlankImage>
+							<BlankImage contentClassName="ai-assistant-image__loading">
+								{ __( 'Creating image…', 'jetpack' ) }
 								<Spinner
 									style={ {
 										width: '50px',
@@ -134,13 +135,13 @@ export default function Carrousel( {
 							<>
 								{ error ? (
 									<BlankImage isDotted>
-										<div className="ai-assistant-featured-image__error">
+										<div className="ai-assistant-image__error">
 											{ __(
 												'An error occurred while generating the image. Please, try again!',
 												'jetpack'
 											) }
 											{ error?.message && (
-												<span className="ai-assistant-featured-image__error-message">
+												<span className="ai-assistant-image__error-message">
 													{ error?.message }
 												</span>
 											) }
@@ -153,11 +154,7 @@ export default function Carrousel( {
 												<AiIcon />
 											</BlankImage>
 										) : (
-											<img
-												className="ai-assistant-featured-image__carrousel-image"
-												src={ image }
-												alt=""
-											/>
+											<img className="ai-assistant-image__carrousel-image" src={ image } alt="" />
 										) }
 									</>
 								) }
@@ -167,13 +164,13 @@ export default function Carrousel( {
 				) ) }
 				{ images.length > 1 && nextButton }
 			</div>
-			<div className="ai-assistant-featured-image__carrousel-footer">
-				<div className="ai-assistant-featured-image__carrousel-counter">
+			<div className="ai-assistant-image__carrousel-footer">
+				<div className="ai-assistant-image__carrousel-counter">
 					{ prevButton }
 					{ current + 1 } / { images.length }
 					{ nextButton }
 				</div>
-				<div className="ai-assistant-featured-image__carrousel-actions">{ actions }</div>
+				<div className="ai-assistant-image__carrousel-actions">{ actions }</div>
 			</div>
 		</div>
 	);
