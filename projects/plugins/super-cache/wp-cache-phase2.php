@@ -727,6 +727,11 @@ function wp_cache_debug( $message, $level = 1 ) {
 		return false;
 	}
 
+	// if cache path is gone, then don't log anything
+	if ( ! is_dir( $cache_path ) ) {
+		return;
+	}
+
 	// Log message: Date URI Message
 	$log_message = date( 'H:i:s' ) . ' ' . getmypid() . " {$_SERVER['REQUEST_URI']} {$message}" . PHP_EOL;
 	// path to the log file in the cache folder
