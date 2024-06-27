@@ -83,46 +83,9 @@ class Help_Center {
 	 */
 	public function enqueue_script( $variant ) {
 		$script_dependencies = $this->asset_file['dependencies'];
-		switch ( $variant ) {
-			case 'wp-admin':
-				// We need the following code in both cases.
-			case 'wp-admin-disconnected':
-				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
-				if ( function_exists( 'gutenberg_url' ) && ! $this->is_jetpack_disconnected() ) {
-					wp_enqueue_style(
-						'wp-components',
-						gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
-						array( 'dashicons' ),
-						$this->version
-					);
-				}
 
-				// Crazy high number to prevent Jetpack removing it
-				// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
-				add_action(
-					'wp_before_admin_bar_render',
-					function () {
-						global $wp_admin_bar;
-
-						$wp_admin_bar->add_menu(
-							array(
-								'id'     => 'help-center',
-								'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
-								'parent' => 'top-secondary',
-								'href'   => $this->get_help_center_url(),
-								'meta'   => array(
-									'html'   => '<div id="help-center-masterbar" />',
-									'class'  => 'menupop',
-									'target' => '_blank',
-								),
-							)
-						);
-					},
-					100000
-				);
-				break;
-			case 'gutenberg':
-				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+			if ( $variant === 'wp-admin' ) {
 				if ( function_exists( 'gutenberg_url' ) ) {
 					wp_enqueue_style(
 						'wp-components',
@@ -131,6 +94,30 @@ class Help_Center {
 						$this->version
 					);
 				}
+			}
+			// Crazy high number to prevent Jetpack removing it
+			// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
+			add_action(
+				'wp_before_admin_bar_render',
+				function () {
+					global $wp_admin_bar;
+
+					$wp_admin_bar->add_menu(
+						array(
+							'id'     => 'help-center',
+							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'parent' => 'top-secondary',
+							'href'   => $this->get_help_center_url(),
+							'meta'   => array(
+								'html'   => '<div id="help-center-masterbar" />',
+								'class'  => 'menupop',
+								'target' => '_blank',
+							),
+						)
+					);
+				},
+				100000
+			);
 		}
 
 		// If the user is not connected, the Help Center icon will link to the support page.
@@ -158,41 +145,44 @@ class Help_Center {
 			)
 		);
 
-		// Adds feature flags for development.
-		wp_add_inline_script(
-			'help-center-script',
-			'const helpCenterFeatureFlags = ' . wp_json_encode(
-				array(
-					'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
-				)
-			),
-			'before'
-		);
+		// This information is only needed for the connected version of the help center.
+		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
+			// Adds feature flags for development.
+			wp_add_inline_script(
+				'help-center-script',
+				'const helpCenterFeatureFlags = ' . wp_json_encode(
+					array(
+						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
+					)
+				),
+				'before'
+			);
 
-		$user_id      = get_current_user_id();
-		$user_data    = get_userdata( $user_id );
-		$username     = $user_data->user_login;
-		$user_email   = $user_data->user_email;
-		$display_name = $user_data->display_name;
-		$avatar_url   = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$user_id      = get_current_user_id();
+			$user_data    = get_userdata( $user_id );
+			$username     = $user_data->user_login;
+			$user_email   = $user_data->user_email;
+			$display_name = $user_data->display_name;
+			$avatar_url   = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 
-		wp_add_inline_script(
-			'help-center-script',
-			'const helpCenterData = ' . wp_json_encode(
-				array(
-					'currentUser' => array(
-						'ID'           => $user_id,
-						'username'     => $username,
-						'display_name' => $display_name,
-						'avatar_URL'   => $avatar_url,
-						'email'        => $user_email,
-					),
-					'site'        => $this->get_current_site(),
-					'locale'      => get_locale(),
-				)
-			),
-			'before'
-		);
+			wp_add_inline_script(
+				'help-center-script',
+				'const helpCenterData = ' . wp_json_encode(
+					array(
+						'currentUser' => array(
+							'ID'           => $user_id,
+							'username'     => $username,
+							'display_name' => $display_name,
+							'avatar_URL'   => $avatar_url,
+							'email'        => $user_email,
+						),
+						'site'        => $this->get_current_site(),
+						'locale'      => get_locale(),
+					)
+				),
+				'before'
+			);
+		}
 
 		wp_set_script_translations( 'help-center-script', 'jetpack-mu-wpcom' );
 	}
