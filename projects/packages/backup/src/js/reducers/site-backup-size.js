@@ -36,6 +36,7 @@ const siteBackupSize = ( state = initialState, action ) => {
 				daysOfBackupsAllowed: action.payload?.daysOfBackupsAllowed,
 				daysOfBackupsSaved: action.payload?.daysOfBackupsSaved,
 				retentionDays: action.payload?.retentionDays,
+				backupsStopped: action.payload?.backupsStopped,
 			};
 		}
 		case SITE_BACKUP_SIZE_GET_FAILED: {

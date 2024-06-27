@@ -48,6 +48,10 @@ export default function () {
 		'Create featured images with one click',
 		'jetpack-my-jetpack'
 	);
+	const videoTitleTitleOptimization = __(
+		'Optimize your titles effortlessly',
+		'jetpack-my-jetpack'
+	);
 	const videoTitleForms = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
@@ -70,6 +74,9 @@ export default function () {
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
 	const videoLinkFeaturedImages = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
+	const videoLinkTitleOptimization = getRedirectUrl(
+		'jetpack-ai-product-page-title-optimization-link'
+	);
 	const videoLinkForms = getRedirectUrl( 'jetpack-ai-product-page-form-link' );
 	const videoLinkContentFeedback = getRedirectUrl(
 		'jetpack-ai-product-page-content-feedback-link'
@@ -333,6 +340,40 @@ export default function () {
 										href={ videoLinkFeaturedImages }
 									>
 										{ __( 'Learn about featured images', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
+										src="https://videopress.com/embed/xjy2weWj?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F06%2Fjetpack-ai-title-optimization.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitleTitleOptimization }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitleTitleOptimization }
+										{ newBadge }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											'Use AI to generate title suggestions based on your content, each with an explanation of why it works better. Save time and create engaging, SEO-friendly titles.',
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ videoLinkTitleOptimization }
+									>
+										{ __( 'Learn about Jetpack SEO tools', 'jetpack-my-jetpack' ) }
 									</Button>
 								</div>
 							</div>

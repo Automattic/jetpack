@@ -210,7 +210,7 @@ class Jetpack_Subscription_Site {
 
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:jetpack/subscriptions /-->
+		<!-- wp:jetpack/subscriptions {"appSource":"subscribe-block-post-end"} /-->
 	</div>
 	<!-- /wp:group -->
 </div>
@@ -293,6 +293,8 @@ HTML;
 	<!-- /wp:group -->
 </div>
 HTML;
+
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-post-end';
 
 					return array(
 						'blockName'    => 'core/group',

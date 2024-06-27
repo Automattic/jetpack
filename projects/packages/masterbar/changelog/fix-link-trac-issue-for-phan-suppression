@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Add link to https://core.trac.wordpress.org/ticket/52539 in Phan suppressions about `add_menu_page`'s and `add_submenu_page`'s `$callback` parameter. No change to functionality.
+
+
