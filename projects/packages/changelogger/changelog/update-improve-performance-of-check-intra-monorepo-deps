@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Skip querying `git` in `changelogger version` command. We don't need the timestamp or PR number for that operation.
