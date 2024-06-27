@@ -35,6 +35,24 @@
 		gap: 0.25rem;
 	}
 
+	.heading {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.badges {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.badge {
+		border-radius: 4px;
+		font-size: .75rem;
+		font-weight: 600;
+		padding: 2px 8px;
+	}
+
 	.title {
 		font-size: 16px;
 		line-height: 24px;
@@ -99,6 +117,18 @@
 	.active-connection {
 		color: var(--jp-green-50);
 		white-space: nowrap;
+	}
+
+	.broken-connection {
+		white-space: nowrap;
+		font-weight: 500;
+
+		// Add some specificity to override the default button styles
+		&:global(.components-button.is-link) {
+			color: var(--jp-yellow-40);
+			text-decoration: none;
+			font-size: inherit;
+		}
 	}
 
 	.service-connection-list {

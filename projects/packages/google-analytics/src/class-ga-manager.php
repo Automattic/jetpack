@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.1';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -159,7 +159,7 @@ class GA_Manager {
 		 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
 		 *
 		 * @since Jetpack 5.4.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param array $wga Associative array of existing Google Analytics settings.
 		 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
@@ -190,7 +190,7 @@ class GA_Manager {
 		 * Fires for each settings update.
 		 *
 		 * @since Jetpack 3.6.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param string $action_type Type of settings to track.
 		 * @param string $val The settings value.
@@ -228,7 +228,7 @@ class GA_Manager {
 		 * Filter whether the current site is a Jetpack site.
 		 *
 		 * @since Jetpack 3.3.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param bool $is_jetpack Is the current site a Jetpack site. Default to false.
 		 * @param int $blog_id Blog ID.

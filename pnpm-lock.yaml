@@ -897,8 +897,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@automattic/social-previews':
-        specifier: 2.0.1
-        version: 2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.3
+        version: 2.1.0-beta.3(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/annotations':
         specifier: 3.0.0
         version: 3.0.0(react@18.3.1)
@@ -1613,6 +1613,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.0.0
         version: 7.0.0
+      '@wordpress/components':
+        specifier: 28.0.0
+        version: 28.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.0.0
         version: 10.0.0(react@18.3.1)
@@ -1625,6 +1628,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.0.0
         version: 5.0.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1879,6 +1885,15 @@ importers:
       webpack-cli:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
+
+  projects/packages/explat:
+    devDependencies:
+      jest:
+        specifier: 29.7.0
+        version: 29.7.0
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
 
   projects/packages/forms:
     dependencies:
@@ -2402,6 +2417,8 @@ importers:
         version: 4.9.1(webpack@5.76.0)
 
   projects/packages/protect-models: {}
+
+  projects/packages/protect-status: {}
 
   projects/packages/publicize:
     dependencies:
@@ -3577,8 +3594,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.1
-        version: 2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 2.1.0-beta.3
+        version: 2.1.0-beta.3(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -4776,8 +4793,8 @@ packages:
   '@automattic/request-external-access@1.0.0':
     resolution: {integrity: sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==}
 
-  '@automattic/social-previews@2.0.1':
-    resolution: {integrity: sha512-diFHzjWOp5mOp+wP8zqDsRz0uQwlmxsJj8zHjzlyoT6nMhrKjTae0bbffyFqp51zRN6HNdfgTSrji3hjcxyh6Q==}
+  '@automattic/social-previews@2.1.0-beta.3':
+    resolution: {integrity: sha512-SwnTZhaC/LGQQ/XW7uxZdTVfaejs0mlDResR249dg4eX0y3//iErxhGHGc5PUpgvnLPbBbKfQqbCxnOh9nnHRA==}
     peerDependencies:
       '@babel/runtime': ^7.24.5
       react: ^18.2.0
@@ -14467,7 +14484,7 @@ snapshots:
     dependencies:
       '@automattic/popup-monitor': 1.0.2
 
-  '@automattic/social-previews@2.0.1(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/social-previews@2.1.0-beta.3(@babel/runtime@7.24.7)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@emotion/react': 11.11.4(@types/react@18.3.1)(react@18.3.1)
       '@wordpress/components': 28.0.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

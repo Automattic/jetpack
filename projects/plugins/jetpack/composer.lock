@@ -62,7 +62,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/abtest",
-				"reference": "8d7ca6c2a61f73ba22831ca8eaab113ab7db09e0"
+				"reference": "0bc2d4b9632a3f769675d66c6c4db976252670fd"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -85,7 +85,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
+					"dev-trunk": "2.1.x-dev"
 				}
 			},
 			"autoload": {
@@ -111,6 +111,7 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Provides an interface to the WP.com A/B tests.",
+			"abandoned": "automattic/jetpack-explat",
 			"transport-options": {
 				"relative": true
 			}
@@ -313,7 +314,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "a2ef602b09204d9d02bd06b4cc1007d2876f50f6"
+				"reference": "d974148c9be257d174de2f6afc99b768ef5ab1d5"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -348,7 +349,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.3.x-dev"
+					"dev-trunk": "3.4.x-dev"
 				}
 			},
 			"autoload": {
@@ -956,7 +957,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
+				"reference": "46c0d6c214f2940e2b5c1c5ccafbf5922a16592c"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -994,7 +995,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/import",
 						"packages/jitm",
 						"packages/post-list",
@@ -1029,7 +1029,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
+				"reference": "6d990be4aaded35f3ee203c976d16b9334419882"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1064,7 +1064,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.10.x-dev"
+					"dev-trunk": "2.11.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1914,7 +1914,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "6e2a4eeba8a8ec86da45e3f7dbe2b6eb508ce12c"
+				"reference": "8af97f65a2b748d65ebc013886022933fc6dc614"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1949,7 +1949,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.25.x-dev"
+					"dev-trunk": "4.26.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2649,7 +2649,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+				"reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2679,7 +2679,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/plans"
 					]
 				}

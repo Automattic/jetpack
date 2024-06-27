@@ -1,10 +1,11 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
 import {
 	CONNECTION_SERVICE_INSTAGRAM_BUSINESS,
 	CONNECTION_SERVICE_MASTODON,
 	CONNECTION_SERVICE_NEXTDOOR,
+	CONNECTION_SERVICE_THREADS,
 } from '../../social-store';
 import { getSupportedAdditionalConnections } from '../../utils';
 import FacebookPreview from './facebook';
@@ -13,6 +14,7 @@ import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
 import MastodonPreview from './mastodon';
 import { Nextdoor } from './nextdoor';
+import { Threads } from './threads';
 import TumblrPreview from './tumblr';
 import Twitter from './twitter';
 
@@ -28,6 +30,7 @@ export function useAvailableSerivces() {
 	);
 	const isMastodonSupported = additionalConnections.includes( CONNECTION_SERVICE_MASTODON );
 	const isNextdoorSupported = additionalConnections.includes( CONNECTION_SERVICE_NEXTDOOR );
+	const isThreadsSupported = additionalConnections.includes( CONNECTION_SERVICE_THREADS );
 
 	return useMemo(
 		() =>
@@ -56,6 +59,18 @@ export function useAvailableSerivces() {
 							icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
 							name: 'instagram',
 							preview: Instagram,
+					  }
+					: null,
+				isThreadsSupported
+					? {
+							title: _x(
+								'Threads',
+								'The name of the social media network - threads.net',
+								'jetpack'
+							),
+							icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+							name: 'threads',
+							preview: Threads,
 					  }
 					: null,
 				{
@@ -87,6 +102,6 @@ export function useAvailableSerivces() {
 					  }
 					: null,
 			].filter( Boolean ),
-		[ isInstagramSupported, isMastodonSupported, isNextdoorSupported ]
+		[ isInstagramSupported, isMastodonSupported, isNextdoorSupported, isThreadsSupported ]
 	);
 }

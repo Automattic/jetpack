@@ -54,7 +54,6 @@
 		"dependencies": {
 			"test-only": [
 				"packages/connection",
-				"packages/identity-crisis",
 				"packages/import",
 				"packages/jitm",
 				"packages/post-list",

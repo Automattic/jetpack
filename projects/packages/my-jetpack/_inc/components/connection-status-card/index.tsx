@@ -196,12 +196,10 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const hasSiteConnectionBrokenModules = brokenModules?.needs_site_connection.length > 0;
 	const tracksEventData = useMemo( () => {
 		return {
-			isUserConnected: isUserConnected,
-			isRegistered: isRegistered,
 			userConnectionBrokenModules: brokenModules?.needs_user_connection.join( ', ' ),
 			siteConnectionBrokenModules: brokenModules?.needs_site_connection.join( ', ' ),
 		};
-	}, [ isUserConnected, isRegistered, brokenModules ] );
+	}, [ brokenModules ] );
 
 	/**
 	 * Open the Manage Connection Dialog, and register the connection type as part of the Tracks event recorded

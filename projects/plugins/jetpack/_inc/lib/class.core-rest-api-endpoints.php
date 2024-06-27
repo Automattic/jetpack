@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -2590,7 +2591,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_sso_require_two_step'          => array(
 				'description'       => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => SSO\Helpers::is_require_two_step_checkbox_disabled(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sso',
 			),
@@ -2633,6 +2634,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'wpcom_featured_image_in_email'         => array(
 				'description'       => esc_html__( 'Whether to include the featured image in the email or not', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_gravatar_in_email'             => array(
+				'description'       => esc_html__( 'Whether to show author avatar in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_author_in_email'               => array(
+				'description'       => esc_html__( 'Whether to show author display name in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_post_date_in_email'            => array(
+				'description'       => esc_html__( 'Whether to show date in the email byline', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

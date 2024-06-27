@@ -1,4 +1,14 @@
 <?php
+/**
+ * Code to handle migration from WP Super Cache to Jetpack Boost.
+ *
+ * @package WP_Super_Cache
+ */
+
+// Minimum version of Jetpack Boost required for compatibility.
+if ( ! defined( 'MINIMUM_BOOST_VERSION' ) ) {
+	define( 'MINIMUM_BOOST_VERSION', '3.4.5' );
+}
 
 /**
  * Get shared configuration for each migration button.
@@ -11,6 +21,88 @@ function wpsc_get_boost_migration_config() {
 	);
 }
 
+/**
+ * Display an admin notice to install Jetpack Boost.
+ */
+function wpsc_jetpack_boost_notice() {
+	if ( ! isset( $_GET['page'] ) || $_GET['page'] !== 'wpsupercache' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		return;
+	}
+
+	// hide the admin notice if Jetpack Boost Cache is already used.
+	if ( 'BOOST' === wpsc_identify_advanced_cache() ) {
+		return;
+	}
+
+	// Don't show the banner if the banner has been dismissed.
+	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_admin_notice' );
+	if ( $is_dismissed ) {
+		return;
+	}
+
+	// Don't show the admin notice if Jetpack Boost is too old.
+	if ( ! wpsc_is_boost_current() ) {
+		return;
+	}
+
+	// Don't show the banner if Super Cache is using features that Boost doesn't support.
+	if ( ! wpsc_is_boost_compatible() ) {
+		return;
+	}
+
+	$config       = wpsc_get_boost_migration_config();
+	$button_url   = $config['is_installed'] ? $config['activate_url'] : $config['install_url'];
+	$button_class = $config['is_installed'] ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+
+	?>
+	<div id="wpsc-notice-boost-migrate" class="notice boost-notice notice-success is-dismissible">
+	<h3>
+		<?php esc_html_e( 'Migrate to Jetpack Boost', 'wp-super-cache' ); ?>
+	</h3>
+	<p>
+		<?php esc_html_e( 'Your WP Super Cache setup is compatible with Boost\'s new caching feature. Continue to cache as you currently do and enhance your site\'s speed using our highly-rated performance solutions.', 'wp-super-cache' ); ?>
+	</p>
+
+	<p>
+		<div class="wpsc-boost-migration-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+		<a data-source='notice' class='wpsc-boost-migration-button button button-primary <?php echo esc_attr( $button_class ); ?>' href="<?php echo esc_url( $button_url ); ?>">
+			<div class="spinner" style="display:none; margin-top: 8px"></div>
+			<label><?php esc_html_e( 'Migrate now', 'wp-super-cache' ); ?></label>
+		</a>
+	</p>
+	</div>
+	<?php
+}
+add_action( 'admin_notices', 'wpsc_jetpack_boost_notice' );
+
+/**
+ * Dismiss the migration admin notice by setting a user option flag.
+ */
+function wpsc_dismiss_boost_notice() {
+	update_user_option( get_current_user_id(), 'wpsc_dismissed_boost_admin_notice', '1' );
+}
+
+/**
+ * Handler called by AJAX to dismiss the admin notice.
+ */
+function wpsc_dismiss_boost_notice_ajax_handler() {
+	check_ajax_referer( 'wpsc_dismiss_boost_notice', 'nonce' );
+	wpsc_dismiss_boost_notice();
+	wp_die();
+}
+add_action( 'wp_ajax_wpsc_dismiss_boost_notice', 'wpsc_dismiss_boost_notice_ajax_handler' );
+
+/**
+ * Dismiss the admin notice if the Jetpack Boost plugin is activated.
+ */
+function wpsc_dismiss_notice_on_activation() {
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	wpsc_dismiss_boost_notice();
+}
+add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_dismiss_notice_on_activation' );
 /**
  * Add a notice to the settings page if the Jetpack Boost cache module is detected.
  * The notice contains instructions on how to disable the Boost Cache module.
@@ -56,4 +148,88 @@ function wpsc_notify_migration_to_boost( $source ) {
 		return;
 	}
 	set_transient( 'jb_cache_moved_to_boost', $source, WEEK_IN_SECONDS );
+}
+
+/**
+ * Check if Jetpack Boost is compatible with WP Super Cache.
+ *
+ * @return bool
+ */
+function wpsc_is_boost_compatible() {
+	if ( ! empty( $GLOBALS['wp_cache_mobile_enabled'] ) ) {
+		return false;
+	}
+
+	if ( isset( $GLOBALS['wp_super_cache_late_init'] ) && $GLOBALS['wp_super_cache_late_init'] === 1 ) {
+		return false;
+	}
+
+	if ( ! empty( $GLOBALS['wpsc_rejected_cookies'] ) ) {
+		return false;
+	}
+
+	if ( isset( $GLOBALS['wp_cache_not_logged_in'] ) && $GLOBALS['wp_cache_not_logged_in'] !== 2 ) {
+		return false;
+	}
+
+	if ( isset( $GLOBALS['wp_cache_preload_on'] ) && $GLOBALS['wp_cache_preload_on'] === 1 ) {
+		return false;
+	}
+
+	if ( ! empty( $GLOBALS['wp_cache_no_cache_for_get'] ) ) {
+		return false;
+	}
+
+	if ( ! empty( $GLOBALS['wpsc_save_headers'] ) ) {
+		return false;
+	}
+
+	if ( isset( $GLOBALS['wp_cache_make_known_anon'] ) && $GLOBALS['wp_cache_make_known_anon'] === 1 ) {
+		return false;
+	}
+
+	if ( ! empty( $GLOBALS['wp_cache_mfunc_enabled'] ) ) {
+		return false;
+	}
+
+	if ( isset( $GLOBALS['wp_cache_clear_on_post_edit'] ) && $GLOBALS['wp_cache_clear_on_post_edit'] === 1 ) {
+		return false;
+	}
+
+	if ( ! empty( $GLOBALS['wp_cache_front_page_checks'] ) ) {
+		return false;
+	}
+
+	if ( is_array( $GLOBALS['wp_cache_pages'] ) && array_sum( $GLOBALS['wp_cache_pages'] ) ) {
+		return false;
+	}
+
+	$default_cache_acceptable_files = array( 'wp-comments-popup.php', 'wp-links-opml.php', 'wp-locations.php' );
+	if ( is_array( $GLOBALS['cache_acceptable_files'] ) && array_diff( $GLOBALS['cache_acceptable_files'], $default_cache_acceptable_files ) ) {
+		return false;
+	}
+
+	$default_cache_rejected_uri = array( 'wp-.*\\.php', 'index\\.php' );
+	if ( is_array( $GLOBALS['cache_rejected_uri'] ) && array_diff( $GLOBALS['cache_rejected_uri'], $default_cache_rejected_uri ) ) {
+		return false;
+	}
+
+	if ( is_array( $GLOBALS['cache_rejected_user_agent'] ) && array_diff( $GLOBALS['cache_rejected_user_agent'], array( '' ) ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check if the Jetpack Boost that is installed is current.
+ *
+ * @return bool True if Jetpack Boost is same as or newer than version 3.4.0
+ */
+function wpsc_is_boost_current() {
+	if ( defined( 'JETPACK_BOOST_VERSION' ) ) {
+		return version_compare( (string) JETPACK_BOOST_VERSION, MINIMUM_BOOST_VERSION, '>=' );
+	} else {
+		return true; // don't care if Boost is not installed
+	}
 }

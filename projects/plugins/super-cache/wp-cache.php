@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.13.0-alpha
+ * Version: 1.12.2
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -29,7 +29,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'WPSC_VERSION', '1.9.1-alpha' );
+define( 'WPSC_VERSION_ID', '1.12.1' );
 
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
@@ -260,9 +260,9 @@ function wpsupercache_activate() {
 	wpsc_init();
 
 	if (
+		! wp_cache_verify_cache_dir() ||
 		! wpsc_check_advanced_cache() ||
-		! wp_cache_verify_config_file() ||
-		! wp_cache_verify_cache_dir()
+		! wp_cache_verify_config_file()
 	) {
 		$text = ob_get_contents();
 		ob_end_clean();
@@ -311,7 +311,7 @@ function wp_super_cache_admin_enqueue_scripts( $hook ) {
 		'wp-super-cache-admin',
 		trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/admin.js',
 		array( 'jquery' ),
-		WPSC_VERSION,
+		WPSC_VERSION_ID,
 		false
 	);
 
@@ -319,9 +319,10 @@ function wp_super_cache_admin_enqueue_scripts( $hook ) {
 		'wp-super-cache-admin',
 		'wpscAdmin',
 		array(
-			'boostDismissNonce'  => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
-			'boostInstallNonce'  => wp_create_nonce( 'updates' ),
-			'boostActivateNonce' => wp_create_nonce( 'activate-boost' ),
+			'boostNoticeDismissNonce' => wp_create_nonce( 'wpsc_dismiss_boost_notice' ),
+			'boostDismissNonce'       => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
+			'boostInstallNonce'       => wp_create_nonce( 'updates' ),
+			'boostActivateNonce'      => wp_create_nonce( 'activate-boost' ),
 		)
 	);
 }
@@ -391,6 +392,9 @@ add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
  * Show a Jetpack Boost installation banner (unless dismissed or installed)
  */
 function wpsc_jetpack_boost_install_banner() {
+	if ( ! wpsc_is_boost_current() ) {
+		return;
+	}
 	// Don't show the banner if Boost is installed, or the banner has been dismissed.
 	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_banner' );
 	if ( wpsc_is_boost_active() || $is_dismissed ) {
@@ -399,7 +403,7 @@ function wpsc_jetpack_boost_install_banner() {
 
 	$config       = wpsc_get_boost_migration_config();
 	$button_url   = $config['is_installed'] ? $config['activate_url'] : $config['install_url'];
-	$button_label = $config['is_installed'] ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
+	$button_label = $config['is_installed'] ? __( 'Set up Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
 	$button_class = $config['is_installed'] ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
 	$plugin_url   = plugin_dir_url( __FILE__ );
 
@@ -410,33 +414,40 @@ function wpsc_jetpack_boost_install_banner() {
 					<img style="width:282px" src="<?php echo esc_url( $plugin_url . '/assets/jetpack-logo.svg' ); ?>" height="36" />
 
 					<h3>
-						<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
+						<?php esc_html_e( 'Speed up your site with our top&#8209;rated performance tool', 'wp-super-cache' ); ?>
 					</h3>
 
 					<p id="wpsc-install-invitation">
 						<?php
 							esc_html_e(
-								'Caching is a great start, but there is more to maximize your site speed. Find out how much your cache speeds up your site and make it blazing fast with Jetpack Boost, the easiest WordPress speed optimization plugin developed by Super Cache engineers.',
+								'Caching is a great start, but there is more to maximize your site speed. Find out how much your cache speeds up your site and make it blazing fast with Jetpack Boost, the easiest WordPress speed optimization plugin developed by WP Super Cache engineers.',
 								'wp-super-cache'
 							);
 						?>
 					</p>
 
-					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+					<div class="wpsc-boost-migration-error" style="display:none; color:red; margin-bottom: 20px;"></div>
 
-					<a data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button <?php echo esc_attr( $button_class ); ?>">
-						<div class="spinner" style="display:none; margin-top: 8px"></div>
-						<label><?php echo esc_html( $button_label ); ?></label>
-					</a>
+					<div style="display: flex; gap: 24px;">
+						<a style="font-weight: 500; line-height: 1; padding: 10px 20px 15px;" data-source='banner' href="<?php echo esc_url( $button_url ); ?>" class="wpsc-boost-migration-button button button-primary <?php echo esc_attr( $button_class ); ?>">
+							<div class='spinner' style='display:none; margin-top: 8px'></div>
+							<label><?php echo esc_html( $button_label ); ?></label>
+						</a>
+						<a style="display: flex; align-items: center; font-weight: 500; color: #000; " href="https://jetpack.com/blog/discover-how-to-improve-your-site-performance-with-jetpack-boost/">
+							Learn More
+						</a>
+					</div>
 				</div>
 
 				<div class="wpsc-boost-banner-image-container">
 					<img
-						src="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?>"
+						width="350"
+						height="452"
+						src="<?php echo esc_url( $plugin_url . 'assets/boost-install-card-main.png' ); ?>"
 						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-						alt="<?php esc_attr_e( 'An image showing a space shuttle. In the foreground are two graphs in yellow and green', 'wp-super-cache' ); ?>"
-						srcset="<?php echo esc_url( $plugin_url . '/assets/boost-install-card-main.png' ); ?> 352w <?php echo esc_url( $plugin_url . '/assets/boost-install-card-main-2x.png' ); ?> 730w"
-						sizes="(max-width: 782px) 352px, 730px"
+						alt="<?php esc_attr_e( 'An image showing the Jetpack Boost dashboard.', 'wp-super-cache' ); ?>"
+						srcset="<?php echo esc_url( $plugin_url . 'assets/boost-install-card-main.png' ); ?> 400w, <?php echo esc_url( $plugin_url . 'assets/boost-install-card-main-2x.png' ); ?> 800w"
+						sizes="(max-width: 782px) 350px, 700px"
 					>
 				</div>
 			</div>
@@ -2307,19 +2318,45 @@ function wp_cache_create_advanced_cache() {
 	return $ret;
 }
 
+/**
+ * Identify the advanced cache plugin used
+ *
+ * @return string The name of the advanced cache plugin, BOOST, WPSC or OTHER.
+ */
+function wpsc_identify_advanced_cache() {
+	global $wpsc_advanced_cache_filename;
+	if ( ! file_exists( $wpsc_advanced_cache_filename ) ) {
+		return 'NONE';
+	}
+	$contents = file_get_contents( $wpsc_advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+	if ( false !== str_contains( $contents, 'Boost Cache Plugin' ) ) {
+		return 'BOOST';
+	}
+
+	if ( str_contains( $contents, 'WP SUPER CACHE 0.8.9.1' ) || str_contains( $contents, 'WP SUPER CACHE 1.2' ) ) {
+		return 'WPSC';
+	}
+
+	return 'OTHER';
+}
+
 function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
 	$ret                  = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
-		$file = file_get_contents( $wpsc_advanced_cache_filename );
-		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
-			return true;
-		} elseif ( strpos( $file, 'Boost Cache Plugin' ) !== false ) {
-			$other_advanced_cache = 'BOOST';
-		} else {
-			$other_advanced_cache = true;
+		$cache_type = wpsc_identify_advanced_cache();
+		switch ( $cache_type ) {
+			case 'WPSC':
+				return true;
+			case 'BOOST':
+				$other_advanced_cache = 'BOOST';
+				break;
+			default:
+				$other_advanced_cache = true;
+				break;
 		}
 	} else {
 		$ret = wp_cache_create_advanced_cache();
@@ -2342,6 +2379,7 @@ function wpsc_check_advanced_cache() {
 			echo '<p><strong>' .
 				__( 'If you need support for this problem contact your hosting provider.', 'wp-super-cache' ),
 				'</strong></p>';
+			echo '</div>';
 		} elseif ( ! is_writeable_ACLSafe( $wpsc_advanced_cache_filename ) ) {
 			echo '<div class="notice notice-error"><h2>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( '%s/advanced-cache.php</em> cannot be updated.', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</h2>";
 			echo '<ol>';
@@ -2354,8 +2392,8 @@ function wpsc_check_advanced_cache() {
 			echo "<li>" . sprintf( __( 'Refresh this page to update <em>%s/advanced-cache.php</em>', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li></ol>";
 			echo sprintf( __( 'If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</em> doesn&#8217;t exist:', 'wp-super-cache' ), WP_CONTENT_DIR ) . "<ol>";
 			echo "</ol>";
+			echo '</div>';
 		}
-		echo "</div>";
 		return false;
 	}
 	return true;
@@ -2372,6 +2410,19 @@ function wp_cache_check_global_config() {
 		$global_config_file = ABSPATH . 'wp-config.php';
 	} else {
 		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
+	}
+
+	if ( preg_match( '#^\s*(define\s*\(\s*[\'"]WP_CACHE[\'"]|const\s+WP_CACHE\s*=)#m', file_get_contents( $global_config_file ) ) === 1 ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( defined( 'WP_CACHE' ) && ! constant( 'WP_CACHE' ) ) {
+			?>
+			<div class="notice notice-error"><h4><?php esc_html_e( 'WP_CACHE constant set to false', 'wp-super-cache' ); ?></h4>
+			<p><?php esc_html_e( 'The WP_CACHE constant is used by WordPress to load the code that serves cached pages. Unfortunately, it is set to false. Please edit your wp-config.php and add or edit the following line above the final require_once command:', 'wp-super-cache' ); ?></p>
+			<p><code>define('WP_CACHE', true);</code></p></div>
+			<?php
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	$line = 'define(\'WP_CACHE\', true);';
@@ -3730,7 +3781,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 	}
 
 	uninstall_supercache( WP_CONTENT_DIR . '/cache' );
-	$file_not_deleted = false;
+	$file_not_deleted = array();
 	wpsc_remove_advanced_cache();
 	if ( @file_exists( WP_CONTENT_DIR . "/advanced-cache.php" ) ) {
 		$file_not_deleted[] = WP_CONTENT_DIR . '/advanced-cache.php';
@@ -3739,7 +3790,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 		if ( false == unlink( WPCACHECONFIGPATH . "/wp-cache-config.php" ) )
 			$file_not_deleted[] = WPCACHECONFIGPATH . '/wp-cache-config.php';
 	}
-	if ( $file_not_deleted ) {
+	if ( ! empty( $file_not_deleted ) ) {
 		$msg = __( "Dear User,\n\nWP Super Cache was removed from your blog or deactivated but some files could\nnot be deleted.\n\n", 'wp-super-cache' );
 		foreach( (array)$file_not_deleted as $path ) {
 			$msg .=  "{$path}\n";
