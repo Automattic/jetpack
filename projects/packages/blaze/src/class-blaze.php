@@ -189,14 +189,25 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function should_initialize() {
-		$should_initialize = true;
-		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$connection        = new Jetpack_Connection();
-		$site_id           = Jetpack_Connection::get_site_id();
+		$is_wpcom   = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$connection = new Jetpack_Connection();
+		$site_id    = Jetpack_Connection::get_site_id();
 
 		// Only admins should be able to Blaze posts on a site.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
+		}
+
+		// Allow short-circuiting the Blaze initialization via a filter.
+		if ( has_filter( 'jetpack_blaze_enabled' ) ) {
+			/**
+			 * Filter to disable all Blaze functionality.
+			 *
+			 * @since 0.3.0
+			 *
+			 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
+			 */
+			return apply_filters( 'jetpack_blaze_enabled', true );
 		}
 
 		// On self-hosted sites, we must do some additional checks.
@@ -221,17 +232,11 @@ class Blaze {
 
 		// Check if the site supports Blaze.
 		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
-			$should_initialize = false;
+			return false;
 		}
 
-		/**
-		 * Filter to disable all Blaze functionality.
-		 *
-		 * @since 0.3.0
-		 *
-		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
-		 */
-		return apply_filters( 'jetpack_blaze_enabled', $should_initialize );
+		// Final fallback.
+		return true;
 	}
 
 	/**
