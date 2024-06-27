@@ -21,7 +21,7 @@
 	.jp-settings-card__configure-link {
 		display: flex;
 		margin-bottom: 0;
-	
+
 		&:last-child {
 			border-top: 1px solid var( --jp-gray );
 		}
@@ -44,6 +44,20 @@
 		border-top: 1px solid var( --jp-gray );
 	}
 
+	.dops-notice {
+		margin-bottom: 0;
+
+		&, .dops-notice__icon-wrapper {
+			border-radius: 0;
+		}
+
+		.dops-notice__text {
+			&, a {
+				color: var(--jp-white);
+			}
+		}
+	}
+
 	.dops-card.is-card-link + .jp-form-settings-group {
 		border-top: 1px solid var( --jp-gray );
 	}
@@ -54,7 +68,7 @@
 
 		&:hover {
 			box-shadow: none;
-			
+
 			.dops-banner__title {
 				text-decoration: underline;
 			}
