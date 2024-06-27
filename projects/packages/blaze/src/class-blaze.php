@@ -133,13 +133,18 @@ class Blaze {
 	/**
 	 * Check the WordPress.com REST API
 	 * to ensure that the site supports the Blaze feature.
-	 * Results are cached for a day.
+	 *
+	 * - If the site is on WordPress.com Simple, we do not query the API.
+	 * - Results are cached for a day after getting response from API.
+	 * - If the API returns an error, we cache the result for an hour.
 	 *
 	 * @param int $blog_id The blog ID to check.
 	 *
 	 * @return bool
 	 */
 	public static function site_supports_blaze( $blog_id ) {
+		$transient_name = 'jetpack_blaze_site_supports_blaze_' . $blog_id;
+
 		/*
 		 * On WordPress.com, we don't need to make an API request,
 		 * we can query directly.
@@ -148,7 +153,7 @@ class Blaze {
 			return blaze_is_site_eligible( $blog_id );
 		}
 
-		$cached_result = get_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id );
+		$cached_result = get_transient( $transient_name );
 		if ( false !== $cached_result ) {
 			return $cached_result;
 		}
@@ -163,8 +168,9 @@ class Blaze {
 			'wpcom'
 		);
 
-		// Bail if there was an error or malformed response.
+		// If there was an error or malformed response, bail and save response for an hour.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			set_transient( $transient_name, false, HOUR_IN_SECONDS );
 			return false;
 		}
 
@@ -177,7 +183,7 @@ class Blaze {
 		}
 
 		// Cache the result for 24 hours.
-		set_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id, (bool) $result['approved'], DAY_IN_SECONDS );
+		set_transient( $transient_name, (bool) $result['approved'], DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
 	}
