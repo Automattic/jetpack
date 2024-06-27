@@ -728,7 +728,7 @@ function wp_cache_debug( $message, $level = 1 ) {
 	}
 
 	// if cache path is gone, then don't log anything
-	if ( ! is_dir( $cache_path ) ) {
+	if ( empty( $cache_path ) || ! is_dir( $cache_path ) ) {
 		return;
 	}
 
