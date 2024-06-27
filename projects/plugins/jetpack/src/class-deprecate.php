@@ -79,8 +79,8 @@ class Deprecate {
 
 			$this->render_notice(
 				'jetpack-ga-admin-notice',
-				esc_html__( 'Jetpack Google Analytics will no longer be supported after August 6, 2024.', 'jetpack' )
-				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'See how to keep your site intact.', 'jetpack' ) . '</a>'
+				esc_html__( "Jetpack's Google Analytics feature will be removed on August 6, 2024.", 'jetpack' )
+				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'Read this document for details and how to keep tracking visits with Google Analytics.', 'jetpack' ) . '</a>'
 			);
 		}
 	}
