@@ -109,6 +109,11 @@ export default function Carrousel( {
 		</button>
 	);
 
+	const total = images?.filter?.( item => item?.generating || item.hasOwnProperty( 'image' ) )
+		?.length;
+
+	const actual = current === 0 && total === 0 ? 0 : current + 1;
+
 	return (
 		<div className="ai-assistant-image__carrousel">
 			<div className="ai-assistant-image__carrousel-images">
@@ -167,7 +172,7 @@ export default function Carrousel( {
 			<div className="ai-assistant-image__carrousel-footer">
 				<div className="ai-assistant-image__carrousel-counter">
 					{ prevButton }
-					{ current + 1 } / { images.length }
+					{ actual } / { total }
 					{ nextButton }
 				</div>
 				<div className="ai-assistant-image__carrousel-actions">{ actions }</div>
