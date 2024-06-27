@@ -184,6 +184,7 @@ class Boost_Cache {
 
 			// Do not cache the page as WordPress did not initialize correctly.
 			if ( ! $this->do_cache ) {
+				Logger::debug( 'Page exited early. Do not cache.' );
 				return $buffer;
 			}
 
@@ -486,7 +487,6 @@ class Boost_Cache {
 	 * fatal errors occurred.
 	 */
 	public function init_do_cache() {
-		Logger::debug( 'postload: init succeeded' );
 		$this->do_cache = true;
 	}
 }
