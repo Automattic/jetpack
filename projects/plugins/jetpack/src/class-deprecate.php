@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -74,10 +75,12 @@ class Deprecate {
 	 */
 	public function render_admin_notices() {
 		if ( $this->show_ga_notice() ) {
+			$support_url = Redirect::get_url( 'jetpack-support-google-analytics' );
+
 			$this->render_notice(
 				'jetpack-ga-admin-notice',
 				esc_html__( 'Jetpack Google Analytics will no longer be supported after August 6, 2024.', 'jetpack' )
-				. ' <a href="https://jetpack.com/support/google-analytics/" target="_blank">' . esc_html__( 'See how to keep your site intact.', 'jetpack' ) . '</a>'
+				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'See how to keep your site intact.', 'jetpack' ) . '</a>'
 			);
 		}
 	}
