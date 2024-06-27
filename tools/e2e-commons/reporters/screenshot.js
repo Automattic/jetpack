@@ -1,16 +1,16 @@
+import fs from 'fs';
 import path from 'path';
 import config from 'config';
-import logger from '../logger.js';
-import fs from 'fs';
 import { fileNameFormatter } from '../helpers/utils-helper.js';
+import logger from '../logger.js';
 
 /**
  * Takes a screenshot of the given page
  *
- * @param {page}   page     Playwright page instance
- * @param {string} fileName screenshot file name
- * @param {Object} allure   instance of allure reporter
- * @return {Promise<void>}
+ * @param {page}   page     - Playwright page instance
+ * @param {string} fileName - screenshot file name
+ * @param {object} allure   - instance of allure reporter
+ * @returns {Promise<void>}
  */
 export async function takeScreenshot( page, fileName, allure ) {
 	let filePath;

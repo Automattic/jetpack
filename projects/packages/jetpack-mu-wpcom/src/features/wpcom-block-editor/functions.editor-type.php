@@ -67,13 +67,5 @@ function remember_editor( $post_id, $editor ) {
  * @return bool              Whether the block editor can be used to edit the supplied post type.
  */
 function can_edit_post_type( $post_type ) {
-	$can_edit = false;
-
-	if ( function_exists( 'gutenberg_can_edit_post_type' ) ) {
-		$can_edit = gutenberg_can_edit_post_type( $post_type );
-	} elseif ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		$can_edit = use_block_editor_for_post_type( $post_type );
-	}
-
-	return $can_edit;
+	return use_block_editor_for_post_type( $post_type );
 }

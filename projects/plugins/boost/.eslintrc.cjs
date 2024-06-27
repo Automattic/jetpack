@@ -14,7 +14,7 @@ module.exports = {
 		},
 		sourceType: 'module',
 		tsconfigRootDir: __dirname,
-		project: [ './tsconfig.json' ],
+		project: [ './tsconfig.json', './tsconfig.eslint.json' ],
 	},
 	overrides: [
 		// .js and .cjs files in the root are not part of the TypeScript project.

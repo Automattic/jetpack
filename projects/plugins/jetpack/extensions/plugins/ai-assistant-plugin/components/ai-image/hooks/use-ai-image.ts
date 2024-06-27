@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { useImageGenerator } from '@automattic/jetpack-ai-client';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -12,18 +13,32 @@ import useSaveToMediaLibrary from '../../../hooks/use-save-to-media-library';
 /**
  * Types
  */
-import { FEATURED_IMAGE_FEATURE_NAME } from '../types';
-import type { CarrouselImageData, CarrouselImages } from '../carrousel';
+import { FEATURED_IMAGE_FEATURE_NAME, GENERAL_IMAGE_FEATURE_NAME } from '../types';
+import type { CarrouselImageData, CarrouselImages } from '../components/carrousel';
 
-export default function useAiImage( { cost }: { cost: number } ) {
+type AiImageType = 'featured-image-generation' | 'general-image-generation';
+type AiImageFeature = typeof FEATURED_IMAGE_FEATURE_NAME | typeof GENERAL_IMAGE_FEATURE_NAME;
+
+export default function useAiImage( {
+	feature,
+	type,
+	cost,
+	autoStart = true,
+}: {
+	feature: AiImageFeature;
+	type: AiImageType;
+	cost: number;
+	autoStart?: boolean;
+} ) {
 	const { generateImageWithParameters } = useImageGenerator();
 	const { increaseRequestsCount } = useAiFeature();
 	const { saveToMediaLibrary } = useSaveToMediaLibrary();
+	const { createNotice } = useDispatch( 'core/notices' );
 
 	/* Images Control */
 	const pointer = useRef( 0 );
 	const [ current, setCurrent ] = useState( 0 );
-	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: true } ] );
+	const [ images, setImages ] = useState< CarrouselImages >( [ { generating: autoStart } ] );
 
 	/* Merge the image data with the new data. */
 	const updateImages = useCallback( ( data: CarrouselImageData, index ) => {
@@ -36,6 +51,19 @@ export default function useAiImage( { cost }: { cost: number } ) {
 			return newImages;
 		} );
 	}, [] );
+
+	/*
+	 * Function to show a snackbar notice on the editor.
+	 */
+	const showSnackbarNotice = useCallback(
+		( message: string ) => {
+			createNotice( 'success', message, {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		},
+		[ createNotice ]
+	);
 
 	/*
 	 * Function to update the requests count after a featured image generation.
@@ -97,7 +125,7 @@ export default function useAiImage( { cost }: { cost: number } ) {
 				 * Make a generic call to backend and let it decide the model.
 				 */
 				const generateImagePromise = generateImageWithParameters( {
-					feature: FEATURED_IMAGE_FEATURE_NAME,
+					feature,
 					size: '1792x1024', // the size, when the generation happens with DALL-E-3
 					responseFormat: 'b64_json', // the response format, when the generation happens with DALL-E-3
 					style: 'photographic', // the style of the image, when the generation happens with Stable Diffusion
@@ -105,7 +133,7 @@ export default function useAiImage( { cost }: { cost: number } ) {
 						{
 							role: 'jetpack-ai',
 							context: {
-								type: 'featured-image-generation',
+								type,
 								request: userPrompt ? userPrompt : null,
 								content: postContent,
 							},
@@ -121,7 +149,11 @@ export default function useAiImage( { cost }: { cost: number } ) {
 							updateRequestsCount();
 							saveToMediaLibrary( image )
 								.then( savedImage => {
-									updateImages( { libraryId: savedImage?.id, generating: false }, pointer.current );
+									showSnackbarNotice( __( 'Image saved to media library.', 'jetpack' ) );
+									updateImages(
+										{ libraryId: savedImage?.id, libraryUrl: savedImage?.url, generating: false },
+										pointer.current
+									);
 									pointer.current += 1;
 									resolve( {
 										image,
@@ -142,7 +174,15 @@ export default function useAiImage( { cost }: { cost: number } ) {
 					} );
 			} );
 		},
-		[ updateImages, generateImageWithParameters, updateRequestsCount, saveToMediaLibrary ]
+		[
+			updateImages,
+			generateImageWithParameters,
+			feature,
+			type,
+			updateRequestsCount,
+			saveToMediaLibrary,
+			showSnackbarNotice,
+		]
 	);
 
 	const handlePreviousImage = useCallback( () => {
@@ -162,5 +202,6 @@ export default function useAiImage( { cost }: { cost: number } ) {
 		currentImage: images[ current ],
 		currentPointer: images[ pointer.current ],
 		images,
+		pointer,
 	};
 }

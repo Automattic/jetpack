@@ -421,41 +421,51 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
+		 * This is a post transfer command that is called after a site is transferred.
+		 *
+		 * This is necessary for some plugins that need to perform certain actions after
+		 * a site is transferred, such as WooCommerce Payments that needs to clear its cache.
+		 *
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
+		 *
+		 * @subcommand post-transfer
+		 */
+		public function post_transfer( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_transfer', $args, $assoc_args );
+
+			WP_CLI::success( 'Post transfer completed successfully.' );
+		}
+
+		/**
+		 * This is a post reset command that is called after a site is reset.
+		 *
+		 * This is necessary for some plugins that need to perform certain actions after
+		 * a site is reset, such as WooCommerce Payments that needs to clear its cache.
+		 *
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
+		 *
+		 * @subcommand post-reset
+		 */
+		public function post_reset( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_reset', $args, $assoc_args );
+
+			WP_CLI::success( 'Post reset completed successfully.' );
+		}
+
+		/**
 		 * This is a post clone command that is called after a site is cloned.
 		 *
 		 * This is necessary for some plugins that need to perform certain actions after
 		 * a site is cloned, such as WooCommerce Payments that needs to clear its cache.
 		 *
-		 * Note: This command should only be executed from WPCOM as part of an atomic transfer.
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
 		 *
 		 * @subcommand post-clone
 		 */
-		public function post_clone( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
-				$plugins = array(
-					'woocommerce-payments' => function () {
-						$account = \WC_Payments::get_account_service();
-						$account->clear_cache();
-					},
-				);
+		public function post_clone( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_clone', $args, $assoc_args );
 
-				foreach ( $plugins as $plugin => $callback ) {
-					$result = WP_CLI::runcommand(
-						sprintf( '--skip-plugins --skip-themes plugin is-active %s', $plugin ),
-						array(
-							'launch'     => false,
-							'return'     => 'all',
-							'exit_error' => false,
-						)
-					);
-					if ( 0 !== $result->return_code ) {
-						WP_CLI::log( sprintf( 'Skipping inactive plugin: %s', $plugin ) );
-						continue;
-					}
-
-					$callback();
-					WP_CLI::log( sprintf( 'Callback executed for %s', $plugin ) );
-				}
-				WP_CLI::success( 'Post clone completed successfully.' );
+			WP_CLI::success( 'Post clone completed successfully.' );
 		}
 
 		/**
@@ -910,7 +920,50 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::success( 'Success' );
 		}
+
+		/**
+		 * Enable or disable fatal error emails.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <command>
+		 * : The subcommand
+		 * ---
+		 * options:
+		 *  - get
+		 *  - set
+		 * ---
+		 *
+		 * [--value=<value>]
+		 * : The value (when setting)
+		 * ---
+		 * default: 1
+		 * options:
+		 *  - 0
+		 *  - 1
+		 * ---
+		 *
+		 * @subcommand disable-fatal-error-emails
+		 */
+		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$command = $args[0];
+			$value   = (bool) $assoc_args['value'];
+
+			switch ( $command ) {
+				case 'get':
+					$option = get_option( 'wpcomsh_disable_fatal_error_emails', false );
+					WP_CLI::log( $option ? 'true' : 'false' );
+					break;
+				case 'set':
+					update_option( 'wpcomsh_disable_fatal_error_emails', $value );
+					WP_CLI::success( 'Success' );
+					break;
+				default:
+					WP_CLI::error( 'Invalid command' );
+			}
+		}
 	}
+
 }
 
 if ( class_exists( 'Checksum_Plugin_Command' ) ) {
@@ -1166,7 +1219,9 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

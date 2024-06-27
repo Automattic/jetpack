@@ -17,7 +17,7 @@ import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library';
 import {
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_DOCUMENT_SETTINGS,
-} from '../ai-assistant-plugin-sidebar/types';
+} from '../ai-assistant-plugin-sidebar/constants';
 import AiImageModal from './components/ai-image-modal';
 import useAiImage from './hooks/use-ai-image';
 import useSiteType from './hooks/use-site-type';
@@ -90,7 +90,11 @@ export default function FeaturedImage( {
 		currentImage,
 		currentPointer,
 		images,
-	} = useAiImage( { cost: featuredImageCost } );
+	} = useAiImage( {
+		cost: featuredImageCost,
+		type: 'featured-image-generation',
+		feature: FEATURED_IMAGE_FEATURE_NAME,
+	} );
 
 	const handleModalClose = useCallback( () => {
 		setIsFeaturedImageModalVisible( false );
@@ -268,12 +272,7 @@ export default function FeaturedImage( {
 		: null;
 
 	const acceptButton = (
-		<Button
-			onClick={ handleAccept }
-			variant="primary"
-			isBusy={ currentImage?.generating }
-			disabled={ ! currentImage?.image }
-		>
+		<Button onClick={ handleAccept } variant="primary" disabled={ ! currentImage?.image }>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
 	);
@@ -295,6 +294,7 @@ export default function FeaturedImage( {
 				</>
 			) }
 			<AiImageModal
+				postContent={ postContent }
 				autoStart={ placement === PLACEMENT_MEDIA_SOURCE_DROPDOWN }
 				autoStartAction={ handleGenerate }
 				images={ images }
@@ -318,6 +318,10 @@ export default function FeaturedImage( {
 				handleNextImage={ handleNextImage }
 				acceptButton={ acceptButton }
 				generateButtonLabel={ __( 'Generate again', 'jetpack' ) }
+				instructionsPlaceholder={ __(
+					'Include optional instructions to generate a new image',
+					'jetpack'
+				) }
 			/>
 		</>
 	);
