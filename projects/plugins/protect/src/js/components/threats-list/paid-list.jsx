@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -26,9 +26,11 @@ const ThreatAccordionItem = ( {
 	type,
 	severity,
 } ) => {
+	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 	const { setModal } = useDispatch( STORE_ID );
-
 	const { recordEvent } = useAnalyticsTracks();
+
+	const fixerInProgress = threatsAreFixing.indexOf( id ) >= 0;
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -113,11 +115,16 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+				<Button
+					isDestructive={ true }
+					variant="secondary"
+					disabled={ fixerInProgress }
+					onClick={ handleIgnoreThreatClick() }
+				>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 				{ fixable && (
-					<Button onClick={ handleFixThreatClick() }>
+					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				) }

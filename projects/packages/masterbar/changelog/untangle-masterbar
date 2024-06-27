@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-For sites with Classic view, don't load the masterbar package except the admin color schemes functionality.
