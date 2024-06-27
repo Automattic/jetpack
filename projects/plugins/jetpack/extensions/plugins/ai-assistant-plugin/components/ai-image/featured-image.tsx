@@ -82,6 +82,7 @@ export default function FeaturedImage( {
 	}, [] );
 
 	const {
+		pointer,
 		current,
 		setCurrent,
 		processImageGeneration,
@@ -91,6 +92,7 @@ export default function FeaturedImage( {
 		currentPointer,
 		images,
 	} = useAiImage( {
+		autoStart: false,
 		cost: featuredImageCost,
 		type: 'featured-image-generation',
 		feature: FEATURED_IMAGE_FEATURE_NAME,
@@ -100,6 +102,10 @@ export default function FeaturedImage( {
 		setIsFeaturedImageModalVisible( false );
 		onClose?.();
 	}, [ onClose ] );
+
+	const handleModalOpen = useCallback( () => {
+		setIsFeaturedImageModalVisible( true );
+	}, [] );
 
 	const handleGenerate = useCallback(
 		( { userPrompt }: { userPrompt?: string } ) => {
@@ -260,6 +266,9 @@ export default function FeaturedImage( {
 		saveToMediaLibrary,
 	] );
 
+	const generateAgainText = __( 'Generate another image', 'jetpack' );
+	const generateText = __( 'Generate', 'jetpack' );
+
 	const upgradeDescription = notEnoughRequests
 		? sprintf(
 				// Translators: %d is the cost of generating a featured image.
@@ -272,7 +281,11 @@ export default function FeaturedImage( {
 		: null;
 
 	const acceptButton = (
-		<Button onClick={ handleAccept } variant="primary" disabled={ ! currentImage?.image }>
+		<Button
+			onClick={ handleAccept }
+			variant="primary"
+			disabled={ ! currentImage?.image || currentImage?.generating }
+		>
 			{ __( 'Set as featured image', 'jetpack' ) }
 		</Button>
 	);
@@ -284,7 +297,7 @@ export default function FeaturedImage( {
 				<>
 					<p>{ __( 'Create and use an AI generated featured image for your post.', 'jetpack' ) }</p>
 					<Button
-						onClick={ handleGenerate }
+						onClick={ handleModalOpen }
 						isBusy={ busy }
 						disabled={ ! postContent || disabled || notEnoughRequests }
 						variant="secondary"
@@ -295,8 +308,6 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ postContent }
-				autoStart={ placement === PLACEMENT_MEDIA_SOURCE_DROPDOWN }
-				autoStartAction={ handleGenerate }
 				images={ images }
 				currentIndex={ current }
 				title={ __( 'Generate a featured image with AI', 'jetpack' ) }
@@ -305,7 +316,7 @@ export default function FeaturedImage( {
 				placement={ placement }
 				onClose={ handleModalClose }
 				onTryAgain={ handleTryAgain }
-				onGenerate={ handleRegenerate }
+				onGenerate={ pointer?.current > 0 ? handleRegenerate : handleGenerate }
 				generating={ currentPointer?.generating }
 				notEnoughRequests={ notEnoughRequests }
 				requireUpgrade={ requireUpgrade }
@@ -317,9 +328,9 @@ export default function FeaturedImage( {
 				handlePreviousImage={ handlePreviousImage }
 				handleNextImage={ handleNextImage }
 				acceptButton={ acceptButton }
-				generateButtonLabel={ __( 'Generate again', 'jetpack' ) }
+				generateButtonLabel={ pointer?.current > 0 ? generateAgainText : generateText }
 				instructionsPlaceholder={ __(
-					'Include optional instructions to generate a new image',
+					"Describe the image you'd like to create, or have the prompt written for you if you've added content to your post.",
 					'jetpack'
 				) }
 			/>

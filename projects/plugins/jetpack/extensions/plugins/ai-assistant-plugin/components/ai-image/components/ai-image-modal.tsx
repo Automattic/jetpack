@@ -64,7 +64,7 @@ export default function AiImageModal( {
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: JSX.Element;
-	autoStart: boolean;
+	autoStart?: boolean;
 	autoStartAction?: ( { userPrompt }: { userPrompt?: string } ) => void;
 	generateButtonLabel: string;
 	instructionsPlaceholder: string;
