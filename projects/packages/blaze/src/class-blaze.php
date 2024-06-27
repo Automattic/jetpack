@@ -154,8 +154,8 @@ class Blaze {
 		}
 
 		$cached_result = get_transient( $transient_name );
-		if ( false !== $cached_result ) {
-			return $cached_result;
+		if ( false !== $cached_result && is_array( $cached_result ) ) {
+			return $cached_result['approved'];
 		}
 
 		// Make the API request.
@@ -170,7 +170,7 @@ class Blaze {
 
 		// If there was an error or malformed response, bail and save response for an hour.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			set_transient( $transient_name, false, HOUR_IN_SECONDS );
+			set_transient( $transient_name, array( 'approved' => false ), HOUR_IN_SECONDS );
 			return false;
 		}
 
@@ -183,7 +183,7 @@ class Blaze {
 		}
 
 		// Cache the result for 24 hours.
-		set_transient( $transient_name, (bool) $result['approved'], DAY_IN_SECONDS );
+		set_transient( $transient_name, array( 'approved' => (bool) $result['approved'] ), DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
 	}
