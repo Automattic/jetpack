@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social | Updated "Share post" logic to hide the button when there are no connections
