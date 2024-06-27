@@ -201,24 +201,15 @@ class Help_Center {
 	 * Get current site details.
 	 */
 	public function get_current_site() {
-		$is_support_site = $this->is_support_site();
-
-		if ( $is_support_site ) {
-			$user_id = get_current_user_id();
-			$user    = get_userdata( $user_id );
-			$site    = $user->primary_blog;
-			switch_to_blog( $site );
+		/*
+		* Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
+		* doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
+		*/
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+			$site = (int) $jetpack_options['id'];
 		} else {
-			/*
-			 * Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
-			 * doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
-			 */
-			$jetpack_options = get_option( 'jetpack_options' );
-			if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-				$site = (int) $jetpack_options['id'];
-			} else {
-				$site = get_current_blog_id();
-			}
+			$site = get_current_blog_id();
 		}
 
 		$logo_id = get_option( 'site_logo' );
@@ -245,10 +236,6 @@ class Help_Center {
 				'admin_url'        => get_admin_url(),
 			),
 		);
-
-		if ( $is_support_site ) {
-			restore_current_blog();
-		}
 
 		return $return_data;
 	}
@@ -304,14 +291,6 @@ class Help_Center {
 		require_once __DIR__ . '/class-wp-rest-help-center-email-support-enabled.php';
 		$controller = new WP_REST_Help_Center_Email_Support_Enabled();
 		$controller->register_rest_route();
-	}
-	/**
-	 * Returns true if the current site is a support site.
-	 */
-	public function is_support_site() {
-		// Disable the Help Center in support sites for now. It may be causing issues with notifications.
-		return false;
-		// Disable for now: `return defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), WPCOM_SUPPORT_BLOG_IDS, true )`.
 	}
 
 	/**
