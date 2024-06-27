@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Jetpack Boost: ensure that "init" fires before allowing a page to be cached to avoid caching error pages

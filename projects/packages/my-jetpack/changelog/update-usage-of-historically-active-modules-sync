@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Move historically active modules sync to admin_init

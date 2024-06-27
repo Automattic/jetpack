@@ -1,0 +1,318 @@
+:root {
+	--color-phrase: rgba(255, 205, 86, 1); /* Yellow for border */
+	--color-phrase-bg: rgba(255, 205, 86, 0.5); /* Yellow for background */
+	--color-phrase-gradient: rgba(
+		255,
+		205,
+		86,
+		0.2
+	); /* Lighter yellow for gradient */
+	--color-weasel: rgba(255, 159, 64, 1); /* Orange for border */
+	--color-weasel-bg: rgba(255, 159, 64, 0.5); /* Orange for background */
+	--color-weasel-gradient: rgba(
+		255,
+		159,
+		64,
+		0.2
+	); /* Lighter orange for gradient */
+	--color-adjective: rgba(193, 76, 170, 1); /* Pink for border */
+	--color-adjective-bg: rgba(193, 76, 170, 0.5); /* Pink for background */
+	--color-adjective-gradient: rgba(
+		193,
+		76,
+		170,
+		0.2
+	); /* Lighter pink for gradient */
+	--color-adverb: rgba(102, 153, 255, 1); /* Blue for border */
+	--color-adverb-bg: rgba(102, 153, 255, 0.5); /* Blue for background */
+	--color-adverb-gradient: rgba(
+		102,
+		153,
+		255,
+		0.2
+	); /* Lighter blue for gradient */
+	--color-long-sentence: rgba(75, 192, 192, 1); /* Teal for border */
+	--color-long-sentence-bg: rgba(75, 192, 192, 0.5); /* Teal for background */
+	--color-long-sentence-gradient: rgba(
+		75,
+		192,
+		192,
+		0.2
+	); /* Lighter teal for gradient */
+	--tooltip-bg: rgba(30, 30, 30, 1);
+	--tooltip-color: #fff;
+}
+
+.breve-help-text {
+	color: rgb(117, 117, 117);
+}
+
+.highlight-overlay {
+	cursor: pointer;
+	box-sizing: border-box;
+	position: absolute;
+}
+
+.highlight-overlay:after {
+	content: "";
+	display: none;
+}
+
+.highlight-overlay:hover:after {
+	background-color: var(--tooltip-bg);
+	border-radius: 2px;
+	box-sizing: border-box;
+	color: var(--tooltip-color);
+	content: attr(data-tooltip);
+	display: block;
+	font-family: "SF Pro Text";
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	height: auto;
+	line-height: 16px;
+	padding: 6px 9px;
+	position: absolute;
+	top: -25px;
+	white-space: nowrap;
+	z-index: 99;
+	width: unset;
+}
+
+.highlight-overlay.phrase {
+	border-bottom: 3px solid var(--color-phrase);
+	cursor: default;
+	pointer-events: none;
+	z-index: 5;
+}
+
+.highlight-overlay.aiOn.phrase {
+	background-color: var(--color-phrase-bg);
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.highlight-overlay.weasel {
+	border-bottom: 3px solid var(--color-weasel);
+	cursor: default;
+	pointer-events: none;
+	z-index: 4;
+}
+
+.highlight-overlay.aiOn.weasel {
+	background-color: var(--color-weasel-bg);
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.highlight-overlay.adjective {
+	border-bottom: 3px solid var(--color-adjective);
+	cursor: default;
+	pointer-events: none;
+	z-index: 3;
+}
+
+.highlight-overlay.aiOn.adjective {
+	background-color: var(--color-adjective-bg);
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.highlight-overlay.adverb {
+	border-bottom: 3px solid var(--color-adverb);
+	cursor: default;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.highlight-overlay.aiOn.adverb {
+	background-color: var(--color-adverb-bg);
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.highlight-overlay.long-sentence {
+	border-bottom: 3px solid var(--color-long-sentence);
+	cursor: default;
+	pointer-events: none;
+	z-index: 1;
+}
+
+.highlight-overlay.aiOn.long-sentence {
+	background-color: var(--color-long-sentence-bg);
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.highlight-overlay.isProcessing {
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+@keyframes gradientAnimation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.highlight-overlay.phrase.aiOn.isProcessing {
+	background: linear-gradient(
+		270deg,
+		var(--color-phrase-bg),
+		var(--color-phrase-gradient)
+	);
+	background-size: 400% 400%;
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+.highlight-overlay.weasel.aiOn.isProcessing {
+	background: linear-gradient(
+		270deg,
+		var(--color-weasel-bg),
+		var(--color-weasel-gradient)
+	);
+	background-size: 400% 400%;
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+.highlight-overlay.adjective.aiOn.isProcessing {
+	background: linear-gradient(
+		270deg,
+		var(--color-adjective-bg),
+		var(--color-adjective-gradient)
+	);
+	background-size: 400% 400%;
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+.highlight-overlay.adverb.aiOn.isProcessing {
+	background: linear-gradient(
+		270deg,
+		var(--color-adverb-bg),
+		var(--color-adverb-gradient)
+	);
+	background-size: 400% 400%;
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+.highlight-overlay.long-sentence.aiOn.isProcessing {
+	background: linear-gradient(
+		270deg,
+		var(--color-long-sentence-bg),
+		var(--color-long-sentence-gradient)
+	);
+	background-size: 400% 400%;
+	animation: gradientAnimation 01.25s ease infinite;
+	cursor: wait;
+}
+
+.breve-tooltip {
+	background-color: var(--tooltip-bg);
+	border-radius: 2px;
+	border: none;
+	cursor: pointer;
+	color: var(--tooltip-color);
+	padding: 6px 9px;
+	pointer-events: none;
+	z-index: 1;
+	font-family: "SF Pro Text";
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: 16px;
+}
+
+.key-row {
+	margin-bottom: 16px;
+	cursor: pointer;
+	display: flex;
+	gap: 4px;
+}
+
+.key-row .key {
+	width: 16px;
+	height: 16px;
+	border-radius: 3px;
+	display: inline-block;
+	margin-right: 4px;
+	position: relative;
+	top: 3px;
+	background-size: 12px 12px; /* Ensures the checkmark fits within the key */
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 90%;
+	background-position: center center;
+}
+
+.key.phrase {
+	border: 2px solid var(--color-phrase);
+}
+
+.key-row.enabled .key.phrase {
+	background-color: var(--color-phrase);
+	background-image: url("check.svg"); /* Ensure the path to the check.svg is correct */
+}
+
+.key.weasel {
+	border: 2px solid var(--color-weasel);
+}
+
+.key-row.enabled .key.weasel {
+	background-color: var(--color-weasel);
+	background-image: url("check.svg"); /* Ensure the path to the check.svg is correct */
+}
+
+.key.adverb {
+	border: 2px solid var(--color-adverb);
+}
+
+.key-row.enabled .key.adverb {
+	background-color: var(--color-adverb);
+	background-image: url("check.svg"); /* Ensure the path to the check.svg is correct */
+}
+
+.key.adjective {
+	border: 2px solid var(--color-adjective);
+}
+
+.key-row.enabled .key.adjective {
+	background-color: var(--color-adjective);
+	background-image: url("check.svg"); /* Ensure the path to the check.svg is correct */
+}
+
+.key.long-sentence {
+	border: 2px solid var(--color-long-sentence);
+}
+
+.key-row.enabled .key.long-sentence {
+	background-color: var(--color-long-sentence);
+	background-image: url("check.svg"); /* Ensure the path to the check.svg is correct */
+}
+
+.key-row .desc {
+	flex: 1;
+	font-size: 12px;
+	font-style: normal;
+	color: rgb(117, 117, 117);
+}
+
+.gradeLevelContainer {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+}
+
+.gradeLevelContainer svg {
+	position: relative;
+	top: 2px;
+}
