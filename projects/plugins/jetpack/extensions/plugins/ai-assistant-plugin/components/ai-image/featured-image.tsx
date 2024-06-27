@@ -299,7 +299,7 @@ export default function FeaturedImage( {
 					<Button
 						onClick={ handleModalOpen }
 						isBusy={ busy }
-						disabled={ ! postContent || disabled || notEnoughRequests }
+						disabled={ disabled || notEnoughRequests }
 						variant="secondary"
 					>
 						{ __( 'Generate image', 'jetpack' ) }
