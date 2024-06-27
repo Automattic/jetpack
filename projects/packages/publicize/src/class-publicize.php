@@ -147,9 +147,12 @@ class Publicize extends Publicize_Base {
 	public function receive_updated_publicize_connections( $publicize_connections ) {
 		$expiry = 3600 * 4;
 		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
+			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
+			// we can delete the transient and try again.
 			delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 			set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry );
 		}
+		// Regardless of whether the transient is set ok, let's set and use the local property for this request.
 		$this->current_connections = $publicize_connections;
 		return true;
 	}
