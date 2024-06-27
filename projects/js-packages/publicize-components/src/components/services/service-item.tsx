@@ -1,10 +1,11 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useReducer } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
+import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
 export type ServicesItemProps = ServicesItemDetailsProps;
@@ -45,17 +46,11 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
 					) : null }
-					{ serviceConnections?.length > 0 ? (
-						<span className={ styles[ 'active-connection' ] }>
-							{ serviceConnections.length > 1
-								? sprintf(
-										// translators: %d: Number of connections
-										__( '%d connections', 'jetpack' ),
-										serviceConnections.length
-								  )
-								: __( 'Connected', 'jetpack' ) }
-						</span>
-					) : null }
+					<ServiceStatus
+						serviceConnections={ serviceConnections }
+						// If the panel is already open, we don't need the click handler
+						onClickBroken={ isPanelOpen ? undefined : togglePanel }
+					/>
 				</div>
 				<div className={ styles.actions }>
 					{ ! isMastodonPanelOpen ? (
