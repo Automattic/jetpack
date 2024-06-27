@@ -154,8 +154,12 @@ class Blaze {
 		}
 
 		$cached_result = get_transient( $transient_name );
-		if ( false !== $cached_result && is_array( $cached_result ) ) {
-			return $cached_result['approved'];
+		if ( false !== $cached_result ) {
+			if ( is_array( $cached_result ) ) {
+				return $cached_result['approved'];
+			}
+
+			return (bool) $cached_result;
 		}
 
 		// Make the API request.
