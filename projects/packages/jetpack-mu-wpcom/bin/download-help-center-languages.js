@@ -1,4 +1,6 @@
+const fs = require( 'fs' );
 const https = require( 'https' );
+const path = require( 'path' );
 
 [
 	'ar',
@@ -29,13 +31,10 @@ const https = require( 'https' );
 	'zh-tw',
 ].forEach( lang => {
 	const url = `https://widgets.wp.com/help-center/languages/${ lang }-v1.1.json`;
-	const dest = require( 'path' ).resolve(
-		'src',
-		'features',
-		'help-center',
-		'languages',
-		`${ lang }-help-center.json`
-	);
+	const dir = path.resolve( 'src', 'features', 'help-center', 'languages' );
+	const dest = path.resolve( dir, `${ lang }-help-center.json` );
+
+	fs.mkdirSync( dir, { recursive: true } );
 
 	https.get( url, response => {
 		let data = '';
@@ -58,7 +57,7 @@ const https = require( 'https' );
 				},
 			};
 
-			require( 'fs' ).writeFileSync( dest, JSON.stringify( JED ) );
+			fs.writeFileSync( dest, JSON.stringify( JED ) );
 		} );
 	} );
 } );
