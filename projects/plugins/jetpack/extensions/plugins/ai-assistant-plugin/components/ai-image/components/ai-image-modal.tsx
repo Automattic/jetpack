@@ -99,7 +99,7 @@ export default function AiImageModal( {
 
 	// Controllers
 	const instructionsDisabled = notEnoughRequests || generating;
-	const showUpgrade = ( requireUpgrade || notEnoughRequests ) && ! generating;
+	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
 	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
 	const generateButtonDisabled =
@@ -158,7 +158,7 @@ export default function AiImageModal( {
 								</KeyboardShortcuts>
 							</div>
 						</div>
-						{ showUpgrade && (
+						{ upgradePromptVisible && (
 							<UpgradePrompt
 								description={ upgradeDescription }
 								placement={ FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT }
