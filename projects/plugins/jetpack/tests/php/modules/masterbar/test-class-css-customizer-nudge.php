@@ -24,13 +24,11 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	private $wp_customize;
 
 	/**
-	 * Runs once before all tests in this class.
+	 * File path for loading the required deprecated file.
+	 *
+	 * @var string
 	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
-
-		require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
-	}
+	private static $deprecated_file_path = JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
 
 	/**
 	 * Register a customizer manager.
@@ -40,6 +38,11 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
+		require_once self::$deprecated_file_path;
+
+		do_action( 'init' );
+
 		$this->wp_customize = new \WP_Customize_Manager();
 		register_css_nudge_control( $this->wp_customize );
 	}
@@ -47,11 +50,13 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	/**
 	 * Check if the assets are registered.
 	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::__construct
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_it_enqueues_the_assets() {
+		$this->setExpectedDeprecated( self::$deprecated_file_path );
 		$nudge      = new CSS_Customizer_Nudge( 'url', 'message' );
 		$reflection = new \ReflectionClass( $nudge );
 		$wrapper    = $reflection->getProperty( 'css_customizer_nudge_wrapper' );
