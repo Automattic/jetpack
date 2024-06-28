@@ -33,7 +33,7 @@
 				width: 100%;
 				height: 100%;
 				padding-left: 48px;
-				border: none;
+				border: none !important;
 				font-size: 14px;
 				box-sizing: border-box;
 
@@ -44,6 +44,10 @@
 
 				&.invalid-form-data {
 					border: solid 1px #e65054;
+				}
+
+				&:focus-visible {
+					border: 1px solid var(--wp-admin-theme-color) !important;
 				}
 
 			}

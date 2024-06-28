@@ -331,6 +331,10 @@
 								&.mail {
 									background-color: #3C97CE;
 								}
+
+								&:focus-visible {
+									box-shadow: inset 0 0 0 1px var(--wp-components-color-background,#fff),0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent,var(--wp-admin-theme-color,#0675c4));
+								}
 							}
 
 							.verbum-login__social-loading {
