@@ -9,10 +9,12 @@ import {
 	SOURCE_JETPACK_APP_MEDIA,
 	SOURCE_JETPACK_AI_FEATURED_IMAGE,
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE,
+	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
 import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAIGeneralPurposeImage from './jetpack-ai-general-purpose-image';
+import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
 import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
@@ -111,6 +113,8 @@ export function getExternalLibrary( type ) {
 		return JetpackAIFeaturedImage;
 	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE ) {
 		return JetpackAIGeneralPurposeImage;
+	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK ) {
+		return JetpackAIGeneralPurposeImageForBlock;
 	}
 	return null;
 }
