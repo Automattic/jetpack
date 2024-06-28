@@ -185,7 +185,8 @@ class Help_Center {
 			);
 		}
 
-		wp_set_script_translations( 'help-center', 'jetpack-mu-wpcom', plugin_dir_path( __FILE__ ) . 'languages' );
+		// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch -- Jetpack is not responsible for the translate of this script.
+		wp_set_script_translations( 'help-center', 'default', plugin_dir_path( __FILE__ ) . 'languages' );
 	}
 
 	/**
