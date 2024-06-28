@@ -11,12 +11,19 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 
-require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
-
 /**
  * Class Test_CSS_Nudge_Customize_Control
  */
 class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
+
+	/**
+	 * Runs once before all tests in this class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
+	}
 
 	/**
 	 * Check if the HTML for the nudge section is properly generated.
