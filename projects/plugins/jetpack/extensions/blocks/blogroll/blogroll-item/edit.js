@@ -9,7 +9,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 
 	return (
 		<>
-			<hr className="jetpack-blogroll-item-divider" />
+			<hr className="wp-block-separator jetpack-blogroll-item-divider" />
 			<div { ...blockProps }>
 				<MediaUpload
 					multiple={ false }

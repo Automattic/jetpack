@@ -55,8 +55,6 @@ $jetpack-blogroll-item-container: bitem;
 	}
 
 	.wp-block-jetpack-blogroll-item + .wp-block-jetpack-blogroll-item {
-		border-top: 1px solid var(--wp--preset--color--foreground, #DCDCDE);
-
 		.jetpack-blogroll-item-divider {
 			display: block;
 		}

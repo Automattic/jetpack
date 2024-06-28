@@ -154,7 +154,7 @@ HTML;
 
 	return sprintf(
 		'<div class="%1$s">
-			<hr class="jetpack-blogroll-item-divider" />
+			<hr class="wp-block-separator jetpack-blogroll-item-divider" />
 			<div class="jetpack-blogroll-item-slider">%2$s</div>
 		</div>',
 		esc_attr( $classes ),
