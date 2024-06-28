@@ -636,8 +636,8 @@ class csstidy_optimise { // phpcs:ignore
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 
 		foreach ( $shorthands as $key => $value ) {
-			if ( is_array( $value ) && isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] )
-							&& isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) && $value !== 0 ) {
+			if ( $value !== 0 && isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] )
+							&& isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) ) {
 				$return[ $key ] = '';
 
 				$important = '';
