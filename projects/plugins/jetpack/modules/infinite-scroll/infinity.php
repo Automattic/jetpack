@@ -1542,7 +1542,7 @@ class The_Neverending_Home_Page {
 				}
 
 				// If sharing counts are not initialized for any reason, we initialize them here.
-				if ( ! isset( $jetpack_sharing_counts ) || ! is_array( $jetpack_sharing_counts ) ) {
+				if ( ! is_array( $jetpack_sharing_counts ) ) {
 					$jetpack_sharing_counts = array();
 				}
 
