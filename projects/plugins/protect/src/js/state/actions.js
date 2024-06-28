@@ -4,6 +4,8 @@ import camelize from 'camelize';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
+const SET_VIEWING_SCAN_HISTORY = 'SET_VIEWING_SCAN_HISTORY';
+const SET_SCAN_HISTORY = 'SET_SCAN_HISTORY';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
@@ -30,6 +32,14 @@ const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
 const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 const SET_WAF_STATS = 'SET_WAF_STATS';
+
+const setViewingScanHistory = viewingScanHistory => {
+	return { type: SET_VIEWING_SCAN_HISTORY, viewingScanHistory };
+};
+
+const setScanHistory = scanHistory => {
+	return { type: SET_SCAN_HISTORY, scanHistory };
+};
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -418,6 +428,8 @@ const actions = {
 	checkCredentials,
 	setCredentials,
 	setCredentialsIsFetching,
+	setViewingScanHistory,
+	setScanHistory,
 	setStatus,
 	setStatusProgress,
 	startScanOptimistically,
@@ -451,6 +463,8 @@ const actions = {
 export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
+	SET_VIEWING_SCAN_HISTORY,
+	SET_SCAN_HISTORY,
 	SET_STATUS,
 	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,
