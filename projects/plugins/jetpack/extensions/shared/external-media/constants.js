@@ -8,7 +8,8 @@ export const SOURCE_OPENVERSE = 'openverse';
 export const SOURCE_PEXELS = 'pexels';
 export const SOURCE_JETPACK_APP_MEDIA = 'jetpack_app_media';
 export const SOURCE_JETPACK_AI_FEATURED_IMAGE = 'jetpack_ai_featured_image';
-export const SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE = 'jetpack_ai_general_purpose_image';
+export const SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE =
+	'jetpack_ai_general_purpose_image_for_media_source';
 export const SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK =
 	'jetpack_ai_general_purpose_image_for_block';
 
