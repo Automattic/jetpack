@@ -8,16 +8,11 @@ import useAnalytics from '../use-analytics';
 import type { NoticeOptions } from '../../context/notices/types';
 
 const useConnectionErrorsNotice = () => {
-	const { setNotice, resetNotice } = useContext( NoticeContext );
+	const { setNotice, currentNotice } = useContext( NoticeContext );
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 	const { recordEvent } = useAnalytics();
-
-	useEffect( () => {
-		// Reset notice before showing the failed to restore connection notice
-		resetNotice();
-	}, [ resetNotice, restoreConnectionError ] );
 
 	useEffect( () => {
 		if ( ! hasConnectionError ) {
@@ -76,7 +71,7 @@ const useConnectionErrorsNotice = () => {
 		restoreConnection,
 		isRestoringConnection,
 		restoreConnectionError,
-		resetNotice,
+		currentNotice.options.priority,
 	] );
 };
 
