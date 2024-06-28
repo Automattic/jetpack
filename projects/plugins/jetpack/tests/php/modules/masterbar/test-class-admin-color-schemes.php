@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes;
 use WpOrg\Requests\Requests;
 
-require_once JETPACK__PLUGIN_DIR . 'tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-color-schemes/class-admin-color-schemes.php';
 
 /**
@@ -16,7 +15,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-color-schemes/class-
  *
  * @coversDefaultClass Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes
  */
-class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
+class Test_Admin_Color_Schemes extends WP_UnitTestCase {
 
 	/**
 	 * Mock user ID.
@@ -24,6 +23,13 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * @var int
 	 */
 	private static $user_id = 0;
+
+	/**
+	 * REST Server object.
+	 *
+	 * @var WP_REST_Server
+	 */
+	private $server;
 
 	/**
 	 * Create shared database fixtures.
@@ -38,13 +44,22 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * Set up each test.
 	 */
 	public function set_up() {
+		parent::set_up();
+
+		global $wp_rest_server;
+
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
+
 		new Admin_Color_Schemes();
 
-		parent::set_up();
+		do_action( 'rest_api_init' );
 	}
 
 	/**
 	 * Tests the schema response for OPTIONS requests.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes::__construct
 	 */
 	public function test_schema_request() {
 		$request  = new WP_REST_Request( Requests::OPTIONS, '/wp/v2/users/' . static::$user_id );
@@ -62,6 +77,8 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * Tests retrieving the color scheme setting for a user.
 	 *
 	 * @covers ::register_admin_color_meta
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes::__construct
 	 */
 	public function test_get_color_scheme() {
 		wp_set_current_user( static::$user_id );
@@ -79,6 +96,8 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 	 * Tests updating the color scheme setting for a user.
 	 *
 	 * @covers ::register_admin_color_meta
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Admin_Color_Schemes::__construct
 	 */
 	public function test_update_color_scheme() {
 		wp_set_current_user( static::$user_id );
@@ -109,7 +128,9 @@ class Test_Admin_Color_Schemes extends WP_Test_Jetpack_REST_Testcase {
 			)
 		);
 		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
 
-		$this->assertErrorResponse( 'rest_cannot_edit', $response, WP_Http::FORBIDDEN );
+		$this->assertSame( WP_Http::FORBIDDEN, $response->get_status() );
+		$this->assertSame( 'rest_cannot_edit', $data['code'] );
 	}
 }

@@ -56,7 +56,7 @@ class Posts_List_Page_Notification {
 	 *
 	 * @deprecated $$next-version$$
 	 *
-	 * @return Posts_List_Page_Notification
+	 * @return \Automattic\Jetpack\Masterbar\Posts_List_Page_Notification
 	 */
 	public static function init() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Posts_List_Page_Notification::init' );

@@ -36,7 +36,7 @@ class WPCOM_User_Profile_Fields_Revert {
 	 */
 	public function __construct( Connection_Manager $connection_manager ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::__construct' );
-		$this->wpcom_user_profile_fields_revert_wrapper = Masterbar_WPCOM_User_Profile_Fields_Revert( $connection_manager );
+		$this->wpcom_user_profile_fields_revert_wrapper = new Masterbar_WPCOM_User_Profile_Fields_Revert( $connection_manager );
 	}
 
 	/**

@@ -5,4 +5,4 @@
  * @package automattic/jetpack
  */
 
-return require JETPACK_PLUGIN_DIR . '/vendor/automattic/jetpack-masterbar/src/admin-menu/dashicon-set.php';
+return require JETPACK__PLUGIN_DIR . 'jetpack-vendor/automattic/jetpack-masterbar/src/admin-menu/dashicon-set.php';

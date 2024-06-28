@@ -43,6 +43,9 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the revert ignores not connected users.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::revert_user_data_on_wp_admin_profile_update
 	 */
 	public function test_if_it_skips_not_connected_users() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
@@ -57,6 +60,9 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the implementation prevents updating the display_name.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::revert_user_data_on_wp_admin_profile_update
 	 */
 	public function test_revert_display_name() {
 		$connection_manager = $this->createMock( Connection_Manager::class );
@@ -71,6 +77,9 @@ class Test_WPCOM_User_Profile_Fields_Revert extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the revert works for first_name, last_name and description fields.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert::revert_user_meta_on_wp_admin_profile_change
 	 */
 	public function test_revert_user_fields() {
 		$connection_manager = $this->createMock( Connection_Manager::class );

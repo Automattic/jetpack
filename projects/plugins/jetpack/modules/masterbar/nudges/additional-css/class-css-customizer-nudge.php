@@ -19,10 +19,10 @@ use Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge as Masterbar_CSS_Customize
  */
 class CSS_Customizer_Nudge {
 	/**
-	 * Instance of \Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
+	 * Instance of \Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
 	 * Used for deprecation purposes.
 	 *
-	 * @var \Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
+	 * @var \Automattic\Jetpack\Masterbar\CSS_Customizer_Nudge
 	 */
 	private $css_customizer_nudge_wrapper;
 
@@ -69,7 +69,7 @@ class CSS_Customizer_Nudge {
 	 *
 	 * @param \WP_Customize_Manager $wp_customize The Core Customize Manager.
 	 *
-	 * @return CSS_Nudge_Customize_Control
+	 * @return \Automattic\Jetpack\Masterbar\CSS_Nudge_Customize_Control
 	 */
 	public function create_css_nudge_control( \WP_Customize_Manager $wp_customize ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\CSS_Customizer_Nudge::create_css_nudge_control' );

@@ -2,12 +2,18 @@
 /**
  * Admin Menu loader.
  *
+ * @deprecated $$next-version$$
+ *
  * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Masterbar;
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
+
+use Automattic\Jetpack\Masterbar\Base_Admin_Menu;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Checks whether the navigation customizations should be performed for the given class.
@@ -20,7 +26,24 @@ use Automattic\Jetpack\Masterbar;
  */
 function should_customize_nav( $admin_menu_class ) {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\should_customize_nav' );
-	return Masterbar\should_customize_nav( $admin_menu_class );
+	// Make sure the class extends the base admin menu class.
+	if ( ! is_subclass_of( $admin_menu_class, Base_Admin_Menu::class ) ) {
+		return false;
+	}
+
+	$is_api_request = defined( 'REST_REQUEST' ) && REST_REQUEST || isset( $_SERVER['REQUEST_URI'] ) && str_starts_with( filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/?rest_route=%2Fwpcom%2Fv2%2Fadmin-menu' );
+
+	// No nav customizations on WP Admin of Atomic sites when SSO is disabled.
+	if ( is_a( $admin_menu_class, Atomic_Admin_Menu::class, true ) && ! $is_api_request && ! \Jetpack::is_module_active( 'sso' ) ) {
+		return false;
+	}
+
+	// No nav customizations on WP Admin of Jetpack sites.
+	if ( is_a( $admin_menu_class, Jetpack_Admin_Menu::class, true ) && ! $is_api_request ) {
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -33,7 +56,28 @@ function should_customize_nav( $admin_menu_class ) {
  */
 function hide_customizer_menu_on_block_theme() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\hide_customizer_menu_on_block_theme' );
-	return Masterbar\hide_customizer_menu_on_block_theme();
+	add_action(
+		'init',
+		function () {
+			if ( wp_is_block_theme() && ! is_customize_preview() ) {
+				remove_action( 'customize_register', 'add_logotool_button', 20 );
+				remove_action( 'customize_register', 'footercredits_register', 99 );
+				remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
+
+				if ( class_exists( '\Jetpack_Fonts' ) ) {
+					$jetpack_fonts_instance = \Jetpack_Fonts::get_instance();
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'register_controls' ) );
+					remove_action( 'customize_register', array( $jetpack_fonts_instance, 'maybe_prepopulate_option' ), 0 );
+				}
+
+				remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
+
+				remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
+
+				remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+			}
+		}
+	);
 }
 
 /**
@@ -45,7 +89,60 @@ function hide_customizer_menu_on_block_theme() {
  */
 function get_admin_menu_class() {
 	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\get_admin_menu_class' );
-	return Masterbar\get_admin_menu_class();
+	hide_customizer_menu_on_block_theme();
+
+	// WordPress.com Atomic sites.
+	if ( ( new Host() )->is_woa_site() ) {
+
+		// DIFM Lite In Progress Atomic Sites. Uses the same menu used for domain-only sites.
+		// Ignore this check if we are in a support session.
+		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
+		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
+		require_once __DIR__ . '/class-atomic-admin-menu.php';
+		return Atomic_Admin_Menu::class;
+	}
+
+	// WordPress.com Simple sites.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$blog_id = get_current_blog_id();
+
+		// Domain-only sites.
+		$blog_options   = get_blog_option( $blog_id, 'options' );
+		$is_domain_only = ! empty( $blog_options['is_domain_only'] );
+		if ( $is_domain_only ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
+		// DIFM Lite In Progress Sites. Uses the same menu used for domain-only sites.
+		// Ignore this check if we are in a support session.
+		$is_difm_lite_in_progress = has_blog_sticker( 'difm-lite-in-progress' );
+		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
+		// P2 sites.
+		require_once WP_CONTENT_DIR . '/lib/wpforteams/functions.php';
+		if ( \WPForTeams\is_wpforteams_site( $blog_id ) ) {
+			require_once __DIR__ . '/class-p2-admin-menu.php';
+			return P2_Admin_Menu::class;
+		}
+
+		// Rest of simple sites.
+		require_once __DIR__ . '/class-wpcom-admin-menu.php';
+		return WPcom_Admin_Menu::class;
+	}
+
+	// Jetpack sites.
+	require_once __DIR__ . '/class-jetpack-admin-menu.php';
+	return Jetpack_Admin_Menu::class;
 }
 
 /**
@@ -72,7 +169,16 @@ if ( should_customize_nav( $admin_menu_class ) ) {
 	 */
 	function dashboard_quick_switcher_record_usage( $screen, $view ) {
 		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\dashboard_quick_switcher_record_usage' );
-		return Masterbar\dashboard_quick_switcher_record_usage( $screen, $view );
+
+		require_once __DIR__ . '/class-dashboard-switcher-tracking.php';
+
+		$tracking = new Dashboard_Switcher_Tracking(
+			new Tracking( Dashboard_Switcher_Tracking::get_jetpack_tracking_product() ),
+			array( Dashboard_Switcher_Tracking::class, 'wpcom_tracks_record_event' ),
+			Dashboard_Switcher_Tracking::get_plan()
+		);
+
+		$tracking->record_switch_event( $screen, $view );
 	}
 
 	\add_action( 'jetpack_dashboard_switcher_changed_view', __NAMESPACE__ . '\dashboard_quick_switcher_record_usage', 10, 2 );

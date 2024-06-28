@@ -92,6 +92,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_browse_sites_link.
 	 *
 	 * @covers ::add_browse_sites_link
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_browse_sites_link
 	 */
 	public function test_add_browse_sites_link() {
 		global $menu;
@@ -105,6 +107,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_browse_sites_link.
 	 *
 	 * @covers ::add_browse_sites_link
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_browse_sites_link
 	 */
 	public function test_add_browse_sites_link_multisite() {
 		if ( ! is_multisite() ) {
@@ -140,6 +144,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_new_site_link
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -167,6 +173,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_site_card_menu
 	 *
 	 * @covers ::add_site_card_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
 		global $menu;
@@ -190,7 +198,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 			'site-card',
 			'menu-top toplevel_page_' . $home_url,
 			'toplevel_page_' . $home_url,
-			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
+			plugins_url( 'packages/masterbar/src/admin-menu/globe-icon.svg', dirname( __DIR__, 5 ) ),
 		);
 
 		$this->assertEquals( $menu[1], $site_card_menu_item );
@@ -200,6 +208,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests set_site_card_menu_class
 	 *
 	 * @covers ::set_site_card_menu_class
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_site_card_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::set_site_card_menu_class
 	 */
 	public function test_set_site_card_menu_class() {
 		global $menu;
@@ -250,6 +261,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		$this->assertSame( 'classic', static::$admin_menu->get_preferred_view( 'export.php' ) );
@@ -259,6 +272,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -294,6 +309,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_options_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -306,6 +324,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_users_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
@@ -322,6 +343,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests remove_gutenberg_menu
 	 *
 	 * @covers ::remove_gutenberg_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;
@@ -335,6 +358,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_plugins_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_plugins_menu() {
 		global $submenu;
@@ -357,6 +383,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_tools_menu
 	 *
 	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_site_monitoring_menu() {
 		global $submenu;
@@ -371,6 +400,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_github_deployments_menu
 	 *
 	 * @covers ::add_tools_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_tools_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_github_deployments_menu() {
 		global $submenu;
@@ -385,6 +417,9 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_jetpack_scan_menu
 	 *
 	 * @covers ::add_jetpack_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_jetpack_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_jetpack_scan_submenu() {
 		global $submenu;

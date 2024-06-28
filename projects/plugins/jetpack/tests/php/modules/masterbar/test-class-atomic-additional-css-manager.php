@@ -40,6 +40,9 @@ class Test_Atomic_Additional_CSS_Manager extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the nudge contains the proper url and message copy.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Additional_CSS_Manager::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Additional_CSS_Manager::register_nudge
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = new Atomic_Additional_CSS_Manager( 'foo.com' );

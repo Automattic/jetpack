@@ -76,6 +76,9 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * Tests reregister_menu_items when email subscriptions don't exist.
 	 *
 	 * @covers ::reregister_menu_items
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::set_email_subscription_checker
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::reregister_menu_items
 	 */
 	public function test_reregister_menu_items_without_email_subscriptions() {
 		global $menu;
@@ -97,6 +100,9 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * Tests reregister_menu_items with email subscriptions .
 	 *
 	 * @covers ::reregister_menu_items
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::set_email_subscription_checker
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::reregister_menu_items
 	 */
 	public function test_reregister_menu_items_with_email_subscriptions() {
 		global $menu;

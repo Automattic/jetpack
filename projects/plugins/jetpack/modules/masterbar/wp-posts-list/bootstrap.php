@@ -2,8 +2,12 @@
 /**
  * WP-Admin Posts list bootstrap file.
  *
- * @package Jetpack
+ * @deprecated $$next-version$$
+ *
+ * @package automattic\jetpack
  */
+
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
 
 use Automattic\Jetpack\Masterbar;
 

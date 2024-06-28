@@ -68,6 +68,9 @@ class Test_Masterbar extends WP_UnitTestCase {
 	 *
 	 * @dataProvider wpcom_user_locale_switch_data_provider
 	 * @covers ::unload_non_default_textdomains_on_wpcom_user_locale_switch
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Masterbar::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Masterbar::unload_non_default_textdomains_on_wpcom_user_locale_switch
 	 */
 	public function test_unload_non_default_textdomains_on_wpcom_user_locale_switch(
 		$stored_user_locale,
@@ -85,7 +88,6 @@ class Test_Masterbar extends WP_UnitTestCase {
 		wp_get_current_user()->locale = $stored_user_locale;
 
 		$masterbar = $this->getMockBuilder( Masterbar::class )
-			->disableOriginalConstructor()
 			->setMethodsExcept( array( 'unload_non_default_textdomains_on_wpcom_user_locale_switch' ) )
 			->getMock();
 		$masterbar->unload_non_default_textdomains_on_wpcom_user_locale_switch( $detected_wpcom_locale );

@@ -39,9 +39,16 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the assets are registered.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_it_enqueues_the_assets() {
-		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
+		$nudge      = new CSS_Customizer_Nudge( 'url', 'message' );
+		$reflection = new \ReflectionClass( $nudge );
+		$wrapper    = $reflection->getProperty( 'css_customizer_nudge_wrapper' );
+		$wrapper->setAccessible( true );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
 
@@ -50,7 +57,7 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 			has_action(
 				'customize_controls_enqueue_scripts',
 				array(
-					$nudge,
+					$wrapper->getValue( $nudge ),
 					'customize_controls_enqueue_scripts_nudge',
 				)
 			)
@@ -59,6 +66,10 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 
 	/**
 	 * Check if it creates the css nudge control.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_if_it_creates_a_css_nudge_control() {
 		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
@@ -71,6 +82,10 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the url and message are passed correctly to the custom control object.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_if_the_url_and_message_are_passed_correctly() {
 		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );

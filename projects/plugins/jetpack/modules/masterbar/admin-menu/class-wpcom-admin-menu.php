@@ -150,7 +150,7 @@ class WPcom_Admin_Menu extends Masterbar_WPcom_Admin_Menu {
 	 */
 	public function add_appearance_menu() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPcom_Admin_Menu::add_appearance_menu' );
-		parent::add_appearance_menu();
+		return parent::add_appearance_menu();
 	}
 
 	/**

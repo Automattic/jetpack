@@ -70,7 +70,7 @@ class Dashboard_Switcher_Tracking {
 	 */
 	public static function get_plan() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::get_plan' );
-		return Jetpack_Dashboard_Switcher_Tracking::get_plan();
+		return Masterbar_Dashboard_Switcher_Tracking::get_plan();
 	}
 
 	/**
@@ -82,7 +82,7 @@ class Dashboard_Switcher_Tracking {
 	 */
 	public static function wpcom_tracks_record_event( $event_props ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::wpcom_tracks_record_event' );
-		return Jetpack_Dashboard_Switcher_Tracking::wpcom_tracks_record_event( $event_props );
+		return Masterbar_Dashboard_Switcher_Tracking::wpcom_tracks_record_event( $event_props );
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Dashboard_Switcher_Tracking {
 	 */
 	public static function get_jetpack_tracking_product() {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::get_jetpack_tracking_product' );
-		return Jetpack_Dashboard_Switcher_Tracking::get_jetpack_tracking_product();
+		return Masterbar_Dashboard_Switcher_Tracking::get_jetpack_tracking_product();
 	}
 
 	/**
@@ -111,6 +111,6 @@ class Dashboard_Switcher_Tracking {
 	 */
 	public static function mark_jetpack_tos_as_read( $option_value, $option_name ) {
 		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Dashboard_Switcher_Tracking::mark_jetpack_tos_as_read' );
-		return Jetpack_Dashboard_Switcher_Tracking::mark_jetpack_tos_as_read( $option_value, $option_name );
+		return Masterbar_Dashboard_Switcher_Tracking::mark_jetpack_tos_as_read( $option_value, $option_name );
 	}
 }
