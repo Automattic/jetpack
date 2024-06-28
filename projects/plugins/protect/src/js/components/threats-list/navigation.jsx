@@ -23,6 +23,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		numDatabaseThreats,
 		hasRequiredPlan,
 	} = useProtectData();
+
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
