@@ -970,7 +970,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 */
 		public function plugin_dance( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 			$plugins = WP_CLI::runcommand(
-				'--skip-plugins --skip-themes plugin list --format=json',
+				'--skip-plugins --skip-themes plugin list --status=active --format=json',
 				array(
 					'launch' => false,
 					'return' => true,
@@ -978,14 +978,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			);
 
 			$plugins = json_decode( $plugins, true );
-
-			// filter plugins where status = active.
-			$active_plugins = array_filter(
-				$plugins,
-				function ( $plugin ) {
-					return 'active' === $plugin['status'];
-				}
-			);
 
 			// deactivate all active plugins.
 			WP_CLI::runcommand(
@@ -998,7 +990,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			$breaking_plugins = array();
 
 			// loop through each active plugin and activate one by one.
-			foreach ( $active_plugins as $plugin ) {
+			foreach ( $plugins as $plugin ) {
 				WP_CLI::runcommand(
 					'--skip-themes plugin activate ' . $plugin['name'],
 					array(
