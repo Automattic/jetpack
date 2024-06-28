@@ -64,7 +64,7 @@ export default function AiImageModal( {
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
 	acceptButton: JSX.Element;
-	autoStart: boolean;
+	autoStart?: boolean;
 	autoStartAction?: ( { userPrompt }: { userPrompt?: string } ) => void;
 	generateButtonLabel: string;
 	instructionsPlaceholder: string;
@@ -113,12 +113,7 @@ export default function AiImageModal( {
 
 	const generateButton = (
 		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button
-				onClick={ handleGenerate }
-				variant="secondary"
-				isBusy={ generating }
-				disabled={ disableGenerateButton }
-			>
+			<Button onClick={ handleGenerate } variant="secondary" disabled={ disableGenerateButton }>
 				{ generateButtonLabel }
 			</Button>
 		</Tooltip>
