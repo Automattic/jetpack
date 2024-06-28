@@ -124,7 +124,7 @@ class Help_Center {
 		// If the user is not connected, the Help Center icon will link to the support page.
 		// The disconnected version is significantly smaller than the connected version.
 		wp_enqueue_script(
-			'help-center-script',
+			'help-center',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . '.min.js',
 			is_array( $script_dependencies ) ? $script_dependencies : array(),
 			$this->version,
@@ -139,7 +139,7 @@ class Help_Center {
 		);
 
 		wp_localize_script(
-			'help-center-script',
+			'help-center',
 			'helpCenterLocale',
 			array(
 				'locale' => \A8C\FSE\Common\get_iso_639_locale( determine_locale() ),
@@ -150,7 +150,7 @@ class Help_Center {
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
 			// Adds feature flags for development.
 			wp_add_inline_script(
-				'help-center-script',
+				'help-center',
 				'const helpCenterFeatureFlags = ' . wp_json_encode(
 					array(
 						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
@@ -167,7 +167,7 @@ class Help_Center {
 			$avatar_url   = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
 
 			wp_add_inline_script(
-				'help-center-script',
+				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
 					array(
 						'currentUser' => array(
@@ -185,7 +185,8 @@ class Help_Center {
 			);
 		}
 
-		wp_set_script_translations( 'help-center-script', 'jetpack-mu-wpcom' );
+		l( __DIR__ . '/languages' );
+		wp_set_script_translations( 'help-center', 'jetpack-mu-wpcom', __DIR__ . 'languages' );
 	}
 
 	/**

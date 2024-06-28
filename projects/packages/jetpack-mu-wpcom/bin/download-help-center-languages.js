@@ -34,7 +34,7 @@ const https = require( 'https' );
 		'features',
 		'help-center',
 		'languages',
-		`${ lang }.json`
+		`${ lang }-help-center.json`
 	);
 
 	https.get( url, response => {
