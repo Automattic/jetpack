@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reduce amount of historically active modules updates by only triggering on activation of plugin is a jetpack plugin

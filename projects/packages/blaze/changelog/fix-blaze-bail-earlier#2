@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Eligibility checks: when a request to the WordPress.com API fails, store the response for an hour to avoid spamming the API.
