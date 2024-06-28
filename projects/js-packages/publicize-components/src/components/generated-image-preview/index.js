@@ -39,6 +39,7 @@ export const calculateImageUrl = ( imageType, customImageId, featuredImageId, ge
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,
+	onNewToken = undefined,
 	...generatorConfigProps
 } ) {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
@@ -84,6 +85,7 @@ export default function GeneratedImagePreview( {
 					},
 				} );
 				setToken?.( sig_token );
+				onNewToken?.( sig_token );
 				const url = getSigImageUrl( sig_token );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
@@ -103,7 +105,7 @@ export default function GeneratedImagePreview( {
 		};
 		// setToken is not a dependency here
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ imageTitle, template, imageUrl ] );
+	}, [ imageTitle, template, imageUrl, onNewToken ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );
