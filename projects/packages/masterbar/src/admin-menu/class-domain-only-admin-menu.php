@@ -36,7 +36,7 @@ class Domain_Only_Admin_Menu extends Base_Admin_Menu {
 	/**
 	 * This setter lets us inject an WPCOM_Email_Subscription_Checker instance.
 	 *
-	 * @param \WPCOM_Email_Subscription_Checker $email_subscriptions_checker An WPCOM_Email_Subscription_Checker instance.
+	 * @param WPCOM_Email_Subscription_Checker $email_subscriptions_checker An WPCOM_Email_Subscription_Checker instance.
 	 *
 	 * @return void
 	 */

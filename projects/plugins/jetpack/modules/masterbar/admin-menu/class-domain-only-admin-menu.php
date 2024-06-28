@@ -20,7 +20,7 @@ class Domain_Only_Admin_Menu extends Masterbar_Domain_Only_Admin_Menu {
 	 *
 	 * @deprecated $$next-version$$
 	 *
-	 * @param \WPCOM_Email_Subscription_Checker $email_subscriptions_checker An WPCOM_Email_Subscription_Checker instance.
+	 * @param \Automattic\Jetpack\Masterbar\WPCOM_Email_Subscription_Checker $email_subscriptions_checker An WPCOM_Email_Subscription_Checker instance.
 	 *
 	 * @return void
 	 */
