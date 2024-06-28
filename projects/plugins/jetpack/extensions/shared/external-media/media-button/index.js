@@ -12,6 +12,7 @@ function MediaButton( props ) {
 	const { mediaProps } = props;
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const ExternalLibrary = getExternalLibrary( selectedSource );
+	const isFeatured = isFeaturedImage( mediaProps );
 
 	const closeLibrary = event => {
 		if ( event ) {
@@ -38,10 +39,10 @@ function MediaButton( props ) {
 				{ ...props }
 				setSelectedSource={ setSelectedSource }
 				isReplace={ isReplaceMenu( mediaProps ) }
-				isFeatured={ isFeaturedImage( mediaProps ) }
+				isFeatured={ isFeatured }
 				hasImage={ mediaProps.value > 0 }
 			/>
-			<MediaAiButton setSelectedSource={ setSelectedSource } />
+			{ ! isFeatured && <MediaAiButton setSelectedSource={ setSelectedSource } /> }
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
