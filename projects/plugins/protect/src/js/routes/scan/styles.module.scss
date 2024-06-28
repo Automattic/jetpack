@@ -22,3 +22,9 @@
 .connection-error-col {
 	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
 }
+
+.history-button-col {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+}
