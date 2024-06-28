@@ -37,7 +37,7 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 							className="jetpack-blogroll-item-title"
 							value={ name }
 							tagName={ 'p' }
-							allowedFormats={ [ 'core/bold', 'core/italic' ] }
+							allowedFormats={ [ 'core/italic' ] }
 							onChange={ value => {
 								setAttributes( { name: value } );
 							} }
