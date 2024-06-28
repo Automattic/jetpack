@@ -38,6 +38,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 
 	const onClickSaveToLibrary = useCallback( () => {
 		saveToMediaLibrary(
+			// We have to use the s0.wp.com directly to avoid the CORS issue when using jetpack.com/redirect
 			`https://s0.wp.com/_si/?t=${ generatedImageToken }`,
 			'generated-image.jpg'
 		);
