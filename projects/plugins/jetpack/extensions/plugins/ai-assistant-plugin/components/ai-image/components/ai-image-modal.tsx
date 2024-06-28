@@ -98,7 +98,7 @@ export default function AiImageModal( {
 	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	// Controllers
-	const disableInstructions = notEnoughRequests || generating;
+	const instructionsDisabled = notEnoughRequests || generating;
 	const showUpgrade = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
 	const disableTryAgainButton = ! userPrompt && ! postContent;
@@ -149,7 +149,7 @@ export default function AiImageModal( {
 									} }
 								>
 									<textarea
-										disabled={ disableInstructions }
+										disabled={ instructionsDisabled }
 										maxLength={ 1000 }
 										rows={ 2 }
 										onChange={ handleUserPromptChange }
