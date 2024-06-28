@@ -58,7 +58,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					<hr />
 					<GeneratedImagePreview onNewToken={ setGeneratedImageToken } />
 					<hr />
-					<HStack spacing={ 2 } justify="flex-start">
+					<HStack spacing={ 2 } wrap>
 						<Button
 							variant="secondary"
 							onClick={ onClickSaveToLibrary }
