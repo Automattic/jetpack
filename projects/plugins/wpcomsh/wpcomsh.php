@@ -9,7 +9,6 @@
  * @package wpcomsh
  */
 
-// Increase version number if you change something in wpcomsh.
 define( 'WPCOMSH_VERSION', '3.28.0-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
