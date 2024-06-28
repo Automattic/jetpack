@@ -103,24 +103,6 @@ export default function useAiImage( {
 					return;
 				}
 
-				// Ensure the user prompt or the post content are set.
-				if ( ! userPrompt && ! postContent ) {
-					updateImages(
-						{
-							generating: false,
-							error: new Error(
-								__(
-									'No content to generate image. Please type custom instructions and try again.',
-									'jetpack'
-								)
-							),
-						},
-						pointer.current
-					);
-					resolve( {} );
-					return;
-				}
-
 				/**
 				 * Make a generic call to backend and let it decide the model.
 				 */

@@ -222,14 +222,17 @@ export default function GeneralPurposeImage( {
 		: null;
 
 	const acceptButton = (
-		<Button onClick={ handleAccept } variant="primary" disabled={ ! currentImage?.image }>
+		<Button
+			onClick={ handleAccept }
+			variant="primary"
+			disabled={ ! currentImage?.image || currentImage?.generating }
+		>
 			{ __( 'Insert image', 'jetpack' ) }
 		</Button>
 	);
 
 	return (
 		<AiImageModal
-			autoStart={ false }
 			images={ images }
 			currentIndex={ current }
 			title={ __( 'Generate an image with AI', 'jetpack' ) }
