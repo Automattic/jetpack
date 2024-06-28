@@ -30,6 +30,7 @@ class Deprecate {
 	private function __construct() {
 		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
 	}
 
 	/**
@@ -83,6 +84,29 @@ class Deprecate {
 				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'Read this document for details and how to keep tracking visits with Google Analytics', 'jetpack' ) . '</a>.'
 			);
 		}
+	}
+
+	/**
+	 * Add the deprecation notices to My Jetpack.
+	 *
+	 * @param array $slugs Already added bubbles.
+	 *
+	 * @return mixed
+	 */
+	public function add_my_jetpack_red_bubbles( $slugs ) {
+		if ( $this->show_ga_notice() ) {
+			$slugs['jetpack-google-analytics-deprecate-feature'] = array(
+				'data' => array(
+					'text' => __( "Jetpack's Google Analytics feature will be removed on August 6, 2024. Read the documentation for details and how to keep tracking visits with Google Analytics.", 'jetpack' ),
+					'link' => array(
+						'label' => esc_html__( 'See documentation', 'jetpack' ),
+						'url'   => Redirect::get_url( 'jetpack-support-google-analytics' ),
+					),
+				),
+			);
+		}
+
+		return $slugs;
 	}
 
 	/**
