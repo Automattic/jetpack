@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Wpcomsh: fixed fatal errors in case of null body class values.
