@@ -4,6 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
@@ -15,7 +16,9 @@ const ThreatAccordionItem = ( {
 	description,
 	diff,
 	filename,
+	firstDetected,
 	fixedIn,
+	fixedOn,
 	icon,
 	fixable,
 	id,
@@ -27,6 +30,7 @@ const ThreatAccordionItem = ( {
 	severity,
 } ) => {
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
+	const { viewingScanHistory } = useScanHistory();
 	const { setModal } = useDispatch( STORE_ID );
 	const { recordEvent } = useAnalyticsTracks();
 
@@ -66,6 +70,8 @@ const ThreatAccordionItem = ( {
 			icon={ icon }
 			fixable={ fixable }
 			severity={ severity }
+			firstDetected={ firstDetected }
+			fixedOn={ fixedOn }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
@@ -115,14 +121,11 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				<Button
-					isDestructive={ true }
-					variant="secondary"
-					disabled={ fixerInProgress }
-					onClick={ handleIgnoreThreatClick() }
-				>
-					{ __( 'Ignore threat', 'jetpack-protect' ) }
-				</Button>
+				{ ! viewingScanHistory && (
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+						{ __( 'Ignore threat', 'jetpack-protect' ) }
+					</Button>
+				) }
 				{ fixable && (
 					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
@@ -191,7 +194,12 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
+						firstDetected, // todo: still needs a proper fix
+						first_detected,
 						fixedIn,
+						fixed_in,
+						fixedOn,
+						fixed_on,
 						icon,
 						fixable,
 						id,
@@ -209,7 +217,9 @@ const PaidList = ( { list } ) => {
 							description={ description }
 							diff={ diff }
 							filename={ filename }
-							fixedIn={ fixedIn }
+							firstDetected={ firstDetected ?? first_detected }
+							fixedIn={ fixedIn ?? fixed_in }
+							fixedOn={ fixedOn ?? fixed_on }
 							icon={ icon }
 							fixable={ fixable }
 							id={ id }

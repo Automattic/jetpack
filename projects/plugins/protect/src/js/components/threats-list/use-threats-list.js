@@ -51,7 +51,6 @@ const flattenThreats = ( data, newData ) => {
  */
 const useThreatsList = () => {
 	const [ selected, setSelected ] = useState( 'all' );
-
 	const { plugins, themes, core, files, database } = useProtectData();
 
 	const { unsortedList, item } = useMemo( () => {

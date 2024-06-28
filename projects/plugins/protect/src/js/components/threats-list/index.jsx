@@ -3,6 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
 import EmptyList from './empty';
@@ -14,6 +15,7 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
+	const { viewingScanHistory, handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -57,6 +59,13 @@ const ThreatsList = () => {
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);
+			case 'wordpress':
+				return sprintf(
+					/* translators: placeholder is the amount of WordPress threats found on the site. */
+					__( '%1$s WordPress %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
+				);
 			case 'files':
 				return sprintf(
 					/* translators: placeholder is the amount of file threats found on the site. */
@@ -74,7 +83,7 @@ const ThreatsList = () => {
 			default:
 				return sprintf(
 					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-					__( '%1$s %2$s in your %3$s %4$s', 'jetpack-protect' ),
+					__( '%1$s %2$s in %3$s %4$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats',
 					item?.name,
@@ -100,7 +109,7 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && (
+							{ hasRequiredPlan && ! viewingScanHistory && (
 								<>
 									{ fixableList.length > 0 && (
 										<>
@@ -137,6 +146,14 @@ const ThreatsList = () => {
 										position={ isSm ? 'bottom left' : 'middle left' }
 										anchor={ dailyAndManualScansPopoverAnchor }
 									/>
+									<Button
+										variant="secondary"
+										className={ styles[ 'list-header-button' ] }
+										onClick={ handleHistoryClick }
+										isLoading={ allScanHistoryIsLoading }
+									>
+										{ __( 'History', 'jetpack-protect' ) }
+									</Button>
 								</>
 							) }
 						</div>
