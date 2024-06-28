@@ -11,6 +11,16 @@ const isReplaceMenu = props => props.multiple === undefined && ! isFeaturedImage
 
 const blocksWithAiButtonSupport = [ 'core/image', 'core/gallery', 'jetpack/slideshow' ];
 
+/**
+ * Temporary feature flag to control generalPurposeImageExclusiveMediaSources
+ * visibility.
+ */
+const GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG = 'ai-general-purpose-image-generator';
+const isGeneralPurposeImageGeneratorBetaEnabled =
+	window?.Jetpack_Editor_Initial_State?.available_blocks?.[
+		GENERAL_PURPOSE_IMAGE_GENERATOR_BETA_FLAG
+	]?.available === true;
+
 function MediaButton( props ) {
 	const { name } = useBlockEditContext();
 	const { mediaProps } = props;
@@ -47,7 +57,7 @@ function MediaButton( props ) {
 				isFeatured={ isFeatured }
 				hasImage={ mediaProps.value > 0 }
 			/>
-			{ ! isFeatured && hasAiButtonSupport && (
+			{ isGeneralPurposeImageGeneratorBetaEnabled && ! isFeatured && hasAiButtonSupport && (
 				<MediaAiButton setSelectedSource={ setSelectedSource } />
 			) }
 
