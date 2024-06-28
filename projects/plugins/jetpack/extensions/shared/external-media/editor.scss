@@ -558,6 +558,11 @@ $grid-size: 8px;
 	}
 }
 
+// Set the wrapper as a flex container to allow displaying multiple buttons side by side.
+.jetpack-external-media-button-wrapper {
+	display: flex;
+}
+
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {

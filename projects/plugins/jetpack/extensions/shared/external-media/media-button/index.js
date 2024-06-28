@@ -29,7 +29,10 @@ function MediaButton( props ) {
 	return (
 		// No added functionality, just capping event propagation.
 		// eslint-disable-next-line  jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-		<div onClick={ event => event.stopPropagation() }>
+		<div
+			onClick={ event => event.stopPropagation() }
+			className="jetpack-external-media-button-wrapper"
+		>
 			<MediaButtonMenu
 				{ ...props }
 				setSelectedSource={ setSelectedSource }
