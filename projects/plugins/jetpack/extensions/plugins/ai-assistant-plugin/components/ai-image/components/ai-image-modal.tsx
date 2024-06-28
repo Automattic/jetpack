@@ -101,12 +101,12 @@ export default function AiImageModal( {
 	const instructionsDisabled = notEnoughRequests || generating;
 	const showUpgrade = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
-	const disableTryAgainButton = ! userPrompt && ! postContent;
+	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
 	const generateButtonDisabled =
 		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
 
 	const tryAgainButton = (
-		<Button onClick={ handleTryAgain } variant="secondary" disabled={ disableTryAgainButton }>
+		<Button onClick={ handleTryAgain } variant="secondary" disabled={ tryAgainButtonDisabled }>
 			{ __( 'Try again', 'jetpack' ) }
 		</Button>
 	);
