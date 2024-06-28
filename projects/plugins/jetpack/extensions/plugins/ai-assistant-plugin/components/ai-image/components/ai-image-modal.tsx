@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Tooltip } from '@wordpress/components';
+import { Button, Tooltip, KeyboardShortcuts } from '@wordpress/components';
 import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
@@ -74,7 +74,7 @@ export default function AiImageModal( {
 
 	const handleUserPromptChange = useCallback(
 		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
-			setUserPrompt( e.target.value );
+			setUserPrompt( e.target.value.trim() );
 		},
 		[ setUserPrompt ]
 	);
@@ -98,22 +98,22 @@ export default function AiImageModal( {
 	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	// Controllers
-	const disableInstructions = notEnoughRequests || generating;
-	const showUpgrade = ( requireUpgrade || notEnoughRequests ) && ! generating;
-	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
-	const disableTryAgainButton = ! userPrompt && ! postContent;
-	const disableGenerateButton =
+	const instructionsDisabled = notEnoughRequests || generating;
+	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
+	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
+	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
+	const generateButtonDisabled =
 		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
 
 	const tryAgainButton = (
-		<Button onClick={ handleTryAgain } variant="secondary" disabled={ disableTryAgainButton }>
+		<Button onClick={ handleTryAgain } variant="secondary" disabled={ tryAgainButtonDisabled }>
 			{ __( 'Try again', 'jetpack' ) }
 		</Button>
 	);
 
 	const generateButton = (
 		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button onClick={ handleGenerate } variant="secondary" disabled={ disableGenerateButton }>
+			<Button onClick={ handleGenerate } variant="secondary" disabled={ generateButtonDisabled }>
 				{ generateButtonLabel }
 			</Button>
 		</Tooltip>
@@ -138,16 +138,27 @@ export default function AiImageModal( {
 					<div className="ai-image-modal__content">
 						<div className="ai-image-modal__user-prompt">
 							<div className="ai-image-modal__user-prompt-textarea">
-								<textarea
-									disabled={ disableInstructions }
-									maxLength={ 1000 }
-									rows={ 2 }
-									onChange={ handleUserPromptChange }
-									placeholder={ instructionsPlaceholder }
-								></textarea>
+								<KeyboardShortcuts
+									bindGlobal
+									shortcuts={ {
+										enter: () => {
+											if ( ! generateButtonDisabled ) {
+												handleGenerate();
+											}
+										},
+									} }
+								>
+									<textarea
+										disabled={ instructionsDisabled }
+										maxLength={ 1000 }
+										rows={ 2 }
+										onChange={ handleUserPromptChange }
+										placeholder={ instructionsPlaceholder }
+									></textarea>
+								</KeyboardShortcuts>
 							</div>
 						</div>
-						{ showUpgrade && (
+						{ upgradePromptVisible && (
 							<UpgradePrompt
 								description={ upgradeDescription }
 								placement={ FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT }
@@ -156,7 +167,7 @@ export default function AiImageModal( {
 						) }
 						<div className="ai-image-modal__actions">
 							<div className="ai-image-modal__actions-left">
-								{ showCounter && (
+								{ counterVisible && (
 									<UsageCounter
 										cost={ cost }
 										currentLimit={ currentLimit }
