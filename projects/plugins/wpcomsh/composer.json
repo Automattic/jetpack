@@ -11,13 +11,13 @@
 		"automattic/text-media-widget-styles": "^2.0",
 		"automattic/wc-calypso-bridge": "2.5.2",
 		"wordpress/classic-editor-plugin": "1.5",
-		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-post-list": "@dev",
-		"automattic/jetpack-mu-wpcom": "@dev",
+		"automattic/jetpack-config": "^2.0.4",
+		"automattic/jetpack-post-list": "^0.6.2",
+		"automattic/jetpack-mu-wpcom": "^5.41.0",
 		"tubalmartin/cssmin": "^4.1"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-changelogger": "^4.2.5",
 		"automattic/wordbless": "0.4.2",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"phpunit/phpunit": "^9",
@@ -65,13 +65,6 @@
 		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		},
 		{
 			"name": "automattic/custom-fonts",
 			"type": "vcs",
