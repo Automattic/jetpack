@@ -397,16 +397,9 @@ class Colors_Manager_Common {
 	/**
 	 * Add a 'custom-colors' body class to blogs with Custom Colors active.
 	 *
-	 * @param ?array $classes the array of classes to add custom class to.
+	 * @param array $classes the array of classes to add custom class to.
 	 */
 	public static function body_class( $classes ) {
-
-		// Safeguard against values that are not null, but not array either.
-		if ( null !== $classes && ! is_array( $classes ) ) {
-
-			// We don't know what to do with values like these, returning.
-			return $classes;
-		}
 		$classes[] = 'custom-colors';
 		return $classes;
 	}
