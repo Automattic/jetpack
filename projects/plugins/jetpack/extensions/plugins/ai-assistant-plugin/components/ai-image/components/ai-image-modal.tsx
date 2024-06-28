@@ -100,7 +100,7 @@ export default function AiImageModal( {
 	// Controllers
 	const instructionsDisabled = notEnoughRequests || generating;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
-	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
+	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
 	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
 	const generateButtonDisabled =
 		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
@@ -167,7 +167,7 @@ export default function AiImageModal( {
 						) }
 						<div className="ai-image-modal__actions">
 							<div className="ai-image-modal__actions-left">
-								{ showCounter && (
+								{ counterVisible && (
 									<UsageCounter
 										cost={ cost }
 										currentLimit={ currentLimit }
