@@ -10,12 +10,12 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 470+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 280+ occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 270+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 270+ occurrences
+    // PhanDeprecatedFunction : 250+ occurrences
     // PhanNoopNew : 200+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 140+ occurrences
-    // PhanDeprecatedFunction : 130+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
@@ -26,9 +26,9 @@ return [
     // PhanParamTooMany : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 40+ occurrences
     // PhanUndeclaredProperty : 35+ occurrences
-    // PhanTypeInvalidDimOffset : 30+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
+    // PhanTypeInvalidDimOffset : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
@@ -61,13 +61,13 @@ return [
     // PhanTypeArraySuspiciousNull : 5 occurrences
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
-    // PhanUndeclaredFunctionInCallable : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
+    // PhanUndeclaredFunctionInCallable : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
     // PhanPluginUnreachableCode : 3 occurrences
@@ -78,7 +78,6 @@ return [
     // PhanUndeclaredConstant : 3 occurrences
     // PhanUndeclaredMethodInCallable : 3 occurrences
     // PhanCompatibleNegativeStringOffset : 2 occurrences
-    // PhanEmptyFQSENInCallable : 2 occurrences
     // PhanImpossibleConditionInLoop : 2 occurrences
     // PhanParamTooManyCallable : 2 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
@@ -89,14 +88,13 @@ return [
     // PhanUndeclaredClassInCallable : 2 occurrences
     // PhanUndeclaredClassMethod : 2 occurrences
     // PhanDeprecatedPartiallySupportedCallable : 1 occurrence
+    // PhanEmptyFQSENInCallable : 1 occurrence
     // PhanEmptyForeach : 1 occurrence
     // PhanInfiniteRecursion : 1 occurrence
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
-    // PhanTypeInstantiateAbstract : 1 occurrence
-    // PhanTypeSuspiciousEcho : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
@@ -356,7 +354,11 @@ return [
         'modules/likes/jetpack-likes-master-iframe.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/likes/jetpack-likes-settings.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition'],
         'modules/markdown/easy-markdown.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
-        'modules/masterbar/profile-edit/bootstrap.php' => ['PhanNoopNew'],
+        'modules/masterbar/admin-menu/load.php' => ['PhanDeprecatedFunction'],
+        'modules/masterbar/masterbar/class-masterbar.php' => ['PhanDeprecatedFunction'],
+        'modules/masterbar/nudges/bootstrap.php' => ['PhanDeprecatedFunction'],
+        'modules/masterbar/profile-edit/bootstrap.php' => ['PhanDeprecatedFunction', 'PhanNoopNew'],
+        'modules/masterbar/wp-posts-list/bootstrap.php' => ['PhanDeprecatedFunction'],
         'modules/memberships/class-jetpack-memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'modules/module-headings.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/monitor.php' => ['PhanNoopNew', 'PhanTypeMismatchReturnProbablyReal'],
@@ -541,14 +543,20 @@ return [
         'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/geo-location/test_class.jetpack-geo-location.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanNoopNew'],
-        'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
-        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanRedefineFunction'],
-        'tests/php/modules/masterbar/test-class-base-admin-menu.php' => ['PhanTypeInvalidDimOffset'],
+        'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanDeprecatedFunction', 'PhanNoopNew'],
+        'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
+        'tests/php/modules/masterbar/test-class-atomic-additional-css-manager.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanRedefineFunction'],
+        'tests/php/modules/masterbar/test-class-css-customizer-nudge.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-css-nudge-customize-control.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-dashboard-switcher-tracking.php' => ['PhanDeprecatedFunction'],
         'tests/php/modules/masterbar/test-class-domain-only-admin-menu.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-jetpack-admin-menu.php' => ['PhanDeprecatedFunction'],
         'tests/php/modules/masterbar/test-class-masterbar.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethod'],
-        'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanTypeMismatchArgument'],
+        'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
+        'tests/php/modules/masterbar/test-class-wpcom-additional-css-manager.php' => ['PhanDeprecatedFunction'],
         'tests/php/modules/masterbar/test-class-wpcom-admin-menu.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-wpcom-user-profile-fields-revert.php' => ['PhanDeprecatedFunction'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
         'tests/php/modules/post-by-email/test-class.post-by-email-api.php' => ['PhanParamTooMany'],
         'tests/php/modules/publicize/test_class.publicize.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing'],
@@ -602,10 +610,6 @@ return [
         'tools/build-asset-cdn-json.php' => ['PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument'],
         'uninstall.php' => ['PhanTypeMismatchArgumentInternal'],
     ],
-    'directory_suppressions' => [
-        'modules/masterbar' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar' => ['PhanDeprecatedFunction'],
-    ],
-    //'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
+    // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
 ];
