@@ -1541,6 +1541,11 @@ class The_Neverending_Home_Page {
 					sharing_register_post_for_share_counts( get_the_ID() );
 				}
 
+				// If sharing counts are not initialized for any reason, we initialize them here.
+				if ( ! isset( $jetpack_sharing_counts ) || ! is_array( $jetpack_sharing_counts ) ) {
+					$jetpack_sharing_counts = array();
+				}
+
 				$results['postflair'] = array_flip( $jetpack_sharing_counts );
 			}
 		} else {
