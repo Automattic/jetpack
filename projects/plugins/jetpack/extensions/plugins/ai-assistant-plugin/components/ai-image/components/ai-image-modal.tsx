@@ -102,7 +102,7 @@ export default function AiImageModal( {
 	const showUpgrade = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const showCounter = Boolean( ! isUnlimited && cost && currentLimit );
 	const disableTryAgainButton = ! userPrompt && ! postContent;
-	const disableGenerateButton =
+	const generateButtonDisabled =
 		notEnoughRequests || generating || ( ! userPrompt && ! postContent );
 
 	const tryAgainButton = (
@@ -113,7 +113,7 @@ export default function AiImageModal( {
 
 	const generateButton = (
 		<Tooltip text={ costTooltipText } placement="bottom">
-			<Button onClick={ handleGenerate } variant="secondary" disabled={ disableGenerateButton }>
+			<Button onClick={ handleGenerate } variant="secondary" disabled={ generateButtonDisabled }>
 				{ generateButtonLabel }
 			</Button>
 		</Tooltip>
@@ -142,7 +142,7 @@ export default function AiImageModal( {
 									bindGlobal
 									shortcuts={ {
 										enter: () => {
-											if ( ! disableGenerateButton ) {
+											if ( ! generateButtonDisabled ) {
 												handleGenerate();
 											}
 										},
