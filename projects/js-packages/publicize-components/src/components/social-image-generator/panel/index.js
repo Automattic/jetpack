@@ -61,6 +61,13 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					<HStack spacing={ 2 } wrap>
 						<Button
 							variant="secondary"
+							onClick={ openModal }
+							label={ __( 'Open the Social Image Generator settings', 'jetpack' ) }
+						>
+							{ __( 'Settings', 'jetpack' ) }
+						</Button>
+						<Button
+							variant="secondary"
 							onClick={ onClickSaveToLibrary }
 							label={ __( 'Save the generated image to your media library.', 'jetpack' ) }
 							disabled={ ! generatedImageToken || isSaving }
@@ -68,13 +75,6 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 							{ isSaving
 								? _x( 'Saving…', 'Saving the file to media library', 'jetpack' )
 								: __( 'Save to media library', 'jetpack' ) }
-						</Button>
-						<Button
-							variant="secondary"
-							onClick={ openModal }
-							label={ __( 'Open the Social Image Generator settings', 'jetpack' ) }
-						>
-							{ __( 'Settings', 'jetpack' ) }
 						</Button>
 					</HStack>
 				</>
