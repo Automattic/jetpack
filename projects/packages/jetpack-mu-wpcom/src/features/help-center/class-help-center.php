@@ -185,8 +185,7 @@ class Help_Center {
 			);
 		}
 
-		l( __DIR__ . '/languages' );
-		wp_set_script_translations( 'help-center', 'jetpack-mu-wpcom', __DIR__ . 'languages' );
+		wp_set_script_translations( 'help-center', 'jetpack-mu-wpcom', plugin_dir_path( __FILE__ ) . 'languages' );
 	}
 
 	/**

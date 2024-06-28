@@ -1,5 +1,5 @@
 {
-	"translation-revision-date": "2024-06-28T17:58:51.011Z",
+	"translation-revision-date": "2024-06-28T18:07:05.664Z",
 	"generator": "Jetpack",
 	"domain": "jetpack-mu-wpcom",
 	"locale_data": {
@@ -26,7 +26,6 @@
 			"Creator Trial": [ "試用 Creator 套餐" ],
 			"Try all the features of our Business plan.": [ "试用我们商务版套餐的所有功能。" ],
 			"Try all the features of our Creator plan.": [ "试用我们 Creator 套餐的所有功能。" ],
-			"Commerce Trial": [ "电子商务试用" ],
 			"Entrepreneur Trial": [ "Entrepreneur 套餐试用" ],
 			"per month, billed annually": [ "每月（按年计费）" ],
 			"/month, billed every two years": [ "/月，两年结算一次" ],
@@ -49,7 +48,7 @@
 				"免费获取无限链接，并跟踪访问次数。"
 			],
 			"Not a trial – blog free for as long as you like.": [
-				"非试用版 - 免费博客服务，想用多���就用多久。"
+				"非试用版 - 免费博客服务，想用多久就用多久。"
 			],
 			"Get a free website and be on your way to publishing your first post in less than five minutes.": [
 				"获取免费网站，用不了 5 分钟就可以发布您的第一篇文章。"
@@ -72,7 +71,7 @@
 				"以您的写作变现，无广告，同时扩展您的媒体内容。"
 			],
 			"Take Link In Bio to the next level with gated content, paid subscribers, and an ad-free site.": [
-				"通过设卡内容、付费订阅者��无广告站点，将自传中的链接提升到新的水平。"
+				"通过设卡内容、付费订阅者和无广告站点，将自传中的链接提升到新的水平。"
 			],
 			"Take the next step with gated content, paid subscribers, and an ad-free site.": [
 				"使用付费墙、付费订户、无广告等功能，让您更上层楼。"
@@ -108,7 +107,7 @@
 			],
 			"Essential": [ "必需要素" ],
 			"Everything you need to set up your store and start selling your products.": [
-				"一切商��设定与商品贩售所需功能。"
+				"一切商店设定与商品贩售所需功能。"
 			],
 			"Learn more about everything included with Woo Express Essential and take advantage of its powerful marketplace features.": [
 				"深入了解 Woo Express Essential 版随附的一切内容，以及如何善用其强大的市集功能。"
@@ -166,7 +165,7 @@
 			],
 			"Plus": [ "Plus" ],
 			"For fast-growing businesses that need access to the most powerful tools.": [
-				"专为需要最强大工具的高成长企业设计。"
+				"专为需要最强大工具���高成长企业设计。"
 			],
 			"Enterprise": [ "企业" ],
 			"Best for enterprises": [ "企业最佳选择" ],
@@ -187,7 +186,7 @@
 			],
 			"Professional": [ "专业" ],
 			"{{strong}}Best for organizations:{{/strong}} The most powerful WordPress sites.": [
-				"{{strong}}最适合���织：{{/strong}}最强大的WordPress站点。"
+				"{{strong}}最适合组织：{{/strong}}最强大的WordPress站点。"
 			],
 			"{{strong}}Best for organizations:{{/strong}} The most powerful WordPress sites: real-time backups and premium themes.": [
 				"{{strong}}组织的理想之选：{{/strong}}功能非常强大的 WordPress 站点：实时备份和高级套餐主题。"
@@ -206,7 +205,7 @@
 			],
 			"Best for sites with frequent updates": [ "最适合时常更新的站点" ],
 			"Easy-to-use, comprehensive WordPress site security including backups, malware scanning, and spam protection.": [
-				"易于使用、全面的 WordPress 站点安全功能，包括备份、恶意软件扫描以及垃圾邮件���护。"
+				"易于使用、全面的 WordPress 站点安全功能，包括备份、恶意软件扫描以及垃圾邮件防护。"
 			],
 			"This bundle includes:{{ul}}{{li}}VaultPress Backup (10GB){{/li}}{{li}}Scan{{/li}}{{li}}Akismet Anti-spam (10k API calls/mo){{/li}}{{/ul}}": [
 				"这个捆绑内含：{{ul}}{{li}}VaultPress Backup (10GB){{/li}}{{li}}Scan{{/li}}{{li}}Akismet Anti-Spam (每月 10,000 次 API 呼叫){{/li}}{{/ul}}"
@@ -222,7 +221,7 @@
 			"Save time manually reviewing spam": [ "节省手动审核垃圾内容的时间" ],
 			"Best-in-class support from WordPress experts": [ "来自 WordPress 专家的出色支持" ],
 			"Get the full power of Jetpack with all Security, Performance, Growth, and Design tools.": [
-				"借助所有安全、性能、发展和设计工具，实现 Jetpack 的全部功能。"
+				"借助所有安全、��能、发展和设计工具，实现 Jetpack 的全部功能。"
 			],
 			"Get the full Jetpack suite with real-time security tools, improved site performance, and tools to grow your business.": [
 				"获取完整的 Jetpack 套件，包括实时安全性工具、改进的站点性能以及您发展业务所需的各种工具。"
@@ -264,7 +263,7 @@
 				"升级您的站点以访问其他功能，包括垃圾邮件防护、备份、安全扫描和优先支持。"
 			],
 			"The features most needed by WordPress sites — perfectly packaged and optimized for everyone.": [
-				"WordPress 站点不可或缺的各种功能，已经过精心打包和优化，以便适合所有用户。"
+				"WordPress 站点不可或缺���各种功能，已经过精心打包和优化，以便适合所有用户。"
 			],
 			"for life": [ "终身" ],
 			"VaultPress Backup: Real-time backups as you edit": [
@@ -291,7 +290,7 @@
 			],
 			"CRM: Entrepreneur with 30 extensions": [ "CRM：具备 30 种创业必用延伸功能" ],
 			"Unlimited one-click restores from the last 1-year": [
-				"一键还原���去 1 年内的信息（无次数限制）"
+				"一键还原过去 1 年内的信息（无次数限��）"
 			],
 			"10GB of cloud storage": [ "10GB 云存储" ],
 			"30-day activity log archive": [ "30 天活动日志存档" ],
@@ -343,7 +342,7 @@
 			"Try it for 3 days": [ "试用 3 天" ],
 			"Hosting free trial": [ "免费试用版主机" ],
 			"Get a taste of unlimited performance and unbeatable uptime": [
-				"尽情体验无限的性能和无与伦比的稳定性"
+				"尽情体验无限的���能和无与伦比的稳定性"
 			],
 			"Monthly subscription": [ "按月订阅" ],
 			"Annual subscription": [ "年度订阅" ],
@@ -383,7 +382,7 @@
 			],
 			"Learn more in this support guide.": [ "可在此支持指南中了解详情。" ],
 			"During this time, we will continue to provide support over email. If you need to get in touch with us submit a support request from this page, and we will get to it as fast as we can. Chat will re-open at %(reopens_at)s. Thank you for your understanding!": [
-				"在此期间，我们将继续通过电子邮件提供支持。 如需联系我们，请从此页面提交支持请求，我们会尽快进行处理。 聊天功能将于 %(reopens_at)s 重启。 感谢您的理解！"
+				"在此期间，我们将继续通过电子邮件提供支持。 如需联系我们，请从此页面提交支持请求���我们会尽快进行处理。 聊天功能将于 %(reopens_at)s 重启。 感谢您的理解！"
 			],
 			"Chat will re-open at %(reopens_at)s. If you need to get in touch with us now, please submit a support request from this page. We will get to it as fast as we can. Thank you for your understanding!": [
 				"聊天功能将于 %(reopens_at)s 重启。 如需现在联系我们，请从此页面提交支持请求。 我们会尽快进行处理。 感谢您的理解！"
@@ -402,7 +401,7 @@
 			"Contact our WordPress.com experts": [ "联系我们的WordPress.com专家" ],
 			"Still need help?": [ "还需要帮助吗？" ],
 			"Back to top": [ "返回顶部" ],
-			"Pager controls": [ "页导航���件" ],
+			"Pager controls": [ "页导航控件" ],
 			"Page %(page)d of %(numberOfPages)d": [ "第 %(page)d 页（共 %(numberOfPages)d 页）" ],
 			"Previous": [ "上一步" ],
 			"Next": [ "下一步" ],
@@ -484,8 +483,9 @@
 			"number_format_thousands_sep": [ "," ],
 			"": {
 				"plural_forms": "nplurals=1; plural=0;",
-				"language": "zh_CN",
+				"language": "zh_SG",
 				"localeSlug": "zh-cn",
+				"localeVariant": "zh-sg",
 				"momentjs_locale": {
 					"months": [
 						"1月",
@@ -554,7 +554,7 @@
 					"week": { "dow": 0, "doy": 4 }
 				},
 				"plural-forms": "nplurals=1; plural=0;",
-				"lang": "zh_CN"
+				"lang": "zh_SG"
 			}
 		}
 	}

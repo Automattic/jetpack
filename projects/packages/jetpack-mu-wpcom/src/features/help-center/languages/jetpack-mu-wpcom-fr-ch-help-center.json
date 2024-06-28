@@ -1,5 +1,5 @@
 {
-	"translation-revision-date": "2024-06-28T17:58:50.990Z",
+	"translation-revision-date": "2024-06-28T18:07:05.592Z",
 	"generator": "Jetpack",
 	"domain": "jetpack-mu-wpcom",
 	"locale_data": {
@@ -30,7 +30,6 @@
 			"Try all the features of our Creator plan.": [
 				"Essayez toutes les fonctionnalités de notre plan Creator."
 			],
-			"Commerce Trial": [ "Essai d’eCommerce" ],
 			"per month, billed annually": [ "par mois, avec facturation annuelle" ],
 			"/month, billed every two years": [ "/mois, avec facturation tous les deux ans" ],
 			"/month, billed every three years": [ "/mois, avec facturation tous les trois ans" ],
@@ -428,7 +427,7 @@
 			"Contact WordPress.com Support (English)": [
 				"Contactez l'assistance WordPress.com (anglais)"
 			],
-			"Email": [ "E-mail" ],
+			"Email": [ "Adresse e-mail" ],
 			"Email (%s)": [ "E-mail (%s) : " ],
 			"Email (English)": [ "E-mail (en anglais)" ],
 			"Our Happiness team will get back to you soon": [
@@ -440,7 +439,7 @@
 			"An expert will get back to you soon": [ "Un expert vous répondra bientôt." ],
 			"Contact our WordPress.com experts": [ "Contacter nos experts WordPress.com" ],
 			"Still need help?": [ "Besoin d’une aide supplémentaire ?" ],
-			"Back to top": [ "Retour en Haut" ],
+			"Back to top": [ "Revenir en haut" ],
 			"Pager controls": [ "Commandes de récepteur d’appel" ],
 			"Page %(page)d of %(numberOfPages)d": [ "Page %(page)d sur %(numberOfPages)d" ],
 			"Previous": [ "Précédent" ],
@@ -501,7 +500,7 @@
 			],
 			"html alt tag\u0004Arrow icon": [ "Icône flèche" ],
 			"Message displayed when the user dislikes a message from the bot\u0004I’m sorry my last response didn’t meet your expectations! Here’s some other ways to get more in-depth help:": [
-				"Désolé que ma dernière réponse n'ait pas répondu à vos attentes ! Voici d'autres moyens d'obtenir une aide plus approfondie :"
+				"Désolé que ma derni��re réponse n'ait pas répondu à vos attentes ! Voici d'autres moyens d'obtenir une aide plus approfondie :"
 			],
 			"Below this text are links to sources for the current message received from the bot.\u0004Related Guides": [
 				"Guides similaires"
@@ -524,11 +523,12 @@
 			"button label\u0004Open Search": [ "Ouvrir la recherche" ],
 			"button label\u0004Close Search": [ "Fermer la recherche" ],
 			"number_format_decimals": [ "," ],
-			"number_format_thousands_sep": [ " " ],
+			"number_format_thousands_sep": [ " " ],
 			"": {
-				"plural_forms": "nplurals=2; plural=n > 1;",
-				"language": "fr",
+				"plural_forms": "nplurals=2; plural=n != 1;",
+				"language": "fr_CH",
 				"localeSlug": "fr",
+				"localeVariant": "fr-ch",
 				"momentjs_locale": {
 					"months": [
 						"janvier",
@@ -596,8 +596,8 @@
 					},
 					"week": { "dow": 0, "doy": 4 }
 				},
-				"plural-forms": "nplurals=2; plural=n > 1;",
-				"lang": "fr"
+				"plural-forms": "nplurals=2; plural=n != 1;",
+				"lang": "fr_CH"
 			}
 		}
 	}

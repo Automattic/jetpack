@@ -34,7 +34,7 @@ const https = require( 'https' );
 		'features',
 		'help-center',
 		'languages',
-		`${ lang }-help-center.json`
+		`jetpack-mu-wpcom-${ lang }-help-center.json`
 	);
 
 	https.get( url, response => {
@@ -45,7 +45,20 @@ const https = require( 'https' );
 		} );
 
 		response.on( 'end', () => {
-			require( 'fs' ).writeFileSync( dest, data );
+			const dataParsed = JSON.parse( data );
+			dataParsed[ '' ][ 'plural-forms' ] = dataParsed[ '' ].plural_forms;
+			dataParsed[ '' ].lang = dataParsed[ '' ].language;
+
+			const JED = {
+				'translation-revision-date': new Date().toISOString(),
+				generator: 'Jetpack',
+				domain: 'jetpack-mu-wpcom',
+				locale_data: {
+					messages: dataParsed,
+				},
+			};
+
+			require( 'fs' ).writeFileSync( dest, JSON.stringify( JED ) );
 		} );
 	} );
 } );
