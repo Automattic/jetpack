@@ -74,7 +74,7 @@ export default function AiImageModal( {
 
 	const handleUserPromptChange = useCallback(
 		( e: React.ChangeEvent< HTMLTextAreaElement > ) => {
-			setUserPrompt( e.target.value );
+			setUserPrompt( e.target.value.trim() );
 		},
 		[ setUserPrompt ]
 	);
