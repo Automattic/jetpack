@@ -1,6 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
+import useScanHistory from '../use-scan-history';
 
 /**
  * Get parsed data from the initial state
@@ -8,41 +9,45 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { statusIsFetching, status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
-		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+	const { viewingScanHistory, scanHistory } = useScanHistory();
+
+	const { status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
 		status: select( STORE_ID ).getStatus(),
 		jetpackScan: select( STORE_ID ).getJetpackScan(),
 		hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
 	} ) );
 
-	let currentStatus = 'error';
-	if ( true === statusIsFetching ) {
-		currentStatus = 'loading';
-	} else if ( status.status ) {
-		currentStatus = status.status;
-	}
+	const source = viewingScanHistory ? scanHistory : status;
 
-	const numCoreThreats = useMemo( () => status.core?.threats?.length || 0, [ status.core ] );
+	const numCoreThreats = useMemo( () => {
+		if ( viewingScanHistory ) {
+			return ( source.core || [] ).reduce(
+				( numThreats, core ) => numThreats + core.threats.length,
+				0
+			);
+		}
+		return source.core?.threats?.length || 0;
+	}, [ viewingScanHistory, source.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>
-			( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
+			( source.plugins || [] ).reduce( ( numThreats, plugin ) => {
 				return numThreats + plugin.threats.length;
 			}, 0 ),
-		[ status.plugins ]
+		[ source.plugins ]
 	);
 
 	const numThemesThreats = useMemo(
 		() =>
-			( status.themes || [] ).reduce( ( numThreats, theme ) => {
+			( source.themes || [] ).reduce( ( numThreats, theme ) => {
 				return numThreats + theme.threats.length;
 			}, 0 ),
-		[ status.themes ]
+		[ source.themes ]
 	);
 
-	const numFilesThreats = useMemo( () => status.files?.length || 0, [ status.files ] );
+	const numFilesThreats = useMemo( () => source.files?.length || 0, [ source.files ] );
 
-	const numDatabaseThreats = useMemo( () => status.database?.length || 0, [ status.database ] );
+	const numDatabaseThreats = useMemo( () => source.database?.length || 0, [ source.database ] );
 
 	const numThreats =
 		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
@@ -54,16 +59,16 @@ export default function useProtectData() {
 		numThemesThreats,
 		numFilesThreats,
 		numDatabaseThreats,
-		lastChecked: status.lastChecked || null,
-		errorCode: status.errorCode || null,
-		errorMessage: status.errorMessage || null,
-		core: status.core || {},
-		plugins: status.plugins || [],
-		themes: status.themes || [],
-		files: { threats: status.files || [] },
-		database: { threats: status.database || [] },
-		currentStatus,
-		hasUncheckedItems: status.hasUncheckedItems,
+		lastChecked: source.lastChecked || null,
+		error: source.error || false,
+		errorCode: source.errorCode || null,
+		errorMessage: source.errorMessage || null,
+		core: source.core || {},
+		plugins: source.plugins || [],
+		themes: source.themes || [],
+		files: { threats: source.files || [] },
+		database: { threats: source.database || [] },
+		hasUncheckedItems: source.hasUncheckedItems,
 		jetpackScan,
 		hasRequiredPlan,
 	};

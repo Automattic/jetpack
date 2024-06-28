@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Models\Extension_Model;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use WP_Error;
 
@@ -94,6 +96,18 @@ class Scan_History {
 		// TODO: Sanitize $history.
 		update_option( static::OPTION_NAME, maybe_serialize( $history ) );
 		update_option( static::OPTION_TIMESTAMP_NAME, time() + static::OPTION_EXPIRES_AFTER );
+	}
+
+	/**
+	 * Delete the cached history and its timestamp
+	 *
+	 * @return bool Whether all related history options were successfully deleted.
+	 */
+	public static function delete_option() {
+		$option_deleted           = delete_option( static::OPTION_NAME );
+		$option_timestamp_deleted = delete_option( static::OPTION_TIMESTAMP_NAME );
+
+		return $option_deleted && $option_timestamp_deleted;
 	}
 
 	/**
