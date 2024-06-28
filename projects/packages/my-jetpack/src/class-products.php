@@ -153,6 +153,27 @@ class Products {
 	}
 
 	/**
+	 * Get all plugin filenames associated with the products.
+	 *
+	 * @return array
+	 */
+	public static function get_all_plugin_filenames() {
+		$filenames = array();
+		foreach ( self::get_products_classes() as $class ) {
+			if ( ! isset( $class::$plugin_filename ) ) {
+				continue;
+			}
+
+			if ( is_array( $class::$plugin_filename ) ) {
+				$filenames = array_merge( $filenames, $class::$plugin_filename );
+			} else {
+				$filenames[] = $class::$plugin_filename;
+			}
+		}
+		return $filenames;
+	}
+
+	/**
 	 * Get one product data by its slug
 	 *
 	 * @param string $product_slug The product slug.

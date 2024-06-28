@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [2.7] - 2024-06-27
+### Added
+- On-demand backups feature
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Remove the explicit Plugin Install package dependency. [#37430]
+- Updated package dependencies. [#37348] [#37767]
+- Updated backup header layout for responsive design
+
 ## [2.6] - 2024-05-09
 ### Added
 - Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
@@ -223,6 +233,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[2.7]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.6...2.7
 [2.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.5...2.6
 [2.5]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.4...2.5
 [2.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.3...2.4

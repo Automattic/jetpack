@@ -6,10 +6,13 @@ import { useMemo } from 'react';
 import useCapabilities from '../../hooks/useCapabilities';
 import useConnection from '../../hooks/useConnection';
 import { STORE_ID } from '../../store';
+import { useShowBackUpNow } from '../back-up-now/hooks';
+import { BackupNowButton } from '../back-up-now/index';
 import { useIsFullyConnected } from './hooks';
 
 const Header = () => {
 	const showActivateLicenseLink = useShowActivateLicenseLink();
+	const showBackUpNowButton = useShowBackUpNow();
 
 	return (
 		<div className="jetpack-admin-page__header">
@@ -17,6 +20,11 @@ const Header = () => {
 				<JetpackVaultPressBackupLogo />
 			</span>
 			{ showActivateLicenseLink && <ActivateLicenseLink /> }
+			{ showBackUpNowButton && (
+				<BackupNowButton variant="primary" tracksEventName="jetpack_backup_plugin_backup_now">
+					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
+				</BackupNowButton>
+			) }
 		</div>
 	);
 };

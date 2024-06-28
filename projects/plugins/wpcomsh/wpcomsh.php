@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.25.2
+ * Version: 3.26.2-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.25.2' );
+define( 'WPCOMSH_VERSION', '3.26.2-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -612,40 +612,3 @@ add_filter( 'calypso_use_modernized_reading_settings', '__return_true' );
  */
 add_filter( 'calypso_use_newsletter_settings', '__return_true' );
 add_filter( 'calypso_use_podcasting_settings', '__return_true' );
-
-/**
- * Polyfill the create_function function for PHP versions >= 8.0
- * Code taken from https://github.com/php5friends/polyfill-create_function/blob/master/create_function.php
- *
- * Copying and distribution of this file, with or without modification,
- * are permitted in any medium without royalty provided the copyright
- * notice and this notice are preserved.  This file is offered as-is,
- * without any warranty.
- */
-if ( ! function_exists( 'create_function' ) ) {
-	/**
-	 * The create_function function.
-	 *
-	 * @param string $args The args.
-	 * @param string $code The code.
-	 *
-	 * @return string The name of the function.
-	 */
-	function create_function( $args, $code ) {
-		static $i = 0;
-
-		_deprecated_function( __FUNCTION__, 'trunk', 'anonymous functions' );
-
-		$namespace = 'wpcom_create_function';
-
-		do {
-			++$i;
-			$name = "__{$namespace}_lambda_{$i}";
-		} while ( \function_exists( $name ) );
-
-		// phpcs:ignore Squiz.PHP.Eval.Discouraged, MediaWiki.Usage.ForbiddenFunctions.eval
-		eval( "function {$name}({$args}) { {$code} }" );
-
-		return $name;
-	}
-}
