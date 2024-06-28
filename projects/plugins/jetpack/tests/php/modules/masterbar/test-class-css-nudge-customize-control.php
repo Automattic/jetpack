@@ -33,14 +33,11 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 
 		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
 		require_once self::$deprecated_file_path;
-
-		do_action( 'init' );
 	}
 
 	/**
 	 * Check if the HTML for the nudge section is properly generated.
 	 *
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control::render_content
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control::render_content
