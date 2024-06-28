@@ -1471,10 +1471,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Hardened permission checks for AJAX methods
 - Improved: Hardened security around nonce usage
 
-## 2.99.9.2 -2019-08-27
+## 2.99.9.2 - 2019-08-27
 - Improved: Refined CRM reset procedure to prevent accidental data deletion from admin.
 
-## 2.99.9.1 -2019-08-23
+## 2.99.9.1 - 2019-08-23
 - Improved: Data deletion tool admin referrer check to prevent accidental data deletion
 
 ## 2.99.9 - 2019-07-23
