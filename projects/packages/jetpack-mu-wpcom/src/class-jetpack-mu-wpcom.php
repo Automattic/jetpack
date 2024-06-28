@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.41.1-alpha';
+	const PACKAGE_VERSION = '5.42.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -50,11 +50,6 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
-		}
-
-		// These features run only on atomic sites.
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
