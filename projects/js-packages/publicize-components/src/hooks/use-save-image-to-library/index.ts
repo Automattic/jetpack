@@ -49,17 +49,19 @@ export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibrar
 							setIsSaving( false );
 						}
 					},
-					onError: e => {
+					onError: error => {
 						onError(
-							new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: e } )
+							new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
 						);
 
 						setIsSaving( false );
 					},
 					maxUploadFileSize: 0,
 				} );
-			} catch ( e ) {
-				onError( new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: e } ) );
+			} catch ( error ) {
+				onError(
+					new Error( __( 'Failed to save image to library.', 'jetpack' ), { cause: error } )
+				);
 			} finally {
 				setIsSaving( false );
 			}
