@@ -100,6 +100,86 @@ add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_update_safec
 add_action( 'wpcomsh_woa_post_reset', 'wpcomsh_woa_post_transfer_update_safecss_to_custom_css', 10, 2 );
 
 /**
+ * Debug and error logging for the post-transfer action to enable HPOS.
+ *
+ * @param string $message Message to log.
+ */
+function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( $message ) {
+	$message = sprintf( 'maybe_enable_woocommerce_hpos: %s', $message );
+
+	// The error_log call can be uncommented for debugging.
+	// error_log( $message );
+	WPCOMSH_Log::unsafe_direct_log( $message );
+}
+
+/**
+ * Enable HPOS for WooCommerce sites that don't already have it enabled.
+ *
+ * @param array $args       Arguments.
+ * @param array $assoc_args Associated arguments.
+ */
+function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos( $args, $assoc_args ) {
+	// This flag is only set for sites with ECOMMERCE_MANAGED_PLUGINS. Sites without this feature are skipped.
+	$woocommerce_hpos = WP_CLI\Utils\get_flag_value( $assoc_args, 'woocommerce_hpos', false );
+	if ( ! $woocommerce_hpos ) {
+		return;
+	}
+
+	// Verify WooCommerce is installed and active.
+	$result = WP_CLI::runcommand(
+		'plugin list --name=woocommerce --status=active --field=name --format=csv',
+		array(
+			'return'     => 'all',
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+	if ( 0 !== $result->return_code ) {
+		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( sprintf( 'Error checking if WooCommerce is active: %s', $result->stderr ) );
+		return;
+	}
+	if ( 'woocommerce' !== trim( $result->stdout ) ) {
+		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( 'WooCommerce not active' );
+		return;
+	}
+
+	// Verify HPOS isn't already enabled
+	$result = WP_CLI::runcommand(
+		'option get woocommerce_custom_orders_table_enabled',
+		array(
+			'return'     => 'all',
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+	if ( 0 !== $result->return_code ) {
+		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( sprintf( 'Error checking if HPOS is active: %s', $result->stderr ) );
+		return;
+	}
+	if ( 'yes' === $result->stdout ) {
+		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( 'HPOS is already enabled' );
+		return;
+	}
+
+	// Enable HPOS
+	$result = WP_CLI::runcommand(
+		'wc hpos enable',
+		array(
+			'return'     => 'all',
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+	if ( 0 !== $result->return_code ) {
+		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( sprintf( 'Error enabling HPOS: %s', $result->stderr ) );
+		return;
+	}
+
+	wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( 'Successfully enabled HPOS' );
+}
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos', 10, 2 );
+
+/**
  * Woo Express: Free Trial - deactivate simple site activated plugins.
  *
  * @param array $args       Arguments.
