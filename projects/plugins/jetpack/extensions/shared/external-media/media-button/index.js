@@ -1,5 +1,6 @@
 import { useState } from '@wordpress/element';
 import { getExternalLibrary } from '../sources';
+import MediaAiButton from './media-ai-button';
 import MediaButtonMenu from './media-menu';
 
 const isFeaturedImage = props =>
@@ -40,6 +41,7 @@ function MediaButton( props ) {
 				isFeatured={ isFeaturedImage( mediaProps ) }
 				hasImage={ mediaProps.value > 0 }
 			/>
+			<MediaAiButton setSelectedSource={ setSelectedSource } />
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
