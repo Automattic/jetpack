@@ -1475,6 +1475,7 @@ class The_Neverending_Home_Page {
 					if ( false !== $callback && is_callable( $callback ) ) {
 						rewind_posts();
 						ob_start();
+
 						add_action( 'infinite_scroll_render', $callback );
 
 						/**
@@ -1483,6 +1484,9 @@ class The_Neverending_Home_Page {
 						 * for more details as to why it was introduced.
 						 */
 						do_action( 'infinite_scroll_render' );
+
+						// Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
+						wp_head();
 
 						$results['html'] = ob_get_clean();
 						remove_action( 'infinite_scroll_render', $callback );

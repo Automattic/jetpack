@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '6.4.2';
+	public $version = '6.4.3';
 
 	/**
 	 * WordPress version tested with.
