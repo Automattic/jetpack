@@ -227,7 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tooling: Allowing minification of JS files in development [#30119]
 - Transactions: Always show current status in editor [#30644]
 - WooSync: Fix the fee amount from a WooCommerce order is not added to the invoice [#29650]
-- WooSync: Fix shipping tax and discount amounts from Woocommerce orders are not calculated in invoices [#29650]
+- WooSync: Fix shipping tax and discount amounts from WooCommerce orders are not calculated in invoices [#29650]
 - WooSync: Fix the subtotal amount from WooCommerce orders is not calculated in invoices [#29650]
 - WooSync: Fix PHP Warning [#30572]
 - Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount [#29650]
@@ -272,12 +272,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Fix various corrupt JS files [#29705]
 - Onboarding: Get updates (mailing list) changed from opt-out to opt-in in the onboarding wizard [#29999]
 - Importer: Allow import of application/csv mime type
-  Importer: Better parsing of CSV fields [#29822]
+- Importer: Better parsing of CSV fields [#29822]
 - General: Improved compatibility with PHP 8.1 [#29945]
 - Invoices: Fix ability to remove logo from invoice edit page [#30099]
 - Invoices: Fix PHP notice when sending contact an invoice via email [#30110]
 - General: Fix broken link in bulk actions function in list view [#29623]
-- Mailpoet Sync: Fix an issue where contact images would disappear after synchronization [#30091]
+- MailPoet Sync: Fix an issue where contact images would disappear after synchronization [#30091]
 - Onboarding: Remove outdated YouTube video from welcome overlay [#29999]
 - Quotes: Use current date if quote date is blank [#30032]
 - Settings: Fix broken link on white label installs [#30160]
@@ -305,7 +305,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Contacts: Fix escape in contact list filters [#28836]
 - Contacts: Fix issue where exporting contacts shows "County" when it should show "State" [#28868]
 - Contacts: Fix the escape used in the "Bundle holder" notification when uploading files to a contact [#28831]
-- Dashboard:  Allow custom profile pictures to be shown in the dashboard [#28802]
+- Dashboard: Allow custom profile pictures to be shown in the dashboard [#28802]
 - Invoices: Escape an invoice ID in ZeroBSCRM.admin.invoicebuilder.js [#28830]
 - Tasks: Correct text where tasks where being referred to as events [#29267]
 - Placeholders: Fix secondary address placeholders [#29396]
@@ -435,7 +435,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Style glitch for Payment rows in Invoice Totals table (PDF)
 - Fixed: database index tried to add twice on new installs
 - Fixed: Segment conditions for custom fields now respect the custom field type when using Advanced Segments
-- Fixed: Bug in segmentation logic which effected Advanced Segments 'date added' condition.
+- Fixed: Bug in segmentation logic which affected Advanced Segments 'date added' condition.
 - Improved: WooSync now follows WooCommerce tax code usage
 - Improved: Database access layer around the storage of log metadata
 - Improved: Segment preview audiences are now linked to profiles
@@ -524,7 +524,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: invoices updated by WooSync retain their logo
 - Fixed: listviews wouldn't load if tags had improperly-encoded characters
 - Fixed: local Woo order hooks are ignored if local connection is not active
-- Fixed: WooCommerce order linetime prices were incorrectly mapped to the CRM invoice in some cases
+- Fixed: WooCommerce order lineitem prices were incorrectly mapped to the CRM invoice in some cases
 - Fixed: WooCommerce order updates didn't always update the associated CRM invoice
 - Fixed: WooSync and GiveWP no longer overwrite the WP user ID link in the database
 - Fixed: WooSync now properly sets the contact status
@@ -718,7 +718,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: segment failsafes for code extensions such as Advanced Segments
 - Improved: UI for the Client Portal is now responsive
 - Improved: WP 5.9 compatibility
-
 
 ## 4.7.0 - 2021-12-16
 - Fixed: catch error if list view has no filter buttons
@@ -995,12 +994,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Last Updated column to contacts and companies
 
 ## 4.0.6 - 2020-10-29
-- Fixed: Duplicated tag with international charactes when they are added to a contact
+- Fixed: Duplicated tag with international characters when they are added to a contact
 - Fixed: Style issue with Second Address block in the Client Portal
 - Fixed: Invoice line items now able to be added to invoices (req invoicing pro v2.7.1)
 - Fixed: Textarea custom field doesn't show new lines in view mode
 - Fixed: Remove Advanced Search (can search from list view mode since v3.0)
-- Fixed: JPCRM can not be installed if the API Connector plugin is already installed.
+- Fixed: JPCRM cannot be installed if the API Connector plugin is already installed.
 - Fixed: Style issue mapping the fields in the CSV Importer section
 
 ## 4.0.5 - 2020-10-15
@@ -1017,7 +1016,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Old brand reference on CSV importer page
 - Fixed: New Company placeholder more specific to a real business
 - Fixed: Multi-value custom fields in client portal
-- Fixed: JPCRM roles for contacts explicity deny WP role capabilities when activated
+- Fixed: JPCRM roles for contacts explicitly deny WP role capabilities when activated
 - Fixed: A user role still referenced the old brand
 - Fixed: Create new invoices without selecting a due date was showing up as Invalid Date
 - Fixed: Extension documentation links
@@ -1061,7 +1060,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: AJAX.php file was being detected as a virus by some AV scanners
 - Fixed: Removed unnecessary notification after plugin installation
 - Fixed: the Jetpack Forms extension name
-- Fixed: Edit profile avatar sometimes not aligning correcetly
+- Fixed: Edit profile avatar sometimes not aligning correctly
 - Fixed: Transaction creation prefill now works
 - Fixed: View button on transaction (after assigning a contact) now takes you to view, not edit
 - Fixed: Clicking a sent email was not loading email correctly
