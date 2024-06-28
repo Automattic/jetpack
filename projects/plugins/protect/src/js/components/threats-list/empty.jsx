@@ -3,6 +3,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import useScanHistory from '../../hooks/use-scan-history';
 import styles from './styles.module.scss';
 
 const ProtectCheck = () => (
@@ -84,6 +85,7 @@ const timeSince = date => {
 
 const EmptyList = () => {
 	const { lastChecked } = useProtectData();
+	const { viewingScanHistory } = useScanHistory();
 
 	const timeSinceLastScan = useMemo( () => {
 		return lastChecked ? timeSince( Date.parse( lastChecked ) ) : null;
@@ -96,19 +98,24 @@ const EmptyList = () => {
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
 			<Text>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
-						__(
-							'The last Protect scan ran <strong>%s</strong> and everything looked great.',
+				{ viewingScanHistory
+					? __(
+							'So far, there are no threats in your scan history for the current filter.',
 							'jetpack-protect'
-						),
-						timeSinceLastScan
-					),
-					{
-						strong: <strong />,
-					}
-				) }
+					  )
+					: createInterpolateElement(
+							sprintf(
+								// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+								__(
+									'The last Protect scan ran <strong>%s</strong> and everything looked great.',
+									'jetpack-protect'
+								),
+								timeSinceLastScan
+							),
+							{
+								strong: <strong />,
+							}
+					  ) }
 			</Text>
 		</div>
 	);
