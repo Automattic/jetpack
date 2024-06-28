@@ -34,7 +34,7 @@ const https = require( 'https' );
 		'features',
 		'help-center',
 		'languages',
-		`jetpack-mu-wpcom-${ lang }-help-center.json`
+		`${ lang }-help-center.json`
 	);
 
 	https.get( url, response => {

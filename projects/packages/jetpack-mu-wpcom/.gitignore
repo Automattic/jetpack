@@ -4,3 +4,4 @@ vendor/
 node_modules/
 wordpress/
 playwright-report/
+help-center/languages/
