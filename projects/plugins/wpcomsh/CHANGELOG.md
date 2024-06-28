@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.27.0 - 2024-06-28
+### Added
+- Added plugin dance command [#38108]
+
 ## 3.26.1 - 2024-06-26
 ### Added
 - Site Migrations: Add tracks events for AIOWPM events. [#37902]

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode.
