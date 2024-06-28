@@ -1,3 +1,4 @@
+import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import { getExternalLibrary } from '../sources';
 import MediaAiButton from './media-ai-button';
@@ -8,11 +9,15 @@ const isFeaturedImage = props =>
 	( props.modalClass && props.modalClass.indexOf( 'featured-image' ) !== -1 );
 const isReplaceMenu = props => props.multiple === undefined && ! isFeaturedImage( props );
 
+const blocksWithAiButtonSupport = [ 'core/image', 'core/gallery', 'jetpack/slideshow' ];
+
 function MediaButton( props ) {
+	const { name } = useBlockEditContext();
 	const { mediaProps } = props;
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const ExternalLibrary = getExternalLibrary( selectedSource );
 	const isFeatured = isFeaturedImage( mediaProps );
+	const hasAiButtonSupport = blocksWithAiButtonSupport.includes( name );
 
 	const closeLibrary = event => {
 		if ( event ) {
@@ -42,7 +47,9 @@ function MediaButton( props ) {
 				isFeatured={ isFeatured }
 				hasImage={ mediaProps.value > 0 }
 			/>
-			{ ! isFeatured && <MediaAiButton setSelectedSource={ setSelectedSource } /> }
+			{ ! isFeatured && hasAiButtonSupport && (
+				<MediaAiButton setSelectedSource={ setSelectedSource } />
+			) }
 
 			{ ExternalLibrary && <ExternalLibrary { ...mediaProps } onClose={ closeLibrary } /> }
 		</div>
