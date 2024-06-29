@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Publicize: Fix a race condition with refreshing the active social connections

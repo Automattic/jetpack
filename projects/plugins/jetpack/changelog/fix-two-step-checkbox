@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+SSO: Disabled Two-Step checkbox when jetpack_sso_require_two_step filter is on

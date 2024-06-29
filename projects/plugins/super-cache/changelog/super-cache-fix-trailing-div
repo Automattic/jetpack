@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix a trailing div when showing the "boost cache is active" error.
-
-

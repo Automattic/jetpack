@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the 'missing array key' notice.
