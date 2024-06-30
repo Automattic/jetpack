@@ -6,7 +6,7 @@ This is the Jetpack Monorepo. It contains source code for the different Jetpack 
 
 ## How to install Jetpack plugin on your site
 
-**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
+**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [[https://ashleykb956.wordpress.com/](https://ashleykb956.wordpress.com/)](https://github.com/Automattic/jetpack-production#jetpack).
 
 ## Developing from the Monorepo
 
