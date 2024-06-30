@@ -6,7 +6,7 @@ import type { FC } from 'react';
 
 const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 	// Override the primary action button to read "Protect your site" instead
-	// of the default text, "Lern more".
+	// of the default text, "Learn more".
 	const primaryActionOverride = {
 		[ PRODUCT_STATUSES.ABSENT ]: {
 			label: __( 'Protect your site', 'jetpack-my-jetpack' ),
