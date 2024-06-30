@@ -2,7 +2,7 @@ import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
@@ -64,34 +64,36 @@ const ValueSection: FC< {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { pluginsThemesTooltip, scanThreatsTooltip } = tooltipContent;
 
-	const togglePopover = function () {
-		setIsPopoverVisible( prevState => ! prevState );
-	};
+	const toggleTooltip = useCallback(
+		() => setIsPopoverVisible( prevState => ! prevState ),
+		[ setIsPopoverVisible ]
+	);
+	const hideTooltip = useCallback( () => setIsPopoverVisible( false ), [ setIsPopoverVisible ] );
 
 	return (
 		<>
 			<div className="value-section__last-scan">
-				<span>{ lastScanText }</span>
+				<div>{ lastScanText }</div>
 				{ ! isProtectActive && (
-					<span>
-						<button
-							className="value-section__tooltip-button"
-							// eslint-disable-next-line react/jsx-no-bind
-							onClick={ togglePopover }
-						>
+					<div>
+						<button className="value-section__tooltip-button" onClick={ toggleTooltip }>
 							<Gridicon icon="info-outline" size={ 14 } />
-							{ isPopoverVisible && (
-								<Popover
-									placement={ isMobileViewport ? 'top-end' : 'right' }
-									noArrow={ false }
-									offset={ 10 }
-								>
-									<p className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</p>
-									<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
-								</Popover>
-							) }
 						</button>
-					</span>
+						{ isPopoverVisible && (
+							<Popover
+								placement={ isMobileViewport ? 'top-end' : 'right' }
+								noArrow={ false }
+								offset={ 10 }
+								focusOnMount={ 'container' }
+								onClose={ hideTooltip }
+							>
+								<>
+									<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
+									<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
+								</>
+							</Popover>
+						) }
+					</div>
 				) }
 			</div>
 			<div className="value-section">
