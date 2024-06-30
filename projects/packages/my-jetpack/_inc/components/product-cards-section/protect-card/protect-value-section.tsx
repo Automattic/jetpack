@@ -53,10 +53,10 @@ const ValueSection: FC< {
 	lastScanText: string;
 } > = ( { isProtectActive, lastScanText } ) => {
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
-	const [ isVisiblePopover_PluginsThemes, setIsVisiblePopover_PluginsThemes ] = useState( false );
+	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 
-	const togglePopover_PluginsThemes = function () {
-		setIsVisiblePopover_PluginsThemes( state => ! state );
+	const togglePopover = function () {
+		setIsPopoverVisible( prevState => ! prevState );
 	};
 
 	return (
@@ -68,10 +68,10 @@ const ValueSection: FC< {
 						<button
 							className="value-section__tooltip-button"
 							// eslint-disable-next-line react/jsx-no-bind
-							onClick={ togglePopover_PluginsThemes }
+							onClick={ togglePopover }
 						>
 							<Gridicon icon="info-outline" size={ 14 } />
-							{ isVisiblePopover_PluginsThemes && (
+							{ isPopoverVisible && (
 								<Popover
 									placement={ isMobileViewport ? 'top-end' : 'right' }
 									noArrow={ false }
