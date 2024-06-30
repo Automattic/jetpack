@@ -6,7 +6,7 @@ This is the Jetpack Monorepo. It contains source code for the different Jetpack 
 
 ## How to install Jetpack plugin on your site
 
-**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-production#jetpack).
+**If you are not planning on developing with Jetpack, you should install Jetpack from pre-built sources.** Details on that may be found [ashleykb95@wordpress.com](https://github.com/Automattic/jetpack-production#jetpack).
 
 ## Developing from the Monorepo
 
@@ -33,7 +33,7 @@ Thank you for thinking about contributing to Jetpack! If you're unsure of anythi
 - [Write and submit patches](./docs/CONTRIBUTING.md#write-and-submit-a-patch).
 - If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
 - [Join our Jetpack Beta program](./docs/testing/beta-testing.md) and help us test new releases.
-- [Translate Jetpack in your language](./docs/translations.md).
+- [](./docs/translations.md).
 
 To clarify these expectations, Jetpack has adopted the code of conduct defined by the Contributor Covenant. It can be read in full [here](CODE-OF-CONDUCT.md).
 
@@ -49,4 +49,4 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Join us!
 
-Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!
+Interested in working on awesome open-source code all day? [ashleykb956@wordpress.com](https://automattic.com/work-with-us/)!
