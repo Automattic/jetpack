@@ -6,10 +6,11 @@ import { useState } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
+import type { FC } from 'react';
 
 import './style.scss';
 
-const ProtectValueSection: React.FunctionComponent = () => {
+const ProtectValueSection = () => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
@@ -19,7 +20,7 @@ const ProtectValueSection: React.FunctionComponent = () => {
 
 export default ProtectValueSection;
 
-const WithProtectValueSection: React.FunctionComponent = () => {
+const WithProtectValueSection = () => {
 	const { protectStatus } = getMyJetpackWindowInitialState();
 	const lastScanTime = protectStatus?.last_checked;
 	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : '...';
@@ -32,7 +33,7 @@ const WithProtectValueSection: React.FunctionComponent = () => {
 	return <ValueSection isProtectActive={ true } lastScanText={ lastScanText } />;
 };
 
-const NoProtectValueSection: React.FunctionComponent = () => {
+const NoProtectValueSection = () => {
 	const { plugins, themes } = getMyJetpackWindowInitialState();
 	const pluginsCount = Object.keys( plugins ).length;
 	const themesCount = Object.keys( themes ).length;
@@ -47,7 +48,7 @@ const NoProtectValueSection: React.FunctionComponent = () => {
 	return <ValueSection isProtectActive={ false } lastScanText={ pluginsThemesText } />;
 };
 
-const ValueSection: React.FunctionComponent< {
+const ValueSection: FC< {
 	isProtectActive: boolean;
 	lastScanText: string;
 } > = ( { isProtectActive, lastScanText } ) => {
