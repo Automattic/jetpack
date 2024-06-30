@@ -153,7 +153,7 @@ interface Window {
 				};
 			};
 		};
-		protectStatus: {
+		scanData: {
 			core: ScanItem;
 			current_progress?: string;
 			data_source: string;

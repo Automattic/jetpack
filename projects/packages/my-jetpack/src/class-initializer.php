@@ -211,7 +211,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
-		$protect_status                 = Protect_Status::get_status();
+		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
@@ -259,7 +259,7 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
-				'protectStatus'          => $protect_status,
+				'scanData'               => $scan_data,
 			)
 		);
 
