@@ -3,7 +3,6 @@ import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
-import { PRODUCT_STATUSES } from '../../../constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
@@ -13,11 +12,9 @@ import './style.scss';
 const ProtectValueSection: React.FunctionComponent = () => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
-	const { status } = detail;
-	const isProtectActive =
-		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
+	const { isPluginActive = false } = detail || {};
 
-	return isProtectActive ? <WithProtectValueSection /> : <NoProtectValueSection />;
+	return isPluginActive ? <WithProtectValueSection /> : <NoProtectValueSection />;
 };
 
 export default ProtectValueSection;
