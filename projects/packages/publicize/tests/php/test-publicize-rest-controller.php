@@ -239,10 +239,8 @@ class Test_REST_Controller extends TestCase {
 	 * Dummy function to initialize publicize connections.
 	 */
 	public function setup_jetpack_connections() {
-		set_transient(
-			'jetpack_social_connections',
-			$this->get_connections(),
-			3600
-		);
+		global $publicize;
+
+		$publicize->receive_updated_publicize_connections( $this->get_connections() );
 	}
 }

@@ -133,13 +133,18 @@ class Blaze {
 	/**
 	 * Check the WordPress.com REST API
 	 * to ensure that the site supports the Blaze feature.
-	 * Results are cached for a day.
+	 *
+	 * - If the site is on WordPress.com Simple, we do not query the API.
+	 * - Results are cached for a day after getting response from API.
+	 * - If the API returns an error, we cache the result for an hour.
 	 *
 	 * @param int $blog_id The blog ID to check.
 	 *
 	 * @return bool
 	 */
 	public static function site_supports_blaze( $blog_id ) {
+		$transient_name = 'jetpack_blaze_site_supports_blaze_' . $blog_id;
+
 		/*
 		 * On WordPress.com, we don't need to make an API request,
 		 * we can query directly.
@@ -148,9 +153,13 @@ class Blaze {
 			return blaze_is_site_eligible( $blog_id );
 		}
 
-		$cached_result = get_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id );
+		$cached_result = get_transient( $transient_name );
 		if ( false !== $cached_result ) {
-			return $cached_result;
+			if ( is_array( $cached_result ) ) {
+				return $cached_result['approved'];
+			}
+
+			return (bool) $cached_result;
 		}
 
 		// Make the API request.
@@ -163,8 +172,9 @@ class Blaze {
 			'wpcom'
 		);
 
-		// Bail if there was an error or malformed response.
+		// If there was an error or malformed response, bail and save response for an hour.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			set_transient( $transient_name, array( 'approved' => false ), HOUR_IN_SECONDS );
 			return false;
 		}
 
@@ -172,12 +182,12 @@ class Blaze {
 		$result = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		// Bail if there were no results returned.
-		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
+		if ( ! is_array( $result ) || ! isset( $result['approved'] ) ) {
 			return false;
 		}
 
 		// Cache the result for 24 hours.
-		set_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id, (bool) $result['approved'], DAY_IN_SECONDS );
+		set_transient( $transient_name, array( 'approved' => (bool) $result['approved'] ), DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
 	}
@@ -189,14 +199,25 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function should_initialize() {
-		$should_initialize = true;
-		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$connection        = new Jetpack_Connection();
-		$site_id           = Jetpack_Connection::get_site_id();
+		$is_wpcom   = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$connection = new Jetpack_Connection();
+		$site_id    = Jetpack_Connection::get_site_id();
 
 		// Only admins should be able to Blaze posts on a site.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
+		}
+
+		// Allow short-circuiting the Blaze initialization via a filter.
+		if ( has_filter( 'jetpack_blaze_enabled' ) ) {
+			/**
+			 * Filter to disable all Blaze functionality.
+			 *
+			 * @since 0.3.0
+			 *
+			 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
+			 */
+			return apply_filters( 'jetpack_blaze_enabled', true );
 		}
 
 		// On self-hosted sites, we must do some additional checks.
@@ -210,28 +231,22 @@ class Blaze {
 				|| ! $connection->is_connected()
 				|| ! $connection->is_user_connected()
 			) {
-				$should_initialize = false;
+				return false;
 			}
 
 			// The whole thing is powered by Sync!
 			if ( ! Sync_Settings::is_sync_enabled() ) {
-				$should_initialize = false;
+				return false;
 			}
 		}
 
 		// Check if the site supports Blaze.
 		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
-			$should_initialize = false;
+			return false;
 		}
 
-		/**
-		 * Filter to disable all Blaze functionality.
-		 *
-		 * @since 0.3.0
-		 *
-		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
-		 */
-		return apply_filters( 'jetpack_blaze_enabled', $should_initialize );
+		// Final fallback.
+		return true;
 	}
 
 	/**

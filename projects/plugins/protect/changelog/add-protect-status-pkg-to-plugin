@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Protect plugin: Move protect-status functionality into a separate package.

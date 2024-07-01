@@ -44,23 +44,16 @@ const ALLOWED_MEDIA_TYPES_ALL = [
 ];
 
 const getHookProps = (
-	{
-		connections = DUMMY_CONNECTIONS,
-		media = [],
-		isSocialImageGeneratorEnabledForPost = false,
-		shouldUploadAttachedMedia = true,
-	} = {
+	{ connections = DUMMY_CONNECTIONS, media = [], isSocialImageGeneratorEnabledForPost = false } = {
 		connections: DUMMY_CONNECTIONS,
 		media: [],
 		isSocialImageGeneratorEnabledForPost: false,
-		shouldUploadAttachedMedia: true,
 	}
 ) => [
 	connections,
 	media,
 	{
 		isSocialImageGeneratorEnabledForPost,
-		shouldUploadAttachedMedia,
 	},
 ];
 
@@ -101,7 +94,6 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( {
 						connections: DUMMY_CONNECTIONS.splice( 0, -1 ), // Instagram checks even if not uploaded
 						media,
-						shouldUploadAttachedMedia: false,
 					} )
 				)
 			);
