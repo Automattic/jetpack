@@ -75,6 +75,16 @@ abstract class Jetpack_Admin_Page {
 	 * @param Jetpack $jetpack object.
 	 */
 	public function on_jetpack_loaded( $jetpack ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended		
+		if ( isset( $_GET['page'] ) ) {
+			$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( strpos( $page, 'jetpack/' ) === 0 ) {
+				$section = substr( $page, 8 );
+				wp_safe_redirect( admin_url( 'admin.php?page=jetpack#/' . $section ) );
+				exit;
+			}
+		}
+
 		$this->jetpack = $jetpack;
 
 		self::$block_page_rendering_for_idc = (
