@@ -1,7 +1,13 @@
 import { applyFilters } from '@wordpress/hooks';
 import config from '../dictionaries/dictionaries-config.js';
 
-export const sendAIRequest = async ( text, type, apiKey, parentSentenceText, blockText ) => {
+export const sendAIRequest = async ( {
+	text,
+	type,
+	apiKey = null,
+	parentSentenceText,
+	blockText,
+} ) => {
 	const dictConfig = config.dictionaries[ type ];
 	if ( ! dictConfig || ! dictConfig.apiRequest ) {
 		throw new Error( `Invalid type: ${ type } or missing apiRequest configuration.` );

@@ -39,7 +39,6 @@ const Highlight = ( {
 	block,
 	containerEl,
 	isAIOn,
-	AIAPIKey,
 	replaceCompleteCB,
 } ) => {
 	const highlightContainerRef = useRef( null );
@@ -97,7 +96,7 @@ const Highlight = ( {
 
 		setIsProcessing( true );
 
-		sendAIRequest( replacementText, type, AIAPIKey, parentSentence, blockText ).then( val => {
+		sendAIRequest( { replacementText, type, parentSentence, blockText } ).then( val => {
 			const payload = {
 				type: 'replaceWord',
 				clientId,

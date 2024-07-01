@@ -16,7 +16,6 @@ const Highlights = ( {
 	isHighlighting = true,
 	containerEl,
 	isAIOn,
-	AIAPIKey,
 	toggledKeys,
 	isIframed,
 	content,
@@ -94,7 +93,6 @@ const Highlights = ( {
 			debouncedUpdatePosition.cancel();
 		};
 	}, [
-		AIAPIKey,
 		containerEl,
 		isAIOn,
 		isHighlighting,
@@ -118,7 +116,6 @@ const Highlights = ( {
 						{ ...highlight }
 						containerEl={ containerEl }
 						isAIOn={ isAIOn }
-						AIAPIKey={ AIAPIKey }
 						replaceCompleteCB={ replaceComplete }
 						isIframed={ isIframed }
 					/>
