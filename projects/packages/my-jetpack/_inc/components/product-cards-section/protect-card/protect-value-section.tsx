@@ -35,8 +35,8 @@ const ProtectValueSection = () => {
 				timeSinceLastScan
 		  )
 		: sprintf(
-				/* translators: %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
-				__( '%1$s plugins & %2$s themes', 'jetpack-my-jetpack' ),
+				/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
+				__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
 				pluginsCount,
 				themesCount
 		  );
