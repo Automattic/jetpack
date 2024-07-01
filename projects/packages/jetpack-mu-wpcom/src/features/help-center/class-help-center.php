@@ -54,6 +54,15 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns whether the current request is coming from the a8c proxy.
+	 */
+	private static function is_proxied() {
+		return isset( $_SERVER['A8C_PROXIED_REQUEST'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) )
+			: defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST;
+	}
+
+	/**
 	 * Creates instance.
 	 *
 	 * @return \A8C\FSE\Help_Center
@@ -387,7 +396,9 @@ class Help_Center {
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
 		$this->asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-		$this->version    = $this->asset_file['version'];
+
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$this->version = self::is_proxied() ? wp_rand() : $this->asset_file['version'];
 
 		$this->enqueue_script( $variant );
 	}
