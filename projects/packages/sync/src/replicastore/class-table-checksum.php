@@ -701,7 +701,7 @@ class Table_Checksum {
 		// The reason for this is that it leads to a non-performant query that can timeout.
 		// Instead lets get the range based on posts regardless of meta.
 		$filter_values = $this->filter_values;
-		if ( 'postmeta' === $this->table ) {
+		if ( $wpdb->postmeta === $this->table ) {
 			$this->filter_values = null;
 		}
 
@@ -709,7 +709,7 @@ class Table_Checksum {
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
 
 		// Reset Post meta filter.
-		if ( 'postmeta' === $this->table ) {
+		if ( $wpdb->postmeta === $this->table ) {
 			$this->filter_values = $filter_values;
 		}
 

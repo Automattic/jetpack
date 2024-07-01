@@ -67,12 +67,6 @@ if ! $VERBOSE; then
 	}
 else
 	. "$BASE/tools/includes/nospin.sh"
-	if [[ -n "$CI" ]]; then
-		function debug {
-			# Grey doesn't work well in GH's output.
-			blue "$@"
-		}
-	fi
 fi
 
 init_changelogger
@@ -114,7 +108,14 @@ function checkpkg {
 EXIT=0
 declare -A PIDS
 PIDS=()
-N=$( nproc || echo 1 )
+
+N=1
+if [[ $(uname) == 'Darwin' ]]; then
+	N=$( sysctl -n hw.physicalcpu )
+elif command -v nproc &>/dev/null; then
+	N=$( nproc )
+fi
+
 for FILE in projects/*/*/composer.json; do
 	spin
 

@@ -5,7 +5,7 @@ const defaultNotice: Notice = {
 	message: '',
 	title: null,
 	options: {
-		level: '',
+		level: 'info',
 		priority: 0,
 	},
 };
@@ -21,19 +21,20 @@ export const NoticeContext = createContext< NoticeContextType >( {
 const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
+	const resetNotice = useCallback( () => {
+		setCurrentNotice( defaultNotice );
+	}, [] );
+
 	const setNotice = useCallback(
 		( notice: Notice ) => {
 			// Only update notice if there is not already a notice or the new notice has a higher priority
 			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
+				resetNotice();
 				setCurrentNotice( notice );
 			}
 		},
-		[ currentNotice.message, currentNotice.options.priority ]
+		[ currentNotice.message, currentNotice.options.priority, resetNotice ]
 	);
-
-	const resetNotice = useCallback( () => {
-		setCurrentNotice( defaultNotice );
-	}, [] );
 
 	return (
 		<NoticeContext.Provider

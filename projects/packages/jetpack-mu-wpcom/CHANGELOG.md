@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.42.1] - 2024-07-01
+### Changed
+- Redirect to Default settings page after Admin Interface has been updated to Default. [#38107]
+
+## [5.42.0] - 2024-06-28
+### Fixed
+- Disable loading of Custom CSS for atomic sites [#38118]
+
 ## [5.41.0] - 2024-06-28
 ### Added
 - Add Custom CSS module from Jetpack plugin [#37794]
@@ -934,6 +942,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.42.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.42.0...v5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.41.0...v5.42.0
 [5.41.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.40.0...v5.41.0
 [5.40.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.39.0...v5.40.0
 [5.39.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.38.1...v5.39.0

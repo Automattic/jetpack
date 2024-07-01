@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Infinite Scroll: fixed a fatal error from uninitialized Sharing module.
