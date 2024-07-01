@@ -3,14 +3,18 @@ import {
 	PLACEMENT_MEDIA_SOURCE_DROPDOWN,
 } from '../../../plugins/ai-assistant-plugin/components/ai-image';
 
-function JetpackAIGeneralPurposeImage( { onClose = () => {}, onSelect } ) {
+function JetpackAIGeneralPurposeImageForMediaSource( {
+	onClose = () => {},
+	onSelect,
+	multiple = false,
+} ) {
 	return (
 		<GeneralPurposeImage
 			placement={ PLACEMENT_MEDIA_SOURCE_DROPDOWN }
 			onClose={ onClose }
-			onSetImage={ onSelect }
+			onSetImage={ image => onSelect( multiple ? [ image ] : image ) }
 		/>
 	);
 }
 
-export default JetpackAIGeneralPurposeImage;
+export default JetpackAIGeneralPurposeImageForMediaSource;
