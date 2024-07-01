@@ -112,13 +112,13 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_browse_sites_link.
 	 *
 	 * @covers ::add_browse_sites_link
-	 *
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_browse_sites_link
 	 */
 	public function test_add_browse_sites_link() {
 		if ( ! function_exists( 'add_user_to_blog' ) ) {
 			$this->markTestSkipped( 'Only used on multisite' );
 		}
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_current_user_blog_count' );
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_browse_sites_link' );
 		global $menu;
 
 		// No output when user has just one site.

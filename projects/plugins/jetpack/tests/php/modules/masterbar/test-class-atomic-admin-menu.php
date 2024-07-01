@@ -359,9 +359,6 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_plugins_menu
 	 *
 	 * @covers ::add_plugins_menu
-	 *
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_plugins_menu
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view
 	 */
 	public function test_add_plugins_menu() {
 		global $submenu;
@@ -369,6 +366,8 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
 		if ( ! is_multisite() ) {
+			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_plugins_menu' );
+			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view' );
 			static::$admin_menu->add_plugins_menu();
 
 			// Make sure that initial menu item is hidden.

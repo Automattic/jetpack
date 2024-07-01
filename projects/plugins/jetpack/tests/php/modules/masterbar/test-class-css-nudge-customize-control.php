@@ -31,7 +31,7 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		if ( false === in_array( self::$deprecated_file_path, get_included_files(), true ) ) {
+		if ( ! in_array( self::$deprecated_file_path, get_included_files(), true ) ) {
 			$this->setExpectedDeprecated( self::$deprecated_file_path );
 			$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init' );
 			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
