@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -355,5 +357,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			_deprecated_function( __METHOD__, 'jetpack-13.6', 'Automattic\\Jetpack\\Classic_Theme_Helper\\Featured_Content\\jetpack_update_featured_content_for_split_terms' );
 			Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::jetpack_update_featured_content_for_split_terms( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy );
 		}
+	}
+
+	if ( ! ( new Host() )->is_wpcom_platform() ) {
+		Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 	}
 }

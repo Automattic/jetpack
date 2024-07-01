@@ -22,7 +22,6 @@ class Main {
 	 * @var array
 	 */
 	public $modules = array(
-		'class-featured-content.php',
 		'responsive-videos.php',
 	);
 
