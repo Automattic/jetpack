@@ -36,10 +36,9 @@ Follow the classic Calypso development setup. Run `yarn start` and edit away. No
 
 #### In Atomic sites
 
-If you're only making changes to PHP files, use the normal jetpack-mu-wpcom development flow. But if you modified the JS files on Calypso, you have two options:
+If you're making changes to JS and CSS files in Calypso (widgets.wp.com), you can follow the same instructions of Simple sites. **Be proxied during development so Jetpack gives JS files random cache busters**.
 
-1. Deploy the modified files from Calypso to widgets.wp.com first then debug. Because JP access widgets.wp.com production.
-2. Point Jetpack to your sandbox by following these steps: PCYsg-efV-p2#making-the-jetpack-plugin-believe-that-public-api-wordpress-com-lives-in-your-sandbox. 
+If you're making changes to PHP files, use the normal `jetpack-mu-wpcom` development flow.
 
 > [!IMPORTANT]
 > If you make changes to the *.asset.json files, i.e add or remove dependencies, these files won't be synced with the site as Jetpack pulls these files via network. And since Jetpack pulls from production and not your sandbox, you'll have to deploy first for these changes to take effect.
