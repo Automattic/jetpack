@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Cast to int for better PHP compatibility.
-
-

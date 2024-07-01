@@ -26,6 +26,11 @@
 		display: flex;
 		justify-content: center;
 
+		div {
+			width: 100%;
+			display: flex;
+		}
+
 		textarea {
 			width: 100%;
 			outline: none;
