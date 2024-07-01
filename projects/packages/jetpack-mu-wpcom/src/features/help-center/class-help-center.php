@@ -31,7 +31,7 @@ class Help_Center {
 	/**
 	 * Version number of the plugin.
 	 *
-	 * @var version
+	 * @var string version
 	 */
 	private $version;
 
@@ -230,7 +230,7 @@ class Help_Center {
 			'name'            => get_bloginfo( 'name' ),
 			'URL'             => get_bloginfo( 'url' ),
 			'plan'            => array(
-				'product_slug' => isset( $plan->product_slug ) ? $plan->product_slug : null,
+				'product_slug' => $plan->product_slug ?? null,
 			),
 			'is_wpcom_atomic' => defined( 'IS_ATOMIC' ) && IS_ATOMIC,
 			'jetpack'         => true === apply_filters( 'is_jetpack_site', false, $site ),
