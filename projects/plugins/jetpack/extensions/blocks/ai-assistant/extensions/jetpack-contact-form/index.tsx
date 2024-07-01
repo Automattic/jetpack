@@ -93,7 +93,7 @@ export function useIsPossibleToExtendJetpackFormBlock(
 	 */
 	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined.
-	if ( hiddenBlocks.includes( blockName ) ) {
+	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;
 	}
 

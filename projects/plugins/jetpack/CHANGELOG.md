@@ -2,6 +2,40 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.6-beta - 2024-07-01
+### Enhancements
+- Newsletter: Add ability to manage the newsletter byline appearance. [#37997]
+
+### Improved compatibility
+- Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode. [#38113]
+
+### Bug fixes
+- AI Assistant: Disable extensions when AI Assistant block is hidden. [#38105]
+- Publicize: Fix a race condition with refreshing the active social connections. [#38080]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add Breve under feature flag. [#38019]
+- AI Assistant: Add general image type, cost and feature. [#38042]
+- AI Assistant: Avoid auto-starting featured image creation. [#38098]
+- AI Assistant: Do not extend Form twice. [#38067]
+- AI Assistant: Update loading state of AI Image. [#38062]
+- Blocks: Update blogroll item styling. [#37976]
+- Custom CSS: Add deprecation warning for Start Fresh option. [#37193]
+- Custom CSS: Prevent loading module multiple times. [#37794]
+- General: Deprecate jetpack-abtest package. [#37994]
+- General: Updated dependencies. [#38138]
+- Google Analytics: Add deprecation notice for non-Jetpack admin pages. [#38078]
+- Google Fonts: Remove code that is no longer needed for WordPress 6.4+. [#38063]
+- Infinite Scroll: Ensure missing assets are loaded [#37971]
+- Infinite Scroll: Fixed a fatal error from uninitialized Sharing module. [#38114]
+- Jetpack AI Image: Show notice when image gets saved to the media library. [#38077]
+- Jetpack AI Image: Trigger an image generation on Enter keypress. [#38103]
+- Jetpack AI Image: Use error notice instead of warning for the upgrade nudge. [#38050]
+- Widgets: Minor Subscription widget copy change based on user feedback. [#38040]
+- Newsletters: Adds tracks to subscription source. [#38060]
+- SSO: Disabled Two-Step checkbox when jetpack_sso_require_two_step filter is on. [#37907]
+- WordPress.com API: Add export and import capabilities to the sites endpoint response. [#34539]
+
 ## 13.6-a.9 - 2024-06-26
 ### Enhancements
 - Social: Add Threads preview to Social Previews. [#38003]
