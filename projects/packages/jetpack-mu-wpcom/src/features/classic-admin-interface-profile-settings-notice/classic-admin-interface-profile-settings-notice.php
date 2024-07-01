@@ -11,7 +11,7 @@
 function is_profile_page() {
 	$screen = get_current_screen();
 
-	return 'profile' === $screen->base;
+	return 'profile' === $screen->id;
 }
 
 /**
@@ -36,4 +36,4 @@ function show_classic_admin_interface_profile_settings_notice() {
 	);
 }
 
-add_action( 'shutdown', 'show_classic_admin_interface_profile_settings_notice' );
+add_action( 'admin_notices', 'show_classic_admin_interface_profile_settings_notice' );
