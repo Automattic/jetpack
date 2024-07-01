@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.12.2
+ * Version: 1.12.3-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -29,7 +29,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'WPSC_VERSION_ID', '1.12.1' );
+define( 'WPSC_VERSION_ID', '1.12.3' );
 
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
