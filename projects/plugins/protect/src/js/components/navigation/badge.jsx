@@ -1,56 +1,10 @@
 import { Text } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { Icon, check, info } from '@wordpress/icons';
 import PropTypes from 'prop-types';
 import React, { useState, useCallback } from 'react';
 import styles from './styles.module.scss';
 
-/**
- * Gets the Badge element
- *
- * @param {number} count - The number of threats found for this item.
- * @param {boolean} checked - Whether this item was checked for threats yet.
- * @returns {object} The badge element
- */
-const getBadgeElement = ( count, checked ) => {
-	if ( ! checked ) {
-		return {
-			popoverText: __(
-				'This item was added to your site after the most recent scan. We will check for threats during the next scheduled one.',
-				'jetpack-protect'
-			),
-			badgeElement: (
-				<Icon icon={ info } size={ 28 } className={ styles[ 'navigation-item-info-badge' ] } />
-			),
-		};
-	}
-
-	if ( count === 0 ) {
-		return {
-			popoverText: __( 'No known threats found to affect this version', 'jetpack-protect' ),
-			badgeElement: (
-				<Icon icon={ check } size={ 28 } className={ styles[ 'navigation-item-check-badge' ] } />
-			),
-		};
-	}
-
-	return {
-		popoverText: null,
-		badgeElement: (
-			<Text
-				variant="body-extra-small"
-				className={ styles[ 'navigation-item-badge' ] }
-				component="div"
-			>
-				{ count }
-			</Text>
-		),
-	};
-};
-
-const ItemBadge = ( { count, checked } ) => {
-	const { popoverText, badgeElement } = getBadgeElement( count, checked );
+const ItemBadge = ( { badgeElement, popoverText } ) => {
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	const handleEnter = useCallback( () => {
@@ -83,10 +37,10 @@ const ItemBadge = ( { count, checked } ) => {
 };
 
 ItemBadge.propTypes = {
-	/* The number of threats found for this item */
-	count: PropTypes.number,
-	/* Whether this item was checked for threats yet */
-	checked: PropTypes.bool,
+	/** Badge element to display */
+	badgeElement: PropTypes.node,
+	/** Popover text to display */
+	popoverText: PropTypes.string,
 };
 
 export default ItemBadge;

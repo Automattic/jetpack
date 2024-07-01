@@ -1,27 +1,13 @@
-import { H3, Text } from '@automattic/jetpack-components';
+import { Button, H3, Text } from '@automattic/jetpack-components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
+import { STORE_ID } from '../../state/store';
+import OnboardingPopover from '../onboarding-popover';
+import ProtectCheck from '../protect-check-icon';
 import styles from './styles.module.scss';
-
-const ProtectCheck = () => (
-	<svg width="80" height="96" viewBox="0 0 80 96" fill="none" xmlns="http://www.w3.org/2000/svg">
-		<path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M40 0.00634766L80 17.7891V44.2985C80 66.8965 65.1605 88.2927 44.2352 95.0425C41.4856 95.9295 38.5144 95.9295 35.7648 95.0425C14.8395 88.2927 0 66.8965 0 44.2985V17.7891L40 0.00634766Z"
-			fill="#069E08"
-		/>
-		<path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M60.9 33.6909L35.375 67.9124L19.2047 55.9263L22.7848 51.1264L34.1403 59.5436L56.0851 30.122L60.9 33.6909Z"
-			fill="white"
-		/>
-	</svg>
-);
 
 /**
  * Time Since
@@ -84,12 +70,22 @@ const timeSince = date => {
 };
 
 const EmptyList = () => {
-	const { lastChecked } = useProtectData();
-	const { viewingScanHistory } = useScanHistory();
+	const { lastChecked, hasRequiredPlan } = useProtectData();
+	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
+	const { scan } = useDispatch( STORE_ID );
+	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
+		useState( null );
 
 	const timeSinceLastScan = useMemo( () => {
 		return lastChecked ? timeSince( Date.parse( lastChecked ) ) : null;
 	}, [ lastChecked ] );
+
+	const handleScanClick = () => {
+		return event => {
+			event.preventDefault();
+			scan();
+		};
+	};
 
 	return (
 		<div className={ styles.empty }>
@@ -98,25 +94,38 @@ const EmptyList = () => {
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
 			<Text>
-				{ viewingScanHistory
-					? __(
-							'So far, there are no threats in your scan history for the current filter.',
+				{ createInterpolateElement(
+					sprintf(
+						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+						__(
+							'The last Protect scan ran <strong>%s</strong> and everything looked great.',
 							'jetpack-protect'
-					  )
-					: createInterpolateElement(
-							sprintf(
-								// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
-								__(
-									'The last Protect scan ran <strong>%s</strong> and everything looked great.',
-									'jetpack-protect'
-								),
-								timeSinceLastScan
-							),
-							{
-								strong: <strong />,
-							}
-					  ) }
+						),
+						timeSinceLastScan
+					),
+					{
+						strong: <strong />,
+					}
+				) }
 			</Text>
+			{ hasRequiredPlan && (
+				<>
+					<Button
+						ref={ setDailyAndManualScansPopoverAnchor }
+						variant="secondary"
+						className={ styles[ 'summary__scan-button' ] }
+						isLoading={ scanIsEnqueuing }
+						onClick={ handleScanClick() }
+					>
+						{ __( 'Scan now', 'jetpack-protect' ) }
+					</Button>
+					<OnboardingPopover
+						id="paid-daily-and-manual-scans"
+						position="middle left"
+						anchor={ dailyAndManualScansPopoverAnchor }
+					/>
+				</>
+			) }
 		</div>
 	);
 };

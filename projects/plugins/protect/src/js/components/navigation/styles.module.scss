@@ -37,12 +37,6 @@
 		& .navigation-item-icon {
 			fill: var( --jp-white );
 		}
-
-		& .navigation-item-badge {
-			border: 1px solid var( --jp-red );
-			background-color: var( --jp-red );
-			color: var( --jp-white );
-		}
 	}
 
 	// CHILDRENS
@@ -65,27 +59,6 @@
 	// .navigation-item-icon
 	&-icon {
 		margin-right: calc( var( --spacing-base ) * 2); // 16px
-	}
-
-	// .navigation-item-badge
-	&-badge {
-		border: 1px solid var( --jp-red-60 );
-		color: var( --jp-red-60 );
-		border-radius: 50%;
-		padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
-		min-width: 30px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-sizing: border-box;
-	}
-
-	&-check-badge {
-		fill: var( --jp-green-50 );
-	}
-
-	&-info-badge {
-		fill: var( --jp-gray-20 );
 	}
 }
 

@@ -12,81 +12,32 @@ namespace Automattic\Jetpack\Protect;
  */
 class History_Model {
 	/**
-	 * The date and time when the history was generated.
-	 *
-	 * @var string
-	 */
-	public $last_checked;
-
-	/**
-	 * The filter to apply to the history.
-	 *
-	 * @var array
-	 */
-	public $filter = array( 'ignored', 'fixed' );
-
-	/**
-	 * The number of threats.
+	 * The number of all previously active threats.
 	 *
 	 * @var int
 	 */
-	public $num_threats;
+	public $num_threats = 0;
 
 	/**
-	 * The number of core threats.
+	 * The number of fixed threats.
 	 *
 	 * @var int
 	 */
-	public $num_core_threats;
+	public $num_fixed_threats = 0;
 
 	/**
-	 * The number of plugin threats.
+	 * The number of ignored threats.
 	 *
 	 * @var int
 	 */
-	public $num_plugins_threats;
+	public $num_ignored_threats = 0;
 
 	/**
-	 * The number of theme threats.
-	 *
-	 * @var int
-	 */
-	public $num_themes_threats;
-
-	/**
-	 * WordPress core.
+	 * All previously active threats, sorted by most recent.
 	 *
 	 * @var array<Extension_Model>
 	 */
-	public $core = array();
-
-	/**
-	 * Status themes.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $themes = array();
-
-	/**
-	 * Status plugins.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $plugins = array();
-
-	/**
-	 * File threats.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $files = array();
-
-	/**
-	 * Database threats.
-	 *
-	 * @var array<Extension_Model>
-	 */
-	public $database = array();
+	public $threats = array();
 
 	/**
 	 * Whether there was an error loading the history.

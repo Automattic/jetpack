@@ -104,6 +104,20 @@ class Threat_Model {
 	public $source;
 
 	/**
+	 * Extension.
+	 *
+	 * @var null|object
+	 */
+	public $extension;
+
+	/**
+	 * Fixer.
+	 *
+	 * @var null|object
+	 */
+	public $fixer;
+
+	/**
 	 * Threat Constructor
 	 *
 	 * @param array|object $threat Threat data to load into the class instance.

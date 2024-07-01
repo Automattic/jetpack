@@ -9,12 +9,12 @@ const NavigationItem = ( {
 	id,
 	label,
 	icon,
-	badge,
+	badgeElement,
+	badgePopoverText,
 	disabled,
 	onClick,
 	onKeyDown,
 	onFocus,
-	checked,
 } ) => {
 	const context = useContext( NavigationContext );
 
@@ -77,7 +77,7 @@ const NavigationItem = ( {
 			ref={ handleRef }
 		>
 			<ItemLabel icon={ icon }>{ label }</ItemLabel>
-			<ItemBadge count={ badge } checked={ checked } />
+			<ItemBadge badgeElement={ badgeElement } popoverText={ badgePopoverText } />
 		</li>
 	);
 };

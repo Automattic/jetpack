@@ -1,8 +1,8 @@
-import { AdminSectionHero, Container, Col, H3, Text, Button } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-components';
+import { ConnectionError, useConnection } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React, { useEffect, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import AlertSVGIcon from '../../components/alert-icon';
@@ -12,21 +12,19 @@ import SeventyFiveLayout from '../../components/seventy-five-layout';
 import Summary from '../../components/summary';
 import ThreatsList from '../../components/threats-list';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import useCredentials from '../../hooks/use-credentials';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
+import useStatusPolling from '../../hooks/use-status-polling';
 import { STORE_ID } from '../../state/store';
 import inProgressImage from './in-progress.png';
 import onboardingSteps from './onboarding-steps';
 import styles from './styles.module.scss';
-import useCredentials from './use-credentials';
-import useStatusPolling from './use-status-polling';
 
-const ConnectionErrorCol = () => {
-	const { hasConnectionError } = useConnectionErrorNotice();
-
+const SectionHeader = () => {
+	const { hasConnectionError } = useConnection();
 	return (
-		<>
+		<Container horizontalSpacing={ 0 }>
 			{ hasConnectionError && (
 				<Col className={ styles[ 'connection-error-col' ] }>
 					<ConnectionError />
@@ -35,76 +33,20 @@ const ConnectionErrorCol = () => {
 			<Col>
 				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 			</Col>
-		</>
-	);
-};
-
-const ButtonCol = ( {
-	viewingScanHistory,
-	handleHistoryClick,
-	handleCurrentClick,
-	allScanHistoryIsLoading,
-} ) => {
-	return (
-		<Col className={ styles[ 'history-button-col' ] }>
-			{ ! viewingScanHistory ? (
-				<Button
-					variant="secondary"
-					onClick={ handleHistoryClick }
-					isLoading={ allScanHistoryIsLoading }
-				>
-					{ __( 'History', 'jetpack-protect' ) }
-				</Button>
-			) : (
-				<Button variant="secondary" onClick={ handleCurrentClick }>
-					{ __( 'Current', 'jetpack-protect' ) }
-				</Button>
-			) }
-		</Col>
-	);
-};
-
-const HeaderContainer = ( { displayButtonCol } ) => {
-	const { viewingScanHistory, handleCurrentClick, handleHistoryClick, allScanHistoryIsLoading } =
-		useScanHistory();
-
-	return (
-		<Container horizontalSpacing={ 0 }>
-			<ConnectionErrorCol />
-			{ displayButtonCol && (
-				<ButtonCol
-					viewingScanHistory={ viewingScanHistory }
-					handleHistoryClick={ handleHistoryClick }
-					handleCurrentClick={ handleCurrentClick }
-					allScanHistoryIsLoading={ allScanHistoryIsLoading }
-				/>
-			) }
 		</Container>
 	);
 };
 
-const ErrorSection = ( { viewingScanHistory, errorMessage, errorCode } ) => {
-	const activityContext = viewingScanHistory
-		? 'retrieving your scan history'
-		: 'scanning your site';
-	const baseErrorMessage = sprintf(
-		/* translators: %s is the activity context, like "scanning your site" or "retrieving your scan history" */
-		__( 'We are having problems %s.', 'jetpack-protect' ),
-		activityContext
-	);
-
-	let displayErrorMessage = errorMessage ? `${ errorMessage } (${ errorCode }).` : baseErrorMessage;
-	displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
-
+const ErrorSection = ( { errorMessage, errorCode } ) => {
 	return (
 		<>
-			<HeaderContainer displayButtonCol={ true } />
+			<SectionHeader />
 			<SeventyFiveLayout
 				main={
 					<div className={ styles[ 'main-content' ] }>
 						<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
-						<H3>{ baseErrorMessage }</H3>
-						<Text>{ displayErrorMessage }</Text>
+						<H3>{ __( 'We are having problems scanning your site', 'jetpack-protect' ) }</H3>
+						{ !! errorMessage && <Text>{ `${ errorMessage } (${ errorCode }).` }</Text> }
 					</div>
 				}
 				secondary={
@@ -121,7 +63,7 @@ const ErrorSection = ( { viewingScanHistory, errorMessage, errorCode } ) => {
 const ScanningSection = ( { currentProgress } ) => {
 	return (
 		<>
-			<HeaderContainer displayButtonCol={ true } />
+			<SectionHeader />
 			<SeventyFiveLayout
 				main={
 					<div className={ styles[ 'main-content' ] }>
@@ -167,7 +109,7 @@ const ScanningSection = ( { currentProgress } ) => {
 const DefaultSection = () => {
 	return (
 		<>
-			<HeaderContainer displayButtonCol={ false } />
+			<SectionHeader />
 			<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
 				<Col>
 					<Summary />
@@ -181,7 +123,6 @@ const DefaultSection = () => {
 };
 
 const ScanPage = () => {
-	const { viewingScanHistory } = useScanHistory();
 	const { lastChecked, error, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { refreshStatus } = useDispatch( STORE_ID );
 	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
@@ -220,33 +161,18 @@ const ScanPage = () => {
 
 	const renderSection = useMemo( () => {
 		// Error
-		if ( error || ( ! viewingScanHistory && scanIsUnavailable ) ) {
-			return (
-				<ErrorSection
-					viewingScanHistory={ viewingScanHistory }
-					errorMessage={ errorMessage }
-					errorCode={ errorCode }
-				/>
-			);
+		if ( error ) {
+			return <ErrorSection errorMessage={ errorMessage } errorCode={ errorCode } />;
 		}
 
 		// Scanning
 		const scanningStatuses = new Set( [ 'scheduled', 'scanning', 'optimistically_scanning' ] );
-		if ( ! viewingScanHistory && ( scanningStatuses.has( status.status ) || ! lastChecked ) ) {
+		if ( scanningStatuses.has( status.status ) || ! lastChecked ) {
 			return <ScanningSection currentProgress={ status.currentProgress } />;
 		}
 
 		return <DefaultSection />;
-	}, [
-		error,
-		errorMessage,
-		errorCode,
-		viewingScanHistory,
-		scanIsUnavailable,
-		status.status,
-		status.currentProgress,
-		lastChecked,
-	] );
+	}, [ error, errorMessage, errorCode, status.status, status.currentProgress, lastChecked ] );
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>

@@ -4117,8 +4117,8 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-router-dom:
-        specifier: 6.2.2
-        version: 6.2.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 6.24.0
+        version: 6.24.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -6533,6 +6533,10 @@ packages:
 
   '@remix-run/router@1.14.0':
     resolution: {integrity: sha512-WOHih+ClN7N8oHk9N4JUiMxQJmRVaOxcg8w7F/oHUXzJt920ekASLI/7cYX8XkntDWRhLZtsk6LbGrkgOAvi5A==}
+    engines: {node: '>=14.0.0'}
+
+  '@remix-run/router@1.17.0':
+    resolution: {integrity: sha512-2D6XaHEVvkCn682XBnipbJjgZUU7xjLtA4dGJRBVUKpEaDYOZMENZoZjAOSb7qirxt5RupjzZxz4fK2FO+EFPw==}
     engines: {node: '>=14.0.0'}
 
   '@remix-run/router@1.2.1':
@@ -12782,14 +12786,15 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  react-router-dom@6.2.2:
-    resolution: {integrity: sha512-AtYEsAST7bDD4dLSQHDnk/qxWLJdad5t1HFa1qJyUrCeGgEuCSw0VB/27ARbF9Fi/W5598ujvJOm3ujUCVzuYQ==}
+  react-router-dom@6.21.0:
+    resolution: {integrity: sha512-1dUdVj3cwc1npzJaf23gulB562ESNvxf7E4x8upNJycqyUm5BRRZ6dd3LrlzhtLaMrwOCO8R0zoiYxdaJx4LlQ==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  react-router-dom@6.21.0:
-    resolution: {integrity: sha512-1dUdVj3cwc1npzJaf23gulB562ESNvxf7E4x8upNJycqyUm5BRRZ6dd3LrlzhtLaMrwOCO8R0zoiYxdaJx4LlQ==}
+  react-router-dom@6.24.0:
+    resolution: {integrity: sha512-960sKuau6/yEwS8e+NVEidYQb1hNjAYM327gjEyXlc6r3Skf2vtwuJ2l7lssdegD2YjoKG5l8MsVyeTDlVeY8g==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -12819,13 +12824,14 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
-  react-router@6.2.2:
-    resolution: {integrity: sha512-/MbxyLzd7Q7amp4gDOGaYvXwhEojkJD5BtExkuKmj39VEE0m3l/zipf6h2WIB2jyAO0lI6NGETh4RDcktRm4AQ==}
+  react-router@6.21.0:
+    resolution: {integrity: sha512-hGZ0HXbwz3zw52pLZV3j3+ec+m/PQ9cTpBvqjFQmy2XVUWGn5MD+31oXHb6dVTxYzmAeaiUBYjkoNz66n3RGCg==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
 
-  react-router@6.21.0:
-    resolution: {integrity: sha512-hGZ0HXbwz3zw52pLZV3j3+ec+m/PQ9cTpBvqjFQmy2XVUWGn5MD+31oXHb6dVTxYzmAeaiUBYjkoNz66n3RGCg==}
+  react-router@6.24.0:
+    resolution: {integrity: sha512-sQrgJ5bXk7vbcC4BxQxeNa5UmboFm35we1AFK0VvQaz9g0LzxEIuLOhHIoZ8rnu9BO21ishGeL9no1WB76W/eg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
@@ -16777,6 +16783,8 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
 
   '@remix-run/router@1.14.0': {}
+
+  '@remix-run/router@1.17.0': {}
 
   '@remix-run/router@1.2.1': {}
 
@@ -25928,19 +25936,19 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-router: 6.14.1(react@18.3.1)
 
-  react-router-dom@6.2.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      history: 5.3.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 6.2.2(react@18.3.1)
-
   react-router-dom@6.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@remix-run/router': 1.14.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-router: 6.21.0(react@18.3.1)
+
+  react-router-dom@6.24.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.17.0
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-router: 6.24.0(react@18.3.1)
 
   react-router-dom@6.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -25972,14 +25980,14 @@ snapshots:
       '@remix-run/router': 1.7.1
       react: 18.3.1
 
-  react-router@6.2.2(react@18.3.1):
-    dependencies:
-      history: 5.3.0
-      react: 18.3.1
-
   react-router@6.21.0(react@18.3.1):
     dependencies:
       '@remix-run/router': 1.14.0
+      react: 18.3.1
+
+  react-router@6.24.0(react@18.3.1):
+    dependencies:
+      '@remix-run/router': 1.17.0
       react: 18.3.1
 
   react-router@6.6.2(react@18.3.1):

@@ -114,10 +114,9 @@ class Scan_History {
 	 * Gets the current history of the Jetpack Protect checks
 	 *
 	 * @param bool  $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
-	 * @param array $filter The filter to apply to the data.
 	 * @return History_Model|bool
 	 */
-	public static function get_scan_history( $refresh_from_wpcom = false, $filter = null ) {
+	public static function get_scan_history( $refresh_from_wpcom = false ) {
 		$has_required_plan = Plan::has_required_plan();
 		if ( ! $has_required_plan ) {
 			return false;
@@ -142,7 +141,7 @@ class Scan_History {
 				)
 			);
 		} else {
-			$history = self::normalize_api_data( $history, $filter );
+			$history = self::normalize_api_data( $history );
 		}
 
 		self::$history = $history;
@@ -204,156 +203,30 @@ class Scan_History {
 	 * Formats the payload from the Scan API into an instance of History_Model.
 	 *
 	 * @param object $scan_data The data returned by the scan API.
-	 * @param array  $filter    The filter to apply to the data.
 	 * @return History_Model
 	 */
-	private static function normalize_api_data( $scan_data, $filter ) {
-		$history                      = new History_Model();
-		$history->num_threats         = 0;
-		$history->num_core_threats    = 0;
-		$history->num_plugins_threats = 0;
-		$history->num_themes_threats  = 0;
-
-		if ( $filter ) {
-			$history->filter = $filter;
-		}
-
-		$history->last_checked = $scan_data->last_checked;
+	private static function normalize_api_data( $scan_data ) {
+		$history = new History_Model();
 
 		if ( empty( $scan_data->threats ) || ! is_array( $scan_data->threats ) ) {
 			return $history;
 		}
 
 		foreach ( $scan_data->threats as $threat ) {
-			if ( ! in_array( $threat->status, $history->filter, true ) ) {
-				continue;
+			$threat_model       = new Threat_Model( $threat );
+			$history->threats[] = $threat_model;
+
+			++$history->num_threats;
+			switch ( $threat_model->status ) {
+				case 'fixed':
+					++$history->num_fixed_threats;
+					break;
+				case 'ignored':
+					++$history->num_ignored_threats;
+					break;
 			}
-
-			if ( isset( $threat->extension->type ) ) {
-				if ( 'plugin' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'plugin' );
-					continue;
-				}
-
-				if ( 'theme' === $threat->extension->type ) {
-					self::handle_extension_threats( $threat, $history, 'theme' );
-					continue;
-				}
-			}
-
-			if ( 'Vulnerable.WP.Core' === $threat->signature ) {
-				self::handle_core_threats( $threat, $history );
-				continue;
-			}
-
-			self::handle_additional_threats( $threat, $history );
 		}
 
 		return $history;
-	}
-
-	/**
-	 * Handles threats for extensions such as plugins or themes.
-	 *
-	 * @param object $threat The threat object.
-	 * @param object $history The history object.
-	 * @param string $type The type of extension ('plugin' or 'theme').
-	 * @return void
-	 */
-	private static function handle_extension_threats( $threat, $history, $type ) {
-		$extension_list = $type === 'plugin' ? 'plugins' : 'themes';
-		$extensions     = &$history->{ $extension_list};
-		$found_index    = null;
-
-		// Check if the extension does not exist in the array
-		foreach ( $extensions as $index => $extension ) {
-			if ( $extension->slug === $threat->extension->slug ) {
-				$found_index = $index;
-				break;
-			}
-		}
-
-		// Add the extension if it does not yet exist in the history
-		if ( $found_index === null ) {
-			$new_extension = new Extension_Model(
-				array(
-					'name'    => $threat->extension->name ?? null,
-					'slug'    => $threat->extension->slug ?? null,
-					'version' => $threat->extension->version ?? null,
-					'type'    => $type,
-					'checked' => true,
-					'threats' => array(),
-				)
-			);
-			$extensions[]  = $new_extension;
-			$found_index   = array_key_last( $extensions );
-		}
-
-		// Add the threat to the found extension
-		$extensions[ $found_index ]->threats[] = new Threat_Model( $threat );
-
-		// Increment the threat counts
-		++$history->num_threats;
-		if ( $type === 'plugin' ) {
-			++$history->num_plugins_threats;
-		} elseif ( $type === 'theme' ) {
-			++$history->num_themes_threats;
-		}
-	}
-
-	/**
-	 * Handles core threats
-	 *
-	 * @param object $threat The threat object.
-	 * @param object $history The history object.
-	 * @return void
-	 */
-	private static function handle_core_threats( $threat, $history ) {
-		// Check if the core version does not exist in the array
-		$found_index = null;
-		foreach ( $history->core as $index => $core ) {
-			if ( $core->version === $threat->version ) {
-				$found_index = $index;
-				break;
-			}
-		}
-
-		// Add the extension if it does not yet exist in the history
-		if ( null === $found_index ) {
-			$new_core        = new Extension_Model(
-				array(
-					'name'    => 'WordPress',
-					'version' => $threat->version,
-					'type'    => 'core',
-					'checked' => true,
-					'threats' => array(),
-				)
-			);
-			$history->core[] = $new_core;
-			$found_index     = array_key_last( $history->core );
-		}
-
-		// Add the threat to the found core
-		$history->core[ $found_index ]->threats[] = new Threat_Model( $threat );
-
-		++$history->num_threats;
-		++$history->num_core_threats;
-	}
-
-	/**
-	 * Handles additional threats that are not core, plugin or theme
-	 *
-	 * @param object $threat The threat object.
-	 * @param object $history The history object.
-	 * @return void
-	 */
-	private static function handle_additional_threats( $threat, $history ) {
-		if ( ! empty( $threat->filename ) ) {
-			$history->files[] = new Threat_Model( $threat );
-			++$history->num_threats;
-		} elseif ( ! empty( $threat->table ) ) {
-			$history->database[] = new Threat_Model( $threat );
-			++$history->num_threats;
-		}
 	}
 }

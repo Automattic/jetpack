@@ -2,6 +2,12 @@ import apiFetch from '@wordpress/api-fetch';
 import camelize from 'camelize';
 
 const API = {
+	fetchScanHistory: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/scan-history',
+			method: 'GET',
+		} ),
+
 	fetchWaf: () =>
 		apiFetch( {
 			path: 'jetpack-protect/v1/waf',
@@ -44,13 +50,6 @@ const API = {
 			path: 'jetpack-protect/v1/onboarding-progress',
 			method: 'POST',
 			data: { step_ids: stepIds },
-		} ),
-
-	fetchScanHistory: $filter =>
-		apiFetch( {
-			path: 'jetpack-protect/v1/scan-history',
-			method: 'POST',
-			data: { filter: $filter },
 		} ),
 };
 

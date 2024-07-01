@@ -31,7 +31,7 @@
 
 .list-header {
 	display: flex;
-	align-items: flex-end;
+	align-items: center;
 	margin-bottom: calc( var( --spacing-base ) * 2.25 ); // 18px
 }
 
@@ -119,4 +119,30 @@
 			width: 50%;
 		}
 	}
+}
+
+.navigation-item-badge {
+	border: 1px solid var( --jp-red-60 );
+	color: var( --jp-red-60 );
+	border-radius: 50%;
+	padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
+	min-width: 30px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+}
+
+.navigation-item-badge--selected {
+	border: 1px solid var( --jp-red );
+	background-color: var( --jp-red );
+	color: var( --jp-white );
+}
+
+.navigation-item-check-badge {
+	fill: var( --jp-green-50 );
+}
+
+.navigation-item-info-badge {
+	fill: var( --jp-gray-20 );
 }

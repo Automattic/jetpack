@@ -1,7 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
-import useScanHistory from '../use-scan-history';
 
 /**
  * Get parsed data from the initial state
@@ -9,45 +8,35 @@ import useScanHistory from '../use-scan-history';
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { viewingScanHistory, scanHistory } = useScanHistory();
-
 	const { status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
 		status: select( STORE_ID ).getStatus(),
 		jetpackScan: select( STORE_ID ).getJetpackScan(),
 		hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
 	} ) );
 
-	const source = viewingScanHistory ? scanHistory : status;
-
 	const numCoreThreats = useMemo( () => {
-		if ( viewingScanHistory ) {
-			return ( source.core || [] ).reduce(
-				( numThreats, core ) => numThreats + core.threats.length,
-				0
-			);
-		}
-		return source.core?.threats?.length || 0;
-	}, [ viewingScanHistory, source.core ] );
+		return status.core?.threats?.length || 0;
+	}, [ status.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>
-			( source.plugins || [] ).reduce( ( numThreats, plugin ) => {
+			( status.plugins || [] ).reduce( ( numThreats, plugin ) => {
 				return numThreats + plugin.threats.length;
 			}, 0 ),
-		[ source.plugins ]
+		[ status.plugins ]
 	);
 
 	const numThemesThreats = useMemo(
 		() =>
-			( source.themes || [] ).reduce( ( numThreats, theme ) => {
+			( status.themes || [] ).reduce( ( numThreats, theme ) => {
 				return numThreats + theme.threats.length;
 			}, 0 ),
-		[ source.themes ]
+		[ status.themes ]
 	);
 
-	const numFilesThreats = useMemo( () => source.files?.length || 0, [ source.files ] );
+	const numFilesThreats = useMemo( () => status.files?.length || 0, [ status.files ] );
 
-	const numDatabaseThreats = useMemo( () => source.database?.length || 0, [ source.database ] );
+	const numDatabaseThreats = useMemo( () => status.database?.length || 0, [ status.database ] );
 
 	const numThreats =
 		numCoreThreats + numPluginsThreats + numThemesThreats + numFilesThreats + numDatabaseThreats;
@@ -59,16 +48,16 @@ export default function useProtectData() {
 		numThemesThreats,
 		numFilesThreats,
 		numDatabaseThreats,
-		lastChecked: source.lastChecked || null,
-		error: source.error || false,
-		errorCode: source.errorCode || null,
-		errorMessage: source.errorMessage || null,
-		core: source.core || {},
-		plugins: source.plugins || [],
-		themes: source.themes || [],
-		files: { threats: source.files || [] },
-		database: { threats: source.database || [] },
-		hasUncheckedItems: source.hasUncheckedItems,
+		lastChecked: status.lastChecked || null,
+		error: status.error || false,
+		errorCode: status.errorCode || null,
+		errorMessage: status.errorMessage || null,
+		core: status.core || {},
+		plugins: status.plugins || [],
+		themes: status.themes || [],
+		files: { threats: status.files || [] },
+		database: { threats: status.database || [] },
+		hasUncheckedItems: status.hasUncheckedItems,
 		jetpackScan,
 		hasRequiredPlan,
 	};

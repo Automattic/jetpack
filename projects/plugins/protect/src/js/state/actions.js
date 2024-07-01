@@ -1,17 +1,17 @@
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
+import API from '../api';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
-const SET_VIEWING_SCAN_HISTORY = 'SET_VIEWING_SCAN_HISTORY';
-const SET_SCAN_HISTORY = 'SET_SCAN_HISTORY';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
 const SET_SCAN_IS_ENQUEUING = 'SET_SCAN_IS_ENQUEUING';
+const SET_SCAN_HISTORY = 'SET_SCAN_HISTORY';
 const SET_INSTALLED_PLUGINS = 'SET_INSTALLED_PLUGINS';
 const SET_INSTALLED_THEMES = 'SET_INSTALLED_THEMES';
 const SET_WP_VERSION = 'SET_WP_VERSION';
@@ -33,14 +33,6 @@ const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 const SET_WAF_STATS = 'SET_WAF_STATS';
 
-const setViewingScanHistory = viewingScanHistory => {
-	return { type: SET_VIEWING_SCAN_HISTORY, viewingScanHistory };
-};
-
-const setScanHistory = scanHistory => {
-	return { type: SET_SCAN_HISTORY, scanHistory };
-};
-
 const setStatus = status => {
 	return { type: SET_STATUS, status };
 };
@@ -52,6 +44,30 @@ const setStatusProgress = currentProgress => {
 const startScanOptimistically = () => {
 	return { type: START_SCAN_OPTIMISTICALLY };
 };
+
+const setScanHistory = scanHistory => {
+	return { type: SET_SCAN_HISTORY, scanHistory };
+};
+
+/**
+ * Side effect action which will fetch the scan history from the server
+ *
+ * @returns {Promise} - Promise which resolves when the history is refreshed from an API fetch.
+ */
+const refreshScanHistory =
+	() =>
+	async ( { dispatch } ) => {
+		return await new Promise( ( resolve, reject ) => {
+			return API.fetchScanHistory()
+				.then( response => {
+					dispatch( setScanHistory( camelize( response ) ) );
+					resolve( response );
+				} )
+				.catch( error => {
+					reject( error );
+				} );
+		} );
+	};
 
 const refreshPlan =
 	() =>
@@ -210,6 +226,9 @@ const ignoreThreat =
 					return dispatch( refreshStatus() );
 				} )
 				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
 					return dispatch(
 						setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
 					);
@@ -262,8 +281,9 @@ const getFixThreatsStatus =
 				}
 			} )
 			.then( () => {
-				// threats fixed - refresh the status
+				// threats fixed - refresh the status and history
 				dispatch( refreshStatus() );
+				dispatch( refreshScanHistory() );
 				dispatch(
 					setNotice( {
 						type: 'success',
@@ -428,14 +448,14 @@ const actions = {
 	checkCredentials,
 	setCredentials,
 	setCredentialsIsFetching,
-	setViewingScanHistory,
-	setScanHistory,
 	setStatus,
 	setStatusProgress,
 	startScanOptimistically,
 	refreshStatus,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
+	setScanHistory,
+	refreshScanHistory,
 	setInstalledPlugins,
 	setInstalledThemes,
 	setwpVersion,
@@ -463,14 +483,13 @@ const actions = {
 export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
-	SET_VIEWING_SCAN_HISTORY,
-	SET_SCAN_HISTORY,
 	SET_STATUS,
 	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_UNAVAILABLE,
 	SET_SCAN_IS_ENQUEUING,
+	SET_SCAN_HISTORY,
 	SET_INSTALLED_PLUGINS,
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,

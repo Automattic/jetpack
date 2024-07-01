@@ -1,9 +1,16 @@
-import { Container, Col, Title, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Container,
+	Col,
+	Title,
+	Button,
+	useBreakpointMatch,
+	Text,
+} from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
 import EmptyList from './empty';
@@ -15,7 +22,6 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
-	const { viewingScanHistory, handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -92,6 +98,16 @@ const ThreatsList = () => {
 		}
 	}, [ selected, list, item ] );
 
+	const manualScan = createInterpolateElement(
+		__(
+			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+			'jetpack-protect'
+		),
+		{
+			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
+		}
+	);
+
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col lg={ 4 }>
@@ -109,7 +125,7 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && ! viewingScanHistory && (
+							{ hasRequiredPlan && (
 								<>
 									{ fixableList.length > 0 && (
 										<>
@@ -146,14 +162,6 @@ const ThreatsList = () => {
 										position={ isSm ? 'bottom left' : 'middle left' }
 										anchor={ dailyAndManualScansPopoverAnchor }
 									/>
-									<Button
-										variant="secondary"
-										className={ styles[ 'list-header-button' ] }
-										onClick={ handleHistoryClick }
-										isLoading={ allScanHistoryIsLoading }
-									>
-										{ __( 'History', 'jetpack-protect' ) }
-									</Button>
 								</>
 							) }
 						</div>
@@ -161,6 +169,9 @@ const ThreatsList = () => {
 							<>
 								<div ref={ setUnderstandSeverityPopoverAnchor }>
 									<PaidList list={ list } />
+									<Text className={ styles[ 'manual-scan' ] } variant="body-small">
+										{ manualScan }
+									</Text>
 								</div>
 								<OnboardingPopover
 									id="paid-understand-severity"

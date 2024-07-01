@@ -1,28 +1,43 @@
-import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
-import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Modal from './components/modal';
-import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
+import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
+import Layout from './layout';
 import FirewallRoute from './routes/firewall';
 import ScanRoute from './routes/scan';
+import ScanHistoryRoute from './routes/scan/history';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
 // Initialize Jetpack Protect store
 initStore();
 
-/**
- * Component to scroll window to top on route change.
- *
- * @returns {null} Null.
- */
-function ScrollToTop() {
-	const location = useLocation();
-	useEffect( () => window.scrollTo( 0, 0 ), [ location ] );
-
-	return null;
-}
+const router = createHashRouter( [
+	{
+		path: '/',
+		element: <Layout />,
+		children: [
+			{
+				index: true,
+				element: <Navigate to="/scan" replace />,
+			},
+			{
+				path: 'scan',
+				element: <ScanRoute />,
+			},
+			{
+				path: 'scan/history',
+				element: <ScanHistoryRoute />,
+			},
+			{
+				path: 'scan/history/:filter',
+				element: <ScanHistoryRoute />,
+			},
+			{
+				path: 'firewall',
+				element: <FirewallRoute />,
+			},
+		],
+	},
+] );
 
 /**
  * Initial render function.
@@ -34,21 +49,7 @@ function render() {
 		return;
 	}
 
-	const component = (
-		<ThemeProvider>
-			<OnboardingRenderedContextProvider value={ { renderedSteps: [] } }>
-				<HashRouter>
-					<ScrollToTop />
-					<Routes>
-						<Route path="/" element={ <ScanRoute /> } />
-						<Route path="/firewall" element={ <FirewallRoute /> } />
-					</Routes>
-				</HashRouter>
-				<Modal />
-			</OnboardingRenderedContextProvider>
-		</ThemeProvider>
-	);
-	WPElement.createRoot( container ).render( component );
+	WPElement.createRoot( container ).render( <RouterProvider router={ router } /> );
 }
 
 render();
