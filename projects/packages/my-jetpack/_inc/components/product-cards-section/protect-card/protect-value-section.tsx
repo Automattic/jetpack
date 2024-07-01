@@ -2,7 +2,7 @@ import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
@@ -28,19 +28,25 @@ const ProtectValueSection = () => {
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
 
 	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : false;
-	const lastScanText =
-		timeSinceLastScan && isPluginActive
-			? sprintf(
+	const lastScanText = useMemo( () => {
+		if ( isPluginActive ) {
+			if ( timeSinceLastScan ) {
+				return sprintf(
 					/* translators: %s is how long ago since the last scan took place, i.e.- "17 hours ago" */
 					__( 'Last scan: %s', 'jetpack-my-jetpack' ),
 					timeSinceLastScan
-			  )
-			: sprintf(
-					/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
-					__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
-					pluginsCount,
-					themesCount
-			  );
+				);
+			}
+			return null;
+		}
+		return sprintf(
+			/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
+			__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
+			pluginsCount,
+			themesCount
+		);
+	}, [ isPluginActive, timeSinceLastScan, pluginsCount, themesCount ] );
+
 	const tooltipContent = useProtectTooltipCopy( { pluginsCount, themesCount, numThreats } );
 
 	return (
@@ -56,7 +62,7 @@ export default ProtectValueSection;
 
 const ValueSection: FC< {
 	isProtectActive: boolean;
-	lastScanText: string;
+	lastScanText?: string;
 	tooltipContent: TooltipContent;
 } > = ( { isProtectActive, lastScanText, tooltipContent } ) => {
 	const useTooltipRef = useRef< HTMLButtonElement >();
@@ -81,7 +87,7 @@ const ValueSection: FC< {
 	return (
 		<>
 			<div className="value-section__last-scan">
-				<div>{ lastScanText }</div>
+				{ lastScanText && <div>{ lastScanText }</div> }
 				{ ! isProtectActive && (
 					<div>
 						<button
