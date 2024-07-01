@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Class Help_Center
@@ -141,7 +142,7 @@ class Help_Center {
 			'help-center',
 			'helpCenterLocale',
 			array(
-				'locale' => \A8C\FSE\Common\get_iso_639_locale( determine_locale() ),
+				'locale' => Common\get_iso_639_locale( determine_locale() ),
 			)
 		);
 
