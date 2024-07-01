@@ -3,7 +3,7 @@
     justify-content: space-between;
 
     &__heading {
-        font-size: 12px;
+        font-size: var(--font-body-extra-small);
         color: var(--jp-gray-100);
         font-weight: 500;
     }
