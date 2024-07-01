@@ -9,12 +9,6 @@ BASE=$PWD
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/.github/versions.sh"
 
-if [[ -n "$CI" ]]; then
-	function debug {
-		blue "$@"
-	}
-fi
-
 EXIT=0
 declare -A OKFILES
 for F in README.md .gitkeep .gitignore; do
