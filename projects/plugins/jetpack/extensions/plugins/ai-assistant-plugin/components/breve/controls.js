@@ -99,9 +99,8 @@ const Controls = ( { blocks } ) => {
 
 		const computedGradeLevel = calculateFleschKincaid( allText );
 
-		const sanitizedGradeLevel = isNaN( computedGradeLevel )
-			? null
-			: computedGradeLevel.toFixed( 2 );
+		const sanitizedGradeLevel =
+			typeof computedGradeLevel === 'number' ? computedGradeLevel.toFixed( 2 ) : null;
 
 		setGradeLevel( sanitizedGradeLevel );
 
