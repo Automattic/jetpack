@@ -138,14 +138,6 @@ class Help_Center {
 			$this->version
 		);
 
-		wp_localize_script(
-			'help-center',
-			'helpCenterLocale',
-			array(
-				'locale' => Common\get_iso_639_locale( determine_locale() ),
-			)
-		);
-
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
 			// Adds feature flags for development.
@@ -178,17 +170,33 @@ class Help_Center {
 							'email'        => $user_email,
 						),
 						'site'        => $this->get_current_site(),
-						'locale'      => get_locale(),
+						'locale'      => self::determine_iso_639_locale(),
 					)
 				),
 				'before'
 			);
 		}
 
+		// `wp_set_script_translations` uses es_ES as the text domain, but we don't have translations for that.
+		// We want the locale to be 639 (i.e en, es, fr, etc).
+		add_filter( 'pre_determine_locale', array( $this, 'determine_iso_639_locale' ), 1 );
+
 		// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch -- Jetpack is not responsible for the translate of this script.
 		wp_set_script_translations( 'help-center', 'default', plugin_dir_path( __FILE__ ) . 'languages' );
+
+		remove_filter( 'pre_determine_locale', array( $this, 'determine_iso_639_locale' ) );
 	}
 
+	/**
+	 * Determine the ISO 639 locale.
+	 */
+	public static function determine_iso_639_locale() {
+		$locale = get_user_locale();
+		if ( ! $locale ) {
+			$locale = Common\get_iso_639_locale( get_locale() );
+		}
+		return Common\get_iso_639_locale( $locale );
+	}
 	/**
 	 * Get current site details.
 	 */
