@@ -120,8 +120,8 @@ function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( $message )
  */
 function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos( $args, $assoc_args ) {
 	// This flag is only set for sites with ECOMMERCE_MANAGED_PLUGINS. Sites without this feature are skipped.
-	$woocommerce_hpos = WP_CLI\Utils\get_flag_value( $assoc_args, 'woocommerce_hpos', false );
-	if ( ! $woocommerce_hpos ) {
+	$enable_woocommerce_hpos = WP_CLI\Utils\get_flag_value( $assoc_args, 'enable_woocommerce_hpos', false );
+	if ( ! $enable_woocommerce_hpos ) {
 		return;
 	}
 
