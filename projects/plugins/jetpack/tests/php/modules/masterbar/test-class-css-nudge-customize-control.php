@@ -31,8 +31,14 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
-		require_once self::$deprecated_file_path;
+		if ( false === in_array( self::$deprecated_file_path, get_included_files(), true ) ) {
+			$this->setExpectedDeprecated( self::$deprecated_file_path );
+			$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init' );
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
+			require_once self::$deprecated_file_path;
+		}
+
+		do_action( 'init' );
 	}
 
 	/**
@@ -43,8 +49,6 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control::render_content
 	 */
 	public function test_if_the_html_is_generated_properly() {
-		$this->setExpectedDeprecated( self::$deprecated_file_path );
-
 		$manager = new \WP_Customize_Manager();
 
 		register_css_nudge_control( $manager );

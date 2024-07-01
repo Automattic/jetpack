@@ -38,8 +38,12 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
-		require_once self::$deprecated_file_path;
+		if ( false === in_array( self::$deprecated_file_path, get_included_files(), true ) ) {
+			$this->setExpectedDeprecated( self::$deprecated_file_path );
+			$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init' );
+			// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath -- It's absolute in the class property definition.
+			require_once self::$deprecated_file_path;
+		}
 
 		do_action( 'init' );
 
@@ -50,13 +54,11 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	/**
 	 * Check if the assets are registered.
 	 *
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\load_bootstrap_on_init
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::__construct
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_it_enqueues_the_assets() {
-		$this->setExpectedDeprecated( self::$deprecated_file_path );
 		$nudge      = new CSS_Customizer_Nudge( 'url', 'message' );
 		$reflection = new \ReflectionClass( $nudge );
 		$wrapper    = $reflection->getProperty( 'css_customizer_nudge_wrapper' );
