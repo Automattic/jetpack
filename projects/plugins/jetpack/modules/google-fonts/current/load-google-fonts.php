@@ -72,7 +72,15 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 		$google_fonts_data['fontFamilies']
 	);
 
-	/** This filter is documented in modules/google-fonts/wordpress-6.3/load-google-fonts.php */
+	/**
+	 * Curated list of Google Fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts_to_register Array of Google Font names to register.
+	 */
 	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 

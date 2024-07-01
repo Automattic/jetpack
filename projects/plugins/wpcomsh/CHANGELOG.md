@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.27.2 - 2024-07-01
+### Changed
+- Internal updates.
+
+## 3.27.1 - 2024-06-28
+### Fixed
+- Wpcomsh: fixed fatal errors in case of null body class values. [#38114]
+
 ## 3.27.0 - 2024-06-28
 ### Added
 - Added plugin dance command [#38108]
