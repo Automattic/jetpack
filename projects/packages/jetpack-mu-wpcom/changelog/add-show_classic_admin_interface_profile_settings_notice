@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-On the profile page, show a notice informing about profile settings on "Classic" admin-interface sites being "untangled" from `/me` and `/me/account`
