@@ -102,7 +102,6 @@ class Help_Center {
 				'wp_before_admin_bar_render',
 				function () {
 					global $wp_admin_bar;
-
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
