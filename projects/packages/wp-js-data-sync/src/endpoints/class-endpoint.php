@@ -41,11 +41,11 @@ class Endpoint {
 	 * @param string          $route     - The route for the REST API endpoint.
 	 * @param Data_Sync_Entry $entry     The data sync entry to register the endpoint for.
 	 */
-	public function __construct( $namespace, $key, $entry ) {
+	public function __construct( $namespace, $route, $entry ) {
 		$this->entry          = $entry;
 		$this->rest_namespace = $namespace;
-		$this->route_base     = $key;
-		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$key}" );
+		$this->route_base     = $route;
+		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$route}" );
 	}
 
 	public function register_rest_routes() {
@@ -97,32 +97,36 @@ class Endpoint {
 		}
 	}
 
-	/*
+	/**
 	 * Handle GET Requests on /wp-json/<namespace>/<route>
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_get( $request ) {
 		return $this->handler( $request, 'get' );
 	}
 
-	/*
+	/**
 	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/set
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_set( $request ) {
 		return $this->handler( $request, 'set' );
 	}
 
-	/*
+	/**
 	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/merge
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_merge( $request ) {
 		return $this->handler( $request, 'merge' );
 	}
 
-	/*
+	/**
 	 * Handle POST, DELETE Requests on /wp-json/<namespace>/<route>/delete
+	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handle_delete( $request ) {

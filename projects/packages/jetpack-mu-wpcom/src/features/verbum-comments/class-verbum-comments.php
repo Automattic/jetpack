@@ -10,6 +10,8 @@
 
 namespace Automattic\Jetpack;
 
+use WP_Error;
+
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-auth.php';
 require_once __DIR__ . '/assets/class-wpcom-rest-api-v2-verbum-oembed.php';
 require_once __DIR__ . '/assets/class-verbum-gutenberg-editor.php';
@@ -278,7 +280,12 @@ class Verbum_Comments {
 	 * @param  array $args - The default comment form arguments.
 	 */
 	public function comment_form_defaults( $args ) {
-		$title_reply = get_option( 'highlander_comment_form_prompt', __( 'Leave a comment', 'jetpack-mu-wpcom' ) );
+		$title_reply_default = __( 'Leave a comment', 'jetpack-mu-wpcom' );
+		$title_reply         = get_option( 'highlander_comment_form_prompt', $title_reply_default );
+
+		if ( $title_reply === 'Leave a comment' || empty( $title_reply ) ) {
+			$title_reply = $title_reply_default;
+		}
 
 		return array_merge(
 			$args,
@@ -380,20 +387,20 @@ HTML;
 		$data = isset( $_COOKIE['wpc_fbc'] ) ? wp_parse_args( sanitize_text_field( wp_unslash( $_COOKIE['wpc_fbc'] ) ) ) : array();
 
 		if ( empty( $data['access_token'] ) ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
+			return new WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		// Make a new request using the access token we were given.
 		$request = wp_remote_get( 'https://graph.facebook.com/v6.0/me?fields=name,email,picture,id&access_token=' . rawurlencode( $data['access_token'] ) );
 		if ( 200 !== wp_remote_retrieve_response_code( $request ) ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
+			return new WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		$body = wp_remote_retrieve_body( $request );
 		$json = json_decode( $body );
 
 		if ( ! $body || ! $json ) {
-			return new \WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
+			return new WP_Error( 'facebook', __( 'Error: your Facebook login has expired.', 'jetpack-mu-wpcom' ) );
 		}
 
 		return $json;
@@ -418,7 +425,7 @@ HTML;
 	 * Check if the comment is allowed by verifying the Facebook token.
 	 *
 	 * @param array $comment_data - The comment data.
-	 * @return WP_Error|comment_data The comment data if the comment is allowed, or a WP_Error if not.
+	 * @return WP_Error|array The comment data if the comment is allowed, or a WP_Error if not.
 	 */
 	public function verify_external_account( $comment_data ) {
 		$service = isset( $_POST['hc_post_as'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_post_as'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce checked before saving comment
@@ -455,7 +462,7 @@ HTML;
 			return;
 		}
 
-		return new \WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
+		return new WP_Error( 'verbum', __( 'Error: please try commenting again.', 'jetpack-mu-wpcom' ) );
 	}
 
 	/**
@@ -575,7 +582,7 @@ HTML;
 	 * Check if we should show the subscription modal.
 	 */
 	public function should_show_subscription_modal() {
-		$modal_enabled = get_option( 'jetpack_verbum_subscription_modal', true );
+		$modal_enabled = boolval( get_blog_option( $this->blog_id, 'jetpack_verbum_subscription_modal', true ) );
 		return ! is_user_member_of_blog( '', $this->blog_id ) && $modal_enabled;
 	}
 

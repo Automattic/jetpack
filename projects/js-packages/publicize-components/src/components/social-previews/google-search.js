@@ -13,9 +13,11 @@ import React from 'react';
  */
 export function GoogleSearch( props ) {
 	const siteTitle = useSelect( select => {
-		const { getEntityRecord } = select( 'core' );
+		const { getUnstableBase } = select( 'core' );
 
-		return decodeEntities( getEntityRecord( 'root', 'site' ).title );
+		const siteName = getUnstableBase().name;
+
+		return decodeEntities( siteName );
 	} );
 
 	return <GoogleSearchPreview { ...props } siteTitle={ siteTitle } />;

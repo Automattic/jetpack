@@ -62,7 +62,7 @@ describe( 'Business Hours', () => {
 		expect( screen.getByText( 'Friday' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Saturday' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Sunday' ) ).toBeInTheDocument();
-		expect( screen.getAllByText( '9: 00 am - 5: 00 pm' ) ).toHaveLength( 5 );
+		expect( screen.getAllByText( '9:00 AM - 5:00 PM' ) ).toHaveLength( 5 );
 		expect( screen.getAllByText( 'Closed' ) ).toHaveLength( 2 );
 	} );
 

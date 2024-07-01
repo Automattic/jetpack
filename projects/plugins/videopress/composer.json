@@ -9,11 +9,10 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
-		"automattic/jetpack-videopress": "@dev"
+		"automattic/jetpack-videopress": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -59,6 +58,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ1_8_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ1_9_alpha"
 	}
 }

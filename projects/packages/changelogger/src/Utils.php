@@ -64,17 +64,19 @@ class Utils {
 	 * string key.
 	 *
 	 * @param string $filename File to load.
-	 * @param mixed  $diagnostics Output variable, set to an array with diagnostic data.
+	 * @param array  $diagnostics Output variable, set to an array with diagnostic data.
 	 *   - warnings: An array of warning messages and applicable lines.
 	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
 	 * @throws LoadChangeFileException On error.
+	 * @phan-param array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics @phan-output-reference
 	 */
 	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
 			'warnings' => array(),
 			'lines'    => array(),
 		);
+		'@phan-var array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics';
 
 		if ( ! file_exists( $filename ) ) {
 			$ex           = new LoadChangeFileException( 'File does not exist.' );
@@ -141,6 +143,7 @@ class Utils {
 	 * @param OutputInterface      $output OutputInterface to write debug output to.
 	 * @param DebugFormatterHelper $formatter Formatter to use to format debug output.
 	 * @return string|null
+	 * @codeCoverageIgnore
 	 */
 	public static function getTimestamp( $file, OutputInterface $output, DebugFormatterHelper $formatter ) {
 		return self::getRepoData( $file, $output, $formatter )['timestamp'];
@@ -168,6 +171,10 @@ class Utils {
 				// Timestamp.
 				if ( isset( $cmd_output[0] ) && preg_match( '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/', $cmd_output[0] ) ) {
 					$repo_data['timestamp'] = $cmd_output[0];
+					// Normalize UTC
+					if ( substr( $repo_data['timestamp'], -6 ) === '+00:00' ) {
+						$repo_data['timestamp'] = substr( $repo_data['timestamp'], 0, -6 ) . 'Z';
+					}
 				}
 
 				// PR number.
@@ -208,6 +215,7 @@ class Utils {
 	 * @param mixed           $files Output parameter. An array is written to this parameter, with
 	 *   keys being filenames in `$dir` and values being 0 for success, 1 for warnings, 2 for errors.
 	 * @param array|null      $input_options Options for the extraction.
+	 *   - skip-data: (bool) Set true to skip loading PR number and timestamp.
 	 *   - add-pr-num: (bool) Whether to try to read a `(#12345)`-like PR number from the git commit creating each change entry. Default false.
 	 * @return ChangeEntry[] Keys are filenames in `$dir`.
 	 */
@@ -242,13 +250,16 @@ class Utils {
 				}
 			}
 			try {
-				$repo_data    = self::getRepoData( $path, $output, $debugHelper );
+				$repo_data    = empty( $input_options['skip-data'] ) ? self::getRepoData( $path, $output, $debugHelper ) : array(
+					'pr-num'    => '',
+					'timestamp' => '1970-01-01T00:00:00Z',
+				);
 				$ret[ $name ] = $formatter->newChangeEntry(
 					array(
-						'significance' => isset( $data['Significance'] ) ? $data['Significance'] : null,
-						'subheading'   => isset( $data['Type'] ) ? ( isset( $subheadings[ $data['Type'] ] ) ? $subheadings[ $data['Type'] ] : ucfirst( $data['Type'] ) ) : null,
+						'significance' => $data['Significance'] ?? null,
+						'subheading'   => isset( $data['Type'] ) ? ( $subheadings[ $data['Type'] ] ?? ucfirst( $data['Type'] ) ) : null,
 						'content'      => ( ! empty( $input_options['add-pr-num'] ) && $repo_data['pr-num'] && $data[''] ) ? ( $data[''] . " [#{$repo_data['pr-num']}]" ) : $data[''],
-						'timestamp'    => isset( $data['Date'] ) ? $data['Date'] : $repo_data['timestamp'],
+						'timestamp'    => $data['Date'] ?? $repo_data['timestamp'],
 					)
 				);
 			} catch ( \InvalidArgumentException $ex ) {

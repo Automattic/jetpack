@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from '@wordpress/element';
-import classnames from 'classnames';
+import clsx from 'clsx';
 
 export default function ImageTransition( { src, alt, spacing } ) {
 	const [ loaded, setLoaded ] = useState( false );
@@ -32,7 +32,7 @@ export default function ImageTransition( { src, alt, spacing } ) {
 	// Negative margin used as `padding: 0 !important` prevents redraw in Safari.
 	const containerOffset = spacing * -1;
 
-	const containerClasses = classnames( 'wp-block-jetpack-instagram-gallery__placeholder', {
+	const containerClasses = clsx( 'wp-block-jetpack-instagram-gallery__placeholder', {
 		'is-loaded': loaded,
 	} );
 	const containerStyles = loaded
@@ -41,7 +41,7 @@ export default function ImageTransition( { src, alt, spacing } ) {
 				margin: containerOffset,
 				height: containerHeight,
 		  };
-	const imageClasses = classnames( { 'is-loaded': loaded } );
+	const imageClasses = clsx( { 'is-loaded': loaded } );
 
 	return (
 		<span style={ containerStyles } className={ containerClasses }>

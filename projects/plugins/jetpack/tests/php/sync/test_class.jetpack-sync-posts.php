@@ -48,6 +48,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_post_content_limit() {
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH - 1 );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
@@ -64,6 +65,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
@@ -74,6 +76,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertSame( 1, $this->server_replica_storage->post_count() );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
@@ -519,6 +522,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post    = get_post( $post_id );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		$post_sync_module->filter_post_content_and_add_links( $this->post );
 
 		$this->assertSame( $post_id, $post->ID );
@@ -567,6 +571,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectNotHasProperty( 'amp_permalink', $post );
 
+		/**
+		 * @phan-suppress PhanRedefineFunction
+		 * @todo Defining this function mid-test here seems risky. Is there a better way we can test this?
+		 */
 		function amp_get_permalink( $post_id ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			return "http://example.com/?p=$post_id&amp";
 		}
@@ -1154,6 +1162,7 @@ POST_CONTENT;
 	public function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		$this->markTestSkipped( 'Skipping to be able to merge #21030. Needs a proper fix anyway.' );
 		// this only applies to rendered content, which is off by default
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
@@ -1361,15 +1370,15 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -6 );
+		$events = array_slice( $events, -4 );
 
-		$this->assertEquals( $events[0]->args[0], $events[2]->args[0] );
+		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
 		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
 
-		$this->assertEquals( $events[3]->args[0], $events[5]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[3]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[5]->action );
+		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
+		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
 	}
 
 	/**
@@ -1419,6 +1428,7 @@ That was a cool video.';
 		$mocked->expects( $this->exactly( 15 ) )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1449,6 +1459,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 				->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1479,6 +1490,7 @@ That was a cool video.';
 		$mocked->expects( $this->never() )
 			->method( 'chunked_call' );
 
+		// @phan-suppress-next-line PhanEmptyFQSENInClasslike -- https://github.com/phan/phan/issues/4851
 		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
 
 		/**
@@ -1527,7 +1539,8 @@ That was a cool video.';
 
 		);
 
-		$post_sync_module             = Modules::get_module( 'posts' );
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( ,, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( array( $this->post ), $metadata );
 
 		$this->assertNotEmpty( $filtered_metadata[0]->meta_value, 'Filtered metadata meta_value is not empty for strings of allowed length.' );
@@ -1585,6 +1598,7 @@ That was a cool video.';
 		);
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
 
 		$this->assertEquals( $filtered_post_ids, $post_ids );
@@ -1631,6 +1645,7 @@ That was a cool video.';
 		$metadata = array_merge( $post_metadata_1, $post_metadata_2 );
 
 		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
 		list( $filtered_post_ids, $filtered_posts, $filtered_metadata ) = $post_sync_module->filter_posts_and_metadata_max_size( $posts, $metadata );
 
 		$this->assertEquals( $filtered_post_ids, array( $post_id_1 ) );

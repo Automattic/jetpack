@@ -163,11 +163,11 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	private function isRequiredByRoot() {
 		$package  = $this->composer->getPackage();
 		$requires = $package->getRequires();
-		if ( ! is_array( $requires ) ) {
+		if ( ! is_array( $requires ) ) { // @phan-suppress-current-line PhanRedundantCondition -- Earlier Composer versions may not have guaranteed this.
 			$requires = array();
 		}
 		$devRequires = $package->getDevRequires();
-		if ( ! is_array( $devRequires ) ) {
+		if ( ! is_array( $devRequires ) ) { // @phan-suppress-current-line PhanRedundantCondition -- Earlier Composer versions may not have guaranteed this.
 			$devRequires = array();
 		}
 		$requires = array_merge( $requires, $devRequires );

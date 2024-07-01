@@ -180,7 +180,7 @@ class Users extends Module {
 	 * @access private
 	 *
 	 * @param mixed $user User object or ID.
-	 * @return \WP_User User object, or `null` if user invalid/not found.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	private function get_user( $user ) {
 		if ( is_numeric( $user ) ) {
@@ -726,8 +726,8 @@ class Users extends Module {
 			$query .= ' WHERE ' . $where_sql;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}

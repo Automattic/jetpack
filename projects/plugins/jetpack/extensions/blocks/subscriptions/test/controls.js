@@ -86,7 +86,7 @@ describe( 'Inspector controls', () => {
 			const user = userEvent.setup();
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
 			await user.click( screen.getByText( 'Button Background', { ignore: '[aria-hidden=true]' } ) );
-			await user.click( screen.getByText( 'Solid', { ignore: '[aria-hidden=true]' } ) );
+			await user.click( screen.getByRole( 'tab', { name: 'Color' } ) );
 			await user.click(
 				screen.queryAllByLabelText( /Color: (?!Black)/i, { selector: 'button' } )[ 0 ]
 			);

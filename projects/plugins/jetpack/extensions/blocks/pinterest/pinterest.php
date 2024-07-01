@@ -28,7 +28,7 @@ const REMAINING_URL_PATH_WITH_SUBPATH_REGEX = '/^\/([^\/]+)\/([^\/]+)\/?$/';
  * Determines the Pinterest embed type from the URL.
  *
  * @param string $url the URL to check.
- * @returns {string} The pin type. Empty string if it isn't a valid Pinterest URL.
+ * @return string The pin type. Empty string if it isn't a valid Pinterest URL.
  */
 function pin_type( $url ) {
 	if ( null === $url || ! preg_match( PINTEREST_URL_REGEX, $url ) ) {

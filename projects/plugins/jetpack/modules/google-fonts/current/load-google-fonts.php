@@ -72,7 +72,15 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 		$google_fonts_data['fontFamilies']
 	);
 
-	/** This filter is documented in modules/google-fonts/wordpress-6.3/load-google-fonts.php */
+	/**
+	 * Curated list of Google Fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts_to_register Array of Google Font names to register.
+	 */
 	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 
@@ -81,33 +89,6 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 	}
 
 	return $available_google_fonts_map;
-}
-
-/**
- * Gets the font families of the active theme
- *
- * @return object[] The font families of the active theme.
- */
-function jetpack_get_theme_fonts_map() {
-	if ( ! class_exists( 'WP_Theme_JSON_Resolver' ) ) {
-		return array();
-	}
-
-	$theme_json = WP_Theme_JSON_Resolver::get_theme_data();
-	$raw_data   = $theme_json->get_data();
-	if ( empty( $raw_data['settings']['typography']['fontFamilies'] ) ) {
-		return array();
-	}
-
-	$theme_fonts_map = array();
-	foreach ( $raw_data['settings']['typography']['fontFamilies'] as $font_family ) {
-		$font_family_name = $font_family['name'] ?? Jetpack_Google_Font_Face::get_font_family_name( $font_family );
-		if ( $font_family_name ) {
-			$theme_fonts_map[ $font_family_name ] = true;
-		}
-	}
-
-	return $theme_fonts_map;
 }
 
 /**
@@ -123,18 +104,11 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 	}
 
 	$available_google_fonts_map = jetpack_get_available_google_fonts_map( $google_fonts_data );
-	$theme_fonts_map            = jetpack_get_theme_fonts_map();
 	$google_fonts_families      = array_values(
 		array_filter(
 			$google_fonts_data['fontFamilies'],
-			function ( $google_fonts_family ) use ( $available_google_fonts_map, $theme_fonts_map ) {
+			function ( $google_fonts_family ) use ( $available_google_fonts_map ) {
 				$name = $google_fonts_family['name'];
-
-				// Filter out the fonts that are provided by the active theme.
-				if ( isset( $theme_fonts_map[ $name ] ) && $theme_fonts_map[ $name ] ) {
-					return false;
-				}
-
 				return $available_google_fonts_map[ $name ] ?? false;
 			}
 		)

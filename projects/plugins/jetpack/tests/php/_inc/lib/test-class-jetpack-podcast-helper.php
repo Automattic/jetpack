@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 
 		$track->expects( $this->exactly( 2 ) )
 			->method( 'get_id' )
-			->willReturn( 1 );
+			->willReturn( '1' );
 
 		$rss = $this->getMockBuilder( 'SimplePie' )
 			->disableOriginalConstructor()
@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		$this->assertSame( 'The track was not found.', $error->get_error_message() );
 
 		// Success.
-		$episode = $podcast_helper->get_track_data( 1 );
+		$episode = $podcast_helper->get_track_data( '1' );
 		$this->assertSame(
 			$episode,
 			array(

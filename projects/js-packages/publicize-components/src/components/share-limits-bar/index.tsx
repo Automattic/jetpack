@@ -1,7 +1,7 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { ShareLimits } from '../../hooks/use-share-limits';
 import styles from './styles.module.scss';
 
@@ -11,6 +11,7 @@ export type ShareLimitsBarProps = {
 	usedCount: number;
 	scheduledCount: number;
 	remainingCount?: number;
+	remainingLabel?: string;
 	className?: string;
 	noticeType?: NoticeType;
 	legendCaption?: string;
@@ -32,6 +33,7 @@ export const ShareLimitsBar = ( {
 	usedCount,
 	scheduledCount,
 	remainingCount,
+	remainingLabel,
 	className,
 	noticeType = 'default',
 	legendCaption,
@@ -53,17 +55,19 @@ export const ShareLimitsBar = ( {
 			{
 				count: remainingCount,
 				backgroundColor: 'var(--jp-gray-off)',
-				label: _x(
-					'left',
-					'Referring to the quantity remaning, not the direction - left/right.',
-					'jetpack'
-				),
+				label:
+					remainingLabel ||
+					_x(
+						'left',
+						'Referring to the quantity remaning, not the direction - left/right.',
+						'jetpack'
+					),
 			},
 		].filter( Boolean );
-	}, [ usedCount, noticeType, scheduledCount, remainingCount ] );
+	}, [ noticeType, scheduledCount, usedCount, remainingCount, remainingLabel ] );
 
 	return (
-		<div className={ classNames( styles.wrapper, className ) }>
+		<div className={ clsx( styles.wrapper, className ) }>
 			<RecordMeterBar
 				totalCount={ usedCount + scheduledCount + remainingCount }
 				items={ items }

@@ -1,4 +1,4 @@
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect, useRef } from '@wordpress/element';
@@ -12,11 +12,13 @@ import './view.js';
 
 /* global juxtapose */
 
-const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
+const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	const { align, imageBefore, imageAfter, caption, orientation } = attributes;
 	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
 	let sizes = null;
+
+	const blockProps = useBlockProps();
 	const juxtaposeRef = useRef();
 	if ( useResizeObserver ) {
 		// Let's look for resize so we can trigger the thing.
@@ -54,7 +56,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	}, [ align, imageBefore, imageAfter, orientation ] );
 
 	return (
-		<figure className={ className } id={ clientId }>
+		<figure { ...blockProps } id={ clientId }>
 			{ resizeListener }
 			<InspectorControls key="controls">
 				<ImageCompareControls { ...{ attributes, setAttributes } } />

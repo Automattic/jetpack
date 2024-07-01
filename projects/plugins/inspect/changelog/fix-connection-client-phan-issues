@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove unnecessary boolean check that was confusing Phan.

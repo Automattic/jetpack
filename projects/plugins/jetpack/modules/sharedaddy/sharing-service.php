@@ -501,7 +501,7 @@ class Sharing_Service {
 			}
 		}
 
-		if ( false === $this->global['sharing_label'] ) {
+		if ( false === $this->global['sharing_label'] || $this->global['sharing_label'] === 'Share this:' ) {
 			$this->global['sharing_label'] = $this->default_sharing_label;
 		}
 
@@ -511,12 +511,12 @@ class Sharing_Service {
 	/**
 	 * Save a sharing service for use.
 	 *
-	 * @param int            $id Sharing unique ID.
-	 * @param Sharing_Source $service Sharing service.
+	 * @param int                     $id Sharing unique ID.
+	 * @param Sharing_Advanced_Source $service Sharing service.
 	 *
 	 * @return void
 	 */
-	public function set_service( $id, Sharing_Source $service ) {
+	public function set_service( $id, Sharing_Advanced_Source $service ) {
 		// Update the options for this service
 		$options = get_option( 'sharing-options' );
 

@@ -76,6 +76,9 @@ while getopts ":uUvhHRan:" opt; do
 done
 shift "$(($OPTIND -1))"
 
+# Make sure Jetpack CLI works. Otherwise stuff might fail oddly later when we try to do `jetpack dependencies | jq`.
+pnpm jetpack noop >&2
+
 if ! $VERBOSE; then
 	. "$BASE/tools/includes/spin.sh"
 	function debug {
@@ -112,8 +115,10 @@ if $RELEASEBRANCH; then
 	fi
 fi
 
+spin
 debug "Fetching PHP package versions"
 
+init_changelogger
 function get_packages {
 	local PKGS
 	if [[ -z "$1" ]]; then
@@ -186,6 +191,8 @@ fi
 EXIT=0
 ANYJS=false
 SKIPPED=()
+declare -A PIDS
+PIDS=()
 for SLUG in "${SLUGS[@]}"; do
 	spin
 	if [[ -n "${SKIPSLUGS[$SLUG]}" ]]; then
@@ -253,15 +260,20 @@ for SLUG in "${SLUGS[@]}"; do
 		if [[ -n "$(git -c core.quotepath=off ls-files "$DIR/composer.lock")" ]]; then
 			PROJECTFOLDER="$BASE/$DIR"
 			cd "$PROJECTFOLDER"
-			debug "Updating $SLUG composer.lock"
-			OLD="$(<composer.lock)"
 
-			"$BASE/tools/composer-update-monorepo.sh" --quiet --no-audit "$PROJECTFOLDER"
-			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
-				info "Creating changelog entry for $SLUG composer.lock update"
-				do_changelogger "$SLUG" '' 'Updated composer.lock.'
-				DOCL=false
-			fi
+			# This is slow and nothing else should depend on it. Do it in a subshell.
+			{
+				debug "Updating $SLUG composer.lock (async)"
+				OLD="$(<composer.lock)"
+				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER"
+				if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
+					info "Creating changelog entry for $SLUG composer.lock update"
+					do_changelogger "$SLUG" '' 'Updated composer.lock.'
+				fi
+				debug "Done updating $SLUG composer.lock"
+			} &
+			PIDS[$!]=true
+
 			cd "$BASE"
 		fi
 	else
@@ -301,6 +313,15 @@ if $ANYJS; then
 		debug "Skipping pnpm-lock.yaml update because we were passed a list of packages"
 	fi
 fi
+
+# Wait for any subshells above to finish.
+while [[ ${#PIDS[@]} -gt 0 ]]; do
+	spin
+	if ! wait -fn -p P "${!PIDS[@]}"; then
+		EXIT=1
+	fi
+	unset PIDS[$P]
+done
 
 spinclear
 

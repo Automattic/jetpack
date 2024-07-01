@@ -22,6 +22,14 @@
 	margin-left: 8px;
 }
 
+.jp-form-radio-gap .components-radio-control__option {
+	margin-bottom: rem( 4px );
+
+	&:last-of-type {
+		margin-bottom: 0;
+	}
+}
+
 .jp-form-button {
 	margin-top: rem( 16px );
 

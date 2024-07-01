@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Error;
@@ -123,9 +124,11 @@ class Test_Integration_Parsing_Errors extends TestCase {
 	}
 
 	/**
-	 * Creates an associative array with nested levels containing 'hello world' string.
+	 * Creates an associative array with nested levels containing $data.
 	 *
-	 * @param int $levels The depth of nesting in the associative array.
+	 * @param mixed $data Data to contain.
+	 * @param int   $levels The depth of nesting in the associative array.
+	 * @param int   $i Current nesting depth, used for recursive calls.
 	 *
 	 * @return array The associative array with data.
 	 */

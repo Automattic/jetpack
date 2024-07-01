@@ -106,23 +106,24 @@ function load_assets( $attr, $content ) {
 			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 		);
 	} else {
-		$content = sprintf(
+		$content           = sprintf(
 			'<div class="%1$s" id="%2$s"></div>',
 			esc_attr( $classes ),
 			esc_attr( $block_id )
 		);
-		$script  = <<<JS_END
+		$script            = <<<JS_END
 jetpackInitCalendly( %s, %s );
 JS_END;
+		$json_encode_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
+		if ( get_option( 'blog_charset' ) === 'UTF-8' ) {
+			$json_encode_flags |= JSON_UNESCAPED_UNICODE;
+		}
 		wp_add_inline_script(
 			'jetpack-calendly-external-js',
 			sprintf(
 				$script,
-				wp_json_encode(
-					esc_url_raw( $url ),
-					JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				),
-				wp_json_encode( $block_id, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+				wp_json_encode( esc_url_raw( $url ), $json_encode_flags ),
+				wp_json_encode( $block_id, $json_encode_flags )
 			)
 		);
 	}

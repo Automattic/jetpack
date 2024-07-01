@@ -88,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_notes_config',
 		'jetpack_social_settings',
 		'jetpack_social_autoconvert_images',
 		'jetpack_sso_match_by_email',
@@ -176,6 +177,7 @@ class Defaults {
 		'wordads_display_page',
 		'wordads_display_post',
 		'wordads_second_belowpost',
+		'wordads_inline_enabled',
 		'woocommerce_custom_orders_table_enabled',
 		'wp_mobile_app_promos',
 		'wp_mobile_excerpt',
@@ -184,6 +186,9 @@ class Defaults {
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
 		'wpcom_featured_image_in_email',
+		'jetpack_gravatar_in_email',
+		'jetpack_author_in_email',
+		'jetpack_post_date_in_email',
 		'wpcom_gifting_subscription',
 		'wpcom_is_fse_activated',
 		'wpcom_legacy_contact',
@@ -195,10 +200,13 @@ class Defaults {
 		'wpcom_reader_views_enabled',
 		'wpcom_site_setup',
 		'wpcom_subscription_emails_use_excerpt',
+		'jetpack_subscriptions_reply_to',
+		'jetpack_subscriptions_from_name',
 		'jetpack_verbum_subscription_modal',
 		'jetpack_blocks_disabled',
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
+		'jetpack_scheduled_plugins_update',
 	);
 
 	/**
@@ -845,6 +853,7 @@ class Defaults {
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',
+		'editor-spacing-sizes',
 		'editor-style', // deprecated.
 		'editor-styles',
 		'html5',

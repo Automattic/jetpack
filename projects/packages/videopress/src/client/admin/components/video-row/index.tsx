@@ -10,7 +10,7 @@ import {
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useState, useRef, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -95,7 +95,7 @@ const Stats = ( {
 			plays={ playsElement }
 			upload={ uploadElement }
 			loading={ loading }
-			className={ classNames( { [ styles[ 'mobile-stats' ] ]: isSmall } ) }
+			className={ clsx( { [ styles[ 'mobile-stats' ] ]: isSmall } ) }
 		/>
 	);
 };
@@ -224,7 +224,7 @@ export const VideoRow = ( {
 			onKeyUp={ isSmall ? null : handleKeyUp }
 			onClick={ isSmall ? null : handleClick }
 			aria-label={ wrapperAriaLabel }
-			className={ classNames(
+			className={ clsx(
 				styles[ 'video-row' ],
 				{
 					[ styles.pressed ]: keyPressed,
@@ -236,7 +236,7 @@ export const VideoRow = ( {
 			ref={ setAnchor }
 		>
 			{ showCheckbox && (
-				<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
+				<div className={ clsx( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
 					<Checkbox
 						ref={ checkboxRef }
 						checked={ checked && ! loading }
@@ -248,12 +248,12 @@ export const VideoRow = ( {
 			) }
 
 			<div
-				className={ classNames( styles[ 'video-data-wrapper' ], {
+				className={ clsx( styles[ 'video-data-wrapper' ], {
 					[ styles.small ]: isSmall,
 				} ) }
 			>
 				<div
-					className={ classNames( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
+					className={ clsx( styles[ 'info-wrapper' ], { [ styles.small ]: isSmall } ) }
 					onClick={ isSmall && ! loading ? handleInfoWrapperClick : null }
 					role="presentation"
 				>
@@ -283,7 +283,7 @@ export const VideoRow = ( {
 						) : (
 							<Text
 								variant="title-small"
-								className={ classNames( styles.title, { [ styles.disabled ]: disabled } ) }
+								className={ clsx( styles.title, { [ styles.disabled ]: disabled } ) }
 								ref={ textRef }
 							>
 								{ title }
@@ -306,7 +306,7 @@ export const VideoRow = ( {
 				</div>
 
 				{ showBottom && (
-					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
+					<div className={ clsx( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
 						{ ! isSmall && showActions && (
 							<div className={ styles.actions }>
 								{ showActionButton && actionButton }

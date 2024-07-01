@@ -65,7 +65,10 @@
 		"blog-stats",
 		"top-posts",
 		"goodreads",
-		"voice-to-content"
+		"voice-to-content",
+		"ai-featured-image-generator",
+		"ai-title-optimization",
+		"ai-assistant-experimental-image-generation-support"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -74,8 +77,9 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator",
-		"ai-featured-image-generator"
+		"ai-assistant-extensions-support",
+		"ai-general-purpose-image-generator",
+		"ai-proofread-breve"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

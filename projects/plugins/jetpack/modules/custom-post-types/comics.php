@@ -504,6 +504,16 @@ class Jetpack_Comic {
 			$supports_comics = true;
 		}
 
+		if ( $supports_comics ) {
+			$message = sprintf(
+				// translators: %s is a link to the WordPress.org documentation.
+				__( 'Jetpack no longer supports the Comics Post Type: %s', 'jetpack' ),
+				'https://jetpack.com/support/custom-content-types/#comics'
+			);
+
+			_deprecated_hook( 'Jetpack_Comic', 'jetpack-13.6', '', esc_html( $message ) );
+		}
+
 		/**
 		 * Filter it in case something else knows better.
 		 */

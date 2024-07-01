@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Defaults;
@@ -36,6 +37,8 @@ function jetpack_foo_is_anon_callable() {
 class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+
+	/** @var \Automattic\Jetpack\Sync\Modules\Callables */
 	protected $callable_module;
 
 	protected static $admin_id; // used in mock_xml_rpc_request
@@ -114,11 +117,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'post_type_features'               => Functions::get_post_type_features(),
 			'rest_api_allowed_post_types'      => Functions::rest_api_allowed_post_types(),
 			'rest_api_allowed_public_metadata' => Functions::rest_api_allowed_public_metadata(),
-			'sso_is_two_step_required'         => Jetpack_SSO_Helpers::is_two_step_required(),
-			'sso_should_hide_login_form'       => Jetpack_SSO_Helpers::should_hide_login_form(),
-			'sso_match_by_email'               => Jetpack_SSO_Helpers::match_by_email(),
-			'sso_new_user_override'            => Jetpack_SSO_Helpers::new_user_override(),
-			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
+			'sso_is_two_step_required'         => Helpers::is_two_step_required(),
+			'sso_should_hide_login_form'       => Helpers::should_hide_login_form(),
+			'sso_match_by_email'               => Helpers::match_by_email(),
+			'sso_new_user_override'            => Helpers::new_user_override(),
+			'sso_bypass_default_login_form'    => Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                       => Functions::wp_version(),
 			'get_plugins'                      => Functions::get_plugins(),
 			'get_plugins_action_links'         => Functions::get_plugins_action_links(),
@@ -226,6 +229,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync(); // This sync sends the updated data...
 		$new_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		$this->assertNotEquals( $initial_value, $new_value );
+	}
+
+	/**
+	 * Tests that calling set_late_default works as expected.
+	 *
+	 * Return null
+	 */
+	public function test_sync_callable_set_late_default() {
+		$this->callable_module->set_callable_whitelist( array() );
+
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ) );
+
+		$this->callable_module->set_late_default();
+
+		remove_filter( 'jetpack_sync_callable_whitelist', array( $this, 'filter_sync_callable_whitelist' ) );
+
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEquals( jetpack_foo_is_callable(), $synced_value );
 	}
 
 	/**
@@ -768,6 +791,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				$post_type_object->supports = array();
 			}
 			$synced_post_type = Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
+			if ( isset( $synced_post_type->labels->template_name ) ) {
+				$post_type_object->labels->template_name = $synced_post_type->labels->template_name;
+			}
 			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :' . $post_type . ' not equal' );
 		}
 	}
@@ -972,6 +998,18 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$parsed_url = wp_parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+	/**
+	 * Filters the sync callable whitelist.
+	 *
+	 * @param array $whitelist The sync callable whitelist.
+	 * @return array
+	 */
+	public function filter_sync_callable_whitelist( $whitelist ) {
+		$whitelist['jetpack_foo'] = 'jetpack_foo_is_callable';
+
+		return $whitelist;
 	}
 
 	/**
@@ -1245,8 +1283,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
-		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' ) // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-					->getMock();
+		// Fake that the class exists for the test.
+		// @phan-suppress-next-line PhanUndeclaredClassReference
+		$this->getMockBuilder( '\\WPaaS\\Plugin' )->getMock();
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
 	}
@@ -1330,7 +1369,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that all options are returned by get_objects_by_id
 	 */
 	public function test_get_objects_by_id_all() {
-		$module        = Modules::get_module( 'functions' );
+		$module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $module';
 		$all_callables = $module->get_objects_by_id( 'callable', array( 'all' ) );
 		$this->assertEquals( $module->get_all_callables(), $all_callables );
 	}
@@ -1339,7 +1379,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * Verify that get_object_by_id returns a allowed option
 	 */
 	public function test_get_objects_by_id_singular() {
-		$module       = Modules::get_module( 'functions' );
+		$module = Modules::get_module( 'functions' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Callables $module';
 		$callables    = $module->get_all_callables();
 		$get_callable = $module->get_objects_by_id( 'callable', array( 'has_file_system_write_access' ) );
 		$this->assertEquals( $callables['has_file_system_write_access'], $get_callable['has_file_system_write_access'] );

@@ -83,7 +83,6 @@ export default function useTranscriptionPostProcessing( {
 	);
 
 	const { request, stopSuggestion } = useAiSuggestions( {
-		autoRequest: false,
 		onSuggestion: handleOnSuggestion,
 		onDone: handleOnDone,
 		onError: handleOnError,

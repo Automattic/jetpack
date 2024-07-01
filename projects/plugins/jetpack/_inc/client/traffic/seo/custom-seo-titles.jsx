@@ -141,7 +141,7 @@ const SEOTokenButton = ( {
 		inputRef.focus();
 
 		const textToInsert = `[${ token }]`;
-		const cursorPos = inputRef.refs.textField.selectionStart;
+		const cursorPos = inputRef.textFieldRef.current.selectionStart;
 		const strBeforeCursor = inputRef.props.value.substring( 0, cursorPos );
 		const strAfterCursor = inputRef.props.value.substring( cursorPos, inputRef.props.value.length );
 		const newString = strBeforeCursor + textToInsert + strAfterCursor;

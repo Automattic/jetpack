@@ -31,6 +31,7 @@ package.json                                    production-exclude
 phpunit.xml.dist                                production-exclude
 README.md                                       production-exclude
 src/js/**                                       production-exclude
+src/scss/**                                     production-exclude
 tests/**                                        production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-changelogger/**      production-exclude

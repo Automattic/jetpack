@@ -2,11 +2,14 @@
 /**
  * Handles more photo metadata.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::partial
  * @package jetpack
  */
 
-$item     = $context['item']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-$add_link = 'none' !== $this->link; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
+$item     = $context['item'];
+$add_link = 'none' !== $this->link;
 
 // We do this for accessibility.  Titles without alt's break screen readers.
 if ( empty( $item->image_alt ) && ! empty( $item->image_title ) ) {
@@ -26,7 +29,7 @@ if ( isset( $item->size ) ) {
 		<meta itemprop="height" content="<?php echo esc_attr( $item->image->height ); ?>">
 		<img
 			class="<?php echo empty( $this->grayscale ) ? '' : 'grayscale'; ?>"
-			<?php $this->partial( 'carousel-image-args', array( 'item' => $item ) ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable ?>
+			<?php $this->partial( 'carousel-image-args', array( 'item' => $item ) ); ?>
 			src="<?php echo esc_url( $item->img_src ); ?>"
 			<?php echo $item->img_srcset ? 'srcset="' . esc_attr( $item->img_srcset ) . '"' : ''; ?>
 			width="<?php echo esc_attr( $item->image->width ); ?>"

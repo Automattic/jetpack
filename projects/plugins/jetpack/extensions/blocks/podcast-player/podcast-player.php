@@ -259,10 +259,12 @@ function get_css_vars( $attrs ) {
  *    Keep it mind when using this param to pass
  *    properties to the template.
  *
+ * @html-template-var array $template_props
+ *
  * @param string $name           Template name, available in `./templates` folder.
  * @param array  $template_props Template properties. Optional.
  * @param bool   $print          Render template. True as default.
- * @return false|string          HTML markup or false.
+ * @return string|null           HTML markup or null.
  */
 function render( $name, $template_props = array(), $print = true ) {
 	if ( ! strpos( $name, '.php' ) ) {

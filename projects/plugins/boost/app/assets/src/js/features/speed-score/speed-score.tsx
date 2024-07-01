@@ -1,11 +1,15 @@
-import { getScoreLetter, didScoresChange } from '@automattic/jetpack-boost-score-api';
+import {
+	getScoreLetter,
+	didScoresChange,
+	getScoreMovementPercentage,
+} from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, Button } from '@automattic/jetpack-components';
 import { sprintf, __ } from '@wordpress/i18n';
 import ContextTooltip from './context-tooltip/context-tooltip';
 import RefreshIcon from '$svg/refresh';
 import PerformanceHistory from '$features/performance-history/performance-history';
 import ErrorNotice from '$features/error-notice/error-notice';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { useEffect, useMemo, useCallback } from 'react';
 import { useDebouncedRefreshScore, useSpeedScores } from './lib/hooks';
 
@@ -15,6 +19,7 @@ import { useCriticalCssState } from '$features/critical-css/lib/stores/critical-
 import { useLocalCriticalCssGeneratorStatus } from '$features/critical-css/local-generator/local-generator-provider';
 import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
+import PopOut from './pop-out/pop-out';
 
 const SpeedScore = () => {
 	const { site } = Jetpack_Boost;
@@ -36,6 +41,9 @@ const SpeedScore = () => {
 			}, [] ),
 		[ data ]
 	);
+
+	const showScoreChangePopOut =
+		status === 'loaded' && ! scores.isStale && getScoreMovementPercentage( scores );
 
 	// Mark performance history data as stale when speed scores are loaded.
 	useEffect( () => {
@@ -78,7 +86,7 @@ const SpeedScore = () => {
 				<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 				<div
 					data-testid="speed-scores"
-					className={ classNames( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
+					className={ clsx( styles[ 'speed-scores' ], { loading: status === 'loading' } ) }
 				>
 					{ site.online ? (
 						<div className={ styles.top } data-testid="speed-scores-top">
@@ -141,6 +149,8 @@ const SpeedScore = () => {
 				</div>
 				{ site.online && <PerformanceHistory /> }
 			</div>
+
+			<PopOut scoreChange={ showScoreChangePopOut } />
 		</>
 	);
 };

@@ -36,6 +36,7 @@ trait PluginTrait {
 	 * @param array $config Configuration information from composer.json.
 	 */
 	public static function instantiate( array $config ) {
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Assume the using class can be constructed.
 		return new static( $config );
 	}
 

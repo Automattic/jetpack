@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
-import { promisify } from 'util';
-import glob from 'glob';
+import { glob } from 'glob';
 
 /**
  * Collect project dependencies.
@@ -15,13 +14,13 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 
 	// Collect all project slugs.
 	ret.set( 'monorepo', new Set() );
-	for ( const file of await promisify( glob )( 'projects/*/*/composer.json', { cwd: root } ) ) {
+	for ( const file of await glob( 'projects/*/*/composer.json', { cwd: root } ) ) {
 		ret.set( file.substring( 9, file.length - 14 ), new Set() );
 	}
 
 	// Collect package name→slug mappings.
 	const packageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/packages/*/composer.json', {
+	for ( const file of await glob( 'projects/packages/*/composer.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 14 );
@@ -38,7 +37,7 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 
 	// Collect js-package name→slug mappings.
 	const jsPackageMap = new Map();
-	for ( const file of await promisify( glob )( 'projects/js-packages/*/package.json', {
+	for ( const file of await glob( 'projects/js-packages/*/package.json', {
 		cwd: root,
 	} ) ) {
 		const slug = file.substring( 9, file.length - 13 );
@@ -56,27 +55,43 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 	// Collect dependencies.
 	for ( const [ slug, depset ] of ret.entries() ) {
 		const path = slug === 'monorepo' ? root : `${ root }/projects/${ slug }`;
-		const deps = [];
+		let deps = [];
 
 		// Collect composer require, require-dev, and .extra.dependencies.
-		let json = JSON.parse( await fs.readFile( path + '/composer.json', { encoding: 'utf8' } ) );
+		const composerJson = JSON.parse(
+			await fs.readFile( path + '/composer.json', { encoding: 'utf8' } )
+		);
 		for ( const [ pkg, pkgslug ] of packageMap.entries() ) {
-			if ( json.require?.[ pkg ] || ( json[ 'require-dev' ]?.[ pkg ] && ! noDev ) ) {
+			if (
+				composerJson.require?.[ pkg ] ||
+				( composerJson[ 'require-dev' ]?.[ pkg ] && ! noDev )
+			) {
 				deps.push( pkgslug );
 			}
 		}
-		if ( extra && json.extra?.dependencies?.[ extra ] ) {
-			deps.push( ...json.extra.dependencies[ extra ] );
+		if ( extra && composerJson.extra?.dependencies?.[ extra ] ) {
+			deps.push( ...composerJson.extra.dependencies[ extra ] );
 		}
 
 		// Collect JS dependencies and devDependencies.
 		if ( ( await fs.access( path + '/package.json' ).catch( () => false ) ) !== false ) {
-			json = JSON.parse( await fs.readFile( path + '/package.json', { encoding: 'utf8' } ) );
+			const packageJson = JSON.parse(
+				await fs.readFile( path + '/package.json', { encoding: 'utf8' } )
+			);
 			for ( const [ pkg, pkgslug ] of jsPackageMap.entries() ) {
-				if ( json.dependencies?.[ pkg ] || ( json.devDependencies?.[ pkg ] && ! noDev ) ) {
+				if (
+					packageJson.dependencies?.[ pkg ] ||
+					( packageJson.devDependencies?.[ pkg ] && ! noDev )
+				) {
 					deps.push( pkgslug );
 				}
 			}
+		}
+
+		// Remove any test-only dependencies, unless test dependencies were requested.
+		if ( extra !== 'test' && composerJson.extra?.dependencies?.[ 'test-only' ] ) {
+			const undeps = new Set( composerJson.extra?.dependencies?.[ 'test-only' ] );
+			deps = deps.filter( v => ! undeps.has( v ) );
 		}
 
 		// Sort the dependencies and put them in the set.

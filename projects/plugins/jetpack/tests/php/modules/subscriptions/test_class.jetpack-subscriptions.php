@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_cookie_user() {
 		$this->markTestSkipped( 'setting cookies does not work well with tests. But the logic is here.' );
-
+		// @phan-suppress-next-line PhanPluginUnreachableCode
 		$post_id         = $this->setup_jetpack_paid_newsletters();
 		$GLOBALS['post'] = get_post( $post_id );
 

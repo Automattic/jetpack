@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.5.1 - 2024-06-18
+### Fixed
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## 4.5.0 - 2024-06-13
+### Changed
+- Move the admin upsell to the toggle section [#37731]
+- Updated package dependencies. [#37767] [#37776] [#37796]
+
+### Removed
+- Removed the social basic plan from the admin page [#36846]
+
+### Fixed
+- Updated wp.org screenshots [#37726]
+
+## 4.4.0 - 2024-06-05
+### Changed
+- Social | Removed the top "Connect accounts" on the admin page [#37697]
+- Social | Updated upgrade nudges to use the new plan [#37638]
+- Updated package dependencies. [#37669]
+- Updated the editor nudge text and logic [#37644]
+
+## 4.3.0 - 2024-05-29
+### Added
+- Add connect form/button for connection management [#37196]
+- Added a CTA button to create a social note [#36972]
+- Added and rendered GlobalNotices component [#37237]
+- Added feature flag for new social admin ui [#37134]
+- Added more E2E tests [#37046]
+- Added the connection modal to the editor [#37405]
+- Add Woocommerce event remove_order_items to Jetpack Sync [#33748]
+- Disabled the Note config toggles while the API calls are pending [#36872]
+- Social: Added add connection modal [#37211]
+- Social Admin page: Added connection management component [#37120]
+- Social Limits: Added clarification of cycle reset [#37350]
+
+### Changed
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+- Remove explicit Plugin Install package dependency. [#37430]
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Social | Updated the connection test results endpoint for front-end [#37531]
+- Updated package dependencies. [#37147] [#37148] [#37348] [#37379] [#37380] [#37382]
+- Update the Social sidebar share post panel to direct non-admin authors to user connection if there is no user connection. [#36976]
+
+### Fixed
+- Adjusted the webpack config so the social icon colours are picked up by PostCSS [#37327]
+- Fixed CSS variables not loaded for modals on Social admin page [#37391]
+- Fixed timeouts in E2E tests [#37045]
+
+## 4.2.0 - 2024-04-11
+### Added
+- Added functions to display share urls [#36328]
+- Added options and UI for link formatting [#36671]
+- Added support for comments on Social Notes [#36428]
+- Packages: add version tracking for identity-crisis package. [#36635]
+- Trigger red bubble notification when bad install is detected [#36449]
+
+### Changed
+- Allow multiple paragraphs for Social Notes [#36522]
+- Only show custom media picker for normal posts [#36640]
+- Only show installation errors on plugins page [#36390]
+- Removed the featured image block from the template [#36819]
+- Simplified social network selection for post sharing [#36734]
+- Updated package dependencies. [#36309] [#36325] [#36585] [#36760] [#36761] [#36775] [#36788]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+- Update to the most recent version of the @automattic/calypso-color-schemes package. [#36227]
+
+### Fixed
+- Fixed typos [#36554]
+- Prevent enqueuing of admin styles on the frontend [#36552]
+
 ## 4.1.0 - 2024-03-07
 ### Added
 - Added a template lock to our Social Note CPT [#35619]

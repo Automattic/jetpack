@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -18,7 +19,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class Application extends SymfonyApplication {
 
-	const VERSION = '4.1.2';
+	const VERSION = '4.2.5';
 
 	/**
 	 * Constructor.
@@ -35,8 +36,9 @@ class Application extends SymfonyApplication {
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int
 	 */
-	public function doRun( InputInterface $input, OutputInterface $output ) {
+	public function doRun( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
+		// @phan-suppress-next-line PhanUndeclaredMethodInCallable,PhanUndeclaredMethod -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		// Try to find a composer.json, if COMPOSER isn't set.
@@ -63,7 +65,9 @@ class Application extends SymfonyApplication {
 				}
 
 				$question = new ConfirmationQuestion( "<info>No composer.json in current directory, do you want to use the one at $composer? [Y/n]</> ", true );
-				if ( ! $this->getHelperSet()->get( 'question' )->ask( $input, $output, $question ) ) {
+				$helper   = $this->getHelperSet()->get( 'question' );
+				'@phan-var QuestionHelper $helper';
+				if ( ! $helper->ask( $input, $output, $question ) ) {
 					return -1;
 				}
 			}

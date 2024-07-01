@@ -5,6 +5,7 @@
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
 import { InnerBlocks, useBlockProps, RichText } from '@wordpress/block-editor';
+import { DEFAULT_TEXT } from './constants';
 
 /**
  * The save function defines the way in which the different attributes should
@@ -18,12 +19,13 @@ import { InnerBlocks, useBlockProps, RichText } from '@wordpress/block-editor';
  */
 export default function save( { attributes } ) {
 	const blockProps = useBlockProps.save();
+	const { text = DEFAULT_TEXT, consentExpiryDays } = attributes;
 
 	return (
 		<div { ...blockProps } style={ blockProps.style } role="dialog" aria-modal="true">
-			<RichText.Content tagName="p" value={ attributes.text } />
+			<RichText.Content tagName="p" value={ text } />
 			<InnerBlocks.Content />
-			<span>{ attributes.consentExpiryDays }</span>
+			<span>{ consentExpiryDays }</span>
 		</div>
 	);
 }

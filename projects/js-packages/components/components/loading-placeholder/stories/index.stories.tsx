@@ -5,7 +5,7 @@ import LoadingPlaceholder from '..';
 /**
  * Types
  */
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Loading Placeholder',
@@ -13,11 +13,9 @@ export default {
 	parameters: {
 		layout: 'centered',
 	},
-} as ComponentMeta< typeof LoadingPlaceholder >;
+} as Meta< typeof LoadingPlaceholder >;
 
-const Template: ComponentStory< typeof LoadingPlaceholder > = args => (
-	<LoadingPlaceholder { ...args } />
-);
+const Template: StoryFn< typeof LoadingPlaceholder > = args => <LoadingPlaceholder { ...args } />;
 
 export const Fluid = Template.bind( {} );
 Fluid.decorators = [

@@ -16,7 +16,7 @@ import './style.scss';
  * @returns {React.Component} - The JetpackBenefits component.
  */
 const JetpackBenefits = props => {
-	const { siteBenefits, context } = props;
+	const { siteBenefits, context = 'disconnect' } = props;
 
 	return (
 		<React.Fragment>
@@ -120,10 +120,6 @@ JetpackBenefits.propTypes = {
 	siteBenefits: PropTypes.array,
 	/** Context in which the component will be used. disconnect or deactivate. */
 	context: PropTypes.oneOf( [ 'disconnect', 'deactivate' ] ),
-};
-
-JetpackBenefits.defaultProps = {
-	context: 'disconnect',
 };
 
 export default JetpackBenefits;

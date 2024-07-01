@@ -63,7 +63,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Void;
  * ];
  *
  * $parsed_data = $my_schema->parse($input_data);
- *
  */
 class Schema {
 

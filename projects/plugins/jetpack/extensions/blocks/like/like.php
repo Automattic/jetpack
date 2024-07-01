@@ -145,6 +145,7 @@ function render_iframe() {
 
 	if ( ! $main_iframe_added ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Can't do a stub for this one since Jetpack has its own class with the same name.
 			\Jetpack_Likes::likes_master();
 		} else {
 			require_once JETPACK__PLUGIN_DIR . 'modules/likes.php';

@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
@@ -22,6 +23,7 @@ if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
 }
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 
 /**
@@ -984,8 +986,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in offline mode.', 'jetpack' ) );
 						return;
 					}
-					if ( $status->is_staging_site() ) {
-						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
+					if ( $status->in_safe_mode() ) {
+						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in safe mode.', 'jetpack' ) );
 						return;
 					}
 				}
@@ -1072,7 +1074,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 						}
 
 						// Immediate Full Sync does not wait for WP.com to process data so we need to enforce a wait.
-						if ( str_contains( get_class( Modules::get_module( 'full-sync' ) ), 'Full_Sync_Immediately' ) ) {
+						if ( Modules::get_module( 'full-sync' ) instanceof \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately ) {
 							sleep( 15 );
 						}
 					}
@@ -1735,7 +1737,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::error( __( 'Jetpack is currently in offline mode, so the Jetpack Social module will not load.', 'jetpack' ) );
 		}
 
-		if ( ! class_exists( 'Publicize' ) ) {
+		if ( ! class_exists( Publicize::class ) ) {
 			WP_CLI::error( __( 'The Jetpack Social module is not loaded.', 'jetpack' ) );
 		}
 
@@ -1865,9 +1867,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 								);
 							}
 
+							// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 							$progress->tick();
 						}
 
+						// @phan-suppress-next-line PhanUndeclaredClassMethod - Class is missing from php-stubs/wp-cli-stubs 🤷
 						$progress->finish();
 
 						if ( 'all' === $service ) {

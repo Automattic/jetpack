@@ -30,20 +30,15 @@ const SUBJECT_DEFAULT = null;
  * system prompt.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @param {string} customSystemPrompt - The custom system prompt, if available.
  * @returns {PromptItemProps} The initial message.
  */
-export function buildInitialMessageForBackendPrompt(
-	promptType: PromptTypeProp,
-	customSystemPrompt: string
-): PromptItemProps {
+export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp ): PromptItemProps {
 	// The basic template for the message.
 	return {
 		role: 'jetpack-ai' as const,
 		context: {
 			type: 'ai-assistant-initial-prompt',
 			for: mapInternalPromptTypeToBackendPromptType( promptType ),
-			...( customSystemPrompt?.length ? { custom_system_prompt: customSystemPrompt } : {} ),
 		},
 	};
 }
@@ -57,9 +52,9 @@ export function buildInitialMessageForBackendPrompt(
  */
 export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
-	relevantContent?: string
-): PromptItemProps {
-	if ( ! isContentGenerated && relevantContent?.length > 0 ) {
+	relevantContent?: string | null
+): PromptItemProps | null {
+	if ( ! isContentGenerated && relevantContent && relevantContent.length > 0 ) {
 		return {
 			role: 'jetpack-ai',
 			context: {
@@ -89,10 +84,10 @@ export function buildMessagesForBackendPrompt( {
 	userPrompt,
 	isGeneratingTitle,
 }: BuildPromptProps ): Array< PromptItemProps > {
-	const messages = [];
+	const messages: PromptItemProps[] = [];
 
 	const isContentGenerated = options?.contentType === 'generated';
-	let relevantContent: string | null = null;
+	let relevantContent: string | null | undefined = null;
 
 	switch ( type ) {
 		case PROMPT_TYPE_SUMMARY_BY_TITLE:
@@ -156,10 +151,10 @@ export function buildMessagesForBackendPrompt( {
  * @returns {string} The subject.
  */
 function getSubject(
-	isGeneratingTitle: boolean,
-	isContentGenerated: boolean,
-	isFromExtension: boolean
-): string {
+	isGeneratingTitle?: boolean,
+	isContentGenerated?: boolean,
+	isFromExtension?: boolean
+): string | null {
 	if ( isGeneratingTitle ) {
 		return SUBJECT_TITLE;
 	}
@@ -177,7 +172,7 @@ function getSubject(
  * @param {BuildPromptProps} options - The prompt options.
  * @returns {object} The context.
  */
-function buildMessageContextForUserPrompt( {
+export function buildMessageContextForUserPrompt( {
 	options,
 	type,
 	userPrompt,
@@ -210,9 +205,13 @@ function buildMessageContextForUserPrompt( {
  * Maps the internal prompt type to the backend prompt type.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @returns {string} The backend type of the prompt.
+ * @param {string} extension          - The extension of the prompt, if any.
+ * @returns {string}                    The backend type of the prompt.
  */
-function mapInternalPromptTypeToBackendPromptType( promptType: PromptTypeProp ): string {
+export function mapInternalPromptTypeToBackendPromptType(
+	promptType: PromptTypeProp,
+	extension?: string
+): string {
 	const map = {
 		[ PROMPT_TYPE_SUMMARY_BY_TITLE ]: 'ai-assistant-summary-by-title',
 		[ PROMPT_TYPE_CONTINUE ]: 'ai-assistant-continue-writing',
@@ -226,6 +225,16 @@ function mapInternalPromptTypeToBackendPromptType( promptType: PromptTypeProp ):
 		[ PROMPT_TYPE_CHANGE_LANGUAGE ]: 'ai-assistant-change-language',
 		[ PROMPT_TYPE_USER_PROMPT ]: 'ai-assistant-user-prompt',
 	};
+
+	// Handle specific Jetpack Form AI migration.
+	// This should be an exception since it's was feature made before inline extensions.
+	if ( extension === 'form-ai' ) {
+		return 'form-ai-extension';
+	}
+
+	if ( extension ) {
+		return `${ map[ promptType ] }-${ extension }-extension`;
+	}
 
 	return map[ promptType ];
 }

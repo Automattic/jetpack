@@ -75,7 +75,7 @@ SCRIPT="
 		s/^#/##/
 
 		# Remove PR numbers from the ends of lines.
-		s/ \[#[0-9]+\]$//
+		s/( \[#[0-9]+\])+$//
 
 		# Add some escaping, needed later.
 		s/\\\\/\\\\\\\\/

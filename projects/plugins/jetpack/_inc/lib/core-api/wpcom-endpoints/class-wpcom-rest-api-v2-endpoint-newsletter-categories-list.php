@@ -64,11 +64,11 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_List extends WP_REST_Cont
 	public function get_newsletter_categories() {
 		require_lib( 'newsletter-categories' );
 
-		$newsletter_categories = get_newsletter_categories();
+		$newsletter_categories = \Newsletter_Categories\get_newsletter_categories();
 
 		// Include subscription counts for each category if the user can manage categories.
 		if ( $this->can_manage_categories() === true ) {
-			$subscription_counts_per_category = get_blog_subscription_counts_per_category();
+			$subscription_counts_per_category = \Newsletter_Categories\get_blog_subscription_counts_per_category();
 			array_walk(
 				$newsletter_categories,
 				function ( &$category ) use ( $subscription_counts_per_category ) {

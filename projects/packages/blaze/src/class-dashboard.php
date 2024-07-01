@@ -21,7 +21,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.19.3-alpha';
+	const PACKAGE_VERSION = '0.21.10';
 
 	/**
 	 * List of dependencies needed to render the dashboard in wp-admin.
@@ -59,17 +59,51 @@ class Dashboard {
 	const BLAZEDASH_CACHE_BUSTER_CACHE_KEY = 'jetpack_blaze_admin_asset_cache_buster';
 
 	/**
+	 * Blaze dashboard admin page. Default is tools.php.
+	 *
+	 * @var string
+	 */
+	private $admin_page;
+
+	/**
+	 * Blaze dashboard menu slug. Default is 'advertising'.
+	 *
+	 * @var string
+	 */
+	private $menu_slug;
+
+	/**
+	 * Blaze dashboard css prefix. Default is 'jp-blaze'.
+	 *
+	 * @var string
+	 */
+	private $css_prefix;
+
+	/**
+	 * Dashboard constructor.
+	 *
+	 * @param string $admin_page Dashboard admin page. Default is tools.php.
+	 * @param string $menu_slug Dashboard menu slug. Default is 'advertising'.
+	 * @param string $css_prefix Dashboard css prefix. Default is 'jp-blaze'.
+	 */
+	public function __construct( $admin_page = 'tools.php', $menu_slug = 'advertising', $css_prefix = 'jp-blaze' ) {
+		$this->admin_page = $admin_page;
+		$this->menu_slug  = $menu_slug;
+		$this->css_prefix = $css_prefix;
+	}
+
+	/**
 	 * Override render funtion
 	 *
 	 * @return void
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-blaze-dashboard" style="min-height: calc(100vh - 100px);">
-			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
+		<div id="wpcom" class="<?php echo esc_attr( $this->css_prefix ); ?>-dashboard" style="min-height: calc(100vh - 100px);">
+		<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Blaze dashboard requires JavaScript to function properly.', 'jetpack-blaze' ); ?></div>
 			<div class="hide-if-no-js" style="height: 100%">
 				<img
-					class="jp-blaze-dashboard-loading-spinner"
+					class="<?php echo esc_attr( $this->css_prefix ); ?>-dashboard-loading-spinner"
 					width="32"
 					height="32"
 					style="position: absolute; left: 50%; top: 50%;"
@@ -90,7 +124,7 @@ class Dashboard {
 				// we intercept on all anchor tags and change it to hashbang style.
 				$("#wpcom").on('click', 'a', function (e) {
 					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if( link && link.startsWith( '/advertising' ) ) {
+					if (link && link.startsWith( '/<?php echo esc_attr( $this->menu_slug ); ?>' ) ) {
 						location.hash = `#!${link}`;
 						return false;
 					}
@@ -113,14 +147,14 @@ class Dashboard {
 	 * @param string $hook The current admin page.
 	 */
 	public function load_admin_scripts( $hook ) {
-		if ( 'tools_page_advertising' !== $hook ) {
+		if ( ! str_ends_with( $hook, 'page_' . $this->menu_slug ) ) {
 			return;
 		}
 
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
-		$dashboard_config = new Dashboard_Config_Data();
+		$dashboard_config = new Dashboard_Config_Data( $this->admin_page, $this->menu_slug );
 
 		$config_data = $dashboard_config->get_data();
 

@@ -9,11 +9,10 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-my-jetpack": "@dev",
-		"automattic/jetpack-plugins-installer": "@dev",
 		"automattic/jetpack-sync": "@dev",
-		"automattic/jetpack-backup": "@dev"
+		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",

@@ -12,13 +12,10 @@ return [
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeMismatchForeach : 2 occurrences
-    // PhanUndeclaredClassMethod : 1 occurrence
-    // PhanUndeclaredTypeThrowsType : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-helper-script-manager-impl.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchForeach'],
-        'tests/php/test-class-helper-script-manager-impl.php' => ['PhanUndeclaredClassMethod', 'PhanUndeclaredTypeThrowsType'],
         'tests/php/test-class-throw-on-errors.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

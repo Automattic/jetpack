@@ -1,6 +1,6 @@
 import './editor.scss';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -13,6 +13,7 @@ import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 
 function PaywallEdit( { className } ) {
+	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
 
@@ -75,7 +76,7 @@ function PaywallEdit( { className } ) {
 	}
 
 	return (
-		<>
+		<div { ...blockProps }>
 			<div className={ className }>
 				<span style={ style }>
 					{ text }
@@ -135,7 +136,7 @@ function PaywallEdit( { className } ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
-		</>
+		</div>
 	);
 }
 

@@ -13,7 +13,12 @@ import { useState, useEffect } from 'react';
  * @returns {null} -- Nothing to return.
  */
 const ConnectUser = props => {
-	const { redirectFunc, connectUrl, redirectUri, from } = props;
+	const {
+		redirectFunc = url => window.location.assign( url ),
+		connectUrl,
+		redirectUri = null,
+		from,
+	} = props;
 
 	const [ authorizationUrl, setAuthorizationUrl ] = useState( null );
 
@@ -54,11 +59,6 @@ ConnectUser.propTypes = {
 	redirectUri: PropTypes.string.isRequired,
 	from: PropTypes.string,
 	redirectFunc: PropTypes.func,
-};
-
-ConnectUser.defaultProps = {
-	redirectFunc: url => window.location.assign( url ),
-	redirectUri: null,
 };
 
 export default ConnectUser;

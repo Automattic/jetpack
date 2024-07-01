@@ -110,8 +110,14 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			$data['show_pricing_page'] = Jetpack_Social::should_show_pricing_page();
 		}
 
+		$note = new Note();
+
 		if ( rest_is_field_included( 'social_notes_enabled', $fields ) ) {
-			$data['social_notes_enabled'] = ( new Note() )->enabled();
+			$data['social_notes_enabled'] = $note->enabled();
+		}
+
+		if ( rest_is_field_included( 'social_notes_config', $fields ) ) {
+			$data['social_notes_config'] = $note->get_config();
 		}
 
 		return $this->prepare_item_for_response( $data, $request );
@@ -125,6 +131,8 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	public function update_item( $request ) {
 		$params   = $request->get_params();
 		$settings = $this->get_endpoint_args_for_item_schema( $request->get_method() );
+
+		$note = new Note();
 
 		foreach ( array_keys( $settings ) as $name ) {
 			if ( ! array_key_exists( $name, $params ) ) {
@@ -142,7 +150,10 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
 					break;
 				case 'social_notes_enabled':
-					( new Note() )->set_enabled( (bool) $params[ $name ] );
+					$note->set_enabled( (bool) $params[ $name ] );
+					break;
+				case 'social_notes_config':
+					$note->update_config( $params[ $name ] );
 					break;
 			}
 		}
@@ -225,6 +236,24 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'description' => __( 'Is the social notes feature enabled?', 'jetpack-social' ),
 					'type'        => 'boolean',
 					'context'     => array( 'view', 'edit' ),
+				),
+				'social_notes_config'  => array(
+					'description' => __( 'The social notes configuration', 'jetpack-social' ),
+					'type'        => 'object',
+					'context'     => array( 'view', 'edit' ),
+					'properties'  => array(
+						'append_link' => array(
+							'description' => __( 'Whether to append the post link when sharing the note.', 'jetpack-social' ),
+							'type'        => 'boolean',
+							'context'     => array( 'view', 'edit' ),
+						),
+						'link_format' => array(
+							'description' => __( 'Link format', 'jetpack-social' ),
+							'type'        => 'string',
+							'enum'        => array( 'full_url', 'shortlink', 'permashortcitation' ),
+							'context'     => array( 'view', 'edit' ),
+						),
+					),
 				),
 			),
 		);

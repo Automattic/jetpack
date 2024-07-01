@@ -131,7 +131,6 @@ function render_fallback_coming_soon_page() {
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_action( 'wp_head', 'header_js', 5 );
 	remove_action( 'wp_head', 'global_css', 5 );
-	remove_action( 'wp_footer', 'wpcom_subs_js' );
 	remove_action( 'wp_footer', 'stats_footer', 101 );
 	add_filter( 'infinite_scroll_archive_supported', '__return_false', 99 ); // Disable infinite scroll feature.
 	add_filter( 'jetpack_disable_eu_cookie_law_widget', '__return_true', 1 );

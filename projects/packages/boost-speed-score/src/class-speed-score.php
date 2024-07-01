@@ -23,12 +23,12 @@ if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '0.3.8-alpha';
+	const PACKAGE_VERSION = '0.3.11';
 
 	/**
-	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
+	 * Array of module slugs that are currently active and can impact speed score.
 	 *
-	 * @var Modules_Setup
+	 * @var string[]
 	 */
 	protected $modules;
 
@@ -42,16 +42,35 @@ class Speed_Score {
 	/**
 	 * Constructor.
 	 *
-	 * @param Modules_Setup $modules - An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup.
-	 * @param string        $client  - A string representing the client making the request.
+	 * @param string[] $modules - Array of module slugs that are currently active and can impact speed score.
+	 * @param string   $client  - A string representing the client making the request.
 	 */
 	public function __construct( $modules, $client ) {
+		/*
+		 * Plugins using the old version of the package may pass an object instead of an array. Converting the
+		 * object to an array keeps it backward compatible. We will lose the module slugs in case of an object,
+		 * but it is better than a fatal error.
+		 */
+		if ( ! is_array( $modules ) ) {
+			$modules = array();
+		}
+
 		$this->modules = $modules;
 		$this->client  = $client;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
 
+		/**
+		 * Mark the speed score history as stale when the environment changes.
+		 *
+		 * @since 0.3.9 - This hook replaced `handle_environment_change` action.
+		 */
+		add_action( 'jetpack_boost_critical_css_environment_changed', array( Speed_Score_History::class, 'mark_stale' ) );
+		/**
+		 * The `handle_environment_change` action is replaced by `jetpack_boost_critical_css_environment_changed` in Jetpack Boost.
+		 * Keeping the `handle_environment_change` action for backward compatibility.
+		 */
 		add_action( 'handle_environment_change', array( Speed_Score_History::class, 'mark_stale' ) );
 		add_action( 'jetpack_boost_deactivate', array( Speed_Score_History::class, 'mark_stale' ) );
 	}
@@ -139,8 +158,7 @@ class Speed_Score {
 		}
 
 		// Create and store the Speed Score request.
-		$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
-		$score_request  = new Speed_Score_Request( $url, $active_modules, null, 'pending', null, $this->client );
+		$score_request = new Speed_Score_Request( $url, $this->modules, null, 'pending', null, $this->client );
 		$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
 		// Send the request.
@@ -241,7 +259,7 @@ class Speed_Score {
 		if (
 			// If there isn't already a pending request.
 			( empty( $score_request ) || ! $score_request->is_pending() )
-			&& $this->modules->have_enabled_modules()
+			&& ! empty( $this->modules )
 			&& $history->is_stale()
 		) {
 			$score_request = new Speed_Score_Request( $url_no_boost, array(), null, 'pending', null, $this->client ); // Dispatch a new speed score request to measure score without boost.
@@ -320,7 +338,7 @@ class Speed_Score {
 			);
 
 			// Only include noBoost scores if at least one module is enabled.
-			if ( $score_request && ! empty( $score_request->get_active_performance_modules() ) ) {
+			if ( $score_request && ! empty( $score_request->get_active_modules() ) ) {
 				$response['scores']['noBoost'] = $history_no_boost->latest_scores();
 			}
 

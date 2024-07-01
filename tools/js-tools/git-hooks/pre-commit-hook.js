@@ -5,7 +5,7 @@ const spawnSync = require( 'child_process' ).spawnSync;
 const fs = require( 'fs' );
 const path = require( 'path' );
 const chalk = require( 'chalk' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 const loadIgnorePatterns = require( '../load-eslint-ignore.js' );
 const isJetpackDraftMode = require( './jetpack-draft' );
 
@@ -148,7 +148,12 @@ function sortPackageJson( jsFiles ) {
 const gitFiles = parseGitDiffToPathArray( [ '--cached', '--diff-filter=ACMR' ] ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
-const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpFiles = gitFiles.filter(
+	name =>
+		name.endsWith( '.php' ) &&
+		! name.includes( '/.phan/stubs/' ) &&
+		! name.startsWith( '.phan/stubs/' )
+);
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
 

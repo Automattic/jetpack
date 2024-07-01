@@ -37,11 +37,11 @@ class Jetpack_Boost_Modules {
 		return self::$instance;
 	}
 	/**
-	 * Returns status of all active boost modules
+	 * Returns status of all active boost modules that are also ready
 	 *
 	 * @return array - An empty array. The user will never have active modules when using the Boost Score API
 	 */
-	public function get_status() {
+	public function get_ready_active_optimization_modules() {
 		return array();
 	}
 

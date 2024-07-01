@@ -33,7 +33,7 @@ function jetpack_inspect_connection_request( $url, $args = array() ) {
 
 	$signature = Client::build_signed_request( $args, $body );
 
-	if ( ! $signature || is_wp_error( $signature ) ) {
+	if ( is_wp_error( $signature ) ) {
 		return $signature;
 	}
 

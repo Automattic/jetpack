@@ -148,13 +148,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 *               and `checklist`.
 	 */
 	public function get_data( $request ) {
+		// Handle translations for Atomic sites.
+		$switched_locale = false;
+		$locale          = $request['_locale'] ? get_user_locale() : null;
+
+		if ( $locale ) {
+			$switched_locale = switch_to_locale( $locale );
+		}
+
 		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
 
 		$launchpad_context = isset( $request['launchpad_context'] )
 			? $request['launchpad_context']
 			: null;
 
-		return array(
+		$response = array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
@@ -164,6 +172,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
 			'title'              => wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ),
 		);
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
+		return $response;
 	}
 
 	/**

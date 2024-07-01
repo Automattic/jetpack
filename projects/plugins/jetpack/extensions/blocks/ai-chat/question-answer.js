@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import CopyButton from './components/copy-button';
 import DisplayError from './components/display-error';
 import Feedback from './components/feedback';
+import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import useSubmitQuestion from './use-submit-question';
 
 // TODO: Configurable strings.
@@ -75,10 +76,10 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
  * @returns {QuestionAnswer} component.
  */
 export default function QuestionAnswer( {
-	askButtonLabel,
+	askButtonLabel = DEFAULT_ASK_BUTTON_LABEL,
 	blogId,
 	blogType,
-	placeholder,
+	placeholder = DEFAULT_PLACEHOLDER,
 	settingShowCopy,
 	settingShowFeedback,
 	settingShowSources,

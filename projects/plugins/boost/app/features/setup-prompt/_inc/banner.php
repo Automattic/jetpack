@@ -3,6 +3,7 @@
  * Boost Setup Prompt
  * DEPRECATED - this prompt has been removed as of version 2.3.1
  */
+
 ?>
 <div class="jb-setup-banner">
 	<div class="jb-setup-banner__content-top-text">

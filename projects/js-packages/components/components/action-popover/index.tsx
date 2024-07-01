@@ -46,6 +46,7 @@ const ActionPopover = ( {
 	const popoverProps = {
 		...otherPopoverProps,
 		offset,
+		onClose,
 	};
 
 	const showSteps = Number.isFinite( step ) && Number.isFinite( totalSteps );

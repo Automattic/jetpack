@@ -56,7 +56,7 @@ class SquashCommandTest extends CommandTestCase {
 			file_put_contents( 'composer.json', json_encode( array( 'extra' => array( 'changelogger' => $options['composer.json'] ) ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			unset( $options['composer.json'] );
 		}
-		$changelog = isset( $options['changelog'] ) ? $options['changelog'] : null;
+		$changelog = $options['changelog'] ?? null;
 		unset( $options['changelog'] );
 		if ( null !== $changelog ) {
 			file_put_contents( 'CHANGELOG.md', $changelog );
@@ -573,9 +573,7 @@ class SquashCommandTest extends CommandTestCase {
 	 * Test failure to format changelog.
 	 */
 	public function testWriteChangelog_formatError() {
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willThrowException( new InvalidArgumentException( 'Exception for test.' ) );
 
@@ -595,9 +593,7 @@ class SquashCommandTest extends CommandTestCase {
 	public function testWriteChangelog_writeError() {
 		mkdir( 'CHANGELOG.md' );
 
-		$formatter = $this->getMockBuilder( FormatterPlugin::class )
-			->setMethodsExcept( array() )
-			->getMock();
+		$formatter = $this->getMockBuilder( FormatterPlugin::class )->getMock();
 		$formatter->expects( $this->never() )->method( $this->logicalNot( $this->matches( 'format' ) ) );
 		$formatter->method( 'format' )->willReturn( "Changelog!\n" );
 
@@ -616,6 +612,7 @@ class SquashCommandTest extends CommandTestCase {
 	 * Test execute handling of writeChangelog failing.
 	 */
 	public function testExecute_writeChangelog_fail() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$command = $this->getMockBuilder( SquashCommand::class )
 			->setMethods( array( 'writeChangelog', 'deleteChanges' ) )
 			->getMock();

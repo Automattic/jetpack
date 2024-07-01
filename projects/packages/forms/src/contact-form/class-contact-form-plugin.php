@@ -11,6 +11,8 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Post_To_Url;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -1033,7 +1035,7 @@ class Contact_Form_Plugin {
 		$result = false;
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' ) {
-			$result = new \WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
+			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
 		} elseif ( isset( $response[1] ) && 'true' === trim( $response[1] ) ) { // 'true' is spam
 			$result = true;
 		}
@@ -1476,7 +1478,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @param  string $search SQL where clause.
 	 *
-	 * @return array          Filtered SQL where clause.
+	 * @return string         Filtered SQL where clause.
 	 */
 	public function personal_data_search_filter( $search ) {
 		global $wpdb;
@@ -1486,7 +1488,7 @@ class Contact_Form_Plugin {
 		 * author's email address whenever it's on a line by itself.
 		 */
 		if ( $this->pde_email_address && str_contains( $search, '..PDE..AUTHOR EMAIL:..PDE..' ) ) {
-			$search = $wpdb->prepare(
+			$search = (string) $wpdb->prepare(
 				" AND (
 					{$wpdb->posts}.post_content LIKE %s
 					OR {$wpdb->posts}.post_content LIKE %s

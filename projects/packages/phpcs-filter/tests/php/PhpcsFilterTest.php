@@ -220,7 +220,7 @@ class PhpcsFilterTest extends TestCase {
 				}
 				sort( $data[ $line ] );
 			}
-			foreach ( $file->getWarnings() as $line => $msgs ) {
+			foreach ( $file->getWarnings() as $line => $cols ) {
 				foreach ( $cols as $msgs ) {
 					foreach ( $msgs as $msg ) {
 						$data[ $line ][] = $msg['source'];

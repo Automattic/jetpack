@@ -19,7 +19,7 @@ import IDCScreenVisual from './visual';
 const IDCScreen = props => {
 	const {
 		logo,
-		customContent,
+		customContent = {},
 		wpcomHomeUrl,
 		currentUrl,
 		apiNonce,
@@ -29,6 +29,7 @@ const IDCScreen = props => {
 		tracksEventData,
 		isAdmin,
 		possibleDynamicSiteUrlDetected,
+		isDevelopmentSite,
 	} = props;
 
 	const [ isMigrated, setIsMigrated ] = useState( false );
@@ -85,6 +86,7 @@ const IDCScreen = props => {
 			hasFreshError={ errorType === 'start-fresh' }
 			hasMigrateError={ errorType === 'migrate' }
 			possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+			isDevelopmentSite={ isDevelopmentSite }
 		/>
 	);
 };
@@ -112,10 +114,8 @@ IDCScreen.propTypes = {
 	isAdmin: PropTypes.bool.isRequired,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
-};
-
-IDCScreen.defaultProps = {
-	customContent: {},
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default IDCScreen;

@@ -1,5 +1,10 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, InspectorControls, InnerBlocks } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	InnerBlocks,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -165,7 +170,11 @@ function RelatedPostsPreviewRows( props ) {
 	);
 }
 
-export default function RelatedPostsEdit( props ) {
+export default function RelatedPostsEdit( { attributes, setAttributes } ) {
+	const { displayAuthor, displayContext, displayDate, displayThumbnails, postLayout, postsToShow } =
+		attributes;
+
+	const blockProps = useBlockProps();
 	// Related Posts can be controlled by a module on self-hosted sites.
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( featureName );
@@ -184,83 +193,83 @@ export default function RelatedPostsEdit( props ) {
 	} );
 
 	const { instanceId } = useInstanceId( RelatedPostsEdit );
-	const { attributes, className, setAttributes } = props;
+
+	let content;
 
 	if ( isLoadingModules || isFetchingStatus || isLoadingRelatedPosts ) {
-		return <LoadingPostsGrid />;
-	}
-
-	if ( ! isModuleActive || ! isEnabled ) {
-		return (
+		content = <LoadingPostsGrid />;
+	} else if ( ! isModuleActive || ! isEnabled ) {
+		content = (
 			<InactiveRelatedPostsPlaceholder
-				className={ className }
 				changeStatus={ changeStatus }
 				isLoading={ isChangingRelatedPostsStatus }
 				enable={ enable }
 			/>
 		);
-	}
-
-	const { displayAuthor, displayContext, displayDate, displayThumbnails, postLayout, postsToShow } =
-		attributes;
-
-	// To prevent the block from crashing, we need to limit ourselves to the
-	// posts returned by the backend - so if we want 6 posts, but only 3 are
-	// returned, we need to limit ourselves to those 3 and fill in the rest
-	// with placeholders.
-	//
-	// Also, if the site does not have sufficient posts to display related ones
-	// (minimum 10 posts), we also use this code block to fill in the
-	// placeholders.
-	const previewClassName = 'jp-relatedposts-i2';
-	const displayPosts = [];
-	for ( let i = 0; i < postsToShow; i++ ) {
-		if ( posts[ i ] ) {
-			displayPosts.push(
-				<RelatedPostsEditItem
-					id={ `related-posts-${ instanceId }-post-${ i }` }
-					key={ previewClassName + '-' + i }
-					post={ posts[ i ] }
-					displayThumbnails={ displayThumbnails }
-					displayDate={ displayDate }
-					displayContext={ displayContext }
-					displayAuthor={ displayAuthor }
-				/>
-			);
-		} else {
-			displayPosts.push(
-				<PlaceholderPostEdit
-					id={ `related-posts-${ instanceId }-post-${ i }` }
-					key={ 'related-post-placeholder-' + i }
-					displayThumbnails={ displayThumbnails }
-					displayDate={ displayDate }
-					displayContext={ displayContext }
-					isInSiteEditor={ isInSiteEditor }
-					displayAuthor={ displayAuthor }
-				/>
-			);
+	} else {
+		// To prevent the block from crashing, we need to limit ourselves to the
+		// posts returned by the backend - so if we want 6 posts, but only 3 are
+		// returned, we need to limit ourselves to those 3 and fill in the rest
+		// with placeholders.
+		//
+		// Also, if the site does not have sufficient posts to display related ones
+		// (minimum 10 posts), we also use this code block to fill in the
+		// placeholders.
+		const previewClassName = 'jp-relatedposts-i2';
+		const displayPosts = [];
+		for ( let i = 0; i < postsToShow; i++ ) {
+			if ( posts[ i ] ) {
+				displayPosts.push(
+					<RelatedPostsEditItem
+						id={ `related-posts-${ instanceId }-post-${ i }` }
+						key={ previewClassName + '-' + i }
+						post={ posts[ i ] }
+						displayThumbnails={ displayThumbnails }
+						displayDate={ displayDate }
+						displayContext={ displayContext }
+						displayAuthor={ displayAuthor }
+					/>
+				);
+			} else {
+				displayPosts.push(
+					<PlaceholderPostEdit
+						id={ `related-posts-${ instanceId }-post-${ i }` }
+						key={ 'related-post-placeholder-' + i }
+						displayThumbnails={ displayThumbnails }
+						displayDate={ displayDate }
+						displayContext={ displayContext }
+						isInSiteEditor={ isInSiteEditor }
+						displayAuthor={ displayAuthor }
+					/>
+				);
+			}
 		}
+
+		content = (
+			<>
+				<InspectorControls>
+					<RelatedPostsInspectorControls
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+					/>
+				</InspectorControls>
+
+				<BlockControls>
+					<RelatedPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
+				</BlockControls>
+
+				<div id={ `related-posts-${ instanceId }` }>
+					<InnerBlocks
+						allowedBlocks={ [ 'core/heading' ] }
+						template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
+					/>
+					<div className={ previewClassName } data-layout={ postLayout }>
+						<RelatedPostsPreviewRows posts={ displayPosts } />
+					</div>
+				</div>
+			</>
+		);
 	}
 
-	return (
-		<>
-			<InspectorControls>
-				<RelatedPostsInspectorControls attributes={ attributes } setAttributes={ setAttributes } />
-			</InspectorControls>
-
-			<BlockControls>
-				<RelatedPostsBlockControls attributes={ attributes } setAttributes={ setAttributes } />
-			</BlockControls>
-
-			<div className={ className } id={ `related-posts-${ instanceId }` }>
-				<InnerBlocks
-					allowedBlocks={ [ 'core/heading' ] }
-					template={ [ [ 'core/heading', { placeholder: __( 'Add a headline', 'jetpack' ) } ] ] }
-				/>
-				<div className={ previewClassName } data-layout={ postLayout }>
-					<RelatedPostsPreviewRows posts={ displayPosts } />
-				</div>
-			</div>
-		</>
-	);
+	return <div { ...blockProps }>{ content }</div>;
 }

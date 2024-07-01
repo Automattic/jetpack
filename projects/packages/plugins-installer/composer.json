@@ -5,7 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.0",
-		"automattic/jetpack-a8c-mc-stats": "@dev"
+		"automattic/jetpack-a8c-mc-stats": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -40,7 +41,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"mirror-repo": "Automattic/jetpack-plugins-installer",
 		"changelogger": {

@@ -1,12 +1,15 @@
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackReturnToPage from '../../hooks/use-my-jetpack-return-to-page';
 import CloseLink from '../close-link';
 import ConnectionScreenBody from './body';
+import ConnectionScreenFooter from './footer';
 import styles from './styles.module.scss';
 
 const ConnectionScreen: React.FC = () => {
 	const returnToPage = useMyJetpackReturnToPage();
+	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -18,7 +21,14 @@ const ConnectionScreen: React.FC = () => {
 					/>
 				</Col>
 				<Col>
-					<ConnectionScreenBody redirectUri={ returnToPage } />
+					<ConnectionScreenBody
+						from="my-jetpack"
+						redirectUri={ returnToPage }
+						apiRoot={ apiRoot }
+						apiNonce={ apiNonce }
+						registrationNonce={ registrationNonce }
+						footer={ <ConnectionScreenFooter /> }
+					/>
 				</Col>
 			</Container>
 		</AdminPage>

@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Card from 'components/card';
 import SupportInfo from 'components/support-info';
 import { includes, noop } from 'lodash';
@@ -14,7 +14,21 @@ import {
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
-export const SettingsGroup = props => {
+export const SettingsGroup = inprops => {
+	const props = {
+		support: { text: '', link: '' },
+		module: {},
+		disableInOfflineMode: false,
+		disableInSiteConnectionMode: false,
+		isOfflineMode: false,
+		isSitePublic: true,
+		userCanManageModules: false,
+		isLinked: false,
+		isUnavailableInOfflineMode: noop,
+		className: '',
+		...inprops,
+	};
+
 	const module = props.module;
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
@@ -40,9 +54,9 @@ export const SettingsGroup = props => {
 	}
 
 	return (
-		<div className={ classNames( 'jp-form-settings-group', props.className ) }>
+		<div className={ clsx( 'jp-form-settings-group', props.className ) }>
 			<Card
-				className={ classNames( {
+				className={ clsx( {
 					'jp-form-has-child': props.hasChild,
 					'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
 				} ) }
@@ -58,27 +72,14 @@ export const SettingsGroup = props => {
 SettingsGroup.propTypes = {
 	support: PropTypes.object,
 	module: PropTypes.object,
-	disableInOfflineMode: PropTypes.bool.isRequired,
+	disableInOfflineMode: PropTypes.bool,
 	disableInSiteConnectionMode: PropTypes.bool,
-	isOfflineMode: PropTypes.bool.isRequired,
-	isSitePublic: PropTypes.bool.isRequired,
-	userCanManageModules: PropTypes.bool.isRequired,
-	isLinked: PropTypes.bool.isRequired,
-	isUnavailableInOfflineMode: PropTypes.func.isRequired,
+	isOfflineMode: PropTypes.bool,
+	isSitePublic: PropTypes.bool,
+	userCanManageModules: PropTypes.bool,
+	isLinked: PropTypes.bool,
+	isUnavailableInOfflineMode: PropTypes.func,
 	className: PropTypes.string,
-};
-
-SettingsGroup.defaultProps = {
-	support: { text: '', link: '' },
-	module: {},
-	disableInOfflineMode: false,
-	disableInSiteConnectionMode: false,
-	isOfflineMode: false,
-	isSitePublic: true,
-	userCanManageModules: false,
-	isLinked: false,
-	isUnavailableInOfflineMode: noop,
-	className: '',
 };
 
 export default connect( state => {

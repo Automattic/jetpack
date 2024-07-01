@@ -3,7 +3,7 @@
  */
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 /**
  * Internal dependencies
@@ -23,24 +23,35 @@ import styles from './style.module.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, isDisabled, displayError, errorMessage } = props;
+	const {
+		label,
+		onClick,
+		isLoading = false,
+		loadingText,
+		isDisabled,
+		displayError = false,
+		errorMessage = __( 'An error occurred. Please try again.', 'jetpack' ),
+		customClass,
+	} = props;
+
+	const loadingContent = loadingText || <Spinner />;
 
 	return (
 		<>
 			{
 				<Button
-					className={ classNames( styles.button, 'jp-action-button--button' ) }
+					className={ clsx( styles.button, 'jp-action-button--button', customClass ) }
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
 					disabled={ isLoading || isDisabled }
 				>
-					{ isLoading ? <Spinner /> : label }
+					{ isLoading ? loadingContent : label }
 				</Button>
 			}
 
 			{ displayError && (
-				<p className={ classNames( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
+				<p className={ clsx( styles.error, 'jp-action-button__error' ) }>{ errorMessage }</p>
 			) }
 		</>
 	);
@@ -59,12 +70,6 @@ ActionButton.propTypes = {
 	displayError: PropTypes.bool,
 	/** The error message string */
 	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
-};
-
-ActionButton.defaultProps = {
-	isLoading: false,
-	displayError: false,
-	errorMessage: __( 'An error occurred. Please try again.', 'jetpack' ),
 };
 
 export default ActionButton;

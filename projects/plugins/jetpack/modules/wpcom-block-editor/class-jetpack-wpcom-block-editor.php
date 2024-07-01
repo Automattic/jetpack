@@ -7,11 +7,16 @@
  * @package automattic/jetpack
  */
 
+_deprecated_file( __FILE__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor' );
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
  * WordPress.com Block editor for Jetpack
+ *
+ * @deprecated 13.6
  */
 class Jetpack_WPCOM_Block_Editor {
 	/**
@@ -30,8 +35,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Singleton
+	 *
+	 * @deprecated 13.6
 	 */
 	public static function init() {
+		_deprecated_function( __METHOD__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::init' );
 		static $instance = false;
 
 		if ( ! $instance ) {
@@ -43,8 +51,11 @@ class Jetpack_WPCOM_Block_Editor {
 
 	/**
 	 * Jetpack_WPCOM_Block_Editor constructor.
+	 *
+	 * @deprecated 13.6
 	 */
 	private function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\Jetpack_WPCOM_Block_Editor::__construct' );
 		$this->set_cookie_args = array();
 		add_action( 'init', array( $this, 'init_actions' ) );
 	}
@@ -152,7 +163,7 @@ class Jetpack_WPCOM_Block_Editor {
 		if ( ! empty( $args['frame-nonce'] ) && $this->framing_allowed( $args['frame-nonce'] ) ) {
 
 			// If SSO is active, we'll let WordPress.com handle authentication...
-			if ( Jetpack::is_module_active( 'sso' ) ) {
+			if ( ( new Modules() )->is_active( 'sso' ) ) {
 				// ...but only if it's not an Atomic site. They already do that.
 				if ( ! ( new Host() )->is_woa_site() ) {
 					add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
@@ -216,7 +227,12 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @return bool
 	 */
 	public function framing_allowed( $nonce ) {
-		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . Jetpack_Options::get_option( 'id' ) );
+		$blog_id = Connection_Manager::get_site_id();
+		if ( is_wp_error( $blog_id ) ) {
+			return false;
+		}
+
+		$verified = $this->verify_frame_nonce( $nonce, 'frame-' . $blog_id );
 
 		if ( is_wp_error( $verified ) ) {
 			wp_die( $verified ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

@@ -5,6 +5,85 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.2] - 2024-06-24
+### Changed
+- Update dependencies. [#37979]
+
+## [0.32.1] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.32.0] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669] [#37706]
+
+### Fixed
+- Allow users to add multiple options to a dropdown field [#37739]
+- Avoid PHP notice when form is submitted to the wrong URL [#37672]
+
+## [0.31.4] - 2024-05-27
+### Changed
+- Update dependencies. [#37356]
+
+## [0.31.3] - 2024-05-20
+### Changed
+- Forms: Ensure non-minified JS file location is also an option when loading the tiny-mce-plugin-form-button script file. [#37351]
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## [0.31.2] - 2024-05-13
+### Changed
+- Update dependencies. [#37280]
+
+## [0.31.1] - 2024-05-07
+### Fixed
+- Contact Form: Prevent an editor error when using the Classic Editor and contact forms are enabled. [#37270]
+
+## [0.31.0] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+### Changed
+- Updated package dependencies. [#37147]
+
+### Removed
+- Contact Form: Removing code and renaming relevant references to ensure we use the package version of the contact form. [#37157]
+
+### Fixed
+- Fix reference to `Jetpack_Options` class in `Contact_Form_Plugin::record_tracks_event()`. [#37201]
+
+## [0.30.18] - 2024-04-29
+### Changed
+- General: Use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+## [0.30.17] - 2024-04-25
+### Fixed
+- Set correct `textdomain` in `block.json`. [#37057]
+
+## [0.30.16] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [0.30.15] - 2024-04-15
+### Changed
+- Update dependencies. [#36848]
+
+## [0.30.14] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+- Update to the most recent version of Color Studio, 2.6.0. [#36751]
+
+## [0.30.13] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+### Fixed
+- Enable undoing adding a contact form [#36485]
+
+## [0.30.12] - 2024-03-25
+### Changed
+- Made some Contact_Form methods publicly available [#36137]
+
 ## [0.30.11] - 2024-03-18
 ### Fixed
 - Dashboard: add missing Connection state to the page. [#36406]
@@ -519,6 +598,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.32.2]: https://github.com/automattic/jetpack-forms/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/automattic/jetpack-forms/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/automattic/jetpack-forms/compare/v0.31.4...v0.32.0
+[0.31.4]: https://github.com/automattic/jetpack-forms/compare/v0.31.3...v0.31.4
+[0.31.3]: https://github.com/automattic/jetpack-forms/compare/v0.31.2...v0.31.3
+[0.31.2]: https://github.com/automattic/jetpack-forms/compare/v0.31.1...v0.31.2
+[0.31.1]: https://github.com/automattic/jetpack-forms/compare/v0.31.0...v0.31.1
+[0.31.0]: https://github.com/automattic/jetpack-forms/compare/v0.30.18...v0.31.0
+[0.30.18]: https://github.com/automattic/jetpack-forms/compare/v0.30.17...v0.30.18
+[0.30.17]: https://github.com/automattic/jetpack-forms/compare/v0.30.16...v0.30.17
+[0.30.16]: https://github.com/automattic/jetpack-forms/compare/v0.30.15...v0.30.16
+[0.30.15]: https://github.com/automattic/jetpack-forms/compare/v0.30.14...v0.30.15
+[0.30.14]: https://github.com/automattic/jetpack-forms/compare/v0.30.13...v0.30.14
+[0.30.13]: https://github.com/automattic/jetpack-forms/compare/v0.30.12...v0.30.13
+[0.30.12]: https://github.com/automattic/jetpack-forms/compare/v0.30.11...v0.30.12
 [0.30.11]: https://github.com/automattic/jetpack-forms/compare/v0.30.10...v0.30.11
 [0.30.10]: https://github.com/automattic/jetpack-forms/compare/v0.30.9...v0.30.10
 [0.30.9]: https://github.com/automattic/jetpack-forms/compare/v0.30.8...v0.30.9

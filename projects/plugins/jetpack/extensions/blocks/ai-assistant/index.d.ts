@@ -12,3 +12,7 @@ interface Window {
 		wpcomBlogId: string;
 	};
 }
+
+interface String {
+	replaceAll( pattern: string, replacement: string ): string;
+}

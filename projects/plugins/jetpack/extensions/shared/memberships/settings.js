@@ -13,7 +13,7 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
+import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
@@ -301,8 +301,9 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 export function NewsletterEmailDocumentSettings() {
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
-
+	const postId = useEntityId( 'postType', postType );
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
 			...postMeta,
@@ -310,6 +311,7 @@ export function NewsletterEmailDocumentSettings() {
 			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! value,
 		};
 		setPostMeta( postMetaUpdate );
+		saveEditedEntityRecord( 'postType', postType, postId );
 	};
 
 	const isSendEmailEnabled = useSelect( select => {

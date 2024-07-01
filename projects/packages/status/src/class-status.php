@@ -18,18 +18,6 @@ use WPCOM_Masterbar;
  */
 class Status {
 	/**
-	 * Is Jetpack in development (offline) mode?
-	 *
-	 * @deprecated 1.3.0 Use Status->is_offline_mode().
-	 *
-	 * @return bool Whether Jetpack's offline mode is active.
-	 */
-	public function is_development_mode() {
-		_deprecated_function( __FUNCTION__, '1.3.0', 'Automattic\Jetpack\Status->is_offline_mode' );
-		return $this->is_offline_mode();
-	}
-
-	/**
 	 * Is Jetpack in offline mode?
 	 *
 	 * This was formerly called "Development Mode", but sites "in development" aren't always offline/localhost.
@@ -60,20 +48,6 @@ class Status {
 		 * @see https://jetpack.com/support/development-mode/
 		 * @todo Update documentation ^^.
 		 *
-		 * @since 1.1.1
-		 * @since-jetpack 2.2.1
-		 * @deprecated 1.3.0
-		 *
-		 * @param bool $offline_mode Is Jetpack's offline mode active.
-		 */
-		$offline_mode = (bool) apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '1.3.0', 'jetpack_offline_mode' );
-
-		/**
-		 * Filters Jetpack's offline mode.
-		 *
-		 * @see https://jetpack.com/support/development-mode/
-		 * @todo Update documentation ^^.
-		 *
 		 * @since 1.3.0
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
@@ -82,21 +56,6 @@ class Status {
 
 		Cache::set( 'is_offline_mode', $offline_mode );
 		return $offline_mode;
-	}
-
-	/**
-	 * Is Jetpack in "No User test mode"?
-	 *
-	 * This will make Jetpack act as if there were no connected users, but only a site connection (aka blog token)
-	 *
-	 * @since 1.6.0
-	 * @deprecated 1.7.5 Since this version, Jetpack connection is considered active after registration, making no_user_testing_mode obsolete.
-	 *
-	 * @return bool Whether Jetpack's No User Testing Mode is active.
-	 */
-	public function is_no_user_testing_mode() {
-		_deprecated_function( __METHOD__, '1.7.5' );
-		return true;
 	}
 
 	/**
@@ -212,11 +171,12 @@ class Status {
 	/**
 	 * If is a staging site.
 	 *
-	 * @todo Add IDC detection to a package.
+	 * @deprecated since 3.3.0
 	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		_deprecated_function( __FUNCTION__, '3.3.0', 'in_safe_mode' );
 		$cached = Cache::get( 'is_staging_site' );
 		if ( null !== $cached ) {
 			return $cached;
@@ -300,6 +260,64 @@ class Status {
 
 		Cache::set( 'is_staging_site', $is_staging );
 		return $is_staging;
+	}
+
+	/**
+	 * If the site is in safe mode.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @return bool
+	 */
+	public function in_safe_mode() {
+		$cached = Cache::get( 'in_safe_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$in_safe_mode = false;
+		if ( method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
+			$in_safe_mode = true;
+		}
+		/**
+		 * Filters in_safe_mode check.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool $in_safe_mode If the current site is in safe mode.
+		 */
+		$in_safe_mode = apply_filters( 'jetpack_is_in_safe_mode', $in_safe_mode );
+
+		Cache::set( 'in_safe_mode', $in_safe_mode );
+		return $in_safe_mode;
+	}
+
+	/**
+	 * If the site is a development/staging site.
+	 * This is a new version of is_staging_site added to separate safe mode from the legacy staging mode.
+	 * This method checks for core WP_ENVIRONMENT_TYPE setting
+	 * Using the jetpack_is_development_site filter.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_development_site() {
+		$cached = Cache::get( 'is_development_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$is_dev_site = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		/**
+		 * Filters is_development_site check.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool $is_dev_site If the current site is a staging or dev site.
+		 */
+		$is_dev_site = apply_filters( 'jetpack_is_development_site', $is_dev_site );
+
+		Cache::set( 'is_development_site', $is_dev_site );
+		return $is_dev_site;
 	}
 
 	/**

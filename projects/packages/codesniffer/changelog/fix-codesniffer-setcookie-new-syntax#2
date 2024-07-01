@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack.Functions.SetCookie: Report correct line numbers for multi-line calls.

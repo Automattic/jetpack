@@ -7,6 +7,7 @@
 		"php": ">=7.0",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
@@ -16,7 +17,9 @@
 		"automattic/wordbless": "@dev",
 		"yoast/phpunit-polyfills": "1.1.0",
 		"brain/monkey": "2.6.1",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-licensing": "@dev",
+		"automattic/jetpack-sync": "@dev"
 	},
 	"suggest": {
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -25,7 +28,8 @@
 		"classmap": [
 			"legacy",
 			"src/",
-			"src/webhooks"
+			"src/webhooks",
+			"src/identity-crisis"
 		]
 	},
 	"scripts": {
@@ -66,7 +70,13 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.6.x-dev"
+			"dev-trunk": "2.11.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/licensing",
+				"packages/sync"
+			]
 		}
 	},
 	"config": {

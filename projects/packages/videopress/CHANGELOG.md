@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.26] - 2024-06-24
+### Changed
+- Update dependencies. [#37979]
+
+## [0.23.25] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37779] [#37796]
+
+## [0.23.24] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## [0.23.23] - 2024-06-03
+### Changed
+- Internal updates.
+
+## [0.23.22] - 2024-05-20
+### Changed
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+### Fixed
+- VideoPress: Fix localization of block text. [#37360]
+
+## [0.23.21] - 2024-05-13
+### Changed
+- Update dependencies. [#37280]
+
+## [0.23.20] - 2024-05-07
+### Fixed
+- Sanitize the preload value for video shortcodes and blocks. [#37271]
+
+## [0.23.19] - 2024-05-06
+### Added
+- Add missing package dependencies. [#37141]
+
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [0.23.18] - 2024-04-29
+### Changed
+- Update button's prop to match latest changes in WordPress 6.5. [#36318]
+
+## [0.23.17] - 2024-04-25
+### Fixed
+- Set correct `textdomain` in `block.json`. [#37057]
+
+## [0.23.16] - 2024-04-22
+### Changed
+- Bump VideoPress block API version. [#36864]
+
+## [0.23.15] - 2024-04-11
+### Changed
+- Update dependencies.
+
+## [0.23.14] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36756] [#36760] [#36761]
+
+## [0.23.13] - 2024-04-02
+### Changed
+- Updated package dependencies. [#36665]
+
+## [0.23.12] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
+## [0.23.11] - 2024-03-25
+### Changed
+- Internal updates.
+
 ## [0.23.10] - 2024-03-14
 ### Changed
 - Internal updates.
@@ -1294,6 +1365,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.23.26]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.25...v0.23.26
+[0.23.25]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.24...v0.23.25
+[0.23.24]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.23...v0.23.24
+[0.23.23]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.22...v0.23.23
+[0.23.22]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.21...v0.23.22
+[0.23.21]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.20...v0.23.21
+[0.23.20]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.19...v0.23.20
+[0.23.19]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.18...v0.23.19
+[0.23.18]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.17...v0.23.18
+[0.23.17]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.16...v0.23.17
+[0.23.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.15...v0.23.16
+[0.23.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.14...v0.23.15
+[0.23.14]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.13...v0.23.14
+[0.23.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.12...v0.23.13
+[0.23.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.11...v0.23.12
+[0.23.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.10...v0.23.11
 [0.23.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.9...v0.23.10
 [0.23.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.8...v0.23.9
 [0.23.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.23.7...v0.23.8

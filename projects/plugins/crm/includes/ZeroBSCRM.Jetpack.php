@@ -40,7 +40,7 @@ add_action( 'grunion_after_feedback_post_inserted', 'zero_bs_crm_capture_jetpack
  * Creates a ZBS contact from a Jetpack form submission.
  *
  * @param integer $post_id The post id that contains the contact form data.
- * @param array   $all_field_data An array containg the form's Grunion_Contact_Form_Field objects.
+ * @param array   $all_field_data An array containg the form's Contact_Form_Field objects.
  * @param bool    $is_spam Whether the form submission has been identified as spam.
  * @param array   $entry_values The feedback entry values.
  */

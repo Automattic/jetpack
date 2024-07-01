@@ -18,7 +18,7 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	/**
 	 * Mocked WPCOM_Stats.
 	 *
-	 * @var Mock_WPCOM_Stats
+	 * @var WPCOM_Stats&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	protected $wpcom_stats;
 

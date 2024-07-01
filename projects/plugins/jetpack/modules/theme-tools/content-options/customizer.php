@@ -445,7 +445,7 @@ function jetpack_content_options_sanitize_checkbox( $input ) {
  * Sanitize the Display value.
  *
  * @param string $display The unsanitized value from the setting.
- * @return string.
+ * @return string
  */
 function jetpack_content_options_sanitize_blog_display( $display ) {
 	if ( ! in_array( $display, array( 'content', 'excerpt', 'mixed' ), true ) ) {

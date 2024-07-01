@@ -375,7 +375,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	/**
 	 * @param string[] $additional_mock_methods
 	 * @param boolean  $disable_constructor
-	 * @return Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject
+	 * @return Jetpack_Geo_Location&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private function create_mock_instance(
 		$additional_mock_methods = array(),
@@ -386,9 +386,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			$additional_mock_methods
 		);
 
-		/**
-		 * @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject
-		 */
 		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
 			->setMethods( $mock_methods );
 
@@ -402,9 +399,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_single() {
 		global $wp_query;
 
-		/**
-		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
-		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
@@ -417,9 +411,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_single() {
 		global $wp_query;
 
-		/**
-		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
-		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
 			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
@@ -432,9 +423,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_feed() {
 		global $wp_query;
 
-		/**
-		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
-		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();
@@ -447,9 +435,6 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_feed() {
 		global $wp_query;
 
-		/**
-		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
-		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
 			->setMethods( array( 'is_feed' ) )
 			->getMock();

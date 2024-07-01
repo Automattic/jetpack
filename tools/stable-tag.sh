@@ -84,6 +84,9 @@ JSON=$(curl -s "https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
 if ! jq -e '.' <<<"$JSON" &>/dev/null; then
 	die "Failed to retrieve JSON data from https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
 fi
+if jq -e '.error' <<<"$JSON" &>/dev/null; then
+	die "WordPress.org plugin API returned an error when querying $WPSLUG: $( jq -r '.error' <<<"$JSON" )"
+fi
 
 # Current stable version
 CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
@@ -136,7 +139,7 @@ if [[ "$SVN_LATEST" == "$GH_LATEST" ]] && version_compare "$SVN_LATEST" "$CURREN
 	svn diff
 
 	echo ""
-	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?"
+	proceed_p "You are about to update the stable tag for ${WPSLUG} via the diff above." "Would you like to commit it now?" Y
 	svn ci -m "Update stable tag"
 
 elif [[ "$SVN_LATEST" == "$CURRENT_STABLE_VERSION" && "$GH_LATEST" == "$CURRENT_STABLE_VERSION" ]]; then

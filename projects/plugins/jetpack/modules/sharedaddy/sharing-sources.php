@@ -356,6 +356,7 @@ abstract class Sharing_Source {
 			$encoded_data_attributes = implode(
 				' ',
 				array_map(
+					/** Filter for formatting attributes */
 					function ( $data_key, $data_value ) {
 						return sprintf(
 							'data-%s="%s"',

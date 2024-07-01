@@ -90,13 +90,17 @@ function WritingMedia( props ) {
 						displayExif,
 						'carousel_display_exif',
 						handleCarouselDisplayExifChange,
-						__( 'Show photo Exif metadata in carousel (when available)', 'jetpack' )
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show photo Exif metadata in carousel (when available)', 'jetpack' ) }
+						</span>
 					) }
 					{ renderToggle(
 						displayComments,
 						'carousel_display_comments',
 						handleCarouselDisplayCommentsChange,
-						__( 'Show comments area in carousel', 'jetpack' )
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show comments area in carousel', 'jetpack' ) }
+						</span>
 					) }
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">

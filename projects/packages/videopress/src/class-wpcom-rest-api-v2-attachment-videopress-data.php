@@ -10,6 +10,9 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use WP_Post;
+use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Add per-attachment VideoPress data.
@@ -88,8 +91,8 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 *
 	 * `no_videopress`: the returned attachments should not have a videopress_guid
 	 *
-	 * @param array      $args The original list of args before the filtering.
-	 * @param WP_Request $request The original request data.
+	 * @param array           $args The original list of args before the filtering.
+	 * @param WP_REST_Request $request The original request data.
 	 */
 	public function filter_attachments_by_jetpack_videopress_fields( $args, $request ) {
 

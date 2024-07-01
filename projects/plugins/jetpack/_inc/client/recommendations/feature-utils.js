@@ -1,7 +1,7 @@
 import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, __, _x } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
@@ -14,6 +14,7 @@ import {
 	getSiteRawUrl,
 	getJetpackCloudUrl,
 	getStaticProductsForPurchase,
+	getSocialInitiaState,
 } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
@@ -78,12 +79,16 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
+				configureButtonLabel: getSocialInitiaState( state ).useAdminUiV1
+					? __( 'View Jetpack Social settings', 'jetpack' )
+					: _x( 'Manage connections', '', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				configLink: getSocialInitiaState( state ).useAdminUiV1
+					? '#/sharing'
+					: getRedirectUrl( 'calypso-marketing-connections', {
+							site: getSiteRawUrl( state ),
+					  } ),
 			};
 		case 'videopress':
 			return {
@@ -618,7 +623,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Jetpack Social', 'jetpack' ),
 				description: __(
-					'You have access to unlimited social sharing with your Jetpack Social plan. You can share your posts from the post editor to your connected social media accounts.<br/><br/>You can toggle the social sharing feature, manage your connections, and tweak the options from the Jetpack Social Settings.',
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms.',
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),

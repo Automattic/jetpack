@@ -10,6 +10,30 @@ export function getConnections( state ) {
 }
 
 /**
+ * Return a connection by its ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} connectionId - The connection ID.
+ *
+ * @returns {import("../types").Connection | undefined} The connection.
+ */
+export function getConnectionById( state, connectionId ) {
+	return getConnections( state ).find( connection => connection.connection_id === connectionId );
+}
+
+/**
+ * Returns connections by service name/ID.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} serviceName - The service name.
+ *
+ * @returns {Array<import("../types").Connections>} The connections.
+ */
+export function getConnectionsByService( state, serviceName ) {
+	return getConnections( state ).filter( ( { service_name } ) => service_name === serviceName );
+}
+
+/**
  * Returns the connections admin URL from the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {string|null} The connections admin URL.
@@ -58,7 +82,7 @@ export function getMustReauthConnections( state ) {
  *
  * @param {import("../types").SocialStoreState} state - State object.
  *
- * @returns {Array} List of enabled connections.
+ * @returns {Array<import("../types").Connection>} List of enabled connections.
  */
 export function getEnabledConnections( state ) {
 	return getConnections( state ).filter( connection => connection.enabled );
@@ -96,13 +120,79 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture } = connection;
+			const { display_name, profile_display_name, profile_picture, external_display } = connection;
 
-			displayName = 'twitter' === service ? profile_display_name : display_name;
+			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
 		}
 	}
 
 	return { displayName, profileImage, username };
+}
+
+/**
+ * Get the connections being deleted.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['deletingConnections']} The connection being deleted.
+ */
+export function getDeletingConnections( state ) {
+	return state.connectionData?.deletingConnections ?? [];
+}
+
+/**
+ * Get the connections being updated.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['updatingConnections']} The connection being updated.
+ */
+export function getUpdatingConnections( state ) {
+	return state.connectionData?.updatingConnections ?? [];
+}
+
+/**
+ * Whether a mastodon account is already connected.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} username - The mastodon username.
+ *
+ * @returns {boolean} Whether the mastodon account is already connected.
+ */
+export function isMastodonAccountAlreadyConnected( state, username ) {
+	return getConnectionsByService( state, 'mastodon' ).some( connection => {
+		return connection.external_display === username;
+	} );
+}
+
+/**
+ * Returns the services list from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {Array<import("../types").ConnectionService>} The services list
+ */
+export function getServices( state ) {
+	return state.connectionData?.services ?? [];
+}
+
+/**
+ * Returns the latest KeyringResult from the store.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {import("../types").KeyringResult} The KeyringResult
+ */
+export function getKeyringResult( state ) {
+	return state.connectionData?.keyringResult;
+}
+
+/**
+ * Whether the connections modal is open.
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {boolean} Whether the connections modal is open.
+ */
+export function isConnectionsModalOpen( state ) {
+	return state.connectionData?.isConnectionsModalOpen ?? false;
 }

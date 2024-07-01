@@ -13,7 +13,7 @@ import {
 interface MyJetpackConnection {
 	apiNonce: string;
 	apiRoot: string;
-	blogID: number;
+	blogID: string;
 	registrationNonce: string;
 	isSiteConnected: boolean;
 	topJetpackMenuItemUrl: string;

@@ -1,0 +1,54 @@
+{
+	"name": "automattic/jetpack-phan-plugins",
+	"description": "Phan plugins created for the Jetpack monorepo.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"static analysis",
+		"phan",
+		"plugin",
+		"templating"
+	],
+	"require": {
+		"phan/phan": "^5.4",
+		"php": ">=8.0"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-phan-plugins/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-phan-plugins"
+	}
+}

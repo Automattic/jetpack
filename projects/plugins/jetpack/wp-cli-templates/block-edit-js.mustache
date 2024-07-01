@@ -1,5 +1,5 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
-import { BlockIcon } from '@wordpress/block-editor';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -8,7 +8,7 @@ import './editor.scss';
 
 const icon = getBlockIconComponent( metadata );
 
-function {{ className }}Edit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
+function {{ className }}Edit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
 	/**
 	 * Write the block editor UI.
 	 *
@@ -22,8 +22,10 @@ function {{ className }}Edit( { attributes, className, noticeOperations, noticeU
 		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
 	};
 
+	const blockProps = useBlockProps();
+
 	return (
-		<div className={ className }>
+		<div { ...blockProps }>
 			<Placeholder
 				label={ __( '{{ title }}', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }

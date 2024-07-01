@@ -14,11 +14,11 @@ add_filter( 'pre_http_request', 'e2e_intercept_wpcom_request', -999, 3 );
 /**
  * Intercept WPCOM request.
  *
- * @param result $return result.
- * @param r      $r not used.
- * @param string $url request URL.
+ * @param false|array|WP_Error $return result.
+ * @param array                $_parsed_args not used.
+ * @param string               $url request URL.
  */
-function e2e_intercept_wpcom_request( $return, $r, $url ) {
+function e2e_intercept_wpcom_request( $return, $_parsed_args, $url ) {
 	$url_host = wp_parse_url( $url, PHP_URL_HOST );
 
 	if ( 'public-api.wordpress.com' === $url_host ) {

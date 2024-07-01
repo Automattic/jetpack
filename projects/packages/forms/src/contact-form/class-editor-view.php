@@ -19,7 +19,7 @@ class Editor_View {
 	/**
 	 * Add hooks according to screen.
 	 *
-	 * @param WP_Screen $screen Data about current screen.
+	 * @param \WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
 		if ( isset( $screen->base ) && 'post' === $screen->base ) {
@@ -59,10 +59,7 @@ class Editor_View {
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = Assets::get_file_url_for_environment(
-			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
-			'modules/contact-form/js/tinymce-plugin-form-button.js'
-		);
+		$plugin_array['grunion_form'] = plugins_url( '../../dist/contact-form/js/tinymce-plugin-form-button.js', __FILE__ );
 		return $plugin_array;
 	}
 

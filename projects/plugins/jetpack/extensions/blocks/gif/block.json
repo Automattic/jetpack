@@ -1,6 +1,6 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
-	"apiVersion": 1,
+	"apiVersion": 3,
 	"name": "jetpack/gif",
 	"title": "GIF",
 	"description": "Search for and insert an animated image.",

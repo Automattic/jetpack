@@ -5,6 +5,105 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2024-05-27
+### Added
+- Scheduled Updates: add check for staging sites. [#37449]
+
+### Fixed
+- Add additional check after scheduled update creation. [#37399]
+
+## [0.12.2] - 2024-05-20
+### Fixed
+- Add plugins field default. [#37419]
+
+## [0.12.1] - 2024-05-16
+### Changed
+- Moves install/managed check for plugins into API endpoint validation callback [#37291]
+
+### Fixed
+- Remove plugins check on WPCOM environment [#37416]
+
+## [0.12.0] - 2024-05-09
+### Changed
+- Scheduled Updates: Verify plugins when creating a schedule [#37235]
+
+### Removed
+- Remove sync option backward-compatibility temporary solution [#37132]
+- Scheduled Updates: Remove unused status api [#37299]
+
+### Fixed
+- Add updated_at field to ensure the option is always on sync. [#37282]
+- Fixed a bug where rest_fileds were not registered when composing the sync option. [#37240]
+- Fix multiple sync issue [#37266]
+
+## [0.11.0] - 2024-05-06
+### Added
+- Added a new Scheduled Updates active endpoint. [#37130]
+- Add scheduled updates active flag. [#37110]
+
+### Changed
+- Moved last_run_status and last_run_timestamp data to using rest fields. [#37222]
+- Raised limit of schedules to 24. [#37181]
+- Scheduled Update: Moved health_check_paths to using rest field and as a result changed where in the API response the field gets returned. [#37223]
+- Scheduled Updates: Broke out endpoint paths into separate files and formalized package dependencies. [#37008]
+- Switched endpoint args to be built from a schema and switched active field to use register_rest_field as an example for future changes. [#37221]
+
+## [0.10.0] - 2024-04-29
+### Changed
+- Scheduled Updates: move health check functions into hooks [#37067]
+
+## [0.9.1] - 2024-04-26
+### Added
+- Adds an exists check before using wpcom_rest_api_v2_load_plugin() in the API endpoint. [#37081]
+
+## [0.9.0] - 2024-04-25
+### Added
+- Add health paths to scheduled updates. [#36990]
+
+### Changed
+- Move arbitrary actions to callbacks. [#36835]
+
+### Removed
+- Remove checks for valid schedules when retreiving and clearing logs. [#36961]
+
+## [0.8.0] - 2024-04-22
+### Added
+- Add a sync option where for scheduled updated. [#36877]
+- Populated sync option with results from endpoint. [#36915]
+- Scheduled Updates: Added a views link to filter plugins that are part of a scheduled update. [#36880]
+
+### Changed
+- Scheduled Updates: Change how we read status and get it from logs directly [#36981]
+
+## [0.7.2] - 2024-04-15
+### Changed
+- Internal updates.
+
+## [0.7.1] - 2024-04-08
+### Fixed
+- Delete logs after scheduled update deletion. [#36778]
+
+## [0.7.0] - 2024-04-05
+### Changed
+- Infer scheduled update status from logs [#36752]
+
+## [0.6.0] - 2024-04-04
+### Added
+- Add backend infrastructure to log scheduled update events [#36676]
+- Add scheduled updates logging endpoints [#36687]
+
+### Fixed
+- Force cache cleaning before scheduling a new job. [#36697]
+- Store log timestamp as int [#36736]
+
+## [0.5.3] - 2024-04-01
+### Changed
+- General: update Phan configuration. [#36528]
+
+## [0.5.2] - 2024-03-27
+### Changed
+- Internal updates.
+
 ## [0.5.1] - 2024-03-22
 ### Fixed
 - Fixed a bug where the weekday index was not properly accounted for in list of weekdays. [#36524]
@@ -86,6 +185,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Generate initial package for Scheduled Updates [#35796]
 
+[0.13.0]: https://github.com/Automattic/scheduled-updates/compare/v0.12.2...v0.13.0
+[0.12.2]: https://github.com/Automattic/scheduled-updates/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/scheduled-updates/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/scheduled-updates/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/Automattic/scheduled-updates/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/scheduled-updates/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/scheduled-updates/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/scheduled-updates/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Automattic/scheduled-updates/compare/v0.7.2...v0.8.0
+[0.7.2]: https://github.com/Automattic/scheduled-updates/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/Automattic/scheduled-updates/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/scheduled-updates/compare/v0.6.0...v0.7.0
+[0.6.0]: https://github.com/Automattic/scheduled-updates/compare/v0.5.3...v0.6.0
+[0.5.3]: https://github.com/Automattic/scheduled-updates/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/scheduled-updates/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/scheduled-updates/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/scheduled-updates/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Automattic/scheduled-updates/compare/v0.4.0...v0.4.1

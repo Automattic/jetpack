@@ -64,7 +64,7 @@
 			"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.19.x-dev"
+			"dev-trunk": "0.21.x-dev"
 		},
 		"textdomain": "jetpack-blaze",
 		"version-constants": {

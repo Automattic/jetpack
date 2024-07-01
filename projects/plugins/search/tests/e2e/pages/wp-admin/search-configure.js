@@ -1,5 +1,5 @@
-import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 
 export default class SearchConfigure extends WpPage {
 	static SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*%2Fwp%2Fv2%2Fsettings/;
@@ -52,7 +52,7 @@ export default class SearchConfigure extends WpPage {
 	}
 
 	async isHighlightPink() {
-		const pinkColorSelector = 'button.is-pressed[aria-label="Color: Pale pink"]';
+		const pinkColorSelector = 'button[aria-selected="true"][aria-label="Color: Pale pink"]';
 		return await this.isElementVisible( pinkColorSelector, 200 );
 	}
 

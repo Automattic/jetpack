@@ -1,13 +1,11 @@
 @use '$css/main/variables.scss' as *;
 
 .collapsible-meta {
-	margin-top: 2em;
-
 	.header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 1em;
+		margin-bottom: 10px;
 		@media screen and ( max-width: 530px ) {
 			flex-direction: column;
 			align-items: flex-start;
@@ -23,7 +21,7 @@
 	}
 
 	.summary {
-		color: $gray-40;
+		color: var(--gray-50);
 		font-size: 14px;
 		line-height: 22px;
 	}

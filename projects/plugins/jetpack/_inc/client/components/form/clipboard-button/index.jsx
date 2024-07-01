@@ -1,10 +1,9 @@
-import classNames from 'classnames';
 import Clipboard from 'clipboard';
+import clsx from 'clsx';
 import Button from 'components/button';
 import { omit, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom';
 
 export default class ClipboardButton extends React.Component {
 	static displayName = 'ClipboardButton';
@@ -22,8 +21,10 @@ export default class ClipboardButton extends React.Component {
 		rna: false,
 	};
 
+	buttonRef = React.createRef();
+
 	componentDidMount() {
-		const button = ReactDom.findDOMNode( this.refs.button );
+		const button = this.buttonRef.current.domNode;
 		this.clipboard = new Clipboard( button, {
 			text: () => this.props.text,
 		} );
@@ -41,11 +42,11 @@ export default class ClipboardButton extends React.Component {
 	};
 
 	render() {
-		const classes = classNames( 'dops-clipboard-button', this.props.className );
+		const classes = clsx( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
 				rna={ this.props.rna }
-				ref="button"
+				ref={ this.buttonRef }
 				{ ...omit( this.props, Object.keys( this.constructor.propTypes ) ) }
 				className={ classes }
 			/>

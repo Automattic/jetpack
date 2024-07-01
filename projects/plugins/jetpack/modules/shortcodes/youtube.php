@@ -235,7 +235,7 @@ function youtube_id( $url ) {
 	} elseif ( isset( $args['t'] ) ) {
 		if ( is_numeric( $args['t'] ) ) {
 			$start = (int) $args['t'];
-		} else {
+		} elseif ( is_string( $args['t'] ) ) {
 			$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $args['t'] );
 
 			foreach ( $time_pieces as $time_piece ) {

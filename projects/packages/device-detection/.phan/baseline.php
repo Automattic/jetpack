@@ -10,8 +10,8 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchReturn : 10+ occurrences
+    // PhanPluginSimplifyExpressionBool : 4 occurrences
     // PhanRedundantCondition : 4 occurrences
-    // PhanPluginSimplifyExpressionBool : 3 occurrences
     // PhanTypeMismatchProperty : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions

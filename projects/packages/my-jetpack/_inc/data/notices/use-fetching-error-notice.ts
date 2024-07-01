@@ -38,8 +38,11 @@ export const useFetchingErrorNotice = ( { infoName, isError, overrideMessage }: 
 		if ( isError && errorNoticeWhitelist.includes( infoName ) ) {
 			setNotice( {
 				message,
-				options: { status: 'error' },
-				priority: NOTICE_PRIORITY_LOW,
+				options: {
+					id: 'fetching-error-notice',
+					level: 'error',
+					priority: NOTICE_PRIORITY_LOW,
+				},
 			} );
 		}
 	}, [ message, setNotice, isError, infoName ] );

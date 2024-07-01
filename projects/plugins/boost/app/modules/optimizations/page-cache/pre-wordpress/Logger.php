@@ -11,6 +11,8 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPres
 class Logger {
 	/**
 	 * The singleton instance of the logger.
+	 *
+	 * @var self
 	 */
 	private static $instance = null;
 
@@ -26,6 +28,8 @@ class Logger {
 
 	/**
 	 * The Process Identifier used by this Logger instance.
+	 *
+	 * @var int|float
 	 */
 	private $pid = null;
 
@@ -182,6 +186,6 @@ class Logger {
 	}
 
 	public static function delete_old_logs() {
-		Filesystem_Utils::delete_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
+		Filesystem_Utils::gc_expired_files( self::LOG_DIRECTORY, 24 * 60 * 60 );
 	}
 }

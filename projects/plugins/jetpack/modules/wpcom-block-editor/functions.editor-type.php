@@ -3,10 +3,13 @@
  * This file contains some 'remember' functions inspired by the core Classic Editor Plugin
  * Used to align the 'last editor' metadata so that it is set on all Jetpack and WPCOM sites
  *
+ * @deprecated 13.6
  * @package automattic/jetpack
  */
-
 namespace Jetpack\EditorType;
+
+_deprecated_file( __FILE__, 'jetpack-13.6', 'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\WPCOM_Block_Editor\\EditorType' );
+use WP_Block_Editor_Context;
 
 /**
  * Remember when the classic editor was used to edit a post.
@@ -65,13 +68,5 @@ function remember_editor( $post_id, $editor ) {
  * @return bool              Whether the block editor can be used to edit the supplied post type.
  */
 function can_edit_post_type( $post_type ) {
-	$can_edit = false;
-
-	if ( function_exists( 'gutenberg_can_edit_post_type' ) ) {
-		$can_edit = gutenberg_can_edit_post_type( $post_type );
-	} elseif ( function_exists( 'use_block_editor_for_post_type' ) ) {
-		$can_edit = use_block_editor_for_post_type( $post_type );
-	}
-
-	return $can_edit;
+	return use_block_editor_for_post_type( $post_type );
 }

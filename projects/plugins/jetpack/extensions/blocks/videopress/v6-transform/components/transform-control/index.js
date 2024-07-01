@@ -7,11 +7,8 @@ import { createBlock } from '@wordpress/blocks';
 import { Button, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { ReactElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-/**
- * External dependencies
- */
-import { ReactElement } from 'react';
 /**
  * Internal dependencies
  */

@@ -359,7 +359,7 @@ abstract class SAL_Post {
 	}
 
 	/**
-	 * Returns an array with details of the posts revisions, or false if 'edit' isn't the current post request context.
+	 * Returns an array with post revision ids, or false if 'edit' isn't the current post request context.
 	 *
 	 * @return bool|array
 	 */
@@ -368,14 +368,16 @@ abstract class SAL_Post {
 			return false;
 		}
 
-		$revisions      = array();
-		$post_revisions = wp_get_post_revisions( $this->post->ID );
+		$args = array(
+			'posts_per_page' => -1,
+			'post_type'      => 'revision',
+			'post_status'    => 'any',
+			'fields'         => 'ids',  // Fetch only the IDs.
+			'post_parent'    => $this->post->ID,
+		);
 
-		foreach ( $post_revisions as $_post ) {
-			$revisions[] = $_post->ID;
-		}
-
-		return $revisions;
+		$revision_query = new WP_Query( $args );
+		return $revision_query->posts;  // This returns an array of revision IDs.
 	}
 
 	/**

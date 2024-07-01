@@ -19,11 +19,14 @@ require_once __DIR__ . '/functions.php';
  * @var string JETPACK_WAF_MODE
  */
 
+// Type aliases for this file.
+<<<PHAN
+@phan-type Target = array{ only?: string[], except?: string[], count?: boolean }
+@phan-type TargetBag = array<string, Target>
+PHAN;
+
 /**
  * Waf_Runtime class
- *
- * @template Target as array{ only?: string[], except?: string[], count?: boolean }
- * @template TargetBag as array<string, Target>
  */
 class Waf_Runtime {
 	/**
@@ -124,7 +127,7 @@ class Waf_Runtime {
 	 *
 	 * @param Waf_Transforms $transforms Transforms.
 	 * @param Waf_Operators  $operators  Operators.
-	 * @param Waf_Request?   $request    Information about the request.
+	 * @param ?Waf_Request   $request    Information about the request.
 	 */
 	public function __construct( $transforms, $operators, $request = null ) {
 		$this->transforms = $transforms;
@@ -614,7 +617,7 @@ class Waf_Runtime {
 	 *   value:  The value that was found in the associated target.
 	 *
 	 * @param TargetBag $targets An assoc. array with keys that are target name(s) and values are options for how to process that target (include/exclude rules, whether to return values or counts).
-	 * @return array{ name: string, source: string, value: mixed }
+	 * @return array{name: string, source: string, value: mixed}[]
 	 */
 	public function normalize_targets( $targets ) {
 		$return = array();
@@ -721,12 +724,12 @@ class Waf_Runtime {
 	/**
 	 * Extract values from an associative array, potentially applying filters and/or counting results.
 	 *
-	 * @param array{ 0: string, 1: scalar }|scalar[] $source      The source assoc. array of values (i.e. $_GET, $_SERVER, etc.).
-	 * @param string[]                               $only        Only include the values for these keys in the output.
-	 * @param string[]                               $excl        Never include the values for these keys in the output.
-	 * @param string                                 $name        The name of this target (see https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-(v3.x)#Variables).
-	 * @param array                                  $results     Array to add output values to, will be modified by this method.
-	 * @param int                                    $flags       Any of the NORMALIZE_ARRAY_* constants defined at the top of the class.
+	 * @param array{0: string, 1: scalar}|scalar[] $source      The source assoc. array of values (i.e. $_GET, $_SERVER, etc.).
+	 * @param string[]                             $only        Only include the values for these keys in the output.
+	 * @param string[]                             $excl        Never include the values for these keys in the output.
+	 * @param string                               $name        The name of this target (see https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-(v3.x)#Variables).
+	 * @param array                                $results     Array to add output values to, will be modified by this method.
+	 * @param int                                  $flags       Any of the NORMALIZE_ARRAY_* constants defined at the top of the class.
 	 */
 	private function normalize_array_target( $source, $only, $excl, $name, &$results, $flags = 0 ) {
 		$output   = array();

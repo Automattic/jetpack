@@ -234,6 +234,7 @@ class Config {
 			JITMS_JITM::configure();
 		} else {
 			// Provides compatibility with jetpack-jitm <v1.6.
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			JITM::configure();
 		}
 

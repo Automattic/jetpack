@@ -1,5 +1,5 @@
 import JetpackLogo from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Jetpack Logo',
@@ -7,9 +7,9 @@ export default {
 	argTypes: {
 		logoColor: { control: 'color' },
 	},
-} as ComponentMeta< typeof JetpackLogo >;
+} as Meta< typeof JetpackLogo >;
 
-const Template: ComponentStory< typeof JetpackLogo > = args => <JetpackLogo { ...args } />;
+const Template: StoryFn< typeof JetpackLogo > = args => <JetpackLogo { ...args } />;
 
 const DefaultArgs = {
 	width: 150,

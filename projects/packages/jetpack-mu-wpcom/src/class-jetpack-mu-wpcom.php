@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.19.0';
+	const PACKAGE_VERSION = '5.42.1-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -41,11 +41,15 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_replace_site_visibility' ) );
 
-		// This feature runs only on simple sites.
+		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
 		// Unified navigation fix for changes in WordPress 6.2.
@@ -69,6 +73,8 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		// Shared features.
+		require_once __DIR__ . '/features/agency-managed/agency-managed.php';
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
@@ -76,17 +82,26 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
+		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
+		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
+		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
-
+		// Only load the Calypsoify and Masterbar features on WoA sites.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
+			\Automattic\Jetpack\Masterbar\Main::init();
+		}
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
@@ -276,6 +291,54 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
+		if ( is_agency_managed_site() ) {
+			return;
+		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+	}
+
+	/**
+	 * Load Odyssey Stats in Simple sites.
+	 */
+	public static function load_wpcom_simple_odyssey_stats() {
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
+		}
+	}
+
+	/**
+	 * Load WPCOM Admin Interface.
+	 *
+	 * @return void
+	 */
+	public static function load_wpcom_admin_interface() {
+		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
+	}
+
+	/**
+	 * Load WPCOM Site Management widget.
+	 */
+	public static function load_wpcom_site_management_widget() {
+		if ( is_agency_managed_site() ) {
+			return;
+		}
+		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
+		}
+	}
+
+	/**
+	 * Load Replace Site Visibility feature.
+	 */
+	public static function load_replace_site_visibility() {
+		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+	}
+
+	/**
+	 * Load the Jetpack Custom CSS feature.
+	 */
+	public static function load_custom_css() {
+		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
+		require_once __DIR__ . '/features/custom-css/custom-css.php';
 	}
 }

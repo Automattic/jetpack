@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add refs to monorepo plugins in Phan config. Like stubs but simpler.
+
+

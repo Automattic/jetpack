@@ -6,6 +6,9 @@
 	"require": {
 		"composer-plugin-api": "^2.0"
 	},
+	"require-dev": {
+		"composer/composer": "^2.0"
+	},
 	"autoload": {
 		"psr-4": {
 			"Automattic\\Jetpack\\Composer304Plugin\\": "src/"

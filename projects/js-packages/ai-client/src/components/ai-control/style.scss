@@ -1,7 +1,5 @@
 @import '@automattic/jetpack-base-styles/root-variables';
 
-// AI CONTROL
-
 .jetpack-components-ai-control__container-wrapper {
 	position: sticky;
 	bottom: 16px;
@@ -72,12 +70,6 @@
 }
 
 .jetpack-components-ai-control__controls-prompt_button_wrapper {
-	text-transform: uppercase;
-	font-size: 11px;
-	font-weight: 600;
-	line-height: 1em;
-	user-select: none;
-	white-space: nowrap;
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -90,45 +82,15 @@
 		box-shadow: none;
 		padding: 6px 8px;
 	}
+
+	.components-button-group {
+		display: flex;
+	}
 }
 
 .jetpack-components-ai-control__controls-prompt_button {
 	&:disabled {
 		opacity: 0.6;
 		cursor: not-allowed;
-	}
-}
-
-// MESSAGE
-
-.jetpack-ai-assistant__message {
-	display: flex;
-	line-height: 28px;
-	font-size: 12px;
-	align-self: center;
-	align-items: center;
-	background-color: var( --jp-white-off );
-	padding: 0 12px;
-	border-radius: 0 0 6px 6px;
-
-	> svg {
-		fill: var( --jp-gray-40 );
-	}
-
-	.jetpack-ai-assistant__message-content {
-		flex-grow: 2;
-		margin: 0 8px;
-		color: var( --jp-gray-50 );
-		line-height: 1.4em;
-
-		.components-external-link {
-			color: var( --jp-gray-50 );
-		}
-
-		// Force padding 0 in link buttons, since default Gutenberg version in WordPress doesn't use iframe and
-		// Buttons receive styles from edit-post-visual-editor.
-		.components-button.is-link {
-			padding: 0;
-		}
 	}
 }

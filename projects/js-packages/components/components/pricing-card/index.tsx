@@ -1,4 +1,5 @@
 import { getCurrencyObject } from '@automattic/format-currency';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import TermsOfService from '../terms-of-service';
@@ -54,7 +55,7 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>
 			<div className="jp-components__pricing-card__pricing">
-				{ props.priceBefore !== props.priceAfter && (
+				{ props.priceBefore !== props.priceAfter && props.priceAfter > 0 ? (
 					<div className="jp-components__pricing-card__price-before">
 						<span className="jp-components__pricing-card__currency">
 							{ currencyObjectBefore.symbol }
@@ -70,21 +71,27 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 						) }
 						<div className="jp-components__pricing-card__price-strikethrough"></div>
 					</div>
+				) : (
+					<LoadingPlaceholder width="100%" height={ 48 } />
 				) }
-				<div className="jp-components__pricing-card__price-after">
-					<span className="jp-components__pricing-card__currency">
-						{ currencyObjectAfter.symbol }
-					</span>
-					<span className="jp-components__pricing-card__price">
-						{ currencyObjectAfter.integer }
-					</span>
-					{ showPriceDecimals( currencyObjectAfter ) && (
-						<span className="jp-components__pricing-card__price-decimal">
-							{ currencyObjectAfter.fraction }
-						</span>
-					) }
-				</div>
-				<span className="jp-components__pricing-card__price-details">{ priceDetails }</span>
+				{ props.priceAfter > 0 && (
+					<>
+						<div className="jp-components__pricing-card__price-after">
+							<span className="jp-components__pricing-card__currency">
+								{ currencyObjectAfter.symbol }
+							</span>
+							<span className="jp-components__pricing-card__price">
+								{ currencyObjectAfter.integer }
+							</span>
+							{ showPriceDecimals( currencyObjectAfter ) && (
+								<span className="jp-components__pricing-card__price-decimal">
+									{ currencyObjectAfter.fraction }
+								</span>
+							) }
+						</div>
+						<span className="jp-components__pricing-card__price-details">{ priceDetails }</span>
+					</>
+				) }
 			</div>
 
 			{ props.children && (

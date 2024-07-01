@@ -1,5 +1,5 @@
 import { Icon, warning, info, check } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import styles from './style.module.scss';
 
@@ -38,8 +38,8 @@ const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
  * @param {React.Component} props.children - The alert content.
  * @returns {React.ReactElement}             The `Alert` component.
  */
-const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
-	const classes = classNames( styles.container, styles[ `is-${ level }` ] );
+const Alert: React.FC< AlertProps > = ( { level = 'warning', children, showIcon = true } ) => {
+	const classes = clsx( styles.container, styles[ `is-${ level }` ] );
 
 	return (
 		<div className={ classes }>
@@ -51,11 +51,6 @@ const Alert: React.FC< AlertProps > = ( { level, children, showIcon } ) => {
 			<div>{ children }</div>
 		</div>
 	);
-};
-
-Alert.defaultProps = {
-	level: 'warning',
-	showIcon: true,
 };
 
 export default Alert;

@@ -1,6 +1,5 @@
 import { render } from '@testing-library/react';
 import { range } from 'lodash';
-import React from 'react';
 import Mosaic from '..';
 import * as imageSets from '../../test/fixtures/image-sets';
 

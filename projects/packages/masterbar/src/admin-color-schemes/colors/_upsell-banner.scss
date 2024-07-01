@@ -1,0 +1,14 @@
+// Calypso Upsell Banner
+#adminmenu .toplevel_page_site-notices .upsell_banner {
+	background-color: $menu-nudge-background;
+	color: $menu-nudge-text-color;
+}
+
+#adminmenu .toplevel_page_site-notices .upsell_banner .button {
+	background-color: $menu-nudge-cta-background;
+	color: $menu-nudge-cta-color;
+}
+
+#adminmenu .toplevel_page_site-notices .upsell_banner .button:hover {
+	background-color: $menu-nudge-cta-background-hover
+}

@@ -23,16 +23,16 @@ import './style.scss';
 const InPlaceConnection = props => {
 	const {
 		title,
-		isLoading,
-		width,
+		isLoading = false,
+		width = '100%',
 		displayTOS,
-		scrollToIframe,
+		scrollToIframe = false,
 		connectUrl,
 		onComplete,
 		onThirdPartyCookiesBlocked,
 		location,
 	} = props;
-	let { height } = props;
+	let { height = '300' } = props;
 
 	const iframeWrapRef = useRef();
 	const iframeRef = useRef();
@@ -128,13 +128,6 @@ InPlaceConnection.propTypes = {
 	onComplete: PropTypes.func,
 	onThirdPartyCookiesBlocked: PropTypes.func,
 	location: PropTypes.string,
-};
-
-InPlaceConnection.defaultProps = {
-	isLoading: false,
-	height: '300',
-	width: '100%',
-	scrollToIframe: false,
 };
 
 export default InPlaceConnection;

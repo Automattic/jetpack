@@ -26,7 +26,7 @@ class Brute_Force_Protection {
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Brute_Force_Protection()
+	 * @var Brute_Force_Protection
 	 */
 	private static $instance = null;
 

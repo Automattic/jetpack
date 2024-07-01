@@ -7,14 +7,12 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Class Image_CDN
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.4.3';
 
 	/**
 	 * Singleton.
@@ -113,9 +111,6 @@ final class Image_CDN {
 		// Responsive image srcset substitution.
 		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 5 );
 		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
-
-		// Helpers for maniuplated images.
-		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 
 		/**
 		 * Allow Photon to disable uploaded images resizing and use its own resize capabilities instead.
@@ -315,7 +310,7 @@ final class Image_CDN {
 	public static function parse_dimensions_from_filename( $src ) {
 		$width_height_string = array();
 
-		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode( '|', self::$extensions ) . '){1}(?:\?.*)?$#i', $src, $width_height_string ) ) {
 			$width  = (int) $width_height_string[1];
 			$height = (int) $width_height_string[2];
 
@@ -368,9 +363,9 @@ final class Image_CDN {
 				 *
 				 * @since 2.0.3
 				 *
-				 * @param bool false Should Photon ignore this image. Default to false.
-				 * @param string $src Image URL.
-				 * @param string $tag Image Tag (Image HTML output).
+				 * @param bool              false Should Photon ignore this image. Default to false.
+				 * @param string            $src  Image URL.
+				 * @param string|array|null $tag  Image Tag (Image HTML output) or array of image details for srcset.
 				 */
 				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
 					continue;
@@ -748,10 +743,11 @@ final class Image_CDN {
 
 			$intermediate = true; // For the fourth array item returned by the image_downsize filter.
 
+			$registered_size = self::find_registered_image_size( $size );
+
 			// If an image is requested with a size known to WordPress, use that size's settings with Photon.
-			// WP states that `add_image_size()` should use a string for the name, but doesn't enforce that.
-			// Due to differences in how Core and Photon check for the registered image size, we check both types.
-			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
+			if ( $registered_size ) {
+				$size       = $registered_size;
 				$image_args = self::image_sizes();
 				$image_args = $image_args[ $size ];
 
@@ -1229,27 +1225,27 @@ final class Image_CDN {
 	}
 
 	/**
-	 * Enqueue Photon helper script
+	 * Find registered image size name if it exists.
 	 *
-	 * @uses wp_enqueue_script, plugins_url
-	 * @action wp_enqueue_script
-	 * @return null
+	 * @param string|int|int[] $size Image size name if registered, or false if not.
 	 */
-	public function action_wp_enqueue_scripts() {
-		if ( self::is_amp_endpoint() ) {
-			return;
+	protected static function find_registered_image_size( $size ) {
+		$sizes = self::image_sizes();
+
+		// WP states that `add_image_size()` should use a string for the name, but doesn't enforce that.
+		if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
+			return $size;
 		}
 
-		Assets::register_script(
-			'jetpack-photon',
-			'../dist/image-cdn.js',
-			__FILE__,
-			array(
-				'enqueue'    => true,
-				'nonminpath' => 'js/image-cdn.js',
-				'in_footer'  => true,
-			)
-		);
+		if ( is_array( $size ) && isset( $size[0] ) && isset( $size[1] ) ) {
+			foreach ( $sizes as $name => $args ) {
+				if ( $args['width'] === $size[0] && $args['height'] === $size[1] ) {
+					return $name;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

@@ -49,7 +49,7 @@ class Story_Block_Test extends \WP_UnitTestCase {
 		if ( ! $this->was_registered ) {
 			unregister_block_type( 'jetpack/story' );
 		}
-		remove_filter( 'get_post_metadata', array( $this, 'get_attachment_metadata' ) );
+		remove_filter( 'get_post_metadata', array( $this, 'get_metadata' ) );
 		parent::tear_down();
 	}
 

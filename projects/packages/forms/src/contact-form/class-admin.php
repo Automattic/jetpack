@@ -170,7 +170,7 @@ class Admin {
 	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
-	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
 	public function export_to_gdrive() {
 		$post_data = wp_unslash( $_POST );
@@ -839,7 +839,7 @@ class Admin {
 	/**
 	 * Filter feedback posts by parent_id if present.
 	 *
-	 * @param WP_Query $query Current query.
+	 * @param \WP_Query $query Current query.
 	 *
 	 * @return void
 	 */
@@ -1518,10 +1518,23 @@ class Admin {
 	 * Show an admin notice if the "Empty Spam" or "Check Spam" process was unable to complete, probably due to a permissions error.
 	 */
 	public function grunion_feedback_admin_notice() {
+		$message = '';
+
 		if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' );
 		} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' ) ) . '</p></div>';
+			$message = esc_html__( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' );
 		}
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		wp_admin_notice(
+			$message,
+			array(
+				'type' => 'error',
+			)
+		);
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add a doc note warning against using `<severity>0</severity>` when excluding individual sniff messages.

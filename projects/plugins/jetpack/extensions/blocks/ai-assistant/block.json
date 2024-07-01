@@ -2,7 +2,7 @@
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
 	"name": "jetpack/ai-assistant",
-	"title": "AI Assistant (Experimental)",
+	"title": "AI Assistant",
 	"description": "Elevate your content creation with our AI-powered Gutenberg Block, offering seamless customization and generation. Bear in mind that, as an evolving tool, occasional imprecision may occur.",
 	"keywords": [ "AI", "GPT", "AL", "Magic", "help", "assistant" ],
 	"version": "12.5.0",
@@ -37,24 +37,11 @@
 			"default": []
 		},
 
-		"useGutenbergSyntax": {
-			"type": "boolean",
-			"default": false
-		},
-
-		"useGpt4": {
-			"type": "boolean",
-			"default": false
-		},
-
-		"customSystemPrompt": {
-			"type": "string",
-			"default": ""
-		},
 		"userPrompt": {
 			"type": "string",
 			"default": ""
 		},
+
 		"requestingState": {
 			"type": "string",
 			"default": "init"

@@ -121,7 +121,7 @@ class Jetpack_Subscription_Modal_On_Comment {
 		$template->status         = 'publish';
 		$template->has_theme_file = false;
 		$template->is_custom      = true;
-		$template->description    = __( 'A subscribe form that submit a comment', 'jetpack' );
+		$template->description    = __( 'A subscribe form that submit a comment.', 'jetpack' );
 
 		return $template;
 	}

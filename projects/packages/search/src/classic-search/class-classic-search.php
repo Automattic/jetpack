@@ -1219,8 +1219,8 @@ class Classic_Search {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregations Array of aggregations (filters) to add to the query builder.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
+	 * @param array                                         $aggregations Array of aggregations (filters) to add to the query builder.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder      The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_aggregations_to_es_query_builder( array $aggregations, $builder ) {
 		foreach ( $aggregations as $label => $aggregation ) {
@@ -1256,9 +1256,9 @@ class Classic_Search {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                         $aggregation The aggregation to add to the query builder.
+	 * @param string                                        $label       The 'label' (unique id) for this aggregation.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$field = null;
@@ -1293,9 +1293,9 @@ class Classic_Search {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                         $aggregation The aggregation to add to the query builder.
+	 * @param string                                        $label       The 'label' (unique id) for this aggregation.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$builder->add_aggs(
@@ -1314,9 +1314,9 @@ class Classic_Search {
 	 *
 	 * @since 0.20.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                         $aggregation The aggregation to add to the query builder.
+	 * @param string                                        $label       The 'label' (unique id) for this aggregation.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_author_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$builder->add_aggs(
@@ -1335,9 +1335,9 @@ class Classic_Search {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array                                        $aggregation The aggregation to add to the query builder.
-	 * @param string                                       $label       The 'label' (unique id) for this aggregation.
-	 * @param Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
+	 * @param array                                         $aggregation The aggregation to add to the query builder.
+	 * @param string                                        $label       The 'label' (unique id) for this aggregation.
+	 * @param \Automattic\Jetpack\Search\WPES\Query_Builder $builder     The builder instance that is creating the Elasticsearch query.
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, $builder ) {
 		$args = array(

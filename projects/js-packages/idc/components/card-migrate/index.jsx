@@ -47,7 +47,12 @@ const CardMigrate = props => {
 
 	const isActionInProgress = useSelect( select => select( STORE_ID ).getIsActionInProgress(), [] );
 
-	const { isMigrating, migrateCallback, customContent, hasError } = props;
+	const {
+		isMigrating = false,
+		migrateCallback = () => {},
+		customContent = {},
+		hasError = false,
+	} = props;
 
 	const buttonLabel = customContent.migrateButtonLabel || __( 'Move your settings', 'jetpack' );
 
@@ -112,20 +117,13 @@ CardMigrate.propTypes = {
 	/** The current site URL. */
 	currentUrl: PropTypes.string.isRequired,
 	/** Whether the migration is in progress. */
-	isMigrating: PropTypes.bool.isRequired,
+	isMigrating: PropTypes.bool,
 	/** Migration callback. */
-	migrateCallback: PropTypes.func.isRequired,
+	migrateCallback: PropTypes.func,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** Whether the component has an error. */
-	hasError: PropTypes.bool.isRequired,
-};
-
-CardMigrate.defaultProps = {
-	isMigrating: false,
-	migrateCallback: () => {},
-	customContent: {},
-	hasError: false,
+	hasError: PropTypes.bool,
 };
 
 export default CardMigrate;

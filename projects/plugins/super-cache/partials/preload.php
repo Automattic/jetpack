@@ -4,16 +4,18 @@ global $wp_cache_preload_posts;
 
 echo '<a name="preload"></a>';
 if ( ! $cache_enabled || ! $super_cache_enabled || true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
-	echo '<div class="notice notice-warning"><p>' . __( 'Preloading of cache disabled. Please make sure simple or expert mode is enabled or talk to your host administrator.', 'wp-super-cache' ) . '</p></div>';
+	wp_admin_notice(
+		esc_html__( 'Preloading of cache disabled. Please make sure simple or expert mode is enabled or talk to your host administrator.', 'wp-super-cache' ),
+		array(
+			'type' => 'warning',
+		)
+	);
 	return;
 }
 
 $count = wpsc_post_count();
-if ( $count > 1000 ) {
-	$min_refresh_interval = 720;
-} else {
-	$min_refresh_interval = 30;
-}
+
+$min_refresh_interval = wpsc_get_minimum_preload_interval();
 
 echo '<div class="wpsc-card">';
 echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';

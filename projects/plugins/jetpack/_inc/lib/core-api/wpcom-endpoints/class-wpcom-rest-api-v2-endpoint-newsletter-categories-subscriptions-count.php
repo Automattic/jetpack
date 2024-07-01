@@ -76,7 +76,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Categories_Subscriptions_Count exten
 		$blog_id  = get_current_blog_id();
 		$term_ids = explode( ',', $request->get_param( 'term_ids' ) );
 
-		$subscriptions_count = get_blog_subscriptions_aggregate_count( $blog_id, $term_ids );
+		$subscriptions_count = \Newsletter_Categories\get_blog_subscriptions_aggregate_count( $blog_id, $term_ids );
 
 		return rest_ensure_response(
 			array(

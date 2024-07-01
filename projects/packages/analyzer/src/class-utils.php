@@ -123,7 +123,7 @@ class Utils {
 	/**
 	 * Check if a node has a docblock containing a specific comment string.
 	 *
-	 * @param PhpParser/Node $node    Current node we are parsing.
+	 * @param Node $node    Current node we are parsing.
 	 * @param string         $comment Comment to match.
 	 * @return boolean
 	 */
@@ -139,7 +139,7 @@ class Utils {
 	 * Check if a node contains a call to a function name.
 	 * Any part of the function name will be matched.
 	 *
-	 * @param PhpParser/Node $node Current node we are parsing.
+	 * @param Node $node Current node we are parsing.
 	 * @param string         $name Function name to match.
 	 * @return boolean
 	 */

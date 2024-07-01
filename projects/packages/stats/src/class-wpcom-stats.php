@@ -476,7 +476,7 @@ class WPCOM_Stats {
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/
 	 * @param string $endpoint The stats endpoint.
 	 * @param array  $args The query arguments.
-	 * @return array|WP_Error.
+	 * @return array|WP_Error
 	 */
 	protected function fetch_remote_stats( $endpoint, $args ) {
 		if ( is_array( $args ) && ! empty( $args ) ) {
@@ -499,7 +499,7 @@ class WPCOM_Stats {
 	 * @since 0.11.0
 	 *
 	 * @param  array $stats_array The stats array.
-	 * @return WP_Error|Object|null
+	 * @return WP_Error|object|null
 	 */
 	public function convert_stats_array_to_object( $stats_array ) {
 

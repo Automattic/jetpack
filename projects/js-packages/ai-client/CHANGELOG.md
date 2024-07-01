@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.4] - 2024-06-17
+### Changed
+- Updated package dependencies. [#37779]
+
+## [0.14.3] - 2024-06-10
+### Changed
+- AI Featured Image: export generic image generation request function. [#37668]
+- Change codebase to use clsx instead of classnames. [#37708]
+- Updated package dependencies. [#37669]
+
+## [0.14.2] - 2024-06-03
+### Added
+- AI Client: Add list-related fixes on MarkdownToHTML conversion. [#37564]
+- Jetpack AI: Support upgrade links on the AI Control that will open on a new tab. [#37629]
+
+## [0.14.1] - 2024-05-27
+### Changed
+- AI Client: Add paragraph tweaks to Markdown conversion libs. [#37461]
+- AI Featured Image: add type info. [#37474]
+
+## [0.14.0] - 2024-05-20
+### Added
+- AI Client: Expose HTML render rules type. [#37386]
+- AI Featured Image: Support Stable Diffusion image generation. [#37413]
+
+### Changed
+- AI Client: Change default behavior of Message components [#37365]
+- Updated package dependencies. [#37379] [#37380]
+
+## [0.13.1] - 2024-05-13
+### Added
+- AI Client: Add className to AI Control component. [#37322]
+- AI Client: Add "try again" prop on Extension AI Control. [#37250]
+
+### Changed
+- AI Client: Add event to upgrade handler function of Extension AI Control. [#37224]
+
+## [0.13.0] - 2024-05-06
+### Added
+- AI Client: Add wrapper ref to AI Control. [#37145]
+- AI Featured Image: Support custom user prompt on the image generation. [#37086]
+
+### Changed
+- Updated package dependencies. [#37147] [#37148] [#37160]
+
+## [0.12.4] - 2024-04-29
+### Added
+- AI Client: Export ExtensionAIControl. [#37087]
+
+## [0.12.3] - 2024-04-25
+### Changed
+- AI Client: Separate AIControl UI from block logic. [#36967]
+
+## [0.12.2] - 2024-04-22
+### Added
+- AI Client: Add Markdown and HTML conversions. [#36906]
+
+## [0.12.1] - 2024-04-15
+### Added
+- AI Client: Add callbacks, initial requesting state and change error handling. [#36869]
+
+## [0.12.0] - 2024-04-08
+### Added
+- Add error rejection in image generation. [#36709]
+
+### Changed
+- Updated package dependencies. [#36756] [#36760] [#36761]
+
+### Fixed
+- AI Featured Image: handle posts longer than the limit of Dall-e generation prompt. [#36703]
+
+## [0.11.0] - 2024-04-01
+### Added
+- AI Client: include prompt to generate featured image based on post content. [#36591]
+- Support different responses in image hook [#36626]
+
+### Fixed
+- AI Client: fix a bug where quick prompts would not work after getting suggested content [#36651]
+- AI Client: set request content type as JSON on image generation hook and use rectangular images instead of square images. [#36620]
+
+## [0.10.1] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36539, #36585]
+
 ## [0.10.0] - 2024-03-18
 ### Added
 - Add image generator hook [#36415]
@@ -259,6 +343,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.14.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.3...v0.14.4
+[0.14.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.2...v0.14.3
+[0.14.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.1...v0.14.2
+[0.14.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.1...v0.14.0
+[0.13.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.4...v0.13.0
+[0.12.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.3...v0.12.4
+[0.12.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.2...v0.12.3
+[0.12.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.1...v0.12.2
+[0.12.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.10.1...v0.11.0
+[0.10.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.8.1...v0.8.2

@@ -2,6 +2,9 @@
 
 set -eo pipefail
 
+# Signal to jetpack CLI that we're part of a CI run, so it doesn't try to prompt for tracking.
+export CI=1
+
 BASE="$PWD"
 BRANCH="$1"
 CHANGEFILE="$(sed 's/[<>:"/\\|?*]/-/g' <<<"$BRANCH")"

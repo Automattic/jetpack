@@ -1,5 +1,6 @@
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
+import { default as deprecated } from './deprecated';
 import edit from './edit';
 import save from './save';
 import slideshowExample1 from './slideshow_example-1.jpg';
@@ -39,4 +40,5 @@ registerJetpackBlockFromMetadata( metadata, {
 			effect: 'slide',
 		},
 	},
+	deprecated,
 } );

@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use Jetpack_Options;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
 use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 use WpOrg\Requests\Utility\CaseInsensitiveDictionary;
 
@@ -70,6 +72,7 @@ class Test_REST_Endpoints extends TestCase {
 
 		do_action( 'rest_api_init' );
 		new REST_Connector( new Manager() );
+		Heartbeat::init()->initialize_rest_api();
 
 		add_action( 'jetpack_disabled_raw_options', array( $this, 'bypass_raw_options' ) );
 
@@ -1153,6 +1156,163 @@ class Test_REST_Endpoints extends TestCase {
 	}
 
 	/**
+	 * Testing the `heartbeat_data` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_heartbeat_data_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_heartbeat_data', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `heartbeat_data` endpoint with proper authentication.
+	 */
+	public function test_heartbeat_data_authenticated() {
+		wp_set_current_user( 0 );
+
+		$data_filter = function () {
+			return array(
+				'key1' => 'val1',
+				'key2' => 'val2',
+			);
+		};
+
+		// Mock the heartbeat data.
+		add_filter( 'jetpack_heartbeat_stats_array', $data_filter );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/heartbeat/data' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ) );
+		remove_filter( 'jetpack_heartbeat_stats_array', $data_filter );
+
+		static::assertEquals( $data_filter(), $response_data );
+	}
+
+	/**
+	 * Testing the `test_connection` endpoint without authentication.
+	 * Response: failed authorization.
+	 */
+	public function test_connection_check_unauthenticated() {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'invalid_permission_connection_check', $response_data['code'] );
+		static::assertEquals( 401, $response_data['data']['status'] );
+	}
+
+	/**
+	 * Testing the `remote_connect` endpoint with proper authentication.
+	 */
+	public function test_connection_check_authenticated() {
+		wp_set_current_user( 0 );
+
+		// Mock full connection established.
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10, 2 );
+
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+
+		$_GET['_for']      = 'jetpack';
+		$_GET['token']     = 'new:1:0';
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce']     = 'testing123';
+		$_GET['body-hash'] = '';
+		// This is intentionally using base64_encode().
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$_GET['signature'] = base64_encode(
+			hash_hmac(
+				'sha1',
+				implode(
+					"\n",
+					array(
+						$_GET['token'],
+						$_GET['timestamp'],
+						$_GET['nonce'],
+						$_GET['body-hash'],
+						'POST',
+						'anything.example',
+						'80',
+						'',
+					)
+				) . "\n",
+				'blogtoken',
+				true
+			)
+		);
+
+		Connection_Rest_Authentication::init()->wp_rest_authenticate( false );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/connection/check' );
+		$request->set_header( 'Content-Type', 'application/json' );
+
+		$response      = $this->server->dispatch( $request );
+		$response_data = $response->get_data();
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
+
+		static::assertEquals( 'success', $response_data['status'] );
+	}
+
+	/**
 	 * This filter callback allows us to skip the database query by `Jetpack_Options` to retrieve the option.
 	 *
 	 * @param array $options List of options already skipping the database request.
@@ -1656,6 +1816,5 @@ class Test_REST_Endpoints extends TestCase {
 		}
 
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_options' ), 10 );
-		remove_filter( 'pre_http_request', array( $this, 'intercept_validate_tokens_request' ), 10 );
 	}
 }

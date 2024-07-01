@@ -70,8 +70,10 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async isModuleEnabled( moduleName ) {
-		const toggle = await this.page.waitForSelector( `.jb-feature-toggle-${ moduleName }` );
-		const toggleSwitch = await toggle.waitForSelector( '.components-form-toggle' );
+		const toggleSwitch = this.page.locator(
+			`.jb-feature-toggle-${ moduleName } .components-form-toggle`
+		);
+		await toggleSwitch.waitFor();
 		const classNames = await toggleSwitch.getAttribute( 'class' );
 
 		return classNames.includes( 'is-checked' );
@@ -80,16 +82,13 @@ export default class JetpackBoostPage extends WpPage {
 	async getSpeedScore( platform ) {
 		const parent = `div.jb-score-bar--${ platform }  .jb-score-bar__filler`;
 
-		await this.page.waitForSelector( parent + ' .jb-score-bar__score', {
+		const score = this.page.locator( parent + ' .jb-score-bar__score' );
+		await score.waitFor( {
 			state: 'visible',
 			timeout: 40 * 1000,
 		} );
 
-		return Number(
-			await this.page.evaluate(
-				"document.querySelector( '" + parent + " .jb-score-bar__score' ).textContent"
-			)
-		);
+		return Number( await score.textContent() );
 	}
 
 	async isScorebarLoading( platform ) {
@@ -124,6 +123,37 @@ export default class JetpackBoostPage extends WpPage {
 	async isCriticalCSSAdvancedRecommendationsVisible() {
 		const selector = '.jb-critical-css__advanced';
 		return this.waitForElementToBeVisible( selector );
+	}
+
+	async isThePageCacheMetaInformationVisible() {
+		const selector = '[data-testid="page-cache-meta"]';
+		return this.page.isVisible( selector );
+	}
+
+	async waitForPageCacheMetaInfoVisibility() {
+		const selector = '[data-testid="page-cache-meta"]';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
+	async waitForPageCachePermalinksErrorVisibility() {
+		const selector = '[data-testid="module-page_cache"] >> text=Permalink settings must be updated';
+		return this.waitForElementToBeVisible( selector, 3 * 60 * 1000 );
+	}
+
+	async isConcatenateJsMetaVisible() {
+		const selector = '[data-testid="meta-minify_js_excludes"]';
+		return this.page.isVisible( selector );
+	}
+
+	async isConcatenateCssMetaVisible() {
+		const selector = '[data-testid="meta-minify_css_excludes"]';
+		return this.page.isVisible( selector );
+	}
+
+	async isImageCdnUpgradeSectionVisible() {
+		const selector =
+			'[data-testid="module-image_cdn"] >> text=Auto-resize lazy images and adjust their quality.';
+		return this.page.isVisible( selector );
 	}
 
 	async navigateToMainSettingsPage() {

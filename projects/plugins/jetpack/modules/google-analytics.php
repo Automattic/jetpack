@@ -13,5 +13,10 @@
  * @package automattic/jetpack
  */
 
-// Load main Jetpack_Google_Analytics class.
+use Automattic\Jetpack\Google_Analytics\GA_Manager;
+
+// Load the old classes for backward compatibility.
 require __DIR__ . '/google-analytics/wp-google-analytics.php';
+
+global $jetpack_google_analytics;
+$jetpack_google_analytics = GA_Manager::get_instance();

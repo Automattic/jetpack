@@ -2,6 +2,7 @@
 /release
 /app/assets/dist
 /app/modules/image-guide/dist
+/app/modules/optimizations/image-cdn/dist
 /app/deactivation/dist
 /node_modules
 .phpunit.result.cache

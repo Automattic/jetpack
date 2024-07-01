@@ -469,6 +469,35 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test disconnecting a user from WordPress.com twice to make sure we don't send excessive requests.
+	 */
+	public function test_disconnect_user_twice() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'editor@editor.com',
+				'role'       => 'editor',
+			)
+		);
+		( new Tokens() )->update_user_token( $editor_id, sprintf( '%s.%s.%d', 'key', 'private', $editor_id ), false );
+
+		$this->manager->expects( $this->once() )
+			->method( 'unlink_user_from_wpcom' )
+			->willReturn( true );
+
+		$this->tokens->expects( $this->once() )
+			->method( 'disconnect_user' )
+			->willReturn( true );
+
+		$result_first  = $this->manager->disconnect_user( $editor_id );
+		$result_second = $this->manager->disconnect_user( $editor_id );
+
+		$this->assertTrue( $result_first );
+		$this->assertFalse( $result_second );
+	}
+
+	/**
 	 * Test updating the connection owner to a non-admin user.
 	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::update_connection_owner

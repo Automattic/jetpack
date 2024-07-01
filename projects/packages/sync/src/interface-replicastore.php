@@ -414,9 +414,9 @@ interface Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param string $taxonomy   Taxonomy slug.
-	 * @param int    $term_id    ID of the term.
-	 * @param string $term_key   ID Field `term_id` or `term_taxonomy_id`.
+	 * @param string|false $taxonomy   Taxonomy slug.
+	 * @param int          $term_id    ID of the term.
+	 * @param string       $term_key   ID Field `term_id` or `term_taxonomy_id`.
 	 */
 	public function get_term( $taxonomy, $term_id, $term_key = 'term_id' );
 
@@ -486,6 +486,7 @@ interface Replicastore_Interface {
 	 * @access public
 	 *
 	 * @param int $user_id User ID.
+	 * @return \WP_User|null User object, or `null` if user invalid/not found.
 	 */
 	public function get_user( $user_id );
 

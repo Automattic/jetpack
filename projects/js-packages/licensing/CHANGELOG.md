@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.17 - 2024-06-21
+### Changed
+- Update dependencies. [#37979]
+
+## 0.12.16 - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.12.15 - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## 0.12.14 - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## 0.12.13 - 2024-05-20
+### Changed
+- Updated package dependencies. [#37379] [#37380] [#37382]
+
+## 0.12.12 - 2024-05-08
+### Changed
+- Update dependencies.
+
+## 0.12.11 - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## 0.12.10 - 2024-04-11
+### Changed
+- Update dependencies.
+
+## 0.12.9 - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## 0.12.8 - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
 ## 0.12.7 - 2024-03-18
 ### Fixed
 - Fixed how we check if a plugin is active [#35420]

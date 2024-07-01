@@ -1,0 +1,62 @@
+{
+	"name": "automattic/jetpack-calypsoify",
+	"description": "Calypsoify is designed to make sure specific wp-admin pages include navigation that prioritizes the Calypso navigation experience.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-calypsoify/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-calypsoify",
+		"textdomain": "jetpack-calypsoify",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-jetpack-calypsoify.php"
+		}
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	}
+}

@@ -259,7 +259,7 @@ function jetpack_render_tos_blurb() {
 	printf(
 		wp_kses(
 			/* Translators: placeholders are links. */
-			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
+			__( 'By clicking <strong>Set up Jetpack</strong>, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">sync your site‘s data</a> with us.', 'jetpack' ),
 			array(
 				'a'      => array(
 					'href'   => array(),
@@ -335,8 +335,8 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 
  * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
- * @param array|obj $any        Source data to be cleaned up.
- * @param array     $seen_nodes Built array of nodes.
+ * @param mixed $any        Source data to be cleaned up.
+ * @param array $seen_nodes Built array of nodes.
  *
  * @return array
  */

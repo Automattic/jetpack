@@ -18,6 +18,7 @@ export { default as ReviewPrompt } from './src/components/review-prompt';
 export { default as PostPublishReviewPrompt } from './src/components/post-publish-review-prompt';
 export { default as PostPublishManualSharing } from './src/components/post-publish-manual-sharing';
 export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
+export { default as ConnectionManagement } from './src/components/connection-management';
 
 export { default as useSocialMediaConnections } from './src/hooks/use-social-media-connections';
 export { default as useSocialMediaMessage } from './src/hooks/use-social-media-message';
@@ -34,3 +35,4 @@ export * from './src/hooks/use-saving-post';
 export * from './src/hooks/use-share-limits';
 export * from './src/hooks/use-post-meta';
 export * from './src/components/share-buttons';
+export * from './src/components/manage-connections-modal';

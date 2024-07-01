@@ -17,6 +17,8 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Options;
 
+require_once __DIR__ . '/class-jetpack-subscription-site.php';
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -35,6 +37,27 @@ function register_block() {
 		__DIR__,
 		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
+
+	add_filter(
+		'jetpack_options_whitelist',
+		function ( $options ) {
+			$options[] = 'jetpack_subscriptions_login_navigation_enabled';
+
+			return $options;
+		}
+	);
+
+	// If called via REST API, we need to register later in the lifecycle
+	if ( ( new Host() )->is_wpcom_platform() && ! jetpack_is_frontend() ) {
+		add_action(
+			'restapi_theme_init',
+			function () {
+				Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
+			}
+		);
+	} else {
+		Jetpack_Subscription_Site::init()->handle_subscriber_login_block_placements();
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -102,6 +125,7 @@ function render_block( $attributes ) {
 	$redirect_url               = ! empty( $attributes['redirectToCurrent'] ) ? get_current_url() : get_site_url();
 	$log_in_label               = ! empty( $attributes['logInLabel'] ) ? sanitize_text_field( $attributes['logInLabel'] ) : esc_html__( 'Log in', 'jetpack' );
 	$log_out_label              = ! empty( $attributes['logOutLabel'] ) ? sanitize_text_field( $attributes['logOutLabel'] ) : esc_html__( 'Log out', 'jetpack' );
+	$show_manage_link           = ! empty( $attributes['showManageSubscriptionsLink'] );
 	$manage_subscriptions_label = ! empty( $attributes['manageSubscriptionsLabel'] ) ? sanitize_text_field( $attributes['manageSubscriptionsLabel'] ) : esc_html__( 'Manage subscription', 'jetpack' );
 
 	if ( ! is_subscriber_logged_in() ) {
@@ -113,7 +137,7 @@ function render_block( $attributes ) {
 		);
 	}
 
-	if ( Jetpack_Memberships::is_current_user_subscribed() ) {
+	if ( $show_manage_link && Jetpack_Memberships::is_current_user_subscribed() ) {
 		return sprintf(
 			$block_template,
 			get_block_wrapper_attributes(),

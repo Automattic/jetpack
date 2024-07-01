@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 13.3-a.4
+ * Version: 13.6-a.10
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.3
+ * Requires at least: 6.4
  * Requires PHP: 7.0
  *
  * @package automattic/jetpack
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.3' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.4' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
-define( 'JETPACK__VERSION', '13.3-a.4' );
+define( 'JETPACK__VERSION', '13.6-a.10' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -116,11 +116,13 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 	 * @since 7.2.0
 	 */
 	function jetpack_admin_unsupported_wp_notice() {
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php esc_html_e( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ); ?></p>
-		</div>
-		<?php
+		wp_admin_notice(
+			esc_html__( 'Jetpack requires a more recent version of WordPress and has been paused. Please update WordPress to continue enjoying Jetpack.', 'jetpack' ),
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_unsupported_wp_notice' );
@@ -179,29 +181,28 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 		if ( get_current_screen()->id !== 'plugins' ) {
 			return;
 		}
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-				<?php
-				printf(
-					wp_kses(
-						/* translators: Placeholder is a link to a support document. */
-						__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
-						array(
-							'a'    => array(
-								'href'   => array(),
-								'rel'    => array(),
-								'target' => array(),
-							),
-							'code' => array(),
-						)
+		$message = sprintf(
+			wp_kses(
+				/* translators: Placeholder is a link to a support document. */
+				__( 'Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack must have Composer dependencies installed and built via the build command: <code>jetpack build plugins/jetpack --with-deps</code>', 'jetpack' ),
+				array(
+					'a'    => array(
+						'href'   => array(),
+						'rel'    => array(),
+						'target' => array(),
 					),
-					'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-				);
-				?>
-			</p>
-		</div>
-		<?php
+					'code' => array(),
+				)
+			),
+			'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+		);
+		wp_admin_notice(
+			$message,
+			array(
+				'type'        => 'error',
+				'dismissible' => true,
+			)
+		);
 	}
 
 	add_action( 'admin_notices', 'jetpack_admin_missing_files' );

@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.46.3] - 2024-06-26
+### Added
+- Added social preview for Threads [#38003]
+
+## [0.46.2] - 2024-06-24
+### Added
+- Added Social resharing for classic editor [#37810]
+
+### Changed
+- Removed unneeded check for connection management wpcom [#37899]
+
+### Fixed
+- Added support for Threads for Social connections [#37977]
+
+## [0.46.1] - 2024-06-17
+### Fixed
+- Fixed connections management links for classic editor [#37681]
+
+## [0.46.0] - 2024-06-13
+### Changed
+- Changed the social-product-info endpoint to return v1 plan [#36846]
+
+## [0.45.2] - 2024-06-05
+### Added
+- Publicize: Package version update [#37683]
+
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.45.1] - 2024-06-03
+### Changed
+- Social: Update upgrade nudges to use the new plan. [#37638]
+
+## [0.45.0] - 2024-05-27
+### Changed
+- Added external_id to connections field. [#37405]
+- Changed how social connections are cached by moving to using transients. [#37500]
+- Moved "can_manage_connection" method to Publicize_Base class. [#37532]
+- Fixed no connections UI for editor. [#37571]
+- Updated the connection test results endpoint for front-end. [#37531]
+- Standardized the rest endpoint structure for Jetpack social connections. [#37510]
+
+### Fixed
+- Disconnect button was not showing for connections in the editor. [#37501]
+
+## [0.44.1] - 2024-05-20
+### Changed
+- Changed the connections management feature flag check to include the WP.com plan feature. [#37425]
+- Social: Updated connection modal UI. [#37420]
+- Updated package dependencies. [#37379]
+
+### Fixed
+- Added back the previous Open Graph filter function. [#37368]
+- Fixed the typo in the Open Graph hook. [#37411]
+
+## [0.44.0] - 2024-05-13
+### Added
+- Add connect form/button for connection management. [#37196]
+- Social Connections: Added disconnection confirmation dialog. [#37310]
+- Wired up disconnect button and added reconnect button. [#37237]
+
+## [0.43.0] - 2024-05-06
+### Added
+- Added feature flag for new social admin UI. [#37134]
+- Added new endpoint to delete publicize connection. [#37115]
+- Social Admin page: Added connection management component. [#37120]
+
+### Changed
+- Updated package dependencies. [#37147]
+
+## [0.42.13] - 2024-04-29
+### Changed
+- Internal updates.
+
+## [0.42.12] - 2024-04-25
+### Changed
+- Internal updates.
+
+## [0.42.11] - 2024-04-22
+### Changed
+- Internal updates.
+
+## [0.42.10] - 2024-04-15
+### Fixed
+- Fixed 403 error for SIG for non-admin authors. [#36894]
+
+## [0.42.9] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+### Fixed
+- Fixed the learn more link. [#36735]
+
+## [0.42.8] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
+## [0.42.7] - 2024-03-25
+### Changed
+- Internal updates.
+
 ## [0.42.6] - 2024-03-18
 ### Changed
 - Internal updates.
@@ -502,6 +603,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.46.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.2...v0.46.3
+[0.46.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.1...v0.46.2
+[0.46.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.0...v0.46.1
+[0.46.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.2...v0.46.0
+[0.45.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.1...v0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.1...v0.45.0
+[0.44.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.0...v0.44.1
+[0.44.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.43.0...v0.44.0
+[0.43.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.13...v0.43.0
+[0.42.13]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.12...v0.42.13
+[0.42.12]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.11...v0.42.12
+[0.42.11]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.10...v0.42.11
+[0.42.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.9...v0.42.10
+[0.42.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.8...v0.42.9
+[0.42.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.7...v0.42.8
+[0.42.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.6...v0.42.7
 [0.42.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.5...v0.42.6
 [0.42.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.4...v0.42.5
 [0.42.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.3...v0.42.4

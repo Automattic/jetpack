@@ -91,14 +91,14 @@ describe( 'MediaPicker', () => {
 		await expect( screen.findByText( /Choose Media/i ) ).resolves.toBeInTheDocument();
 		await expect( screen.findByText( /Add an image or video/i ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should render a preview if an image is selected', async () => {
 		render( <MediaPickerMock detailsMock={ DUMMY_IMAGE_DETAILS } mediaIdMock={ 1 } /> );
 
 		await expect( screen.findByText( /Remove media/i ) ).resolves.toBeInTheDocument();
-		await expect( screen.findByRole( 'img' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'presentation' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();

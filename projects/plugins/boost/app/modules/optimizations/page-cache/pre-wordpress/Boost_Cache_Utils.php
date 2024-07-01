@@ -5,6 +5,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Pre_WordPress;
 
+use WP_Post;
+
 class Boost_Cache_Utils {
 
 	/**
@@ -37,6 +39,7 @@ class Boost_Cache_Utils {
 
 	/**
 	 * Returns a sanitized directory path.
+	 *
 	 * @param string $path - The path to sanitize.
 	 * @return string
 	 */

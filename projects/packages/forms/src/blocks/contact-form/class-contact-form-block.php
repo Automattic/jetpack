@@ -156,8 +156,12 @@ class Contact_Form_Block {
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		global $post;
+
+		$handle = 'jp-forms-blocks';
+
 		Assets::register_script(
-			'jp-forms-blocks',
+			$handle,
 			'../../../dist/blocks/editor.js',
 			__FILE__,
 			array(
@@ -166,6 +170,15 @@ class Contact_Form_Block {
 				'enqueue'    => true,
 			)
 		);
+
+		$data = array(
+			'defaults' => array(
+				'to'      => wp_get_current_user()->user_email,
+				'subject' => '[' . get_bloginfo( 'name' ) . ']' . ( isset( $post ) ? ' ' . esc_html( $post->post_title ) : '' ),
+			),
+		);
+
+		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
 	}
 
 	/**

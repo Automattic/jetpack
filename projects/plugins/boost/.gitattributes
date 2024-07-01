@@ -4,6 +4,7 @@
 
 app/assets/dist/**                              production-include
 app/modules/image-guide/dist/**                 production-include
+app/modules/optimizations/image-cdn/dist/**     production-include
 jetpack_vendor/**                               production-include
 vendor/autoload.php                             production-include
 vendor/autoload_functions.php                   production-include
@@ -13,6 +14,7 @@ vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
 vendor/tedivm/**                                production-include
 vendor/tubalmartin/**                           production-include
+vendor/matthiasmullie/**                 production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.

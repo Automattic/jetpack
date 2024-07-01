@@ -34,7 +34,7 @@ class Host {
 	 *
 	 * @since 1.9.0
 	 *
-	 * @return bool;
+	 * @return bool
 	 */
 	public function is_atomic_platform() {
 		return Constants::is_true( 'ATOMIC_SITE_ID' ) && Constants::is_true( 'ATOMIC_CLIENT_ID' );
@@ -275,5 +275,21 @@ class Host {
 
 		Cache::set( 'host_guess', $provider );
 		return $provider;
+	}
+
+	/**
+	 * Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
+	 *
+	 * @since 3.0.2 Ported from Jetpack to the Status package.
+	 *
+	 * To be used with a filter of allowed domains for a redirect.
+	 *
+	 * @param array $domains Allowed WP.com Environments.
+	 *
+	 * @return array
+	 */
+	public static function allow_wpcom_public_api_domain( $domains ) {
+		$domains[] = 'public-api.wordpress.com';
+		return $domains;
 	}
 }

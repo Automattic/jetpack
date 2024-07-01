@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Changelogger;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * "Validate" command for the changelogger tool CLI.
  */
+#[AsCommand( 'validate', 'Validates changelog entry files' )]
 class ValidateCommand extends Command {
 
 	/**
@@ -24,6 +26,13 @@ class ValidateCommand extends Command {
 	 * @var string|null
 	 */
 	protected static $defaultName = 'validate';
+
+	/**
+	 * The default command description
+	 *
+	 * @var string|null
+	 */
+	protected static $defaultDescription = 'Validates changelog entry files';
 
 	/**
 	 * The InputInterface to use.
@@ -42,7 +51,7 @@ class ValidateCommand extends Command {
 	/**
 	 * Counts of errors and warnings output.
 	 *
-	 * @var int[]
+	 * @var array{error:int,warning:int}
 	 */
 	private $counts;
 
@@ -57,7 +66,7 @@ class ValidateCommand extends Command {
 	 * Configures the command.
 	 */
 	protected function configure() {
-		$this->setDescription( 'Validates changelog entry files' )
+		$this->setDescription( static::$defaultDescription )
 			->addOption( 'gh-action', null, InputOption::VALUE_NONE, 'Output validation issues using GitHub Action command syntax.' )
 			->addOption( 'basedir', null, InputOption::VALUE_REQUIRED, 'Output file paths in this directory relative to it.' )
 			->addOption( 'no-strict', null, InputOption::VALUE_NONE, 'Do not exit with a failure code if only warnings are found.' )
@@ -107,7 +116,8 @@ EOF
 		try {
 			$diagnostics = null; // Make phpcs happy.
 			$data        = Utils::loadChangeFile( $filename, $diagnostics );
-		} catch ( \RuntimeException $ex ) {
+			'@phan-var array{warnings:array{string,int}[],lines:array<string,int>} $diagnostics'; // No idea why Phan is getting confused about the type.
+		} catch ( LoadChangeFileException $ex ) {
 			$this->msg( 'error', $filename, $ex->fileLine, $ex->getMessage() );
 			return false;
 		}
@@ -177,7 +187,7 @@ EOF
 	 * @param OutputInterface $output OutputInterface.
 	 * @return int 0 if everything went fine, or an exit code.
 	 */
-	protected function execute( InputInterface $input, OutputInterface $output ) {
+	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$this->input  = $input;
 		$this->output = $output;
 		$this->counts = array(
@@ -212,6 +222,7 @@ EOF
 		}
 
 		$output->writeln( sprintf( 'Found %d error(s) and %d warning(s)', $this->counts['error'], $this->counts['warning'] ), OutputInterface::VERBOSITY_VERBOSE );
+		// @phan-suppress-next-line PhanImpossibleCondition -- Phan is incorrectly assuming it never changes.
 		return $this->counts['error'] || $this->counts['warning'] && ! $input->getOption( 'no-strict' ) ? 1 : 0;
 	}
 }

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Tooltip } from '@wordpress/components';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -26,19 +26,19 @@ const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCa
 	} );
 
 	return (
-		<div className={ classnames( className, styles.wrapper, styles[ variant ] ) }>
-			<div className={ classnames( styles.icon ) }>{ icon }</div>
-			<div className={ classnames( styles.info ) }>
+		<div className={ clsx( className, styles.wrapper, styles[ variant ] ) }>
+			<div className={ clsx( styles.icon ) }>{ icon }</div>
+			<div className={ clsx( styles.info ) }>
 				<Text className={ styles.label }>{ label }</Text>
 				{ variant === 'square' ? (
 					// @todo Switch to `placement` once WordPress 6.4 is the minimum.
 					<Tooltip text={ formattedValue } position="top center">
-						<Text variant="headline-small" className={ classnames( styles.value ) }>
+						<Text variant="headline-small" className={ clsx( styles.value ) }>
 							{ compactValue }
 						</Text>
 					</Tooltip>
 				) : (
-					<Text variant="title-medium-semi-bold" className={ classnames( styles.value ) }>
+					<Text variant="title-medium-semi-bold" className={ clsx( styles.value ) }>
 						{ formattedValue }
 					</Text>
 				) }

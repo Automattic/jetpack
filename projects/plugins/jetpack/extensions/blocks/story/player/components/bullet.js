@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export default function Bullet( { isEllipsis, disabled, index, isSelected, progress, onClick } ) {
 	const bulletDisabled = disabled || isEllipsis;
@@ -21,7 +21,7 @@ export default function Bullet( { isEllipsis, disabled, index, isSelected, progr
 		<button
 			role={ bulletDisabled ? 'presentation' : 'tab' }
 			key={ index }
-			className={ classNames( 'wp-story-pagination-bullet', {
+			className={ clsx( 'wp-story-pagination-bullet', {
 				'wp-story-pagination-ellipsis': isEllipsis,
 			} ) }
 			aria-label={ label }

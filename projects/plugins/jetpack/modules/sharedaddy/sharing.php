@@ -723,6 +723,16 @@ class Sharing_Admin {
 			new Share_Email( 'email', array() ),
 			new Share_Reddit( 'reddit', array() ),
 		);
+
+		global $submenu;
+		// Hide the link to Jetpack Sharing settings if no Jetpack Settings found in submenu list
+		$show_jetpack_admin_settings_link = array_reduce(
+			$submenu['jetpack'],
+			function ( $carry, $item ) {
+				return $carry || ( isset( $item[2] ) && $item[2] === 'jetpack#/settings' );
+			},
+			false
+		);
 		?>
 
 		<div class="share_manage_options">
@@ -752,6 +762,7 @@ class Sharing_Admin {
 						</div>
 					</div>
 				</div>
+				<?php if ( $show_jetpack_admin_settings_link ) : ?>
 				<p class="settings-sharing__block-theme-description">
 					<?php
 					printf(
@@ -766,6 +777,7 @@ class Sharing_Admin {
 					);
 					?>
 				</p>
+				<?php endif; ?>
 			</div>
 			<br class="clearing" />
 		</div>

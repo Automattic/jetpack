@@ -468,6 +468,14 @@ async function checkDescription( payload, octokit ) {
 		return;
 	}
 
+	if (
+		( ref === 'update/phan-wpcom-stubs' || ref === 'update/phan-custom-stubs' ) &&
+		( author === 'matticbot' || author === 'github-actions[bot]' )
+	) {
+		debug( `check-description: Automated stub update, skipping` );
+		return;
+	}
+
 	debug( `check-description: start building our comment` );
 
 	// We'll add any remarks we may have about the PR to that comment body.

@@ -75,7 +75,7 @@ describe( 'Connections', () => {
 
 		it( 'displays the site icon if it exists', () => {
 			render( <DashConnections { ...testProps } />, { initialState: buildInitialState() } );
-			expect( withinCard( 'Site connection' ).getByRole( 'img' ) ).toHaveAttribute(
+			expect( withinCard( 'Site connection' ).getByRole( 'presentation' ) ).toHaveAttribute(
 				'src',
 				'https://example.org/site-icon.png'
 			);

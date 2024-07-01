@@ -4,6 +4,7 @@
  *
  * @package automattic/jetpack-boost
  */
+
 // Old value is the previous DS key, fallback to even older non-ds value.
 $old_value = (array) get_option( 'jetpack_boost_ds_dismissed_score_prompt', get_option( 'jb_show_score_prompt' ) );
 if ( false !== $old_value ) {

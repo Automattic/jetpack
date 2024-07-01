@@ -71,7 +71,7 @@ abstract class Parser {
 	 *
 	 * @param string $version See `ChangelogEntry::__construct()`.
 	 * @param array  $data See `ChangelogEntry::__construct()`.
-	 * @returns ChangelogEntry
+	 * @return ChangelogEntry
 	 */
 	public function newChangelogEntry( $version, $data = array() ) {
 		return new ChangelogEntry( $version, $data );
@@ -81,7 +81,7 @@ abstract class Parser {
 	 * Create a new ChangeEntry.
 	 *
 	 * @param array $data See `ChangeEntry::__construct()`.
-	 * @returns ChangeEntry
+	 * @return ChangeEntry
 	 */
 	public function newChangeEntry( $data = array() ) {
 		return new ChangeEntry( $data );

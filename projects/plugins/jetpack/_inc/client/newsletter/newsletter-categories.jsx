@@ -1,7 +1,6 @@
-import './style.scss';
 import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React, { useCallback, useMemo } from 'react';
@@ -117,11 +116,15 @@ function NewsletterCategories( props ) {
 						disabled={ disabled }
 						checked={ isNewsletterCategoriesEnabled }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }
-						label={ __( 'Enable newsletter categories', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable newsletter categories', 'jetpack' ) }
+							</span>
+						}
 					/>
 				</div>
 				<div
-					className={ classNames( 'newsletter-colapsable', {
+					className={ clsx( 'newsletter-colapsable', {
 						hide: ! isNewsletterCategoriesEnabled,
 					} ) }
 				>
@@ -134,7 +137,7 @@ function NewsletterCategories( props ) {
 				</div>
 			</SettingsGroup>
 			<div
-				className={ classNames( 'newsletter-card-colapsable', {
+				className={ clsx( 'newsletter-card-colapsable', {
 					hide: ! isNewsletterCategoriesEnabled,
 				} ) }
 			>

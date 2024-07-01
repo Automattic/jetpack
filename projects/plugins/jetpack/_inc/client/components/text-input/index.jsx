@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { omit } from 'lodash';
 import React from 'react';
 
@@ -14,13 +14,15 @@ export default class TextInput extends React.Component {
 		type: 'text',
 	};
 
+	textFieldRef = React.createRef();
+
 	focus = () => {
-		this.refs.textField.focus();
+		this.textFieldRef.current.focus();
 	};
 
 	render() {
 		const { className, selectOnFocus } = this.props;
-		const classes = classNames( className, {
+		const classes = clsx( className, {
 			'dops-text-input': true,
 			'is-error': this.props.isError,
 			'is-valid': this.props.isValid,
@@ -29,7 +31,7 @@ export default class TextInput extends React.Component {
 		return (
 			<input
 				{ ...forwardedProps }
-				ref="textField"
+				ref={ this.textFieldRef }
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null }
 			/>

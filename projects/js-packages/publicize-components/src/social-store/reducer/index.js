@@ -14,6 +14,10 @@ const reducer = combineReducers( {
 	socialImageGeneratorSettings,
 	autoConversionSettings,
 	hasPaidPlan: ( state = false ) => state,
+	userConnectionUrl: ( state = '' ) => state,
+	useAdminUiV1: ( state = false ) => state,
+	hasPaidFeatures: ( state = false ) => state,
+	connectionRefreshPath: ( state = '' ) => state,
 } );
 
 export default reducer;

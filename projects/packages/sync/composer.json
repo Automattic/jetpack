@@ -7,7 +7,6 @@
 		"php": ">=7.0",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-password-checker": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-roles": "@dev",
@@ -16,6 +15,8 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-search": "@dev",
+		"automattic/jetpack-waf": "@dev",
 		"automattic/wordbless": "@dev"
 	},
 	"suggest": {
@@ -58,7 +59,13 @@
 			"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.10.x-dev"
+			"dev-trunk": "3.1.x-dev"
+		},
+		"dependencies": {
+			"test-only": [
+				"packages/search",
+				"packages/waf"
+			]
 		}
 	},
 	"config": {

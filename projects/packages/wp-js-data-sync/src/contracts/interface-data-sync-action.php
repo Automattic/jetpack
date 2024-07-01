@@ -14,7 +14,7 @@ interface Data_Sync_Action {
 	/**
 	 * Handles the action logic.
 	 *
-	 * @param mixed $data JSON Data passed to the action.
+	 * @param mixed            $data JSON Data passed to the action.
 	 * @param \WP_REST_Request $request The request object.
 	 * @return mixed
 	 */

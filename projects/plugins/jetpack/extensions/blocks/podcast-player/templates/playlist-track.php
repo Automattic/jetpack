@@ -2,10 +2,11 @@
 /**
  * Podcast Title template.
  *
+ * @html-template Automattic\Jetpack\Extensions\Podcast_Player\render
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- This file expects $template_props set outside the file.
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 

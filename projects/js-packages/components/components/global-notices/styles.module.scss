@@ -1,0 +1,23 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.global-notices {
+	&:global(.components-snackbar-list) {
+		position: fixed;
+		inset-block-start: auto; // top
+		inset-block-end: 0; // bottom
+		inset-inline: 0; // left and right
+		// Modals have 100000, so this needs to be above them
+		z-index: 100001;
+
+		@include break-small {
+			width: auto;
+			inset-inline: unset; // left and right
+			inset-block-start: 4rem;
+			inset-inline-end: 1rem;
+		}
+
+		@include break-medium {
+			inset-block-start: 3rem;
+		}
+	}
+}

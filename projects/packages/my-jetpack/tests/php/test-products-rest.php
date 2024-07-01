@@ -220,7 +220,7 @@ class Test_Products_Rest extends TestCase {
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertEquals( 'inactive', $data['status'] );
+		$this->assertEquals( 'needs_purchase_or_free', $data['status'] );
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 	}
 

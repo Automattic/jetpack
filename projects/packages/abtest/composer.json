@@ -1,6 +1,7 @@
 {
 	"name": "automattic/jetpack-abtest",
 	"description": "Provides an interface to the WP.com A/B tests.",
+	"abandoned": "automattic/jetpack-explat",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -49,7 +50,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.0.x-dev"
+			"dev-trunk": "2.1.x-dev"
 		}
 	},
 	"config": {

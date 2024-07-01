@@ -12,6 +12,7 @@ on:
       - Post-Build
       - PR is up-to-date
       - Update Jetpack Staging Test Sites
+      - Update Phan stubs
       - k6 Tests for Jetpack Staging Test Sites
     branches: [ 'trunk', 'prerelease', '*/branch-*' ]
 

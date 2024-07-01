@@ -64,7 +64,7 @@ class Plan {
 	/**
 	 * Get plan info.
 	 *
-	 * @param {bool} $force_refresh - Default to false. Set true to load from WPCOM.
+	 * @param bool $force_refresh - Default to false. Set true to load from WPCOM.
 	 */
 	public function get_plan_info( $force_refresh = false ) {
 		if ( $force_refresh ) {

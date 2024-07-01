@@ -1,12 +1,12 @@
 import AutomatticBylineLogo from '../index';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Automattic Byline Logo',
 	component: AutomatticBylineLogo,
-} as ComponentMeta< typeof AutomatticBylineLogo >;
+} as Meta< typeof AutomatticBylineLogo >;
 
-const Template: ComponentStory< typeof AutomatticBylineLogo > = args => (
+const Template: StoryFn< typeof AutomatticBylineLogo > = args => (
 	<AutomatticBylineLogo { ...args } />
 );
 

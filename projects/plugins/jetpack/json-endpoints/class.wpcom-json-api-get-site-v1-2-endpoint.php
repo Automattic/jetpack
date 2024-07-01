@@ -77,6 +77,7 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'was_upgraded_from_trial'     => '(bool) If the site ever upgraded to a paid plan from a trial.',
 		'was_migration_trial'         => '(bool) If the site ever used a migration trial.',
 		'was_hosting_trial'           => '(bool) If the site ever used a hosting trial.',
+		'is_deleted'                  => '(bool) If the site flagged as deleted.',
 	);
 
 	/**

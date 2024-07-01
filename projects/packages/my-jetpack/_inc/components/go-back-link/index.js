@@ -12,7 +12,7 @@ import styles from './styles.module.scss';
  * @param {boolean} props.reload   - Whether to reload the page after going back
  * @returns {object}                 GoBackLink component.
  */
-function GoBackLink( { onClick, reload } ) {
+function GoBackLink( { onClick = () => {}, reload } ) {
 	const to = reload ? '/?reload=true' : '/';
 
 	return (
@@ -22,9 +22,5 @@ function GoBackLink( { onClick, reload } ) {
 		</Link>
 	);
 }
-
-GoBackLink.defaultProps = {
-	onClick: () => {},
-};
 
 export default GoBackLink;

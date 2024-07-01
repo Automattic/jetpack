@@ -686,6 +686,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 
 					if ( true === $buffer->append( $item['xml'] ) ) {
 						$last_post_id = -$index;
+						if ( isset( $url['lastmod'] ) ) {
+							$buffer->view_time( jp_sitemap_datetime( $url['lastmod'] ) );
+						}
 					} else {
 						break;
 					}

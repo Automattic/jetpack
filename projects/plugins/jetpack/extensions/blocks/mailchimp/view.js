@@ -4,10 +4,9 @@ import emailValidator from 'email-validator';
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
 import debounce from 'lodash/debounce';
+import { BLOCK_CLASS } from './constants';
 
 import './view.scss';
-
-const blockClassName = 'wp-block-jetpack-mailchimp';
 
 function fetchSubscription( blogId, email, params ) {
 	let url =
@@ -60,9 +59,9 @@ const handleEmailValidation = ( form, emailField ) => {
 function activateSubscription( block, blogId ) {
 	const form = block.querySelector( 'form' );
 	const emailField = block.querySelector( 'input[name=email]' );
-	const processingEl = block.querySelector( '.' + blockClassName + '_processing' );
-	const errorEl = block.querySelector( '.' + blockClassName + '_error' );
-	const successEl = block.querySelector( '.' + blockClassName + '_success' );
+	const processingEl = block.querySelector( '.' + BLOCK_CLASS + '_processing' );
+	const errorEl = block.querySelector( '.' + BLOCK_CLASS + '_error' );
+	const successEl = block.querySelector( '.' + BLOCK_CLASS + '_success' );
 	emailField.addEventListener( 'input', handleEmailValidation( form, emailField ) );
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
@@ -94,7 +93,7 @@ function activateSubscription( block, blogId ) {
 }
 
 const initializeMailchimpBlocks = () => {
-	const mailchimpBlocks = Array.from( document.querySelectorAll( '.' + blockClassName ) );
+	const mailchimpBlocks = Array.from( document.querySelectorAll( '.' + BLOCK_CLASS ) );
 	mailchimpBlocks.forEach( block => {
 		if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 			return;

@@ -12,7 +12,6 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { pencil } from '@wordpress/icons';
-import React from 'react';
 
 export const IMPROVE_KEY_MAKE_LONGER = 'make-longer' as const;
 const IMPROVE_SUGGESTION_MAKE_LONGER = 'makeLonger' as const;

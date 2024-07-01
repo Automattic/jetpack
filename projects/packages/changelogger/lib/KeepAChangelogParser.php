@@ -86,8 +86,8 @@ class KeepAChangelogParser extends Parser {
 	/**
 	 * Split a string in two at the first occurrence of a substring.
 	 *
-	 * @param string   $haystack String to split.
-	 * @param string[] ...$needles Strings to split on. Earliest match in $haystack wins.
+	 * @param string $haystack String to split.
+	 * @param string ...$needles Strings to split on. Earliest match in $haystack wins.
 	 * @return string[] Two elements: The part before $needles and the part after, both trimmed.
 	 */
 	private function split( $haystack, ...$needles ) {

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Analyzer;
 
 use Composer\Script\Event;
+use Exception;
 
 /**
  * This class holds the callback for the WordPress API function definition finder.

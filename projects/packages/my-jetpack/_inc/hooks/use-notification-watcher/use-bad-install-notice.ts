@@ -3,6 +3,7 @@ import { useContext, useEffect } from 'react';
 import { NOTICE_PRIORITY_MEDIUM } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import useAnalytics from '../use-analytics';
+import type { NoticeOptions } from '../../context/notices/types';
 
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
@@ -40,8 +41,9 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			} );
 		};
 
-		const noticeOptions = {
-			status: 'error',
+		const noticeOptions: NoticeOptions = {
+			id: 'bad-installation-notice',
+			level: 'error',
 			actions: [
 				{
 					label: __( 'See documentation', 'jetpack-my-jetpack' ),
@@ -49,12 +51,12 @@ const useBadInstallNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					noDefaultClasses: true,
 				},
 			],
+			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
 		setNotice( {
 			message: errorMessage,
 			options: noticeOptions,
-			priority: NOTICE_PRIORITY_MEDIUM,
 		} );
 	}, [ redBubbleAlerts, setNotice, recordEvent ] );
 };

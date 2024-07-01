@@ -377,10 +377,17 @@ async function generatePluginFromStarter( projDir, answers ) {
 	} );
 	files = files.split( '\n' ).map( str => str.replace( 'projects/plugins/starter-plugin', '' ) );
 	files.forEach( file => {
-		if ( file ) {
+		if ( file && ! file.startsWith( 'changelog/' ) ) {
 			copyFile( path.join( projDir, file ), path.join( starterDir, file ) );
 		}
 	} );
+
+	// Initialize changelog dir.
+	mergeDirs(
+		fileURLToPath( new URL( '../skeletons/common/changelog', import.meta.url ) ),
+		path.join( projDir, 'changelog' ),
+		answers.name
+	);
 
 	// Replace strings.
 	await searchReplaceInFolder( projDir, 'jetpack-starter-plugin', normalizeSlug( answers.name ) );
@@ -949,9 +956,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.3\n' +
+		'Requires at least: 6.4\n' +
 		'Requires PHP: 7.0\n' +
-		'Tested up to: 6.5\n' +
+		'Tested up to: 6.6\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -1008,10 +1015,10 @@ function findVersionFromPnpmLock( pkg ) {
 	}
 
 	const version = Object.keys( findVersionFromPnpmLock.packages ).reduce( ( value, cur ) => {
-		if ( ! cur.startsWith( '/' + pkg + '@' ) ) {
+		if ( ! cur.startsWith( pkg + '@' ) ) {
 			return value;
 		}
-		const ver = cur.substring( pkg.length + 2 ).replace( /\(.*/, '' );
+		const ver = cur.substring( pkg.length + 1 );
 		return ! value || ( ver && semver.gt( ver, value ) ) ? ver : value;
 	}, null );
 	return version || '*';

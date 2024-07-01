@@ -145,6 +145,8 @@ jobs:
       always() && ! cancelled() && ! failure() &&
       needs.create-test-matrix.result == 'success' && needs.create-test-matrix.outputs.matrix != '[]'
     timeout-minutes: 60
+    env:
+      WP_DEBUG_PATH: '${{ github.workspace }}/tools/docker/wordpress/wp-content/debug.log'
     strategy:
       fail-fast: false
       matrix:
@@ -218,6 +220,11 @@ jobs:
           pnpm run config:decrypt
           echo "::endgroup::"
 
+          # Ensure that wp debug.log exists and the web process can write to it
+          mkdir -p "$(dirname "$WP_DEBUG_PATH")"
+          touch "$WP_DEBUG_PATH"
+          chmod 0666 "$WP_DEBUG_PATH"
+
           if [[ "${SUITE}" != atomic* && "${SUITE}" != vip ]]; then
             echo "::group::Start docker environment"
             pnpm run env:up
@@ -279,6 +286,9 @@ jobs:
         working-directory: ${{ matrix.path }}
         continue-on-error: true
         run: |
+          # Copy debug.log to output folder, if it exists
+          [[ ! -f "$WP_DEBUG_PATH" ]] || cp "$WP_DEBUG_PATH" "output/logs/php_errors.log"
+
           pnpm run tunnel:down
           echo "::group::Tunnel logs"
           cat "$HOME/tunnel.log"

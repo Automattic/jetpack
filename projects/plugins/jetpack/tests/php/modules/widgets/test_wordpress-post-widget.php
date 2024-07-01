@@ -17,7 +17,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 	public function __construct() {
 		parent::__construct();
 		$this->inst = new Jetpack_Display_Posts_Widget();
-		remove_action( 'shutdown', 'jetpack_display_posts_conditionally_set_cron_run_status' );
 	}
 
 	/**

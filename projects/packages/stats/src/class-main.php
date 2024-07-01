@@ -75,6 +75,10 @@ class Main {
 		add_filter( 'map_meta_cap', array( __CLASS__, 'map_meta_caps' ), 10, 3 );
 
 		XMLRPC_Provider::init();
+		REST_Provider::init();
+
+		// Set up package version hook.
+		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
 
 	/**
@@ -192,9 +196,9 @@ class Main {
 			return false;
 		}
 
-		// Staging Sites should not generate tracking stats.
+		// Sites in Safe Mode should not generate tracking stats.
 		$status = new Status();
-		if ( $status->is_staging_site() ) {
+		if ( $status->in_safe_mode() ) {
 			return false;
 		}
 

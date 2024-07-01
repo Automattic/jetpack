@@ -9,7 +9,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const glob = require( 'glob' );
+const { glob } = require( 'glob' );
 
 const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
@@ -152,6 +152,7 @@ const weirdRtlEntries = {
 		'modules/widgets/social-icons/social-icons.css',
 		'modules/widgets/milestone/milestone-widget.css',
 		'modules/subscriptions/subscribe-modal/subscribe-modal.css',
+		'modules/subscriptions/subscribe-overlay/subscribe-overlay.css',
 	].map( n => path.join( __dirname, '..', n ) ),
 };
 
@@ -164,9 +165,6 @@ for ( const name of [
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
-	'modules/contact-form/css/editor-inline-editing-style',
-	'modules/contact-form/css/editor-style',
-	'modules/contact-form/css/editor-ui',
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
@@ -190,7 +188,6 @@ for ( const name of [
 // The ltr version is apparently used unminified.
 for ( const name of [
 	'modules/carousel/jetpack-carousel',
-	'modules/contact-form/css/grunion',
 	'modules/related-posts/related-posts',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',

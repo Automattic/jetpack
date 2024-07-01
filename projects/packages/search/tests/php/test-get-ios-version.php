@@ -11,14 +11,6 @@ use Automattic\Jetpack\Search\Test_Case as Search_Test_Case;
  * @package automattic/jetpack-search
  */
 class Test_Get_IOS_Version extends Search_Test_Case {
-	/**
-	 * Remove filter.
-	 *
-	 * @beforeClass
-	 */
-	public static function set_up_before_class() {
-		remove_filter( 'option_instant_search_enabled', 'Automattic\Jetpack\Search\Compatibility\disable_instant_search_for_ios_lt_16' );
-	}
 
 	/**
 	 * Data provider for test_ios_version.

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\Service;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status\Visitor;
+use WP_Error;
 
 /**
  * Class Google_Drive
@@ -68,7 +69,7 @@ class Google_Drive {
 	 * @param int    $user_id The user ID.
 	 * @param string $title   The spreadsheet title.
 	 * @param array  $rows    Array of arrays with values.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public static function create_sheet( $user_id, $title, $rows = array() ) {
 		$site_id = Manager::get_site_id();

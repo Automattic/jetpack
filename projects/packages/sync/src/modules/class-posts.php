@@ -151,7 +151,7 @@ class Posts extends Module {
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
-		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'jetpack_published_post', $callable, 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
@@ -161,6 +161,7 @@ class Posts extends Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_sync_save_post' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_jetpack_sync_before_enqueue_jetpack_published_post' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
@@ -232,7 +233,7 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
-		if ( $sync_module && str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( $sync_module instanceof Full_Sync_Immediately ) {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
 		} else {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
@@ -269,8 +270,8 @@ class Posts extends Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->posts WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -349,6 +350,18 @@ class Posts extends Module {
 		}
 
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
+	 * Add filtered post content.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array Hook arguments.
+	 */
+	public function filter_jetpack_sync_before_enqueue_jetpack_published_post( $args ) {
+		list( $post_id, $flags, $post ) = $args;
+
+		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
 	/**
@@ -605,12 +618,10 @@ class Posts extends Module {
 	 * The 2nd request is to update post meta, which is not supported on WP REST API.
 	 * When syncing post data, we will include if this was a meta box update.
 	 *
-	 * @todo Implement nonce verification.
-	 *
 	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
-	public function is_gutenberg_meta_box_update() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+	private function is_gutenberg_meta_box_update() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We only check the request to determine if this is a Gutenberg meta box update, and we only use the result to set a boolean logged in the sync event. If anyone anywhere else gets the flag and does something CSRF-able with it, they should ensure that a nonce has been checked.
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&
@@ -732,10 +743,6 @@ class Posts extends Module {
 		// Only Send Pulished Post event if post_type is not blacklisted.
 		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
 
-			// Refreshing the post in the cache site before triggering the publish event.
-			// The true parameter means that it's an update action, not create action.
-			$this->wp_insert_post( $post_ID, $post, true );
-
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
@@ -744,8 +751,9 @@ class Posts extends Module {
 			 *
 			 * @param int $post_ID
 			 * @param mixed array $flags post flags that are added to the post
+			 * @param WP_Post $post The post object
 			 */
-			do_action( 'jetpack_published_post', $post_ID, $flags );
+			do_action( 'jetpack_published_post', $post_ID, $flags, $post );
 		}
 		unset( $this->just_published[ $post_ID ] );
 

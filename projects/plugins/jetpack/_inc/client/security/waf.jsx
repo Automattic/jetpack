@@ -249,10 +249,14 @@ export const Waf = class extends Component {
 						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable )
 					}
 					onChange={ this.toggleAutomaticRules }
-					label={ __(
-						'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
-						'jetpack'
-					) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __(
+								'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
+								'jetpack'
+							) }
+						</span>
+					}
 				/>
 			</div>
 		);
@@ -267,7 +271,11 @@ export const Waf = class extends Component {
 					}
 					disabled={ baseInputDisabledCase }
 					onChange={ this.toggleManualRules }
-					label={ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
+						</span>
+					}
 				/>
 
 				{ this.state.manualRulesEnabled && (
@@ -353,7 +361,9 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share basic data with Jetpack', 'jetpack' ) }</span>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Share basic data with Jetpack', 'jetpack' ) }
+							</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }
@@ -392,7 +402,9 @@ export const Waf = class extends Component {
 					onChange={ this.toggleShareDebugData }
 					label={
 						<div className="waf__settings__toggle-setting__label">
-							<span>{ __( 'Share detailed data with Jetpack', 'jetpack' ) }</span>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Share detailed data with Jetpack', 'jetpack' ) }
+							</span>
 							<InfoPopover
 								position="right"
 								screenReaderText={ __( 'Learn more', 'jetpack' ) }

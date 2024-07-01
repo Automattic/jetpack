@@ -18,7 +18,7 @@ module.exports = {
 	},
 	rules: {
 		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': 2,
+		'react/jsx-no-bind': [ 2, { ignoreRefs: true } ],
 		// 'react/jsx-space-before-closing': 2,
 		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
 		'react/no-danger': 2,

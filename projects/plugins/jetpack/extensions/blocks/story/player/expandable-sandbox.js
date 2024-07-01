@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import * as fullscreenAPI from './lib/fullscreen-api';
 import ShadowRoot from './lib/shadow-root';
 import Modal from './modal';
@@ -69,7 +69,7 @@ export default function ExpandableSandbox( {
 			<ShadowRoot { ...shadowDOM }>
 				<div
 					ref={ rootElementRef }
-					className={ classNames( className, {
+					className={ clsx( className, {
 						[ fullscreenClassName ]: isFullscreen,
 					} ) }
 					onKeyDown={ onKeyDown }
@@ -78,7 +78,7 @@ export default function ExpandableSandbox( {
 				</div>
 			</ShadowRoot>
 			<Modal
-				className={ classNames( className, {
+				className={ clsx( className, {
 					[ fullscreenClassName ]: isFullPageModalOpened,
 				} ) }
 				isOpened={ isFullPageModalOpened }

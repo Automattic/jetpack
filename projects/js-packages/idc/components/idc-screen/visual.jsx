@@ -18,23 +18,24 @@ const renderLogoImage = ( logo, alt ) =>
 
 const IDCScreenVisual = props => {
 	const {
-		logo,
-		customContent,
+		logo = <JetpackLogo height={ 24 } />,
+		customContent = {},
 		wpcomHomeUrl,
 		currentUrl,
 		redirectUri,
-		isMigrating,
+		isMigrating = false,
 		migrateCallback,
-		isMigrated,
+		isMigrated = false,
 		finishMigrationCallback,
-		isFinishingMigration,
-		isStartingFresh,
+		isFinishingMigration = false,
+		isStartingFresh = false,
 		startFreshCallback,
 		isAdmin,
-		hasMigrateError,
-		hasFreshError,
-		hasStaySafeError,
-		possibleDynamicSiteUrlDetected,
+		hasMigrateError = false,
+		hasFreshError = false,
+		hasStaySafeError = false,
+		possibleDynamicSiteUrlDetected = false,
+		isDevelopmentSite,
 	} = props;
 
 	const nonAdminBody = ! isAdmin ? <ScreenNonAdmin customContent={ customContent } /> : '';
@@ -64,6 +65,7 @@ const IDCScreenVisual = props => {
 				hasFreshError={ hasFreshError }
 				hasStaySafeError={ hasStaySafeError }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+				isDevelopmentSite={ isDevelopmentSite }
 			/>
 		);
 	}
@@ -93,7 +95,7 @@ const IDCScreenVisual = props => {
 
 IDCScreenVisual.propTypes = {
 	/** The screen logo, Jetpack by default. */
-	logo: PropTypes.object.isRequired,
+	logo: PropTypes.object,
 	/** Custom text content. */
 	customContent: PropTypes.shape( customContentShape ),
 	/** The original site URL. */
@@ -103,42 +105,31 @@ IDCScreenVisual.propTypes = {
 	/** The redirect URI to redirect users back to after connecting. */
 	redirectUri: PropTypes.string.isRequired,
 	/** Whether the migration is in progress. */
-	isMigrating: PropTypes.bool.isRequired,
+	isMigrating: PropTypes.bool,
 	/** Migration callback. */
 	migrateCallback: PropTypes.func,
 	/** Whether the migration has been completed. */
-	isMigrated: PropTypes.bool.isRequired,
+	isMigrated: PropTypes.bool,
 	/** Callback to be called when migration is complete, and user clicks the OK button. */
 	finishMigrationCallback: PropTypes.func,
 	/** Whether the migration finishing process is in progress. */
-	isFinishingMigration: PropTypes.bool.isRequired,
+	isFinishingMigration: PropTypes.bool,
 	/** Whether starting fresh is in progress. */
-	isStartingFresh: PropTypes.bool.isRequired,
+	isStartingFresh: PropTypes.bool,
 	/** "Start Fresh" callback. */
 	startFreshCallback: PropTypes.func,
 	/** Whether to display the "admin" or "non-admin" screen. */
 	isAdmin: PropTypes.bool.isRequired,
 	/** Whether the component encountered the migration error. */
-	hasMigrateError: PropTypes.bool.isRequired,
+	hasMigrateError: PropTypes.bool,
 	/** Whether the component encountered the "Fresh Connection" error. */
-	hasFreshError: PropTypes.bool.isRequired,
+	hasFreshError: PropTypes.bool,
 	/** Whether the component encountered the "Stay in Safe Mode" error. */
-	hasStaySafeError: PropTypes.bool.isRequired,
+	hasStaySafeError: PropTypes.bool,
 	/** If potentially dynamic HTTP_HOST usage was detected for site URLs in wp-config which can lead to a JP IDC. */
 	possibleDynamicSiteUrlDetected: PropTypes.bool,
-};
-
-IDCScreenVisual.defaultProps = {
-	logo: <JetpackLogo height={ 24 } />,
-	isMigrated: false,
-	isFinishingMigration: false,
-	isMigrating: false,
-	isStartingFresh: false,
-	customContent: {},
-	hasMigrateError: false,
-	hasFreshError: false,
-	hasStaySafeError: false,
-	possibleDynamicSiteUrlDetected: false,
+	/** Whether the site is in development mode. */
+	isDevelopmentSite: PropTypes.bool,
 };
 
 export default IDCScreenVisual;

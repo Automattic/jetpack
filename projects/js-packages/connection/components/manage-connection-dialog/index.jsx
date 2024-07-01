@@ -6,7 +6,7 @@ import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 /**
@@ -19,19 +19,19 @@ import './style.scss';
  * The RNA Manage Connection Dialog component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ManageConnectionDialog` component.
+ * @returns {React.JSX} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
 	const {
-		title,
+		title = __( 'Manage your Jetpack connection', 'jetpack' ),
 		apiRoot,
 		apiNonce,
 		connectedPlugins,
 		onDisconnected,
-		context,
-		connectedUser,
+		context = 'jetpack-dashboard',
+		connectedUser = {}, // Pass empty object to avoid undefined errors.
 		connectedSiteId,
-		isOpen,
+		isOpen = false,
 		onClose,
 	} = props;
 
@@ -123,10 +123,7 @@ const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', 
 			<div className="jp-connection__manage-dialog__action-card__card-content">
 				<a
 					href={ link }
-					className={ classNames(
-						'jp-connection__manage-dialog__action-card__card-headline',
-						action
-					) }
+					className={ clsx( 'jp-connection__manage-dialog__action-card__card-headline', action ) }
 					onClick={ onClick }
 				>
 					{ title }
@@ -207,13 +204,6 @@ ManageConnectionDialog.propTypes = {
 	isOpen: PropTypes.bool,
 	/** Callback function for when the modal closes. */
 	onClose: PropTypes.func,
-};
-
-ManageConnectionDialog.defaultProps = {
-	title: __( 'Manage your Jetpack connection', 'jetpack' ),
-	isOpen: false,
-	context: 'jetpack-dashboard',
-	connectedUser: {}, // Pass empty object to avoid undefined errors.
 };
 
 export default ManageConnectionDialog;

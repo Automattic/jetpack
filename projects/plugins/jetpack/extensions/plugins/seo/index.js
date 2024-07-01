@@ -6,7 +6,10 @@ import {
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
@@ -27,6 +30,17 @@ const Seo = () => {
 
 	const requiredPlan = getRequiredPlan( 'advanced-seo' );
 	const canShowUpsell = isAtomicSite() || isSimpleSite();
+
+	const isViewable = useSelect( select => {
+		const postTypeName = select( editorStore ).getCurrentPostType();
+		const postTypeObject = select( coreStore ).getPostType( postTypeName );
+
+		return postTypeObject?.viewable;
+	}, [] );
+	// If the post type is not viewable, do not render my plugin.
+	if ( ! isViewable ) {
+		return null;
+	}
 
 	const jetpackSeoPanelProps = {
 		title: __( 'SEO', 'jetpack' ),

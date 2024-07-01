@@ -388,11 +388,6 @@ function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init;
 	global $wp_cache_request_uri;
 
-	if ( defined( 'DONOTCACHEPAGE' ) && DONOTCACHEPAGE ) {
-		wp_cache_debug( 'wp_cache_postload: DONOTCACHEPAGE defined. Not running.' );
-		return false;
-	}
-
 	if ( empty( $wp_cache_request_uri ) ) {
 		wp_cache_debug( 'wp_cache_postload: no request uri configured. Not running.' );
 		return false;
@@ -730,6 +725,11 @@ function wp_cache_debug( $message, $level = 1 ) {
 		&& $wp_cache_debug_ip !== ''
 		&& ( ! isset( $_SERVER['REMOTE_ADDR'] ) || $wp_cache_debug_ip !== $_SERVER['REMOTE_ADDR'] ) ) {
 		return false;
+	}
+
+	// if cache path is gone, then don't log anything
+	if ( empty( $cache_path ) || ! is_dir( $cache_path ) ) {
+		return;
 	}
 
 	// Log message: Date URI Message
@@ -2546,7 +2546,7 @@ function wp_cache_get_ob( &$buffer ) {
 	}
 
 	if ( $added_cache && isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
-		update_option( 'wpsupercache_count', ( get_option( 'wpsupercache_count' ) + 1 ) );
+		update_option( 'wpsupercache_count', (int) get_option( 'wpsupercache_count' ) + 1 );
 		$last_urls = (array) get_option( 'supercache_last_cached' );
 		if ( count( $last_urls ) >= 10 ) {
 			$last_urls = array_slice( $last_urls, 1, 9 );

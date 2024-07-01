@@ -2,7 +2,7 @@
 /**
  * Blog Stats Block.
  *
- * @since $$next_version$$
+ * @since 13.0
  *
  * @package automattic/jetpack
  */

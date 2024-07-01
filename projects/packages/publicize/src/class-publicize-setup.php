@@ -15,7 +15,7 @@ class Publicize_Setup {
 	/**
 	 * Whether to update the plan information from WPCOM when initialising the package.
 	 *
-	 * @var bool;
+	 * @var bool
 	 */
 	public static $refresh_plan_info = false;
 

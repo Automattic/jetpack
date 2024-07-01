@@ -2,12 +2,14 @@
 /**
  * EU Cookie Law Widget form.
  *
+ * @html-template Jetpack_EU_Cookie_Law_Widget::form
  * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Redirect;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
 ?>
 <p>
 	<strong>

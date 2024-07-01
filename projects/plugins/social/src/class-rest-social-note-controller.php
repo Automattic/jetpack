@@ -11,6 +11,8 @@ namespace Automattic\Jetpack\Social;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use WP_Error;
 use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_REST_Server;
 
 /**
@@ -64,7 +66,7 @@ class REST_Social_Note_Controller extends WP_REST_Controller {
 
 		if ( $post && $post->post_type === Note::JETPACK_SOCIAL_NOTE_CPT && $post->post_status === 'publish' && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
 			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
-			return rest_ensure_response( new \WP_REST_Response() );
+			return rest_ensure_response( new WP_REST_Response() );
 		}
 
 		return new WP_Error(

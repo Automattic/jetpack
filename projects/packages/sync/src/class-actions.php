@@ -57,7 +57,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @var Automattic\Jetpack\Sync\Sender
+	 * @var \Automattic\Jetpack\Sync\Sender
 	 */
 	public static $sender = null;
 
@@ -67,7 +67,7 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
-	 * @var Automattic\Jetpack\Sync\Listener
+	 * @var \Automattic\Jetpack\Sync\Listener
 	 */
 	public static $listener = null;
 
@@ -304,7 +304,7 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->is_staging_site() ) {
+		if ( ( new Status() )->in_safe_mode() ) {
 			return false;
 		}
 
@@ -342,8 +342,8 @@ class Actions {
 			if ( ( new Status() )->is_offline_mode() ) {
 				$debug['debug_details']['is_offline_mode'] = true;
 			}
-			if ( ( new Status() )->is_staging_site() ) {
-				$debug['debug_details']['is_staging_site'] = true;
+			if ( ( new Status() )->in_safe_mode() ) {
+				$debug['debug_details']['in_safe_mode'] = true;
 			}
 			$connection = new Jetpack_Connection();
 			if ( ! $connection->is_connected() ) {
@@ -542,13 +542,14 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			if ( Settings::is_wpcom_rest_api_enabled() ) {
-				$error_log[ (string) microtime( true ) ] = $error;
-			} else {
+			if ( isset( $rpc ) && ! empty( $rpc->get_last_response() ) ) {
 				$error_with_last_response = clone $error;
 				$error_with_last_response->add_data( $rpc->get_last_response() );
 				$error_log[ (string) microtime( true ) ] = $error_with_last_response;
+			} else {
+				$error_log[ (string) microtime( true ) ] = $error;
 			}
+
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 			return $error;
@@ -562,7 +563,7 @@ class Actions {
 			);
 		}
 
-		if ( Settings::is_wpcom_rest_api_enabled() ) { // Return only processed items.
+		if ( isset( $response['processed_items'] ) ) { // Return only processed items.
 			$response = $response['processed_items'];
 		}
 
@@ -588,6 +589,7 @@ class Actions {
 
 		// Don't start new sync if a full sync is in process.
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() && ! $full_sync_module->is_finished() ) {
 			return false;
 		}
@@ -610,6 +612,7 @@ class Actions {
 	 */
 	public static function do_only_first_initial_sync() {
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 		if ( $full_sync_module && $full_sync_module->is_started() ) {
 			return false;
 		}
@@ -632,6 +635,7 @@ class Actions {
 		}
 
 		$full_sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $full_sync_module';
 
 		if ( ! $full_sync_module ) {
 			return false;
@@ -1040,7 +1044,8 @@ class Actions {
 		self::initialize_sender();
 
 		$sync_module = Modules::get_module( 'full-sync' );
-		$queue       = self::$sender->get_sync_queue();
+		'@phan-var Modules\Full_Sync_Immediately|Modules\Full_Sync $sync_module';
+		$queue = self::$sender->get_sync_queue();
 
 		// _get_cron_array can be false
 		$cron_timestamps = ( _get_cron_array() ) ? array_keys( _get_cron_array() ) : array();
@@ -1090,7 +1095,7 @@ class Actions {
 		);
 
 		// Verify $sync_module is not false.
-		if ( ( $sync_module ) && ! str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( $sync_module && ! $sync_module instanceof Modules\Full_Sync_Immediately ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}

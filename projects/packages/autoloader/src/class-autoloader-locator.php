@@ -28,7 +28,7 @@ class Autoloader_Locator {
 	 * Finds the path to the plugin with the latest autoloader.
 	 *
 	 * @param array  $plugin_paths An array of plugin paths.
-	 * @param string $latest_version The latest version reference.
+	 * @param string $latest_version The latest version reference. @phan-output-reference.
 	 *
 	 * @return string|null
 	 */

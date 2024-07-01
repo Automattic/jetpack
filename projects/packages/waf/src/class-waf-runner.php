@@ -235,10 +235,10 @@ class Waf_Runner {
 		// if something terrible happens during the WAF running, we don't want to interfere with the rest of the site,
 		// so we intercept errors ONLY while the WAF is running, then we remove our handler after the WAF finishes.
 		$display_errors = ini_get( 'display_errors' );
-		// phpcs:ignore
-		ini_set( 'display_errors', 'Off' );
-		// phpcs:ignore
-		set_error_handler( array( self::class, 'errorHandler' ) );
+
+		ini_set( 'display_errors', 'Off' ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
+
+		set_error_handler( array( self::class, 'errorHandler' ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
 
 		try {
 
@@ -257,8 +257,9 @@ class Waf_Runner {
 
 		// remove the custom error handler, so we don't interfere with the site.
 		restore_error_handler();
-		// phpcs:ignore
-		ini_set( 'display_errors', $display_errors );
+
+		// Restore the original value.
+		ini_set( 'display_errors', $display_errors ); // phpcs:ignore WordPress.PHP.IniSet.display_errors_Disallowed -- We only customize error reporting while the WAF is running, and remove our handler afterwards.
 	}
 
 	/**

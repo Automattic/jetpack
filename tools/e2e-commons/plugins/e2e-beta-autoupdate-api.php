@@ -22,9 +22,9 @@ use Automattic\JetpackBeta\Utils;
 class E2eJetpackBetaAutoupdateApi {
 
 	/**
-	 * E2eJetpackBetaAutoupdateApi constructor.
+	 * Initialize class.
 	 */
-	public function __construct() {
+	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 	}
 
@@ -80,4 +80,4 @@ class E2eJetpackBetaAutoupdateApi {
 	}
 }
 
-new E2eJetpackBetaAutoupdateApi();
+E2eJetpackBetaAutoupdateApi::init();

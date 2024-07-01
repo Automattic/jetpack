@@ -9,10 +9,12 @@ namespace Automattic\Jetpack\Waf;
 
 require_once __DIR__ . '/functions.php';
 
+<<<PHAN
+@phan-type RequestFile = array{ name: string, filename: string }
+PHAN;
+
 /**
  * Request representation.
- *
- * @template RequestFile as array{ name: string, filename: string }
  */
 class Waf_Request {
 	/**
@@ -20,7 +22,7 @@ class Waf_Request {
 	 *
 	 * @example for `https://wordpress.com/index.php?myvar=red`
 	 *          $this->url = [ 'https://wordpress.com', '/index.php', '?myvar=red' ]
-	 * @var array{ 0: string, 1: string, 2: string }|null
+	 * @var array{0: string, 1: string, 2: string}|null
 	 */
 	protected $url = null;
 
@@ -117,7 +119,7 @@ class Waf_Request {
 	/**
 	 * Returns the headers that were sent with this request
 	 *
-	 * @return array{ 0: string, 1: scalar }[]
+	 * @return array{0: string, 1: scalar}[]
 	 */
 	public function get_headers() {
 		$value              = array();
@@ -198,7 +200,7 @@ class Waf_Request {
 	 * Returns the URL parts for this request.
 	 *
 	 * @see $this->url
-	 * @return array{ 0: string, 1: string, 2: string }
+	 * @return array{0: string, 1: string, 2: string}
 	 */
 	protected function get_url() {
 		if ( null !== $this->url ) {
@@ -208,7 +210,9 @@ class Waf_Request {
 		$uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ), FILTER_DEFAULT ) : '/';
 		if ( false !== strpos( $uri, '?' ) ) {
 			// remove the query string (we'll pull it from elsewhere later)
-			$uri = substr( $uri, 0, strpos( $uri, '?' ) );
+			$uri = urldecode( substr( $uri, 0, strpos( $uri, '?' ) ) );
+		} else {
+			$uri = urldecode( $uri );
 		}
 		$query_string = isset( $_SERVER['QUERY_STRING'] ) ? '?' . filter_var( wp_unslash( $_SERVER['QUERY_STRING'] ), FILTER_DEFAULT ) : '';
 		if ( 1 === preg_match( '/^https?:\/\//', $uri ) ) {
@@ -309,7 +313,7 @@ class Waf_Request {
 	/**
 	 * Returns the cookies
 	 *
-	 * @return array<string, string>
+	 * @return array{string, scalar}[]
 	 */
 	public function get_cookies() {
 		return flatten_array( $_COOKIE );
@@ -318,7 +322,7 @@ class Waf_Request {
 	/**
 	 * Returns the GET variables
 	 *
-	 * @return array<string, mixed|array>
+	 * @return array{string, scalar}[]
 	 */
 	public function get_get_vars() {
 		return flatten_array( $_GET );
@@ -327,7 +331,7 @@ class Waf_Request {
 	/**
 	 * Returns the POST variables
 	 *
-	 * @return array<string, mixed|array>
+	 * @return array{string, scalar}[]
 	 */
 	public function get_post_vars() {
 		// Attempt to decode JSON requests.

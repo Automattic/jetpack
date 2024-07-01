@@ -40,6 +40,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'regenerate_tag_slugs', // Regenerate tag slugs
 	'create_workflows_table', // Create "workflows" table.
 	'invoice_language_fixes', // Store invoice statuses and mappings consistently
+	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1247,6 +1248,27 @@ function zeroBSCRM_migration_invoice_language_fixes() {
 	}
 
 	zeroBSCRM_migrations_markComplete( 'invoice_language_fixes', array( 'updated' => 1 ) );
+}
+
+/**
+ * From Gh Issue 3465, this migration increases the city field size to 200 chars
+ */
+function zeroBSCRM_migration_gh3465_increase_city_field_size() {
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' MODIFY COLUMN `zbsc_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_city` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	$sql = 'ALTER TABLE ' . $ZBSCRM_t['companies'] . ' MODIFY COLUMN `zbsco_seccity` VARCHAR(200);'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+
+	zeroBSCRM_migrations_markComplete( 'gh3465_increase_city_field_size', array( 'updated' => 1 ) );
 }
 
 /* ======================================================

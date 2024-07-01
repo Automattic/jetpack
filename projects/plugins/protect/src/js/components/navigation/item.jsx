@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useContext, useEffect, useCallback } from 'react';
 import ItemBadge from './badge';
 import ItemLabel from './label';
@@ -25,7 +25,7 @@ const NavigationItem = ( {
 	const handleKeyDownItem = context?.handleKeyDownItem;
 	const handleFocusItem = context?.handleFocusItem;
 
-	const wrapperClassName = classNames( styles[ 'navigation-item' ], {
+	const wrapperClassName = clsx( styles[ 'navigation-item' ], {
 		[ styles.clickable ]: ! disabled,
 		[ styles.selected ]: selected,
 	} );

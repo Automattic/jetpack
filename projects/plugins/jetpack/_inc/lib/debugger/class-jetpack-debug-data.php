@@ -291,6 +291,7 @@ class Jetpack_Debug_Data {
 
 		/** Sync Debug Information */
 		$sync_module = Modules::get_module( 'full-sync' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Full_Sync_Immediately|\Automattic\Jetpack\Sync\Modules\Full_Sync $sync_module';
 		if ( $sync_module ) {
 			$sync_statuses              = $sync_module->get_status();
 			$human_readable_sync_status = array();

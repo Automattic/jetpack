@@ -21,10 +21,19 @@ use PHPUnit\Framework\TestCase;
 class ParserTest extends TestCase {
 
 	/**
+	 * Get a mock Parser.
+	 *
+	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private function getMockParser() {
+		return $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+	}
+
+	/**
 	 * Test parseFromFile.
 	 */
 	public function testParseFromFile() {
-		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$mock = $this->getMockParser();
 		$mock->method( 'parse' )->willReturnArgument( 0 );
 
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testParseFromFile-' );
@@ -45,9 +54,11 @@ class ParserTest extends TestCase {
 	 * Test formatToFile.
 	 */
 	public function testFormatToFile() {
-		$mock      = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$mock      = $this->getMockParser();
 		$changelog = new Changelog();
-		$mock->method( 'format' )->with( $this->identicalTo( $changelog ) )->willReturn( 'Formatted?' );
+		$mock->method( 'format' )
+			->with( $this->identicalTo( $changelog ) )
+			->willReturn( 'Formatted?' );
 
 		$temp = tempnam( sys_get_temp_dir(), 'phpunit-testFormatToFile-' );
 		try {
@@ -73,7 +84,7 @@ class ParserTest extends TestCase {
 	 * Test newChangelogEntry.
 	 */
 	public function testNewChangelogEntry() {
-		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$mock = $this->getMockParser();
 		$this->assertInstanceOf( ChangelogEntry::class, $mock->newChangelogEntry( '1.0' ) );
 	}
 
@@ -81,7 +92,7 @@ class ParserTest extends TestCase {
 	 * Test newChangeEntry.
 	 */
 	public function testNewChangeEntry() {
-		$mock = $this->getMockBuilder( Parser::class )->getMockForAbstractClass();
+		$mock = $this->getMockParser();
 		$this->assertInstanceOf( ChangeEntry::class, $mock->newChangeEntry() );
 	}
 }

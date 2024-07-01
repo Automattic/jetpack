@@ -85,31 +85,57 @@ function err {
 	fi
 }
 
-EXIT=0
-for FILE in projects/*/*/composer.json; do
-	spin
-	DIR="${FILE%/composer.json}"
-	SLUG="${DIR#projects/}"
+function checkpkg {
+	local FILE=$1
+	local DIR="${FILE%/composer.json}"
+	local SLUG="${DIR#projects/}"
 	cd "$BASE/$DIR"
 
 	debug "Validating change entries for $SLUG"
 	if ! changelogger validate "${ARGS[@]}"; then
-		EXIT=1
-		continue
+		return 1
 	fi
 
 	debug "Checking version numbers $SLUG"
-	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-	PRERELEASE=$(alpha_tag composer.json 0)
+	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+	local PRERELEASE=$(alpha_tag composer.json 0)
+	local VER
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
 		VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	else
 		VER=$(changelogger version current --default-first-version --prerelease=$PRERELEASE) || { err "$VER"; EXIT=1; continue; }
 	fi
 	if ! $BASE/tools/project-version.sh "${ARGS2[@]}" $CHECK_OR_UPDATE "$VER" "$SLUG"; then
-		EXIT=1
-		continue
+		return 1
 	fi
+	return 0
+}
+
+EXIT=0
+declare -A PIDS
+PIDS=()
+N=$( nproc || echo 1 )
+for FILE in projects/*/*/composer.json; do
+	spin
+
+	if [[ ${#PIDS[@]} -ge $N ]]; then
+		if ! wait -fn -p P "${!PIDS[@]}"; then
+			EXIT=1
+		fi
+		unset PIDS[$P]
+	fi
+
+	checkpkg "$FILE" &
+	PIDS[$!]=true
 done
+
+while [[ ${#PIDS[@]} -gt 0 ]]; do
+	spin
+	if ! wait -fn -p P "${!PIDS[@]}"; then
+		EXIT=1
+	fi
+	unset PIDS[$P]
+done
+
 spinclear
 exit $EXIT

@@ -12,6 +12,8 @@ export function boostPrerequisitesBuilder( page ) {
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
+		enqueuedAssets: undefined,
+		appendImage: undefined,
 	};
 
 	return {
@@ -35,6 +37,14 @@ export function boostPrerequisitesBuilder( page ) {
 			state.mockSpeedScore = shouldMockSpeedScore;
 			return this;
 		},
+		withEnqueuedAssets( shouldEnqueueAssets ) {
+			state.enqueuedAssets = shouldEnqueueAssets;
+			return this;
+		},
+		withAppendedImage( shouldAppendImage ) {
+			state.appendImage = shouldAppendImage;
+			return this;
+		},
 		withCleanEnv() {
 			state.clean = true;
 			return this;
@@ -52,6 +62,8 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
+		enqueuedAssets: () => ensureEnqueuedAssets( state.enqueuedAssets ),
+		appendImage: () => ensureAppendedImage( state.appendImage ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -90,6 +102,26 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
 		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
+export async function ensureEnqueuedAssets( enqueue ) {
+	if ( enqueue ) {
+		logger.prerequisites( 'Enqueuing assets' );
+		await execWpCommand( 'plugin activate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+	} else {
+		logger.prerequisites( 'Deactivating assets' );
+		await execWpCommand( 'plugin deactivate e2e-concatenate-enqueue/e2e-concatenate-enqueue.php' );
+	}
+}
+
+export async function ensureAppendedImage( append ) {
+	if ( append ) {
+		logger.prerequisites( 'Appending image' );
+		await execWpCommand( 'plugin activate e2e-appended-image/e2e-appended-image.php' );
+	} else {
+		logger.prerequisites( 'Removing appended image' );
+		await execWpCommand( 'plugin deactivate e2e-appended-image/e2e-appended-image.php' );
 	}
 }
 

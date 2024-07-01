@@ -1,0 +1,229 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+
+
+.services {
+	outline: 1px solid var(--jp-gray-5);
+	border-radius: 4px;
+
+	.service-list-item {
+		margin-bottom: 0px;
+
+		&:not(:last-child) {
+			border-bottom: 1px solid var(--jp-gray-5);
+		}
+	}
+
+	.service-item {
+		padding: 0.75rem;
+
+		@include break-small {
+			padding: 1rem;
+		}
+	}
+
+	.service-item-info {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.service-basics {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+	}
+
+	.heading {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.badges {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.badge {
+		border-radius: 4px;
+		font-size: .75rem;
+		font-weight: 600;
+		padding: 2px 8px;
+	}
+
+	.title {
+		font-size: 16px;
+		line-height: 24px;
+		font-weight: 600;
+		color: var(--jp-gray-80);
+	}
+
+	.description {
+		font-size: 14px;
+		color: var(--jp-gray-50);
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.learn-more {
+		&:global(.components-button) {
+			padding-inline: 6px;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 20px;
+
+			span {
+				display: flex;
+			}
+		}
+	}
+
+	.service-panel {
+		border: 0px;
+
+		:global(.components-panel__body) {
+			border-top: 0px;
+			border-bottom: 0px;
+			padding: 0px;
+		}
+
+		:global(.components-panel__body.is-opened) {
+			margin-top: 1rem;
+		}
+
+		.connect-form-wrapper {
+			margin-top: 1rem;
+			display: flex;
+
+			form {
+				display: flex;
+				gap: 1rem;
+				flex-direction: column;
+				justify-content: flex-end;
+				width: 100%;
+
+				@include break-small {
+					flex-direction: row;
+				}
+			}
+		}
+	}
+
+	.active-connection {
+		color: var(--jp-green-50);
+		white-space: nowrap;
+	}
+
+	.broken-connection {
+		white-space: nowrap;
+		font-weight: 500;
+
+		// Add some specificity to override the default button styles
+		&:global(.components-button.is-link) {
+			color: var(--jp-yellow-40);
+			text-decoration: none;
+			font-size: inherit;
+		}
+	}
+
+	.service-connection-list {
+		border-top: 1px solid var(--jp-gray-5);
+		padding-top: 1rem;
+
+		li:not(:last-child) {
+			margin-bottom: 1rem;
+		}
+
+		*[inert="true"] {
+			opacity: 0.7;
+		}
+	}
+}
+
+.example-wrapper {
+	display: grid;
+	grid-auto-columns: minmax(0, 1fr);
+	grid-auto-flow: column;
+	font-size: 15px;
+	margin-top: 0.4rem;
+
+	&.small {
+		grid-auto-flow: row;
+		grid-gap: 2rem;
+		height: auto;
+		min-height: unset;
+	}
+
+	img {
+		max-height: 520px;
+		max-width: 100%;
+	}
+
+	>div {
+		padding: 0.4rem;
+
+		&:has(img) {
+			margin-inline-start: auto;
+			margin-inline-end: auto;
+		}
+	}
+}
+
+.service-connection {
+	display: flex;
+	gap: 1rem;
+
+	.connection-details {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+
+	.profile-pic {
+		width: 38px;
+		height: 38px;
+	}
+
+
+	.disconnect {
+		&:global(.components-button.is-tertiary) {
+			font-size: 1rem;
+			font-weight: 400;
+			color: var(--jp-gray-50);
+		}
+	}
+}
+
+.connect-form {
+	.connect-button {
+		&:global(.components-button) {
+			padding: 6px 16px;
+			font-size: 14px;
+			font-weight: 500;
+			line-height: 20px;
+		}
+	}
+
+	input {
+		min-width: 220px;
+
+		// Override the default input styles for small screens
+		@media (max-width: #{ ($break-medium) }) {
+			min-height: 30px;
+			padding: 0 8px;
+			font-size: 14px;
+		}
+	}
+}
+
+.mark-shared-wrap {
+	display: flex;
+	gap: 0.5rem;
+}

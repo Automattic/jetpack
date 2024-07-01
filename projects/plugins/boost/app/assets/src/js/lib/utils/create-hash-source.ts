@@ -21,11 +21,15 @@ function createHashSource() {
 			return history.location;
 		},
 		addEventListener( name, handler ) {
-			if ( name !== 'popstate' ) return;
+			if ( name !== 'popstate' ) {
+				return;
+			}
 			listeners.push( handler );
 		},
 		removeEventListener( name, handler ) {
-			if ( name !== 'popstate' ) return;
+			if ( name !== 'popstate' ) {
+				return;
+			}
 			listeners = listeners.filter( fn => fn !== handler );
 		},
 		history: {

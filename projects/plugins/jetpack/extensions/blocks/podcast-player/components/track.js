@@ -1,6 +1,6 @@
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { getColorClassName } from '../utils';
 import TrackError from './track-error';
 import TrackIcon from './track-icon';
@@ -21,7 +21,7 @@ const Track = memo(
 		// Set CSS classes string.
 		const primaryColorClass = getColorClassName( 'color', colors.primary.name );
 		const secondaryColorClass = getColorClassName( 'color', colors.secondary.name );
-		const trackClassName = classnames( 'jetpack-podcast-player__track', {
+		const trackClassName = clsx( 'jetpack-podcast-player__track', {
 			'is-active': isActive,
 			'has-primary': isActive && ( colors.primary.name || colors.primary.custom ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,

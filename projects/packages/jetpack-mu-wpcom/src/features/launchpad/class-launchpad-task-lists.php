@@ -6,6 +6,12 @@
  * @since 1.5.0
  */
 
+// Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
+<<<PHAN
+@phan-type Task_List = array{id:string, task_ids:string[], required_task_ids?:string[], visible_tasks_callback?:callable, require_last_task_completion?:bool, get_title?:callable, is_dismissible?:bool, is_enabled_callback?:callable}
+@phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
+PHAN;
+
 /**
  * Launchpad Task List
  *
@@ -39,7 +45,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Singleton instance
 	 *
-	 * @var Launchpad_Task_List
+	 * @var Launchpad_Task_Lists
 	 */
 	private static $instance = null;
 
@@ -294,7 +300,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Get all registered Launchpad Task Lists.
 	 *
-	 * @return array All registered Launchpad Task Lists.
+	 * @return Task_List[] All registered Launchpad Task Lists.
 	 */
 	public function get_all_task_lists() {
 		return $this->task_list_registry;
@@ -318,7 +324,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Get the required task ids for a given task list.
 	 *
-	 * @param array $task_list_id Task list.
+	 * @param string $task_list_id Task list ID.
 	 * @return array Required task ids.
 	 */
 	public function get_required_task_ids( $task_list_id ) {
@@ -333,7 +339,7 @@ class Launchpad_Task_Lists {
 	 * Check if the task list requires the last task to be completed in order to consider
 	 * the task list complete.
 	 *
-	 * @param array $task_list_id Task list id.
+	 * @param string $task_list_id Task list id.
 	 * @return bool True if the last task must be completed, false if not.
 	 */
 	public function get_require_last_task_completion( $task_list_id ) {
@@ -358,7 +364,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Get all registered Launchpad Tasks.
 	 *
-	 * @return array All registered Launchpad Tasks.
+	 * @return Task[] All registered Launchpad Tasks.
 	 */
 	public function get_all_tasks() {
 		return $this->task_registry;
@@ -455,10 +461,10 @@ class Launchpad_Task_Lists {
 	/**
 	 * Given a task or task list definition and a possible callback, call it and return the value.
 	 *
-	 * @param array  $item     The task or task list definition.
-	 * @param string $callback The callback to attempt to call.
-	 * @param mixed  $default  The default value, passed to the callback if it exists.
-	 * @param array  $data     Any additional data specific to the callback.
+	 * @param Task|Task_List $item     The task or task list definition.
+	 * @param string         $callback The callback to attempt to call.
+	 * @param mixed          $default  The default value, passed to the callback if it exists.
+	 * @param array          $data     Any additional data specific to the callback.
 	 * @return mixed The value returned by the callback, or the default value.
 	 */
 	private function load_value_from_callback( $item, $callback, $default = '', $data = array() ) {
@@ -537,7 +543,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Helper function to load the Calypso path for a task.
 	 *
-	 * @param array       $task A task definition.
+	 * @param Task        $task A task definition.
 	 * @param string|null $launchpad_context Optional. Screen where Launchpad is loading.
 	 * @return string|null
 	 */
@@ -577,6 +583,11 @@ class Launchpad_Task_Lists {
 			return true;
 		}
 
+		// Allow Jetpack Cloud URLs.
+		if ( strpos( $input, 'https://cloud.jetpack.com' ) === 0 ) {
+			return true;
+		}
+
 		// Checks if the string is URL starting with the admin URL.
 		if ( strpos( $input, admin_url() ) === 0 ) {
 			return true;
@@ -593,7 +604,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Checks if a task is disabled
 	 *
-	 * @param array $task Task definition.
+	 * @param Task $task Task definition.
 	 * @return boolean
 	 */
 	public function is_task_disabled( $task ) {
@@ -715,7 +726,7 @@ class Launchpad_Task_Lists {
 	 * Get currently active tasks.
 	 *
 	 * @param string $task_list_id Optional. Will default to `site_intent` option.
-	 * @return array Array of active tasks.
+	 * @return Task[] Array of active tasks.
 	 */
 	private function get_active_tasks( $task_list_id = null ) {
 		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
@@ -735,7 +746,7 @@ class Launchpad_Task_Lists {
 	 * Gets a list of completed tasks.
 	 *
 	 * @param string $task_list_id Optional. Will default to `site_intent` option.
-	 * @return array Array of completed tasks.
+	 * @return Task[] Array of completed tasks.
 	 */
 	private function get_completed_tasks( $task_list_id = null ) {
 		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );

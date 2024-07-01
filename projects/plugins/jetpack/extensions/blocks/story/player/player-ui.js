@@ -4,7 +4,7 @@ import { useResizeObserver } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { some } from 'lodash';
 import blockMetadata from '../block.json';
 import { Background, Controls, Header, Overlay } from './components';
@@ -164,7 +164,7 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 				role={ role }
 				aria-label={ label }
 				tabIndex={ fullscreen ? -1 : 0 }
-				className={ classNames( 'wp-story-container', {
+				className={ clsx( 'wp-story-container', {
 					'wp-story-with-controls': ! disabled && ! fullscreen && ! settings.playInFullscreen,
 					'wp-story-fullscreen': fullscreen,
 					'wp-story-ended': ended,

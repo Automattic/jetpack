@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
@@ -432,7 +432,7 @@ EOT;
 	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		add_filter( 'jetpack_is_amp_request', '__return_true' );

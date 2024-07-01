@@ -1,9 +1,13 @@
-<?php // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+<?php
 /**
  * AMP Widget for Cookies and Consent.
  *
+ * @html-template Jetpack_EU_Cookie_Law_Widget::widget
  * @package automattic/jetpack
  */
+
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
+
 ?>
 
 <amp-consent id="eu-cookie-consent" layout="nodisplay" class="widget widget_eu_cookie_law_widget<?php echo esc_attr( ! empty( $instance['position'] ) && 'top' === $instance['position'] ? ' top' : '' ); ?>">

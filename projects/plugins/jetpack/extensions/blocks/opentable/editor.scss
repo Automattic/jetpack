@@ -9,8 +9,8 @@
 	display: inline-block;
 	position: relative;
 
-	&.is-style-wide,
-	&.is-placeholder {
+	& > .is-style-wide,
+	& > .is-placeholder {
 		display: block;
 	}
 
@@ -117,7 +117,7 @@
 		}
 	}
 
-	&.is-style-button {
+	& > .is-style-button {
 		&.has-no-margin {
 			iframe {
 				margin: -14px;
@@ -132,7 +132,7 @@
 		margin: 0;
 	}
 
-	.wp-block > &.is-style-wide {
+	&.wp-block > .is-style-wide {
 		&.alignright {
 			left: auto;
 			right: 0;

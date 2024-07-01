@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+General: use wp_admin_notice function introduced in WP 6.4 to display notices.

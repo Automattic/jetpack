@@ -5,6 +5,36 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.2] - 2024-06-27
+### Added
+- add an admin notice to encourage migration to Jetpack Boost [#37933]
+- modify boost install code so it can be used by multiple buttons [#37824]
+- notify Boost of migration to that plugin [#37797]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- tell user that Cache module of Boost must be deactivated to use WPSC [#37265]
+- WP Updated banner designs, added auto-install Jetpack Boost buttons [#37963]
+
+### Fixed
+- Detect when WP_CACHE is defined with "const" in wp-config.php [#38022]
+- Align detection of Boost installs with activation of that plugin [#37896]
+- create the cache directory before creating the config file [#38028]
+- do not show migration notice if already using Boost Cache [#38005]
+- fixed a PHP warning when deactivating the plugin. [#37968]
+- make sure plugins links is an array before using it. [#37604]
+- remove the preload interval based on the post count. Preload as often as you want. [#37618]
+- renamed WPSC_VERSION because it conflicted with other plugins [#38007]
+
+## [1.12.1] - 2024-05-09
+### Changed
+- General: update WordPress version requirements to WordPress 6.4. [#37047]
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices. [#37051]
+
+### Fixed
+- Fix the CDN functionality when cache is disabled [#37112]
+- Do not define DONOTCACHEPAGE if it is already defined [#36423]
+
 ## [1.12.0] - 2024-03-11
 ### Added
 - Setup: Detect Jetpack Boost cache and suggest troubleshooting steps [#36018]
@@ -722,6 +752,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[1.12.2]: https://github.com/Automattic/wp-super-cache/compare/v1.12.1...v1.12.2
+[1.12.1]: https://github.com/Automattic/wp-super-cache/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/Automattic/wp-super-cache/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/wp-super-cache/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/Automattic/wp-super-cache/compare/v1.9.4...v1.10.0

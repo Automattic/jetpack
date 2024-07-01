@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix slowdown when using the new update-ref functionality. No need for a separate changelog entry since that hasn't been in a release yet.
+
+

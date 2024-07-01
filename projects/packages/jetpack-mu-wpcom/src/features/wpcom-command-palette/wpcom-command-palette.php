@@ -74,6 +74,7 @@ function wpcom_load_command_palette() {
 			'isP2'             => $is_p2_site,
 			'shouldUseWpAdmin' => 'wp-admin' === get_option( 'wpcom_admin_interface' ),
 			'siteHostname'     => wpcom_get_site_slug(),
+			'siteName'         => get_option( 'blogname' ),
 			'isWpcomStore'     => $host->is_woa_site() && is_plugin_active( 'woocommerce/woocommerce.php' ),
 		)
 	);

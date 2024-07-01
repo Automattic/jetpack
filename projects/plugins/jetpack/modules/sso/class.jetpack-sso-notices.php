@@ -2,15 +2,19 @@
 /**
  * A collection of helper functions used in the SSO module.
  *
+ * @deprecated 13.5 Use Automattic\Jetpack\Connection\Manager\SSO instead.
+ *
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Connection\SSO\Notices;
 
 if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 
 	/**
 	 * A collection of helper functions used in the SSO module.
+	 *
+	 * @deprecated 13.5
 	 *
 	 * @since 4.4.0
 	 */
@@ -20,26 +24,16 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 * the user's account on WordPress.com does not have two step enabled.
 		 *
 		 * @since 2.7
+		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 * @return string
 		 **/
 		public static function error_msg_enable_two_step( $message ) {
-			$error = sprintf(
-				wp_kses(
-				/* translators: URL to settings page */
-					__(
-						'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" rel="noopener noreferrer" target="_blank">Security Settings</a> to configure <a href="%2$s" rel="noopener noreferrer" target="_blank">Two-step Authentication</a> for your account.',
-						'jetpack'
-					),
-					array( 'a' => array( 'href' => array() ) )
-				),
-				Redirect::get_url( 'calypso-me-security-two-step' ),
-				Redirect::get_url( 'wpcom-support-security-two-step-authentication' )
-			);
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_enable_two_step' );
 
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
-
-			return $message;
+			return Notices::error_msg_enable_two_step( $message );
 		}
 
 		/**
@@ -47,25 +41,15 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 * is off and they already have an account with their email address on
 		 * this site.
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 * @return string
 		 */
 		public static function error_msg_email_already_exists( $message ) {
-			$error = sprintf(
-				wp_kses(
-				/* translators: login URL */
-					__(
-						'You already have an account on this site. Please <a href="%1$s">sign in</a> with your username and password and then connect to WordPress.com.',
-						'jetpack'
-					),
-					array( 'a' => array( 'href' => array() ) )
-				),
-				esc_url_raw( add_query_arg( 'jetpack-sso-show-default-form', '1', wp_login_url() ) )
-			);
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_email_already_exists' );
 
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
-
-			return $message;
+			return Notices::error_msg_email_already_exists( $message );
 		}
 
 		/**
@@ -73,14 +57,16 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error Message.
 		 *
 		 * @return string
 		 */
 		public static function error_msg_identity_crisis( $message ) {
-			$error    = esc_html__( 'Logging in with WordPress.com is not currently available because this site is experiencing connection problems.', 'jetpack' );
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
-			return $message;
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_msg_identity_crisis' );
+
+			return Notices::error_msg_identity_crisis( $message );
 		}
 
 		/**
@@ -89,17 +75,16 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function error_invalid_response_data( $message ) {
-			$error    = esc_html__(
-				'There was an error logging you in via WordPress.com, please try again or try logging in with your username and password.',
-				'jetpack'
-			);
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
-			return $message;
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_invalid_response_data' );
+
+			return Notices::error_invalid_response_data( $message );
 		}
 
 		/**
@@ -108,38 +93,32 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.3.2
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function error_unable_to_create_user( $message ) {
-			$error    = esc_html__(
-				'There was an error creating a user for you. Please contact the administrator of your site.',
-				'jetpack'
-			);
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
-			return $message;
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::error_unable_to_create_user' );
+
+			return Notices::error_unable_to_create_user( $message );
 		}
 
 		/**
 		 * When the default login form is hidden, this method is called on the 'authenticate' filter with a priority of 30.
 		 * This method disables the ability to submit the default login form.
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param WP_User|WP_Error $user Either the user attempting to login or an existing authentication failure.
 		 *
 		 * @return WP_Error
 		 */
 		public static function disable_default_login_form( $user ) {
-			if ( is_wp_error( $user ) ) {
-				return $user;
-			}
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::disable_default_login_form' );
 
-			/**
-			 * Since we're returning an error that will be shown as a red notice, let's remove the
-			 * informational "blue" notice.
-			 */
-			remove_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'msg_login_by_jetpack' ) );
-			return new WP_Error( 'jetpack_sso_required', self::get_sso_required_message() );
+			return Notices::disable_default_login_form( $user );
 		}
 
 		/**
@@ -147,65 +126,45 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 * login form in Settings > General > Secure Sign On
 		 *
 		 * @since 2.7
+		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 **/
 		public static function msg_login_by_jetpack( $message ) {
-			$message .= sprintf( '<p class="message">%s</p>', self::get_sso_required_message() );
-			return $message;
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::msg_login_by_jetpack' );
+
+			return Notices::msg_login_by_jetpack( $message );
 		}
 
 		/**
 		 * Get the message for SSO required.
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @return string
 		 */
 		public static function get_sso_required_message() {
-			$msg = esc_html__(
-				'A WordPress.com account is required to access this site. Click the button below to sign in or create a free WordPress.com account.',
-				'jetpack'
-			);
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::get_sso_required_message' );
 
-			/**
-			 * Filter the message displayed when the default WordPress login form is disabled.
-			 *
-			 * @module sso
-			 *
-			 * @since 2.8.0
-			 *
-			 * @param string $msg Disclaimer when default WordPress login form is disabled.
-			 */
-			return apply_filters( 'jetpack_sso_disclaimer_message', $msg );
+			return Notices::get_sso_required_message();
 		}
 
 		/**
 		 * Message displayed when the user can not be found after approving the SSO process on WordPress.com
+		 *
+		 * @deprecated 13.5
 		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function cant_find_user( $message ) {
-			$error = __(
-				"We couldn't find your account. If you already have an account, make sure you have connected to WordPress.com.",
-				'jetpack'
-			);
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::cant_find_user' );
 
-			/**
-			 * Filters the "couldn't find your account" notice after an attempted SSO.
-			 *
-			 * @module sso
-			 *
-			 * @since 10.5.0
-			 *
-			 * @param string $error Error text.
-			 */
-			$error = apply_filters( 'jetpack_sso_unknown_user_notice', $error );
-
-			$message .= sprintf( '<p class="message" id="login_error">%s</p>', esc_html( $error ) );
-
-			return $message;
+			return Notices::cant_find_user( $message );
 		}
 
 		/**
@@ -213,28 +172,16 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 *
 		 * @since 4.4.0
 		 *
+		 * @deprecated 13.5
+		 *
 		 * @param string $message Error message.
 		 *
 		 * @return string
 		 */
 		public static function sso_not_allowed_in_staging( $message ) {
-			$error = __(
-				'Logging in with WordPress.com is disabled for sites that are in staging mode.',
-				'jetpack'
-			);
-
-			/**
-			 * Filters the disallowed notice for staging sites attempting SSO.
-			 *
-			 * @module sso
-			 *
-			 * @since 10.5.0
-			 *
-			 * @param string $error Error text.
-			 */
-			$error    = apply_filters( 'jetpack_sso_disallowed_staging_notice', $error );
-			$message .= sprintf( '<p class="message">%s</p>', esc_html( $error ) );
-			return $message;
+			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::sso_not_allowed_in_staging' );
+			// @phan-suppress-next-line PhanDeprecatedFunction
+			return Notices::sso_not_allowed_in_staging( $message );
 		}
 	}
 

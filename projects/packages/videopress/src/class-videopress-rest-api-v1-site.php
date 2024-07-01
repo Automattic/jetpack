@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use WP_REST_Response;
+
 /**
  * VideoPress rest api class for fetching site information
  */

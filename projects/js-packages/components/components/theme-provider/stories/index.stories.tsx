@@ -4,7 +4,7 @@ import Col from '../../layout/col';
 import Container from '../../layout/container';
 import ThemeProvider, { typography, colors, borders, spacing } from '../index';
 import styles from './style.module.scss';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 /**
  * Get the contrasting color for any hex color
@@ -43,7 +43,7 @@ function getContrast( hexcolor ) {
 }
 export default {
 	title: 'JS Packages/Components/Theme Provider',
-} as ComponentMeta< typeof ThemeProvider >;
+} as Meta< typeof ThemeProvider >;
 
 const noop = () => {
 	//
@@ -146,7 +146,7 @@ Colors.parameters = {
 	docs: { source: { code: null } },
 };
 
-const Template: ComponentStory< typeof ThemeProvider > = args => (
+const Template: StoryFn< typeof ThemeProvider > = args => (
 	<ThemeProvider { ...args }>
 		<div
 			style={ {

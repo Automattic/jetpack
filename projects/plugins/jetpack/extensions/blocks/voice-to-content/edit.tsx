@@ -16,6 +16,7 @@ import { external } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import React from 'react';
 import ActionButtons from './components/action-buttons';
 import AudioStatusPanel from './components/audio-status-panel';
 import useTranscriptionCreator from './hooks/use-transcription-creator';
@@ -23,7 +24,7 @@ import useTranscriptionInserter from './hooks/use-transcription-inserter';
 /**
  * Types
  */
-import type { Block } from '../ai-assistant/lib/utils/compare-blocks';
+import type { Block } from '@automattic/jetpack-ai-client';
 import type {
 	RecordingState,
 	TranscriptionState,
@@ -89,8 +90,8 @@ export default function VoiceToContentEdit( { clientId } ) {
 				const blocks = getBlocks();
 				// One block is the voice-to-content block itself, so we check the first two blocks
 				for ( let i = 0; i < 2; i++ ) {
-					if ( blocks[ i ].name === 'core/paragraph' && blocks[ i ].attributes.content === '' ) {
-						removeBlock( blocks[ i ].clientId );
+					if ( blocks[ i ].name === 'core/paragraph' && blocks[ i ].attributes?.content === '' ) {
+						removeBlock( String( blocks[ i ].clientId ) );
 					}
 				}
 

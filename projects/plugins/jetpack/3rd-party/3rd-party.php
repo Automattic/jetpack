@@ -62,9 +62,6 @@ function load_3rd_party_compat_filters() {
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-boost.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce-services.php';
 
-	// Crowdsignal. @todo Review the usage of modern Jetpack with outdated Crowdsignal.
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/crowdsignal.php';
-
 	// qTranslate. Plugin closed in 2021, but leaving support for now to allow sites to drop it.
 	if ( Constants::is_defined( 'QTX_VERSION' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/qtranslate-x.php';

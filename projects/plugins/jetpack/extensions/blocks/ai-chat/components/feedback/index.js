@@ -4,8 +4,8 @@
  * WordPress dependencies
  */
 import { Button, TextControl, Icon } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */

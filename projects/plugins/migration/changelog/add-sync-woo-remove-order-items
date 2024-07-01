@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Woocommerce event remove_order_items to Jetpack Sync

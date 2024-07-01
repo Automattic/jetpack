@@ -1,54 +1,29 @@
 /**
  * External dependencies
  */
-import { AiStatusIndicator, useAiSuggestions } from '@automattic/jetpack-ai-client';
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { serialize } from '@wordpress/blocks';
-import { Modal, Button } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
-import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
 import './style.scss';
+import usePostContent from '../../hooks/use-post-content';
+import AiAssistantModal from '../modal';
 /**
  * Types
  */
-import type * as BlockEditorSelectors from '@wordpress/block-editor/store/selectors';
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
-
-// Turndown instance
-const turndownService = new TurndownService();
-
-const usePostContent = () => {
-	const blocks = useSelect(
-		select => ( select( 'core/block-editor' ) as typeof BlockEditorSelectors ).getBlocks(),
-		[]
-	);
-	return blocks?.length ? turndownService.turndown( serialize( blocks ) ) : '';
-};
-
-const ModalHeader = ( { requestingState, onClose } ) => {
-	return (
-		<div className="ai-assistant-post-feedback__modal-header">
-			<div className="ai-assistant-post-feedback__modal-title-wrapper">
-				<AiStatusIndicator state={ requestingState } />
-				<h1 className="ai-assistant-post-feedback__modal-title">
-					{ __( 'AI Assistant', 'jetpack' ) }
-				</h1>
-			</div>
-			<Button icon={ close } label={ __( 'Close', 'jetpack' ) } onClick={ onClose } />
-		</div>
-	);
-};
 
 export default function Proofread( {
 	disabled = false,
 	busy = false,
+	placement,
 }: {
+	placement: string;
 	disabled?: boolean;
 	busy?: boolean;
 } ) {
@@ -66,7 +41,7 @@ export default function Proofread( {
 		setIsProofreadModalVisible( ! isProofreadModalVisible );
 	};
 
-	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAyncRequest } =
+	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAsyncRequest } =
 		useDispatch( 'wordpress-com/plans' );
 
 	const handleSuggestion = ( content: string ) => {
@@ -111,29 +86,26 @@ export default function Proofread( {
 		 * in case there is one pending,
 		 * when performing a new AI suggestion request.
 		 */
-		dequeueAiAssistantFeatureAyncRequest();
+		dequeueAiAssistantFeatureAsyncRequest();
 
 		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
 		toggleProofreadModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
 			feature: 'jetpack-ai-proofread-plugin',
+			placement,
 		} );
 	};
 
 	return (
 		<div>
 			{ isProofreadModalVisible && (
-				<Modal __experimentalHideHeader>
-					<div className="ai-assistant-post-feedback__modal-content">
-						<ModalHeader requestingState={ requestingState } onClose={ toggleProofreadModal } />
-						<hr className="ai-assistant-post-feedback__modal-divider" />
-						<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
-					</div>
-				</Modal>
+				<AiAssistantModal requestingState={ requestingState } handleClose={ toggleProofreadModal }>
+					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
+				</AiAssistantModal>
 			) }
 			<p>
 				{ __(
-					'Check for mistakes and verify the tone of your post before publishing.',
+					'Get suggestions on how to enhance your post to better engage your audience.',
 					'jetpack'
 				) }
 			</p>

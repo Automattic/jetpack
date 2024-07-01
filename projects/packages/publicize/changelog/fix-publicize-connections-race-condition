@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensured that connections are only fetched once per request

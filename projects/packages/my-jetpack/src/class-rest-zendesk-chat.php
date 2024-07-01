@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
+use WP_Error;
+use WP_REST_Response;
 
 /**
  * Registers the REST routes for Zendesk Chat.
@@ -56,11 +58,11 @@ class REST_Zendesk_Chat {
 	 * @access public
 	 * @static
 	 *
-	 * @return \WP_Error|true
+	 * @return WP_Error|true
 	 */
 	public static function chat_authentication_permissions_callback() {
 		if ( ! get_current_user_id() ) {
-			return new \WP_Error( 'unauthorized', 'You must be logged in to access this resource.', array( 'status' => 401 ) );
+			return new WP_Error( 'unauthorized', 'You must be logged in to access this resource.', array( 'status' => 401 ) );
 		}
 
 		return true;
@@ -69,7 +71,7 @@ class REST_Zendesk_Chat {
 	/**
 	 * Gets the chat authentication token.
 	 *
-	 * @return \WP_Error|object Object: { token: string }
+	 * @return WP_Error|WP_REST_Response { token: string }
 	 */
 	public static function get_chat_authentication() {
 		$authentication = get_transient( self::ZENDESK_AUTH_TOKEN );
@@ -91,7 +93,7 @@ class REST_Zendesk_Chat {
 		$body          = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
-			return new \WP_Error( 'chat_authentication_failed', 'Chat authentication failed', array( 'status' => $response_code ) );
+			return new WP_Error( 'chat_authentication_failed', 'Chat authentication failed', array( 'status' => $response_code ) );
 		}
 
 		set_transient( self::ZENDESK_AUTH_TOKEN, $body, self::TRANSIENT_EXPIRY );
@@ -102,7 +104,7 @@ class REST_Zendesk_Chat {
 	 * Calls `wpcom/v2/presales/chat?group=jp_presales` endpoint.
 	 * This endpoint returns whether or not the Jetpack presales chat group is available
 	 *
-	 * @return \WP_Error/object Object: { is_available: bool }
+	 * @return WP_Error|WP_REST_Response { is_available: bool }
 	 */
 	public static function get_chat_availability() {
 		$wpcom_endpoint    = '/presales/chat?group=jp_presales';
@@ -112,7 +114,7 @@ class REST_Zendesk_Chat {
 		$body              = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
-			return new \WP_Error( 'chat_config_data_fetch_failed', 'Chat config data fetch failed', array( 'status' => $response_code ) );
+			return new WP_Error( 'chat_config_data_fetch_failed', 'Chat config data fetch failed', array( 'status' => $response_code ) );
 		}
 
 		return rest_ensure_response( $body, 200 );

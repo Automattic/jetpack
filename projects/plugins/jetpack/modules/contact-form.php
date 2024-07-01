@@ -21,42 +21,17 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  */
 
 /**
- * Whether to load the newer Jetpack Forms package.
- *
- * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
- * @module contact-form
- *
- * @since 11.8
- *
- * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
+ * Load the newer Jetpack Forms package.
  */
-if ( apply_filters( 'jetpack_contact_form_use_package', true ) ) {
-	Jetpack_Forms::load_contact_form();
-	return true; // Not returning true will cause the module to become deactivated.
-}
-
-require_once __DIR__ . '/contact-form/grunion-contact-form.php';
-
-/*
- * Filters if the new Contact Form Editor View should be used.
- *
- * A temporary filter to disable the new Editor View for the older UI.
- * Please note this filter and the old UI will be removed in the future.
- * Expected to be removed in Jetpack 5.8 or if a security issue merits removing the old code sooner.
- *
- * @since 5.2.0
- * @deprecated 13.2.0
- *
- * @param boolean $view Use new Editor View. Default true.
- */
-if ( is_admin() && apply_filters_deprecated( 'tmp_grunion_allow_editor_view', array( true ), '13.2.0', '', 'This functionality will be removed in an upcoming version.' ) ) {
-	require_once __DIR__ . '/contact-form/grunion-editor-view.php';
-}
+Jetpack_Forms::load_contact_form();
 
 /**
  * Register Jetpack Form patterns
+ *
+ * @deprecated 13.4 Use Automattic\Jetpack\Forms\ContactForm\Util::register_pattern
  */
 function jetpack_form_register_pattern() {
+	_deprecated_function( __METHOD__, 'jetpack-13.4', 'Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
 	$category_slug = 'forms';
 	register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack' ) ) );
 
@@ -152,5 +127,3 @@ function jetpack_form_register_pattern() {
 		register_block_pattern( $name, $pattern );
 	}
 }
-
-add_action( 'init', 'jetpack_form_register_pattern' );

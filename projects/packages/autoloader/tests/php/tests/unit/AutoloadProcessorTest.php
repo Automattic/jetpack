@@ -14,10 +14,22 @@ use PHPUnit\Framework\TestCase;
 class AutoloadProcessorTest extends TestCase {
 
 	/**
+	 * Callback that should not be called.
+	 *
+	 * @return never
+	 * @throws BadFunctionCallException Always.
+	 */
+	public static function never_call_callback() {
+		throw new BadFunctionCallException( 'Callback should not have been called' );
+	}
+
+	/**
 	 * Tests that all of the process functions are safe when not given an autoload they're expecting.
+	 *
+	 * @phan-suppress PhanTypeMismatchArgument -- Intentionally checking error cases.
 	 */
 	public function test_process_functions_return_null_when_empty() {
-		$processor = new AutoloadProcessor( null, null );
+		$processor = new AutoloadProcessor( array( static::class, 'never_call_callback' ), array( static::class, 'never_call_callback' ) );
 
 		$this->assertNull( $processor->processClassmap( array(), false ) );
 		$this->assertNull( $processor->processClassmap( array(), true ) );
@@ -52,6 +64,8 @@ class AutoloadProcessorTest extends TestCase {
 					'version' => 'dev-test',
 				),
 			),
+			'psr-4'    => null,
+			'psr-0'    => null,
 		);
 
 		$processed = $processor->processClassmap( $autoloads, false );
@@ -91,7 +105,7 @@ class AutoloadProcessorTest extends TestCase {
 		$processor             = new AutoloadProcessor( $classmap_scanner, $path_code_transformer );
 
 		$autoloads = array(
-			'psr-4' => array(
+			'psr-4'    => array(
 				'Jetpack\\Autoloader\\' => array(
 					array(
 						'path'    => 'src',
@@ -99,6 +113,8 @@ class AutoloadProcessorTest extends TestCase {
 					),
 				),
 			),
+			'classmap' => null,
+			'psr-0'    => null,
 		);
 
 		$processed = $processor->processClassmap( $autoloads, true );
@@ -144,6 +160,8 @@ class AutoloadProcessorTest extends TestCase {
 					'version' => 'dev-test',
 				),
 			),
+			'psr-4'    => null,
+			'psr-0'    => null,
 		);
 
 		$autoloads['exclude-from-classmap'] = array( 'TestClass' );
@@ -172,7 +190,7 @@ class AutoloadProcessorTest extends TestCase {
 		$path_code_transformer = function ( $path ) {
 			return 'converted-' . $path;
 		};
-		$processor             = new AutoloadProcessor( null, $path_code_transformer );
+		$processor             = new AutoloadProcessor( array( static::class, 'never_call_callback' ), $path_code_transformer );
 
 		$autoloads = array(
 			'psr-4' => array(
@@ -202,7 +220,7 @@ class AutoloadProcessorTest extends TestCase {
 	 * Tests that `processPsr4Packages` does not when we're indicating that we want to make them a classmap.
 	 */
 	public function test_process_psr_packages_does_nothing_when_converting_to_classmap() {
-		$processor = new AutoloadProcessor( null, null );
+		$processor = new AutoloadProcessor( array( static::class, 'never_call_callback' ), array( static::class, 'never_call_callback' ) );
 
 		$autoloads = array(
 			'psr-4' => array(
@@ -227,7 +245,7 @@ class AutoloadProcessorTest extends TestCase {
 		$path_code_transformer = function ( $path ) {
 			return 'converted-' . $path;
 		};
-		$processor             = new AutoloadProcessor( null, $path_code_transformer );
+		$processor             = new AutoloadProcessor( array( static::class, 'never_call_callback' ), $path_code_transformer );
 
 		$autoloads = array(
 			'files' => array(

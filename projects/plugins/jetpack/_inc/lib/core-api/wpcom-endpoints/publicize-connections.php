@@ -94,6 +94,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				'description' => __( 'Is this connection available to all users?', 'jetpack' ),
 				'type'        => 'boolean',
 			),
+			'external_id'          => array(
+				'description' => __( 'The external ID of the connected account', 'jetpack' ),
+				'type'        => 'string',
+			),
 		);
 	}
 
@@ -140,6 +144,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 					'profile_picture'      => ! empty( $connection_meta['profile_picture'] ) ? $connection_meta['profile_picture'] : '',
 					// phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- We expect an integer, but do loose comparison below in case some other type is stored.
 					'global'               => 0 == $connection_data['user_id'],
+					'external_id'          => $connection_meta['external_id'] ?? '',
 				);
 			}
 		}

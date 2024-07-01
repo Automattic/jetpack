@@ -198,6 +198,57 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
+	 * Test the different scenarios for Blaze eligibility.
+	 *
+	 * @dataProvider get_blaze_eligibility_responses
+	 *
+	 * @covers Automattic\Jetpack\Blaze::site_supports_blaze
+	 *
+	 * @param array $eligibility_details  Details about the site status and the expected response.
+	 * @param bool  $expected_eligibility The expected result of the Blaze eligibility check.
+	 */
+	public function test_site_supports_blaze( $eligibility_details, $expected_eligibility ) {
+		$remote_request_happened = false;
+		$has_transient           = ! empty( $eligibility_details['transient'] );
+
+		if ( $has_transient ) {
+			set_transient( 'jetpack_blaze_site_supports_blaze_0', $eligibility_details['transient'] );
+		} else {
+			if ( isset( $eligibility_details['body'] ) ) {
+				$eligibility_details['body'] = wp_json_encode( $eligibility_details['body'] );
+			}
+
+			$remote_request_happened = true;
+
+			Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+			update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+			add_filter(
+				'pre_http_request',
+				function () use ( $eligibility_details ) {
+					return $eligibility_details;
+				}
+			);
+		}
+
+		$site_supports_blaze = Blaze::site_supports_blaze( 0 );
+
+		if ( ! $has_transient ) {
+			remove_filter(
+				'pre_http_request',
+				function () use ( $eligibility_details ) {
+					return $eligibility_details;
+				}
+			);
+		}
+
+		$this->assertEquals( $expected_eligibility, $site_supports_blaze );
+		$this->assertEquals( $remote_request_happened, ! $has_transient );
+
+		delete_transient( 'jetpack_blaze_site_supports_blaze_0' );
+	}
+
+	/**
 	 * Different scenarios (pages, Blaze eligibility) to test if Blaze js is enqueued in the editor.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::enqueue_block_editor_assets
@@ -234,6 +285,63 @@ class Test_Blaze extends BaseTestCase {
 				'post',
 				true,
 				false,
+				false,
+			),
+		);
+	}
+
+	/**
+	 * Different potential responses from the Blaze eligibility check.
+	 *
+	 * @return array[]
+	 */
+	public function get_blaze_eligibility_responses() {
+		return array(
+			'no cache, successful request, blog eligible' => array(
+				array(
+					'response'    => array( 'code' => 200 ),
+					'status_code' => 200,
+					'body'        => array( 'approved' => true ),
+				),
+				true,
+			),
+			'no cache, successful request, blog not eligible' => array(
+				array(
+					'response'    => array( 'code' => 200 ),
+					'status_code' => 200,
+					'body'        => array( 'approved' => false ),
+				),
+				false,
+			),
+			'no cache, unsuccessful request, 403'         => array(
+				array(
+					'response'    => array( 'code' => 403 ),
+					'status_code' => 403,
+				),
+				false,
+			),
+			'cache, boolean transient, blog eligible'     => array(
+				array(
+					'transient' => true,
+				),
+				true,
+			),
+			'cache, boolean transient, blog not eligible' => array(
+				array(
+					'transient' => false,
+				),
+				false,
+			),
+			'cache, array transient, blog eligible'       => array(
+				array(
+					'transient' => array( 'approved' => true ),
+				),
+				true,
+			),
+			'cache, array transient, blog not eligible'   => array(
+				array(
+					'transient' => array( 'approved' => false ),
+				),
 				false,
 			),
 		);

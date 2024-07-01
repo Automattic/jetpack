@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SegmentedControl from 'components/segmented-control';
 import ControlItem from 'components/segmented-control/item';
 import PropTypes from 'prop-types';
@@ -25,7 +25,7 @@ class NavSegmented extends React.Component {
 	}
 
 	render() {
-		const segmentedClassName = classNames( {
+		const segmentedClassName = clsx( {
 			'dops-section-nav-group': true,
 			'dops-section-nav__segmented': true,
 			'has-siblings': this.props.hasSiblingControls,

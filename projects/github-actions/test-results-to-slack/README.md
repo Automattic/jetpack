@@ -52,7 +52,7 @@ jobs:
   
     steps:
       - name: Download test artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: test-artifacts
 

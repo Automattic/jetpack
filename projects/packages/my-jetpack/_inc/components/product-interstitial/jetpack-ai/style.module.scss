@@ -247,3 +247,17 @@
 .product-interstitial__ai-notice {
 	margin-bottom: calc( var( --spacing-base ) * 8 );
 }
+
+.product-interstitial__new-badge {
+	color: var( --jp-green-40 );
+	border: 1px solid var( --jp-green-40 );
+	border-radius: 4px;
+	text-transform: uppercase;
+	padding: 2px 8px 2px 8px;
+	font-size: 12px;
+	font-weight: 500;
+	margin-left: 5px;
+	height: 22px;
+	position: relative;
+	top: -2px;
+}

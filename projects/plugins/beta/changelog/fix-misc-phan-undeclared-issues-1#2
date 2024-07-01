@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use `$skin` instead of `$upgrader->skin`, it's the same object but not typed as a parent class. Should be no change to functionality.
+
+

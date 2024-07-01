@@ -2,6 +2,7 @@ import { InspectorControls, useBlockProps, InnerBlocks, RichText } from '@wordpr
 import { PanelBody, TextControl, SelectControl } from '@wordpress/components';
 import { __, isRTL } from '@wordpress/i18n';
 import './editor.scss';
+import { DEFAULT_TEXT } from './constants';
 import { useSaveCookieConsentSettings } from './use-save-cookie-consent-settings';
 
 /**
@@ -14,7 +15,7 @@ import { useSaveCookieConsentSettings } from './use-save-cookie-consent-settings
  * @returns {object} Element to render.
  */
 function CookieConsentBlockEdit( { clientId, attributes, setAttributes } ) {
-	const { consentExpiryDays, align, text } = attributes;
+	const { consentExpiryDays, align, text = DEFAULT_TEXT } = attributes;
 
 	useSaveCookieConsentSettings( clientId );
 	/**

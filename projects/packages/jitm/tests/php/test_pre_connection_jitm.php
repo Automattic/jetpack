@@ -177,6 +177,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 			->andReturn( $this->test_jitms );
 
 		$messages = $this->jitm_instance->get_messages( '/wp:plugins:admin_notices/', '', false );
+		// @phan-suppress-next-line PhanTypeInvalidDimOffset -- It's confused by the assignment above.
 		$this->assertSame( $this->test_jitms[0]['id'], $messages[0]->id );
 	}
 
@@ -201,6 +202,7 @@ class Test_Pre_Connection_JITM extends TestCase {
 			->andReturn( $this->test_jitms );
 
 		$jitm = \Mockery::mock( Pre_Connection_JITM::class )->makePartial();
+		'@phan-var \Mockery\LegacyMockInterface&\Mockery\MockInterface&Pre_Connection_JITM $jitm'; // Bad phpdoc in Mockery plus probably https://github.com/phan/phan/issues/4849 makes Phan get the type wrong.
 		$jitm
 			->expects( 'generate_icon' )
 			->once()

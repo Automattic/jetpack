@@ -7,17 +7,19 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\Redirect;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use WP_Error;
+use WP_Post;
 
 /**
  * Extend the base class with Jetpack-specific functionality.
  */
 class Publicize extends Publicize_Base {
 
-	const CONNECTION_REFRESH_WAIT_TRANSIENT = 'jetpack_publicize_connection_refresh_wait';
+	const JETPACK_SOCIAL_CONNECTIONS_TRANSIENT = 'jetpack_social_connections';
 
 	/**
 	 * Transitory storage of connection testing results.
@@ -25,6 +27,13 @@ class Publicize extends Publicize_Base {
 	 * @var array
 	 */
 	private $test_connection_results = array();
+
+	/**
+	 * Property to store the results of fetching the connections.
+	 *
+	 * @var null|array
+	 */
+	private $current_connections = null;
 
 	/**
 	 * Add hooks.
@@ -36,32 +45,13 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
-		add_action( 'wp_ajax_publicize_tumblr_options_page', array( $this, 'options_page_tumblr' ) );
-		add_action( 'wp_ajax_publicize_facebook_options_page', array( $this, 'options_page_facebook' ) );
-		add_action( 'wp_ajax_publicize_twitter_options_page', array( $this, 'options_page_twitter' ) );
-		add_action( 'wp_ajax_publicize_linkedin_options_page', array( $this, 'options_page_linkedin' ) );
-
-		add_action( 'wp_ajax_publicize_tumblr_options_save', array( $this, 'options_save_tumblr' ) );
-		add_action( 'wp_ajax_publicize_facebook_options_save', array( $this, 'options_save_facebook' ) );
-		add_action( 'wp_ajax_publicize_twitter_options_save', array( $this, 'options_save_twitter' ) );
-		add_action( 'wp_ajax_publicize_linkedin_options_save', array( $this, 'options_save_linkedin' ) );
-
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'save_publicized' ), 11, 2 );
 
-		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
-
-		add_action( 'publicize_save_meta', array( $this, 'save_publicized_twitter_account' ), 10, 4 );
-		add_action( 'publicize_save_meta', array( $this, 'save_publicized_facebook_account' ), 10, 4 );
-
 		add_action( 'connection_disconnected', array( $this, 'add_disconnect_notice' ) );
-
-		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
-
-		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
 	}
 
 	/**
@@ -149,14 +139,21 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * Set updated Publicize conntections.
+	 * Set updated Publicize connections in a transient.
 	 *
 	 * @param mixed $publicize_connections Updated connections.
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		Jetpack_Options::update_option( 'publicize_connections', $publicize_connections );
-
+		$expiry = 3600 * 4;
+		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
+			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
+			// we can delete the transient and try again.
+			$this->clear_connections_transient();
+			set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry );
+		}
+		// Regardless of whether the transient is set ok, let's set and use the local property for this request.
+		$this->current_connections = $publicize_connections;
 		return true;
 	}
 
@@ -184,7 +181,13 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_all_connections() {
 		$this->refresh_connections();
-		$connections = Jetpack_Options::get_option( 'publicize_connections' );
+
+		$connections = $this->current_connections;
+
+		if ( empty( $connections ) ) {
+			$connections = array();
+		}
+
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
 		}
@@ -225,9 +228,15 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get all connections for a specific user.
 	 *
-	 * @return array|false
+	 * @param array $args Arguments to run operations such as force refresh and connection test results.
+
+	 * @return array
 	 */
-	public function get_all_connections_for_user() {
+	public function get_all_connections_for_user( $args = array() ) {
+		if ( ( isset( $args['clear_cache'] ) && $args['clear_cache'] )
+		|| ( isset( $args['test_connections'] ) && $args['test_connections'] ) ) {
+			$this->clear_connections_transient();
+		}
 		$connections = $this->get_all_connections();
 
 		$connections_to_return = array();
@@ -237,15 +246,72 @@ class Publicize extends Publicize_Base {
 					$user_id = (int) $connection['connection_data']['user_id'];
 					// phpcs:ignore WordPress.PHP.YodaConditions.NotYoda
 					if ( $user_id === 0 || $this->user_id() === $user_id ) {
-						$connections_to_return[ $service_name ][ $id ] = $connection;
+						if ( $this->use_admin_ui_v1() ) {
+							$connections_to_return[] = array_merge(
+								$connection,
+								array(
+									'service_name'   => $service_name,
+									'connection_id'  => $connection['connection_data']['id'],
+									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
+									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
+									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'status'         => 'ok',
+								)
+							);
+						} else {
+							$connections_to_return[ $service_name ][ $id ] = $connection;
+						}
 					}
 				}
 			}
-
-			return $connections_to_return;
 		}
 
-		return false;
+		if ( self::use_admin_ui_v1() && isset( $args['test_connections'] ) && $args['test_connections'] && count( $connections_to_return ) > 0 ) {
+			$connections_to_return = $this->add_connection_test_results( $connections_to_return );
+		}
+
+		return $connections_to_return;
+	}
+
+	/**
+	 * To add the connection test results to the connections.
+	 *
+	 * @param array $connections The Jetpack Social connections.
+
+	 * @return array
+	 */
+	public function add_connection_test_results( $connections ) {
+		$path                   = sprintf( '/sites/%d/publicize/connection-test-results', absint( Jetpack_Options::get_option( 'id' ) ) );
+		$response               = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
+		$connection_results     = json_decode( wp_remote_retrieve_body( $response ), true );
+		$connection_results_map = array();
+
+		foreach ( $connection_results as $connection_result ) {
+			$connection_results_map[ $connection_result['connection_id'] ] = $connection_result['test_success'] ? 'ok' : 'broken';
+		}
+		foreach ( $connections as $key => $connection ) {
+			if ( isset( $connection_results_map[ $connection['connection_id'] ] ) ) {
+				$connections[ $key ]['status'] = $connection_results_map[ $connection['connection_id'] ];
+			}
+		}
+
+		return $connections;
+	}
+
+	/**
+	 * Get a connections for a user.
+	 *
+	 * @param int $connection_id The connection_id.
+
+	 * @return array
+	 */
+	public function get_connection_for_user( $connection_id ) {
+		foreach ( $this->get_all_connections_for_user() as $connection ) {
+			if ( (int) $connection['connection_id'] === (int) $connection_id ) {
+				return $connection;
+			}
+		}
+		return array();
 	}
 
 	/**
@@ -417,48 +483,31 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	 * As Jetpack updates set the refresh transient to a random amount
-	 * in order to spread out updates to the connection data.
-	 *
-	 * @param string $version The Jetpack version being updated to.
-	 */
-	public function init_refresh_transient( $version ) {
-		if ( version_compare( $version, '10.2.1', '>=' ) && ! get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
-			$this->set_refresh_wait_transient( wp_rand( 10, HOUR_IN_SECONDS * 24 ) );
-		}
-	}
-
-	/**
-	 * Grabs a fresh copy of the publicize connections data.
-	 * Only refreshes once every 12 hours or retries after an hour with an error.
+	 * Grabs a fresh copy of the publicize connections data, if the cache is busted.
 	 */
 	public function refresh_connections() {
-		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
+		if ( null !== $this->current_connections ) {
 			return;
 		}
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.fetchPublicizeConnections' );
-		$wait_time = HOUR_IN_SECONDS * 24;
 
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			$this->receive_updated_publicize_connections( $response );
-		} else {
-			// Retry a bit quicker, but still wait.
-			$wait_time = HOUR_IN_SECONDS;
+		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+		if ( $connections === false ) {
+			$xml = new Jetpack_IXR_Client();
+			$xml->query( 'jetpack.fetchPublicizeConnections' );
+			if ( ! $xml->isError() ) {
+				$response = $xml->getResponse();
+				$this->receive_updated_publicize_connections( $response );
+			}
+			return;
 		}
-
-		$this->set_refresh_wait_transient( $wait_time );
+		$this->current_connections = $connections;
 	}
 
 	/**
-	 * Sets the transient to expire at the specified time in seconds.
-	 * This prevents us from attempting to refresh the data too often.
-	 *
-	 * @param int $wait_time The number of seconds before the transient should expire.
+	 * Delete the transient.
 	 */
-	public function set_refresh_wait_transient( $wait_time ) {
-		set_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT, microtime( true ), $wait_time );
+	public function clear_connections_transient() {
+		delete_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 	}
 
 	/**
@@ -516,6 +565,7 @@ class Publicize extends Publicize_Base {
 			'mastodon'           => array(),
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
+			'threads'            => array(),
 		);
 
 		if ( 'all' === $filter ) {
@@ -621,7 +671,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		$this->test_connection_results[ $id ] = new \WP_Error( $connection_error_code, $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new WP_Error( $connection_error_code, $connection_test_message, $error_data );
 
 		return $this->test_connection_results[ $id ];
 	}
@@ -654,8 +704,8 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 *
-	 * @param int      $post_ID Post ID.
-	 * @param \WP_Post $post Post object.
+	 * @param int     $post_ID Post ID.
+	 * @param WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
 		if ( $post === null ) {
@@ -673,8 +723,8 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Set post flags for Publicize.
 	 *
-	 * @param array    $flags List of flags.
-	 * @param \WP_Post $post Post object.
+	 * @param array   $flags List of flags.
+	 * @param WP_Post $post Post object.
 	 * @return array
 	 */
 	public function set_post_flags( $flags, $post ) {
@@ -699,407 +749,5 @@ class Publicize extends Publicize_Base {
 		$flags['publicize_post'] = true;
 
 		return $flags;
-	}
-
-	/**
-	 * Render Facebook options.
-	 */
-	public function options_page_facebook() {
-		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
-
-		// Nonce check.
-		check_admin_referer( 'options_page_facebook_' . $connection_name );
-
-		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['facebook'][ $connection_name ];
-		$options_to_show    = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
-
-		$pages = ( ! empty( $options_to_show[1]['data'] ) ? $options_to_show[1]['data'] : false );
-
-		$page_selected = false;
-		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
-			$found = false;
-			if ( $pages && isset( $pages->data ) && is_array( $pages->data ) ) {
-				foreach ( $pages->data as $page ) {
-					if ( $page->id === (int) $connection['connection_data']['meta']['facebook_page'] ) {
-						$found = true;
-						break;
-					}
-				}
-			}
-
-			if ( $found ) {
-				$page_selected = $connection['connection_data']['meta']['facebook_page'];
-			}
-		}
-
-		?>
-
-		<div id="thickbox-content">
-			<?php
-			ob_start();
-			Publicize_UI::connected_notice( 'Facebook' );
-			$update_notice = ob_get_clean();
-
-			if ( ! empty( $update_notice ) ) {
-				echo wp_kses_post( $update_notice );
-			}
-			$page_info_message = sprintf(
-				wp_kses(
-					/* translators: %s is the link to the support page about using Facebook with Jetpack Social */
-					__( 'Facebook supports Jetpack Social connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Jetpack Social for Facebook</a>', 'jetpack-publicize-pkg' ),
-					array( 'a' => array( 'href' ) )
-				),
-				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
-			);
-
-			if ( $pages ) :
-				?>
-				<p>
-					<?php
-						echo wp_kses(
-							__( 'Share to my <strong>Facebook Page</strong>:', 'jetpack-publicize-pkg' ),
-							array( 'strong' )
-						);
-					?>
-				</p>
-				<table id="option-fb-fanpage">
-					<tbody>
-
-					<?php foreach ( $pages as $i => $page ) : ?>
-						<?php if ( ! ( $i % 2 ) ) : ?>
-							<tr>
-						<?php endif; ?>
-						<td class="radio">
-							<input
-								type="radio"
-								name="option"
-								data-type="page"
-								id="<?php echo esc_attr( $page['id'] ); ?>"
-								value="<?php echo esc_attr( $page['id'] ); ?>"
-								<?php checked( $page_selected && (int) $page_selected === (int) $page['id'], true ); ?> />
-						</td>
-						<td class="thumbnail"><label for="<?php echo esc_attr( $page['id'] ); ?>"><img
-									src="<?php echo esc_url( str_replace( '_s', '_q', $page['picture']['data']['url'] ) ); ?>"
-									width="50" height="50"/></label></td>
-						<td class="details">
-							<label for="<?php echo esc_attr( $page['id'] ); ?>">
-								<span class="name"><?php echo esc_html( $page['name'] ); ?></span><br/>
-								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
-							</label>
-						</td>
-						<?php if ( ( $i % 2 ) || ( is_countable( $pages ) && ( count( $pages ) - 1 === $i ) ) ) : ?>
-							</tr>
-						<?php endif; ?>
-					<?php endforeach; ?>
-
-					</tbody>
-				</table>
-
-				<?php Publicize_UI::global_checkbox( 'facebook', $connection_name ); ?>
-				<p style="text-align: center;">
-					<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
-						class="button fb-options save-options" name="save"
-						data-connection="<?php echo esc_attr( $connection_name ); ?>"
-						rel="<?php echo esc_attr( wp_create_nonce( 'save_fb_token_' . $connection_name ) ); ?>"/>
-				</p><br/>
-				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				<p><?php echo $page_info_message; ?></p>
-			<?php else : ?>
-				<div>
-					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					<p><?php echo $page_info_message; ?></p>
-					<p>
-						<?php
-							echo wp_kses(
-								sprintf(
-									/* translators: %1$s is the link to Facebook documentation to create a page, %2$s is the target of the link */
-									__( '<a class="button" href="%1$s" target="%2$s">Create a Facebook page</a> to get started.', 'jetpack-publicize-pkg' ),
-									'https://www.facebook.com/pages/creation/',
-									'_blank noopener noreferrer'
-								),
-								array( 'a' => array( 'class', 'href', 'target' ) )
-							);
-						?>
-					</p>
-				</div>
-			<?php endif; ?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Save Facebook options.
-	 */
-	public function options_save_facebook() {
-		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
-
-		// Nonce check.
-		check_admin_referer( 'save_fb_token_' . $connection_name );
-
-		if ( ! isset( $_POST['type'] ) || 'page' !== $_POST['type'] || ! isset( $_POST['selected_id'] ) ) {
-			return;
-		}
-
-		// Check for a numeric page ID.
-		$page_id = $_POST['selected_id']; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Manually validated just below
-		if ( ! ctype_digit( $page_id ) ) {
-			die( 'Security check' );
-		}
-
-		// Publish to Page.
-		$options = array(
-			'facebook_page'    => $page_id,
-			'facebook_profile' => null,
-		);
-
-		$this->set_remote_publicize_options( $connection_name, $options );
-	}
-
-	/**
-	 * Render Tumblr options.
-	 */
-	public function options_page_tumblr() {
-		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : null;
-
-		// Nonce check.
-		check_admin_referer( 'options_page_tumblr_' . $connection_name );
-
-		$connected_services = $this->get_all_connections();
-		$connection         = $connected_services['tumblr'][ $connection_name ];
-		$options_to_show    = $connection['connection_data']['meta']['options_responses'];
-		$request            = $options_to_show[0];
-
-		$blogs = $request['response']['user']['blogs'];
-
-		$blog_selected = false;
-
-		if ( ! empty( $connection['connection_data']['meta']['tumblr_base_hostname'] ) ) {
-			foreach ( $blogs as $blog ) {
-				if ( $connection['connection_data']['meta']['tumblr_base_hostname'] === $this->get_basehostname( $blog['url'] ) ) {
-					$blog_selected = $connection['connection_data']['meta']['tumblr_base_hostname'];
-					break;
-				}
-			}
-		}
-
-		// Use their Primary blog if they haven't selected one yet.
-		if ( ! $blog_selected ) {
-			foreach ( $blogs as $blog ) {
-				if ( $blog['primary'] ) {
-					$blog_selected = $this->get_basehostname( $blog['url'] );
-				}
-			}
-		}
-		?>
-
-		<div id="thickbox-content">
-
-			<?php
-			ob_start();
-			Publicize_UI::connected_notice( 'Tumblr' );
-			$update_notice = ob_get_clean();
-
-			if ( ! empty( $update_notice ) ) {
-				echo wp_kses_post( $update_notice );
-			}
-			?>
-
-			<p><?php echo wp_kses( __( 'Share to my <strong>Tumblr blog</strong>:', 'jetpack-publicize-pkg' ), array( 'strong' ) ); ?></p>
-
-			<ul id="option-tumblr-blog">
-
-				<?php
-				foreach ( $blogs as $blog ) {
-					$url = $this->get_basehostname( $blog['url'] );
-					?>
-					<li>
-						<input type="radio" name="option" data-type="blog" id="<?php echo esc_attr( $url ); ?>"
-							value="<?php echo esc_attr( $url ); ?>" <?php checked( $blog_selected === $url, true ); ?> />
-						<label for="<?php echo esc_attr( $url ); ?>"><span
-								class="name"><?php echo esc_html( $blog['title'] ); ?></span></label>
-					</li>
-				<?php } ?>
-
-			</ul>
-
-			<?php Publicize_UI::global_checkbox( 'tumblr', $connection_name ); ?>
-
-			<p style="text-align: center;">
-				<input type="submit" value="<?php esc_attr_e( 'OK', 'jetpack-publicize-pkg' ); ?>"
-					class="button tumblr-options save-options" name="save"
-					data-connection="<?php echo esc_attr( $connection_name ); ?>"
-					rel="<?php echo esc_attr( wp_create_nonce( 'save_tumblr_blog_' . $connection_name ) ); ?>"/>
-			</p> <br/>
-		</div>
-
-		<?php
-	}
-
-	/**
-	 * Get the hostname from a URL.
-	 *
-	 * @param string $url The URL to extract the hostname from.
-	 * @return string|false|null
-	 */
-	public function get_basehostname( $url ) {
-		return wp_parse_url( $url, PHP_URL_HOST );
-	}
-
-	/**
-	 * Save Tumblr options.
-	 */
-	public function options_save_tumblr() {
-		$connection_name = isset( $_POST['connection'] ) ? filter_var( wp_unslash( $_POST['connection'] ) ) : null;
-
-		// Nonce check.
-		check_admin_referer( 'save_tumblr_blog_' . $connection_name );
-		$options = array( 'tumblr_base_hostname' => isset( $_POST['selected_id'] ) ? sanitize_text_field( wp_unslash( $_POST['selected_id'] ) ) : null );
-
-		$this->set_remote_publicize_options( $connection_name, $options );
-	}
-
-	/**
-	 * Set remote Publicize options.
-	 *
-	 * @param int   $id Connection ID.
-	 * @param array $options Options to set.
-	 */
-	public function set_remote_publicize_options( $id, $options ) {
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.setPublicizeOptions', $id, $options );
-
-		if ( ! $xml->isError() ) {
-			$response = $xml->getResponse();
-			Jetpack_Options::update_option( 'publicize_connections', $response );
-			$this->globalization( $id );
-		}
-	}
-
-	/**
-	 * Render the options page for Twitter.
-	 */
-	public function options_page_twitter() {
-		Publicize_UI::options_page_other( 'twitter' );
-	}
-
-	/**
-	 * Render the options page for LinkedIn.
-	 */
-	public function options_page_linkedin() {
-		Publicize_UI::options_page_other( 'linkedin' );
-	}
-
-	/**
-	 * Save the options page for Twitter.
-	 */
-	public function options_save_twitter() {
-		$this->options_save_other( 'twitter' );
-	}
-
-	/**
-	 * Save the options page for LinkedIn.
-	 */
-	public function options_save_linkedin() {
-		$this->options_save_other( 'linkedin' );
-	}
-
-	/**
-	 * Save the options page for a service.
-	 *
-	 * @param string $service_name Name of the service to save options for.
-	 */
-	public function options_save_other( $service_name ) {
-		$connection_name = isset( $_REQUEST['connection'] ) ? filter_var( wp_unslash( $_REQUEST['connection'] ) ) : '';
-
-		// Nonce check.
-		check_admin_referer( 'save_' . $service_name . '_token_' . $connection_name );
-
-		$this->globalization( $connection_name );
-	}
-
-	/**
-	 * If there's only one shared connection to Twitter set it as twitter:site tag.
-	 *
-	 * @param string $tag Tag.
-	 */
-	public function enhaced_twitter_cards_site_tag( $tag ) {
-		$custom_site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
-		if ( ! empty( $custom_site_tag ) ) {
-			return $tag;
-		}
-		if ( ! $this->is_enabled( 'twitter' ) ) {
-			return $tag;
-		}
-		$connections = $this->get_connections( 'twitter' );
-		foreach ( $connections as $connection ) {
-			$connection_meta = $this->get_connection_meta( $connection );
-			if ( $this->is_global_connection( $connection_meta ) ) {
-				// If the connection is shared.
-				return $this->get_display_name( 'twitter', $connection );
-			}
-		}
-
-		return $tag;
-	}
-
-	/**
-	 * Save the Publicized Twitter account when publishing a post.
-	 *
-	 * @param bool   $submit_post Should the post be publicized.
-	 * @param int    $post_id Post ID.
-	 * @param string $service_name Service name.
-	 * @param array  $connection Array of connection details.
-	 */
-	public function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
-		if ( 'twitter' === $service_name && $submit_post ) {
-			$connection_meta        = $this->get_connection_meta( $connection );
-			$publicize_twitter_user = get_post_meta( $post_id, '_publicize_twitter_user' );
-			if ( empty( $publicize_twitter_user ) || ! $this->is_global_connection( $connection_meta ) ) {
-				update_post_meta( $post_id, '_publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
-			}
-		}
-	}
-
-	/**
-	 * Get the Twitter username.
-	 *
-	 * @param string $account Twitter username.
-	 * @param int    $post_id ID of the post.
-	 * @return string
-	 */
-	public function get_publicized_twitter_account( $account, $post_id ) {
-		if ( ! empty( $account ) ) {
-			return $account;
-		}
-		$account = get_post_meta( $post_id, '_publicize_twitter_user', true );
-		if ( ! empty( $account ) ) {
-			return $account;
-		}
-
-		return '';
-	}
-
-	/**
-	 * Save the Publicized Facebook account when publishing a post
-	 * Use only Personal accounts, not Facebook Pages
-	 *
-	 * @param bool   $submit_post Should the post be publicized.
-	 * @param int    $post_id Post ID.
-	 * @param string $service_name Service name.
-	 * @param array  $connection Array of connection details.
-	 */
-	public function save_publicized_facebook_account( $submit_post, $post_id, $service_name, $connection ) {
-		$connection_meta = $this->get_connection_meta( $connection );
-		if ( 'facebook' === $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
-			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
-			if ( empty( $publicize_facebook_user ) || ! $this->is_global_connection( $connection_meta ) ) {
-				$profile_link = $this->get_profile_link( 'facebook', $connection );
-
-				if ( false !== $profile_link ) {
-					update_post_meta( $post_id, '_publicize_facebook_user', $profile_link );
-				}
-			}
-		}
 	}
 }

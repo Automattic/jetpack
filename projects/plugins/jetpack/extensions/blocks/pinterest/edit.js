@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { SandBox, withNotices } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import EditUrlForm from './components/edit-url-form';
@@ -9,13 +10,14 @@ import { pinType } from './utils';
 export function PinterestEdit( {
 	attributes,
 	isSelected,
-	className,
 	noticeOperations,
 	noticeUI,
 	setAttributes,
 	onReplace,
 } ) {
 	const { url } = attributes;
+
+	const blockProps = useBlockProps();
 	const { isFetching, pinterestUrl, testUrl, hasTestUrlError } = useTestPinterestEmbedUrl();
 	const [ isInteractive, setIsInteractive ] = useState( false );
 	const [ editedUrl, setEditedUrl ] = useState( '' );
@@ -96,40 +98,42 @@ export function PinterestEdit( {
 
 	const pinterestEmbedType = pinType( url );
 
+	let content;
+
 	if ( isEditing || ! url || ( url && ! pinterestEmbedType ) ) {
-		return (
+		content = (
 			<EditUrlForm
-				className={ className }
 				onSubmit={ onSubmitForm }
 				noticeUI={ noticeUI }
 				url={ editedUrl }
 				setUrl={ setEditedUrl }
 			/>
 		);
-	}
-
-	const sandBoxHTML = `<a data-pin-do='${ pinterestEmbedType }' href='${ url }'></a>`;
-	/*
+	} else {
+		const sandBoxHTML = `<a data-pin-do='${ pinterestEmbedType }' href='${ url }'></a>`;
+		/*
 		Disabled because the overlay div doesn't actually have a role or functionality
 		as far as the user is concerned. We're just catching the first click so that
 		the block can be selected without interacting with the embed preview that the overlay covers.
 	 */
-	/* eslint-disable jsx-a11y/no-static-element-interactions */
-	return (
-		<div className={ className }>
-			<div>
-				<SandBox
-					html={ sandBoxHTML }
-					scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
-					onFocus={ hideOverlay }
-				/>
-				{ ! isInteractive && (
-					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
-				) }
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
+		content = (
+			<div { ...blockProps }>
+				<div>
+					<SandBox
+						html={ sandBoxHTML }
+						scripts={ [ 'https://assets.pinterest.com/js/pinit.js' ] }
+						onFocus={ hideOverlay }
+					/>
+					{ ! isInteractive && (
+						<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
+					) }
+				</div>
 			</div>
-		</div>
-	);
-	/* eslint-enable jsx-a11y/no-static-element-interactions */
+		);
+	}
+
+	return <div { ...blockProps }>{ content }</div>;
 }
 
 export default withNotices( PinterestEdit );

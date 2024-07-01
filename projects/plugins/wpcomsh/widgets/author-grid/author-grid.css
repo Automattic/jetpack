@@ -1,0 +1,4 @@
+.widget_author_grid ul { overflow: hidden; }
+.widget_author_grid ul li { background: none !important; clear: none !important; float: left !important; margin: 0 -5px -3px 0 !important; padding: 0 8px 6px 0 !important; border: none !important; list-style: none !important; }
+.widget_author_grid ul li a { background: none !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+.widget_author_grid .avatar { vertical-align: middle; }

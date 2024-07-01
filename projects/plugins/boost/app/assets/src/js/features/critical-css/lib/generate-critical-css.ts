@@ -1,9 +1,9 @@
+import { z } from 'zod';
 import { CriticalCssErrorDetails, Provider } from './stores/critical-css-state-types';
 import { recordBoostEvent, TracksEventProperties } from '$lib/utils/analytics';
 import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
-import { loadCriticalCssLibrary } from '$lib/utils/load-critical-css-library';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
 import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
@@ -12,6 +12,11 @@ type Viewport = {
 	width: number;
 	height: number;
 };
+
+const CriticalCSSGeneratorSchema = z.object( {
+	BrowserInterfaceIframe: z.function(),
+	generateCriticalCSS: z.function(),
+} );
 
 const defaultViewports: Viewport[] = [
 	{
@@ -89,9 +94,6 @@ async function generateCriticalCss(
 	signal: AbortSignal
 ) {
 	try {
-		// Load Critical CSS gen library if not already loaded.
-		await loadCriticalCssLibrary();
-
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
 			'jb-generate-critical-css': Date.now().toString(),
@@ -185,6 +187,13 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
+	try {
+		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
+	} catch ( err ) {
+		recordBoostEvent( 'critical_css_library_failure', {} );
+		throw new Error( 'css-gen-library-failure' );
+	}
+
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 	let totalSize = 0;

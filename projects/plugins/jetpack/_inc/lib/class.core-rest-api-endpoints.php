@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -1143,7 +1144,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function is_site_verified_and_token( $request ) {
 		/**
@@ -1252,7 +1253,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return array|wp-error
+	 * @return array|WP_Error
 	 */
 	public static function dismiss_notice( $request ) {
 		$notice = $request['notice'];
@@ -1775,39 +1776,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'disconnect_failed', esc_html__( 'Was not able to disconnect the site. Please try again.', 'jetpack' ), array( 'status' => 400 ) );
-	}
-
-	/**
-	 * Registers the Jetpack site
-	 *
-	 * @deprecated since Jetpack 9.7.0
-	 * @see Automattic\Jetpack\Connection\REST_Connector::connection_register()
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return bool|WP_Error True if Jetpack successfully registered
-	 */
-	public static function register_site( $request ) {
-		_deprecated_function( __METHOD__, 'jetpack-9.7.0', '\Automattic\Jetpack\Connection\REST_Connector::connection_register' );
-
-		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
-		}
-
-		if ( isset( $request['from'] ) ) {
-			Jetpack::connection()->add_register_request_param( 'from', (string) $request['from'] );
-		}
-		$response = Jetpack::connection()->try_registration();
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false ),
-			)
-		);
 	}
 
 	/**
@@ -2623,7 +2591,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_sso_require_two_step'          => array(
 				'description'       => esc_html__( 'Require Two-Step Authentication', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => SSO\Helpers::is_require_two_step_checkbox_disabled(),
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'sso',
 			),
@@ -2671,11 +2639,46 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_gravatar_in_email'             => array(
+				'description'       => esc_html__( 'Whether to show author avatar in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_author_in_email'               => array(
+				'description'       => esc_html__( 'Whether to show author display name in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_post_date_in_email'            => array(
+				'description'       => esc_html__( 'Whether to show date in the email byline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'wpcom_subscription_emails_use_excerpt' => array(
 				'description'       => esc_html__( 'Whether to use the excerpt in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_reply_to'        => array(
+				'description'       => esc_html__( 'Reply to email behaviour for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => 'no-reply',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_from_name'       => array(
+				'description'       => esc_html__( 'From name for newsletters emails', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_subscriptions_reply_to_name',
 				'jp_group'          => 'subscriptions',
 			),
 			'sm_enabled'                            => array(
@@ -2685,8 +2688,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'jetpack_subscribe_overlay_enabled'     => array(
+				'description'       => esc_html__( 'Show subscribe overlay on homepage.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 			'jetpack_subscriptions_subscribe_post_end_enabled' => array(
 				'description'       => esc_html__( 'Add Subscribe block at the end of each post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_login_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscriber Login block to the navigation.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
+			'jetpack_subscriptions_subscribe_navigation_enabled' => array(
+				'description'       => esc_html__( 'Add Subscribe block to the navigation.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -2806,6 +2830,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 			'wordads_second_belowpost'              => array(
 				'description'       => esc_html__( 'Display second ad below post?', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'wordads',
+			),
+			'wordads_inline_enabled'                => array(
+				'description'       => esc_html__( 'Display inline ad within post content?', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -3403,6 +3434,57 @@ class Jetpack_Core_Json_Api_Endpoints {
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
 					implode( ', ', $views )
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to( $value, $request, $param ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
+		if ( ! empty( $value ) && ! Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is among the valid reply-to types for subscriptions.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool     $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_subscriptions_reply_to_name( $value, $request, $param ) {
+		if ( ! empty( $value ) && ! is_string( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be a valid type.', 'jetpack' ),
+					$param
 				)
 			);
 		}

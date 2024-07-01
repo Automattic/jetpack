@@ -45,7 +45,9 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Enable the WordPress.com toolbar', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Enable the WordPress.com toolbar', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 

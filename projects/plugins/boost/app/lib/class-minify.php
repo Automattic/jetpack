@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use JShrink\Minifier as JSMinifier;
+use MatthiasMullie\Minify\JS as JSMinifier;
 use tubalmartin\CssMin\Minifier as CSSMinifier;
 
 /**
@@ -18,7 +18,7 @@ use tubalmartin\CssMin\Minifier as CSSMinifier;
 class Minify {
 
 	/**
-	 * @var Minify - Holds the CssMin\Minifier instance, for reuse on subsequent calls.
+	 * @var CSSMinifier - Holds the CssMin\Minifier instance, for reuse on subsequent calls.
 	 */
 	private static $css_minifier;
 
@@ -30,10 +30,9 @@ class Minify {
 	 * @return string String with whitespace stripped.
 	 */
 	public static function js( $js ) {
-		require_once JETPACK_BOOST_DIR_PATH . '/vendor/tedivm/jshrink/src/JShrink/Minifier.php';
-
 		try {
-			$minified_js = JSMinifier::minify( $js );
+			$minifier    = new JSMinifier( $js );
+			$minified_js = $minifier->minify();
 		} catch ( \Exception $e ) {
 			return $js;
 		}

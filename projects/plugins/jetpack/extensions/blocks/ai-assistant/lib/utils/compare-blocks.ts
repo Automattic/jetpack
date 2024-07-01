@@ -1,13 +1,7 @@
-export type Block = {
-	attributes?: {
-		[ key: string ]: unknown;
-	};
-	clientId?: string;
-	innerBlocks?: Block[];
-	isValid?: boolean;
-	name?: string;
-	originalContent?: string;
-};
+/**
+ * External dependencies
+ */
+import type { Block } from '@automattic/jetpack-ai-client';
 
 const omitClientId = ( block: Block ): Block => {
 	delete block.clientId;

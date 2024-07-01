@@ -27,11 +27,18 @@ if(!isset($whwpCountryList)) require_once( ZEROBSCRM_INCLUDE_PATH . 'wh.countryc
 
 // check for default font reinstalls
 if ( isset( $_GET['reinstall_default_font'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
-
 	// check nonce
 	check_admin_referer( 'zbs-update-settings-reinstall-font' );
 
 	// hard reinstall
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+	$fonts_dir = jpcrm_storage_fonts_dir_path();
+	if ( $fonts_dir ) {
+		$filesystem_direct = new WP_Filesystem_Direct( false );
+		$filesystem_direct->rmdir( $fonts_dir, true );
+	}
+
 	$fonts = $zbs->get_fonts();
 	$fonts->extract_and_install_default_fonts();
 	$default_font_reinstalled = true;
@@ -355,6 +362,30 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 								?>
 								</select>
 								<p><?php echo wp_kses( sprintf( __( 'All Noto fonts are licensed under the <a href="%s" target="_blank">SIL Open Font License</a>.', 'zero-bs-crm' ) . ' ' . __( 'For more information, please go <a href="%s" target="_blank">here</a>.', 'zero-bs-crm' ), 'https://fonts.google.com/attribution', 'https://fonts.google.com/noto/specimen/Noto+Sans/about' ), $zbs->acceptable_restricted_html ); ?></p>
+								<p>
+									<?php
+										echo wp_kses(
+											sprintf(
+												/* translators: %s is the URL of the CRM notifications page. */
+												__( 'If a font does not install, please <a href="%s" >check your notifications</a> for any error messages. Note that some larger font files may take up to a minute to download.', 'zero-bs-crm' ),
+												esc_url( get_site_url() . '/wp-admin/admin.php?page=zerobscrm-notifications' )
+											),
+											$zbs->acceptable_restricted_html
+										);
+										?>
+								</p>
+								<p>
+									<?php
+										echo wp_kses(
+											sprintf(
+												/* translators: %s is the URL of the CRM support doc explaining how to add styles to pdf templates. */
+												__( 'Once a new font is installed, <a href="%s" target="_blank">learn more about using the custom fonts in CRM PDFs here</a>.', 'zero-bs-crm' ),
+												esc_url( $zbs->urls['kb-pdf-custom-fonts'] )
+											),
+											$zbs->acceptable_restricted_html
+										);
+										?>
+								</p>
 								<button type="submit" class="ui small green button"><?php esc_html_e( 'Install font', 'zero-bs-crm' ); ?></button>
 							</div>
 

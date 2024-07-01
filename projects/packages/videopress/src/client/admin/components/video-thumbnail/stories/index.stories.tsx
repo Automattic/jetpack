@@ -11,7 +11,7 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Video Thumbnail',
@@ -32,12 +32,9 @@ export default {
 			</div>
 		),
 	],
-} as ComponentMeta< typeof VideoThumbnail >;
+} as Meta< typeof VideoThumbnail >;
 
-const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnail > = ( {
-	thumbnail,
-	...args
-} ) => {
+const VideoThumbnailTemplate: StoryFn< typeof VideoThumbnail > = ( { thumbnail, ...args } ) => {
 	if ( thumbnail === 'none' ) {
 		thumbnail = false;
 	}
@@ -64,7 +61,7 @@ Placeholder.args = {
 	thumbnail: 'none',
 };
 
-const VideoThumbnailDropdownTemplate: ComponentStory< typeof VideoThumbnailDropdown > =
+const VideoThumbnailDropdownTemplate: StoryFn< typeof VideoThumbnailDropdown > =
 	VideoThumbnailDropdown;
 
 export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );

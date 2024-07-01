@@ -16,6 +16,7 @@ import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { SharePostRow } from '../share-post';
 import styles from './styles.module.scss';
+import './global.scss';
 
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
@@ -58,7 +59,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 									  )
 							}
 							onChange={ togglePublicizeFeature }
-							checked={ isPublicizeEnabled }
+							checked={ isPublicizeEnabled && hasConnections }
 							disabled={ ! hasConnections }
 						/>
 					) }

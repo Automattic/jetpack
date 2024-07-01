@@ -26,6 +26,9 @@ import {
 	MAX_SPACING_VALUE,
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
+	DEFAULT_SUBSCRIBE_PLACEHOLDER,
+	DEFAULT_SUBMIT_BUTTON_LABEL,
+	DEFAULT_SUCCESS_MESSAGE,
 } from './constants';
 
 export default function SubscriptionControls( {
@@ -51,9 +54,9 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
-	subscribePlaceholder,
-	submitButtonText,
-	successMessage,
+	subscribePlaceholder = DEFAULT_SUBSCRIBE_PLACEHOLDER,
+	submitButtonText = DEFAULT_SUBMIT_BUTTON_LABEL,
+	successMessage = DEFAULT_SUCCESS_MESSAGE,
 } ) {
 	const { isPublicizeEnabled } = usePublicizeConfig();
 

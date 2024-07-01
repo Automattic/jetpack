@@ -1,0 +1,80 @@
+{
+	"name": "automattic/jetpack-masterbar",
+	"description": "The WordPress.com Toolbar feature replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-blaze": "@dev",
+		"automattic/jetpack-compat": "@dev",
+		"automattic/jetpack-device-detection": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-jitm": "@dev",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-status": "@dev"
+	},
+	"require-dev": {
+		"brain/monkey": "2.6.1",
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/patchwork-redefine-exit": "@dev",
+		"automattic/wordbless": "dev-master"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"test-php": [
+			"pnpm run build-production",
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	},
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.2.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-masterbar",
+		"textdomain": "jetpack-masterbar",
+		"version-constants": {
+			"::PACKAGE_VERSION": "src/class-main.php"
+		}
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	}
+}

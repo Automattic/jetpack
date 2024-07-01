@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Jetpack AI: when response includes a title and post title is empty, use provided title as post title

@@ -9,7 +9,7 @@ default:
     tools/docker/mu-plugins: /var/www/html/wp-content/mu-plugins
 
   # Extra configuration (none by default). Anything set under this key will be written out as
-  # an extra docker-compose configuration file.
+  # an extra Docker compose configuration file.
   extras:
 
 # Dev environment overrides. None by default.
@@ -61,6 +61,8 @@ e2e:
     tools/e2e-commons/plugins/e2e-plugin-updater.php: /var/www/html/wp-content/plugins/e2e-plugin-updater.php
     tools/e2e-commons/plugins/e2e-plan-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-plan-data-interceptor.php
     tools/e2e-commons/plugins/e2e-waf-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-waf-data-interceptor.php
+    projects/plugins/boost/tests/e2e/plugins/e2e-concatenate-enqueue/: /var/www/html/wp-content/plugins/e2e-concatenate-enqueue/
+    projects/plugins/boost/tests/e2e/plugins/e2e-appended-image/: /var/www/html/wp-content/plugins/e2e-appended-image/
     projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php: /var/www/html/wp-content/plugins/e2e-mock-speed-score-api.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
     tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php

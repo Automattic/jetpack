@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 	public function test_shortcodes_googlemaps( $shortcode, $is_amp, $expected ) {
 		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
-			return;
+			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}
 
 		if ( $is_amp ) {

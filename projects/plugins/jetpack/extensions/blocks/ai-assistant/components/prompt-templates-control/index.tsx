@@ -5,7 +5,6 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
-import React from 'react';
 
 type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;

@@ -21,21 +21,21 @@ class AutoloaderHandlerTest extends TestCase {
 	/**
 	 * The php autoloader mock;
 	 *
-	 * @var PHP_Autoloader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var PHP_Autoloader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $php_autoloader;
 
 	/**
 	 * The hook manager mock;
 	 *
-	 * @var Hook_Manager|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Hook_Manager&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $hook_manager;
 
 	/**
 	 * The manifest reader mock.
 	 *
-	 * @var Manifest_Reader|\PHPUnit\Framework\MockObject\MockObject
+	 * @var Manifest_Reader&\PHPUnit\Framework\MockObject\MockObject
 	 */
 	private $manifest_reader;
 
@@ -80,10 +80,12 @@ class AutoloaderHandlerTest extends TestCase {
 
 		$this->manifest_reader->expects( $this->exactly( 3 ) )
 			->method( 'read_manifests' )
-			->withConsecutive(
-				array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
-				array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+			->with(
+				...with_consecutive(
+					array( $plugins, 'vendor/composer/jetpack_autoload_psr4.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_classmap.php' ),
+					array( $plugins, 'vendor/composer/jetpack_autoload_filemap.php' )
+				)
 			);
 		$this->php_autoloader->expects( $this->once() )
 			->method( 'register_autoloader' );

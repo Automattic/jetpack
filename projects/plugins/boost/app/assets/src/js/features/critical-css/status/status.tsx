@@ -1,5 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import type { CriticalCssState } from '../lib/stores/critical-css-state-types';
 import TimeAgo from '../time-ago/time-ago';
 import InfoIcon from '$svg/info';
@@ -7,7 +7,7 @@ import RefreshIcon from '$svg/refresh';
 import { createInterpolateElement } from '@wordpress/element';
 import { Link } from 'react-router-dom';
 import { useRegenerateCriticalCssAction } from '../lib/stores/critical-css-state';
-import { getCriticalCssIssues, isFatalError } from '../lib/critical-css-errors';
+import { getProvidersWithErrors } from '../lib/critical-css-errors';
 import ShowStopperError from '../show-stopper-error/show-stopper-error';
 import { Button } from '@automattic/jetpack-components';
 import styles from './status.module.scss';
@@ -15,6 +15,7 @@ import styles from './status.module.scss';
 type StatusTypes = {
 	cssState: CriticalCssState;
 	isCloud?: boolean;
+	showFatalError: boolean;
 	hasRetried: boolean;
 	retry: () => void;
 	highlightRegenerateButton?: boolean;
@@ -25,6 +26,7 @@ type StatusTypes = {
 const Status: React.FC< StatusTypes > = ( {
 	cssState,
 	isCloud = false,
+	showFatalError,
 	hasRetried,
 	retry,
 	highlightRegenerateButton = false,
@@ -34,10 +36,10 @@ const Status: React.FC< StatusTypes > = ( {
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const successCount =
 		cssState.providers.filter( provider => provider.status === 'success' ).length || 0;
-	const issues = getCriticalCssIssues( cssState );
+	const providersWithErrors = getProvidersWithErrors( cssState );
 
 	// If there has been a fatal error, show it.
-	if ( isFatalError( cssState ) ) {
+	if ( showFatalError ) {
 		return (
 			<ShowStopperError
 				supportLink={ ( isCloud && 'https://jetpack.com/contact-support/' ) || undefined }
@@ -72,8 +74,8 @@ const Status: React.FC< StatusTypes > = ( {
 					</div>
 				) }
 
-				{ cssState.status !== 'pending' && issues.length > 0 && (
-					<div className={ classNames( 'failures', styles.failures ) }>
+				{ cssState.status !== 'pending' && providersWithErrors.length > 0 && (
+					<div className={ clsx( 'failures', styles.failures ) }>
 						<InfoIcon />
 
 						<>
@@ -83,10 +85,10 @@ const Status: React.FC< StatusTypes > = ( {
 									_n(
 										'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
 										'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-										issues.length,
+										providersWithErrors.length,
 										'jetpack-boost'
 									),
-									issues.length
+									providersWithErrors.length
 								),
 								{
 									advanced: <Link to="/critical-css-advanced" />,

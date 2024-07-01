@@ -63,21 +63,4 @@ class Generator {
 		<meta name="<?php echo esc_attr( self::GENERATE_QUERY_ACTION ); ?>" content="true"/>
 		<?php
 	}
-
-	/**
-	 * Add the critical css generation flag to a list if it's present in the URL.
-	 * This is mainly used by filters for compatibility.
-	 *
-	 * @var $query_args    array The list to add the arg to.
-	 *
-	 * @return $query_args array The updatest list with query args.
-	 */
-	public static function add_generate_query_action_to_list( $query_args ) {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET[ self::GENERATE_QUERY_ACTION ] ) ) {
-			$query_args[] = self::GENERATE_QUERY_ACTION;
-		}
-
-		return $query_args;
-	}
 }

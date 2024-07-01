@@ -188,6 +188,13 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$_SERVER['HTTP_HOST']   = 'wordpress.com';
 		$request                = new Waf_Request();
 		$this->assertSame( 'https://wordpress.com/index.php', $request->get_uri( true ) );
+		// test with encoded characters in REQUEST_URI
+		$_SERVER['REQUEST_URI'] = 'https://wordpress.com/wp-%61dmin/index.php';
+		$request                = new Waf_Request();
+		$this->assertSame( 'https://wordpress.com/wp-admin/index.php', $request->get_uri( true ) );
+		// should still work with query strings
+		$_SERVER['QUERY_STRING'] = 'red=1&orange=2';
+		$this->assertSame( 'https://wordpress.com/wp-admin/index.php', $request->get_uri( true ) );
 		// test with a query string
 		$_SERVER['QUERY_STRING'] = 'red=1&orange=2';
 		$_SERVER['REQUEST_URI']  = 'https://wordpress.com/index.php?incorrect=bad';

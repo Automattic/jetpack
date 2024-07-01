@@ -18,7 +18,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.
 	 *
-	 * @var Automattic\Jetpack\Stats\XMLRPC_Provider
+	 * @var \Automattic\Jetpack\Stats\XMLRPC_Provider
 	 */
 	protected $xmlrpc_instance;
 
@@ -30,7 +30,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	protected function set_up() {
 		parent::set_up();
 
-		$this->xmlrpc_instance = XMLRPC_Provider::init();
+		$this->xmlrpc_instance = XMLRPC_Provider::init( true );
 	}
 
 	/**

@@ -6,11 +6,11 @@
 		margin: 0; /* Override margins in AMP legacy Reader mode. */
 	}
 
-	&.aligncenter iframe {
+	& > .aligncenter iframe {
 		margin: 0 auto;
 	}
 
-	&.is-style-standard, &.is-style-wide.is-style-mobile {
+	& > .is-style-standard, & > .is-style-wide.is-style-mobile {
 		height: 301px;
 
 		&.is-multi {
@@ -22,7 +22,7 @@
 		}
 	}
 
-	&.is-style-tall {
+	& > .is-style-tall {
 		height: 490px;
 
 		&.is-multi {
@@ -34,7 +34,7 @@
 		}
 	}
 
-	&.is-style-wide {
+	& > .is-style-wide {
 		height: 150px;
 		iframe {
 			width: 840px !important;
@@ -52,7 +52,7 @@
 		}
 	}
 
-	&.is-style-button {
+	& > .is-style-button {
 		height: 113px;
 		&.aligncenter iframe {
 			width: 210px !important;

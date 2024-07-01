@@ -41,7 +41,7 @@ for SLUG in "${SLUGS[@]}"; do
 			printf '\n\e[1mTest upgrade of %s from %s via %s\e[0m\n' "$SLUG" "$FROM" "$HOW"
 
 			echo "::group::Restoring database from backup"
-			mysql < "$GITHUB_WORKSPACE/db.sql"
+			wp --allow-root db import "$GITHUB_WORKSPACE/db.sql"
 			echo "::endgroup::"
 
 			ERRMSG=

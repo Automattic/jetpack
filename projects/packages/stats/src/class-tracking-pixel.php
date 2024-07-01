@@ -42,7 +42,7 @@ class Tracking_Pixel {
 	 * Stats Build View Data.
 	 *
 	 * @access public
-	 * @return array.
+	 * @return array
 	 */
 	public static function build_view_data() {
 		global $wp_the_query;

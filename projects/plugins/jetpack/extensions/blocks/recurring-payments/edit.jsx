@@ -1,9 +1,8 @@
 import { InspectorControls, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useEffect, useMemo, useCallback } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
-import { useCallback } from 'react';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';

@@ -50,7 +50,8 @@ describe( 'actions', () => {
 			const response = { authorizeUrl: 'AUTHORIZE_URL' };
 			const registrationNonce = 'REGISTRATION_NONCE';
 			const redirectUri = 'REDIRECT_URI';
-			const action = actions.registerSite( { registrationNonce, redirectUri } );
+			const from = 'FROM';
+			const action = actions.registerSite( { registrationNonce, redirectUri, from } );
 
 			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
 			expect( action.next().value ).toEqual( {
@@ -61,6 +62,7 @@ describe( 'actions', () => {
 				type: REGISTER_SITE,
 				registrationNonce,
 				redirectUri,
+				from,
 			} );
 
 			expect( action.next( response ).value ).toEqual( {
@@ -84,7 +86,8 @@ describe( 'actions', () => {
 			const error = new Error( 'failed' );
 			const registrationNonce = 'REGISTRATION_NONCE';
 			const redirectUri = 'REDIRECT_URI';
-			const action = actions.registerSite( { registrationNonce, redirectUri } );
+			const from = 'FROM';
+			const action = actions.registerSite( { registrationNonce, redirectUri, from } );
 
 			expect( action.next().value ).toEqual( { type: CLEAR_REGISTRATION_ERROR } );
 			expect( action.next().value ).toEqual( {
@@ -95,6 +98,7 @@ describe( 'actions', () => {
 				type: REGISTER_SITE,
 				registrationNonce,
 				redirectUri,
+				from,
 			} );
 
 			expect( action.throw( error ).value ).toEqual( {

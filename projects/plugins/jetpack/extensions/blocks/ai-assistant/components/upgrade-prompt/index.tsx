@@ -3,22 +3,24 @@
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
-import React, { useCallback } from 'react';
 /*
  * Internal dependencies
  */
-import { Nudge } from '../../../../shared/components/upgrade-nudge';
-import { PLAN_TYPE_TIERED, usePlanType } from '../../../../shared/use-plan-type';
+import { Nudge as StandardNudge } from '../../../../shared/components/upgrade-nudge';
 import useAICheckout from '../../hooks/use-ai-checkout';
 import useAiFeature from '../../hooks/use-ai-feature';
 import { canUserPurchasePlan } from '../../lib/connection';
+import { LightNudge } from './light-nudge';
+import type { ReactElement } from 'react';
 import './style.scss';
 
 type UpgradePromptProps = {
 	placement?: string;
+	description?: string;
+	useLightNudge?: boolean;
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
@@ -27,37 +29,29 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * to the checkout page or the Jetpack AI interstitial page.
  *
  * @param {UpgradePromptProps} props - Component props.
- * @returns {React.ReactNode} the Nudge component with the prompt.
+ * @returns {ReactElement} the Nudge component with the prompt.
  */
-const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React.JSX.Element => {
-	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
-	const canUpgrade = canUserPurchasePlan();
-	const {
-		nextTier,
-		tierPlansEnabled,
-		currentTier,
-		requestsCount: allTimeRequestsCount,
-		usagePeriod,
-	} = useAiFeature();
+const DefaultUpgradePrompt = ( {
+	placement = null,
+	description = null,
+	useLightNudge = false,
+}: UpgradePromptProps ): ReactElement => {
+	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 
-	const planType = usePlanType( currentTier );
-	const requestsCount =
-		planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+	const { checkoutUrl } = useAICheckout();
+	const canUpgrade = canUserPurchasePlan();
+	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
 
 	const { tracks } = useAnalytics();
 
-	const handleUpgradeClick = useCallback(
-		event => {
-			debug( 'upgrade', placement );
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				placement: placement,
-			} );
-			autosaveAndRedirect( event );
-		},
-		[ autosaveAndRedirect, currentTier, requestsCount, tracks, placement ]
-	);
+	const handleUpgradeClick = useCallback( () => {
+		debug( 'upgrade', placement );
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			placement: placement,
+		} );
+	}, [ currentTier, requestsCount, tracks, placement ] );
 
 	const handleContactUsClick = useCallback( () => {
 		debug( 'contact us', placement );
@@ -67,19 +61,21 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 	}, [ tracks, placement ] );
 
 	if ( ! canUpgrade ) {
+		const cantUpgradeDescription = createInterpolateElement(
+			__(
+				'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
+				'jetpack'
+			),
+			{
+				strong: <strong />,
+			}
+		);
+
 		return (
 			<Nudge
 				showButton={ false }
 				className={ 'jetpack-ai-upgrade-banner' }
-				description={ createInterpolateElement(
-					__(
-						'Congratulations on exploring Jetpack AI and reaching the free requests limit! <strong>Reach out to the site administrator to upgrade and keep using Jetpack AI.</strong>',
-						'jetpack'
-					),
-					{
-						strong: <strong />,
-					}
-				) }
+				description={ description || cantUpgradeDescription }
 				visible={ true }
 				align={ null }
 				title={ null }
@@ -91,13 +87,15 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 	if ( tierPlansEnabled ) {
 		if ( ! nextTier ) {
 			const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
+			const contactUsDescription = __(
+				'You have reached the request limit for your current plan.',
+				'jetpack'
+			);
+
 			return (
 				<Nudge
 					buttonText={ __( 'Contact Us', 'jetpack' ) }
-					description={ __(
-						'You have reached the request limit for your current plan.',
-						'jetpack'
-					) }
+					description={ description || contactUsDescription }
 					className={ 'jetpack-ai-upgrade-banner' }
 					checkoutUrl={ contactHref }
 					visible={ true }
@@ -105,9 +103,25 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 					title={ null }
 					context={ null }
 					goToCheckoutPage={ handleContactUsClick }
+					target="_blank"
 				/>
 			);
 		}
+
+		const upgradeDescription = createInterpolateElement(
+			sprintf(
+				/* Translators: number of requests */
+				__(
+					'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
+					'jetpack'
+				),
+				nextTier.limit
+			),
+			{
+				strong: <strong />,
+			}
+		);
+
 		return (
 			<Nudge
 				buttonText={ sprintf(
@@ -117,25 +131,13 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 				) }
 				checkoutUrl={ checkoutUrl }
 				className={ 'jetpack-ai-upgrade-banner' }
-				description={ createInterpolateElement(
-					sprintf(
-						/* Translators: number of requests */
-						__(
-							'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
-							'jetpack'
-						),
-						nextTier.limit
-					),
-					{
-						strong: <strong />,
-					}
-				) }
+				description={ description || upgradeDescription }
 				goToCheckoutPage={ handleUpgradeClick }
-				isRedirecting={ isRedirecting }
 				visible={ true }
 				align={ 'center' }
 				title={ null }
 				context={ null }
+				target="_blank"
 			/>
 		);
 	}
@@ -154,12 +156,12 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
 					strong: <strong />,
 				}
 			) }
-			goToCheckoutPage={ autosaveAndRedirect }
-			isRedirecting={ isRedirecting }
+			goToCheckoutPage={ handleUpgradeClick }
 			visible={ true }
 			align={ null }
 			title={ null }
 			context={ null }
+			target="_blank"
 		/>
 	);
 };
@@ -168,23 +170,35 @@ const DefaultUpgradePrompt = ( { placement = null }: UpgradePromptProps ): React
  * The VIP upgrade prompt, with a single text message recommending that the user reach
  * out to their VIP account team.
  *
- * @returns {React.ReactNode} the Nudge component with the prompt.
+ * @param {object} props - Component props.
+ * @param {string} props.description - The description to display in the prompt.
+ * @param {boolean} props.useLightNudge - Wheter to use the light variant of the nudge, or the standard one.
+ * @returns {ReactElement} the Nudge component with the prompt.
  */
-const VIPUpgradePrompt = (): React.JSX.Element => {
+const VIPUpgradePrompt = ( {
+	description = null,
+	useLightNudge = false,
+}: {
+	description?: string;
+	useLightNudge?: boolean;
+} ): ReactElement => {
+	const Nudge = useLightNudge ? LightNudge : StandardNudge;
+	const vipDescription = createInterpolateElement(
+		__(
+			"You've reached the Jetpack AI rate limit. <strong>Please reach out to your VIP account team.</strong>",
+			'jetpack'
+		),
+		{
+			strong: <strong />,
+		}
+	);
+
 	return (
 		<Nudge
 			buttonText={ null }
 			checkoutUrl={ null }
 			className={ 'jetpack-ai-upgrade-banner' }
-			description={ createInterpolateElement(
-				__(
-					"You've reached the Jetpack AI rate limit. <strong>Please reach out to your VIP account team.</strong>",
-					'jetpack'
-				),
-				{
-					strong: <strong />,
-				}
-			) }
+			description={ description || vipDescription }
 			goToCheckoutPage={ null }
 			isRedirecting={ null }
 			visible={ true }
@@ -200,7 +214,10 @@ const UpgradePrompt = props => {
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {
-		return VIPUpgradePrompt();
+		return VIPUpgradePrompt( {
+			description: props.description,
+			useLightNudge: props?.useLightNudge,
+		} );
 	}
 
 	return DefaultUpgradePrompt( props );

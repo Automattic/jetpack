@@ -147,6 +147,9 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		/**
 		 * Front-end display of the widget.
 		 *
+		 * @html-template-var array $instance
+		 * @html-template-var array<string,string> $classes
+		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
@@ -211,6 +214,8 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 
 		/**
 		 * Back-end widget form.
+		 *
+		 * @html-template-var array $instance
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

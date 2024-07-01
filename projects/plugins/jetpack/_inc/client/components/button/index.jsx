@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -28,11 +28,13 @@ export default class Button extends React.Component {
 		borderless: false,
 	};
 
+	domNode = null;
+
 	render() {
 		const element = this.props.href ? 'a' : 'button';
 		const { primary, compact, scary, borderless, rna, className, ...props } = this.props;
 
-		const buttonClasses = classNames( {
+		const buttonClasses = clsx( {
 			'dops-button': true,
 			'is-compact': compact,
 			'is-primary': primary,
@@ -41,7 +43,8 @@ export default class Button extends React.Component {
 			'is-rna': rna,
 		} );
 
-		props.className = classNames( className, buttonClasses );
+		props.className = clsx( className, buttonClasses );
+		props.ref = node => ( this.domNode = node );
 
 		return React.createElement( element, props, this.props.children );
 	}

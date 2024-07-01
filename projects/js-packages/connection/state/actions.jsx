@@ -90,15 +90,16 @@ function* connectUser( { from, redirectFunc, redirectUri } = {} ) {
  * @param {object} Object - contains registrationNonce and redirectUri
  * @param {string} Object.registrationNonce - Registration nonce
  * @param {string} Object.redirectUri - URI that user will be redirected
+ * @param {string} [Object.from] - Value that represents the origin of the request (optional)
  * @yields {object} Action object that will be yielded
  * @returns {Promise} Resolved or rejected value of registerSite
  */
-function* registerSite( { registrationNonce, redirectUri } ) {
+function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
 	yield clearRegistrationError();
 	yield setSiteIsRegistering( true );
 
 	try {
-		const response = yield { type: REGISTER_SITE, registrationNonce, redirectUri };
+		const response = yield { type: REGISTER_SITE, registrationNonce, redirectUri, from };
 		yield setConnectionStatus( { isRegistered: true } );
 		yield setAuthorizationUrl( response.authorizeUrl );
 		yield setSiteIsRegistering( false );

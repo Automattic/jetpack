@@ -255,7 +255,11 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
 										disabled={ ! canDisplaySiteAcceleratorSettings }
-										label={ __( 'Enable site accelerator', 'jetpack' ) }
+										label={
+											<span className="jp-form-toggle-explanation">
+												{ __( 'Enable site accelerator', 'jetpack' ) }
+											</span>
+										}
 									/>
 								) }
 								<FormFieldset>

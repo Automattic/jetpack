@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack;
 
 use Automatic_Upgrader_Skin;
+use WP_Error;
+use WP_Upgrader;
 
 /**
  * Include required files from wp-admin.
@@ -54,7 +56,7 @@ class Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	/**
 	 * Overwrites the error function
 	 *
-	 * @param \WP_Error|mixed $error The error object.
+	 * @param WP_Error|mixed $error The error object.
 	 */
 	public function error( $error ) {
 		if ( is_wp_error( $error ) ) {

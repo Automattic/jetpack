@@ -147,8 +147,8 @@ describe( 'CalendlyInspectorControls', () => {
 		const customizationHelpUrl =
 			'https://jetpack.com/support/jetpack-blocks/calendly-block/#customizing-a-calendly-block';
 		const noticeClass = `${ defaultProps.defaultClassName }-color-notice`;
-		const linkText = 'Explore more customization options.';
-		const link = screen.getByText( linkText );
+		const linkText = 'Explore more customization options. (opens in a new tab)';
+		const link = screen.getByRole( 'link', { name: linkText } );
 
 		expect( link ).toBeInTheDocument();
 		expect( link ).toHaveAttribute( 'href', customizationHelpUrl );

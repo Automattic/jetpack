@@ -23,7 +23,7 @@ describe( 'projectHelpers', () => {
 	} );
 	test( 'dirs should output number of subfolders for the given path', () => {
 		// The repo-root projects dir.
-		expect( dirs( 'projects' ) ).toHaveLength( 5 );
+		expect( dirs( 'projects' ) ).toHaveLength( 4 );
 	} );
 	test( 'dirs should output a subfolder of given path', () => {
 		expect( dirs( 'projects/plugins' ) ).toContain( 'jetpack' );

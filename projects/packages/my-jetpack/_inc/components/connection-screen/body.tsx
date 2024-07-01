@@ -3,33 +3,24 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import connectImage from './connect.png';
-import ConnectionScreenFooter from './footer';
 import styles from './styles.module.scss';
+import type { Props as ConnectScreenProps } from '@automattic/jetpack-connection';
 
-type Props = {
-	redirectUri: string;
-};
-
-const ConnectionScreenBody: React.FC< Props > = ( { redirectUri } ) => {
-	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
+const ConnectionScreenBody: React.FC< ConnectScreenProps > = props => {
+	const { title } = props;
 
 	return (
 		<ConnectScreen
-			title={ __(
-				'Unlock all the amazing features of Jetpack by connecting now',
-				'jetpack-my-jetpack'
-			) }
 			buttonLabel={ __( 'Connect your user account', 'jetpack-my-jetpack' ) }
 			loadingLabel={ __( 'Connecting your account…', 'jetpack-my-jetpack' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
 			images={ [ connectImage ] }
-			footer={ <ConnectionScreenFooter /> }
 			from="my-jetpack"
-			redirectUri={ redirectUri }
+			{ ...props }
+			title={
+				title ||
+				__( 'Unlock all the amazing features of Jetpack by connecting now', 'jetpack-my-jetpack' )
+			}
 		>
 			{ /*
 						Since the list style type is set to none, `role=list` is required for VoiceOver (on Safari) to announce the list.
@@ -43,6 +34,7 @@ const ConnectionScreenBody: React.FC< Props > = ( { redirectUri } ) => {
 					{ __( 'Receive notifications about new likes and comments', 'jetpack-my-jetpack' ) }
 				</li>
 				<li>{ __( 'Let visitors share your content on social media', 'jetpack-my-jetpack' ) }</li>
+				<li>{ __( 'Create better content with powerful AI tools', 'jetpack-my-jetpack' ) }</li>
 				<li>
 					{ __( 'And more!', 'jetpack-my-jetpack' ) }{ ' ' }
 					<a

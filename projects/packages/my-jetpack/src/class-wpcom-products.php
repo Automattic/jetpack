@@ -202,10 +202,10 @@ class Wpcom_Products {
 	/**
 	 * Populate the pricing array with the discount information.
 	 *
-	 * @param {object} $product - The product object.
-	 * @param {object} $pricing - The pricing array.
-	 * @param {float}  $price   - The price to be discounted.
-	 * @return {object} The pricing array with the discount information.
+	 * @param object $product - The product object.
+	 * @param array  $pricing - The pricing array.
+	 * @param float  $price   - The price to be discounted.
+	 * @return array The pricing array with the discount information.
 	 */
 	public static function populate_with_discount( $product, $pricing, $price ) {
 		// Check whether the product has a coupon.

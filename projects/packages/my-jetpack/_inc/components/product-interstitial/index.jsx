@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	TermsOfService,
+} from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -65,12 +73,26 @@ export default function ProductInterstitial( {
 	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
+	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating } = useActivate( slug );
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
+	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+		skipUserConnection: true,
+		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+	} );
+	const showBundledTOS = ! hideTOS && !! bundle;
+	const productName = detail?.title;
+	const bundleName = bundleDetail?.title;
+	const bundledTosLabels = [
+		/* translators: %s is the product name  */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productName ),
+		/* translators: %s is the bundled product name */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), bundleName ),
+	];
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -92,24 +114,17 @@ export default function ProductInterstitial( {
 		[ slug, pricingForUi ]
 	);
 
-	const trackProductClick = useCallback(
-		( isFreePlan = false, customSlug = null ) => {
+	const trackProductOrBundleClick = useCallback(
+		options => {
+			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const productSlug = customSlug ? customSlug : bundle ?? slug;
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
+				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				ctaText,
 			} );
 		},
-		[ recordEvent, slug, getProductSlugForTrackEvent ]
-	);
-
-	const trackBundleClick = useCallback(
-		( isFreePlan = false ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: bundle,
-				product_slug: getProductSlugForTrackEvent( isFreePlan ),
-			} );
-		},
-		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+		[ recordEvent, slug, getProductSlugForTrackEvent, bundle ]
 	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
@@ -135,32 +150,34 @@ export default function ProductInterstitial( {
 						postCheckoutUrl = activatedProduct?.post_checkout_url
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
-						const postActivationUrl = product?.postActivationUrl;
-						const hasRequiredPlan = tier
-							? product?.hasRequiredTier?.[ tier ]
-							: product?.hasRequiredPlan;
+						// there is a separate hasRequiredTier, but it is not implemented
+						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
 							? product?.pricingForUi?.tiers?.[ tier ]?.isFree
 							: product?.pricingForUi?.isFree;
-						const needsPurchase = ! isFree && ! hasRequiredPlan;
+						const isUpgradeToHigherTier =
+							tier && product?.pricingForUi?.tiers?.[ tier ] && ! isFree && product?.isUpgradable;
+						const needsPurchase = ( ! isFree && ! hasPaidPlanForProduct ) || isUpgradeToHigherTier;
 
 						// If the product is CRM, redirect the user to the Jetpack CRM pricing page.
 						// This is done because CRM is not part of the WP billing system
 						// and we can't send them to checkout like we can with the rest of the products
-						if ( product.pluginSlug === 'zero-bs-crm' && ! hasRequiredPlan ) {
+						if ( product.pluginSlug === 'zero-bs-crm' && ! hasPaidPlanForProduct ) {
 							window.location.href = 'https://jetpackcrm.com/pricing/';
 							return;
 						}
 
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
-							if ( postActivationUrl ) {
-								window.location.href = postActivationUrl;
-								return;
-							}
+							// for free products, we still initiate the site connection
+							handleRegisterSite().then( redirectUri => {
+								if ( ! redirectUri ) {
+									// Fall back to the My Jetpack overview page.
+									return navigateToMyJetpackOverviewPage();
+								}
+							} );
 
-							// Fall back to the My Jetpack overview page.
-							return navigateToMyJetpackOverviewPage();
+							return;
 						}
 
 						// Redirect to the checkout page.
@@ -176,6 +193,7 @@ export default function ProductInterstitial( {
 			slug,
 			myJetpackCheckoutUri,
 			ctaCallback,
+			handleRegisterSite,
 		]
 	);
 
@@ -210,8 +228,9 @@ export default function ProductInterstitial( {
 							slug={ slug }
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductClick }
-							isFetching={ isActivating }
+							trackProductButtonClick={ trackProductOrBundleClick }
+							preferProductName={ preferProductName }
+							isFetching={ isActivating || siteIsRegistering }
 						/>
 					) : (
 						<Container
@@ -223,30 +242,31 @@ export default function ProductInterstitial( {
 							<Col sm={ 4 } md={ 4 } lg={ 7 }>
 								<ProductDetailCard
 									slug={ slug }
-									trackButtonClick={ trackProductClick }
+									trackButtonClick={ trackProductOrBundleClick }
 									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
 									ctaButtonLabel={ ctaButtonLabel }
-									hideTOS={ hideTOS }
+									hideTOS={ hideTOS || showBundledTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
-									isFetching={ isActivating }
+									isFetching={ isActivating || siteIsRegistering }
 								/>
 							</Col>
 							<Col
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
-								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
 								{ bundle ? (
 									<ProductDetailCard
 										slug={ bundle }
-										trackButtonClick={ trackBundleClick }
+										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
@@ -256,6 +276,13 @@ export default function ProductInterstitial( {
 								) }
 							</Col>
 						</Container>
+					) }
+				</Col>
+				<Col>
+					{ showBundledTOS && (
+						<div className={ styles[ 'tos-container' ] }>
+							<TermsOfService multipleButtons={ bundledTosLabels } />
+						</div>
 					) }
 				</Col>
 			</Container>

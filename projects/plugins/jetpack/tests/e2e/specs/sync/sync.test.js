@@ -1,5 +1,8 @@
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.js';
+import logger from 'jetpack-e2e-commons/logger.js';
+import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import {
 	enableSync,
 	disableSync,
@@ -8,10 +11,7 @@ import {
 	disableDedicatedSync,
 	isSyncQueueEmpty,
 } from '../../helpers/sync-helper.js';
-import { BlockEditorPage } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.mjs';
-import logger from 'jetpack-e2e-commons/logger.js';
 
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
@@ -129,10 +129,15 @@ test.describe( 'Sync', () => {
 		} );
 	} );
 
+	/**
+	 * Publish a new post.
+	 * @param {string} title - Post title.
+	 * @param {page} page - Playwright page instance.
+	 */
 	async function publishPost( title, page ) {
 		logger.sync( 'Publishing new post' );
 		const blockEditor = await BlockEditorPage.visit( page );
-		await blockEditor.resolveWelcomeGuide( false );
+		await blockEditor.closeWelcomeGuide();
 		await blockEditor.setTitle( title );
 		await blockEditor.selectPostTitle();
 		await blockEditor.publishPost();
@@ -141,6 +146,11 @@ test.describe( 'Sync', () => {
 		logger.sync( `Post visited: ${ title }` );
 	}
 
+	/**
+	 * Assert sync queue is empty
+	 * @param {string} message - Message to report.
+	 * @param {number} timeout - Timeout.
+	 */
 	async function assertSyncQueueIsEmpty( message = 'Sync queue should be empty', timeout = 30000 ) {
 		await expect
 			.poll(

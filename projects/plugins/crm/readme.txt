@@ -1,8 +1,8 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.5
-Stable tag: 6.4.1
+Tested up to: 6.6
+Stable tag: 6.4.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -266,6 +266,10 @@ We haven't published our roadmap since v3, but we may do in the future. You can 
 
 You can see all the CRM power-ups here: https://jetpackcrm.com/extensions/
 
+#### How can I contribute to Jetpack CRM?
+
+The core [Jetpack CRM plugin code](https://github.com/Automattic/jetpack/tree/trunk/projects/plugins/crm) is on GitHub and is open-source. The code is part of the Jetpack monorepo, and the [Jetpack contributing guide](https://github.com/Automattic/jetpack/blob/trunk/docs/CONTRIBUTING.md) is also relevant to Jetpack CRM.
+
 #### Is there a contact search feature on Jetpack CRM?
 
 Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage contacts. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
@@ -358,26 +362,25 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.1 - 2024-02-29
+### 6.4.3 - 2024-05-23
+#### Added
+- Currency: Added several new currencies to the currency dropdown.
+- Fonts: Updated core Noto Sans, and added new CJK fonts.
+- Readme: Adding information on how to contribute to Jetpack CRM.
+- WooSync: Added new status mapping to avoid creating invoices and transactions from WooCommerce to Jetpack CRM.
+
 #### Changed
-- General: Indicate compatibility with WordPress 6.5.
-- Invoices: Total amount calculation in preview and pdf when refunds or credit notes are applied are back to pre-6.4.0 implementation.
+- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
+- Updated package dependencies.
+
+#### Removed
+- Contact Form: Updated a comment reference to Grunion_Contact_Form_Plugin to be Contact_Form_Plugin.
 
 #### Fixed
-- Client Portal: Admin banners are now more consistent across screens.
-- Client Portal: Catch error if Woo order associated with invoice is deleted.
-- Invoices: Standardize line item code.
-- Invoices: Allow long line item descriptions in email.
-- Listviews: Object status filters now correctly reflect current status options.
-- Listviews: Overhaul of listview filter logic.
-- Quotes: Add Draft listview filter.
-- Segments: Allow floats in all numeric segment conditions.
-- Segments: Fix output if segment has an error.
-- Tags: Use existing tags if possible when using helper functions to create objects.
-- WooSync: Catch PHP error if order has empty fee value.
-- WooSync: Detect and support WooCommerce HPOS configuration.
-- WooSync: No longer shows today as renewal date if subscription has no renewal date set.
-- WooSync: Modernize code.
-- WooSync: Remove broken link from settings page.
-- WooSync: Prevent addition of the same site more than once.
+- Companies: Increased city field size from 100 to 200.
+- Contacts: Increased city field size from 100 to 200.
+- Invoices: Fix "image not found" logo issue in PDF invoices.
+- Invoices: Remove the blank line below the contact name.
+- Listviews: Invoice quick filter status fix to prevent filters not working.
+- MailPoet Sync: Fix pending pages percentage calculation issue.
 

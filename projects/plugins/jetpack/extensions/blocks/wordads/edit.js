@@ -1,5 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps } from '@wordpress/block-editor';
 import { WordAdsPlaceholder } from './components/jetpack-wordads-placeholder';
 import { WordAdsSkeletonLoader } from './components/jetpack-wordads-skeleton-loader';
 import { AD_FORMATS } from './constants';
@@ -12,6 +13,7 @@ import leaderboardExample from './example_728x90.png';
 import './editor.scss';
 
 const WordAdsEdit = ( { attributes, setAttributes } ) => {
+	const blockProps = useBlockProps();
 	const { format } = attributes;
 	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 		useModuleStatus( 'wordads' );
@@ -30,40 +32,44 @@ const WordAdsEdit = ( { attributes, setAttributes } ) => {
 		}
 	};
 
+	let content;
+
 	if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {
-			return (
+			content = (
 				<ThemeProvider>
 					<WordAdsSkeletonLoader />
 				</ThemeProvider>
 			);
+		} else {
+			content = (
+				<WordAdsPlaceholder
+					changeStatus={ changeStatus }
+					isModuleActive={ isModuleActive }
+					isLoading={ isChangingStatus }
+				/>
+			);
 		}
-
-		return (
-			<WordAdsPlaceholder
-				changeStatus={ changeStatus }
-				isModuleActive={ isModuleActive }
-				isLoading={ isChangingStatus }
-			/>
+	} else {
+		content = (
+			<>
+				<AdControls { ...{ attributes, setAttributes } } />
+				<div className={ `wp-block-jetpack-wordads jetpack-wordads-${ format }` }>
+					<div
+						className="jetpack-wordads__ad"
+						style={ {
+							width: selectedFormatObject.width,
+							height: selectedFormatObject.height,
+							backgroundImage: `url( ${ getExampleAd( format ) } )`,
+							backgroundSize: 'cover',
+						} }
+					></div>
+				</div>
+			</>
 		);
 	}
 
-	return (
-		<>
-			<AdControls { ...{ attributes, setAttributes } } />
-			<div className={ `wp-block-jetpack-wordads jetpack-wordads-${ format }` }>
-				<div
-					className="jetpack-wordads__ad"
-					style={ {
-						width: selectedFormatObject.width,
-						height: selectedFormatObject.height,
-						backgroundImage: `url( ${ getExampleAd( format ) } )`,
-						backgroundSize: 'cover',
-					} }
-				></div>
-			</div>
-		</>
-	);
+	return <div { ...blockProps }>{ content }</div>;
 };
 
 export default WordAdsEdit;

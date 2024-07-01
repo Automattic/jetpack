@@ -24,8 +24,10 @@
 	<!-- Some code here runs outside of WordPress code. -->
 	<!-- TODO: Split that by directory or something so we can do this only for the non-WordPress code. -->
 	<rule ref="Jetpack-NoWP" />
-	<rule ref="WordPress.PHP.DevelopmentFunctions.error_log_var_export">
-		<severity>0</severity>
+	<rule ref="WordPress.PHP.DevelopmentFunctions">
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log"/>
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_var_dump"/>
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_var_export"/>
 	</rule>
 
 </ruleset>

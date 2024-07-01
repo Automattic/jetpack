@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Modules;
 use VIDEOPRESS_PRIVACY;
+use WP_Post;
 
 /**
  * VideoPress video access control utilities.
@@ -60,7 +61,7 @@ class Access_Control {
 	/**
 	 * Get the singleton instance.
 	 *
-	 * @return AJAX
+	 * @return self
 	 */
 	public static function instance() {
 		if ( null === self::$instance ) {
@@ -178,6 +179,7 @@ class Access_Control {
 			$paywall             = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 
 			// Only paid subscribers should be granted access to the premium content.
+			$access_level = '';
 			if ( class_exists( Abstract_Token_Subscription_Service::class ) ) {
 				$access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS;
 			}

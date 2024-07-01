@@ -20,7 +20,7 @@ class Auto_Conversion_Test extends BaseTestCase {
 	/**
 	 * Instance of the Settings class.
 	 *
-	 * @var Settings $settings
+	 * @var SocialSettings $settings
 	 */
 	protected $settings;
 

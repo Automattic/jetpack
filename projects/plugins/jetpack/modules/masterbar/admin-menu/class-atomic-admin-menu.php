@@ -130,10 +130,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
 
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
-
-		// When the interface is not set to wp-admin, we replace the Profile submenu.
 		if ( ! $this->use_wp_admin_interface() ) {
+			// The 'Subscribers' menu exists in the Jetpack menu for Classic wp-admin interface, so only add it for non-wp-admin interfaces.
+			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null );
+
+			// When the interface is not set to wp-admin, we replace the Profile submenu.
 			remove_submenu_page( 'users.php', 'profile.php' );
 			add_submenu_page( 'users.php', esc_attr__( 'My Profile', 'jetpack' ), __( 'My Profile', 'jetpack' ), 'read', 'https://wordpress.com/me/', null );
 		}
@@ -339,6 +340,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			parent::add_jetpack_menu();
 		}
 
+		global $submenu;
+		$backup_submenu_label = __( 'Backup', 'jetpack' );
+		$submenu_labels       = array_column( $submenu['jetpack'], 3 );
+		$backup_position      = array_search( $backup_submenu_label, $submenu_labels, true );
+		$scan_position        = $backup_position !== false ? $backup_position + 1 : $this->get_submenu_item_count( 'jetpack' ) - 1;
+
+		add_submenu_page( 'jetpack', esc_attr__( 'Scan', 'jetpack' ), __( 'Scan', 'jetpack' ), 'manage_options', 'https://wordpress.com/scan/history/' . $this->domain, null, $scan_position );
+
 		/**
 		 * Prevent duplicate menu items that link to Jetpack Backup.
 		 * Hide the one that's shown when the standalone backup plugin is not installed, since Jetpack Backup is already included in Atomic sites.
@@ -346,6 +355,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @see https://github.com/Automattic/jetpack/pull/33955
 		 */
 		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+
+		// hide duplicate link to scan history that is shown in the untangling UI
+		$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ) );
 	}
 
 	/**
@@ -546,27 +558,21 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Close over the $switch_url variable.
 		$admin_notices = function () use ( $switch_url ) {
-			// translators: %s is a link to the Calypso settings page.
-			$notice = __( 'You are currently using the Classic view, which doesn\'t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' );
-			?>
-			<div class="notice notice-warning">
-				<p><?php echo wp_kses( sprintf( $notice, esc_url( $switch_url ) ), array( 'a' => array( 'href' => array() ) ) ); ?></p>
-			</div>
-			<?php
+			wp_admin_notice(
+				wp_kses(
+					sprintf(
+						// translators: %s is a link to the Calypso settings page.
+						__( 'You are currently using the Classic view, which doesn’t offer the same set of features as the Default view. To access additional settings and features, <a href="%s">switch to the Default view</a>. ', 'jetpack' ),
+						esc_url( $switch_url )
+					),
+					array( 'a' => array( 'href' => array() ) )
+				),
+				array(
+					'type' => 'warning',
+				)
+			);
 		};
 
 		add_action( 'admin_notices', $admin_notices );
-	}
-
-	/**
-	 * Adds Appearance menu.
-	 */
-	public function add_appearance_menu() {
-		// When the interface is set to wp-admin, we need to add a link to the Marketplace and rest of the menu keeps like core.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			add_submenu_page( 'themes.php', esc_attr__( 'Theme Showcase', 'jetpack' ), __( 'Theme Showcase', 'jetpack' ), 'read', 'https://wordpress.com/themes/' . $this->domain );
-		} else {
-			parent::add_appearance_menu();
-		}
 	}
 }

@@ -32,7 +32,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string|null                     $normalized Normalized value, if different from `$version`.
 	 */
 	public function testParseVersion( $version, $expect, $normalized = null ) {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -186,7 +186,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param array                           $extra Extra, if any.
 	 */
 	public function testNormalizeVersion( $version, $expect, $extra = array() ) {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );
 			$this->expectExceptionMessage( $expect->getMessage() );
@@ -201,12 +201,12 @@ class SemverVersioningTest extends TestCase {
 	 */
 	public function provideNormalizeVersion() {
 		return array(
-			array(
+			'add prerelease = alpha'          => array(
 				'1.2.3',
 				'1.2.3-alpha',
 				array( 'prerelease' => 'alpha' ),
 			),
-			array(
+			'add prerelease and buildinfo'    => array(
 				'1.2.3-alpha',
 				'1.2.3-beta+12345',
 				array(
@@ -214,7 +214,7 @@ class SemverVersioningTest extends TestCase {
 					'buildinfo'  => '12345',
 				),
 			),
-			array(
+			'remove prerelease and buildinfo' => array(
 				'1.2.3-beta+12345',
 				'1.2.3',
 				array(
@@ -223,19 +223,19 @@ class SemverVersioningTest extends TestCase {
 				),
 			),
 
-			'Invalid array input'          => array(
+			'Invalid array input'             => array(
 				array(
 					'major' => 1,
 					'minor' => 2,
 				),
 				new InvalidArgumentException( 'Version array is not in a recognized format.' ),
 			),
-			'Invalid prerelease component' => array(
+			'Invalid prerelease component'    => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid prerelease data' ),
 				array( 'prerelease' => 'delta?' ),
 			),
-			'Invalid buildinfo component'  => array(
+			'Invalid buildinfo component'     => array(
 				'1.2.3',
 				new InvalidArgumentException( 'Invalid buildinfo data' ),
 				array( 'buildinfo' => 'build?' ),
@@ -254,8 +254,9 @@ class SemverVersioningTest extends TestCase {
 	 * @param string                          $expectOutput Expected output.
 	 */
 	public function testNextVersion( $version, array $changes, array $extra, $expect, $expectOutput = '' ) {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Hopefully we drop PHP <7.2 before having to deal with this, as the designated replacement isn't until PHPUnit 8.
 		$out1 = $this->getMockBuilder( BufferedOutput::class )
 			->setMethods( array( 'getErrorOutput' ) )
 			->getMock();
@@ -398,7 +399,7 @@ class SemverVersioningTest extends TestCase {
 	 * Test nextVersion, 0.x version major update with non-console output.
 	 */
 	public function testNextVersion_majorNonConsole() {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 		$out = new BufferedOutput();
 		$obj->setIO( new ArrayInput( array() ), $out );
 		$this->assertSame(
@@ -417,7 +418,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string $b Version B.
 	 */
 	public function testCompareVersions( $a, $expect, $b ) {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 		$ret = $obj->compareVersions( $a, $b );
 		$this->assertIsInt( $ret );
 		$ret = $ret < 0 ? '<' : ( $ret > 0 ? '>' : '==' );
@@ -463,7 +464,7 @@ class SemverVersioningTest extends TestCase {
 	 * @param string|InvalidArgumentException $expect Expected result.
 	 */
 	public function testFirstVersion( array $extra, $expect ) {
-		$obj = new SemverVersioning( array() );
+		$obj = new SemverVersioning();
 
 		if ( $expect instanceof InvalidArgumentException ) {
 			$this->expectException( InvalidArgumentException::class );

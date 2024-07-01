@@ -1,14 +1,14 @@
 import { RangeControl } from '@wordpress/components';
 import { useState } from 'react';
 import TimestampControl from '..';
-import type { ComponentStory, ComponentMeta } from '@storybook/react';
+import type { StoryFn, Meta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Timestamp Control',
 	component: TimestampControl,
-} as ComponentMeta< typeof TimestampControl >;
+} as Meta< typeof TimestampControl >;
 
-const Template: ComponentStory< typeof TimestampControl > = args => {
+const Template: StoryFn< typeof TimestampControl > = args => {
 	return <TimestampControl { ...args } />;
 };
 
@@ -73,7 +73,7 @@ customTooltip.args = {
 	},
 };
 
-const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args => {
+const ChangingValueTemplate: StoryFn< typeof TimestampControl > = args => {
 	const [ value, setValue ] = useState( args.value );
 
 	return (

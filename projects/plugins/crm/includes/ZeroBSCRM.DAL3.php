@@ -7321,6 +7321,52 @@ class zbsDAL {
             return $ret;
         }
 
+	/**
+	 * Builds JOIN SQL for DAL queries.
+	 *
+	 * This was built for use by segments. Note that it's currently hard-coded for contacts, but could easily be extended.
+	 *
+	 * Note that $joins is an array of arrays, each of which contain three keys:
+	 *    `table_query`: a subquery used to derive a table
+	 *    `table_alias`: an alias we can use for this table
+	 *    `vars`: the values that will be used by $wpdb->prepare()
+	 *
+	 * @param array $joins Array of arrays of join params.
+	 * @param bool  $match_all Whether to match all (restrictive) or match any (UNION).
+	 *
+	 * @return array Looks like array( $join_sql, $join_params )
+	 */
+	public function build_joins( $joins = array(), $match_all = true ) {
+		if ( ! is_array( $joins ) || empty( $joins ) ) {
+			return '';
+		}
+		$join_sql    = ' JOIN ( ';
+		$join_params = array_merge( ...array_column( $joins, 'vars' ) );
+
+		if ( ! $match_all ) {
+			// Simple; just join the tables!
+			$join_sql .= implode( ' UNION ', array_column( $joins, 'table_query' ) );
+		} else {
+			$join_count        = 0;
+			$first_table_alias = '';
+
+			foreach ( $joins as $join ) {
+				$table_alias = $join['table_alias'] . '_' . $join_count;
+				if ( $join_count === 0 ) {
+					$first_table_alias = $table_alias;
+
+					$join_sql .= "SELECT {$table_alias}.contact_id FROM ({$join['table_query']}) AS {$table_alias}";
+				} else {
+					$join_sql .= " JOIN ({$join['table_query']}) AS {$table_alias} ON {$table_alias}.contact_id = {$first_table_alias}.contact_id";
+				}
+				++$join_count;
+			}
+		}
+
+		$join_sql .= ') AS join_table ON join_table.contact_id = ID';
+
+		return array( $join_sql, $join_params );
+	}
 
         // takes sortby field + order and returns str if not empty :)
         // Note: Is trusting legitimacy of $sortByField as parametised in wp db doesn't seem to work

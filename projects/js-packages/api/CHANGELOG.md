@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.17.8] - 2024-06-05
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.17.7] - 2024-05-16
+### Changed
+- Updated package dependencies. [#37379]
+
+## [0.17.6] - 2024-05-06
+### Changed
+- Updated package dependencies. [#37147]
+
+## [0.17.5] - 2024-04-08
+### Added
+- Add 'from' property to connection call to WP.com. [#36741]
+
+## [0.17.4] - 2024-04-08
+### Changed
+- Updated package dependencies. [#36760]
+
+## [0.17.3] - 2024-03-27
+### Changed
+- Updated package dependencies. [#36585]
+
 ## [0.17.2] - 2024-03-12
 ### Changed
 - Updated package dependencies. [#36325]
@@ -310,6 +334,12 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[0.17.8]: https://github.com/Automattic/jetpack-api/compare/v0.17.7...v0.17.8
+[0.17.7]: https://github.com/Automattic/jetpack-api/compare/v0.17.6...v0.17.7
+[0.17.6]: https://github.com/Automattic/jetpack-api/compare/v0.17.5...v0.17.6
+[0.17.5]: https://github.com/Automattic/jetpack-api/compare/v0.17.4...v0.17.5
+[0.17.4]: https://github.com/Automattic/jetpack-api/compare/v0.17.3...v0.17.4
+[0.17.3]: https://github.com/Automattic/jetpack-api/compare/v0.17.2...v0.17.3
 [0.17.2]: https://github.com/Automattic/jetpack-api/compare/v0.17.1...v0.17.2
 [0.17.1]: https://github.com/Automattic/jetpack-api/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Automattic/jetpack-api/compare/v0.16.10...v0.17.0

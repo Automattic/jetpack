@@ -83,6 +83,9 @@ export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED_BI_YEARLY = 'jetpack_social_advanced_bi_yearly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
+export const PLAN_JETPACK_SOCIAL_V1_BI_YEARLY = 'jetpack_social_v1_bi_yearly';
+export const PLAN_JETPACK_SOCIAL_V1 = 'jetpack_social_v1_yearly';
+export const PLAN_JETPACK_SOCIAL_V1_MONTHLY = 'jetpack_social_v1_monthly';
 export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime';
 export const PLAN_JETPACK_CREATOR_MONTHLY = 'jetpack_creator_monthly';
 export const PLAN_JETPACK_CREATOR_YEARLY = 'jetpack_creator_yearly';
@@ -292,9 +295,16 @@ export const JETPACK_SOCIAL_ADVANCED_PRODUCTS = [
 	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 ];
 
+export const JETPACK_SOCIAL_V1_PRODUCTS = [
+	PLAN_JETPACK_SOCIAL_V1_BI_YEARLY,
+	PLAN_JETPACK_SOCIAL_V1,
+	PLAN_JETPACK_SOCIAL_V1_MONTHLY,
+];
+
 export const JETPACK_SOCIAL_PRODUCTS = [
 	...JETPACK_SOCIAL_BASIC_PRODUCTS,
 	...JETPACK_SOCIAL_ADVANCED_PRODUCTS,
+	...JETPACK_SOCIAL_V1_PRODUCTS,
 ];
 
 export const JETPACK_BOOST_PRODUCTS = [
@@ -750,6 +760,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_SOCIAL_ADVANCED:
 		case PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY:
 			return 'is-jetpack-social-advanced-plan';
+		case PLAN_JETPACK_SOCIAL_V1_BI_YEARLY:
+		case PLAN_JETPACK_SOCIAL_V1:
+		case PLAN_JETPACK_SOCIAL_V1_MONTHLY:
+			return 'is-jetpack-social-v1-plan';
 		case PLAN_JETPACK_BOOST_BI_YEARLY:
 		case PLAN_JETPACK_BOOST:
 		case PLAN_JETPACK_BOOST_MONTHLY:

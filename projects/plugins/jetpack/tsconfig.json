@@ -7,7 +7,7 @@
 			"*": [ "*", "./_inc/client/*" ]
 		}
 	},
-	"include": [ "./_inc", "./extensions" ],
+	"include": [ "./_inc", "./extensions", "./global.d.ts" ],
 	// Jetpack puts build files into `_inc`, so we need exclude rules to skip those.
 	"exclude": [ "**/build/*", "_inc/blocks/*" ]
 }

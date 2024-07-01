@@ -10,13 +10,10 @@
 return [
     // # Issue statistics:
     // PhanUndeclaredProperty : 10+ occurrences
-    // PhanUndeclaredTypeReturnType : 2 occurrences
     // PhanDeprecatedFunction : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-abtest.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredTypeReturnType'],
         'tests/php/test-abtest.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
