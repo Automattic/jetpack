@@ -128,18 +128,13 @@ const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits )
  * @param {object} metaData - Media metadata, mime, fileSize and length.
  * @param {object} mediaData - Data for media, width, height, source_url etc.
  * @param {string} serviceName - The name of the social media service we want to validate against. facebook, tumblr etc.
- * @param {boolean} shouldUploadAttachedMedia - Whether the social post is set to have the media attached, the 'Share as social post' option.
  * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
  */
-const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttachedMedia ) => {
+const getValidationError = ( metaData, mediaData, serviceName ) => {
 	const restrictions = RESTRICTIONS[ serviceName ] ?? DEFAULT_RESTRICTIONS;
 
 	if ( ! metaData || Object.keys( metaData ).length === 0 ) {
 		return restrictions.requiresMedia ? NO_MEDIA_ERROR : null;
-	}
-
-	if ( ! restrictions.requiresMedia && ! shouldUploadAttachedMedia ) {
-		return null;
 	}
 
 	const { mime, fileSize } = metaData;
@@ -170,26 +165,17 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
  *
  * @param {object} connections - Currently enabled connections.
  * @param {object} media - Currently enabled connections.
- * @param { { isSocialImageGeneratorEnabledForPost: boolean, shouldUploadAttachedMedia: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
+ * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
  * @returns {object} Social media connection handler.
  */
-const useMediaRestrictions = (
-	connections,
-	media,
-	{ isSocialImageGeneratorEnabledForPost, shouldUploadAttachedMedia }
-) => {
+const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
 	const errors = useRef( {} );
 
 	return useMemo( () => {
 		const newErrors = isSocialImageGeneratorEnabledForPost
 			? {}
 			: connections.reduce( ( errs, { connection_id, service_name } ) => {
-					const error = getValidationError(
-						media.metaData,
-						media.mediaData,
-						service_name,
-						shouldUploadAttachedMedia
-					);
+					const error = getValidationError( media.metaData, media.mediaData, service_name );
 					if ( error ) {
 						errs[ connection_id ] = error;
 					}
@@ -203,13 +189,7 @@ const useMediaRestrictions = (
 			validationErrors: errors.current,
 			isConvertible: isMediaConvertible( media.metaData ),
 		};
-	}, [
-		isSocialImageGeneratorEnabledForPost,
-		connections,
-		media.metaData,
-		media.mediaData,
-		shouldUploadAttachedMedia,
-	] );
+	}, [ isSocialImageGeneratorEnabledForPost, connections, media.metaData, media.mediaData ] );
 };
 
 export default useMediaRestrictions;
