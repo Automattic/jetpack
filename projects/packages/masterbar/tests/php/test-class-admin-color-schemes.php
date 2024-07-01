@@ -53,8 +53,7 @@ class Test_Admin_Color_Schemes extends BaseTestCase {
 		);
 
 		if ( 'test_enqueue_core_color_schemes_overrides_for_classic_sites' === $this->getName() ) {
-			Functions\expect( 'wpcom_is_nav_redesign_enabled' )
-				->andReturn( true );
+			Functions\when( 'wpcom_is_nav_redesign_enabled' )->justReturn( true );
 		}
 
 		new Admin_Color_Schemes();

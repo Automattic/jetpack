@@ -77,7 +77,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 	/**
 	 * Perform the IXR request.
 	 *
-	 * @param string[] ...$args IXR args.
+	 * @param mixed ...$args IXR method and args.
 	 *
 	 * @return bool True if request succeeded, false otherwise.
 	 */

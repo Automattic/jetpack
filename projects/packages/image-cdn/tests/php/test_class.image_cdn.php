@@ -808,7 +808,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
 	 *
 	 * @covers Image_CDN::filter_image_downsize
-	 * @since $$next-version$$
+	 * @since 0.4.3
 	 */
 	public function test_image_cdn_return_custom_size_array_uses_registered_crop() {
 		$test_image = $this->helper_get_image();
@@ -827,7 +827,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * Tests Photon image_downsize will return a cropped image for custom size if the custom size matches a registered size.
 	 *
 	 * @covers Image_CDN::filter_image_downsize
-	 * @since $$next-version$$
+	 * @since 0.4.3
 	 */
 	public function test_image_cdn_return_false_for_image_with_null_size() {
 		$test_image = $this->helper_get_image();

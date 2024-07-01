@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.54.2] - 2024-06-25
+### Added
+- Added social preview for Threads [#38003]
+
+## [0.54.1] - 2024-06-24
+### Fixed
+- Updated threads icon color [#37977]
+
 ## [0.54.0] - 2024-06-21
 ### Added
 - Added Chip component [#37916]
@@ -1071,6 +1079,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.54.2]: https://github.com/Automattic/jetpack-components/compare/0.54.1...0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-components/compare/0.54.0...0.54.1
 [0.54.0]: https://github.com/Automattic/jetpack-components/compare/0.53.10...0.54.0
 [0.53.10]: https://github.com/Automattic/jetpack-components/compare/0.53.9...0.53.10
 [0.53.9]: https://github.com/Automattic/jetpack-components/compare/0.53.8...0.53.9

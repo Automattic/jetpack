@@ -400,7 +400,7 @@ class Colors_Manager_Common {
 	 * @param array $classes the array of classes to add custom class to.
 	 */
 	public static function body_class( $classes ) {
-		array_push( $classes, 'custom-colors' );
+		$classes[] = 'custom-colors';
 		return $classes;
 	}
 
@@ -964,14 +964,14 @@ class Colors_Manager_Common {
 			'image' => false,
 		);
 
-		$args = wp_parse_args( $args, $defaults );
-		extract( $args, EXTR_SKIP ); // phpcs:ignore
+		$args  = wp_parse_args( $args, $defaults );
+		$image = $args['image'] ?? '';
 
-		if ( ! $image ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- extract adds this to the scope.
+		if ( ! $image ) {
 			return array();
 		}
 
-		$tonesque = new Tonesque( $image ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+		$tonesque = new Tonesque( $image );
 		$points   = $tonesque->grab_points( 'hex' );
 
 		$roles = self::get_color_slots();

@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.25.2-alpha';
+	const PACKAGE_VERSION = '4.27.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -91,8 +91,6 @@ class Initializer {
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
-		self::setup_historically_active_jetpack_modules_sync();
-
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -106,6 +104,7 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
@@ -496,10 +495,16 @@ class Initializer {
 	/**
 	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
 	 *
+	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
+	 *
 	 * @return void
 	 */
-	public static function queue_historically_active_jetpack_modules_update() {
-		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
+		$plugin_filenames = Products::get_all_plugin_filenames();
+
+		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
+			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+		}
 	}
 
 	/**

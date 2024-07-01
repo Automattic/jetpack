@@ -326,9 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.5 - 2024-06-18
+### 13.6-a.9 - 2024-06-26
+#### Enhancements
+- Social: Add Threads preview to Social Previews.
+
+#### Improved compatibility
+- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.
+
 #### Bug fixes
-- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
+- External Media: Do not display External Media options in the Caption edit field.
 
 --------
 

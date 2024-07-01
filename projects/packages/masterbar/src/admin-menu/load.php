@@ -83,7 +83,6 @@ function get_admin_menu_class() {
 
 		// DIFM Lite In Progress Atomic Sites. Uses the same menu used for domain-only sites.
 		// Ignore this check if we are in a support session.
-		// @phan-suppress-next-line PhanUndeclaredFunction -- This is temp, pending pf4qpu-nc-p2
 		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {

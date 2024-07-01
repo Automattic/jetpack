@@ -26,6 +26,7 @@ export const CONNECTION_SERVICE_MASTODON = 'mastodon';
 export const CONNECTION_SERVICE_NEXTDOOR = 'nextdoor';
 export const CONNECTION_SERVICE_TUMBLR = 'tumblr';
 export const CONNECTION_SERVICE_TWITTER = 'twitter';
+export const CONNECTION_SERVICE_THREADS = 'threads';
 
 export const store = createReduxStore( SOCIAL_STORE_ID, SOCIAL_STORE_CONFIG );
 register( store );

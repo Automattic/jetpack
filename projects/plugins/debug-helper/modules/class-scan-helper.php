@@ -25,13 +25,18 @@ class Scan_Helper {
 	public function __construct() {
 		$upload_dir    = wp_upload_dir()['basedir'];
 		$admin_dir     = str_replace( site_url() . '/', ABSPATH, admin_url() );
-		$content_dir   = str_replace( site_url() . '/', ABSPATH, content_url() );
+		$content_dir   = WP_CONTENT_DIR;
+		$abs_dir       = ABSPATH;
 		$this->threats = array(
 			'eicar'                  => "$upload_dir/jptt_eicar.php",
 			'suspicious_link'        => "$upload_dir/jptt_suspicious_link.php",
 			'core_file_modification' => "{$admin_dir}index.php",
 			'non_core_file'          => "{$admin_dir}non-core-file.php",
 			'infected_file'          => "$content_dir/index.php",
+			'fake_vulnerable_plugin' => "$content_dir/plugins/wp-super-cache.php",
+			'fake_vulnerable_theme'  => "$content_dir/themes/twentyfifteen/style.css",
+			'fuzzy_hash_file'        => "$content_dir/fuzzy.php",
+			'wp_settings_file'       => "$abs_dir/wp-settings.php",
 		);
 
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
@@ -101,6 +106,21 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Get contents of a file as a string using the WP Filesystem API
+	 *
+	 * @param string $file_path File path.
+	 */
+	private function get_contents( $file_path ) {
+		global $wp_filesystem;
+
+		if ( ! $this->has_credentials() ) {
+			die;
+		}
+
+		return $wp_filesystem->get_contents( $file_path );
+	}
+
+	/**
 	 * Checks the existance of a file through the WP Filesystem API.
 	 *
 	 * @param string $file_path File path.
@@ -128,6 +148,12 @@ class Scan_Helper {
 			die;
 		}
 
+		// Create parent directory of the file if it does not already exist
+		$parent_dir = dirname( $file );
+		if ( ! $wp_filesystem->is_dir( $parent_dir ) ) {
+			$wp_filesystem->mkdir( $parent_dir );
+		}
+
 		return $wp_filesystem->put_contents( $file, $contents, FS_CHMOD_FILE );
 	}
 
@@ -143,7 +169,7 @@ class Scan_Helper {
 			die;
 		}
 
-		return $wp_filesystem->delete( $file );
+		return $wp_filesystem->delete( $file, true );
 	}
 
 	/**
@@ -434,6 +460,206 @@ class Scan_Helper {
 	}
 
 	/**
+	 * Checks whether the fake vulnerable plugin currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fake_vulnerable_plugin_exists() {
+		return file_exists( $this->threats['fake_vulnerable_plugin'] );
+	}
+
+	/**
+	 * Generate fake vulnerable plugin.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fake_vulnerable_plugin() {
+		$content = base64_decode(
+			'LyoKUGx1Z2luIE5hbWU6IFdQIFN1cGVyIENhY2hlClBsdWdpbiBVUkk6IGh0dHBzOi8vd29yZHByZXNzLm9yZy9wbHVnaW5zL3' .
+			'dwLXN1cGVyLWNhY2hlLwpEZXNjcmlwdGlvbjogVmVyeSBmYXN0IGNhY2hpbmcgcGx1Z2luIGZvciBXb3JkUHJlc3MuClZlcnNpb246ID' .
+			'EuNy4yCkF1dGhvcjogQXV0b21hdHRpYwpBdXRob3IgVVJJOiBodHRwczovL2F1dG9tYXR0aWMuY29tLwpMaWNlbnNlOiBHUEwyKwpMaW' .
+			'NlbnNlIFVSSTogaHR0cHM6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy9ncGwtMi4wLnR4dApUZXh0IERvbWFpbjogd3Atc3VwZXItY2FjaGUKKi8='
+		);
+
+		if ( ! $this->write_file( $this->threats['fake_vulnerable_plugin'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fake_vulnerable_plugin']}" );
+		}
+
+		return "Successfully added fake vulnerable plugin to {$this->threats['fake_vulnerable_plugin']}.";
+	}
+
+	/**
+	 * Remove fake vulnerable plugin.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fake_vulnerable_plugin() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fake_vulnerable_plugin'] );
+
+		if ( ! $this->delete_file( $this->threats['fake_vulnerable_plugin'] ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fake vulnerable plugin $relative_file_path.";
+	}
+
+	/**
+	 * Checks whether the fake vulnerable theme currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fake_vulnerable_theme_exists() {
+		return file_exists( $this->threats['fake_vulnerable_theme'] );
+	}
+
+	/**
+	 * Generate fake vulnerable theme.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fake_vulnerable_theme() {
+		$content = base64_decode(
+			'LyoKVGhlbWUgTmFtZTogVHdlbnR5IEZpZnRlZW4KVGhlbWUgVVJJOiBodHRwczovL3dvcmRwcmVzcy5vcmcvdGhlbWVzL3R3ZW' .
+			'50eWZpZnRlZW4vCkF1dGhvcjogdGhlIFdvcmRQcmVzcyB0ZWFtCkF1dGhvciBVUkk6IGh0dHBzOi8vd29yZHByZXNzLm9yZy8KRGVzY3' .
+			'JpcHRpb246IE91ciAyMDE1IGRlZmF1bHQgdGhlbWUgaXMgY2xlYW4sIGJsb2ctZm9jdXNlZCwgYW5kIGRlc2lnbmVkIGZvciBjbGFyaX' .
+			'R5LiBUd2VudHkgRmlmdGVlbidzIHNpbXBsZSwgc3RyYWlnaHRmb3J3YXJkIHR5cG9ncmFwaHkgaXMgcmVhZGFibGUgb24gYSB3aWRlIH' .
+			'ZhcmlldHkgb2Ygc2NyZWVuIHNpemVzLCBhbmQgc3VpdGFibGUgZm9yIG11bHRpcGxlIGxhbmd1YWdlcy4gV2UgZGVzaWduZWQgaXQgdX' .
+			'NpbmcgYSBtb2JpbGUtZmlyc3QgYXBwcm9hY2gsIG1lYW5pbmcgeW91ciBjb250ZW50IHRha2VzIGNlbnRlci1zdGFnZSwgcmVnYXJkbG' .
+			'VzcyBvZiB3aGV0aGVyIHlvdXIgdmlzaXRvcnMgYXJyaXZlIGJ5IHNtYXJ0cGhvbmUsIHRhYmxldCwgbGFwdG9wLCBvciBkZXNrdG9wIG' .
+			'NvbXB1dGVyLgpWZXJzaW9uOiAxLjEKTGljZW5zZTogR05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgdjIgb3IgbGF0ZXIKTGljZW5zZS' .
+			'BVUkk6IGh0dHA6Ly93d3cuZ251Lm9yZy9saWNlbnNlcy9ncGwtMi4wLmh0bWwKVGFnczogYmxhY2ssIGJsdWUsIGdyYXksIHBpbmssIH' .
+			'B1cnBsZSwgd2hpdGUsIHllbGxvdywgZGFyaywgbGlnaHQsIHR3by1jb2x1bW5zLCBsZWZ0LXNpZGViYXIsIGZpeGVkLWxheW91dCwgcm' .
+			'VzcG9uc2l2ZS1sYXlvdXQsIGFjY2Vzc2liaWxpdHktcmVhZHksIGN1c3RvbS1iYWNrZ3JvdW5kLCBjdXN0b20tY29sb3JzLCBjdXN0b2' .
+			'0taGVhZGVyLCBjdXN0b20tbWVudSwgZWRpdG9yLXN0eWxlLCBmZWF0dXJlZC1pbWFnZXMsIG1pY3JvZm9ybWF0cywgcG9zdC1mb3JtYX' .
+			'RzLCBydGwtbGFuZ3VhZ2Utc3VwcG9ydCwgc3RpY2t5LXBvc3QsIHRocmVhZGVkLWNvbW1lbnRzLCB0cmFuc2xhdGlvbi1yZWFkeQpUZX' .
+			'h0IERvbWFpbjogdHdlbnR5ZmlmdGVlbgoKVGhpcyB0aGVtZSwgbGlrZSBXb3JkUHJlc3MsIGlzIGxpY2Vuc2VkIHVuZGVyIHRoZSBHUE' .
+			'wuClVzZSBpdCB0byBtYWtlIHNvbWV0aGluZyBjb29sLCBoYXZlIGZ1biwgYW5kIHNoYXJlIHdoYXQgeW91J3ZlIGxlYXJuZWQgd2l0aC' .
+			'BvdGhlcnMuCiov'
+		);
+
+		if ( ! $this->write_file( $this->threats['fake_vulnerable_theme'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fake_vulnerable_theme']}" );
+		}
+
+		// The theme also needs an index.php to be recognized as one by WordPress.
+		$index_content = '<?php // Silence is golden.';
+		if ( ! $this->write_file( dirname( $this->threats['fake_vulnerable_theme'] ) . '/index.php', $index_content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write index.php to {$this->threats['fake_vulnerable_theme']}" );
+		}
+
+		return "Successfully added fake vulnerable theme to {$this->threats['fake_vulnerable_theme']}.";
+	}
+
+	/**
+	 * Remove fake vulnerable theme.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fake_vulnerable_theme() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fake_vulnerable_theme'] );
+
+		$parent_dir = dirname( $this->threats['fake_vulnerable_theme'] );
+		if ( ! $this->delete_file( $parent_dir ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fake vulnerable theme $relative_file_path.";
+	}
+
+	/**
+	 * Checks whether the fuzzy hash threat currently exists on the site.
+	 *
+	 * @return bool
+	 */
+	private function fuzzy_hash_threat_exists() {
+		return file_exists( $this->threats['fuzzy_hash_file'] );
+	}
+
+	/**
+	 * Generate a fuzzy hash threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function generate_fuzzy_hash_threat() {
+		$content = base64_decode(
+			'PEZpbGVzTWF0Y2ggIi4ocHl8ZXhlfHBocCkkIj4KIE9yZGVyIGFsbG93LGRlbnkKIERlbnkgZnJvbSBhbGwKPC9GaWxlc01hdG' .
+			'NoPgo8RmlsZXNNYXRjaCAiXihhYm91dC5waHB8cmFkaW8ucGhwfGluZGV4LnBocHxjb250ZW50LnBocHxsb2NrMzYwLnBocCkkIj4KIE' .
+			'9yZGVyIGFsbG93LGRlbnkKIEFsbG93IGZyb20gYWxsCjwvRmlsZXNNYXRjaD4KPElmTW9kdWxlIG1vZF9yZXdyaXRlLmM+ClJld3JpdG' .
+			'VFbmdpbmUgT24KUmV3cml0ZUJhc2UgLwpSZXdyaXRlUnVsZSBeaW5kZXhcLnBocCQgLSBbTF0KUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0' .
+			'ZJTEVOQU1FfSAhLWYKUmV3cml0ZUNvbmQgJXtSRVFVRVNUX0ZJTEVOQU1FfSAhLWQKUmV3cml0ZVJ1bGUgLiAvaW5kZXgucGhwIFtMXQ' .
+			'o8L0lmTW9kdWxlPg=='
+		);
+
+		if ( ! $this->write_file( $this->threats['fuzzy_hash_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['fuzzy_hash_file']}" );
+		}
+
+		return "Successfully added fuzzy hash threat to {$this->threats['fuzzy_hash_file']}.";
+	}
+
+	/**
+	 * Remove fuzzy hash threat.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function remove_fuzzy_hash_threat() {
+		$relative_file_path = str_replace( ABSPATH, '', $this->threats['fuzzy_hash_file'] );
+
+		if ( ! $this->delete_file( $this->threats['fuzzy_hash_file'] ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write to threat file $relative_file_path." );
+		}
+
+		return "Successfully removed fuzzy hash threat $relative_file_path.";
+	}
+
+	const CORE_VERSION_INCLUDE = "require ABSPATH . WPINC . '/version.php';";
+	const FAKE_VERSION_INCLUDE = "require ABSPATH . WPINC . '/version.php'; \$wp_version = '6.4.3';";
+
+	/**
+	 * Checks whether the WordPress version is currently faked on the site.
+	 *
+	 * @return bool
+	 */
+	private function wordpress_version_is_faked() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+		return strpos( $content, self::FAKE_VERSION_INCLUDE ) !== false;
+	}
+
+	/**
+	 * Enables the WordPress version fake.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function enable_wordpress_version_fake() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+
+		$content = str_replace( self::CORE_VERSION_INCLUDE, self::FAKE_VERSION_INCLUDE, $content );
+
+		if ( ! $this->write_file( $this->threats['wp_settings_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write threat to {$this->threats['wp_settings_file']}" );
+		}
+
+		return "Successfully added faked WordPress version to {$this->threats['wp_settings_file']}.";
+	}
+
+	/**
+	 * Disables the WordPress version fake.
+	 *
+	 * @return string|WP_Error Success message on success, WP_Error object on failure.
+	 */
+	private function disable_wordpress_version_fake() {
+		$content = $this->get_contents( $this->threats['wp_settings_file'] );
+
+		$content = str_replace( self::FAKE_VERSION_INCLUDE, self::CORE_VERSION_INCLUDE, $content );
+
+		if ( ! $this->write_file( $this->threats['wp_settings_file'], $content ) ) {
+			return new WP_Error( 'could-not-write', "Unable to write cleaned file to {$this->threats['wp_settings_file']}" );
+		}
+
+		return "Successfully removed faked WordPress version from {$this->threats['wp_settings_file']}.";
+	}
+
+	/**
 	 * Handles the form submission
 	 *
 	 * @return array Associative array containing all the successes and errors.
@@ -519,6 +745,54 @@ class Scan_Helper {
 			$successes[] = $infected_file;
 		}
 
+		// Fake vulnerable plugin
+		if ( isset( $_POST['fake-vulnerable-plugin'] ) ) {
+			$fake_vulnerable_plugin = ! $this->fake_vulnerable_plugin_exists() ? $this->generate_fake_vulnerable_plugin() : null;
+		} else {
+			$fake_vulnerable_plugin = $this->fake_vulnerable_plugin_exists() ? $this->remove_fake_vulnerable_plugin() : null;
+		}
+		if ( is_wp_error( $fake_vulnerable_plugin ) ) {
+			$errors[] = $fake_vulnerable_plugin;
+		} elseif ( $fake_vulnerable_plugin ) {
+			$successes[] = $fake_vulnerable_plugin;
+		}
+
+		// Fake vulnerable theme
+		if ( isset( $_POST['fake-vulnerable-theme'] ) ) {
+			$fake_vulnerable_theme = ! $this->fake_vulnerable_theme_exists() ? $this->generate_fake_vulnerable_theme() : null;
+		} else {
+			$fake_vulnerable_theme = $this->fake_vulnerable_theme_exists() ? $this->remove_fake_vulnerable_theme() : null;
+		}
+		if ( is_wp_error( $fake_vulnerable_theme ) ) {
+			$errors[] = $fake_vulnerable_theme;
+		} elseif ( $fake_vulnerable_theme ) {
+			$successes[] = $fake_vulnerable_theme;
+		}
+
+		// Fuzzy Hash
+		if ( isset( $_POST['fuzzy-hash'] ) ) {
+			$fuzzy_hash = ! $this->fuzzy_hash_threat_exists() ? $this->generate_fuzzy_hash_threat() : null;
+		} else {
+			$fuzzy_hash = $this->fuzzy_hash_threat_exists() ? $this->remove_fuzzy_hash_threat() : null;
+		}
+		if ( is_wp_error( $fuzzy_hash ) ) {
+			$errors[] = $fuzzy_hash;
+		} elseif ( $fuzzy_hash ) {
+			$successes[] = $fuzzy_hash;
+		}
+
+		// Fake WordPress Version
+		if ( isset( $_POST['fake-wordpress-version'] ) ) {
+			$fake_wordpress_version = ! $this->wordpress_version_is_faked() ? $this->enable_wordpress_version_fake() : null;
+		} else {
+			$fake_wordpress_version = $this->wordpress_version_is_faked() ? $this->disable_wordpress_version_fake() : null;
+		}
+		if ( is_wp_error( $fake_wordpress_version ) ) {
+			$errors[] = $fake_wordpress_version;
+		} elseif ( $fake_wordpress_version ) {
+			$successes[] = $fake_wordpress_version;
+		}
+
 		return array(
 			'errors'    => $errors,
 			'successes' => $successes,
@@ -532,9 +806,9 @@ class Scan_Helper {
 		$submission = $this->handle_submit();
 
 		// eicar check
-		$dir   = wp_upload_dir()['basedir'];
 		$eicar = $this->wp_file_exists( $this->threats['eicar'] ) ? 'checked="checked"' : '';
-		// suspciious link check
+
+		// suspicious link check
 		$suspicious_link = $this->wp_file_exists( $this->threats['suspicious_link'] ) ? 'checked="checked"' : '';
 
 		// core modification check
@@ -553,6 +827,18 @@ class Scan_Helper {
 		$dir    = str_replace( site_url() . '/', ABSPATH, content_url() );
 		$lines  = file( "$dir/index.php" );
 		$infect = $lines[ count( $lines ) - 1 ] === 'HTML;' ? 'checked' : '';
+
+		// fuzzy hash check
+		$fuzzy_hash = $this->fuzzy_hash_threat_exists() ? 'checked="checked"' : '';
+
+		// fake vulnerable plugin check
+		$fake_vulnerable_plugin = $this->fake_vulnerable_plugin_exists() ? 'checked="checked"' : '';
+
+		// fake vulnerable theme check
+		$fake_vulnerable_theme = $this->fake_vulnerable_theme_exists() ? 'checked="checked"' : '';
+
+		// fake WordPress version check
+		$fake_wordpress_version = $this->wordpress_version_is_faked() ? 'checked="checked"' : '';
 
 		?>
 
@@ -629,6 +915,48 @@ class Scan_Helper {
 					<strong>Infect a File Threat</strong>
 					<br>
 					Add/Remove an EICAR threat to an existing file in the WordPress <code>contents</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="fuzzy-hash">
+					<input type="checkbox" name="fuzzy-hash" id="fuzzy-hash" <?php echo esc_attr( $fuzzy_hash ); ?>>
+					<strong>Create a fuzzy hash threat</strong>
+					<br>
+					Add/Remove a fuzzy hash threat to a new file in the WordPress <code>contents</code> folder.
+				</label>
+			</div>
+
+			<div>
+				<label for="fake-vulnerable-plugin">
+					<input type="checkbox" name="fake-vulnerable-plugin" id="fake-vulnerable-plugin" <?php echo esc_attr( $fake_vulnerable_plugin ); ?>>
+					<strong>Create a fake vulnerable plugin</strong>
+					<br>
+					Add/Remove an fake vulnerable plugin - <code>WP Super Cache 1.7.2</code> see <a href="https://wpscan.com/plugin/wp-super-cache/">WPScan reference</a>.
+				</label>
+			</div>
+
+			<div>
+				<label for="fake-vulnerable-theme">
+					<input type="checkbox" name="fake-vulnerable-theme" id="fake-vulnerable-theme" <?php echo esc_attr( $fake_vulnerable_theme ); ?>>
+					<strong>Create a fake vulnerable theme</strong>
+					<br>
+					Add/Remove an fake vulnerable theme - <code>Twenty Fifteen 1.1</code> see <a href="https://wpscan.com/theme/twentyfifteen/">WPScan reference</a>.
+				</label>
+			</div>
+
+			<div>
+				<label for="fake-wordpress-version">
+					<input type="checkbox" name="fake-wordpress-version" id="fake-wordpress-version" <?php echo esc_attr( $fake_wordpress_version ); ?>>
+					<strong>Fake WordPress Version</strong>
+					<br>
+					This will make WordPress believe it us running version <code>6.4.3</code>  see <a href="https://wpscan.com/wordpress/643/">WPScan reference</a>.
+					<br><br>
+					Note that this will cause two things to happen:
+					<ol>
+						<li>The scan will take a while longer, because it compares against the "wrong" known core file hashes.</li>
+						<li>This will also be caught as a core file modification, as we are modifing a core file to make it happen.</li>
+					</ol>
 				</label>
 			</div>
 
