@@ -47,7 +47,7 @@ class WP_REST_Help_Center_User_Fields extends \WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function update_user_fields( \WP_REST_Request $request ) {
 		$body = Client::wpcom_json_api_request_as_user(

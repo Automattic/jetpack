@@ -41,7 +41,7 @@ class WP_REST_Help_Center_Jetpack_Search_AI extends \WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function get_search_results( \WP_REST_Request $request ) {
 		$query_parameters = array(

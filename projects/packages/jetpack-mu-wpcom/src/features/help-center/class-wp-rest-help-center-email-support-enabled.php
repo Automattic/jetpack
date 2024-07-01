@@ -39,7 +39,7 @@ class WP_REST_Help_Center_Email_Support_Enabled extends \WP_REST_Controller {
 	/**
 	 * Should return if email contact is enabled for the user.
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function get_email_support_configuration() {
 		$body = Client::wpcom_json_api_request_as_user( 'help/eligibility/email/mine' );

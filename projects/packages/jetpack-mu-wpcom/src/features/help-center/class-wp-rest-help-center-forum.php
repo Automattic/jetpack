@@ -73,7 +73,7 @@ class WP_REST_Help_Center_Forum extends \WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function submit_new_topic( \WP_REST_Request $request ) {
 		$topic_args = array(

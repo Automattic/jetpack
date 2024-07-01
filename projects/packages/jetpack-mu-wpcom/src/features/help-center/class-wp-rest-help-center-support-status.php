@@ -59,7 +59,7 @@ class WP_REST_Help_Center_Support_Status extends \WP_REST_Controller {
 	/**
 	 * Should return the support status for the user
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function get_support_status() {
 		$body = Client::wpcom_json_api_request_as_user( 'help/support-status' );
@@ -76,7 +76,7 @@ class WP_REST_Help_Center_Support_Status extends \WP_REST_Controller {
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function get_messaging_support_availability( \WP_REST_Request $request ) {
 		$query_parameters = array(
