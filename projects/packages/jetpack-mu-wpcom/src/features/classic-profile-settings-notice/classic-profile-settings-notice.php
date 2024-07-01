@@ -36,4 +36,9 @@ function show_classic_admin_interface_profile_settings_notice() {
 	);
 }
 
-add_action( 'admin_notices', 'show_classic_admin_interface_profile_settings_notice' );
+add_action(
+	'load-profile.php',
+	function () {
+		add_action( 'admin_notices', 'show_classic_admin_interface_profile_settings_notice' );
+	}
+);
