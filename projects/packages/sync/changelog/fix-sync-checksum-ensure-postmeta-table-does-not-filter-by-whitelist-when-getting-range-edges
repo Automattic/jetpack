@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Sync Checksum:Use postmeta table name from wpdb to compare so we don't filter by whitelist due to performance reasons.

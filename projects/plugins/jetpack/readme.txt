@@ -326,15 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.9 - 2024-06-26
+### 13.6-beta - 2024-07-01
 #### Enhancements
-- Social: Add Threads preview to Social Previews.
+- Newsletter: Add ability to manage the newsletter byline appearance.
 
 #### Improved compatibility
-- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.
+- Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode.
 
 #### Bug fixes
-- External Media: Do not display External Media options in the Caption edit field.
+- AI Assistant: Disable extensions when AI Assistant block is hidden.
+- Publicize: Fix a race condition with refreshing the active social connections.
 
 --------
 
