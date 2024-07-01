@@ -27,19 +27,20 @@ const ProtectValueSection = () => {
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
 
-	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : '...';
-	const lastScanText = isPluginActive
-		? sprintf(
-				/* translators: %s is how long ago since the last scan took place, i.e.- "17 hours ago" */
-				__( 'Last scan: %s', 'jetpack-my-jetpack' ),
-				timeSinceLastScan
-		  )
-		: sprintf(
-				/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
-				__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
-				pluginsCount,
-				themesCount
-		  );
+	const timeSinceLastScan = lastScanTime ? timeSince( Date.parse( lastScanTime ) ) : false;
+	const lastScanText =
+		timeSinceLastScan && isPluginActive
+			? sprintf(
+					/* translators: %s is how long ago since the last scan took place, i.e.- "17 hours ago" */
+					__( 'Last scan: %s', 'jetpack-my-jetpack' ),
+					timeSinceLastScan
+			  )
+			: sprintf(
+					/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
+					__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
+					pluginsCount,
+					themesCount
+			  );
 	const tooltipContent = useProtectTooltipCopy( { pluginsCount, themesCount, numThreats } );
 
 	return (
