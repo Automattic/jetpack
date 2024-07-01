@@ -50,7 +50,7 @@ function chalk {
 #   Something went wrong!
 #   EOM
 
-TPUT_DIM="$(tput dim 2>/dev/null)"
+TPUT_DIM="$(tput dim 2>/dev/null)" || true
 if [[ "$TPUT_DIM" == $'\e['*m ]]; then
 	TPUT_DIM="${TPUT_DIM#$'\e['}"
 	TPUT_DIM="${TPUT_DIM%m}"
