@@ -2,6 +2,9 @@
 
 WordPress Webfonts provider for Google Fonts
 
+> [!CAUTION]
+> This package is abandoned. It depends on an API provided by the Gutenberg plugin between versions v12.8.0 and v16.3.0, which never made it into WordPress Core and is now non-functional in Gutenberg as well.
+
 ## How to install google-fonts-provider
 
 Package is published in [Packagist](https://packagist.org/packages/automattic/jetpack-google-fonts-provider). We recommend using the latest version there. You can install it in a composer managed project with `composer require automattic/jetpack-google-fonts-provider`.

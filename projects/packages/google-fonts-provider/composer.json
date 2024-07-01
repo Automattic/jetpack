@@ -48,5 +48,6 @@
 			"dev-trunk": "0.7.x-dev"
 		},
 		"textdomain": "jetpack-google-fonts-provider"
-	}
+	},
+	"abandoned": true
 }
