@@ -1,10 +1,8 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
-import { QUERY_EVALUATE_KEY, REST_API_EVALUATE_SITE_RECOMMENDATIONS } from '../../data/constants';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useRecommendationsSection from '../../data/recommendations-section/use-recommendations-section';
-import useSimpleMutation from '../../data/use-simple-mutation';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -16,17 +14,9 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 const WelcomeFlow: FC = () => {
-	const { mutate: startEvaluation } = useSimpleMutation< Record< string, number > >( {
-		name: QUERY_EVALUATE_KEY,
-		query: {
-			path: REST_API_EVALUATE_SITE_RECOMMENDATIONS,
-			method: 'GET',
-		},
-		errorMessage: 'Failed to evaluate site recommendations',
-	} );
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
-	const { saveEvaluation } = useRecommendationsSection();
+	const { submitEvaluation, saveEvaluationResult } = useRecommendationsSection();
 	const {
 		siteIsRegistered,
 		siteIsRegistering,
@@ -37,6 +27,7 @@ const WelcomeFlow: FC = () => {
 		skipUserConnection: true,
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
+	const [ prevStep, setPrevStep ] = useState( '' );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered ) {
@@ -47,6 +38,13 @@ const WelcomeFlow: FC = () => {
 
 		return 'evaluation-processing';
 	}, [ isProcessingEvaluation, siteIsRegistered ] );
+
+	useEffect( () => {
+		if ( prevStep !== currentStep ) {
+			recordEvent( 'jetpack_myjetpack_welcome_banner_step_change', { currentStep } );
+			setPrevStep( currentStep );
+		}
+	}, [ currentStep, prevStep, recordEvent ] );
 
 	const onDismissClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', {
@@ -59,16 +57,18 @@ const WelcomeFlow: FC = () => {
 
 	const handleEvaluation = useCallback(
 		( values: { [ key in EvaluationAreas ]: boolean } ) => {
+			const goals = Object.keys( values ).filter( key => values[ key ] );
+
 			setIsProcessingEvaluation( true );
-			startEvaluation(
-				{
-					queryParams: {
-						goals: Object.keys( values ).filter( key => values[ key ] ),
-					},
-				},
+			recordEvent( 'jetpack_myjetpack_welcome_banner_submit_evaluation', { goals } );
+			submitEvaluation(
+				{ queryParams: { goals } },
 				{
 					onSuccess: recommendations => {
-						saveEvaluation(
+						recordEvent( 'jetpack_myjetpack_welcome_banner_evaluation_success', {
+							recommendations,
+						} );
+						saveEvaluationResult(
 							{
 								data: { recommendations },
 							},
@@ -82,7 +82,7 @@ const WelcomeFlow: FC = () => {
 				}
 			);
 		},
-		[ dismissWelcomeBanner, saveEvaluation, startEvaluation ]
+		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
 
 	if ( ! isWelcomeBannerVisible ) {

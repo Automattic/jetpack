@@ -72,9 +72,9 @@ class REST_Recommendations_Evaluation {
 	/**
 	 * Recommendations Evaluation endpoint.
 	 *
-	 * @param object $request Query request.
+	 * @param WP_REST_Request $request Query request.
 	 *
-	 * @return array of 3 product slugs (recommendations).
+	 * @return WP_REST_Response|WP_Error of 3 product slugs (recommendations).
 	 */
 	public static function evaluate_site_recommendations( $request ) {
 		$goals = $request->get_param( 'goals' );
@@ -93,15 +93,15 @@ class REST_Recommendations_Evaluation {
 			return new WP_Error( 'recommendations_evaluation_fetch_failed', 'Evaluation processing failed', array( 'status' => $response_code ? $response_code : 400 ) );
 		}
 
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 
 	/**
 	 * Endpoint to save recommendations results.
 	 *
-	 * @param object $request Query request.
+	 * @param WP_REST_Request $request Query request.
 	 *
-	 * @return array success response.
+	 * @return WP_REST_Response|WP_Error success response.
 	 */
 	public static function save_evaluation_recommendations( $request ) {
 		$json = $request->get_json_params();
@@ -112,6 +112,6 @@ class REST_Recommendations_Evaluation {
 
 		\Jetpack_Options::update_option( 'recommendations_evaluation', $json['recommendations'] );
 
-		return rest_ensure_response( array( 'success' => true ), 200 );
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 }

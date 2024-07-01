@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
 	REST_API_SITE_DISMISS_BANNER,
@@ -13,7 +13,7 @@ const useWelcomeBanner = () => {
 		Object.keys( redBubbleAlerts ).includes( 'welcome-banner-active' )
 	);
 
-	const { mutate: dismissWelcomeBanner } = useSimpleMutation( {
+	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
 		query: {
 			path: REST_API_SITE_DISMISS_BANNER,
@@ -25,9 +25,12 @@ const useWelcomeBanner = () => {
 		),
 	} );
 
+	const dismissWelcomeBanner = useCallback( () => {
+		handleDismissWelcomeBanner( null, { onSuccess: () => setIsWelcomeBannerVisible( false ) } );
+	}, [ handleDismissWelcomeBanner ] );
+
 	return {
-		dismissWelcomeBanner: () =>
-			dismissWelcomeBanner( null, { onSuccess: () => setIsWelcomeBannerVisible( false ) } ),
+		dismissWelcomeBanner,
 		isWelcomeBannerVisible,
 	};
 };

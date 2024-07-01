@@ -1,9 +1,22 @@
 import { __ } from '@wordpress/i18n';
-import { QUERY_SAVE_EVALUATION_KEY, REST_API_SAVE_EVALUATION_RECOMMENDATIONS } from '../constants';
+import {
+	QUERY_EVALUATE_KEY,
+	QUERY_SAVE_EVALUATION_KEY,
+	REST_API_EVALUATE_SITE_RECOMMENDATIONS,
+	REST_API_SAVE_EVALUATION_RECOMMENDATIONS,
+} from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 
 const useRecommendationsSection = () => {
-	const { mutate: saveEvaluation } = useSimpleMutation( {
+	const { mutate: submitEvaluation } = useSimpleMutation< Record< string, number > >( {
+		name: QUERY_EVALUATE_KEY,
+		query: {
+			path: REST_API_EVALUATE_SITE_RECOMMENDATIONS,
+			method: 'GET',
+		},
+		errorMessage: __( 'Failed to evaluate site recommendations', 'jetpack-my-jetpack' ),
+	} );
+	const { mutate: saveEvaluationResult } = useSimpleMutation( {
 		name: QUERY_SAVE_EVALUATION_KEY,
 		query: {
 			path: REST_API_SAVE_EVALUATION_RECOMMENDATIONS,
@@ -13,7 +26,8 @@ const useRecommendationsSection = () => {
 	} );
 
 	return {
-		saveEvaluation,
+		submitEvaluation,
+		saveEvaluationResult,
 	};
 };
 
