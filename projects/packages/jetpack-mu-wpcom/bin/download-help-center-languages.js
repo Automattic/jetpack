@@ -43,21 +43,26 @@ const path = require( 'path' );
 			data += chunk;
 		} );
 
-		response.on( 'end', () => {
-			const dataParsed = JSON.parse( data );
-			dataParsed[ '' ][ 'plural-forms' ] = dataParsed[ '' ].plural_forms;
-			dataParsed[ '' ].lang = dataParsed[ '' ].language;
+		response
+			.on( 'end', () => {
+				const dataParsed = JSON.parse( data );
+				dataParsed[ '' ][ 'plural-forms' ] = dataParsed[ '' ].plural_forms;
+				dataParsed[ '' ].lang = dataParsed[ '' ].language;
 
-			const JED = {
-				'translation-revision-date': new Date().toISOString(),
-				generator: 'Jetpack',
-				domain: 'jetpack-mu-wpcom',
-				locale_data: {
-					messages: dataParsed,
-				},
-			};
+				const JED = {
+					'translation-revision-date': new Date().toISOString(),
+					generator: 'Jetpack',
+					domain: 'jetpack-mu-wpcom',
+					locale_data: {
+						messages: dataParsed,
+					},
+				};
 
-			fs.writeFileSync( dest, JSON.stringify( JED ) );
-		} );
+				fs.writeFileSync( dest, JSON.stringify( JED ) );
+			} )
+			.on( 'error', error => {
+				// eslint-disable-next-line no-console
+				console.error( `Downloading Help Center languages (${ lang }) failed with error:`, error );
+			} );
 	} );
 } );
