@@ -2,14 +2,7 @@
  * WordPress dependencies
  */
 import { getBlockContent } from '@wordpress/blocks';
-import {
-	BaseControl,
-	ToggleControl,
-	TextControl,
-	PanelRow,
-	SVG,
-	Path,
-} from '@wordpress/components';
+import { BaseControl, ToggleControl, PanelRow, SVG, Path } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { withSelect, subscribe, select } from '@wordpress/data';
 import { applyFilters } from '@wordpress/hooks';
@@ -21,6 +14,7 @@ import { createPortal } from 'react-dom';
 /**
  * Internal dependencies
  */
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import Highlights from './Highlights';
 import config from './dictionaries/dictionaries-config';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
@@ -54,18 +48,18 @@ const getContainerEl = () => {
 
 const Controls = ( { blocks } ) => {
 	// Allow defaults to be customized, but memoise the result so we're not computing things multiple times.
-	const { initialAiOn, initialAiApiKey, ignoreApiKey, initialIsHighlighting } = useMemo( () => {
+	const { initialAiOn, initialIsHighlighting } = useMemo( () => {
 		return applyFilters( 'breve-sidebar-defaults', {
-			initialAiOn: false,
-			initialAiApiKey: '',
+			initialAiOn: true,
 			initialIsHighlighting: true,
-			ignoreApiKey: false,
 		} );
 	}, [] );
 
+	// Jetpack AI Assistant feature functions.
+	const { requireUpgrade } = useAiFeature();
+
 	const [ isHighlighting, setIsHighlighting ] = useState( initialIsHighlighting );
 	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
-	const [ AIAPIKey, setAIAPIKey ] = useState( ignoreApiKey ? 'IGNORED' : initialAiApiKey );
 	const [ gradeLevel, setGradeLevel ] = useState( null );
 	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
 
@@ -99,9 +93,8 @@ const Controls = ( { blocks } ) => {
 
 		const computedGradeLevel = calculateFleschKincaid( allText );
 
-		const sanitizedGradeLevel = isNaN( computedGradeLevel )
-			? null
-			: computedGradeLevel.toFixed( 2 );
+		const sanitizedGradeLevel =
+			typeof computedGradeLevel === 'number' ? computedGradeLevel.toFixed( 2 ) : null;
 
 		setGradeLevel( sanitizedGradeLevel );
 
@@ -123,32 +116,17 @@ const Controls = ( { blocks } ) => {
 		} ) );
 	};
 
-	const fetchApiKey = () => {
-		const apiKey = window.localStorage.getItem( 'breve_api_key' );
-		if ( apiKey ) {
-			setAIAPIKey( apiKey );
-		}
-	};
-
-	const saveApiKey = apiKey => {
-		window.localStorage.setItem( 'breve_api_key', apiKey );
-		setAIAPIKey( apiKey );
-	};
-
 	useEffect( () => {
-		if ( AIAPIKey !== '' ) {
-			setIsAIOn( true );
-		} else {
+		if ( requireUpgrade ) {
 			setIsAIOn( false );
+		} else {
+			setIsAIOn( true );
 		}
-	}, [ AIAPIKey ] );
+	}, [ requireUpgrade ] );
 
 	useEffect( () => {
-		if ( ! ignoreApiKey ) {
-			fetchApiKey();
-		}
 		debouncedGradeLevelUpdate();
-	}, [ ignoreApiKey, debouncedGradeLevelUpdate ] );
+	}, [ debouncedGradeLevelUpdate ] );
 
 	// Update the grade level immediately on first load.
 	useInit( updateGradeLevel );
@@ -223,24 +201,12 @@ const Controls = ( { blocks } ) => {
 				</BaseControl>
 			</PanelRow>
 
-			{ ! ignoreApiKey && (
-				<BaseControl id="breve-sidebar-open-ai-api-key" label="OPENAI API KEY">
-					<TextControl
-						value={ AIAPIKey }
-						help="AI integration is built-in on WordPress.com and P2s. For other hosts, enter your key to replace text with AI."
-						onChange={ value => {
-							saveApiKey( value );
-						} }
-					/>
-				</BaseControl>
-			) }
 			{ container &&
 				createPortal(
 					<Highlights
 						isHighlighting={ isHighlighting }
 						containerEl={ container }
 						isAIOn={ isAIOn }
-						AIAPIKey={ AIAPIKey }
 						toggledKeys={ toggledKeys }
 						isIframed={ isIframed }
 						content={ debouncedContentChangeFlag }
