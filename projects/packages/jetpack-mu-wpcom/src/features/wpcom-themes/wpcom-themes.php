@@ -16,6 +16,9 @@ function wpcom_themes_show_banner() {
 	if ( is_agency_managed_site() ) {
 		return;
 	}
+	if ( ! current_user_has_wpcom_account() ) {
+		return;
+	}
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
@@ -59,6 +62,9 @@ function wpcom_themes_add_theme_showcase_menu() {
 		return;
 	}
 	if ( is_agency_managed_site() ) {
+		return;
+	}
+	if ( ! current_user_has_wpcom_account() ) {
 		return;
 	}
 

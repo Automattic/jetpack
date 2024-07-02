@@ -294,6 +294,9 @@ class Jetpack_Mu_Wpcom {
 		if ( is_agency_managed_site() ) {
 			return;
 		}
+		if ( ! current_user_has_wpcom_account() ) {
+			return;
+		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 	}
 
@@ -320,6 +323,9 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_site_management_widget() {
 		if ( is_agency_managed_site() ) {
+			return;
+		}
+		if ( ! current_user_has_wpcom_account() ) {
 			return;
 		}
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
