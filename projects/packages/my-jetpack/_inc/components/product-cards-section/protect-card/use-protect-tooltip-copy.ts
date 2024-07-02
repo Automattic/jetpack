@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import useProduct from '../../../data/products/use-product';
 import type { ReactElement } from 'react';
 
@@ -35,28 +35,49 @@ export function useProtectTooltipCopy( {
 	return {
 		pluginsThemesTooltip: {
 			title: __( 'Improve site safety: secure plugins & themes', 'jetpack-my-jetpack' ),
-			text: sprintf(
-				/* translators: %1$d is the number of plugins and %2$d is the number of themes installed on the site. */
+			text:
+				sprintf(
+					/* translators: %d is the number of plugins installed on the site. */
+					_n(
+						'Your site has %d plugin',
+						'Your site has %d plugins',
+						pluginsCount,
+						'jetpack-my-jetpack'
+					),
+					pluginsCount
+				) +
+				' ' +
+				sprintf(
+					/* translators: %d is the number of themes installed on the site. */
+					_n( 'and %d theme', 'and %d themes', themesCount, 'jetpack-my-jetpack' ),
+					themesCount
+				) +
+				' ' +
 				__(
-					'Your site has %1$d plugins and %2$d themes lacking security measures. Improve your site’s safety by adding protection at no cost.',
+					'lacking security measures. Improve your site’s safety by adding protection at no cost.',
 					'jetpack-my-jetpack'
 				),
-				pluginsCount,
-				themesCount
-			),
 		},
 		scanThreatsTooltip:
 			hasProtectPaidPlan && numThreats
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
-						text: sprintf(
-							/* translators: %d is the number of detected scan threats on the site. */
+						text:
+							sprintf(
+								/* translators: %d is the number of detected scan threats on the site. */
+								_n(
+									'The last scan identified %d critical threat.',
+									'The last scan identified %d critical threats.',
+									numThreats,
+									'jetpack-my-jetpack'
+								),
+								numThreats
+							) +
+							' ' +
 							__(
-								'The last scan identified %d critical threats. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
+								'But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
 								'jetpack-my-jetpack'
 							),
-							numThreats
-						),
 				  }
 				: {
 						title: __( 'Elevate your malware protection', 'jetpack-my-jetpack' ),

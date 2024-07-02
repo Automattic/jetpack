@@ -1,7 +1,7 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useState, useCallback, useMemo, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -39,11 +39,21 @@ const ProtectValueSection = () => {
 			}
 			return null;
 		}
-		return sprintf(
-			/* translators: `\xa0` is a non-breaking space. %1$d is the number (integer) of plugins and %2$d is the number (integer) of themes the site has. */
-			__( '%1$d plugins &\xa0%2$d\xa0themes', 'jetpack-my-jetpack' ),
-			pluginsCount,
-			themesCount
+		return (
+			sprintf(
+				/* translators: %d is the number of plugins installed on the site. */
+				_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ).replace( ' ', '\xa0' ), // `\xa0` is a non-breaking space.
+				pluginsCount
+			) +
+			' ' +
+			/* translators: The ampersand symbol here (&) is meaning "and". */
+			__( '&', 'jetpack-my-jetpack' ) +
+			'\xa0' +
+			sprintf(
+				/* translators: %d is the number of themes installed on the site. */
+				_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ).replace( ' ', '\xa0' ), // `\xa0` is a non-breaking space.
+				themesCount
+			)
 		);
 	}, [ isPluginActive, timeSinceLastScan, pluginsCount, themesCount ] );
 
