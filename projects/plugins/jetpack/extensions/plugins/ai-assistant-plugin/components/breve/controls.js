@@ -2,9 +2,9 @@
  * WordPress dependencies
  */
 import { getBlockContent } from '@wordpress/blocks';
-import { BaseControl, ToggleControl, PanelRow, SVG, Path } from '@wordpress/components';
+import { BaseControl, PanelRow, SVG, Path } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
-import { withSelect, subscribe, select } from '@wordpress/data';
+import { withSelect } from '@wordpress/data';
 import { applyFilters } from '@wordpress/hooks';
 /**
  * External dependencies
@@ -46,19 +46,18 @@ const getContainerEl = () => {
 	return { foundContainer: container, foundIframe: isIframed };
 };
 
-const Controls = ( { blocks } ) => {
+const Controls = ( { blocks, active } ) => {
 	// Allow defaults to be customized, but memoise the result so we're not computing things multiple times.
-	const { initialAiOn, initialIsHighlighting } = useMemo( () => {
+	const { initialAiOn } = useMemo( () => {
 		return applyFilters( 'breve-sidebar-defaults', {
 			initialAiOn: true,
-			initialIsHighlighting: true,
 		} );
 	}, [] );
 
 	// Jetpack AI Assistant feature functions.
 	const { requireUpgrade } = useAiFeature();
+	const isHighlighting = active;
 
-	const [ isHighlighting, setIsHighlighting ] = useState( initialIsHighlighting );
 	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
 	const [ gradeLevel, setGradeLevel ] = useState( null );
 	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
@@ -102,10 +101,6 @@ const Controls = ( { blocks } ) => {
 		setDebouncedContentChangeFlag( prev => ! prev );
 	}, [ blocks, isHighlighting ] );
 
-	const handleToggle = () => {
-		setIsHighlighting( ! isHighlighting );
-	};
-
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
 
@@ -130,12 +125,6 @@ const Controls = ( { blocks } ) => {
 
 	// Update the grade level immediately on first load.
 	useInit( updateGradeLevel );
-
-	subscribe( () => {
-		if ( ! select( 'core/edit-post' ).isPluginSidebarOpened() ) {
-			setIsHighlighting( false );
-		}
-	} );
 
 	return (
 		<>
@@ -165,15 +154,6 @@ const Controls = ( { blocks } ) => {
 							) }
 						</p>
 					</div>
-				</BaseControl>
-			</PanelRow>
-			<PanelRow>
-				<BaseControl id="breve-sidebar-toggle-suggestions" help="">
-					<ToggleControl
-						label="Highlight suggestions"
-						checked={ isHighlighting }
-						onChange={ handleToggle }
-					/>
 				</BaseControl>
 			</PanelRow>
 
