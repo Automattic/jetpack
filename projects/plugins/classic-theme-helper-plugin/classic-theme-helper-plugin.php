@@ -41,6 +41,17 @@ define( 'CLASSIC_THEME_HELPER_PLUGIN_NAME', 'Classic Theme Helper Plugin' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_URI', 'https://jetpack.com' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
+/**
+ * Load features that don't need any special loading considerations.
+ */
+function load_features() {
+
+	Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+	Automattic\Jetpack\Classic_Theme_Helper\Main::init();
+}
+
+add_action( 'plugins_loaded', 'load_features' );
+
 // Add "Settings" link to plugins page.
 add_filter(
 	'plugin_action_links_' . CLASSIC_THEME_HELPER_PLUGIN_FOLDER . '/classic-theme-helper-plugin.php',
