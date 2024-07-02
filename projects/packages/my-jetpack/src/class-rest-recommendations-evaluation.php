@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
 
 /**
  * Registers the REST routes for Evaluation Recommendations.
