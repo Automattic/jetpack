@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.6-beta - 2024-07-01
+## 13.6 - 2024-07-02
 ### Enhancements
 - AI Assistant: Hide input when user types on extended block. [#37801]
 - Goodreads Block: provide support for additional profile URLs. [#37939]
