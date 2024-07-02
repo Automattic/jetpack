@@ -1,11 +1,9 @@
-import { Gridicon } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
-import { useViewportMatch } from '@wordpress/compose';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useState, useCallback, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
+import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { TooltipContent } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
@@ -75,53 +73,19 @@ const ValueSection: FC< {
 	lastScanText?: string;
 	tooltipContent: TooltipContent;
 } > = ( { isProtectActive, lastScanText, tooltipContent } ) => {
-	const useTooltipRef = useRef< HTMLButtonElement >();
-	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
-	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
-	// TODO: `scanThreatsTooltip` will be utilized in a followup PR.
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { pluginsThemesTooltip, scanThreatsTooltip } = tooltipContent;
-
-	const toggleTooltip = useCallback(
-		() => setIsPopoverVisible( prevState => ! prevState ),
-		[ setIsPopoverVisible ]
-	);
-	const hideTooltip = useCallback( () => {
-		// Don't hide the tooltip here if it's the tooltip button that was clicked (the button
-		// becoming the document's activeElement). Instead let toggleTooltip() handle the closing.
-		if ( useTooltipRef.current && ! useTooltipRef.current.contains( document.activeElement ) ) {
-			setIsPopoverVisible( false );
-		}
-	}, [ setIsPopoverVisible, useTooltipRef ] );
+	const { pluginsThemesTooltip } = tooltipContent;
 
 	return (
 		<>
 			<div className="value-section__last-scan">
 				{ lastScanText && <div>{ lastScanText }</div> }
 				{ ! isProtectActive && (
-					<div>
-						<button
-							className="value-section__tooltip-button"
-							onClick={ toggleTooltip }
-							ref={ useTooltipRef }
-						>
-							<Gridicon icon="info-outline" size={ 14 } />
-						</button>
-						{ isPopoverVisible && (
-							<Popover
-								placement={ isMobileViewport ? 'top-end' : 'right' }
-								noArrow={ false }
-								offset={ 10 }
-								focusOnMount={ 'container' }
-								onClose={ hideTooltip }
-							>
-								<>
-									<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
-									<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
-								</>
-							</Popover>
-						) }
-					</div>
+					<InfoTooltip>
+						<>
+							<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
+							<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
+						</>
+					</InfoTooltip>
 				) }
 			</div>
 			<div className="value-section">
