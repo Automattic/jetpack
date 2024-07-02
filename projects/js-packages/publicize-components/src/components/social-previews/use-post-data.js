@@ -70,6 +70,9 @@ export function usePostData() {
 					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
 					__( 'Visit the post for more.', 'jetpack' ),
 				url: getEditedPostAttribute( 'link' ),
+				excerpt:
+					getEditedPostAttribute( 'excerpt' ) ||
+					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
 				image,
 				media,
 				initialTabName: null,

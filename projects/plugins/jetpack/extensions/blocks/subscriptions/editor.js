@@ -3,6 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
+import CommandPalette from './command-palette';
 import deprecated from './deprecated';
 import edit from './edit';
 import SubscribePanels from './panel';
@@ -61,11 +62,12 @@ registerJetpackBlockFromMetadata( metadata, {
 	deprecated,
 } );
 
-// Registers slot/fill panels defined via settings.render.
+// Registers slot/fill panels defined via settings.render and command palette commands
 registerJetpackPlugin( blockName, {
 	render: () => (
 		<>
-			<SubscribePanels />
+			<SubscribePanels />,
+			<CommandPalette />
 		</>
 	),
 } );
