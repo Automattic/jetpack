@@ -34,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			esc_html( $branch->version ),
 			esc_attr( $branch->version )
 		);
-	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source ) {
+	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source && $branch->version ) {
 		$more_info[] = sprintf(
 			// translators: %s: Version number.
 			__( 'Version %s', 'jetpack-beta' ),
@@ -61,7 +61,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 		$classes[] = 'branch-card-active';
 	}
 	if ( 'unknown' === $branch->source ) {
-		$classes[] = 'existing-branch-for-' . $plugin->plugin_slug();
+		if ( $branch->id === 'deactivate' ) {
+			$classes[] = 'deactivate-mu-plugin';
+			$classes[] = 'deactivate-mu-plugin-' . $plugin->plugin_slug();
+		} else {
+			$classes[] = 'existing-branch-for-' . $plugin->plugin_slug();
+		}
 	}
 	if ( empty( $branch->is_last ) ) {
 		$classes[] = 'is-compact';
@@ -70,6 +75,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	// Needs to match what core's wp_ajax_update_plugin() will return.
 	// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.TextDomainMismatch
 	$updater_version = sprintf( __( 'Version %s', 'default' ), $branch->version );
+
+	if ( $branch->source === 'unknown' && $branch->id === 'deactivate' ) {
+		$active_text   = __( 'Inactive', 'jetpack-beta' );
+		$activate_text = __( 'Deactivate', 'jetpack-beta' );
+	} else {
+		$active_text   = __( 'Active', 'jetpack-beta' );
+		$activate_text = __( 'Activate', 'jetpack-beta' );
+	}
 
 	?>
 			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
@@ -83,8 +96,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</div>
 					</span>
 					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary" data-active="<?php echo esc_attr( __( 'Active', 'jetpack-beta' ) ); ?>">
-							<a href="<?php echo esc_html( $activate_url ); ?>" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html__( 'Activate', 'jetpack-beta' ); ?></a>
+						<span class="dops-foldable-card__summary" data-active="<?php echo esc_attr( $active_text ); ?>">
+							<a href="<?php echo esc_html( $activate_url ); ?>" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html( $activate_text ); ?></a>
 						</span>
 					</span>
 				</div>

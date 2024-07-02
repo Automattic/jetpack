@@ -36,10 +36,6 @@
 	$: imageURL = store.url;
 	$: imageName = $imageURL.split( '/' ).pop();
 
-	// Get the image origin
-	$: origin = new URL( window.location.href ).origin;
-	$: imageOrigin = new URL( $imageURL ).origin;
-
 	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );

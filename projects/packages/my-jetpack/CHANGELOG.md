@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.27.0] - 2024-07-01
+### Added
+- Add the Google Analytics deprecation notice. [#38078]
+
+### Changed
+- Reduce amount of historically active modules updates by only triggering on activation of plugin is a jetpack plugin [#38065]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+
 ## [4.26.0] - 2024-06-27
 ### Changed
 - Jetpack AI: Add Title Optimization section on the product page. [#38072]
@@ -1542,6 +1552,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.26.0...4.27.0
 [4.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.4...4.26.0
 [4.25.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.3...4.25.4
 [4.25.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.2...4.25.3
