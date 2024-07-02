@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2024-07-02
+### Deprecated
+- Mark package as abandoned. [#38063]
+
 ## [0.7.2] - 2024-03-18
 ### Changed
 - Internal updates.
@@ -102,6 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Adds a provider for Google Fonts using the new Webfonts API in Gutenberg
 
+[0.7.3]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.6.0...v0.7.0
