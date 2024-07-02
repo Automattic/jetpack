@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-beta - 2024-07-01
+### 13.6 - 2024-07-02
 #### Enhancements
 - AI Assistant: Hide input when user types on extended block.
 - Goodreads Block: provide support for additional profile URLs.
