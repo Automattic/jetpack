@@ -52,8 +52,6 @@ class WP_REST_Help_Center_Authenticate extends \WP_REST_Controller {
 	 * Callback to authorize user for chat.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_chat_authentication( \WP_REST_Request $request ) {
 		$query_parameters = array(
@@ -72,6 +70,7 @@ class WP_REST_Help_Center_Authenticate extends \WP_REST_Controller {
 		if ( is_wp_error( $body ) ) {
 			return $body;
 		}
+
 		$response = json_decode( wp_remote_retrieve_body( $body ) );
 
 		return rest_ensure_response( $response );

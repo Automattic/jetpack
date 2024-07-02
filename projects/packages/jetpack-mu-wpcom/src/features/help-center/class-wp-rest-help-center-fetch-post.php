@@ -62,8 +62,6 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 	 * Should return blog post articles
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_blog_post_articles( \WP_REST_Request $request ) {
 		$query_parameters = array(
@@ -87,8 +85,6 @@ class WP_REST_Help_Center_Fetch_Post extends \WP_REST_Controller {
 	 * Should return the search results
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_post( \WP_REST_Request $request ) {
 		$blog_id = $request['blog_id'];

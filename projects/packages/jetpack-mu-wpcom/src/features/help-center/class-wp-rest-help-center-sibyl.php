@@ -40,8 +40,6 @@ class WP_REST_Help_Center_Sibyl extends \WP_REST_Controller {
 	 * Should return the sibyl articles.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_sibyl_questions( \WP_REST_Request $request ) {
 		$query = $request['query'];

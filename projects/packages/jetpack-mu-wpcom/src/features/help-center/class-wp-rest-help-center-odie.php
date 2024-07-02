@@ -187,14 +187,12 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 	/**
 	 * Get chat_id and last_chat_id from user preferences.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_last_chat_id() {
 		// Forward the request body to the support chat endpoint.
 		$body = Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
-			2,
+			'2',
 			array( 'method' => 'GET' )
 		);
 
@@ -216,8 +214,6 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * Set chat_id or last_chat_id from user preferences.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function set_last_chat_id( \WP_REST_Request $request ) {
 		$chat_id      = $request['odie_chat_id'];
@@ -237,7 +233,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		$body = Client::wpcom_json_api_request_as_user(
 			'/me/preferences',
-			2,
+			'2',
 			array( 'method' => 'POST' ),
 			$data
 		);
@@ -262,8 +258,6 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * Send a message to the support chat.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function send_chat_message( \WP_REST_Request $request ) {
 		$bot_name_slug = $request->get_param( 'bot_id' );
@@ -272,8 +266,11 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		// Forward the request body to the support chat endpoint.
 		$body = Client::wpcom_json_api_request_as_user(
 			'/odie/chat/' . $bot_name_slug . '/' . $chat_id,
-			2,
-			array( 'method' => 'POST' ),
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 60,
+			),
 			array(
 				'message' => $request->get_param( 'message' ),
 				'context' => $request->get_param( 'context' ) ?? array(),
@@ -294,8 +291,6 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * Get the chat messages.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_chat( \WP_REST_Request $request ) {
 		$bot_name_slug    = $request->get_param( 'bot_id' );
@@ -329,8 +324,6 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * Save feedback for a chat message.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function save_chat_message_feedback( \WP_REST_Request $request ) {
 		$bot_id       = $request->get_param( 'bot_id' );
@@ -341,7 +334,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		// Forward the request body to the feedback endpoint.
 		$body = Client::wpcom_json_api_request_as_user(
 			'/odie/chat/' . $bot_id . '/' . $chat_id . '/' . $message_id . '/feedback',
-			2,
+			'2',
 			array( 'method' => 'POST' ),
 			array(
 				'rating_value' => $rating_value,

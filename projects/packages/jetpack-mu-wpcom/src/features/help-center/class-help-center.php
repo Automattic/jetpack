@@ -22,20 +22,6 @@ class Help_Center {
 	private static $instance = null;
 
 	/**
-	 * Asset file.
-	 *
-	 * @var asset_file
-	 */
-	private $asset_file;
-
-	/**
-	 * Version number of the plugin.
-	 *
-	 * @var string version
-	 */
-	private $version;
-
-	/**
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
@@ -90,22 +76,13 @@ class Help_Center {
 	 * Enqueue Help Center assets.
 	 *
 	 * @param string $variant The variant of the asset file to get.
+	 * @param array  $dependencies The asset file to get.
+	 * @param string $version The version of the asset file to get.
 	 */
-	public function enqueue_script( $variant ) {
-		$script_dependencies = $this->asset_file['dependencies'];
+	public function enqueue_script( $variant, $dependencies, $version ) {
+		$script_dependencies = $dependencies;
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
-			if ( $variant === 'wp-admin' ) {
-				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
-				if ( function_exists( 'gutenberg_url' ) ) {
-					wp_enqueue_style(
-						'wp-components',
-						gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
-						array( 'dashicons' ),
-						$this->version
-					);
-				}
-			}
 			// Crazy high number to prevent Jetpack removing it
 			// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
 			add_action(
@@ -136,7 +113,7 @@ class Help_Center {
 			'help-center',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . '.min.js',
 			is_array( $script_dependencies ) ? $script_dependencies : array(),
-			$this->version,
+			$version,
 			true
 		);
 
@@ -144,7 +121,7 @@ class Help_Center {
 			'help-center-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
-			$this->version
+			$version
 		);
 
 		// This information is only needed for the connected version of the help center.
@@ -311,19 +288,12 @@ class Help_Center {
 	}
 
 	/**
-	 * Returns true if the current screen is the site editor.
-	 */
-	public function is_site_editor() {
-		global $current_screen;
-		return ( function_exists( 'gutenberg_is_edit_site_page' ) && gutenberg_is_edit_site_page( $current_screen->id ) );
-	}
-
-	/**
 	 * Returns true if the current screen if the block editor.
 	 */
 	public function is_block_editor() {
 		global $current_screen;
-		return $current_screen->is_block_editor;
+		// widgets screen does have the block editor but also no Gutenberg top bar.
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -392,15 +362,19 @@ class Help_Center {
 			return;
 		}
 
-		$variant  = ( $this->is_site_editor() || $this->is_block_editor() ) ? 'gutenberg' : 'wp-admin';
+		$variant  = $this->is_block_editor() ? 'gutenberg' : 'wp-admin';
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
-		$this->asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+
+		if ( ! $asset_file ) {
+			return;
+		}
 
 		// When the request is proxied, use a random cache buster as the version for easier debugging.
-		$this->version = self::is_proxied() ? wp_rand() : $this->asset_file['version'];
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
 
-		$this->enqueue_script( $variant );
+		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
 	}
 }
 

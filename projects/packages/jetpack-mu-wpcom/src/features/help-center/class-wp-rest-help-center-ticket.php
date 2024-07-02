@@ -61,8 +61,6 @@ class WP_REST_Help_Center_Ticket extends \WP_REST_Controller {
 	 * Should create a new ticket
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function new_ticket( \WP_REST_Request $request ) {
 		$ticket = array(

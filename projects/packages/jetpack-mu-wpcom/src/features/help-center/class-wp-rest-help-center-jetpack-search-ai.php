@@ -40,8 +40,6 @@ class WP_REST_Help_Center_Jetpack_Search_AI extends \WP_REST_Controller {
 	 * Should return the sibyl articles.
 	 *
 	 * @param \WP_REST_Request $request The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_search_results( \WP_REST_Request $request ) {
 		$query_parameters = array(
@@ -50,7 +48,7 @@ class WP_REST_Help_Center_Jetpack_Search_AI extends \WP_REST_Controller {
 		);
 		$body             = Client::wpcom_json_api_request_as_user(
 			'sites/' . $request['site'] . '/jetpack-search/ai/search?' . http_build_query( $query_parameters ),
-			2,
+			'2',
 			array(
 				'timeout' => 75,
 			)

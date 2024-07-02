@@ -49,8 +49,6 @@ class WP_REST_Help_Center_Search extends \WP_REST_Controller {
 	 * Should return the search results
 	 *
 	 * @param \WP_REST_Request $request    The request sent to the API.
-	 *
-	 * @return \WP_REST_Response
 	 */
 	public function get_search_results( \WP_REST_Request $request ) {
 		$query  = $request['query'];
