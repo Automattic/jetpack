@@ -145,7 +145,7 @@ const Controls = ( { blocks } ) => {
 					label="Reading level"
 					help="To make it easy to read, aim for level 8-12. Keep words simple and sentences short."
 				>
-					<div className="gradeLevelContainer">
+					<div className="grade-level-container">
 						{ gradeLevel !== null && gradeLevel <= 12 && (
 							<>
 								<SVG xmlns="http://www.w3.org/2000/svg" width={ 16 } height={ 15 } fill="none">
