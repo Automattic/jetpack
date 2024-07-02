@@ -65,8 +65,14 @@ const WelcomeFlow: FC = () => {
 				{ queryParams: { goals } },
 				{
 					onSuccess: recommendations => {
+						// Convert object to array of [key, value] pairs
+						const recommendedModulesList = Object.entries( recommendations )
+							.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
+							.map( entry => entry[ 0 ] )
+							.join( ', ' );
+
 						recordEvent( 'jetpack_myjetpack_welcome_banner_evaluation_success', {
-							recommendations,
+							recommendedModulesList,
 						} );
 						saveEvaluationResult(
 							{
