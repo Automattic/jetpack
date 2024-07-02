@@ -46,7 +46,6 @@ class Test_CSS_Nudge_Customize_Control extends \WP_UnitTestCase {
 	 *
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control::render_content
-	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Nudge_Customize_Control::render_content
 	 */
 	public function test_if_the_html_is_generated_properly() {
 		$manager = new \WP_Customize_Manager();
