@@ -6,6 +6,7 @@
         font-size: var(--font-body-extra-small);
         color: var(--jp-gray-100);
         font-weight: 500;
+        margin-bottom: 10px;
     }
 
     &__last-scan {
@@ -44,4 +45,27 @@
         line-height: var(--font-title-small);
         color: var(--jp-gray-70);
     }
+
+    &__data {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-body-extra-small);
+        line-height: var(--font-title-small);
+        color: var(--jp-gray-50);
+        font-weight: 500;
+    }
+
+    &__status-icon {
+        display: block;
+        width: 18.6px;
+        height: auto;
+        margin-right: 6px;
+    }
+
+    &__status-text {
+        margin-right: 1px;
+        letter-spacing: -0.24px;
+    }
 }
+
+

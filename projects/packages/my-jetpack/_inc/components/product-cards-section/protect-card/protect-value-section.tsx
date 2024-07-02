@@ -4,6 +4,7 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
 import { InfoTooltip } from './info-tooltip';
+import { ScanThreats } from './scan-threats';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { TooltipContent } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
@@ -90,8 +91,7 @@ const ValueSection: FC< {
 			</div>
 			<div className="value-section">
 				<div className="value-section__scan-threats">
-					<div className="value-section__heading">Scan</div>
-					<div></div>
+					<ScanThreats />
 				</div>
 				<div className="value-section__auto-firewall">
 					<div className="value-section__heading">Auto-Firewall</div>
