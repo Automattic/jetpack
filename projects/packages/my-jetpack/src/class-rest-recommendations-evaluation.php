@@ -76,7 +76,7 @@ class REST_Recommendations_Evaluation {
 	 *
 	 * @return WP_REST_Response|WP_Error of 3 product slugs (recommendations).
 	 */
-	public static function evaluate_site_recommendations( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+	public static function evaluate_site_recommendations( WP_REST_Request $request ): WP_REST_Response {
 		$goals = $request->get_param( 'goals' );
 
 		if ( ! isset( $goals ) ) {
@@ -103,7 +103,7 @@ class REST_Recommendations_Evaluation {
 	 *
 	 * @return WP_REST_Response|WP_Error success response.
 	 */
-	public static function save_evaluation_recommendations( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+	public static function save_evaluation_recommendations( WP_REST_Request $request ): WP_REST_Response {
 		$json = $request->get_json_params();
 
 		if ( ! isset( $json['recommendations'] ) ) {
