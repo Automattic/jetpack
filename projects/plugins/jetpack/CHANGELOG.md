@@ -4,137 +4,104 @@
 
 ## 13.6-beta - 2024-07-01
 ### Enhancements
+- AI Assistant: Hide input when user types on extended block. [#37801]
+- Goodreads Block: provide support for additional profile URLs. [#37939]
 - Newsletter: Add ability to manage the newsletter byline appearance. [#37997]
+- Newsletter: Adding a new toggle to control the newsletter author line. [#37916]
+- Newsletter: Email replies can become comments on your blog. [#37995]
+- Social: Add Threads preview to Social Previews. [#38003]
+- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images. [#37792]
 
 ### Improved compatibility
+- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary. [#37949]
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
 - Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode. [#38113]
 
 ### Bug fixes
 - AI Assistant: Disable extensions when AI Assistant block is hidden. [#38105]
+- External Media: Do not display External Media options in the Caption edit field. [#37987]
+- External media: Ensure connect URL has the correct blog ID and verification values. [#37689]
+- Like block: Fix editor styling. [#37719]
 - Publicize: Fix a race condition with refreshing the active social connections. [#38080]
+- Slideshow: Ensure whole block is selectable in the editor. [#37683]
+- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com. [#37798]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added ability to test Jetpack together with wpcomsh. [#37737]
+- Add onboarding_segment to site endpoint. [#37751]
+- Add placement on Proofread tracking. [#37763]
+- Add support for custom behavior on AI Inline Extensions. [#37589]
+- Admin menu: Add link to Customizer in sites with block-based theme and custom CSS. [#37761]
+- AI Assistant: Add Breve proofread feature flag. [#37986]
 - AI Assistant: Add Breve under feature flag. [#38019]
 - AI Assistant: Add general image type, cost and feature. [#38042]
 - AI Assistant: Avoid auto-starting featured image creation. [#38098]
 - AI Assistant: Do not extend Form twice. [#38067]
-- AI Assistant: Update loading state of AI Image. [#38062]
-- Blocks: Update blogroll item styling. [#37976]
-- Custom CSS: Add deprecation warning for Start Fresh option. [#37193]
-- Custom CSS: Prevent loading module multiple times. [#37794]
-- General: Deprecate jetpack-abtest package. [#37994]
-- General: Updated dependencies. [#38138]
-- Google Analytics: Add deprecation notice for non-Jetpack admin pages. [#38078]
-- Google Fonts: Remove code that is no longer needed for WordPress 6.4+. [#38063]
-- Infinite Scroll: Ensure missing assets are loaded [#37971]
-- Infinite Scroll: Fixed a fatal error from uninitialized Sharing module. [#38114]
-- Jetpack AI Image: Show notice when image gets saved to the media library. [#38077]
-- Jetpack AI Image: Trigger an image generation on Enter keypress. [#38103]
-- Jetpack AI Image: Use error notice instead of warning for the upgrade nudge. [#38050]
-- Widgets: Minor Subscription widget copy change based on user feedback. [#38040]
-- Newsletters: Adds tracks to subscription source. [#38060]
-- SSO: Disabled Two-Step checkbox when jetpack_sso_require_two_step filter is on. [#37907]
-- WordPress.com API: Add export and import capabilities to the sites endpoint response. [#34539]
-
-## 13.6-a.9 - 2024-06-26
-### Enhancements
-- Social: Add Threads preview to Social Previews. [#38003]
-
-### Improved compatibility
-- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary. [#37949]
-
-### Bug fixes
-- External Media: Do not display External Media options in the Caption edit field. [#37987]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- General: Load dashicon list from 'jetpack-masterbar' package for the admin-menu API endpoint. [#38025]
-- General: Remove use of `gutenberg_can_edit_post_type()`. Its replacement has been in WP Core since 6.1. [#38015]
-- General: Remove use of `gutenberg_get_block_template()`. Its replacement has been in WP Core since 5.8. [#38015]
-- Stats: Point post stats icon to wp-admin. [#38013]
-
-## 13.6-a.7 - 2024-06-24
-### Enhancements
-- Goodreads Block: provide support for additional profile URLs. [#37939]
-- Newsletter: Adding a new toggle to control the newsletter author line. [#37916]
-- Newsletter: Email replies can become comments on your blog. [#37995]
-- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images. [#37792]
-
-### Improved compatibility
-- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- AI Assistant: Add Breve proofread feature flag. [#37986]
 - AI Assistant: Extract AI Image logic to its own hook. [#37956]
 - AI Assistant: Extract the Google Analytics API into a package. [#37358]
 - AI Assistant: Introduce AI Image Modal. [#37959]
 - AI Assistant: Specific placeholder instruction for featured and general image. [#38008]
 - AI Assistant: Update General Image to reuse modal and hooks with expected behavior. [#37991]
-- Carousel: Ensure event listeners target relevant Tiled Gallery classes for accessibility fixes. [#37978]
-- Carousel: Add empty state for AI Image carousel. [#38004]
-- Map Block: Handle React's Strict Mode correctly for Mapbox maps. [#37918]
-- Masterbar: Remove the old fly panel. [#37764]
-- Newsletters: Make the welcome form more editable. [#37996]
-
-## 13.6-a.5 - 2024-06-18
-### Bug fixes
-- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com. [#37798]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Update loading state of AI Image. [#38062]
+- AI Featured Image: Let the backend decide the model for the image generation. [#37668]
+- Blocks: Update blogroll item styling. [#37976]
 - Bump Jetpack lock file. [#37870]
-- Fixed missing CSS vars for SSO modal [#37924]
-
-## 13.6-a.3 - 2024-06-17
-### Enhancements
-- AI Assistant: Hide input when user types on extended block. [#37801]
-
-### Bug fixes
-- Like block: Fix editor styling. [#37719]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Added ability to test Jetpack together with wpcomsh. [#37737]
+- Calypsoify: Deprecating functions and the class. [#37453]
+- Carousel: Add empty state for AI Image carousel. [#38004]
+- Carousel: Ensure event listeners target relevant Tiled Gallery classes for accessibility fixes. [#37978]
+- Change codebase to use clsx instead of classnames. [#37708]
+- Classic Theme Helper: Move code from module to package. [#37260]
 - Color Schemes: Fix Sakura color issues on masterbar. [#37806]
+- Comics CPT: Add deprecation warning. [#37605]
+- Custom CSS: Add deprecation warning for Start Fresh option. [#37193]
+- Custom CSS: Prevent loading module multiple times. [#37794]
 - EU Cookie Law widget: add id attribute to consent form. [#37839]
+- External Media: Remove unneeded return value. [#37703]
 - Fixed E2E tests navigating to block editor. [#37875]
+- Fixed missing CSS vars for SSO modal [#37924]
 - Fixed PHP Unit tests for WP trunk. [#37785]
 - Fixed Uncaught TypeError in for recommendations CTA. [#37808]
+- Fix scroll on typing inside inline extensions. [#37753]
+- General: Deprecate jetpack-abtest package. [#37994]
+- General: Load dashicon list from 'jetpack-masterbar' package for the admin-menu API endpoint. [#38025]
+- General: Remove use of `gutenberg_can_edit_post_type()`. Its replacement has been in WP Core since 6.1. [#38015]
+- General: Remove use of `gutenberg_get_block_template()`. Its replacement has been in WP Core since 5.8. [#38015]
+- General: Updated dependencies. [#38138]
+- Google Analytics: Add deprecation notice for non-Jetpack admin pages. [#38078]
+- Google Fonts: Remove code that is no longer needed for WordPress 6.4+. [#38063]
+- Infinite Scroll: Ensure missing assets are loaded [#37971]
+- Infinite Scroll: Fixed a fatal error from uninitialized Sharing module. [#38114]
 - Jetpack admin-menu endpoint: Require masterbar menu load file only on self-hosted sites. [#37891]
+- Jetpack AI: Expose the upgrade URL on the feature endpoint, considering current plan and site type. [#37721]
 - Jetpack AI: register ai-general-purpose-image-generator beta flag to control the changes we are doing to the image generation tool. [#37749]
 - Jetpack AI Image: create first draft of the General Purpose image generator. [#37782]
 - Jetpack AI Image: make the general purpose generator set the image on the image block. [#37834]
-- Return site_goals option for a site. [#37809]
-- Social: Fixed broken connections reconnect link to point it to new connections UI. [#37869]
-- Top Posts & Pages Block: Require that one content type is always set to display. [#36305]
-- Updated package dependencies. [#37767] [#37776] [#37795] [#37796]
-
-## 13.6-a.1 - 2024-06-10
-### Bug fixes
-- External media: Ensure connect URL has the correct blog ID and verification values. [#37689]
-- Slideshow: Ensure whole block is selectable in the editor. [#37683]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add onboarding_segment to site endpoint. [#37751]
-- Add placement on Proofread tracking. [#37763]
-- Add support for custom behavior on AI Inline Extensions. [#37589]
-- Admin menu: Add link to Customizer in sites with block-based theme and custom CSS. [#37761]
-- AI Featured Image: Let the backend decide the model for the image generation. [#37668]
-- Calypsoify: Deprecating functions and the class. [#37453]
-- Change codebase to use clsx instead of classnames. [#37708]
-- Classic Theme Helper: Move code from module to package. [#37260]
-- Comics CPT: Add deprecation warning. [#37605]
-- External Media: Remove unneeded return value. [#37703]
-- Fix scroll on typing inside inline extensions. [#37753]
-- Jetpack AI: Expose the upgrade URL on the feature endpoint, considering current plan and site type. [#37721]
+- Jetpack AI Image: Show notice when image gets saved to the media library. [#38077]
+- Jetpack AI Image: Trigger an image generation on Enter keypress. [#38103]
+- Jetpack AI Image: Use error notice instead of warning for the upgrade nudge. [#38050]
+- Map Block: Handle React's Strict Mode correctly for Mapbox maps. [#37918]
+- Masterbar: Remove the old fly panel. [#37764]
 - Memberships: Fix paid content access in some cases of mixed products. [#37527]
 - Move AI Form inline extensions version to production. [#37754]
 - Move AI Form to inline extension. [#37589]
+- Newsletters: Adds tracks to subscription source. [#38060]
+- Newsletters: Make the welcome form more editable. [#37996]
 - Payments Block: Localize block variations. [#37661]
 - Random Redirect: Add deprecation warning. [#37609]
+- Return site_goals option for a site. [#37809]
+- Social: Fixed broken connections reconnect link to point it to new connections UI. [#37869]
+- SSO: Disabled Two-Step checkbox when jetpack_sso_require_two_step filter is on. [#37907]
+- Stats: Point post stats icon to wp-admin. [#38013]
 - Subscribe overlay: Use home URL in skip link. [#37711]
+- Top Posts & Pages Block: Require that one content type is always set to display. [#36305]
 - Updated package dependencies. [#37669] [#37706]
+- Updated package dependencies. [#37767] [#37776] [#37795] [#37796]
 - Updated recommendation links for Social. [#37693]
 - Updated recommendations section links for Social. [#37678]
 - Use correct const to check for inline extensions availability. [#37758]
+- Widgets: Minor Subscription widget copy change based on user feedback. [#38040]
 - Wordpress.com: Make Jetpack Scan link visible on atomic sites that defaults to wp-admin. [#37724]
+- WordPress.com API: Add export and import capabilities to the sites endpoint response. [#34539]
 - WPCOM Block Editor: Deprecated functionality and moved it to mu-wpcom. [#37324]
 
 ## 13.5 - 2024-06-04
