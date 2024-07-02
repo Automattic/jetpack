@@ -8,11 +8,13 @@ import {
 	SOURCE_PEXELS,
 	SOURCE_JETPACK_APP_MEDIA,
 	SOURCE_JETPACK_AI_FEATURED_IMAGE,
-	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE,
+	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
+	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 } from '../constants';
 import GooglePhotosMedia from './google-photos';
 import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
-import JetpackAIGeneralPurposeImage from './jetpack-ai-general-purpose-image';
+import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
+import JetpackAIGeneralPurposeImageForMediaSource from './jetpack-ai-general-purpose-image-for-media-source';
 import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
@@ -43,7 +45,7 @@ export const featuredImageExclusiveMediaSources = [
  */
 export const generalPurposeImageExclusiveMediaSources = [
 	{
-		id: SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE,
+		id: SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
 		label: __( 'Generate with AI', 'jetpack' ),
 		icon: aiAssistantIcon,
 		keyword: 'jetpack ai',
@@ -109,8 +111,10 @@ export function getExternalLibrary( type ) {
 		return JetpackAppMedia;
 	} else if ( type === SOURCE_JETPACK_AI_FEATURED_IMAGE ) {
 		return JetpackAIFeaturedImage;
-	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE ) {
-		return JetpackAIGeneralPurposeImage;
+	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE ) {
+		return JetpackAIGeneralPurposeImageForMediaSource;
+	} else if ( type === SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK ) {
+		return JetpackAIGeneralPurposeImageForBlock;
 	}
 	return null;
 }
