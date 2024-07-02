@@ -3,8 +3,17 @@ cd $(dirname "$(dirname "$(dirname "$0")")")
 
 rm -f languages/wpcomsh.pot
 
-find -L . -name '*.php' -and ! -path './build/*' -and ! -path './custom-colors/*' \
- -and -maxdepth 10 \( \
+find -L . \
+  \( \
+    -path './vendor/*/vendor' \
+    -or -path './vendor/*/wordpress' \
+    -or -path './vendor/*/node_modules' \
+    -or -path './vendor/*/jetpack_vendor' \
+  \) \
+  -prune \
+  -or \
+  -name '*.php' -and ! -path './build/*' -and ! -path './custom-colors/*' \
+  -and \( \
     ! -path './vendor/*' \
     -or -path './vendor/automattic/jetpack-mu-wpcom/*' \
     -or -path './vendor/automattic/at-pressable-podcasting/*' \
@@ -14,8 +23,6 @@ find -L . -name '*.php' -and ! -path './build/*' -and ! -path './custom-colors/*
     -or -path './vendor/automattic/jetpack-config/*' \
     -or -path './vendor/automattic/jetpack-post-list/*' \
  \) \
- -and ! -path './vendor/*/vendor/*' \
- -and ! -path './vendor/*/wordpress/*' \
  -print \
 | sed -e 's,^\./,,' \
 | sort \
