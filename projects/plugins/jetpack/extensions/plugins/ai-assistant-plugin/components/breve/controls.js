@@ -12,15 +12,18 @@ import {
 } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { withSelect, subscribe, select } from '@wordpress/data';
-import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
+/**
+ * External dependencies
+ */
+import React, { useState, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 /**
  * Internal dependencies
  */
+import Highlights from './Highlights';
 import config from './dictionaries/dictionaries-config';
-import useHighlight from './useHighlight';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
-import { handleMessage } from './utils/handleMessage';
 import './breve.scss';
 
 export const useInit = init => {
@@ -30,6 +33,23 @@ export const useInit = init => {
 		init();
 		setInitialized( true );
 	}
+};
+
+const getContainerEl = () => {
+	// Find the iframe by name attribute
+	const iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
+
+	// Get the document inside the iframe
+	const iframeDocument = iframe?.contentDocument || iframe?.contentWindow.document;
+
+	// Find the container within the iframe or fall back to the main document
+	const container =
+		iframeDocument?.body || document.querySelector( '.edit-post-visual-editor > div' );
+
+	// Determine if the element is iframed
+	const isIframed = !! iframe;
+
+	return { foundContainer: container, foundIframe: isIframed };
 };
 
 const Controls = ( { blocks } ) => {
@@ -47,7 +67,8 @@ const Controls = ( { blocks } ) => {
 	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
 	const [ AIAPIKey, setAIAPIKey ] = useState( ignoreApiKey ? 'IGNORED' : initialAiApiKey );
 	const [ gradeLevel, setGradeLevel ] = useState( null );
-	const [ isProcessing, setIsProcessing ] = useState( null );
+	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
+
 	const [ toggledKeys, setToggledKeys ] = useState( () => {
 		const initialState = {};
 		Object.keys( config.dictionaries ).forEach( key => {
@@ -56,7 +77,20 @@ const Controls = ( { blocks } ) => {
 		return initialState;
 	} );
 
+	const [ container, setContainer ] = useState( null );
+	const [ isIframed, setIsIframed ] = useState( true );
+
+	useLayoutEffect( () => {
+		const { foundContainer, foundIframe } = getContainerEl();
+		setContainer( foundContainer );
+		setIsIframed( foundIframe );
+	}, [] );
+
 	const updateGradeLevel = useCallback( () => {
+		if ( ! isHighlighting ) {
+			return;
+		}
+
 		// Get the text content from all blocks and inner blocks.
 		const allText = blocks
 			.map( block => getBlockContent( block ) )
@@ -70,18 +104,13 @@ const Controls = ( { blocks } ) => {
 			: computedGradeLevel.toFixed( 2 );
 
 		setGradeLevel( sanitizedGradeLevel );
-	}, [ blocks ] );
 
-	const updateHandler = event => {
-		handleMessage( event );
-	};
+		// Update the content change flag to trigger a re-highlight.
+		setDebouncedContentChangeFlag( prev => ! prev );
+	}, [ blocks, isHighlighting ] );
 
 	const handleToggle = () => {
 		setIsHighlighting( ! isHighlighting );
-	};
-
-	const handleToggleAI = () => {
-		setIsAIOn( ! isAIOn );
 	};
 
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
@@ -107,6 +136,14 @@ const Controls = ( { blocks } ) => {
 	};
 
 	useEffect( () => {
+		if ( AIAPIKey !== '' ) {
+			setIsAIOn( true );
+		} else {
+			setIsAIOn( false );
+		}
+	}, [ AIAPIKey ] );
+
+	useEffect( () => {
 		if ( ! ignoreApiKey ) {
 			fetchApiKey();
 		}
@@ -122,28 +159,13 @@ const Controls = ( { blocks } ) => {
 		}
 	} );
 
-	useHighlight(
-		isHighlighting,
-		isAIOn,
-		AIAPIKey,
-		toggledKeys,
-		isProcessing,
-		setIsProcessing,
-		updateHandler
-	);
-
 	return (
 		<>
 			<PanelRow>
-				<BaseControl help="Breve helps you write brief, clear text, to get your message across.">
-					<span></span>
-				</BaseControl>
-			</PanelRow>
-			<PanelRow>
 				<BaseControl
 					id="breve-sidebar-grade-level"
-					label="Your Grade level"
-					help="The Flesch-Kincaid score shows how readable your text is. Aim for grades 8-12. Use simple words and short sentences."
+					label="Reading level"
+					help="To make it easy to read, aim for level 8-12. Keep words simple and sentences short."
 				>
 					<div className="gradeLevelContainer">
 						{ gradeLevel !== null && gradeLevel <= 12 && (
@@ -170,7 +192,7 @@ const Controls = ( { blocks } ) => {
 			<PanelRow>
 				<BaseControl id="breve-sidebar-toggle-suggestions" help="">
 					<ToggleControl
-						label="Show suggestions"
+						label="Highlight suggestions"
 						checked={ isHighlighting }
 						onChange={ handleToggle }
 					/>
@@ -194,33 +216,37 @@ const Controls = ( { blocks } ) => {
 						>
 							<div className={ `key ${ key }` }></div>
 							<div className="desc">
-								<strong>{ config.dictionaries[ key ].label.split( ':' )[ 0 ] }:</strong>{ ' ' }
-								{ config.dictionaries[ key ].label.split( ':' )[ 1 ] }
+								<strong>{ config.dictionaries[ key ].label }</strong>
 							</div>
 						</div>
 					) ) }
 				</BaseControl>
 			</PanelRow>
 
-			<PanelRow>
-				<BaseControl
-					id="breve-sidebar-toggle-ai"
-					help="Enable to click on highlights and have AI edit the text."
-				>
-					<ToggleControl label="Edit with AI" checked={ isAIOn } onChange={ handleToggleAI } />
-				</BaseControl>
-			</PanelRow>
-			{ isAIOn && ! ignoreApiKey && (
+			{ ! ignoreApiKey && (
 				<BaseControl id="breve-sidebar-open-ai-api-key" label="OPENAI API KEY">
 					<TextControl
 						value={ AIAPIKey }
-						help="We'll eventually build this in. For now, enter your key to replace text with AI."
+						help="AI integration is built-in on WordPress.com and P2s. For other hosts, enter your key to replace text with AI."
 						onChange={ value => {
 							saveApiKey( value );
 						} }
 					/>
 				</BaseControl>
 			) }
+			{ container &&
+				createPortal(
+					<Highlights
+						isHighlighting={ isHighlighting }
+						containerEl={ container }
+						isAIOn={ isAIOn }
+						AIAPIKey={ AIAPIKey }
+						toggledKeys={ toggledKeys }
+						isIframed={ isIframed }
+						content={ debouncedContentChangeFlag }
+					/>,
+					container
+				) }
 		</>
 	);
 };

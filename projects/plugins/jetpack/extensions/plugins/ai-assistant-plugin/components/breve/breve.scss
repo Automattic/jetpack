@@ -1,44 +1,46 @@
 :root {
-	--color-phrase: rgba(255, 205, 86, 1); /* Yellow for border */
-	--color-phrase-bg: rgba(255, 205, 86, 0.5); /* Yellow for background */
+	--color-phrase: rgba(251, 192, 45, 1); /* Darker yellow for border */
+	--color-phrase-bg: rgba(251, 192, 45, 0.1); /* Yellow for background */
 	--color-phrase-gradient: rgba(
-		255,
-		205,
-		86,
-		0.2
+		251,
+		192,
+		45,
+		0.4
 	); /* Lighter yellow for gradient */
-	--color-weasel: rgba(255, 159, 64, 1); /* Orange for border */
-	--color-weasel-bg: rgba(255, 159, 64, 0.5); /* Orange for background */
+	--color-weasel: rgba(255, 140, 0, 1); /* Darker orange for border */
+	--color-weasel-bg: rgba(255, 140, 0, 0.1); /* Orange for background */
 	--color-weasel-gradient: rgba(
 		255,
-		159,
-		64,
-		0.2
+		140,
+		0,
+		0.4
 	); /* Lighter orange for gradient */
-	--color-adjective: rgba(193, 76, 170, 1); /* Pink for border */
-	--color-adjective-bg: rgba(193, 76, 170, 0.5); /* Pink for background */
+	--color-adjective: rgba(186, 85, 211, 1); /* Darker pink for border */
+	--color-adjective-bg: rgba(186, 85, 211, 0.1); /* Pink for background */
 	--color-adjective-gradient: rgba(
-		193,
-		76,
-		170,
-		0.2
+		186,
+		85,
+		211,
+		0.4
 	); /* Lighter pink for gradient */
-	--color-adverb: rgba(102, 153, 255, 1); /* Blue for border */
-	--color-adverb-bg: rgba(102, 153, 255, 0.5); /* Blue for background */
+	--color-adverb: rgba(30, 144, 255, 1); /* Darker blue for border */
+	--color-adverb-bg: rgba(30, 144, 255, 0.1); /* Blue for background */
 	--color-adverb-gradient: rgba(
-		102,
-		153,
+		30,
+		144,
 		255,
-		0.2
+		0.4
 	); /* Lighter blue for gradient */
-	--color-long-sentence: rgba(75, 192, 192, 1); /* Teal for border */
-	--color-long-sentence-bg: rgba(75, 192, 192, 0.5); /* Teal for background */
+	--color-long-sentence: rgba(32, 178, 170, 1); /* Darker teal for border */
+	--color-long-sentence-bg: rgba(32, 178, 170, 0.1); /* Teal for background */
 	--color-long-sentence-gradient: rgba(
-		75,
-		192,
-		192,
-		0.2
+		32,
+		178,
+		170,
+		0.4
 	); /* Lighter teal for gradient */
+
+
 	--tooltip-bg: rgba(30, 30, 30, 1);
 	--tooltip-color: #fff;
 }
@@ -47,105 +49,88 @@
 	color: rgb(117, 117, 117);
 }
 
+#breve-highlights {
+	position: relative;
+}
+
+.highlight-container {
+	left: 0;
+	pointer-events: none;
+	position: relative; 
+	top: 0;
+}
+
 .highlight-overlay {
-	cursor: pointer;
+	background-color: rgba(255, 0, 0, .01);
 	box-sizing: border-box;
+	cursor: text;
+	height: 100%;
+	pointer-events: auto;
 	position: absolute;
+	transition-delay: .15s;
+	transition: background-color .15s;
+	width: 100%;
 }
 
-.highlight-overlay:after {
-	content: "";
-	display: none;
+.highlight-overlay.isEditingText {
+	pointer-events: none;
 }
 
-.highlight-overlay:hover:after {
-	background-color: var(--tooltip-bg);
-	border-radius: 2px;
-	box-sizing: border-box;
-	color: var(--tooltip-color);
-	content: attr(data-tooltip);
-	display: block;
-	font-family: "SF Pro Text";
-	font-size: 14px;
+.highlight-popover	{
+	color: black;
+	cursor: default;
+	font-family: "SF Pro";
+	font-size: 13px;
 	font-style: normal;
 	font-weight: 400;
-	height: auto;
-	line-height: 16px;
-	padding: 6px 9px;
-	position: absolute;
-	top: -25px;
+	line-height: 18px;
+	padding: 8px;
+	width: auto;
+}
+
+.highlight-popover div.components-popover__content {
+	align-items: center;
+	column-gap: 12px;
+	display: flex;
+	padding: 16px;
 	white-space: nowrap;
-	z-index: 99;
-	width: unset;
+}
+
+.highlight-popover button{
+	box-shadow:none !important; // Fixing a strange left border
 }
 
 .highlight-overlay.phrase {
-	border-bottom: 3px solid var(--color-phrase);
-	cursor: default;
-	pointer-events: none;
+	border-bottom: 2px solid var(--color-phrase);
 	z-index: 5;
 }
 
-.highlight-overlay.aiOn.phrase {
-	background-color: var(--color-phrase-bg);
-	cursor: pointer;
+.highlight-overlay.isHovering.phrase {
 	pointer-events: auto;
 }
 
 .highlight-overlay.weasel {
-	border-bottom: 3px solid var(--color-weasel);
-	cursor: default;
-	pointer-events: none;
+	border-bottom: 2px solid var(--color-weasel);
 	z-index: 4;
 }
 
-.highlight-overlay.aiOn.weasel {
-	background-color: var(--color-weasel-bg);
-	cursor: pointer;
-	pointer-events: auto;
-}
-
 .highlight-overlay.adjective {
-	border-bottom: 3px solid var(--color-adjective);
-	cursor: default;
-	pointer-events: none;
+	border-bottom: 2px solid var(--color-adjective);
 	z-index: 3;
 }
 
-.highlight-overlay.aiOn.adjective {
-	background-color: var(--color-adjective-bg);
-	cursor: pointer;
-	pointer-events: auto;
-}
-
 .highlight-overlay.adverb {
-	border-bottom: 3px solid var(--color-adverb);
-	cursor: default;
-	pointer-events: none;
+	border-bottom: 2px solid var(--color-adverb);
 	z-index: 2;
 }
 
-.highlight-overlay.aiOn.adverb {
-	background-color: var(--color-adverb-bg);
-	cursor: pointer;
-	pointer-events: auto;
-}
-
 .highlight-overlay.long-sentence {
-	border-bottom: 3px solid var(--color-long-sentence);
-	cursor: default;
-	pointer-events: none;
+	border-bottom: 2px solid var(--color-long-sentence);
 	z-index: 1;
 }
 
-.highlight-overlay.aiOn.long-sentence {
-	background-color: var(--color-long-sentence-bg);
-	cursor: pointer;
-	pointer-events: auto;
-}
-
 .highlight-overlay.isProcessing {
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
 }
 
@@ -161,75 +146,60 @@
 	}
 }
 
-.highlight-overlay.phrase.aiOn.isProcessing {
+.highlight-overlay.phrase.isProcessing {
 	background: linear-gradient(
 		270deg,
 		var(--color-phrase-bg),
 		var(--color-phrase-gradient)
 	);
 	background-size: 400% 400%;
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
+	
 }
 
-.highlight-overlay.weasel.aiOn.isProcessing {
+.highlight-overlay.weasel.isProcessing {
 	background: linear-gradient(
 		270deg,
 		var(--color-weasel-bg),
 		var(--color-weasel-gradient)
 	);
 	background-size: 400% 400%;
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
 }
 
-.highlight-overlay.adjective.aiOn.isProcessing {
+.highlight-overlay.adjective.isProcessing {
 	background: linear-gradient(
 		270deg,
 		var(--color-adjective-bg),
 		var(--color-adjective-gradient)
 	);
 	background-size: 400% 400%;
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
 }
 
-.highlight-overlay.adverb.aiOn.isProcessing {
+.highlight-overlay.adverb.isProcessing {
 	background: linear-gradient(
 		270deg,
 		var(--color-adverb-bg),
 		var(--color-adverb-gradient)
 	);
 	background-size: 400% 400%;
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
 }
 
-.highlight-overlay.long-sentence.aiOn.isProcessing {
+.highlight-overlay.long-sentence.isProcessing {
 	background: linear-gradient(
 		270deg,
 		var(--color-long-sentence-bg),
 		var(--color-long-sentence-gradient)
 	);
 	background-size: 400% 400%;
-	animation: gradientAnimation 01.25s ease infinite;
+	animation: gradientAnimation 01s ease infinite;
 	cursor: wait;
-}
-
-.breve-tooltip {
-	background-color: var(--tooltip-bg);
-	border-radius: 2px;
-	border: none;
-	cursor: pointer;
-	color: var(--tooltip-color);
-	padding: 6px 9px;
-	pointer-events: none;
-	z-index: 1;
-	font-family: "SF Pro Text";
-	font-size: 14px;
-	font-style: normal;
-	font-weight: 400;
-	line-height: 16px;
 }
 
 .key-row {
@@ -246,7 +216,7 @@
 	display: inline-block;
 	margin-right: 4px;
 	position: relative;
-	top: 3px;
+	top: 1px;
 	background-size: 12px 12px; /* Ensures the checkmark fits within the key */
 	background-repeat: no-repeat;
 	background-position: center;
@@ -310,6 +280,10 @@
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
+}
+
+.gradeLevelContainer p {
+	margin-bottom: 0;
 }
 
 .gradeLevelContainer svg {
