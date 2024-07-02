@@ -86,12 +86,6 @@ if ! $VERBOSE; then
 	}
 else
 	. "$BASE/tools/includes/nospin.sh"
-	if [[ -n "$CI" ]]; then
-		function debug {
-			# Grey doesn't work well in GH's output.
-			blue "$@"
-		}
-	fi
 fi
 
 declare -A SKIPSLUGS
