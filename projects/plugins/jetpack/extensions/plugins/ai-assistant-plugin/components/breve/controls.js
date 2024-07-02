@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 /**
  * Internal dependencies
  */
+import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import Highlights from './Highlights';
 import config from './dictionaries/dictionaries-config';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
@@ -53,6 +54,9 @@ const Controls = ( { blocks } ) => {
 			initialIsHighlighting: true,
 		} );
 	}, [] );
+
+	// Jetpack AI Assistant feature functions.
+	const { requireUpgrade } = useAiFeature();
 
 	const [ isHighlighting, setIsHighlighting ] = useState( initialIsHighlighting );
 	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
@@ -113,15 +117,12 @@ const Controls = ( { blocks } ) => {
 	};
 
 	useEffect( () => {
-		// TODO Check for remaining requests
-		const hasRequests = true;
-
-		if ( hasRequests ) {
-			setIsAIOn( true );
-		} else {
+		if ( requireUpgrade ) {
 			setIsAIOn( false );
+		} else {
+			setIsAIOn( true );
 		}
-	}, [] );
+	}, [ requireUpgrade ] );
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
