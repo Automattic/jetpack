@@ -117,6 +117,7 @@
 	font-size: 12px;
 	line-height: 1.4;
 	hyphens: none;
+	min-height: 33px;
 }
 
 #adminmenu .toplevel_page_site-notices .upsell_banner .banner__info {
