@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes a bug in the Blaze endpoint blaze/posts that happens when we get a non-200 from WPCOM
