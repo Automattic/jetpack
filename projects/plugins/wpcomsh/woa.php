@@ -126,19 +126,9 @@ function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos( $args, $assoc_
 	}
 
 	// Verify WooCommerce is installed and active.
-	$result = WP_CLI::runcommand(
-		'plugin list --name=woocommerce --status=active --field=name --format=csv',
-		array(
-			'return'     => 'all',
-			'launch'     => false,
-			'exit_error' => false,
-		)
-	);
-	if ( 0 !== $result->return_code ) {
-		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( sprintf( 'Error checking if WooCommerce is active: %s', $result->stderr ) );
-		return;
-	}
-	if ( 'woocommerce' !== trim( $result->stdout ) ) {
+	$woocommerce_is_active = is_plugin_active( 'woocommerce/woocommerce.php' );
+
+	if ( false === $woocommerce_is_active ) {
 		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( 'WooCommerce not active' );
 		return;
 	}
