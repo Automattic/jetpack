@@ -160,7 +160,7 @@ const EmailSettings = props => {
 		setFromNameState( { value: fromNameState.value, hasChanged: false } );
 	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
 
-	const getExampleEmail = ( replyTo ) => {
+	const getExampleEmail = replyTo => {
 		switch ( replyTo ) {
 			case 'author':
 				return 'author-name@example.com';
