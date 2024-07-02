@@ -10,7 +10,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
-
+. "$BASE/tools/includes/send_tracks_event.sh"
 
 # Instructions
 function usage {
@@ -142,6 +142,36 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 done
 
 proceed_p "" "Proceed releasing above projects?" Y
+
+# Sending tracking event
+TRACKING_DATA="{}"
+RELEASED_PLUGINS="{}"
+for PLUGIN in "${!PROJECTS[@]}"; do
+
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
+	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
+
+	if [[ $VERSION_DIFF -eq 1 ]]; then
+		PATCH_LEVEL="suffix"
+	elif [[ $VERSION_DIFF -eq 2 ]]; then
+		PATCH_LEVEL="patch"
+	elif [[ $VERSION_DIFF -eq 3 ]]; then
+		PATCH_LEVEL="minor"
+	elif [[ $VERSION_DIFF -eq 4 ]]; then
+		PATCH_LEVEL="major"
+	fi
+
+	RELEASED_PLUGINS=$(
+		jq \
+			--arg plugin "$PLUGIN" \
+			--arg version "${PROJECTS[$PLUGIN]}" \
+			--arg patchlevel "$PATCH_LEVEL" \
+			'.[ $plugin ] = {"version": $version, "type": $patchlevel} ' <<< "$RELEASED_PLUGINS"
+					)
+done
+
+TRACKING_DATA=$( jq -c -n --argjson plugins "$RELEASED_PLUGINS" '{"plugins": $plugins}' )
+send_tracks_event "jetpack_release_start" "$TRACKING_DATA"
 
 # Figure out which release branch prefixes to use.
 PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
