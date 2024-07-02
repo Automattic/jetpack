@@ -134,19 +134,9 @@ function wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos( $args, $assoc_
 	}
 
 	// Verify HPOS isn't already enabled
-	$result = WP_CLI::runcommand(
-		'option get woocommerce_custom_orders_table_enabled',
-		array(
-			'return'     => 'all',
-			'launch'     => false,
-			'exit_error' => false,
-		)
-	);
-	if ( 0 !== $result->return_code ) {
-		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( sprintf( 'Error checking if HPOS is active: %s', $result->stderr ) );
-		return;
-	}
-	if ( 'yes' === $result->stdout ) {
+	$option_value = get_option( 'woocommerce_custom_orders_table_enabled', false );
+
+	if ( 'yes' === $option_value ) {
 		wpcomsh_woa_post_transfer_maybe_enable_woocommerce_hpos_log( 'HPOS is already enabled' );
 		return;
 	}
