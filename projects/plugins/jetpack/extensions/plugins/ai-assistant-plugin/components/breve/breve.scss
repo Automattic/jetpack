@@ -79,7 +79,6 @@
 .highlight-popover	{
 	color: black;
 	cursor: default;
-	font-family: "SF Pro";
 	font-size: 13px;
 	font-style: normal;
 	font-weight: 400;
@@ -276,17 +275,17 @@
 	color: rgb(117, 117, 117);
 }
 
-.gradeLevelContainer {
+.grade-level-container {
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
 }
 
-.gradeLevelContainer p {
+.grade-level-container p {
 	margin-bottom: 0;
 }
 
-.gradeLevelContainer svg {
+.grade-level-container svg {
 	position: relative;
 	top: 2px;
 }
