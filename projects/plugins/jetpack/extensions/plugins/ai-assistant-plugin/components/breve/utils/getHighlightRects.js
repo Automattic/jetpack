@@ -84,8 +84,8 @@ export const getHighlightRects = element => {
 				rect,
 				rangeIndex,
 				range,
-				replacementText: `${ text }`, // The original text
-				replacement, // It's replacement. TODO: Rename these to be clearer
+				target: `${ text }`, // The original text
+				replacement, // It's replacement
 				type,
 				highlightId: `${ range.startOffset }${ text }${ range.endOffset }`,
 			} );
