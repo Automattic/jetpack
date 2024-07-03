@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "2955ddfd68e522ba34797b7ded6b480f",
+	"content-hash": "8b707897257ea17c4df9995d01700551",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -52,66 +52,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-abtest",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/abtest",
-				"reference": "0bc2d4b9632a3f769675d66c6c4db976252670fd"
-			},
-			"require": {
-				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-error": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-abtest",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "2.1.x-dev"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"test-php": [
-					"@composer phpunit"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Provides an interface to the WP.com A/B tests.",
-			"abandoned": "automattic/jetpack-explat",
 			"transport-options": {
 				"relative": true
 			}
@@ -795,7 +735,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
+				"reference": "4e9717827c7da3d71d4b566fb742c5c226b40f52"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -813,7 +753,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -2658,7 +2598,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "6b8af670d924432fb2457a8eb59cb32330bfc25a"
+				"reference": "89d46505557c31b54cb41a8ae6f38070640f1d0f"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2691,7 +2631,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -5946,7 +5886,6 @@
 	"minimum-stability": "dev",
 	"stability-flags": {
 		"automattic/jetpack-a8c-mc-stats": 20,
-		"automattic/jetpack-abtest": 20,
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,

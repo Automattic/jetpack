@@ -1,16 +1,19 @@
 /**
  * External dependencies
  */
+import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { Popover, Button } from '@wordpress/components';
 import React, { useState, useLayoutEffect, useEffect, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
 import config from './dictionaries/dictionaries-config';
+import { getRequestMessages } from './utils/getRequestMessages';
 import { handleMessage } from './utils/handleMessage';
 import { requestAnimationFrame } from './utils/requestAnimationFrame';
-import { sendAIRequest } from './utils/sendAIRequest';
 import { simulateClick } from './utils/textEditingHelpers';
+
+const FEATURE = 'breve';
 
 const calcPosition = ( rect, containerRect ) => {
 	if ( ! rect || ! containerRect ) {
@@ -39,13 +42,12 @@ const Highlight = ( {
 	block,
 	containerEl,
 	isAIOn,
-	AIAPIKey,
 	replaceCompleteCB,
+	postId,
 } ) => {
 	const highlightContainerRef = useRef( null );
 	const [ isVisible, setIsVisible ] = useState( false );
 	const [ posStyles, setPosStyles ] = useState( {} );
-	const [ isProcessing, setIsProcessing ] = useState( false );
 	const [ isEditingText, setIsEditingText ] = useState( false );
 	const [ isHovering, setIsHovering ] = useState( false );
 
@@ -70,7 +72,7 @@ const Highlight = ( {
 	const rangeEnd = range.endOffset;
 	const rangeParent = range.startContainer.parentNode;
 
-	let parentSentence = '';
+	let parentSentenceText = '';
 	let blockText = '';
 
 	blockText = rangeParent.textContent || rangeParent.innerText;
@@ -79,7 +81,7 @@ const Highlight = ( {
 	const startIndex = preText.lastIndexOf( '.' ) + 1;
 	const endIndex =
 		postText.indexOf( '.' ) === -1 ? blockText.length : rangeEnd + postText.indexOf( '.' ) + 1;
-	parentSentence = blockText.substring( startIndex, endIndex ).trim();
+	parentSentenceText = blockText.substring( startIndex, endIndex ).trim();
 
 	const dictConfig = config.dictionaries[ type ];
 
@@ -90,28 +92,41 @@ const Highlight = ( {
 		popoverContents = dictConfig.tooltip;
 	}
 
+	const onDone = useCallback(
+		suggestion => {
+			const payload = {
+				type: 'replaceWord',
+				clientId,
+				aiReplacementText: suggestion,
+				updateFunc: () => {
+					// Call parent to update layout of highlights
+					replaceCompleteCB();
+				},
+			};
+
+			handleMessage( payload );
+		},
+		[ clientId, replaceCompleteCB ]
+	);
+
+	const { request, requestingState } = useAiSuggestions( {
+		onDone,
+		askQuestionOptions: {
+			postId,
+			feature: FEATURE,
+		},
+	} );
+
+	const isProcessing = [ 'requesting', 'suggesting' ].includes( requestingState );
+
 	const fixWithAI = () => {
 		if ( ! isAIOn ) {
 			return;
 		}
 
-		setIsProcessing( true );
+		const messages = getRequestMessages( { replacementText, type, parentSentenceText, blockText } );
 
-		sendAIRequest( replacementText, type, AIAPIKey, parentSentence, blockText ).then( val => {
-			const payload = {
-				type: 'replaceWord',
-				clientId,
-				aiReplacementText: val,
-				updateFunc: () => {
-					// Call parent to update layout of highlights
-					replaceCompleteCB();
-
-					setIsProcessing( false );
-				},
-			};
-
-			handleMessage( payload );
-		} );
+		request( messages );
 	};
 
 	const onDisabledHighlightMove = useCallback(

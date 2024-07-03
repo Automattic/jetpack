@@ -106,7 +106,7 @@ class Plugin {
 	/**
 	 * If the plugin is to be installed as a mu-plugin.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 * @var bool
 	 */
 	protected $is_mu_plugin = false;
@@ -349,7 +349,7 @@ class Plugin {
 	/**
 	 * Get the plugin file path.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 * @return string
 	 */
 	public function plugin_path() {
@@ -359,7 +359,7 @@ class Plugin {
 	/**
 	 * Get the dev plugin file path.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 * @return string
 	 */
 	public function dev_plugin_path() {
@@ -369,7 +369,7 @@ class Plugin {
 	/**
 	 * Is this a mu-plugin?
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 * @return bool
 	 */
 	public function is_mu_plugin() {
@@ -457,7 +457,7 @@ class Plugin {
 	/**
 	 * Determine if the plugin is active. Works for mu-plugins.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.1.0
 	 * @param string $which Which version to make active: "stable" or "dev".
 	 * @return bool Is active?
 	 * @throws InvalidArgumentException If `$which` is invalid.

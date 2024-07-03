@@ -159,8 +159,17 @@ const EmailSettings = props => {
 		} );
 		setFromNameState( { value: fromNameState.value, hasChanged: false } );
 	}, [ fromNameState, updateFormStateAndSaveOptionValue ] );
-	const exampleEmail =
-		subscriptionReplyTo !== 'author' ? 'donotreply@wordpress.com' : 'author-name@example.com';
+
+	const getExampleEmail = replyTo => {
+		switch ( replyTo ) {
+			case 'author':
+				return 'author-name@example.com';
+			case 'comment':
+				return 'comment-reply@wordpress.com';
+			default:
+				return 'donotreply@wordpress.com';
+		}
+	};
 
 	return (
 		<SettingsCard
@@ -386,7 +395,7 @@ const EmailSettings = props => {
 							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
 							__( 'Example: %1$s <%2$s>', 'jetpack' ),
 							fromNameState.value || siteName,
-							exampleEmail
+							getExampleEmail( subscriptionReplyTo )
 						) }
 					</Col>
 				</Container>

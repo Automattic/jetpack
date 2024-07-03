@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.5.2 - 2024-07-03
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Updated package dependencies. [#37917] [#38132]
+
+### Fixed
+- Fixed E2E tests navigating to block editor [#37875]
+- Fixed the admin page pricing table not shown [#37877]
+- Social: Fixed broken connections reconnect link to point it to new connections UI [#37869]
+
 ## 4.5.1 - 2024-06-18
 ### Fixed
 - My Jetpack: Update My Jetpack to a more stable version. [#37911]
