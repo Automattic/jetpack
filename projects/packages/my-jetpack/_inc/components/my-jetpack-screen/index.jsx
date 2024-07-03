@@ -21,6 +21,7 @@ import { useContext, useEffect, useLayoutEffect, useState } from 'react';
  */
 import { PRODUCT_STATUSES } from '../../constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { WELCOME_BANNER_NOTICE_IDS } from '../../context/notices/noticeTemplates';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
@@ -39,7 +40,7 @@ import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
 import StatsSection from '../stats-section';
-import WelcomeBanner from '../welcome-banner';
+import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -106,6 +107,9 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
+	const shouldShowNotice =
+		noticeMessage &&
+		( ! isWelcomeBannerVisible || WELCOME_BANNER_NOTICE_IDS.includes( noticeOptions.id ) );
 	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
 
 	const { recordEvent } = useAnalytics();
@@ -142,14 +146,14 @@ export default function MyJetpackScreen() {
 						</Col>
 					</Container>
 				) }
-				<WelcomeBanner />
+				<WelcomeFlow />
 				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
 							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
-					{ noticeMessage && ! isWelcomeBannerVisible && (
+					{ shouldShowNotice && (
 						<Col>
 							{
 								<GlobalNotice
