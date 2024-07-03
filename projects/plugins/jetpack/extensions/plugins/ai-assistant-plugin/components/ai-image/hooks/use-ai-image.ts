@@ -5,6 +5,7 @@ import { useImageGenerator } from '@automattic/jetpack-ai-client';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -73,6 +74,18 @@ export default function useAiImage( {
 	}, [ increaseRequestsCount, cost ] );
 
 	/*
+	 * Function to suggest a name for the image based on the user prompt.
+	 */
+	const getImageNameSuggestion = useCallback( ( userPrompt: string ) => {
+		if ( ! userPrompt ) {
+			return 'image.png';
+		}
+
+		const truncatedPrompt = userPrompt.split( ' ' ).slice( 0, 10 ).join( ' ' );
+		return cleanForSlug( truncatedPrompt ) + '.png';
+	}, [] );
+
+	/*
 	 * Function to generate a new image with the current value of the post content.
 	 */
 	const processImageGeneration = useCallback(
@@ -123,13 +136,15 @@ export default function useAiImage( {
 					],
 				} );
 
+				const name = getImageNameSuggestion( userPrompt );
+
 				generateImagePromise
 					.then( result => {
 						if ( result.data.length > 0 ) {
 							const image = 'data:image/png;base64,' + result.data[ 0 ].b64_json;
 							updateImages( { image }, pointer.current );
 							updateRequestsCount();
-							saveToMediaLibrary( image )
+							saveToMediaLibrary( image, name )
 								.then( savedImage => {
 									showSnackbarNotice( __( 'Image saved to media library.', 'jetpack' ) );
 									updateImages(
@@ -164,6 +179,7 @@ export default function useAiImage( {
 			updateRequestsCount,
 			saveToMediaLibrary,
 			showSnackbarNotice,
+			getImageNameSuggestion,
 		]
 	);
 
