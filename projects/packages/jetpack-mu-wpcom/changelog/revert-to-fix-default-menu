@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove current_user_has_wpcom_account checks to fix default menu items"
