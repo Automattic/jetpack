@@ -41,7 +41,7 @@ const WelcomeFlow: FC = () => {
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
-			recordEvent( 'jetpack_myjetpack_welcome_banner_step_change', { currentStep } );
+			recordEvent( 'jetpack_myjetpack_welcome_banner_step_view', { currentStep } );
 			setPrevStep( currentStep );
 		}
 	}, [ currentStep, prevStep, recordEvent ] );
@@ -57,22 +57,21 @@ const WelcomeFlow: FC = () => {
 
 	const handleEvaluation = useCallback(
 		( values: { [ key in EvaluationAreas ]: boolean } ) => {
-			const goals = Object.keys( values ).filter( key => values[ key ] );
+			const siteGoals = Object.keys( values ).filter( key => values[ key ] );
 
 			setIsProcessingEvaluation( true );
-			recordEvent( 'jetpack_myjetpack_welcome_banner_submit_evaluation', { goals } );
+			recordEvent( 'jetpack_myjetpack_welcome_banner_submit_evaluation', { siteGoals } );
 			submitEvaluation(
-				{ queryParams: { goals } },
+				{ queryParams: { goals: siteGoals } },
 				{
 					onSuccess: recommendations => {
 						// Convert object to array of [key, value] pairs
-						const recommendedModulesList = Object.entries( recommendations )
+						const recommendedModules = Object.entries( recommendations )
 							.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
-							.map( entry => entry[ 0 ] )
-							.join( ', ' );
+							.map( entry => entry[ 0 ] );
 
 						recordEvent( 'jetpack_myjetpack_welcome_banner_evaluation_success', {
-							recommendedModulesList,
+							recommendedModules,
 						} );
 						saveEvaluationResult(
 							{
