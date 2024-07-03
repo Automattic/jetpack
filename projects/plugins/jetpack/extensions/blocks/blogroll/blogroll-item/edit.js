@@ -8,50 +8,53 @@ function BlogrollItemEdit( { className, attributes, setAttributes } ) {
 	const blockProps = useBlockProps( { className } );
 
 	return (
-		<div { ...blockProps }>
-			<MediaUpload
-				multiple={ false }
-				onSelect={ media => {
-					setAttributes( { icon: media.url } );
-				} }
-				render={ ( { open } ) => (
-					<Button variant="link" onClick={ open } style={ { padding: 0 } }>
-						<figure>
-							<img
-								class="blogroll-item-image"
-								onError={ event => {
-									event.target.parentNode.classList.add( 'empty-site-icon' );
-								} }
-								src={ icon }
-								alt={ name }
-							/>
-						</figure>
-					</Button>
-				) }
-			/>
-			<div>
-				<a>
-					<RichText
-						className="jetpack-blogroll-item-title"
-						value={ name }
-						tagName={ 'h3' }
-						allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						onChange={ value => {
-							setAttributes( { name: value } );
-						} }
-						placeholder={ __( 'Enter site title', 'jetpack' ) }
-					/>
-				</a>
-				<RichText
-					className="jetpack-blogroll-item-description"
-					value={ description }
-					onChange={ value => {
-						setAttributes( { description: value } );
+		<>
+			<hr className="wp-block-separator jetpack-blogroll-item-divider" />
+			<div { ...blockProps }>
+				<MediaUpload
+					multiple={ false }
+					onSelect={ media => {
+						setAttributes( { icon: media.url } );
 					} }
-					placeholder={ __( 'Enter site description', 'jetpack' ) }
+					render={ ( { open } ) => (
+						<Button variant="link" onClick={ open } style={ { padding: 0 } }>
+							<figure>
+								<img
+									className="blogroll-item-image"
+									onError={ event => {
+										event.target.parentNode.classList.add( 'empty-site-icon' );
+									} }
+									src={ icon }
+									alt={ name }
+								/>
+							</figure>
+						</Button>
+					) }
 				/>
+				<div className="jetpack-blogroll-item-content">
+					<a>
+						<RichText
+							className="jetpack-blogroll-item-title"
+							value={ name }
+							tagName={ 'p' }
+							allowedFormats={ [ 'core/italic' ] }
+							onChange={ value => {
+								setAttributes( { name: value } );
+							} }
+							placeholder={ __( 'Enter site title', 'jetpack' ) }
+						/>
+					</a>
+					<RichText
+						className="jetpack-blogroll-item-description"
+						value={ description }
+						onChange={ value => {
+							setAttributes( { description: value } );
+						} }
+						placeholder={ __( 'Enter site description', 'jetpack' ) }
+					/>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }
 

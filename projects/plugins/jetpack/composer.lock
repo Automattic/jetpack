@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "62403191018bfe60b0272ef03acb944e",
+	"content-hash": "8b707897257ea17c4df9995d01700551",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -52,66 +52,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-abtest",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/abtest",
-				"reference": "0bc2d4b9632a3f769675d66c6c4db976252670fd"
-			},
-			"require": {
-				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-error": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-abtest",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "2.1.x-dev"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"test-php": [
-					"@composer phpunit"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Provides an interface to the WP.com A/B tests.",
-			"abandoned": "automattic/jetpack-explat",
 			"transport-options": {
 				"relative": true
 			}
@@ -1410,58 +1350,6 @@
 			}
 		},
 		{
-			"name": "automattic/jetpack-google-fonts-provider",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/google-fonts-provider",
-				"reference": "9c6a647b79f975d46583f3c81c1e32e7e996b01f"
-			},
-			"require": {
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"brain/monkey": "2.6.1",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-google-fonts-provider",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "0.7.x-dev"
-				},
-				"textdomain": "jetpack-google-fonts-provider"
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "WordPress Webfonts provider for Google Fonts",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
 			"name": "automattic/jetpack-image-cdn",
 			"version": "dev-trunk",
 			"dist": {
@@ -1914,7 +1802,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "8af97f65a2b748d65ebc013886022933fc6dc614"
+				"reference": "e423495d1048ef659f3277bbd74ca1d5c57a2a8c"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1949,7 +1837,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.26.x-dev"
+					"dev-trunk": "4.27.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2250,7 +2138,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "c5a02ad97dc2231bc24d5196756cfc0e9d2ac70b"
+				"reference": "6494d867225a31d465c41e86117becbe7a35c11e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2278,7 +2166,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.46.x-dev"
+					"dev-trunk": "0.47.x-dev"
 				}
 			},
 			"autoload": {
@@ -5998,7 +5886,6 @@
 	"minimum-stability": "dev",
 	"stability-flags": {
 		"automattic/jetpack-a8c-mc-stats": 20,
-		"automattic/jetpack-abtest": 20,
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
@@ -6017,7 +5904,6 @@
 		"automattic/jetpack-error": 20,
 		"automattic/jetpack-forms": 20,
 		"automattic/jetpack-google-analytics": 20,
-		"automattic/jetpack-google-fonts-provider": 20,
 		"automattic/jetpack-image-cdn": 20,
 		"automattic/jetpack-import": 20,
 		"automattic/jetpack-ip": 20,

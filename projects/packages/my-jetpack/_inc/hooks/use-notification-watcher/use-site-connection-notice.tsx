@@ -48,7 +48,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
 			handleRegisterSite().then( () => {
-				resetNotice();
 				setNotice( {
 					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
 					options: {

@@ -8,9 +8,15 @@
  * (can be combined with --load-baseline)
  */
 return [
-    // This baseline has no suppressions
+    // # Issue statistics:
+    // PhanTypeArraySuspicious : 3 occurrences
+    // PhanTypeMismatchReturn : 3 occurrences
+    // PhanUndeclaredTypeParameter : 1 occurrence
+    // PhanUndeclaredTypeReturnType : 1 occurrence
+
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
+        'src/class-rest-controller.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchReturn', 'PhanUndeclaredTypeParameter', 'PhanUndeclaredTypeReturnType'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
