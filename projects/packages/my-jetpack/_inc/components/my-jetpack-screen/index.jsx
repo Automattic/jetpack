@@ -13,7 +13,7 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { Experiment } from '@automattic/jetpack-explat';
+import { ExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
@@ -147,7 +147,7 @@ export default function MyJetpackScreen() {
 				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
-							<Experiment
+							<ExperimentWithAuth
 								name="explat_test_jetpack_plugin_explat_implementation"
 								defaultExperience={ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
 								treatmentExperience={ __( 'Explore all Jetpack Products', 'jetpack-my-jetpack' ) }
