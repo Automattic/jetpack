@@ -31,7 +31,7 @@ import JetpackAiProductPage from './components/product-interstitial/jetpack-ai/p
 import RedeemTokenScreen from './components/redeem-token-screen';
 import { MyJetpackRoutes } from './constants';
 import NoticeContextProvider from './context/notices/noticeContext';
-import ValueStoreContextProvider from './context/value-store/valueStateContext';
+import ValueStoreContextProvider from './context/value-store/valueStoreContext';
 import { getMyJetpackWindowInitialState } from './data/utils/get-my-jetpack-window-state';
 import './style.module.scss';
 
