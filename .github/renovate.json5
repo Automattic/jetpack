@@ -105,7 +105,7 @@
 				'@testing-library/preact',
 			],
 			reviewers: [ 'team:jetpack-search' ],
-			addLabels: [ 'Search', 'Instant Search' ],
+			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],
 
