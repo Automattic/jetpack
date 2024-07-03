@@ -160,3 +160,32 @@ function version_increment {
 	# Version parts were equal, this means that the difference is the suffix.
 	INCREMENT=1
 }
+
+# Returns true if the version is patch level, semver style. This function disregards string suffixes,
+# so that 3.4.0-alpha would be considered as 3.4.0.
+#
+# @param $1 Version to check.
+# @return 1 if no patch level, 0 if patch level.
+function version_is_patch {
+	local V1="${1%%+*}"
+
+	local A=()
+
+	# First, compare the version parts.
+	IFS='.' read -r -a A <<<"${V1%%-*}"
+
+	# Checking if it's a four point style release
+	PATCH=${A[3]}
+
+	# If it exists, it's a patch level version
+	[ -n "$PATCH" ] && return 0
+
+	# Getting the third element of the array
+	PATCH=${A[2]}
+
+	[ -z "$PATCH" ] && return 1
+
+	[[ $PATCH -eq "0" ]] && return 1
+
+	return 0
+}
