@@ -540,7 +540,7 @@ return [
         'tests/php/modules/geo-location/test_class.jetpack-geo-location.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanNoopNew'],
         'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
-        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanPluginUnreachableCode', 'PhanRedefineFunction'],
+        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanRedefineFunction'],
         'tests/php/modules/masterbar/test-class-masterbar.php' => ['PhanUndeclaredMethod'],
         'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
