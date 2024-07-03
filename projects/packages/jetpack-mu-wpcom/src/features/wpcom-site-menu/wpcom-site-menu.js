@@ -51,6 +51,9 @@ const wpcomShowSidebarNotice = () => {
 		`
 	);
 
+	// Prevent sidebar being unscrollable by ensuring the sidebar recalculates it's height after the notice is added.
+	window.dispatchEvent( new Event( 'resize' ) );
+
 	// Record impression event in Tracks.
 	wpcomSidebarNoticeRecordEvent( wpcomSidebarNotice.tracks?.display );
 
