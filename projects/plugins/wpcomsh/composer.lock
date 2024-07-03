@@ -28,24 +28,28 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v3.0.0",
+            "version": "v3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "e9eb1ffe861baa5cd2c107d88338a23501aa82c6"
+                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e9eb1ffe861baa5cd2c107d88338a23501aa82c6",
-                "reference": "e9eb1ffe861baa5cd2c107d88338a23501aa82c6",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e9236c34a6ecbee3bb9d2bebe698f086dd339258",
+                "reference": "e9236c34a6ecbee3bb9d2bebe698f086dd339258",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "0.4.2",
                 "phpunit/phpunit": "^7 || ^8"
             },
-            "type": "library",
-            "time": "2023-05-01T19:43:42+00:00"
+            "type": "wordpress-plugin",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A provider-agnostic WordPress plugin for changing theme fonts.",
+            "time": "2024-06-26T18:47:13+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -450,7 +454,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
+                "reference": "4e9717827c7da3d71d4b566fb742c5c226b40f52"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -468,7 +472,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -555,7 +559,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
+                "reference": "46c0d6c214f2940e2b5c1c5ccafbf5922a16592c"
             },
             "require": {
                 "php": ">=7.0"
@@ -593,7 +597,6 @@
                 "dependencies": {
                     "test-only": [
                         "packages/connection",
-                        "packages/identity-crisis",
                         "packages/import",
                         "packages/jitm",
                         "packages/post-list",
@@ -628,7 +631,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
+                "reference": "6d990be4aaded35f3ee203c976d16b9334419882"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -663,7 +666,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.10.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1071,7 +1074,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "7ff93b7e86792a3647a0defcdffa63cf5c8fa97f"
+                "reference": "b0e59b4274535901640ddc2f61fa092bef3631fd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1085,7 +1088,8 @@
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/scheduled-updates": "@dev",
-                "php": ">=7.0"
+                "php": ">=7.0",
+                "scssphp/scssphp": "1.12.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -1103,7 +1107,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.36.x-dev"
+                    "dev-trunk": "5.42.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1571,7 +1575,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+                "reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1601,7 +1605,6 @@
                 "dependencies": {
                     "test-only": [
                         "packages/connection",
-                        "packages/identity-crisis",
                         "packages/plans"
                     ]
                 }
@@ -1993,6 +1996,86 @@
                 }
             ],
             "time": "2021-09-13T08:19:44+00:00"
+        },
+        {
+            "name": "scssphp/scssphp",
+            "version": "v1.12.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/scssphp/scssphp.git",
+                "reference": "a6b20c170ddb95f116b3d148a466a7bed1e85c35"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/scssphp/scssphp/zipball/a6b20c170ddb95f116b3d148a466a7bed1e85c35",
+                "reference": "a6b20c170ddb95f116b3d148a466a7bed1e85c35",
+                "shasum": ""
+            },
+            "require": {
+                "ext-ctype": "*",
+                "ext-json": "*",
+                "php": ">=5.6.0"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.4",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^8.3 || ^9.4",
+                "sass/sass-spec": "*",
+                "squizlabs/php_codesniffer": "~3.5",
+                "symfony/phpunit-bridge": "^5.1",
+                "thoughtbot/bourbon": "^7.0",
+                "twbs/bootstrap": "~5.0",
+                "twbs/bootstrap4": "4.6.1",
+                "zurb/foundation": "~6.7.0"
+            },
+            "suggest": {
+                "ext-iconv": "Can be used as fallback when ext-mbstring is not available",
+                "ext-mbstring": "For best performance, mbstring should be installed as it is faster than ext-iconv"
+            },
+            "bin": [
+                "bin/pscss"
+            ],
+            "type": "library",
+            "extra": {
+                "bamarni-bin": {
+                    "forward-command": false,
+                    "bin-links": false
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ScssPhp\\ScssPhp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Anthon Pang",
+                    "email": "apang@softwaredevelopment.ca",
+                    "homepage": "https://github.com/robocoder"
+                },
+                {
+                    "name": "Cédric Morin",
+                    "email": "cedric@yterium.com",
+                    "homepage": "https://github.com/Cerdic"
+                }
+            ],
+            "description": "scssphp is a compiler for SCSS written in PHP.",
+            "homepage": "http://scssphp.github.io/scssphp/",
+            "keywords": [
+                "css",
+                "less",
+                "sass",
+                "scss",
+                "stylesheet"
+            ],
+            "support": {
+                "issues": "https://github.com/scssphp/scssphp/issues",
+                "source": "https://github.com/scssphp/scssphp/tree/v1.12.0"
+            },
+            "time": "2023-11-14T14:56:09+00:00"
         },
         {
             "name": "tubalmartin/cssmin",

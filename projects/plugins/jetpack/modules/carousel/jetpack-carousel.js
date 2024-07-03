@@ -1587,9 +1587,12 @@
 			}
 
 			if ( e.type === 'keydown' ) {
-				if ( e.key === ' ' || e.key === 'Enter' ) {
+				const parentElement = document.activeElement.parentElement;
+				const isParentCarouselContainer =
+					parentElement && parentElement.classList.contains( 'tiled-gallery__item' );
+
+				if ( ( e.key === ' ' || e.key === 'Enter' ) && isParentCarouselContainer ) {
 					handleClick( e );
-					e.preventDefault(); // Prevent scrolling on space
 					return;
 				}
 			}

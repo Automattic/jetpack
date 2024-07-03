@@ -1,6 +1,7 @@
 import { getRedirectUrl, ToggleControl, Gridicon } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import ConnectUserBar from 'components/connect-user-bar';
 import { FormFieldset } from 'components/forms';
@@ -127,8 +128,11 @@ export const SSO = withModuleSettingsFormHelpers(
 		};
 
 		render() {
-			const isSSOActive = this.props.getOptionValue( 'sso' ),
-				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
+			const isSSOActive = this.props.getOptionValue( 'sso' );
+			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
+			const isTwoStepEnforced =
+				!! this.props.getModule( 'sso' )?.options?.jetpack_sso_require_two_step?.default;
+
 			return (
 				<>
 					<SettingsCard
@@ -194,12 +198,14 @@ export const SSO = withModuleSettingsFormHelpers(
 								/>
 								<ToggleControl
 									checked={
-										isSSOActive &&
-										this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false )
+										( isSSOActive &&
+											this.props.getOptionValue( 'jetpack_sso_require_two_step', 'sso', false ) ) ||
+										isTwoStepEnforced
 									}
 									disabled={
 										! isSSOActive ||
 										unavailableInOfflineMode ||
+										isTwoStepEnforced ||
 										this.props.isSavingAnyOption( [ 'sso' ] )
 									}
 									toggling={ this.props.isSavingAnyOption( [ 'jetpack_sso_require_two_step' ] ) }
@@ -211,6 +217,24 @@ export const SSO = withModuleSettingsFormHelpers(
 												'jetpack'
 											) }
 										</span>
+									}
+									help={
+										isTwoStepEnforced
+											? createInterpolateElement(
+													__(
+														'Two-Step Authentication is enforced because the <code>jetpack_sso_require_two_step</code> filter is active. <link>Learn more</link>.',
+														'jetpack'
+													),
+													{
+														link: (
+															<ExternalLink
+																href={ getRedirectUrl( 'jetpack-support-force-2fa' ) }
+															/>
+														),
+														code: <code />,
+													}
+											  )
+											: null
 									}
 								/>
 							</FormFieldset>

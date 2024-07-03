@@ -2,6 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { NOTICE_PRIORITY_HIGH } from '../constants';
 import { Notice } from './types';
 
+export const WELCOME_BANNER_NOTICE_IDS: string[] = [ 'site-connection-success-notice' ];
+
 export const NOTICE_SITE_CONNECTED: Notice = {
 	message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
 	options: {

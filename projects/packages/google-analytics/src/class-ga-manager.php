@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.2';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -68,14 +68,18 @@ class GA_Manager {
 	 * @return void
 	 */
 	private function __construct() {
-		// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
-		// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
-		if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
-			self::$analytics = new Universal();
-			// @phan-suppress-next-line PhanNoopNew
-			new AMP_Analytics();
-		} else {
-			self::$analytics = new Legacy();
+		$settings = $this->get_google_analytics_settings();
+
+		if ( ! empty( $settings['is_active'] ) ) {
+			// At this time, we only leverage universal analytics when enhanced ecommerce is selected and WooCommerce is active.
+			// Otherwise, don't bother emitting the tracking ID or fetching analytics.js
+			if ( class_exists( 'WooCommerce' ) && Options::enhanced_ecommerce_tracking_is_enabled() ) {
+				self::$analytics = new Universal();
+				// @phan-suppress-next-line PhanNoopNew
+				new AMP_Analytics();
+			} else {
+				self::$analytics = new Legacy();
+			}
 		}
 
 		add_filter( 'site_settings_endpoint_get', array( $this, 'site_settings_fetch' ), 10, 2 );
@@ -155,7 +159,7 @@ class GA_Manager {
 		 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
 		 *
 		 * @since Jetpack 5.4.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param array $wga Associative array of existing Google Analytics settings.
 		 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
@@ -186,7 +190,7 @@ class GA_Manager {
 		 * Fires for each settings update.
 		 *
 		 * @since Jetpack 3.6.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param string $action_type Type of settings to track.
 		 * @param string $val The settings value.
@@ -207,7 +211,7 @@ class GA_Manager {
 		$wga       = get_option( $option_name, array() );
 		$is_active = ( new Modules() )->is_active( 'google-analytics', false );
 
-		if ( $is_active !== $wga['is_active'] ) {
+		if ( ! array_key_exists( 'is_active', $wga ) || $is_active !== $wga['is_active'] ) {
 			$wga['is_active'] = $is_active;
 		}
 
@@ -224,7 +228,7 @@ class GA_Manager {
 		 * Filter whether the current site is a Jetpack site.
 		 *
 		 * @since Jetpack 3.3.0
-		 * @since $$next-version$$
+		 * @since 0.2.0
 		 *
 		 * @param bool $is_jetpack Is the current site a Jetpack site. Default to false.
 		 * @param int $blog_id Blog ID.
@@ -244,6 +248,7 @@ class GA_Manager {
 		// The `is_active` flag is missing from the settings, add a value based on the module status.
 		if ( is_array( $settings ) && ! array_key_exists( 'is_active', $settings ) ) {
 			$settings['is_active'] = ( new Modules() )->is_active( 'google-analytics', false );
+			update_option( $this->get_google_analytics_option_name(), $settings );
 		}
 
 		return $settings;

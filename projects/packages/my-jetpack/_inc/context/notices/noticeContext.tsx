@@ -5,7 +5,7 @@ const defaultNotice: Notice = {
 	message: '',
 	title: null,
 	options: {
-		level: '',
+		level: 'info',
 		priority: 0,
 	},
 };
@@ -21,6 +21,10 @@ export const NoticeContext = createContext< NoticeContextType >( {
 const NoticeContextProvider = ( { children } ) => {
 	const [ currentNotice, setCurrentNotice ] = useState< Notice >( defaultNotice );
 
+	const resetNotice = useCallback( () => {
+		setCurrentNotice( defaultNotice );
+	}, [] );
+
 	const setNotice = useCallback(
 		// If onClose is not provided in the "notice", and close button is not hidden, use the custom onClose function
 		( notice: Notice, onClose?: NoticeOptions[ 'onClose' ] ) => {
@@ -32,15 +36,12 @@ const NoticeContextProvider = ( { children } ) => {
 						notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
 				};
 
+				resetNotice();
 				setCurrentNotice( { ...notice, options: newOptions } );
 			}
 		},
-		[ currentNotice.message, currentNotice.options.priority ]
+		[ currentNotice.message, currentNotice.options.priority, resetNotice ]
 	);
-
-	const resetNotice = useCallback( () => {
-		setCurrentNotice( defaultNotice );
-	}, [] );
 
 	return (
 		<NoticeContext.Provider

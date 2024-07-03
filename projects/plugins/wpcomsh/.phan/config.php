@@ -32,8 +32,11 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/jetpack.php',
 			// photon-cdn.php provides the definition of the Jetpack_Photon_Static_Assets_CDN.
 			__DIR__ . '/../../../plugins/jetpack/modules/photon-cdn.php',
+			__DIR__ . '/../../../plugins/jetpack/functions.is-mobile.php',  // function jetpack_is_mobile
+			__DIR__ . '/../../../plugins/jetpack/modules/stats.php',        // function stats_get_from_restapi
+			__DIR__ . '/../../../plugins/jetpack/functions.compat.php',     // function wp_startswith
 		),
 		'php_extensions_needed' => array( 'sqlite3', 'zip' ),
-		'+stubs'                => array( 'woocommerce' ),
+		'+stubs'                => array( 'woocommerce', 'woopayments', 'wpcom' ),
 	)
 );

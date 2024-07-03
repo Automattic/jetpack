@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.36.0-alpha';
+	const PACKAGE_VERSION = '5.42.2-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -45,7 +45,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_replace_site_visibility' ) );
 
-		// This feature runs only on simple sites.
+		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
@@ -73,6 +73,8 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		// Shared features.
+		require_once __DIR__ . '/features/agency-managed/agency-managed.php';
 
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
@@ -289,6 +291,9 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
+		if ( is_agency_managed_site() ) {
+			return;
+		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 	}
 
@@ -314,6 +319,9 @@ class Jetpack_Mu_Wpcom {
 	 * Load WPCOM Site Management widget.
 	 */
 	public static function load_wpcom_site_management_widget() {
+		if ( is_agency_managed_site() ) {
+			return;
+		}
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
 			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		}
@@ -324,5 +332,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_replace_site_visibility() {
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+	}
+
+	/**
+	 * Load the Jetpack Custom CSS feature.
+	 */
+	public static function load_custom_css() {
+		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
+		require_once __DIR__ . '/features/custom-css/custom-css.php';
 	}
 }
