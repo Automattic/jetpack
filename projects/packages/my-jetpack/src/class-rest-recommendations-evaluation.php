@@ -10,8 +10,6 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use WP_Error;
-use WP_REST_Request;
-use WP_REST_Response;
 
 /**
  * Registers the REST routes for Evaluation Recommendations.
@@ -74,11 +72,11 @@ class REST_Recommendations_Evaluation {
 	/**
 	 * Recommendations Evaluation endpoint.
 	 *
-	 * @param WP_REST_Request $request Query request.
+	 * @param \WP_REST_Request $request Query request.
 	 *
-	 * @return WP_REST_Response|WP_Error of 3 product slugs (recommendations).
+	 * @return \WP_REST_Response|WP_Error of 3 product slugs (recommendations).
 	 */
-	public static function evaluate_site_recommendations( WP_REST_Request $request ): WP_REST_Response {
+	public static function evaluate_site_recommendations( $request ) {
 		$goals = $request->get_param( 'goals' );
 
 		if ( ! isset( $goals ) ) {
@@ -101,11 +99,11 @@ class REST_Recommendations_Evaluation {
 	/**
 	 * Endpoint to save recommendations results.
 	 *
-	 * @param WP_REST_Request $request Query request.
+	 * @param \WP_REST_Request $request Query request.
 	 *
-	 * @return WP_REST_Response|WP_Error success response.
+	 * @return \WP_REST_Response|WP_Error success response.
 	 */
-	public static function save_evaluation_recommendations( WP_REST_Request $request ): WP_REST_Response {
+	public static function save_evaluation_recommendations( $request ) {
 		$json = $request->get_json_params();
 
 		if ( ! isset( $json['recommendations'] ) ) {

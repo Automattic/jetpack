@@ -36,7 +36,6 @@ return [
         'src/class-rest-product-data.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn'],
         'src/class-rest-products.php' => ['PhanParamTooMany', 'PhanPluginMixedKeyNoKey', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-purchases.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-rest-recommendations-evaluation.php' => ['PhanParamTooMany', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-rest-zendesk-chat.php' => ['PhanParamTooMany'],
         'src/class-wpcom-products.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-anti-spam.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
