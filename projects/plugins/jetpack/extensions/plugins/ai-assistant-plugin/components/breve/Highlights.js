@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { debounce } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -16,13 +17,18 @@ const Highlights = ( {
 	isHighlighting = true,
 	containerEl,
 	isAIOn,
-	AIAPIKey,
 	toggledKeys,
 	isIframed,
 	content,
 } ) => {
 	const [ highlights, setHighlights ] = useState( [] );
 	const caretPositionRef = useRef( null );
+
+	const { postId } = useSelect( select => {
+		const { getCurrentPostId } = select( 'core/editor' );
+
+		return { postId: getCurrentPostId() };
+	}, [] );
 
 	const updatePosition = useCallback( () => {
 		if ( ! isHighlighting ) {
@@ -94,7 +100,6 @@ const Highlights = ( {
 			debouncedUpdatePosition.cancel();
 		};
 	}, [
-		AIAPIKey,
 		containerEl,
 		isAIOn,
 		isHighlighting,
@@ -118,9 +123,9 @@ const Highlights = ( {
 						{ ...highlight }
 						containerEl={ containerEl }
 						isAIOn={ isAIOn }
-						AIAPIKey={ AIAPIKey }
 						replaceCompleteCB={ replaceComplete }
 						isIframed={ isIframed }
+						postId={ postId }
 					/>
 				) ) }
 		</div>
