@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
 
@@ -519,14 +520,13 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * https://github.com/Automattic/dotcom-forge/issues/7936
 	 */
 	public function wpcom_upsell_nudge_jitm_fix() {
-		wp_enqueue_script(
+		$assets_base_path = '../../dist/admin-menu/';
+		Assets::register_script(
 			'wpcom-upsell-nudge-jitm-fix',
-			plugins_url( 'wpcom-upsell-nudge-jitm-fix.js', __FILE__ ),
-			array(),
-			Main::PACKAGE_VERSION,
+			$assets_base_path . 'wpcom-upsell-nudge-jitm-fix.js',
+			__FILE__,
 			array(
-				'strategy'  => 'defer',
-				'in_footer' => true,
+				'enqueue' => true,
 			)
 		);
 	}
