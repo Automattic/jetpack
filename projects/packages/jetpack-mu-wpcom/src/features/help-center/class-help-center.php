@@ -358,7 +358,7 @@ class Help_Center {
 	public function enqueue_wp_admin_scripts() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
-		if ( ! is_admin() || ! $this->is_admin_bar() ) {
+		if ( ! is_admin() ) {
 			return;
 		}
 
