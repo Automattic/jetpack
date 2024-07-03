@@ -133,7 +133,7 @@
 				display: grid;
 
 				.editor__main.loading-placeholder {
-					color: #000;
+					color: var(--verbum-font-color);
 				}
 
 				&.verbum-text-area {
