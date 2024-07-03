@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
 	REST_API_SITE_DISMISS_BANNER,
@@ -9,7 +10,8 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 
 const useWelcomeBanner = () => {
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useState(
+	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useValueStore(
+		'isWelcomeBannerVisible',
 		Object.keys( redBubbleAlerts ).includes( 'welcome-banner-active' )
 	);
 
@@ -27,7 +29,7 @@ const useWelcomeBanner = () => {
 
 	const dismissWelcomeBanner = useCallback( () => {
 		handleDismissWelcomeBanner( null, { onSuccess: () => setIsWelcomeBannerVisible( false ) } );
-	}, [ handleDismissWelcomeBanner ] );
+	}, [ handleDismissWelcomeBanner, setIsWelcomeBannerVisible ] );
 
 	return {
 		dismissWelcomeBanner,
