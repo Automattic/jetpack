@@ -1,5 +1,5 @@
-import WpPage from '../wp-page.js';
 import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import WpPage from '../wp-page.js';
 
 export default class PluginsPage extends WpPage {
 	constructor( page ) {

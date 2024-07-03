@@ -105,11 +105,17 @@ function debug( $fmt, ...$args ) {
 		return;
 	}
 
-	if ( getenv( 'CI' ) ) {
-		$args[0] = "\e[34m{$args[0]}\e[0m\n";
-	} else {
-		$args[0] = "\e[1;30m{$args[0]}\e[0m\n";
+	static $color;
+	if ( $color === null ) {
+		$dim = shell_exec( 'tput dim 2>/dev/null' );
+		if ( is_string( $dim ) && substr( $dim, 0, 2 ) === "\e[" && substr( $dim, -1 ) === 'm' ) {
+			$color = substr( $dim, 2, -1 );
+		} else {
+			$color = '90';
+		}
 	}
+
+	$args[0] = "\e[{$color}m{$args[0]}\e[0m\n";
 	fprintf( STDERR, ...$args );
 }
 

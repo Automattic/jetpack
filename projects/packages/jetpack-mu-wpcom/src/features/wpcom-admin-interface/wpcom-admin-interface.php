@@ -14,6 +14,9 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
+	if ( is_agency_managed_site() ) {
+		return;
+	}
 	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
@@ -36,7 +39,6 @@ if (
 	// The option should always be available on atomic sites.
 	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
 	// The option will be shown if the simple site has already changed to Classic which means they should have already passed the experiment gate.
-	// We can remove the redirection in wpcom_admin_interface_pre_update_option for simple sites after the experiment is finished.
 	( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
@@ -51,7 +53,6 @@ function wpcom_admin_interface_track_changed_event( $value ) {
 	$event_name = 'wpcom_admin_interface_changed';
 	$properties = array( 'interface' => $value );
 	if ( function_exists( 'wpcomsh_record_tracks_event' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined in wpcomsh, which Phan doesn't know about yet.
 		wpcomsh_record_tracks_event( $event_name, $properties );
 	} else {
 		require_lib( 'tracks/client' );
@@ -85,8 +86,6 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 
 	if ( ( new Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ) {
 		if ( 'calypso' === $new_value ) {
-			// Fixes https://github.com/Automattic/dotcom-forge/issues/7760.
-			// We can remove this code if the related code in wpcom_admin_interface_display is removed.
 			add_action(
 				'update_option_wpcom_admin_interface',
 				/**
@@ -95,7 +94,7 @@ function wpcom_admin_interface_pre_update_option( $new_value, $old_value ) {
 				 * @return never
 				*/
 				function () {
-					wp_safe_redirect( 'https://wordpress.com/home/' . wpcom_get_site_slug() );
+					wp_safe_redirect( 'https://wordpress.com/settings/general/' . wpcom_get_site_slug() );
 					exit;
 				}
 			);

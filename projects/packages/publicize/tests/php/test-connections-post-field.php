@@ -85,7 +85,6 @@ class Test_Connections_Post_Field extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$this->setup_jetpack_connections();
 		global $publicize;
 		$this->publicize = $this->getMockBuilder( Publicize::class )->setMethods( array( 'refresh_connections', 'test_connection' ) )->getMock();
 
@@ -98,6 +97,9 @@ class Test_Connections_Post_Field extends TestCase {
 			->willReturn( true );
 
 		$publicize = $this->publicize;
+
+		$this->setup_jetpack_connections();
+
 		register_post_type(
 			'example-with',
 			array(
@@ -290,11 +292,7 @@ class Test_Connections_Post_Field extends TestCase {
 	 * Dummy function to initialize publicize connections.
 	 */
 	public function setup_jetpack_connections() {
-		set_transient(
-			'jetpack_social_connections',
-			$this->get_connections(),
-			3600
-		);
+		$this->publicize->receive_updated_publicize_connections( $this->get_connections() );
 	}
 
 	/**

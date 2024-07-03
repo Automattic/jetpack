@@ -120,7 +120,7 @@ const threatsUpdating = ( state = {}, action ) => {
 	return state;
 };
 
-const setThreatsFixing = ( state = [], action ) => {
+const threatsAreFixing = ( state = [], action ) => {
 	switch ( action.type ) {
 		case SET_THREATS_ARE_FIXING:
 			return action.threatIds;
@@ -207,7 +207,7 @@ const reducers = combineReducers( {
 	threatsUpdating,
 	modal,
 	notice,
-	setThreatsFixing,
+	threatsAreFixing,
 	hasRequiredPlan,
 	onboardingProgress,
 	waf,

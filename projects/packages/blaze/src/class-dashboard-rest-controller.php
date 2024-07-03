@@ -344,7 +344,8 @@ class Dashboard_REST_Controller {
 			array( 'method' => 'GET' )
 		);
 
-		if ( is_wp_error( $response ) ) {
+		// Bail if we get an error (WP_ERROR or an already formatted WP_REST_Response error).
+		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
 			return $response;
 		}
 
@@ -402,7 +403,8 @@ class Dashboard_REST_Controller {
 
 		$response = $this->get_dsp_generic( sprintf( 'v1/wpcom/sites/%d/blaze/posts', $site_id ), $req );
 
-		if ( is_wp_error( $response ) ) {
+		// Bail if we get an error (WP_ERROR or an already formatted WP_REST_Response error).
+		if ( is_wp_error( $response ) || $response instanceof \WP_REST_Response ) {
 			return $response;
 		}
 
@@ -744,8 +746,8 @@ class Dashboard_REST_Controller {
 	/**
 	 * Will check the posts for prices and add them to the posts array
 	 *
-	 * @param WP_REST_Request $posts The posts object.
-	 * @return array|WP_Error
+	 * @param array $posts The posts object.
+	 * @return array The list posts with the price on them (if they are woo products).
 	 */
 	protected function add_prices_in_posts( $posts ) {
 
@@ -797,7 +799,7 @@ class Dashboard_REST_Controller {
 	 * @param String $body Request body.
 	 * @param String $base_api_path (optional) the API base path override, defaults to 'rest'.
 	 * @param bool   $use_cache (optional) default to true.
-	 * @return array|WP_Error $response Data.
+	 * @return array|WP_Error|\WP_REST_Response $response Data.
 	 */
 	protected function request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom', $use_cache = false ) {
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
@@ -852,7 +854,7 @@ class Dashboard_REST_Controller {
 	 *
 	 * @param array $response_body Remote response body.
 	 * @param int   $response_code Http response code.
-	 * @return WP_Error
+	 * @return \WP_REST_Response
 	 */
 	protected function get_blaze_error( $response_body, $response_code = 500 ) {
 		if ( ! is_array( $response_body ) ) {

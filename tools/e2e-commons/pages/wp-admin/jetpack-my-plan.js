@@ -1,6 +1,6 @@
-import WpPage from '../wp-page.js';
-import logger from '../../logger.js';
 import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import logger from '../../logger.js';
+import WpPage from '../wp-page.js';
 
 export default class JetpackMyPlanPage extends WpPage {
 	constructor( page ) {

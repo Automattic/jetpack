@@ -42,7 +42,6 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
 			handleRegisterSite().then( () => {
-				resetNotice();
 				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 				delete redBubbleAlerts[ redBubbleSlug ];
 				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;

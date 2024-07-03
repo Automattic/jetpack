@@ -110,7 +110,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			),
 		);
 
-		set_transient( 'jetpack_social_connections', $social_connections, 3600 * 10 );
+		$this->publicize->receive_updated_publicize_connections( $social_connections );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
@@ -150,7 +150,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_does_not_fire_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 
-		set_transient( 'jetpack_social_connections', array(), 3600 * 10 );
+		$this->publicize->receive_updated_publicize_connections( array() );
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( false, $this->post );
@@ -265,13 +265,12 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 				),
 			),
 		);
-		set_transient(
-			'jetpack_social_connections',
+
+		$this->publicize->receive_updated_publicize_connections(
 			array(
 				'facebook' => $facebook_connection,
 				'twitter'  => $twitter_connection,
-			),
-			3600 * 4
+			)
 		);
 
 		$publicize = publicize_init();

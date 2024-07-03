@@ -38,7 +38,13 @@ function jetpack_get_google_fonts_data() {
 
 	// Replace the google fonts api url if the custom one is provided.
 	$custom_google_fonts_api_url = \esc_url(
-		/** This filter is documented in projects/packages/google-fonts-provider/src/class-google-fonts-provider.php */
+		/**
+		 * Filters the Google Fonts API URL.
+		 *
+		 * @since 12.8
+		 *
+		 * @param string $url The Google Fonts API URL.
+		 */
 		apply_filters( 'jetpack_google_fonts_api_url', $default_google_fonts_api_url )
 	);
 	if ( $custom_google_fonts_api_url !== $default_google_fonts_api_url ) {
@@ -72,7 +78,15 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 		$google_fonts_data['fontFamilies']
 	);
 
-	/** This filter is documented in modules/google-fonts/wordpress-6.3/load-google-fonts.php */
+	/**
+	 * Curated list of Google Fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts_to_register Array of Google Font names to register.
+	 */
 	$google_font_list           = apply_filters( 'jetpack_google_fonts_list', $jetpack_google_fonts_list );
 	$available_google_fonts_map = array();
 

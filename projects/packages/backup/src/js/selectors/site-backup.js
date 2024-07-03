@@ -8,6 +8,7 @@ const siteBackupSelectors = {
 	getDaysOfBackupsSaved: state => state.siteBackupSize.daysOfBackupsSaved ?? null,
 	getBackupRetentionDays: state => state.siteBackupSize.retentionDays ?? null,
 	hasBackupSizeLoaded: state => state.siteBackupSize.loaded,
+	getBackupStoppedFlag: state => state.siteBackupSize.backupsStopped ?? null,
 
 	// Policies
 	isFetchingBackupPolicies: state => state.siteBackupPolicies.isFetching ?? null,
@@ -18,6 +19,11 @@ const siteBackupSelectors = {
 	// Storage
 	getStorageUsageLevel: state => state.siteBackupStorage.usageLevel ?? null,
 	getStorageAddonOfferSlug: state => state.siteBackupStorage.addonOfferSlug ?? null,
+
+	// Backups
+	getBackups: state => state.siteBackups.backups ?? [],
+	hasLoadedBackups: state => state.siteBackups.loaded,
+	isFetchingBackups: state => state.siteBackups.isFetching,
 };
 
 export default siteBackupSelectors;

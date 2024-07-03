@@ -1,4 +1,8 @@
+import { expect } from '@playwright/test';
 import config from 'config';
+import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
+import { execWpCommand } from '../helpers/utils-helper.js';
+import logger from '../logger.js';
 import {
 	Sidebar,
 	JetpackPage,
@@ -12,13 +16,14 @@ import {
 	ThankYouPage,
 	LoginPage,
 } from '../pages/wpcom/index.js';
-import { execWpCommand } from '../helpers/utils-helper.js';
-import { persistPlanData, syncPlanData } from '../helpers/plan-helper.js';
-import logger from '../logger.js';
-import { expect } from '@playwright/test';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
+/**
+ * Do classic connection
+ * @param {page} page - Playwright page instance.
+ * @param {string} plan - Plan slug
+ */
 export async function doClassicConnection( page, plan = 'free' ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.connect();
@@ -36,6 +41,10 @@ export async function doClassicConnection( page, plan = 'free' ) {
 	}
 }
 
+/**
+ * Do site-level connection
+ * @param {page} page - Playwright page instance.
+ */
 export async function doSiteLevelConnection( page ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.connect();
@@ -49,6 +58,13 @@ export async function doSiteLevelConnection( page ) {
 	await ( await Sidebar.init( page ) ).selectJetpack();
 }
 
+/**
+ * Sync Jetpack plan data
+ *
+ * @param {page} page - Playwright page instance.
+ * @param {string} plan - Plan slug.
+ * @param {boolean} mockPlanData - Whether to mock plan data.
+ */
 export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	logger.step( `Sync plan data. { plan: ${ plan }, mock: ${ mockPlanData } }` );
 	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_complete';
@@ -59,7 +75,7 @@ export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {
 	if ( ! mockPlanData ) {
 		await jpPlanPage.reload();
 		await page.waitForResponse(
-			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+			response => response.url().match( /v4\/site[^/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
 		);
 		await execWpCommand( 'cron event run jetpack_v2_heartbeat' );

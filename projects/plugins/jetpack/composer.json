@@ -12,7 +12,6 @@
 		"ext-json": "*",
 		"ext-openssl": "*",
 		"automattic/jetpack-a8c-mc-stats": "@dev",
-		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
@@ -31,7 +30,6 @@
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
-		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",
@@ -106,7 +104,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_6_a_6",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ13_7_a_0",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
