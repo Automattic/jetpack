@@ -22,6 +22,7 @@ class Data_Settings {
 			'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately', // enable Initial Sync on Site Connection.
 			'Automattic\\Jetpack\\Sync\\Modules\\Options',
 			'Automattic\\Jetpack\\Sync\\Modules\\Updates',
+			'Automattic\\Jetpack\\Sync\\Modules\\Stats', // Daily heartbeat data.
 		),
 		'jetpack_sync_callable_whitelist'  => array(
 			'site_url'                          => array( 'Automattic\\Jetpack\\Connection\\Urls', 'site_url' ),
@@ -86,6 +87,7 @@ class Data_Settings {
 			'stylesheet',
 			'time_format',
 			'timezone_string',
+			'active_plugins',
 		),
 	);
 
