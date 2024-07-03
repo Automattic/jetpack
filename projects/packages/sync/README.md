@@ -91,7 +91,6 @@ It's important to note that we consider a list of certain options required for S
 - `jetpack_sync_settings_post_types_blacklist`, // Sync related option
 - `jetpack_sync_settings_taxonomies_blacklist`, // Sync related option
 - `jetpack_sync_settings_dedicated_sync_enabled`, // Sync related option
-- `jetpack_connection_active_plugins`, // Connection related option
 - `blog_charset`, // Generic site option
 - `blog_public`, // Generic site option
 - `blogdescription`, // Generic site option
@@ -143,6 +142,7 @@ It's important to note that we consider a list of certain callables required for
 - `wp_get_environment_type`
 - `wp_max_upload_size`
 - `wp_version`
+- `jetpack_connection_active_plugins` // Connection related callable
 
 Passing a list of callables will result in syncing those callables plus the required ones.
 

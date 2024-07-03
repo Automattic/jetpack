@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules as Jetpack_Modules;
@@ -708,5 +709,16 @@ class Functions {
 		}
 
 		return $enabled_extensions;
+	}
+
+	/**
+	 * Return the list of active connected Jetpack plugins.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_connection_active_plugins() {
+		return ( new Manager() )->get_connected_plugins();
 	}
 }
