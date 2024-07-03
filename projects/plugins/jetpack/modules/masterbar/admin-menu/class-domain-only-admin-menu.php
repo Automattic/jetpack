@@ -16,6 +16,16 @@ use Automattic\Jetpack\Masterbar\Domain_Only_Admin_Menu as Masterbar_Domain_Only
  */
 class Domain_Only_Admin_Menu extends Masterbar_Domain_Only_Admin_Menu {
 	/**
+	 * Ensure that instantiating this class will trigger a deprecation warning.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Domain_Only_Admin_Menu::__construct' );
+		parent::__construct();
+	}
+
+	/**
 	 * This setter lets us inject an WPCOM_Email_Subscription_Checker instance.
 	 *
 	 * @deprecated $$next-version$$

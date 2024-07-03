@@ -79,7 +79,11 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu, $submenu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Atomic_Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;

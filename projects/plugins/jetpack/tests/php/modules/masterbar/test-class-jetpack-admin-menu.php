@@ -80,7 +80,11 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu, $submenu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Jetpack_Admin_Menu::get_instance();
 
 		$menu    = static::$menu_data;

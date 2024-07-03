@@ -99,6 +99,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 *
 	 * @covers ::get_preferred_view
 	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::__construct
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {

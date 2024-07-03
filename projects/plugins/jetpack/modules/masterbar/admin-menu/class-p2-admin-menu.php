@@ -15,6 +15,17 @@ use Automattic\Jetpack\Masterbar\P2_Admin_Menu as Masterbar_P2_Admin_Menu;
  * Class P2_Admin_Menu.
  */
 class P2_Admin_Menu extends Masterbar_P2_Admin_Menu {
+
+	/**
+	 * Ensure that instantiating this class will trigger a deprecation warning.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\P2_Admin_Menu::__construct' );
+		parent::__construct();
+	}
+
 	/**
 	 * Create the desired menu output.
 	 *

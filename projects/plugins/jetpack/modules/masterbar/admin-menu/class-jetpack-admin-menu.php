@@ -17,6 +17,16 @@ use Automattic\Jetpack\Masterbar\Jetpack_Admin_Menu as Masterbar_Jetpack_Admin_M
 class Jetpack_Admin_Menu extends Masterbar_Jetpack_Admin_Menu {
 
 	/**
+	 * Ensure that instantiating this class will trigger a deprecation warning.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Jetpack_Admin_Menu::__construct' );
+		parent::__construct();
+	}
+
+	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
 	 * Performs the check against the current locale set on the WordPress.com's account settings.
