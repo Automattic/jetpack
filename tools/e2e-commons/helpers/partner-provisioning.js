@@ -1,17 +1,17 @@
-import config from 'config';
 import path from 'path';
+import * as url from 'url';
+import config from 'config';
 import shellescape from 'shell-escape';
 import logger from '../logger.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from './utils-helper.js';
-import * as url from 'url';
 
 /**
  * Provisions Jetpack plan and connects the site through Jetpack Start flow
  *
- * @param {number} userId WPCOM user ID
- * @param {string} plan   One of free, personal, premium, or professional.
- * @param {string} user   Local user name, id, or e-mail
- * @return {string} authentication URL
+ * @param {number} userId - WPCOM user ID
+ * @param {string} plan   - One of free, personal, premium, or professional.
+ * @param {string} user   - Local user name, id, or e-mail
+ * @returns {string} authentication URL
  */
 export async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );

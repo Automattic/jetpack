@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "62403191018bfe60b0272ef03acb944e",
+	"content-hash": "8b707897257ea17c4df9995d01700551",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -52,65 +52,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Used to record internal usage stats for Automattic. Not visible to site owners.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-abtest",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/abtest",
-				"reference": "8d7ca6c2a61f73ba22831ca8eaab113ab7db09e0"
-			},
-			"require": {
-				"automattic/jetpack-connection": "@dev",
-				"automattic/jetpack-error": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "dev-master",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-abtest",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-abtest/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "2.0.x-dev"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"test-php": [
-					"@composer phpunit"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Provides an interface to the WP.com A/B tests.",
 			"transport-options": {
 				"relative": true
 			}
@@ -313,7 +254,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/backup",
-				"reference": "a2ef602b09204d9d02bd06b4cc1007d2876f50f6"
+				"reference": "d974148c9be257d174de2f6afc99b768ef5ab1d5"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -348,7 +289,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.3.x-dev"
+					"dev-trunk": "3.4.x-dev"
 				}
 			},
 			"autoload": {
@@ -794,7 +735,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
+				"reference": "4e9717827c7da3d71d4b566fb742c5c226b40f52"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -812,7 +753,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -956,7 +897,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/config",
-				"reference": "e4416daf21b3fe496a53235342255bcf0cb8faa4"
+				"reference": "46c0d6c214f2940e2b5c1c5ccafbf5922a16592c"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -994,7 +935,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/import",
 						"packages/jitm",
 						"packages/post-list",
@@ -1029,7 +969,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/connection",
-				"reference": "34b11d946a049dbd9f35f94b99f32b0410eafb8b"
+				"reference": "6d990be4aaded35f3ee203c976d16b9334419882"
 			},
 			"require": {
 				"automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1064,7 +1004,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.10.x-dev"
+					"dev-trunk": "2.11.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -1405,58 +1345,6 @@
 				"GPL-2.0-or-later"
 			],
 			"description": "Set up Google Analytics without touching a line of code.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
-			"name": "automattic/jetpack-google-fonts-provider",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/google-fonts-provider",
-				"reference": "9c6a647b79f975d46583f3c81c1e32e7e996b01f"
-			},
-			"require": {
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"brain/monkey": "2.6.1",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"mirror-repo": "Automattic/jetpack-google-fonts-provider",
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
-				},
-				"branch-alias": {
-					"dev-trunk": "0.7.x-dev"
-				},
-				"textdomain": "jetpack-google-fonts-provider"
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "WordPress Webfonts provider for Google Fonts",
 			"transport-options": {
 				"relative": true
 			}
@@ -1914,7 +1802,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "6e2a4eeba8a8ec86da45e3f7dbe2b6eb508ce12c"
+				"reference": "e423495d1048ef659f3277bbd74ca1d5c57a2a8c"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1949,7 +1837,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.25.x-dev"
+					"dev-trunk": "4.27.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2250,7 +2138,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "c5a02ad97dc2231bc24d5196756cfc0e9d2ac70b"
+				"reference": "6494d867225a31d465c41e86117becbe7a35c11e"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2278,7 +2166,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.46.x-dev"
+					"dev-trunk": "0.47.x-dev"
 				}
 			},
 			"autoload": {
@@ -2649,7 +2537,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/status",
-				"reference": "c588736555b0b718c18e944cfc0a809bfc63e0ad"
+				"reference": "782aceefdf8ebfcf4d24049700da9409628bf4de"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -2679,7 +2567,6 @@
 				"dependencies": {
 					"test-only": [
 						"packages/connection",
-						"packages/identity-crisis",
 						"packages/plans"
 					]
 				}
@@ -5999,7 +5886,6 @@
 	"minimum-stability": "dev",
 	"stability-flags": {
 		"automattic/jetpack-a8c-mc-stats": 20,
-		"automattic/jetpack-abtest": 20,
 		"automattic/jetpack-admin-ui": 20,
 		"automattic/jetpack-assets": 20,
 		"automattic/jetpack-autoloader": 20,
@@ -6018,7 +5904,6 @@
 		"automattic/jetpack-error": 20,
 		"automattic/jetpack-forms": 20,
 		"automattic/jetpack-google-analytics": 20,
-		"automattic/jetpack-google-fonts-provider": 20,
 		"automattic/jetpack-image-cdn": 20,
 		"automattic/jetpack-import": 20,
 		"automattic/jetpack-ip": 20,

@@ -106,7 +106,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_my_home_menu() {
 
 		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_menu_page( __( 'My Home', 'jetpack-masterbar' ), __( 'My Home', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/home/' . $this->domain, null, 'dashicons-admin-home', 1.5 );
 			return;
 		}
@@ -118,7 +118,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds My Mailboxes menu.
 	 */
 	public function add_my_mailboxes_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'My Mailboxes', 'jetpack-masterbar' ), __( 'My Mailboxes', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/mailboxes/' . $this->domain, null, 'dashicons-email', 4.64424 );
 	}
 
@@ -126,7 +126,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Adds Stats menu.
 	 */
 	public function add_stats_menu() {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), __( 'Stats', 'jetpack-masterbar' ), 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
@@ -159,12 +159,12 @@ class Admin_Menu extends Base_Admin_Menu {
 			} else {
 				$site_upgrades = __( 'Upgrades', 'jetpack-masterbar' );
 			}
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_menu_page( __( 'Upgrades', 'jetpack-masterbar' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 4 );
 		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack-masterbar' ), __( 'Plans', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 1 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack-masterbar' ), __( 'Purchases', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 2 );
 
 		if ( ! $menu_exists ) {
@@ -353,10 +353,10 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->hide_submenu_page( 'tools.php', 'tools.php' );
 		$this->hide_submenu_page( 'tools.php', 'delete-blog' );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack-masterbar' ), __( 'Marketing', 'jetpack-masterbar' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain, null, 0 );
 		if ( ! $this->use_wp_admin_interface() ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'tools.php', esc_attr__( 'Monetize', 'jetpack-masterbar' ), __( 'Monetize', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain, null, 1 );
 		}
 	}
@@ -390,11 +390,11 @@ class Admin_Menu extends Base_Admin_Menu {
 
 		$this->update_submenus( 'options-general.php', $submenus_to_update );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Newsletter', 'jetpack-masterbar' ), __( 'Newsletter', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/newsletter/' . $this->domain, null, 7 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Podcasting', 'jetpack-masterbar' ), __( 'Podcasting', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/podcasting/' . $this->domain, null, 8 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Performance', 'jetpack-masterbar' ), __( 'Performance', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain, null, 9 );
 	}
 
@@ -413,12 +413,12 @@ class Admin_Menu extends Base_Admin_Menu {
 		$icon            = ( new Logo() )->get_base64_logo();
 		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, $position );
 		if ( ! $is_menu_updated ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack-masterbar' ), __( 'Activity Log', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack-masterbar' ), __( 'Backup', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
@@ -464,7 +464,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			$menu_url = 'https://wordpress.com/woocommerce-installation/' . $this->domain;
 
 			// Only show the menu if the user has the capability to activate_plugins.
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_menu_page( esc_attr__( 'WooCommerce', 'jetpack-masterbar' ), esc_attr__( 'WooCommerce', 'jetpack-masterbar' ), 'activate_plugins', $menu_url, null, $icon_url, 55 );
 		}
 	}

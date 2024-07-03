@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, jwidavid, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.5
+Stable tag: 13.6
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.6
@@ -326,8 +326,28 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6-a.5 - 2024-06-18
+### 13.6 - 2024-07-02
+#### Enhancements
+- AI Assistant: Hide input when user types on extended block.
+- Goodreads Block: provide support for additional profile URLs.
+- Newsletter: Add ability to manage the newsletter byline appearance.
+- Newsletter: Adding a new toggle to control the newsletter author line.
+- Newsletter: Email replies can become comments on your blog.
+- Social: Add Threads preview to Social Previews.
+- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images.
+
+#### Improved compatibility
+- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode.
+
 #### Bug fixes
+- AI Assistant: Disable extensions when AI Assistant block is hidden.
+- External Media: Do not display External Media options in the Caption edit field.
+- External media: Ensure connect URL has the correct blog ID and verification values.
+- Like block: Fix editor styling.
+- Publicize: Fix a race condition with refreshing the active social connections.
+- Slideshow: Ensure whole block is selectable in the editor.
 - User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
 
 --------

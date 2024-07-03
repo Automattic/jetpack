@@ -13,6 +13,7 @@ import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useAnalytics from '../../hooks/useAnalytics';
+import useBackupsState from '../../hooks/useBackupsState';
 import useCapabilities from '../../hooks/useCapabilities';
 import useConnection from '../../hooks/useConnection';
 import { Backups, Loading as BackupsLoadingPlaceholder } from '../Backups';
@@ -180,7 +181,7 @@ const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
 
 const ReviewMessage = connectionLoaded => {
 	const [ restores ] = useRestores( connectionLoaded );
-	const [ backups ] = useBackups( connectionLoaded );
+	const { backups } = useBackupsState();
 	const { tracks } = useAnalytics();
 	let requestReason = '';
 	let reviewText = '';
@@ -288,27 +289,6 @@ const useRestores = connectionLoaded => {
 	}, [ setRestores, connectionLoaded ] );
 
 	return [ restores, setRestores ];
-};
-
-const useBackups = connectionLoaded => {
-	const [ backups, setBackups ] = useState( [] );
-
-	useEffect( () => {
-		if ( ! connectionLoaded ) {
-			setBackups( [] );
-			return;
-		}
-		apiFetch( { path: '/jetpack/v4/backups' } ).then(
-			res => {
-				setBackups( res );
-			},
-			() => {
-				setBackups( [] );
-			}
-		);
-	}, [ setBackups, connectionLoaded ] );
-
-	return [ backups, setBackups ];
 };
 
 const useDismissedReviewRequest = ( connectionLoaded, requestReason, tracksDismissReview ) => {

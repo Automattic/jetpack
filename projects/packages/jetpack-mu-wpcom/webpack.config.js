@@ -11,6 +11,11 @@ module.exports = [
 			'error-reporting': './src/features/error-reporting/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
+			'core-customizer-css':
+				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
+			'core-customizer-css-preview':
+				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
+			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,

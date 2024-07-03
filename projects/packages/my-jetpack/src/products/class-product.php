@@ -38,7 +38,7 @@ abstract class Product {
 	 *
 	 * @var string|string[]
 	 */
-	protected static $plugin_filename = null;
+	public static $plugin_filename = null;
 
 	/**
 	 * The slug of the plugin associated with this product. If not defined, it will default to the Jetpack plugin
