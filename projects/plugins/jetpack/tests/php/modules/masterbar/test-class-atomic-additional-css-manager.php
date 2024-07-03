@@ -3,6 +3,8 @@
  * Test_WPORG_Additional_Css_Manager file.
  * Test WPORG_Additional_CSS_Manager.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 

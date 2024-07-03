@@ -3,6 +3,8 @@
  * CSS_Nudge_Customize_Control file.
  * Test CSS_Nudge_Customize_Control.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 

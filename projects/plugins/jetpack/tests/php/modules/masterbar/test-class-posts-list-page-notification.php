@@ -2,6 +2,8 @@
 /**
  * Tests for Posts_List_Page_Notification class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 

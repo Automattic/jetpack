@@ -2,6 +2,8 @@
 /**
  * Tests for Domain_Only_Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 

@@ -5,6 +5,8 @@
  * @deprecated $$next-version$$
  *
  * @package Jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;

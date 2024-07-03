@@ -11,11 +11,11 @@ return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 470+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 270+ occurrences
-    // PhanDeprecatedFunction : 250+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 140+ occurrences
+    // PhanDeprecatedFunction : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
     // PhanPossiblyUndeclaredVariable : 65+ occurrences
@@ -63,6 +63,7 @@ return [
     // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
+    // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
@@ -70,7 +71,6 @@ return [
     // PhanUndeclaredFunctionInCallable : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
-    // PhanPluginUnreachableCode : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
@@ -353,11 +353,7 @@ return [
         'modules/likes/jetpack-likes-master-iframe.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'modules/likes/jetpack-likes-settings.php' => ['PhanDeprecatedFunction', 'PhanRedundantCondition'],
         'modules/markdown/easy-markdown.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanUndeclaredProperty'],
-        'modules/masterbar/admin-menu/load.php' => ['PhanDeprecatedFunction'],
-        'modules/masterbar/masterbar/class-masterbar.php' => ['PhanDeprecatedFunction'],
-        'modules/masterbar/nudges/bootstrap.php' => ['PhanDeprecatedFunction'],
-        'modules/masterbar/profile-edit/bootstrap.php' => ['PhanDeprecatedFunction', 'PhanNoopNew'],
-        'modules/masterbar/wp-posts-list/bootstrap.php' => ['PhanDeprecatedFunction'],
+        'modules/masterbar/profile-edit/bootstrap.php' => ['PhanNoopNew'],
         'modules/memberships/class-jetpack-memberships.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanUndeclaredMethod'],
         'modules/module-headings.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/monitor.php' => ['PhanNoopNew', 'PhanTypeMismatchReturnProbablyReal'],
@@ -542,20 +538,11 @@ return [
         'tests/php/media/test-class.jetpack-media-extractor.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/media/test-class.jetpack-post-images.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/modules/geo-location/test_class.jetpack-geo-location.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgumentProbablyReal'],
-        'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanDeprecatedFunction', 'PhanNoopNew'],
-        'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
-        'tests/php/modules/masterbar/test-class-atomic-additional-css-manager.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanDeprecatedFunction', 'PhanRedefineFunction'],
-        'tests/php/modules/masterbar/test-class-css-customizer-nudge.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-css-nudge-customize-control.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-dashboard-switcher-tracking.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-domain-only-admin-menu.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-jetpack-admin-menu.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-masterbar.php' => ['PhanDeprecatedFunction', 'PhanUndeclaredMethod'],
-        'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanDeprecatedFunction', 'PhanTypeMismatchArgument'],
-        'tests/php/modules/masterbar/test-class-wpcom-additional-css-manager.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-wpcom-admin-menu.php' => ['PhanDeprecatedFunction'],
-        'tests/php/modules/masterbar/test-class-wpcom-user-profile-fields-revert.php' => ['PhanDeprecatedFunction'],
+        'tests/php/modules/masterbar/test-class-admin-color-schemes.php' => ['PhanNoopNew'],
+        'tests/php/modules/masterbar/test-class-admin-menu.php' => ['PhanTypeArraySuspiciousNull', 'PhanTypeInvalidDimOffset'],
+        'tests/php/modules/masterbar/test-class-atomic-admin-menu.php' => ['PhanPluginUnreachableCode', 'PhanRedefineFunction'],
+        'tests/php/modules/masterbar/test-class-masterbar.php' => ['PhanUndeclaredMethod'],
+        'tests/php/modules/masterbar/test-class-posts-list-page-notification.php' => ['PhanTypeMismatchArgument'],
         'tests/php/modules/photon/test_class.jetpack-photon-static-asset-cdn.php' => ['PhanTypeMismatchProperty'],
         'tests/php/modules/post-by-email/test-class.post-by-email-api.php' => ['PhanParamTooMany'],
         'tests/php/modules/publicize/test_class.publicize.php' => ['PhanDeprecatedFunction', 'PhanPluginDuplicateConditionalNullCoalescing'],

@@ -3,6 +3,8 @@
  * Test_WPCOM_Additional_Css_Manager file.
  * Test WPCOM_Additional_CSS_Manager.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 

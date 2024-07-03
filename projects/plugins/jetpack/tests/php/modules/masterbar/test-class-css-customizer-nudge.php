@@ -3,6 +3,8 @@
  * Test_WPCOM_CSS_Customizer_Nudge file.
  * Test WPCOM_CSS_Customizer_Nudge.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 

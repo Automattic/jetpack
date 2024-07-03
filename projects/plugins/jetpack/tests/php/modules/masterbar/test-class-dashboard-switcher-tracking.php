@@ -2,6 +2,8 @@
 /**
  * Test file for Dashboard_Switcher_Tracking
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 

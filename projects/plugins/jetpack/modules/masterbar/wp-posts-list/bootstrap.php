@@ -5,6 +5,8 @@
  * @deprecated $$next-version$$
  *
  * @package automattic\jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
 
 _deprecated_file( __FILE__, 'jetpack-$$next-version$$' );

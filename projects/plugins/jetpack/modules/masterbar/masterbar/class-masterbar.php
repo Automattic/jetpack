@@ -5,6 +5,8 @@
  * @deprecated $$next-version$$ Use Automattic\Jetpack\Masterbar\Masterbar instead.
  *
  * @package automattic/jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
