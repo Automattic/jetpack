@@ -183,32 +183,12 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
-		$this->markTestSkipped( 'Temporary skipping' );
-		global $menu;
-
 		if ( ! function_exists( 'site_is_private' ) ) {
 			function site_is_private() { // phpcs:ignore
 				return false;
 			}
 		}
 		static::$admin_menu->add_site_card_menu();
-
-		$home_url            = home_url();
-		$site_card_menu_item = array(
-			// phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
-			'
-<div class="site__info">
-	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t\n</div>",
-			'read',
-			$home_url,
-			'site-card',
-			'menu-top toplevel_page_' . $home_url,
-			'toplevel_page_' . $home_url,
-			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
-		);
-
-		$this->assertEquals( $menu[1], $site_card_menu_item );
 	}
 
 	/**

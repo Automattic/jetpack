@@ -63,7 +63,6 @@ return [
     // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
     // PhanImpossibleTypeComparison : 4 occurrences
-    // PhanPluginUnreachableCode : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
@@ -71,6 +70,7 @@ return [
     // PhanUndeclaredFunctionInCallable : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanPluginUnreachableCode : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
     // PhanTypeMismatchArgumentReal : 3 occurrences
