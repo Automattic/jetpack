@@ -1114,7 +1114,8 @@ class REST_Controller {
 	}
 
 	/**
-	 * Get module settings on dashboard.
+	 * Get purchases array; I don't see anything sensetive in there, so didn't sentinizie it.
+	 * Plus it is the same case as Jetpack.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
