@@ -2098,8 +2098,6 @@ importers:
 
   projects/packages/google-analytics: {}
 
-  projects/packages/google-fonts-provider: {}
-
   projects/packages/import: {}
 
   projects/packages/jetpack-mu-wpcom:
