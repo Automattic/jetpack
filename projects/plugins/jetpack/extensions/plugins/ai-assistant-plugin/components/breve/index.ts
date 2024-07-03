@@ -1,5 +1,5 @@
 import Controls from './controls';
 
-const Breve = Controls as () => React.JSX.Element;
+const Breve = Controls as ( props: { active: boolean } ) => React.JSX.Element;
 
 export { Breve };

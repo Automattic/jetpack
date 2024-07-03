@@ -24,7 +24,7 @@ describe( 'readPackageJson', () => {
 	test( 'plugins/jetpack should have data', () => {
 		expect( readPackageJson( 'plugins/jetpack', false ) ).toBeObject();
 	} );
-	test( 'packages/abtest should not have data', () => {
-		expect( readPackageJson( 'packages/abtest', false ) ).toBeUndefined();
+	test( 'packages/changelogger should not have data', () => {
+		expect( readPackageJson( 'packages/changelogger', false ) ).toBeUndefined();
 	} );
 } );
