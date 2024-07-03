@@ -151,10 +151,25 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
 	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
 
-	if [[ $VERSION_DIFF -eq 1 ]]; then
-		PATCH_LEVEL="suffix"
-	elif [[ $VERSION_DIFF -eq 2 ]]; then
-		PATCH_LEVEL="patch"
+	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
+		if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
+			PATCH_LEVEL="bugfix"
+		else
+			PATCH_LEVEL="prerelease"
+		fi
+
+	elif version_is_patch "${PROJECTS[$PLUGIN]}"; then
+
+		# If a project follows semver versioning, we prompt.
+		if jq -e '.extra.changelogger["versioning"] == "semver"' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
+			if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
+				PATCH_LEVEL="bugfix"
+			else
+				PATCH_LEVEL="patch"
+			fi
+		else
+			PATCH_LEVEL="bugfix"
+		fi
 	elif [[ $VERSION_DIFF -eq 3 ]]; then
 		PATCH_LEVEL="minor"
 	elif [[ $VERSION_DIFF -eq 4 ]]; then
