@@ -9,4 +9,4 @@
 
 _deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
 
-return require JETPACK__PLUGIN_DIR . 'jetpack-vendor/automattic/jetpack-masterbar/src/admin-menu/common-mappings.php';
+return require JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/common-mappings.php';
