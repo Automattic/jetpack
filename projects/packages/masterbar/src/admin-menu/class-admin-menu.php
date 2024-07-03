@@ -515,6 +515,23 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
+	 * Fixes scrollbar issue if upsell nudge is loaded.
+	 * https://github.com/Automattic/dotcom-forge/issues/7936
+	 */
+	public function wpcom_upsell_nudge_jitm_fix() {
+		wp_enqueue_script(
+			'wpcom-upsell-nudge-jitm-fix',
+			plugins_url( 'wpcom-upsell-nudge-jitm-fix.js', __FILE__ ),
+			array(),
+			Main::PACKAGE_VERSION,
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
+		);
+	}
+
+	/**
 	 * Returns the first available upsell nudge.
 	 * Needs to be implemented separately for each child menu class.
 	 * Empty by default.
