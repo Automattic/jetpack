@@ -632,12 +632,12 @@ class csstidy_optimise { // phpcs:ignore
 	 * @see dissolve_4value_shorthands()
 	 */
 	public static function merge_4value_shorthands( $array ) {
-		$return     = $array;
+		$return     = is_array( $array ) ? $array : array();
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 
 		foreach ( $shorthands as $key => $value ) {
-			if ( isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] )
-							&& isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) && $value !== 0 ) {
+			if ( $value !== 0 && isset( $array[ $value[0] ] ) && isset( $array[ $value[1] ] )
+							&& isset( $array[ $value[2] ] ) && isset( $array[ $value[3] ] ) ) {
 				$return[ $key ] = '';
 
 				$important = '';
