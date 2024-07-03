@@ -231,7 +231,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_social_notes_config'                  => array(),
-			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_social_settings'                      => array( 'image' => true ),
 			'jetpack_social_autoconvert_images'            => array( 'enabled' => true ),
 			'jetpack_sync_non_blocking'                    => false,
