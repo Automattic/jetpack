@@ -38,7 +38,13 @@ function jetpack_get_google_fonts_data() {
 
 	// Replace the google fonts api url if the custom one is provided.
 	$custom_google_fonts_api_url = \esc_url(
-		/** This filter is documented in projects/packages/google-fonts-provider/src/class-google-fonts-provider.php */
+		/**
+		 * Filters the Google Fonts API URL.
+		 *
+		 * @since 12.8
+		 *
+		 * @param string $url The Google Fonts API URL.
+		 */
 		apply_filters( 'jetpack_google_fonts_api_url', $default_google_fonts_api_url )
 	);
 	if ( $custom_google_fonts_api_url !== $default_google_fonts_api_url ) {

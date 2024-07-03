@@ -758,33 +758,5 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['p
 		}
 	}
 
-    // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
-	/**
-	 * Adds the featured content plugin to the set of files for which action
-	 * handlers should be copied when the theme context is loaded by the REST API.
-	 *
-	 * @param array $copy_dirs Copy paths with actions to be copied.
-	 * @return array Copy paths with featured content plugin
-	 */
-	function wpcom_rest_api_featured_content_copy_plugin_actions( $copy_dirs ) {
-		$copy_dirs[] = __FILE__;
-		return $copy_dirs;
-	}
-	add_action( 'restapi_theme_action_copy_dirs', __NAMESPACE__ . '\wpcom_rest_api_featured_content_copy_plugin_actions' );
-
-	/**
-	 * Delayed initialization for API Requests.
-	 *
-	 * @param object $request REST request object.
-	 */
-	function wpcom_rest_request_before_callbacks( $request ) {
-		Featured_Content::init();
-		return $request;
-	}
-
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
-		add_filter( 'rest_request_before_callbacks', __NAMESPACE__ . '\wpcom_rest_request_before_callbacks' );
-	}
-
 	Featured_Content::setup();
 }
