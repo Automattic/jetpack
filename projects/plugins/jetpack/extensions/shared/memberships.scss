@@ -35,6 +35,8 @@ body.jetpack-memberships-modal-open {
 }
 
 dialog.jetpack-memberships-modal {
+	opacity: 1;
+
 	&, iframe {
 		position: fixed;
 		margin: 0;
@@ -45,13 +47,10 @@ dialog.jetpack-memberships-modal {
 		left: 0;
 		right: 0;
 		bottom: 0;
-
 		box-shadow: none;
 		border: 0;
 		background: transparent;
 	}
-
-	opacity: 1;
 
 	&::backdrop {
 		background-color: #000;
