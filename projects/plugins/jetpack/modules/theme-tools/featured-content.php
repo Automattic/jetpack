@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Status\Host;
-
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -359,7 +357,5 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		}
 	}
 
-	if ( ! ( new Host() )->is_wpcom_platform() ) {
-		Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
-	}
+	Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 }
