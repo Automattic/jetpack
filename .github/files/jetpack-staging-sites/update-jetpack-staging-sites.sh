@@ -8,7 +8,7 @@
 
 TMP_DIR=$(mktemp -d) # Temp dir where the plugin .zip files are downloaded and unpacked.
 REMOTE_DIR='/srv/htdocs/jetpack-staging' # Remote dir where the unpacked plugin files are synced to.
-PLUGINS=( "jetpack" "jetpack-mu-wpcom-plugin" "wpcomsh" ); # Plugins to update.
+PLUGINS=( "jetpack" "wpcomsh" ); # Plugins to update.
 declare -A PLUGIN_DOWNLOAD_URLS # Array used to hold fetched plugin download URLs.
 
 SITES='{
