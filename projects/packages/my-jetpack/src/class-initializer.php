@@ -16,7 +16,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-use Automattic\Jetpack\Explat;
+use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
@@ -109,7 +109,7 @@ class Initializer {
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
-		Explat::init();
+		ExPlat::init();
 
 		// Sets up JITMS.
 		JITM::configure();
