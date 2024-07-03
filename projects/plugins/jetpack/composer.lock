@@ -735,7 +735,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/classic-theme-helper",
-				"reference": "0a0b72c656b3949e67db20779c1f8bab8d8426fb"
+				"reference": "4e9717827c7da3d71d4b566fb742c5c226b40f52"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -753,7 +753,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.3.x-dev"
+					"dev-trunk": "0.4.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-classic-theme-helper/compare/v${old}...v${new}"
@@ -2598,7 +2598,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "6b8af670d924432fb2457a8eb59cb32330bfc25a"
+				"reference": "89d46505557c31b54cb41a8ae6f38070640f1d0f"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2631,7 +2631,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.1.x-dev"
+					"dev-trunk": "3.2.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
