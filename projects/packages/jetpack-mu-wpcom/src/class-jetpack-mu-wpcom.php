@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.42.2-alpha';
+	const PACKAGE_VERSION = '5.43.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -291,7 +291,7 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
 			return;
 		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
@@ -319,7 +319,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load WPCOM Site Management widget.
 	 */
 	public static function load_wpcom_site_management_widget() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
