@@ -32,6 +32,8 @@ class Inline_Help {
 	 * @deprecated $$next-version$$
 	 */
 	public function __construct() {
+		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Inline_Help::__construct' );
+
 		$this->inline_help_wrapper = new Masterbar_Inline_Help();
 	}
 
