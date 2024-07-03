@@ -2,7 +2,7 @@ import './view.scss';
 import '../../shared/memberships.scss';
 
 import domReady from '@wordpress/dom-ready';
-import { showModal } from '../../shared/memberships';
+import { showModal, spinner } from '../../shared/memberships';
 
 // @ts-ignore
 function show_iframe_retrieve_subscriptions_from_email() {
@@ -49,12 +49,16 @@ domReady( function () {
 	forms.forEach( form => {
 		if ( ! form.payments_attached ) {
 			form.payments_attached = true;
+
+			const button = form.querySelector( 'button[type="submit"]' );
+
+			// Injects loading animation in hidden state
+			button.insertAdjacentHTML( 'beforeend', spinner );
+
 			form.addEventListener( 'submit', function ( event ) {
 				if ( form.resubmitted ) {
 					return;
 				}
-
-				const button = form.querySelector( 'button[type="submit"]' );
 
 				button.classList.add( 'is-loading' );
 				button.setAttribute( 'aria-busy', 'true' );
