@@ -409,7 +409,7 @@ class REST_Controller {
 			static::$namespace,
 			sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) ),
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
+				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_purchases' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
