@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Mastodon: display a Fediverse Creator tag when the post author has connected their account to a Mastodon account.
