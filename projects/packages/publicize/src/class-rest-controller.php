@@ -210,7 +210,7 @@ class REST_Controller {
 			return current_user_can( 'edit_others_posts' );
 		}
 
-		return true;
+		return $this->require_author_privilege_callback();
 	}
 
 	/**
