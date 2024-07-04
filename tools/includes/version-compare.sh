@@ -105,14 +105,14 @@ function version_diff {
 		return 0
 	fi
 
-	if version_compare $1 $2; then
+	if version_compare "$1" "$2"; then
 
 		# $1 is greater than $2
-		version_increment $2 $1
+		version_get_increment "$2" "$1"
 	else
 
 		# $2 is greater than $1
-		version_increment $1 $2
+		version_get_increment "$1" "$2"
 	fi
 
 	echo "$INCREMENT"
@@ -124,7 +124,7 @@ function version_diff {
 #
 # @param $1 First version.
 # @param $2 Second version.
-function version_increment {
+function version_get_increment {
 
 	local V1="${1%%+*}" V2="${2%%+*}"
 
