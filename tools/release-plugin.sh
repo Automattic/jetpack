@@ -182,7 +182,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 			--arg version "${PROJECTS[$PLUGIN]}" \
 			--arg patchlevel "$PATCH_LEVEL" \
 			'.[ $plugin ] = {"version": $version, "type": $patchlevel} ' <<< "$RELEASED_PLUGINS"
-					)
+	)
 done
 
 TRACKING_DATA=$( jq -c -n --argjson plugins "$RELEASED_PLUGINS" '{"plugins": $plugins}' )
