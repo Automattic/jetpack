@@ -178,7 +178,7 @@ function version_is_patch {
 	PATCH=${A[3]}
 
 	# If it exists, it's a patch level version
-	[ -n "$PATCH" ] && return 0
+	[[ -n "$PATCH" ]] && return 0
 
 	# Getting the third element of the array
 	PATCH=${A[2]}
