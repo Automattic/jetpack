@@ -3,6 +3,8 @@
  * Test_WPCOM_Additional_Css_Manager file.
  * Test WPCOM_Additional_CSS_Manager.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package Jetpack
  */
 
@@ -41,6 +43,9 @@ class Test_WPCOM_Additional_Css_Manager extends \WP_UnitTestCase {
 
 	/**
 	 * Check if the manager constructs the proper url and copy message.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_Additional_CSS_Manager::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPCOM_Additional_CSS_Manager::register_nudge
 	 */
 	public function test_it_generates_proper_url_and_nudge() {
 		$manager = new WPCOM_Additional_CSS_Manager( 'foo.com' );
