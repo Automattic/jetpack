@@ -213,9 +213,11 @@ fi
 
 git checkout -b prerelease
 if ! git push -u origin HEAD; then
+	send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 GITBASE=$( git rev-parse --verify HEAD )
+send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -286,14 +288,17 @@ while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
 done
 
 if [[ -z "$BUILDID" ]]; then
+	send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
 	die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
 fi
 
 yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
+	send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
 	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi
 
+send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
 yellow "Build is complete."
 
 # Wait for new versions of any composer packages to be up.
@@ -449,3 +454,5 @@ if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
 	the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
 	EOM
 fi
+
+send_tracks_event "jetpack_release_done"
