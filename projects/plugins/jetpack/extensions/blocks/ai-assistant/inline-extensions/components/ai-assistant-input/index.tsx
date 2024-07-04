@@ -28,6 +28,7 @@ export type AiAssistantInputProps = {
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
 	blockType: ExtendedInlineBlockProp;
+	feature: string;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -48,6 +49,7 @@ export default function AiAssistantInput( {
 	wrapperRef,
 	action,
 	blockType,
+	feature,
 	request,
 	stopSuggestion,
 	close,
@@ -77,10 +79,11 @@ export default function AiAssistantInput( {
 	const handleSend = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
 			block_type: blockType,
+			feature,
 		} );
 
 		request?.( value );
-	}, [ blockType, request, tracks, value ] );
+	}, [ blockType, feature, request, tracks, value ] );
 
 	const handleStopSuggestion = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_stop', {
