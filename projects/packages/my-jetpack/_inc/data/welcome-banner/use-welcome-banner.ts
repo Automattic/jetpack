@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { useCallback, useState } from 'react';
 import {
 	QUERY_DISMISS_WELCOME_BANNER_KEY,
 	REST_API_SITE_DISMISS_BANNER,
@@ -8,9 +9,11 @@ import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-s
 
 const useWelcomeBanner = () => {
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const isWelcomeBannerVisible = Object.keys( redBubbleAlerts ).includes( 'welcome-banner-active' );
+	const [ isWelcomeBannerVisible, setIsWelcomeBannerVisible ] = useState(
+		Object.keys( redBubbleAlerts ).includes( 'welcome-banner-active' )
+	);
 
-	const { mutate: dismissWelcomeBanner } = useSimpleMutation( {
+	const { mutate: handleDismissWelcomeBanner } = useSimpleMutation( {
 		name: QUERY_DISMISS_WELCOME_BANNER_KEY,
 		query: {
 			path: REST_API_SITE_DISMISS_BANNER,
@@ -21,6 +24,10 @@ const useWelcomeBanner = () => {
 			'jetpack-my-jetpack'
 		),
 	} );
+
+	const dismissWelcomeBanner = useCallback( () => {
+		handleDismissWelcomeBanner( null, { onSuccess: () => setIsWelcomeBannerVisible( false ) } );
+	}, [ handleDismissWelcomeBanner ] );
 
 	return {
 		dismissWelcomeBanner,

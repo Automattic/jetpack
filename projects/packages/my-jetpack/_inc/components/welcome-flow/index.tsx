@@ -1,7 +1,8 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import useRecommendationsSection from '../../data/recommendations-section/use-recommendations-section';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -15,6 +16,7 @@ import type { FC } from 'react';
 const WelcomeFlow: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
+	const { submitEvaluation, saveEvaluationResult } = useRecommendationsSection();
 	const {
 		siteIsRegistered,
 		siteIsRegistering,
@@ -24,8 +26,8 @@ const WelcomeFlow: FC = () => {
 	} = useMyJetpackConnection( {
 		skipUserConnection: true,
 	} );
-	const [ visible, setVisible ] = useState( isWelcomeBannerVisible );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
+	const [ prevStep, setPrevStep ] = useState( '' );
 
 	const currentStep = useMemo( () => {
 		if ( ! siteIsRegistered ) {
@@ -37,29 +39,58 @@ const WelcomeFlow: FC = () => {
 		return 'evaluation-processing';
 	}, [ isProcessingEvaluation, siteIsRegistered ] );
 
+	useEffect( () => {
+		if ( prevStep !== currentStep ) {
+			recordEvent( 'jetpack_myjetpack_welcome_banner_step_view', { currentStep } );
+			setPrevStep( currentStep );
+		}
+	}, [ currentStep, prevStep, recordEvent ] );
+
 	const onDismissClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', {
 			currentStep,
 			isUserConnected,
 			isSiteConnected,
 		} );
-		setVisible( false );
 		dismissWelcomeBanner();
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
 
 	const handleEvaluation = useCallback(
-		( _values: { [ key in EvaluationAreas ]: boolean } ) => {
+		( values: { [ key in EvaluationAreas ]: boolean } ) => {
+			const siteGoals = Object.keys( values ).filter( key => values[ key ] );
+
 			setIsProcessingEvaluation( true );
-			setTimeout( () => {
-				// TODO: Mock "evaluation": Implement the evaluation endpoint
-				setVisible( false );
-				dismissWelcomeBanner();
-			}, 3_000 );
+			recordEvent( 'jetpack_myjetpack_welcome_banner_submit_evaluation', { siteGoals } );
+			submitEvaluation(
+				{ queryParams: { goals: siteGoals } },
+				{
+					onSuccess: recommendations => {
+						// Convert object to array of [key, value] pairs
+						const recommendedModules = Object.entries( recommendations )
+							.sort( ( a, b ) => b[ 1 ] - a[ 1 ] )
+							.map( entry => entry[ 0 ] );
+
+						recordEvent( 'jetpack_myjetpack_welcome_banner_evaluation_success', {
+							recommendedModules,
+						} );
+						saveEvaluationResult(
+							{
+								data: { recommendations },
+							},
+							{
+								onSuccess: dismissWelcomeBanner,
+								onError: () => setIsProcessingEvaluation( false ),
+							}
+						);
+					},
+					onError: () => setIsProcessingEvaluation( false ),
+				}
+			);
 		},
-		[ dismissWelcomeBanner ]
+		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
 
-	if ( ! visible ) {
+	if ( ! isWelcomeBannerVisible ) {
 		return null;
 	}
 

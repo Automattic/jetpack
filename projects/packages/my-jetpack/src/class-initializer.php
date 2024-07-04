@@ -433,6 +433,7 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		new REST_Product_Data();
 		new REST_AI();
+		new REST_Recommendations_Evaluation();
 
 		register_rest_route(
 			'my-jetpack/v1',
