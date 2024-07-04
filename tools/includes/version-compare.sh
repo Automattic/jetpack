@@ -185,7 +185,5 @@ function version_is_patch {
 
 	[[ -z "$PATCH" ]] && return 1
 
-	[[ $PATCH -eq "0" ]] && return 1
-
-	return 0
+	[[ $PATCH -ne "0" ]]
 }
