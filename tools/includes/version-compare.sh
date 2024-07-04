@@ -183,7 +183,7 @@ function version_is_patch {
 	# Getting the third element of the array
 	PATCH=${A[2]}
 
-	[ -z "$PATCH" ] && return 1
+	[[ -z "$PATCH" ]] && return 1
 
 	[[ $PATCH -eq "0" ]] && return 1
 
