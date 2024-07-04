@@ -74,11 +74,11 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function is_dashboard_enabled() {
-		$is_dashboard_enabled          = true;
-		$wpcom_is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+		$is_dashboard_enabled    = true;
+		$uses_wp_admin_interface = function_exists( 'uses_wp_admin_interface' ) && uses_wp_admin_interface();
 
 		// On WordPress.com sites, the dashboard is not needed if the nav redesign is not enabled.
-		if ( ! $wpcom_is_nav_redesign_enabled && ( new Host() )->is_wpcom_platform() ) {
+		if ( ! $uses_wp_admin_interface && ( new Host() )->is_wpcom_platform() ) {
 			$is_dashboard_enabled = false;
 		}
 

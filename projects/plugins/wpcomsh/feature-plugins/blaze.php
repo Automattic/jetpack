@@ -46,7 +46,7 @@ add_action( 'init', 'wpcomsh_force_activate_blaze_module', 0, 0 );
  * @return array
  */
 function wpcomsh_rm_blaze_module_list( $items ) {
-	if ( isset( $items['blaze'] ) && ! wpcom_is_nav_redesign_enabled() ) {
+	if ( isset( $items['blaze'] ) && ! uses_wp_admin_interface() ) {
 		unset( $items['blaze'] );
 	}
 	return $items;

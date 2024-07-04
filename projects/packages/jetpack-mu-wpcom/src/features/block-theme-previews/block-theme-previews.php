@@ -14,7 +14,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * @since 12.4
  */
 
-if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+if ( ! function_exists( 'uses_wp_admin_interface' ) || ! uses_wp_admin_interface() ) {
 	add_filter(
 		'option_show_on_front',
 		function () {

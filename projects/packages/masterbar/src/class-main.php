@@ -29,7 +29,7 @@ class Main {
 
 		new Admin_Color_Schemes();
 
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		if ( function_exists( 'uses_wp_admin_interface' ) && uses_wp_admin_interface() ) {
 			return;
 		}
 
