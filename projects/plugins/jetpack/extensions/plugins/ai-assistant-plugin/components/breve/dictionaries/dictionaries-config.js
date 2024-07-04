@@ -1,7 +1,7 @@
+import phrases from '../features/complex-words/phrases';
 import { escapeRegExp } from '../utils/escapeRegExp';
 import adjectives from './adjectives';
 import adverbs from './adverbs';
-import phrases from './phrases';
 import weaselWords from './weaselWords';
 
 const config = {

@@ -9,13 +9,11 @@ import { applyFilters } from '@wordpress/hooks';
 /**
  * External dependencies
  */
-import React, { useState, useEffect, useLayoutEffect, useCallback, useMemo } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import Highlights from './Highlights';
 import config from './dictionaries/dictionaries-config';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
 import './breve.scss';
@@ -27,23 +25,6 @@ export const useInit = init => {
 		init();
 		setInitialized( true );
 	}
-};
-
-const getContainerEl = () => {
-	// Find the iframe by name attribute
-	const iframe = document.querySelector( 'iframe[name="editor-canvas"]' );
-
-	// Get the document inside the iframe
-	const iframeDocument = iframe?.contentDocument || iframe?.contentWindow.document;
-
-	// Find the container within the iframe or fall back to the main document
-	const container =
-		iframeDocument?.body || document.querySelector( '.edit-post-visual-editor > div' );
-
-	// Determine if the element is iframed
-	const isIframed = !! iframe;
-
-	return { foundContainer: container, foundIframe: isIframed };
 };
 
 const Controls = ( { blocks, active } ) => {
@@ -58,8 +39,10 @@ const Controls = ( { blocks, active } ) => {
 	const { requireUpgrade } = useAiFeature();
 	const isHighlighting = active;
 
+	// eslint-disable-next-line no-unused-vars
 	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
 	const [ gradeLevel, setGradeLevel ] = useState( null );
+	// eslint-disable-next-line no-unused-vars
 	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
 
 	const [ toggledKeys, setToggledKeys ] = useState( () => {
@@ -69,15 +52,6 @@ const Controls = ( { blocks, active } ) => {
 		} );
 		return initialState;
 	} );
-
-	const [ container, setContainer ] = useState( null );
-	const [ isIframed, setIsIframed ] = useState( true );
-
-	useLayoutEffect( () => {
-		const { foundContainer, foundIframe } = getContainerEl();
-		setContainer( foundContainer );
-		setIsIframed( foundIframe );
-	}, [] );
 
 	const updateGradeLevel = useCallback( () => {
 		if ( ! isHighlighting ) {
@@ -180,19 +154,6 @@ const Controls = ( { blocks, active } ) => {
 					) ) }
 				</BaseControl>
 			</PanelRow>
-
-			{ container &&
-				createPortal(
-					<Highlights
-						isHighlighting={ isHighlighting }
-						containerEl={ container }
-						isAIOn={ isAIOn }
-						toggledKeys={ toggledKeys }
-						isIframed={ isIframed }
-						content={ debouncedContentChangeFlag }
-					/>,
-					container
-				) }
 		</>
 	);
 };
