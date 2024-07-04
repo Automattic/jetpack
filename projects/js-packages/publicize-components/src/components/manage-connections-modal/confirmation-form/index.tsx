@@ -159,6 +159,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 				display_name: accountInfo?.label,
 				profile_picture: accountInfo?.profile_picture,
 				service_name: service.ID,
+				external_id: external_user_ID,
 			} );
 
 			onComplete();
