@@ -52,6 +52,11 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 		}
 
+		// These features run only on atomic sites.
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_custom_css' ) );
+		}
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
