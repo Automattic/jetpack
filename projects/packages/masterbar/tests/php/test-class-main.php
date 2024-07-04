@@ -23,7 +23,7 @@ class Test_Main extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
-		Functions\when( 'wpcom_is_nav_redesign_enabled' )->justReturn( false );
+		Functions\when( 'uses_wp_admin_interface' )->justReturn( false );
 	}
 
 	/**
