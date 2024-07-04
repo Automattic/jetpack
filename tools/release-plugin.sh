@@ -152,11 +152,15 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
 
 	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
+
+		# The version is a prerelease.
 		if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
 			VERSION_DIFF="bugfix"
 		fi
 
-	elif version_is_patch "${PROJECTS[$PLUGIN]}"; then
+	elif [[ "${PROJECTS[$PLUGIN]}" =~ ^[0-9]+\.[0-9]+\.[0.]*[1-9] ]]; then
+
+		# The version in patch-level.
 		VERSION_DIFF="bugfix"
 
 		# If a project follows semver versioning, we prompt.
