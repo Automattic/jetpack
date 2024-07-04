@@ -44,7 +44,7 @@ export const ScanThreats = () => {
 		const allThreats = [
 			...pluginsThreats,
 			...themesThreats,
-			...core.threats,
+			...( core?.threats ?? [] ),
 			...database,
 			...files,
 		];
