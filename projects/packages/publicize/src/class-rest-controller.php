@@ -82,7 +82,7 @@ class REST_Controller {
 
 		// Dismiss a notice.
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated $$next_version$$.
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',
@@ -146,7 +146,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
@@ -158,9 +158,31 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
 			)
 		);
+	}
+
+	/**
+	 * Manage connection permission
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can manage connections, false otherwise.
+	 */
+	public function manage_connection_permission_check( WP_REST_Request $request ) {
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		global $publicize;
+
+		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
+
+		$owns_connection = get_current_user_id() === (int) $connection['user_id'];
+
+		return $owns_connection;
 	}
 
 	/**
