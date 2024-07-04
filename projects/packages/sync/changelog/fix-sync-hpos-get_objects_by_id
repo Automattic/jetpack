@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Fix bug in WooCommerce_HPOS_Orders::get_objects_by_id method
