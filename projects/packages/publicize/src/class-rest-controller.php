@@ -146,7 +146,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
+				'permission_callback' => array( $this, 'update_connection_permission_check' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
@@ -164,11 +164,11 @@ class REST_Controller {
 	}
 
 	/**
-	 * Manage connection permission
+	 * Manage connection permission check
 	 *
 	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 *
-	 * @return bool True if the user can manage connections, false otherwise.
+	 * @return bool True if the user can manage the connection, false otherwise.
 	 */
 	public function manage_connection_permission_check( WP_REST_Request $request ) {
 
@@ -176,6 +176,11 @@ class REST_Controller {
 			return true;
 		}
 
+		/**
+		 * Publicize instance.
+		 *
+		 * @var Publicize $publicize Publicize instance.
+		 */
 		global $publicize;
 
 		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
@@ -183,6 +188,29 @@ class REST_Controller {
 		$owns_connection = get_current_user_id() === (int) $connection['user_id'];
 
 		return $owns_connection;
+	}
+
+	/**
+	 * Update connection permission check.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can update the connection, false otherwise.
+	 */
+	public function update_connection_permission_check( WP_REST_Request $request ) {
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return false;
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return true;
 	}
 
 	/**
