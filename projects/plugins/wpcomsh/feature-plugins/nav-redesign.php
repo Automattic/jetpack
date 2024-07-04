@@ -6,14 +6,12 @@
  */
 
 /**
- * Whether to enable the nav redesign.
+ * Whether the current blog uses wp-admin as the admin interface style.
  *
- * @return bool True if the nav redesign is enabled, false otherwise.
+ * @return bool Returns true if the blog uses wp-admin as the admin interface style, false otherwise.
  */
-function wpcom_is_nav_redesign_enabled() {
-	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-
-	return $uses_wp_admin_interface;
+function uses_wp_admin_interface() {
+	return get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 }
 
 /**
