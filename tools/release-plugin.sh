@@ -153,34 +153,25 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 
 	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
 		if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-			PATCH_LEVEL="bugfix"
-		else
-			PATCH_LEVEL="prerelease"
+			VERSION_DIFF="bugfix"
 		fi
 
 	elif version_is_patch "${PROJECTS[$PLUGIN]}"; then
+		VERSION_DIFF="bugfix"
 
 		# If a project follows semver versioning, we prompt.
 		if jq -e '.extra.changelogger["versioning"] == "semver"' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
-			if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
-				PATCH_LEVEL="bugfix"
-			else
-				PATCH_LEVEL="patch"
+			if ! proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
+				VERSION_DIFF="patch"
 			fi
-		else
-			PATCH_LEVEL="bugfix"
 		fi
-	elif [[ $VERSION_DIFF -eq 3 ]]; then
-		PATCH_LEVEL="minor"
-	elif [[ $VERSION_DIFF -eq 4 ]]; then
-		PATCH_LEVEL="major"
 	fi
 
 	RELEASED_PLUGINS=$(
 		jq \
 			--arg plugin "$PLUGIN" \
 			--arg version "${PROJECTS[$PLUGIN]}" \
-			--arg patchlevel "$PATCH_LEVEL" \
+			--arg patchlevel "$VERSION_DIFF" \
 			'.[ $plugin ] = {"version": $version, "type": $patchlevel} ' <<< "$RELEASED_PLUGINS"
 	)
 done

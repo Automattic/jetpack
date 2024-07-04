@@ -117,7 +117,7 @@ function version_diff {
 
 	case "$INCREMENT" in
 		"1")
-			echo "suffix"
+			echo "prerelease"
 			;;
 		"2")
 			echo "patch"
