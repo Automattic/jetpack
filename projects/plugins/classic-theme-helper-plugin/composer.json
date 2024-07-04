@@ -57,7 +57,6 @@
 		"mirror-repo": "Automattic/classic-theme-plugin",
 		"release-branch-prefix": "classic-theme-plugin",
 		"beta-plugin-slug": "classic-theme-helper-plugin",
-		"wp-plugin-slug": "classic-theme-helper-plugin",
 		"changelogger": {
 			"versioning": "semver"
 		}

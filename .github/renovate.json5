@@ -104,8 +104,8 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			reviewers: [ 'team:jetpack-search' ],
-			addLabels: [ 'Search', 'Instant Search' ],
+			reviewers: [ 'team:red' ],
+			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],
 
