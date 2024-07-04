@@ -21,8 +21,6 @@ function wpcomsh_woa_post_process_job_cache_flush( $args, $assoc_args ) {
 			'exit_error' => false,
 		)
 	);
-
-	WP_CLI::log( 'Cache flushed' );
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_job_cache_flush', 99, 2 );
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_process_job_cache_flush', 99, 2 );
@@ -96,7 +94,7 @@ function wpcomsh_woa_post_transfer_update_safecss_to_custom_css( $args, $assoc_a
 		);
 	}
 
-	WP_CLI::log( 'safecss posts updated to custom_css' );
+	WP_CLI::success( 'safecss posts updated to custom_css' );
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_update_safecss_to_custom_css', 10, 2 );
 add_action( 'wpcomsh_woa_post_reset', 'wpcomsh_woa_post_transfer_update_safecss_to_custom_css', 10, 2 );
@@ -121,7 +119,7 @@ function wpcomsh_woa_post_transfer_woo_express_trial_deactivate_plugins( $args, 
 		)
 	);
 
-	WP_CLI::log( 'Woo Express plugins deactivated' );
+	WP_CLI::success( 'Woo Express plugins deactivated' );
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_woo_express_trial_deactivate_plugins', 10, 2 );
 
@@ -145,6 +143,6 @@ function wpcomsh_woa_post_clone_set_staging_environment_type( $args, $assoc_args
 		)
 	);
 
-	WP_CLI::log( 'Staging environment set' );
+	WP_CLI::success( 'Staging environment set' );
 }
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_set_staging_environment_type', 10, 2 );
