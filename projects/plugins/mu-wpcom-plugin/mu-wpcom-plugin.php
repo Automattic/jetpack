@@ -1,7 +1,7 @@
 <?php
 /**
  *
- * Plugin Name: WordPress.com Features
+ * Plugin Name: WordPress.com Features!
  * Description: Test plugin for the jetpack-mu-wpcom package
  * Version: 2.3.3-alpha
  * Author: Automattic
