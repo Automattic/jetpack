@@ -95,14 +95,14 @@ function version_compare {
 #
 # @param $1 First version.
 # @param $2 Second version.
-# @return 0 if equal, 1 if suffix, 2 if patch, 3 if minor, 4 if major.
+# Outputs: equal, suffix, patch, minor, or major.
 function version_diff {
 	# Variable for the version_difference call
 	local INCREMENT
 
 	# Returning 0 if neither $1 > $2, nor $2 > $1
 	if ! version_compare "$1" "$2" 1 && ! version_compare "$2" "$1" 1; then
-		return 0
+		echo "equal"
 	fi
 
 	if version_compare "$1" "$2"; then
@@ -115,7 +115,20 @@ function version_diff {
 		version_get_increment "$1" "$2"
 	fi
 
-	echo "$INCREMENT"
+	case "$INCREMENT" in
+		"1")
+			echo "suffix"
+			;;
+		"2")
+			echo "patch"
+			;;
+		"3")
+			echo "minor"
+			;;
+		"4")
+			echo "major"
+			;;
+	esac
 }
 
 # Compute the increment needed to get from $1 to $2, semver style.
