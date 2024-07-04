@@ -81,7 +81,13 @@ const ValueSection: FC< {
 			<div className="value-section__last-scan">
 				{ lastScanText && <div>{ lastScanText }</div> }
 				{ ! isProtectActive && (
-					<InfoTooltip>
+					<InfoTooltip
+						tracksEventName={ 'protect_card_tooltip_open' }
+						tracksEventProps={ {
+							location: 'plugins&themes',
+							status: 'inactive',
+						} }
+					>
 						<>
 							<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
 							<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>

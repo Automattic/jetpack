@@ -31,7 +31,7 @@ type ScanItem = {
 	checked: boolean;
 	name: string;
 	slug: string;
-	threats: string[];
+	threats: object[];
 	type: string;
 	version: string;
 };

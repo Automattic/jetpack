@@ -68,4 +68,30 @@
     }
 }
 
+.scan-threats {
+    &__threat-count {
+        font-size: 32px;
+        line-height: var(--font-title-large);
+        font-weight: 400;
+        color: var(--jp-black);
+    }
+
+    &__critical-threats {
+        display: flex;
+        align-items: center;
+    }
+
+    &__critical-threat-container {
+        margin-left: 1px;
+        > button > svg {
+            fill: var(--jp-red-50);
+        }
+    }
+
+    &__critical-threat-count {
+        color: var(--jp-red-50);
+        margin-left: 2px;
+    }
+}
+
 
