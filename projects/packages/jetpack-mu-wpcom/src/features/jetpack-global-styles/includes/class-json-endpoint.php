@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack\Global_Styles;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles;
 
 /**
  * REST API endpoint for Global Styles plugin.

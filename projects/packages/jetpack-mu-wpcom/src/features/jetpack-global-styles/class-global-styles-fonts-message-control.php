@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack\Global_Styles;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles;
 
 /**
  * Class Global_Styles_Fonts_Message_Control

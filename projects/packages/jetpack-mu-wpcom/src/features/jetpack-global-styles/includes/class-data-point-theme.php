@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack\Global_Styles;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles;
 
 require_once __DIR__ . '/interface-data-point.php';
 
@@ -54,7 +54,7 @@ class Data_Point_Theme implements Data_Point {
 	}
 
 	/**
-	 * Implements the \Automattic\Jetpack\Global_Styles\Data_Point interface.
+	 * Implements the \Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles\Data_Point interface.
 	 *
 	 * @return mixed The theme value.
 	 */

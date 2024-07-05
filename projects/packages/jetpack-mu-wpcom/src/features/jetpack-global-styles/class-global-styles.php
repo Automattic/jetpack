@@ -5,7 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack\Global_Styles;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
@@ -17,14 +17,14 @@ class Global_Styles {
 	/**
 	 * Class instance.
 	 *
-	 * @var \Automattic\Jetpack\Global_Styles\Global_Styles
+	 * @var \Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles\Global_Styles
 	 */
 	private static $instance = null;
 
 	/**
 	 * Holds the internal data description to be exposed through REST API.
 	 *
-	 * @var \Automattic\Jetpack\Global_Styles\Data_Set
+	 * @var \Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles\Data_Set
 	 */
 	private $rest_api_data;
 
@@ -133,7 +133,7 @@ class Global_Styles {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \Automattic\Jetpack\Global_Styles\Global_Styles
+	 * @return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles\Global_Styles
 	 */
 	public static function init() {
 		if ( self::$instance === null ) {
