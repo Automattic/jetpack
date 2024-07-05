@@ -18,6 +18,8 @@ module.exports = [
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 			'override-preview-button-url':
 				'./src/features/override-preview-button-url/override-preview-button-url.js',
+			'paragraph-block-placeholder':
+				'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,
