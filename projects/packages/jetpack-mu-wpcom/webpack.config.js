@@ -8,14 +8,17 @@ module.exports = [
 	...verbumConfig,
 	{
 		entry: {
-			'error-reporting': './src/features/error-reporting/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
-			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
+			'error-reporting': './src/features/error-reporting/index.js',
+			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
+			'jetpack-global-styles-customizer-fonts':
+				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
+			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,

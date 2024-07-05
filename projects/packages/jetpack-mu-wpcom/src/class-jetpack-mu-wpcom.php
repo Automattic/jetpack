@@ -97,6 +97,7 @@ class Jetpack_Mu_Wpcom {
 		}
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
+		require_once __DIR__ . '/features/jetpack-global-styles/jetpack-global-styles.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
