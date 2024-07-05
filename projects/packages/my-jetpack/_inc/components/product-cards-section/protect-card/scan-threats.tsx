@@ -6,6 +6,7 @@ import { useMemo, useState, useCallback, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
@@ -17,6 +18,7 @@ export const ScanThreats = () => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
+	const { isSiteConnected } = useMyJetpackConnection();
 	const { plugins, themes, scanData } = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
@@ -79,7 +81,7 @@ export const ScanThreats = () => {
 		}
 	}, [ setIsPopoverVisible, useTooltipRef ] );
 
-	if ( isPluginActive ) {
+	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {
 			if ( numThreats ) {
 				if ( criticalScanThreatCount ) {
