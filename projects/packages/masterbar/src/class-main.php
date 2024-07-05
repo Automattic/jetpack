@@ -29,7 +29,7 @@ class Main {
 
 		new Admin_Color_Schemes();
 
-		if ( function_exists( 'uses_wp_admin_interface' ) && uses_wp_admin_interface() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			return;
 		}
 

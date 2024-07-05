@@ -85,7 +85,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$should_use_nav_redesign = function_exists( 'uses_wp_admin_interface' ) && uses_wp_admin_interface();
+		$should_use_nav_redesign = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 		if ( ! ( new Host() )->is_wpcom_platform() && ! $should_use_nav_redesign ) {
 			require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/load.php';
 		}
