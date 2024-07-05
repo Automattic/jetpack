@@ -22,7 +22,7 @@ function send_tracks_event {
 		PAYLOAD=$(jq --argjson extraParams "$2" '.events[0] += $extraParams' <<< "$PAYLOAD")
 	fi
 
-	## True on fail to bypass pipefail.
+	# True on fail to bypass pipefail.
 	TRACKS_RESPONSE=$(curl --fail -sS "$TRACKS_URL" \
 		-H "User-Agent: $USER_AGENT" \
 		-H 'Accept-Encoding: gzip, deflate' \
