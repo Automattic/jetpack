@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Fix HPOS checksum support for wc_order_operational_data
