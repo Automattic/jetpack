@@ -2,7 +2,7 @@
 /**
  * Class Data Point Theme.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
@@ -55,6 +55,8 @@ class Data_Point_Theme implements Data_Point {
 
 	/**
 	 * Implements the \Automattic\Jetpack\Global_Styles\Data_Point interface.
+	 *
+	 * @return mixed The theme value.
 	 */
 	public function get_value() {
 		$theme_support = get_theme_support( $this->feature_name );

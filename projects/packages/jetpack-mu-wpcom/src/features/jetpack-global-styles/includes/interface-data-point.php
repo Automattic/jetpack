@@ -2,7 +2,7 @@
 /**
  * Interface Data Point.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
@@ -11,7 +11,7 @@ interface Data_Point {
 	/**
 	 * Return value of the data point.
 	 *
-	 * @return any
+	 * @return mixed
 	 */
 	public function get_value();
 }

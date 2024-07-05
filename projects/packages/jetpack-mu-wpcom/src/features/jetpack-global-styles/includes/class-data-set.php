@@ -2,7 +2,7 @@
 /**
  * Class Data Set.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;

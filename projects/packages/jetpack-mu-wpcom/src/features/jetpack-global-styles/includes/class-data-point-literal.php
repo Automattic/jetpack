@@ -2,7 +2,7 @@
 /**
  * Class Data Point Literal.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
@@ -17,14 +17,14 @@ class Data_Point_Literal implements Data_Point {
 	/**
 	 * Holds the literal value.
 	 *
-	 * @var any
+	 * @var mixed
 	 */
 	private $value;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param any $meta Data point description.
+	 * @param array $meta Data point description.
 	 */
 	public function __construct( $meta ) {
 		if ( array_key_exists( 'default', $meta ) ) {
@@ -35,7 +35,7 @@ class Data_Point_Literal implements Data_Point {
 	/**
 	 * Implements \Automattic\Jetpack\Global_Styles\Data_Point interface.
 	 *
-	 * @return any The literal value.
+	 * @return mixed The literal value.
 	 */
 	public function get_value() {
 		return $this->value;

@@ -2,7 +2,7 @@
 /**
  * A WP_Customize_Control for giving instructions on how to edit your fonts from within the Global Styles plugin.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;

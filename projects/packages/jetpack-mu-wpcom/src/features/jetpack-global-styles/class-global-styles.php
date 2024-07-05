@@ -2,10 +2,12 @@
 /**
  * Global Styles file.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
+
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * Class Global_Styles
@@ -259,7 +261,7 @@ class Global_Styles {
 	 * Register customizer modifications
 	 * Add the 'Font' section to customizer.
 	 *
-	 * @param WP_Customize_Manager $wp_customize an instance of WP_Customize_Manager.
+	 * @param \WP_Customize_Manager $wp_customize an instance of WP_Customize_Manager.
 	 */
 	public function register_customizer_option( $wp_customize ) {
 		require_once __DIR__ . '/class-global-styles-fonts-message-control.php';
@@ -378,7 +380,7 @@ class Global_Styles {
 	 *
 	 * @param array $settings The editor settings.
 	 *
-	 * @return $settings array with the inline styles added.
+	 * @return array $settings array with the inline styles added.
 	 */
 	public function block_editor_settings( $settings ) {
 		if ( empty( $settings['styles'] ) || ! is_array( $settings['styles'] ) ) {
@@ -438,7 +440,6 @@ class Global_Styles {
 			'jetpack-global-styles-frontend-style',
 			false,
 			array(),
-			true,
 			true
 		);
 		wp_add_inline_style( 'jetpack-global-styles-frontend-style', $this->get_inline_css( true ) );
@@ -505,14 +506,14 @@ class Global_Styles {
 		 * }
 		 *
 		 */
-		$result = $result . ':root {';
-		$value  = '';
-		$keys   = array( 'font_headings', 'font_base', 'font_headings_default', 'font_base_default' );
+		$result .= ':root {';
+		$value   = '';
+		$keys    = array( 'font_headings', 'font_base', 'font_headings_default', 'font_base_default' );
 		foreach ( $keys as $key ) {
-			$value  = $data[ $key ];
-			$result = $result . ' --' . str_replace( '_', '-', $key ) . ': ' . $value . ';';
+			$value   = $data[ $key ];
+			$result .= ' --' . str_replace( '_', '-', $key ) . ': ' . $value . ';';
 		}
-		$result = $result . '}';
+		$result .= '}';
 
 		/*
 		 * If the theme opts-in, also add a default stylesheet
@@ -531,7 +532,7 @@ class Global_Styles {
 			array_key_exists( 'enqueue_experimental_styles', $theme_defaults ) &&
 			true === $theme_defaults['enqueue_experimental_styles']
 		) {
-			$result = $result . file_get_contents( plugin_dir_path( __FILE__ ) . 'static/style.css', true );
+			$result .= file_get_contents( plugin_dir_path( __FILE__ ) . 'static/style.css', true );
 		}
 
 		return $result;

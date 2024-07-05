@@ -2,7 +2,7 @@
 /**
  * Class Data Point Option.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
@@ -31,7 +31,7 @@ class Data_Point_Option implements Data_Point {
 	/**
 	 * Default option value.
 	 *
-	 * @var any
+	 * @var mixed
 	 */
 	private $default_value;
 
@@ -58,7 +58,7 @@ class Data_Point_Option implements Data_Point {
 	/**
 	 * Implements \Automattic\Jetpack\Global_Styles\Data_Point interface.
 	 *
-	 * @return any The value to return.
+	 * @return mixed The value to return.
 	 */
 	public function get_value() {
 		if ( ! isset( $this->option_property ) ) {
@@ -85,9 +85,9 @@ class Data_Point_Option implements Data_Point {
 	/**
 	 * Process new data.
 	 *
-	 * @param any $current_option_value Current option value.
-	 * @param any $new_value Value to update.
-	 * @return any The modified option value.
+	 * @param mixed $current_option_value Current option value.
+	 * @param mixed $new_value Value to update.
+	 * @return mixed The modified option value.
 	 */
 	public function process_data_point( $current_option_value, $new_value ) {
 		$result = $current_option_value;

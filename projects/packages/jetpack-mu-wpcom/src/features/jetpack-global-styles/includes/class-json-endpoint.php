@@ -2,7 +2,7 @@
 /**
  * JSON REST API endpoint for Global Styles plugin.
  *
- * @package Automattic\Jetpack\Global_Styles
+ * @package automattic/jetpack-mu-wpcom
  */
 
 namespace Automattic\Jetpack\Global_Styles;
@@ -29,7 +29,7 @@ class JSON_Endpoint extends \WP_REST_Controller {
 	/**
 	 * Object holding the data description to work with.
 	 *
-	 * @var Automattic\Jetpack\Global_Styles\Data_Set
+	 * @var Data_Set
 	 */
 	private $data_set;
 
@@ -45,7 +45,7 @@ class JSON_Endpoint extends \WP_REST_Controller {
 	 *
 	 * @param string   $rest_namespace Namespace for the REST endpoint.
 	 * @param string   $rest_route Route name.
-	 * @param array    $data_set Description of the data to work with.
+	 * @param Data_Set $data_set Description of the data to work with.
 	 * @param callable $permission_cb Permission check callback.
 	 */
 	public function __construct( $rest_namespace, $rest_route, $data_set, $permission_cb ) {
