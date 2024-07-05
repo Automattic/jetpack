@@ -94,6 +94,9 @@ domReady( function () {
 						post_access_level: form.dataset.post_access_level,
 						display: 'alternate',
 					} ).then( () => {
+						// Allows hiding other modals when the subscription modal/iframe shows up, e.g. hiding the subscription overlay modal
+						form.dispatchEvent( new Event( 'subscription-modal-loaded' ) );
+
 						button.classList.remove( 'is-loading' );
 						button.setAttribute( 'aria-busy', 'false' );
 					} );
