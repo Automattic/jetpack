@@ -185,7 +185,7 @@ class REST_Controller {
 
 		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
 
-		$owns_connection = get_current_user_id() === (int) $connection['user_id'];
+		$owns_connection = isset( $connection['user_id'] ) && get_current_user_id() === (int) $connection['user_id'];
 
 		return $owns_connection;
 	}
