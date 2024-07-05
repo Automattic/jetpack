@@ -17,7 +17,7 @@ const addTagsEducationLink = createHigherOrderComponent( PostTaxonomyType => {
 				<ExternalLink
 					href="https://wordpress.com/support/posts/tags/"
 					onClick={ () => {
-						tracks.recordEvent( 'wpcom_block_editor_tags_education_link_click' );
+						tracks.recordEvent( 'jetpack_mu_wpcom_tags_education_link_click' );
 					} }
 				>
 					{ window.wpcomTagsEducation.actionText }
