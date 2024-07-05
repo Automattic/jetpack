@@ -103,6 +103,7 @@ function version_diff {
 	# Returning 0 if neither $1 > $2, nor $2 > $1
 	if ! version_compare "$1" "$2" 1 && ! version_compare "$2" "$1" 1; then
 		echo "equal"
+		return
 	fi
 
 	if version_compare "$1" "$2"; then
