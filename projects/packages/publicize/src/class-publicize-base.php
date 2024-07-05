@@ -2040,18 +2040,6 @@ abstract class Publicize_Base {
 	public function get_supported_additional_connections() {
 		$additional_connections = array();
 
-		if ( $this->has_connection_feature( 'instagram' ) ) {
-			$additional_connections[] = 'instagram-business';
-		}
-
-		if ( $this->has_connection_feature( 'mastodon' ) ) {
-			$additional_connections[] = 'mastodon';
-		}
-
-		if ( $this->has_connection_feature( 'nextdoor' ) ) {
-			$additional_connections[] = 'nextdoor';
-		}
-
 		if ( $this->has_connection_feature( 'threads' ) ) {
 			$additional_connections[] = 'threads';
 		}

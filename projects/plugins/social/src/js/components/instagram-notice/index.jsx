@@ -4,12 +4,7 @@ import {
 	Notice,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import {
-	useDismissNotice,
-	SOCIAL_STORE_ID,
-	getSupportedAdditionalConnections,
-	CONNECTION_SERVICE_INSTAGRAM_BUSINESS,
-} from '@automattic/jetpack-publicize-components';
+import { useDismissNotice, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -39,10 +34,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		dismissNotice( NOTICES.instagram );
 	}, [ dismissNotice, NOTICES ] );
 
-	if (
-		! shouldShowNotice( NOTICES.instagram ) ||
-		! getSupportedAdditionalConnections().includes( CONNECTION_SERVICE_INSTAGRAM_BUSINESS )
-	) {
+	if ( ! shouldShowNotice( NOTICES.instagram ) ) {
 		return null;
 	}
 
