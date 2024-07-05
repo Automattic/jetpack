@@ -141,7 +141,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_social_basic_yearly';
+		return 'jetpack_social_v1_yearly';
 	}
 
 	/**
