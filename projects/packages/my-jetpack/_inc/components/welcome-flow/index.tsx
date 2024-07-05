@@ -60,7 +60,7 @@ const WelcomeFlow: FC = () => {
 			const goals = Object.keys( values ).filter( key => values[ key ] );
 
 			setIsProcessingEvaluation( true );
-			recordEvent( 'jetpack_myjetpack_welcome_banner_submit_evaluation', { goals } );
+			recordEvent( 'jetpack_myjetpack_welcome_banner_evaluation_submit', { goals } );
 
 			try {
 				const recommendations = await submitEvaluation( goals );

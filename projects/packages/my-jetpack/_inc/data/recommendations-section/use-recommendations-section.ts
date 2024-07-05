@@ -73,7 +73,7 @@ const useRecommendationsSection = () => {
 		submitEvaluation,
 		saveEvaluationResult,
 		recommendedModules,
-		isSectionVisible: null != recommendedModules && ! isWelcomeBannerVisible,
+		isSectionVisible: recommendedModules !== null && ! isWelcomeBannerVisible,
 	};
 };
 
