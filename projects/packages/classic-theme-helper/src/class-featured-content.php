@@ -760,6 +760,4 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 			}
 		}
 	}
-
-	Featured_Content::setup();
 }
