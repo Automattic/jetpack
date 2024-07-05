@@ -102,9 +102,15 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 4.5.1 - 2024-06-18
+### 4.5.2 - 2024-07-03
+#### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
+
 #### Fixed
-- My Jetpack: Update My Jetpack to a more stable version.
+- Fixed E2E tests navigating to block editor
+- Fixed the admin page pricing table not shown
+- Social: Fixed broken connections reconnect link to point it to new connections UI
 
 == Upgrade Notice ==
 

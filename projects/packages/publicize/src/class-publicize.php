@@ -254,7 +254,7 @@ class Publicize extends Publicize_Base {
 									'connection_id'  => $connection['connection_data']['id'],
 									'can_disconnect' => self::can_manage_connection( $connection['connection_data'] ),
 									'profile_link'   => $this->get_profile_link( $service_name, $connection ),
-									'shared'         => $connection['connection_data']['user_id'] === '0',
+									'shared'         => '0' === $connection['connection_data']['user_id'],
 									'status'         => 'ok',
 								)
 							);
@@ -491,7 +491,7 @@ class Publicize extends Publicize_Base {
 		}
 
 		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
-		if ( $connections === false ) {
+		if ( false === $connections ) {
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.fetchPublicizeConnections' );
 			if ( ! $xml->isError() ) {
@@ -693,7 +693,7 @@ class Publicize extends Publicize_Base {
 	public function post_is_done_sharing( $post_id = null ) {
 		// Defaults to current post if $post_id is null.
 		$post = get_post( $post_id );
-		if ( $post === null ) {
+		if ( null === $post ) {
 			return false;
 		}
 
@@ -708,7 +708,7 @@ class Publicize extends Publicize_Base {
 	 * @param WP_Post $post Post object.
 	 */
 	public function save_publicized( $post_ID, $post = null ) {
-		if ( $post === null ) {
+		if ( null === $post ) {
 			return;
 		}
 		// Only do this when a post transitions to being published.

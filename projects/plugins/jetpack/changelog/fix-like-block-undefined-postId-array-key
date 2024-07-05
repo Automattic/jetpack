@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Like block: Fix warning displayed when trying to load the Like block on unsupported pages

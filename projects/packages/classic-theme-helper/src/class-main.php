@@ -22,8 +22,7 @@ class Main {
 	 * @var array
 	 */
 	public $modules = array(
-		'class-featured-content.php',
-		// 'responsive-videos.php',
+		'responsive-videos.php',
 	);
 
 	/** Holds the singleton instance of the Loader
@@ -38,7 +37,7 @@ class Main {
 	public static function init() {
 		if ( ! self::$instance ) {
 			self::$instance = new Main();
-			add_action( 'plugins_loaded', array( self::$instance, 'load_modules' ) );
+			self::$instance->load_modules();
 			// TODO Commenting below since we still load them from theme-tools module
 			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
 			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
@@ -124,4 +123,5 @@ class Main {
 		}
 	}
 }
+
 Main::init();

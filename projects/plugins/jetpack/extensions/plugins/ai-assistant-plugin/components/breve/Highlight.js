@@ -35,7 +35,7 @@ const Highlight = ( {
 	type,
 	rect,
 	rangeIndex,
-	replacementText,
+	target,
 	replacement,
 	range,
 	clientId,
@@ -72,7 +72,7 @@ const Highlight = ( {
 	const rangeEnd = range.endOffset;
 	const rangeParent = range.startContainer.parentNode;
 
-	let parentSentenceText = '';
+	let sentence = '';
 	let blockText = '';
 
 	blockText = rangeParent.textContent || rangeParent.innerText;
@@ -81,7 +81,7 @@ const Highlight = ( {
 	const startIndex = preText.lastIndexOf( '.' ) + 1;
 	const endIndex =
 		postText.indexOf( '.' ) === -1 ? blockText.length : rangeEnd + postText.indexOf( '.' ) + 1;
-	parentSentenceText = blockText.substring( startIndex, endIndex ).trim();
+	sentence = blockText.substring( startIndex, endIndex ).trim();
 
 	const dictConfig = config.dictionaries[ type ];
 
@@ -124,7 +124,7 @@ const Highlight = ( {
 			return;
 		}
 
-		const messages = getRequestMessages( { replacementText, type, parentSentenceText, blockText } );
+		const messages = getRequestMessages( { target, type, sentence, blockText } );
 
 		request( messages );
 	};

@@ -106,6 +106,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 
 										return (
 											<button
+												aria-label={ value.name }
 												type="button"
 												key={ service }
 												onClick={ e => handleClick( e, service ) }

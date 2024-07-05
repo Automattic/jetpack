@@ -26,6 +26,9 @@
 		--verbum-content-background-color: rgba(255, 255, 255, 0.1);
 		--verbum-element-opacity: 1;
 		--wp--preset--color--primary: var(--verbum-font-color);
+		--verbum-focus-color: #fff;
+		--verbum-focus-background-color: #fff;
+		--verbum-border-focus-width: 1.5px;
 	}
 
 	&.transparent {
@@ -36,6 +39,9 @@
 		--verbum-content-background-color: rgba(255, 255, 255, 0.6);
 		--verbum-element-opacity: .9;
 		--wp--preset--color--primary: var(--verbum-font-color);
+		--verbum-focus-color: #0675c4;
+		--verbum-focus-background-color: #fff;
+		--verbum-border-focus-width: 1.5px;
 	}
 
 	&.light {
@@ -46,6 +52,9 @@
 		--verbum-content-background-color: #FFFFFF;
 		--verbum-element-opacity: 1;
 		--wp--preset--color--primary: var(--verbum-font-color);
+		--verbum-focus-color: #0675c4;
+		--verbum-focus-background-color: #fff;
+		--verbum-border-focus-width: 1.5px;
 	}
 
 }
@@ -80,6 +89,26 @@
 		#comment-form__verbum {
 			@include color-schemes;
 
+			&.dark {
+				.comment-form__subscription-options .verbum-subscriptions.logged-out .verbum-logins button.social-button {
+					&:focus-visible {
+						box-shadow: inset 0 0 0 0 var(--verbum-focus-background-color),
+							0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
+					}
+				}
+
+				.verbum-footer .verbum-footer__submit #comment-submit {
+					&:not(:disabled) {
+
+						&:focus,
+						&:active {
+							box-shadow: inset 0 0 0 0px var(--verbum-focus-background-color),
+								0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
+						}
+					}
+				}
+			}
+
 			background-color: var(--verbum-background-color);
 			border: 1px solid var(--verbum-border-color);
 			font-family: var(--wp--preset--font-family--system-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -102,6 +131,10 @@
 				border: none;
 				padding: 0;
 				display: grid;
+
+				.editor__main.loading-placeholder {
+					color: var(--verbum-font-color);
+				}
 
 				&.verbum-text-area {
 
@@ -178,8 +211,7 @@
 
 						&:active,
 						&:focus {
-							box-shadow: 0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent,
-									var(--wp-admin-theme-color, rgb(0, 124, 186)));
+							box-shadow: 0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
 						}
 					}
 
@@ -244,7 +276,7 @@
 										}
 
 										&:focus {
-											outline: 2px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+											outline: 2px solid var(--verbum-focus-color);
 										}
 									}
 								}
@@ -330,6 +362,11 @@
 
 								&.mail {
 									background-color: #3C97CE;
+								}
+
+								&:focus-visible {
+									box-shadow: inset 0 0 0 1px var(--verbum-focus-background-color),
+										0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color);
 								}
 							}
 
@@ -426,7 +463,7 @@
 						}
 
 						&:focus {
-							outline: 2px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+							outline: 2px solid var(--verbum-focus-color);
 						}
 					}
 				}
@@ -471,10 +508,8 @@
 
 							&:focus,
 							&:active {
-								box-shadow:
-									inset 0 0 0 1px var(--wp-components-color-background, #fff),
-									0 0 0 var(--wp-admin-border-width-focus) var(--wp-components-color-accent,
-										var(--wp-admin-theme-color, #0675c4));
+								box-shadow: inset 0 0 0 1px var(--verbum-focus-background-color),
+									0 0 0 var(--verbum-border-focus-width) var(--verbum-focus-color,#0675c4);
 							}
 
 							&:hover {
