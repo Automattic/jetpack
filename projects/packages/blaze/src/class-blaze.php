@@ -123,7 +123,7 @@ class Blaze {
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
 				'https://wordpress.com/advertising/' . $domain,
-				null,
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
 				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );

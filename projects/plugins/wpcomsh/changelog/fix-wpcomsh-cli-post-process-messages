@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use wp-cli `success` function for messages
