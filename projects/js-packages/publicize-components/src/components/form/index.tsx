@@ -26,7 +26,6 @@ import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
 import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
@@ -108,7 +107,6 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					<EnabledConnectionsNotice />
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
