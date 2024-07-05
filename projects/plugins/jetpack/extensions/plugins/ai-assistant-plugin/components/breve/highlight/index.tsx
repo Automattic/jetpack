@@ -3,7 +3,7 @@
  */
 import { Popover } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useLayoutEffect } from '@wordpress/element';
+import { useLayoutEffect, useRef } from '@wordpress/element';
 import { registerFormatType } from '@wordpress/rich-text';
 /**
  * Internal dependencies
@@ -14,14 +14,14 @@ import getContainer from '../features/container';
 
 // Setup the Breve highlights
 export default function Highlight() {
+	const debounce = useRef( null );
 	const { setBlockContent } = useDispatch( 'jetpack/ai-breve' );
-
 	const { foundContainer: container } = getContainer();
 	const anchor = container?.querySelector?.( `[data-ai-breve-anchor]` );
 
 	const postContent = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const all = ( select( 'core/editor' ) as any ).getEditorBlocks();
+		const all = ( select( 'core/block-editor' ) as any ).getBlocks();
 		const richValues = all.filter( block => block.name === 'core/paragraph' );
 		return richValues;
 	}, [] );
@@ -33,10 +33,14 @@ export default function Highlight() {
 	);
 
 	useLayoutEffect( () => {
-		if ( postContent ) {
-			postContent.forEach( block => {
-				setBlockContent( block );
-			} );
+		if ( postContent?.length > 0 ) {
+			// Debounce the block content update
+			clearTimeout( debounce.current );
+			debounce.current = setTimeout( () => {
+				postContent.forEach( block => {
+					setBlockContent( block?.clientId );
+				} );
+			}, 1000 );
 		}
 	}, [ postContent, setBlockContent ] );
 

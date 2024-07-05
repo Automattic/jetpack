@@ -32,19 +32,19 @@ function handleMouseLeave( e ) {
 
 export function registerComplexWordsEvents() {
 	const { foundContainer: container } = getContainer();
-	const items = container.querySelectorAll( "[data-type='complex-words']" );
+	const items = container?.querySelectorAll?.( "[data-type='complex-words']" );
 
 	items.forEach( highlightEl => {
-		highlightEl.removeEventListener( 'mouseenter', handleMouseEnter );
-		highlightEl.addEventListener( 'mouseenter', handleMouseEnter );
-		highlightEl.removeEventListener( 'mouseleave', handleMouseLeave );
-		highlightEl.addEventListener( 'mouseleave', handleMouseLeave );
+		highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
+		highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
+		highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
+		highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
 	} );
 }
 
 export default function complexWords( text ) {
 	const list = new RegExp(
-		`(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\s`,
+		`(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
 		'gi'
 	);
 

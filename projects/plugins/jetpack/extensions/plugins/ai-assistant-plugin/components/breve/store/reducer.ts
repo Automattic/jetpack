@@ -17,14 +17,14 @@ export function popover( state = { isOpen: false }, action ) {
 
 export function content( state = [], action ) {
 	switch ( action.type ) {
-		case 'SET_BLOCK_CONTENT': {
+		case 'SET_BLOCK_TEXT': {
 			const clientId = action.clientId;
-			const blockContent = action.content;
-			const idx = state.findIndex( item => item.clientId === clientId );
+			const blockText = action.text;
+			const idx = action.index;
 
-			if ( idx !== -1 ) {
+			if ( idx > -1 ) {
 				const newState = [ ...state ];
-				newState[ idx ].content = blockContent;
+				newState[ idx ].text = blockText;
 				return newState;
 			}
 
@@ -32,7 +32,7 @@ export function content( state = [], action ) {
 				...state,
 				{
 					clientId,
-					content: blockContent,
+					text: blockText,
 				},
 			];
 		}
