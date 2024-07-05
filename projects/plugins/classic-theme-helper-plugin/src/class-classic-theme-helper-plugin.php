@@ -23,29 +23,6 @@ class Classic_Theme_Helper_Plugin {
 	}
 
 	/**
-	 * Initialize the plugin.
-	 */
-	public static function init() {
-
-		// Init Jetpack packages
-		add_action( 'plugins_loaded', array( static::class, 'init_packages' ), 1 );
-	}
-
-	/**
-	 * Configure what Jetpack packages should get automatically initialized.
-	 *
-	 * @return void
-	 */
-	public static function init_packages() {
-		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
-			Automattic\Jetpack\Classic_Theme_Helper\Main::init();
-		}
-		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Featured_Content' ) ) {
-			Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
-		}
-	}
-
-	/**
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {

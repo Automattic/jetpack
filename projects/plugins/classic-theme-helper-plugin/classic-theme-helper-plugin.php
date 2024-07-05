@@ -52,5 +52,19 @@ add_filter(
 	}
 );
 
-// Initialize the plugin's main class.
-Classic_Theme_Helper_Plugin::init();
+	// Init Jetpack packages
+	add_action( 'plugins_loaded', 'init_packages', 1 );
+
+	/**
+	 * Configure what Jetpack packages should get automatically initialized.
+	 *
+	 * @return void
+	 */
+function init_packages() {
+	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
+		Automattic\Jetpack\Classic_Theme_Helper\Main::init();
+	}
+	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Featured_Content' ) ) {
+		Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+	}
+}
