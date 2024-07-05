@@ -18,6 +18,8 @@ module.exports = [
 			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
+			'override-preview-button-url':
+				'./src/features/override-preview-button-url/override-preview-button-url.js',
 			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
 		},
 		mode: jetpackConfig.mode,
