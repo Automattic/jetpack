@@ -244,3 +244,17 @@ function wpcomsh_prevent_owner_removal( $allcaps, $caps, $args ) {
 	return $allcaps;
 }
 add_filter( 'user_has_cap', 'wpcomsh_prevent_owner_removal', 10, 3 );
+
+/**
+ * Remove WordPress Events and News feed widget from the dashboard.
+ *
+ * We want to remove it for WPcom blogs since it's not relevant for them.
+ *
+ * @return void
+ */
+function wpcomsh_remove_wp_dashboard_events_news() {
+	remove_meta_box( 'dashboard_primary', get_current_screen(), 'side' );
+}
+
+add_action( 'wp_dashboard_setup', 'wpcomsh_remove_wp_dashboard_events_news' ); // Removes the widget from /wp-admin
+add_action( 'wp_user_dashboard_setup', 'wpcomsh_remove_wp_dashboard_events_news' ); // Removes the widget from /wp-admin/user
