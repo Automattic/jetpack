@@ -83,7 +83,7 @@ const ActionButton = ( {
 			case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
 				return {
 					...buttonState,
-					href: purchaseUrl || `#/add-${ slug }`,
+					href: slug !== 'stats' && purchaseUrl ? purchaseUrl : '#/add-stats',
 					size: 'small',
 					variant: 'primary',
 					weight: 'regular',
