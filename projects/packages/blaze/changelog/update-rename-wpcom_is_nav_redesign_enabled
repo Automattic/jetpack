@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-As we've launched untangling & nav redesign, the wpcom_is_nav_redesign_enabled() function name is not relevant anymore and can be confusing for future developers, so we rename it to uses_wp_admin_interface.
