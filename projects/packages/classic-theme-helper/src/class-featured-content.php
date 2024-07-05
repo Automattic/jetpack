@@ -88,7 +88,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 		 */
 		public static function init() {
 
-			if ( isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+			if ( isset( $GLOBALS['pagenow'] ) && 'plugins.php' === $GLOBALS['pagenow'] ) {
 				return;
 			}
 			/**
