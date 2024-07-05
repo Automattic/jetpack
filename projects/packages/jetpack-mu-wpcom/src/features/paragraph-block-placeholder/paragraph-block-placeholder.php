@@ -14,6 +14,12 @@ define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
  * Enqueue block editor assets.
  */
 function wpcom_enqueue_paragraph_block_placeholder_assets() {
+	global $post;
+
+	if ( ! is_post_with_write_intent( $post ) ) {
+		return;
+	}
+
 	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/paragraph-block-placeholder/paragraph-block-placeholder.asset.php';
 	$script_dependencies = $asset_file['dependencies'] ?? array();
 	$version             = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/paragraph-block-placeholder/paragraph-block-placeholder.js' );
@@ -26,14 +32,11 @@ function wpcom_enqueue_paragraph_block_placeholder_assets() {
 		true
 	);
 
-	global $post;
-	if ( is_post_with_write_intent( $post ) ) {
-		wp_localize_script(
-			'paragraph-block-placeholder-script',
-			'wpcomParagraphBlock',
-			array( 'placeholder' => __( "Start writing or type '/' to insert a block", 'jetpack-mu-wpcom' ) )
-		);
-	}
+	wp_localize_script(
+		'paragraph-block-placeholder-script',
+		'wpcomParagraphBlock',
+		array( 'placeholder' => __( "Start writing or type '/' to insert a block", 'jetpack-mu-wpcom' ) )
+	);
 }
 add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_paragraph_block_placeholder_assets' );
 
