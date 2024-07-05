@@ -16,6 +16,8 @@ module.exports = [
 			'core-customizer-css-preview':
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
+			'override-preview-button-url':
+				'./src/features/override-preview-button-url/override-preview-button-url.js',
 		},
 		mode: jetpackConfig.mode,
 		devtool: jetpackConfig.devtool,

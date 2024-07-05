@@ -47,13 +47,13 @@ const Highlights = ( {
 			const clientId = getClientId( block );
 			const rects = getHighlightRects( block );
 
-			rects.forEach( ( { rect, rangeIndex, range, replacementText, replacement, type } ) => {
+			rects.forEach( ( { rect, rangeIndex, range, target, replacement, type } ) => {
 				if ( toggledKeys[ type ] ) {
 					all.push( {
 						type,
 						rect,
 						rangeIndex,
-						replacementText,
+						target,
 						replacement,
 						range,
 						clientId,

@@ -90,13 +90,16 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
+		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
+		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
@@ -105,6 +108,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
