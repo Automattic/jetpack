@@ -165,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 			};
-		case 'social-advanced-activated':
+		case 'social-v1-activated':
 			return {
 				displayName: __( 'Advanced Sharing Features', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
@@ -554,11 +554,11 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
-		case 'welcome__social_advanced':
+		case 'welcome__social_v1':
 			return {
 				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
 				description: __(
-					"With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					"With your new Social plan you unlocked priority support, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
@@ -631,11 +631,11 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
-		case 'social-advanced-activated':
+		case 'social-v1-activated':
 			return {
 				question: __( 'Advanced Sharing features', 'jetpack' ),
 				description: __(
-					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
+					'Use your Social plan to upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
