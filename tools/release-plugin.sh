@@ -173,15 +173,19 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 
 	RELEASED_PLUGINS=$(
 		jq \
-			--arg plugin "$PLUGIN" \
-			--arg version "${PROJECTS[$PLUGIN]}" \
-			--arg patchlevel "$VERSION_DIFF" \
-			'.[ $plugin ] = {"version": $version, "type": $patchlevel} ' <<< "$RELEASED_PLUGINS"
+			--arg property "$( echo "$PLUGIN" | sed 's/\//_/' )_release_type" \
+			--arg value "$VERSION_DIFF" \
+			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
+	)
+	RELEASED_PLUGINS=$(
+		jq \
+			--arg property "$( echo "$PLUGIN" | sed 's/\//_/' )_version" \
+			--arg value "${PROJECTS[$PLUGIN]}" \
+			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
 	)
 done
 
-TRACKING_DATA=$( jq -c -n --argjson plugins "$RELEASED_PLUGINS" '{"plugins": $plugins}' )
-send_tracks_event "jetpack_release_start" "$TRACKING_DATA"
+send_tracks_event "jetpack_release_start" "$RELEASED_PLUGINS"
 
 # Figure out which release branch prefixes to use.
 PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
