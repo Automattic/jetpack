@@ -35,6 +35,7 @@ import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
+import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
@@ -147,6 +148,7 @@ export default function MyJetpackScreen() {
 					</Container>
 				) }
 				<WelcomeFlow />
+				<EvaluationRecommendations />
 				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">

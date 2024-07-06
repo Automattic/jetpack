@@ -112,6 +112,6 @@ class REST_Recommendations_Evaluation {
 
 		\Jetpack_Options::update_option( 'recommendations_evaluation', $json['recommendations'] );
 
-		return rest_ensure_response( array( 'success' => true ) );
+		return rest_ensure_response( Initializer::get_recommended_modules() );
 	}
 }

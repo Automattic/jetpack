@@ -229,6 +229,7 @@ interface Window {
 				};
 			};
 		};
+		recommendedModules: JetpackModule[] | null;
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;

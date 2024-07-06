@@ -246,6 +246,7 @@ class Initializer {
 					'modules'                   => self::get_active_modules(),
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
+				'recommendedModules'     => self::get_recommended_modules(),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
@@ -741,6 +742,23 @@ class Initializer {
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
 
 		return $red_bubble_alerts;
+	}
+
+	/**
+	 * Get list of module names sorted by their recommendation score
+	 *
+	 * @return array|null
+	 */
+	public static function get_recommended_modules() {
+		$recommendations_evaluation = \Jetpack_Options::get_option( 'recommendations_evaluation', null );
+
+		if ( ! $recommendations_evaluation ) {
+			return null;
+		}
+
+		arsort( $recommendations_evaluation ); // Sort by scores in descending order
+
+		return array_keys( $recommendations_evaluation ); // Get only module names
 	}
 
 	/**
