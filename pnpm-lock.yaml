@@ -2107,7 +2107,7 @@ importers:
         version: 1.0.0
       '@preact/signals':
         specifier: ^1.2.2
-        version: 1.2.3(preact@10.22.0)
+        version: 1.2.3(preact@10.22.1)
       '@sentry/browser':
         specifier: 7.80.1
         version: 7.80.1
@@ -2143,7 +2143,7 @@ importers:
         version: 2.1.1
       preact:
         specifier: ^10.13.1
-        version: 10.22.0
+        version: 10.22.1
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.5
@@ -2543,8 +2543,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       preact:
-        specifier: 10.12.1
-        version: 10.12.1
+        specifier: 10.22.1
+        version: 10.22.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -2607,8 +2607,8 @@ importers:
         specifier: 10.1.0
         version: 10.1.0
       '@testing-library/preact':
-        specifier: 3.2.3
-        version: 3.2.3(preact@10.12.1)
+        specifier: 3.2.4
+        version: 3.2.4(preact@10.22.1)
       '@testing-library/react':
         specifier: 15.0.7
         version: 15.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2906,8 +2906,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       preact:
-        specifier: 10.12.1
-        version: 10.12.1
+        specifier: 10.22.1
+        version: 10.22.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -2964,8 +2964,8 @@ importers:
         specifier: 10.1.0
         version: 10.1.0
       '@testing-library/preact':
-        specifier: 3.2.3
-        version: 3.2.3(preact@10.12.1)
+        specifier: 3.2.4
+        version: 3.2.4(preact@10.22.1)
       '@testing-library/react':
         specifier: 15.0.7
         version: 15.0.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -7148,8 +7148,8 @@ packages:
       vitest:
         optional: true
 
-  '@testing-library/preact@3.2.3':
-    resolution: {integrity: sha512-y6Kklp1XK3f1X2fWCbujmJyzkf+1BgLYXNgAx21j9+D4CoqMTz5qC4SQufb1L6q/jxLGACzrQ90ewVOTBvHOfg==}
+  '@testing-library/preact@3.2.4':
+    resolution: {integrity: sha512-F+kJ243LP6VmEK1M809unzTE/ijg+bsMNuiRN0JEDIJBELKKDNhdgC/WrUSZ7klwJvtlO3wQZ9ix+jhObG07Fg==}
     engines: {node: '>= 12'}
     peerDependencies:
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
@@ -12428,11 +12428,8 @@ packages:
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
 
-  preact@10.12.1:
-    resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
-
-  preact@10.22.0:
-    resolution: {integrity: sha512-RRurnSjJPj4rp5K6XoP45Ui33ncb7e4H7WiOHVpjbkvqvA3U+N8Z6Qbo0AE6leGYBV66n8EhEaFixvIu3SkxFw==}
+  preact@10.22.1:
+    resolution: {integrity: sha512-jRYbDDgMpIb5LHq3hkI0bbl+l/TQ9UnkdQ0ww+lp+4MMOdqaUYdFc5qeyP+IV8FAd/2Em7drVPeKdQxsiWCf/A==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -16217,10 +16214,10 @@ snapshots:
 
   '@preact/signals-core@1.6.0': {}
 
-  '@preact/signals@1.2.3(preact@10.22.0)':
+  '@preact/signals@1.2.3(preact@10.22.1)':
     dependencies:
       '@preact/signals-core': 1.6.0
-      preact: 10.22.0
+      preact: 10.22.1
 
   '@puppeteer/browsers@2.2.2':
     dependencies:
@@ -18120,10 +18117,10 @@ snapshots:
     optionalDependencies:
       jest: 29.7.0
 
-  '@testing-library/preact@3.2.3(preact@10.12.1)':
+  '@testing-library/preact@3.2.4(preact@10.22.1)':
     dependencies:
       '@testing-library/dom': 8.20.1
-      preact: 10.12.1
+      preact: 10.22.1
 
   '@testing-library/react@15.0.7(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -19699,9 +19696,9 @@ snapshots:
 
   '@wordpress/interactivity@6.2.0':
     dependencies:
-      '@preact/signals': 1.2.3(preact@10.22.0)
-      deepsignal: 1.5.0(@preact/signals@1.2.3(preact@10.22.0))(preact@10.22.0)
-      preact: 10.22.0
+      '@preact/signals': 1.2.3(preact@10.22.1)
+      deepsignal: 1.5.0(@preact/signals@1.2.3(preact@10.22.1))(preact@10.22.1)
+      preact: 10.22.1
     transitivePeerDependencies:
       - '@preact/signals-core'
       - '@preact/signals-react'
@@ -21493,10 +21490,10 @@ snapshots:
 
   deepmerge@4.3.1: {}
 
-  deepsignal@1.5.0(@preact/signals@1.2.3(preact@10.22.0))(preact@10.22.0):
+  deepsignal@1.5.0(@preact/signals@1.2.3(preact@10.22.1))(preact@10.22.1):
     optionalDependencies:
-      '@preact/signals': 1.2.3(preact@10.22.0)
-      preact: 10.22.0
+      '@preact/signals': 1.2.3(preact@10.22.1)
+      preact: 10.22.1
 
   default-browser-id@3.0.0:
     dependencies:
@@ -25473,9 +25470,7 @@ snapshots:
 
   potpack@1.0.2: {}
 
-  preact@10.12.1: {}
-
-  preact@10.22.0: {}
+  preact@10.22.1: {}
 
   prelude-ls@1.2.1: {}
 
