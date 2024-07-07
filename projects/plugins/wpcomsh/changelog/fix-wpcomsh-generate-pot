@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix generate POT script to follow symlinks in vendor/* and update language files.
