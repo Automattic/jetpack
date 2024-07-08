@@ -69,6 +69,10 @@ class Jetpack_Mu_Wpcom {
 		// Load the Newsletter category settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 
+		// Remove WordPress Events and News feed widget from the dashboard.
+		add_action( 'wp_dashboard_setup', array( __CLASS__, 'remove_wp_dashboard_events_news' ) ); // Removes the widget from /wp-admin
+		add_action( 'wp_user_dashboard_setup', array( __CLASS__, 'remove_wp_dashboard_events_news' ) ); // Removes the widget from /wp-admin/user
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -279,6 +283,17 @@ class Jetpack_Mu_Wpcom {
 
 		// Don't load any comment experience in the Reader, GlotPress, wp-admin, or P2.
 		return ( 1 === $blog_id || TRANSLATE_BLOG_ID === $blog_id || is_admin() || $is_p2 || $is_forums );
+	}
+
+	/**
+	 * Remove WordPress Events and News feed widget from the dashboard.
+	 *
+	 * We want to remove it for WPcom blogs since it's not relevant for them.
+	 *
+	 * @return void
+	 */
+	public static function remove_wp_dashboard_events_news() {
+		remove_meta_box( 'dashboard_primary', get_current_screen(), 'side' );
 	}
 
 	/**
