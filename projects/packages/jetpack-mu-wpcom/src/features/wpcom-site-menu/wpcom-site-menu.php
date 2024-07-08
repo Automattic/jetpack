@@ -522,7 +522,7 @@ function wpcom_add_plugins_menu() {
 	global $menu;
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
-	$is_nav_redesign_enabled = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 	$is_agency_managed_site  = is_agency_managed_site();
 
 	if ( $is_simple_site ) {
@@ -557,13 +557,13 @@ function wpcom_add_plugins_menu() {
 				'wpcom_plugins_display_marketplace'
 			);
 
-			if ( ! $is_nav_redesign_enabled ) {
+			if ( ! $uses_wp_admin_interface ) {
 				wpcom_hide_submenu_page( 'plugins.php', 'wpcom-install-plugin' );
 			}
 		}
 	}
 
-	if ( ! $is_nav_redesign_enabled || $is_agency_managed_site ) {
+	if ( ! $uses_wp_admin_interface || $is_agency_managed_site ) {
 		return;
 	}
 
