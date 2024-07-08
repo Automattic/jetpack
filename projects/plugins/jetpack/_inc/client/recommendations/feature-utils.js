@@ -562,9 +562,12 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				ctaLink: getSocialInitiaState( state ).useAdminUiV1
+					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing'
+					: getRedirectUrl( 'calypso-marketing-connections', {
+							site: getSiteRawUrl( state ),
+					  } ),
+				ctaForceExternal: true,
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -577,6 +580,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaForceExternal: true,
 				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
 			};
