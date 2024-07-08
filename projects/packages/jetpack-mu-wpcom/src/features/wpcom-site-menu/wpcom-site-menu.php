@@ -50,7 +50,7 @@ function current_user_has_wpcom_account() {
  * This works because the top level menu item links to wherever the submenu item links to.
  */
 function wpcom_add_wpcom_menu_item() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 	if ( is_agency_managed_site() ) {
@@ -173,7 +173,7 @@ add_action( 'admin_menu', 'wpcom_add_wpcom_menu_item' );
  * @param WP_Admin_Bar $wp_admin_bar - The WP_Admin_Bar instance.
  */
 function add_all_sites_menu_to_masterbar( $wp_admin_bar ) {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 	if ( is_agency_managed_site() ) {
@@ -212,7 +212,7 @@ add_action( 'admin_bar_menu', 'add_all_sites_menu_to_masterbar', 15 );
  * Always hide the Core's default My Sites menu on WP.com
  */
 function hide_my_sites_menu() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 	?>
@@ -236,7 +236,7 @@ add_action( 'admin_head', 'hide_my_sites_menu' );
  * @return void
  */
 function replace_wp_logo_menu_on_masterbar( $wp_admin_bar ) {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 
@@ -263,7 +263,7 @@ add_action( 'admin_bar_menu', 'replace_wp_logo_menu_on_masterbar', 11 );
  * Enqueue scripts and styles needed by the WP.com menu.
  */
 function wpcom_site_menu_enqueue_scripts() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 
@@ -522,7 +522,7 @@ function wpcom_add_plugins_menu() {
 	global $menu;
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
-	$is_nav_redesign_enabled = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
 	$is_agency_managed_site  = is_agency_managed_site();
 
 	if ( $is_simple_site ) {
@@ -557,13 +557,13 @@ function wpcom_add_plugins_menu() {
 				'wpcom_plugins_display_marketplace'
 			);
 
-			if ( ! $is_nav_redesign_enabled ) {
+			if ( ! $uses_wp_admin_interface ) {
 				wpcom_hide_submenu_page( 'plugins.php', 'wpcom-install-plugin' );
 			}
 		}
 	}
 
-	if ( ! $is_nav_redesign_enabled || $is_agency_managed_site ) {
+	if ( ! $uses_wp_admin_interface || $is_agency_managed_site ) {
 		return;
 	}
 

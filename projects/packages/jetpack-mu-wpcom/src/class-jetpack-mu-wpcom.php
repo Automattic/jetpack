@@ -316,7 +316,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 		}
 	}
@@ -337,7 +337,7 @@ class Jetpack_Mu_Wpcom {
 		if ( is_agency_managed_site() ) {
 			return;
 		}
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		}
 	}
