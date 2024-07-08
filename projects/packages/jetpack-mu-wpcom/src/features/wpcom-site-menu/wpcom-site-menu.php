@@ -563,7 +563,7 @@ function wpcom_add_plugins_menu() {
 		}
 	}
 
-	if ( $is_agency_managed_site ) {
+	if ( $is_agency_managed_site || ! current_user_has_wpcom_account() ) {
 		return;
 	}
 
