@@ -2,7 +2,7 @@
 /**
  * SVG icons related functions and filters
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
@@ -38,12 +38,12 @@ if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) {
 	function jetpack_social_menu_get_svg( $args = array() ) {
 		// Make sure $args are an array.
 		if ( empty( $args ) ) {
-			return esc_html__( 'Please define default parameters in the form of an array.', 'jetpack' );
+			return esc_html__( 'Please define default parameters in the form of an array.', 'jetpack-classic-theme-helper' );
 		}
 
 		// Define an icon.
 		if ( false === array_key_exists( 'icon', $args ) ) {
-			return esc_html__( 'Please define an SVG icon filename.', 'jetpack' );
+			return esc_html__( 'Please define an SVG icon filename.', 'jetpack-classic-theme-helper' );
 		}
 
 		// Set defaults.
