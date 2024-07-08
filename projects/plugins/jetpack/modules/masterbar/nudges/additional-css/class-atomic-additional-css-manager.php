@@ -4,7 +4,7 @@
  *
  * Responsible with replacing the Core Additional CSS section with an upgrade nudge on Atomic.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager instead.
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager instead.
  *
  * @package Jetpack
  */
@@ -31,24 +31,24 @@ class Atomic_Additional_CSS_Manager {
 	/**
 	 * Atomic_Additional_CSS_Manager constructor.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param string $domain the Site domain.
 	 */
 	public function __construct( $domain ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::__construct' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::__construct' );
 		$this->additional_css_wrapper = new Masterbar_Atomic_Additional_CSS_Manager( $domain );
 	}
 
 	/**
 	 * Replace the Additional CSS section from Customiz¡er with an upgrade nudge.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::register_nudge' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::register_nudge' );
 		$this->additional_css_wrapper->register_nudge( $wp_customize_manager );
 	}
 }

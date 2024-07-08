@@ -10,7 +10,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/changelogger.sh"
-
+. "$BASE/tools/includes/send_tracks_event.sh"
 
 # Instructions
 function usage {
@@ -143,6 +143,50 @@ done
 
 proceed_p "" "Proceed releasing above projects?" Y
 
+# Sending tracking event
+TRACKING_DATA="{}"
+RELEASED_PLUGINS="{}"
+for PLUGIN in "${!PROJECTS[@]}"; do
+
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PLUGIN")
+	VERSION_DIFF=$( version_diff "$CUR_VERSION" "${PROJECTS[$PLUGIN]}" )
+
+	if [[ "${PROJECTS[$PLUGIN]}" == *-* ]]; then
+
+		# The version is a prerelease.
+		if proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
+			VERSION_DIFF="bugfix"
+		fi
+
+	elif [[ "${PROJECTS[$PLUGIN]}" =~ ^[0-9]+\.[0-9]+\.[0.]*[1-9] ]]; then
+
+		# The version in patch-level.
+		VERSION_DIFF="bugfix"
+
+		# If a project follows semver versioning, we prompt.
+		if jq -e '.extra.changelogger["versioning"] == "semver"' "$BASE/projects/$PLUGIN/composer.json" &>/dev/null; then
+			if ! proceed_p "" "Is this $PLUGIN release fixing a known problem caused by a previous release?" N; then
+				VERSION_DIFF="patch"
+			fi
+		fi
+	fi
+
+	RELEASED_PLUGINS=$(
+		jq \
+			--arg property "$( echo "$PLUGIN" | sed 's/\//_/' )_release_type" \
+			--arg value "$VERSION_DIFF" \
+			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
+	)
+	RELEASED_PLUGINS=$(
+		jq \
+			--arg property "$( echo "$PLUGIN" | sed 's/\//_/' )_version" \
+			--arg value "${PROJECTS[$PLUGIN]}" \
+			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
+	)
+done
+
+send_tracks_event "jetpack_release_start" "$RELEASED_PLUGINS"
+
 # Figure out which release branch prefixes to use.
 PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
 TMP=$(jq -rn --argjson d "$PREFIXDATA" '$d | reduce to_entries[] as $p ({ s: ( $ARGS.positional | map( sub( "^plugins/"; "" ) ) ), o: []}; if $p.value - .s == [] then .o += [ $p.key ] | .s -= $p.value else . end) | .o[]' --args "${!PROJECTS[@]}")
@@ -173,9 +217,11 @@ fi
 
 git checkout -b prerelease
 if ! git push -u origin HEAD; then
+	send_tracks_event "jetpack_release_prerelease_push" '{"result": "failure"}'
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 GITBASE=$( git rev-parse --verify HEAD )
+send_tracks_event "jetpack_release_prerelease_push" '{"result": "success"}'
 
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -246,14 +292,17 @@ while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
 done
 
 if [[ -z "$BUILDID" ]]; then
+	send_tracks_event "jetpack_release_github_build" '{"result": "not_found"}'
 	die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
 fi
 
 yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
+	send_tracks_event "jetpack_release_github_build" '{"result": "failure"}'
 	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi
 
+send_tracks_event "jetpack_release_github_build" '{"result": "success"}'
 yellow "Build is complete."
 
 # Wait for new versions of any composer packages to be up.
@@ -409,3 +458,5 @@ if [[ ${#MANUALBOTH[@]} -gt 0 ]]; then
 	the stable tag with \`./tools/stable-tag.sh <plugin>\` and you're all set.
 	EOM
 fi
+
+send_tracks_event "jetpack_release_done"

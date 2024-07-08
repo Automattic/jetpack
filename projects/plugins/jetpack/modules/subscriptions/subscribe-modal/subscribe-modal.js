@@ -11,7 +11,6 @@ domReady( function () {
 		return;
 	}
 
-	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	let hasLoaded = false;
 	let isScrolling;
 
@@ -25,7 +24,14 @@ domReady( function () {
 		}, Jetpack_Subscriptions.modalLoadTime );
 	};
 
+	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
+	const form = modal.querySelector( 'form' );
+	if ( form ) {
+		form.addEventListener( 'subscription-modal-loaded', closeModal );
+	}
+
 	// User can edit modal, and could remove close link.
+	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	if ( close ) {
 		close.onclick = function ( event ) {
 			event.preventDefault();

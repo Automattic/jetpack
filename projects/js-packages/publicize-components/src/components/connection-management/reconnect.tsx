@@ -21,7 +21,7 @@ export type ReconnectProps = {
  * @returns {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
-	const { deleteConnectionById, setKeyringResult, openConnectionsModal } =
+	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
 		useDispatch( socialStore );
 
 	const { isDisconnecting } = useSelect(
@@ -58,6 +58,12 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 			return;
 		}
 
+		await setReconnectingAccount(
+			// Join service name and external ID
+			// just in case the external ID alone is not unique.
+			`${ connection.service_name }:${ connection.external_id }`
+		);
+
 		const formData = new FormData();
 
 		if ( service.ID === 'mastodon' ) {
@@ -65,24 +71,22 @@ export function Reconnect( { connection, service, variant = 'link' }: ReconnectP
 		}
 
 		requestAccess( formData );
-	}, [ connection, deleteConnectionById, requestAccess, service.ID ] );
+	}, [ connection, deleteConnectionById, requestAccess, service.ID, setReconnectingAccount ] );
 
 	if ( ! connection.can_disconnect ) {
 		return null;
 	}
 
 	return (
-		<>
-			<Button
-				size="small"
-				onClick={ onClickReconnect }
-				disabled={ isDisconnecting }
-				variant={ variant }
-			>
-				{ isDisconnecting
-					? __( 'Disconnecting…', 'jetpack' )
-					: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
-			</Button>
-		</>
+		<Button
+			size="small"
+			onClick={ onClickReconnect }
+			disabled={ isDisconnecting }
+			variant={ variant }
+		>
+			{ isDisconnecting
+				? __( 'Disconnecting…', 'jetpack' )
+				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
+		</Button>
 	);
 }

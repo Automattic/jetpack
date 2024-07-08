@@ -22,43 +22,13 @@ msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
 msgstr ""
 
 #. translators: %s is a link to the WordPress user profile.
-#: widgets/class-gravatar-widget.php:206
+#: widgets/class-gravatar-widget.php:205
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Marketing"
-msgstr "Marketing"
 
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Na ndjeni, s’keni leje të hyni në këtë faqe."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
-msgid "Plugins"
-msgstr "Shtojca"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Default style"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Use WP-Admin to manage your site."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Classic style"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
-msgid "Admin Interface Style"
-msgstr ""
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -72,423 +42,9 @@ msgstr ""
 msgid "Flex your site's features with plugins"
 msgstr ""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
-msgid "Theme Showcase"
-msgstr "Shembuj Temash"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
-msgid "Explore themes"
-msgstr "Eksploroni tema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
-msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
-msgid "Find the perfect theme for your site"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Pak fjalë karrem për të motivuar lexuesit tuaj të komentojnë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
-msgid "Enable blocks in comments"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
-msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
-msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr "Përshtateni formularin tuaj të Komenteve me një përshëndetje dhe skemë ngjyrash të mençur."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
-msgid "Color Scheme"
-msgstr "Skemë Ngjyrash"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
-msgid "Greeting Text"
-msgstr "Tekst Mirëseardhjeje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
-msgid "Allow Blocks"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
-msgid "Verbum"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
-msgid "Dark"
-msgstr "E errët"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
-msgid "Light"
-msgstr "E çelët"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
-msgid "Transparent"
-msgstr "E tejdukshme"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
-msgid "Launch your store"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
-msgid "Add a domain"
-msgstr "Shtoni një përkatësi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
-msgid "Grow your business"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
-msgid "Collect sales tax"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
-msgid "Get paid with WooPayments"
-msgstr "Përfitoni pagesa me ooPayments"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
-msgid "Add your products"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
-msgid "Customize your store"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
-msgid "Sunset"
-msgstr "Perëndim Dielli"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
-msgid "Sakura"
-msgstr "Sakura"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
-msgid "Powder Snow"
-msgstr "Dëborë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
-msgid "Nightfall"
-msgstr "Ndajnatë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
-msgid "Classic Dark"
-msgstr "E errët Klasike"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
-msgid "Classic Bright"
-msgstr "E ndritshme Klasike"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
-msgid "Classic Blue"
-msgstr "Blu Klasike"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
-msgid "Aquatic"
-msgstr "Ujore"
-
-#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
-msgid "Overview"
-msgstr "Përmbledhje"
-
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
-msgid "Share &#8220;%s&#8221; via Jetpack Social"
-msgstr "Ndajeni “%s” përmes Jetpack Social"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
-msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
-msgid "WordPress.com"
-msgstr "WordPress.com"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
-msgid "Settings"
-msgstr "Rregullime"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
-msgid "Monetize"
-msgstr "Fitoni para"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
-msgid "Monitoring"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
-msgid "Configuration"
-msgstr "Formësim"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
-msgid "Purchases"
-msgstr "Blerje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
-msgid "Emails"
-msgstr "Email-e"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
-msgid "Domains"
-msgstr "Përkatësi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
-msgid "Add-ons"
-msgstr "Shtesa"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-msgid "Plans"
-msgstr "Plane"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-msgid "Hosting"
-msgstr "Strehim"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
-msgid "All Sites"
-msgstr "Krejt Sajtet"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
-msgid "Error: please try commenting again."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
-msgid "Error: your Facebook login has expired."
-msgstr "Gabim: hyrja juaj në Facebook skadoi."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
-msgid "Cancel reply"
-msgstr "Anuloje përgjigjen"
-
-#. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
-msgid "Leave a reply to %s"
-msgstr "Lini një Përgjigje te %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
-msgid "Leave a comment"
-msgstr "Lini një koment"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
-msgid "Save my name, email, and website in this browser for the next time I comment."
-msgstr "Ruaje në këtë shfletues emrin, email-in dhe sajtin tim, për herën tjetër që komentoj."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
-msgid "Comment sent successfully"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
-msgid "Subscribe"
-msgstr "Pajtomëni"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
-msgid "Enter your email address"
-msgstr "Jepni adresën tuaj email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
-msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr "Të interesuar të merrni përditësime postimesh blogu? Thjesht klikoni butonin më poshtë, që të jini brenda gjërave!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
-msgid "Never miss a beat!"
-msgstr "Mos humbni kurrë gjë!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
-msgid "Continue reading"
-msgstr "Vazhdoni leximin"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
-msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr "Pajtohuni tani, që të vazhdoni të lexoni dhe të përfitoni hyrjen te arkivi i plotë."
-
-#. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
-msgid "Discover more from %s"
-msgstr "Zbuloni më tepër nga %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
-msgid "Loading your comment..."
-msgstr ""
-
-#. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
-msgid "We'll keep you in the loop!"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
-msgid "Optional"
-msgstr "Opsionale"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
-msgid "Website"
-msgstr "Sajt"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
-msgid "Write a reply..."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
-msgid "Cancel"
-msgstr "Anuloje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
-msgid "Email me new comments"
-msgstr "Dërgomëni komentet e reja me email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
-msgid "Email me new posts"
-msgstr "Dërgomëni me email postimet e reja"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
-msgid "Notify me of new posts"
-msgstr "Njoftomë për postimet e reja"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
-msgid "Weekly"
-msgstr "Një herë në javë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
-msgid "WordPress"
-msgstr "WordPress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
-msgid "Comment"
-msgstr "Koment"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
-msgid "Reply"
-msgstr "Përgjigjiuni"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
-msgid "Daily"
-msgstr "Një herë në ditë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
-msgid "Instantly"
-msgstr "Menjëherë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
-msgid "(Address never made public)"
-msgstr "(Adresa s’bëhet kurrë publike)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
-msgid "Log out"
-msgstr "Dilni"
-
-#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
-msgid "Logged in via %s"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
-msgid "Log in to leave a comment."
-msgstr "Që të lini një koment, bëni hyrjen."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
-msgid "Log in to leave a reply."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
-msgid "Leave a comment. (log in optional)"
-msgstr "Lini një koment. (hyrja është opsionale)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
-msgid "Leave a reply. (log in optional)"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
-msgid "Website (optional)"
-msgstr "<em>Site</em> Web (opsional)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
-msgid "Email (address never made public)"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
-msgid "Receive web and mobile notifications for posts on this site."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
-msgid "Log in or provide your name and email to leave a comment."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
-msgid "Log in or provide your name and email to leave a reply."
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
-msgid "Write a comment..."
-msgstr "Shkruani një Koment..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
-msgid "Get started"
-msgstr "Fillojani"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
-msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr ""
-
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
-msgid "Scheduled Updates"
-msgstr ""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
-msgid "Verify the email address for your domains"
-msgstr "Verifikoni adresën email për përkatësitë tuaja"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
-msgid "Site setup"
-msgstr "Rregullim sajti"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
-msgid "Finish Sensei setup"
-msgstr "Përfundoni ujdisje Sensei"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
-msgid "Finish store setup"
-msgstr "Përfundoni ujdisje shitoreje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
-msgid "Update your site's design"
-msgstr "Përditësoni skemën grafike të sajtit tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
-msgid "Enable post sharing"
-msgstr "Aktivizo ndarje postimesh me të tjerët"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
-msgid "Install the mobile app"
-msgstr "Instaloni aplikacionin për celular"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -563,134 +119,6 @@ msgstr "Ka tashmë një importim në xhirim e sipër."
 msgid "The backup import has been cancelled."
 msgstr "Importimi i kopjeruajtjes është anuluar."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-msgid "Next steps for your site"
-msgstr "Hapat pasues për sajtin tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
-msgid "Add the Subscribe Block to your site"
-msgstr "Shtoni te sajti juaj bllokun Pajtohuni"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
-msgid "Import existing subscribers"
-msgstr "Importoni pajtimtarë ekzistues"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
-msgid "View site metrics"
-msgstr "Shihni matje sajti"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
-msgid "Set up ssh"
-msgstr "Ujdisni ssh"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
-msgid "Install a custom plugin"
-msgstr "Instaloni një shtojcë vetjake"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
-msgid "Choose a theme"
-msgstr "Zgjidhni një temë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
-msgid "Set up an offer for your supporters"
-msgstr "Ujdisni një ofertë për përkrahësit tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
-msgid "Connect a Stripe account to collect payments"
-msgstr "Lidhni një llogari Stripe, për të mbledhur pagesa"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
-msgid "Add your About page"
-msgstr "Shtoni faqen tuaj “Mbi”"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
-msgid "Manage your paid Newsletter plan"
-msgstr "Administroni planin tuaj me pagesë për Buletin"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
-msgid "Connect your social media accounts"
-msgstr "Lidhni llogaritë tuaja prej mediash shoqërore"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
-msgid "Manage your subscribers"
-msgstr "Administroni pajtimtarët tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
-msgid "Write 3 posts"
-msgstr "Shkruani 3 postime"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
-msgid "Get your first 10 subscribers"
-msgstr "Merrni 10 pajtimtarët tuaj të parë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
-msgid "Enable subscribers modal"
-msgstr "Aktivizoni dritare modale pajtimtarësh"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
-msgid "Customize welcome message"
-msgstr "Përshtatni mesazh mirëseardhjeje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
-msgid "Earn money with your newsletter"
-msgstr "Fitoni para përmes buletinit tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
-msgid "Update your About page"
-msgstr "Përditësoni faqen tuaj “Mbi”"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
-msgid "Migrate content"
-msgstr "Migroni lëndë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-msgid "Verify email address"
-msgstr "Verifikoni adresë email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
-msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr "Pengon krijim postimesh dhe faqesh të reja, si dhe përpunim postimesh dhe faqesh ekzistuese dhe mbyll komentet në krejt sajtin."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
-msgid "Enable Locked Mode"
-msgstr "Aktivizo Mënyrën “I kyçur”"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
-msgid "Locked Mode"
-msgstr "Mënyra “I kyçur”"
-
-#. translators: link to the help page: https://wordpress.com/help
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
-msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr "Që të merret pronësia e sajtit, kërkojmë që personi që përcaktoni të lidhet me ne përmes %s me një dëshmi të vdekjes."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
-msgid "Choose someone to look after your site when you pass away."
-msgstr "Zgjidhni dikë për t’u marrë me sajtin tuaj, kur të vdisni."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
-msgid "Legacy Contact"
-msgstr "Kontakt i Dikurshëm"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
-msgid "Enhanced Ownership"
-msgstr "Pronësi e Thelluar"
-
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "Mundësia <a href=\"%2$s\">“Mund të regjistrohet cilido”</a> aktualisht është aktive. Roli i tanishëm parazgjedhje është %1$s. %4$s <strong>Ju lutemi, shihni mundësinë e çaktivizimit të këasj mundësie, nëse regjistrimi i hapur s’është i nevojshëm.<strong>"
@@ -720,149 +148,37 @@ msgstr "Kartela s’ekziston"
 msgid "Could not determine importer type."
 msgstr "S’u përcaktua dot lloj importuesi."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
-msgid "Share your site"
-msgstr "Ndani me të tjerët sajtin tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
-msgid "Edit a page"
-msgstr "Përpunoni një faqe"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
-msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Sajti juaj përmban stile me pagesë. Përmirësojini tani, që t’i përdorni dhe shkyçni një mori veçorish të tjera."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
-msgid "Customize your domain"
-msgstr "Përshtatni përkatësinë tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
-msgid "Add a new page"
-msgstr "Shtoni faqe të re"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
-msgid "Drive traffic to your site"
-msgstr "Shpini trafik te sajti juaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
-msgid "Give your site a name"
-msgstr "Jepini një emër sajtit tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
-msgid "Claim your free one-year domain"
-msgstr "Kërkoni përkatësinë tuaj falas për një vit"
-
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "Dhuroni"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
 msgstr "Miniaturë"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Ndajeni “%s” me të tjerë përmes Publicize-it"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Ndajeni në"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
-msgid "Upgrade plan"
-msgstr "Përmirësojeni planin"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
-msgid "Create paid Newsletter"
-msgstr "Krijoni Buletin me pagesë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
-msgid "Set up payment method"
-msgstr "Ujdisni metodë pagesash"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
-msgid "Choose a domain"
-msgstr "Zgjidhni një përkatësi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
-msgid "Launch your blog"
-msgstr "Filloni blogun tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
-msgid "Edit site design"
-msgstr "Përpunoni skemë grafike sajti"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
-msgid "Set up your site"
-msgstr "Ujdisni sajtin tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
-msgid "Name your blog"
-msgstr "I vini Emër Blogut Tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
-msgid "Personalize your site"
-msgstr "Personalizoni sajtin tuaj"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
-msgid "Upload your first video"
-msgstr "Ngarkoni videon tuaj të parë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
-msgid "Set up your video site"
-msgstr "Ujdisni sajtin tuaj të videove"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
-msgid "Launch your site"
-msgstr "Bëjeni sajtin tuaj publik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
-msgid "Add links"
-msgstr "Shtoni lidhje"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
-msgid "Personalize Link in Bio"
-msgstr "Personalizoni Lidhje te Jetëshkrim"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
-msgid "Select a design"
-msgstr "Përzgjidhni një skemë grafike"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
-msgid "Start writing"
-msgstr "Nisni të shkruani"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
-msgid "Write your first post"
-msgstr "Shkruani postimin tuaj të parë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
-msgid "Add subscribers"
-msgstr "Shtoni pajtimtarë"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
-msgid "Choose a plan"
-msgstr "Zgjidhni një plan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
-msgid "Personalize newsletter"
-msgstr "Personalizojeni buletinin"
-
-#: vendor/automattic/jetpack-config/src/class-config.php:189
+#: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "S’arrihet të ngarkohet klasa %1$s. Ju lutemi, shtoni paketën që e përmban, duke përdorur hartuesin dhe sigurohuni se po kërkoni vetëngarkuesin e Jetpack-ut"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "Aliaset <em>textdomain</em> duhen regjistruar para grremçit %1$s. Ky shënim u prodhua nga përkatësia %2$s."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "Programthi “%s” varet nga wp-i18n, por nuk specifikon “textdomain”"
 
@@ -1063,27 +379,27 @@ msgstr "Jeni me fat! Hartuesit e temës tuaj grafike zgjodhën shkronja specifik
 msgid "Uncheck to disable"
 msgstr "Hiqjani shenjën që të çaktivizohet"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
 msgstr "ID Prurjeje Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
 msgstr "ID Prurjeje Podcast-esh Apple"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
 msgstr "Titull"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
 msgstr "Prurje RSS e podkastit"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
 msgstr "Dëgjojeni në Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
 msgstr "Dëgjojeni në Apple Podcasts"
 
@@ -1095,97 +411,113 @@ msgstr "Shfaqni të dhëna rreth podkastit tuaj dhe lejojini vizitorët ta ndjek
 msgid "Podcast"
 msgstr "Podkast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
 msgid "Select iTunes category:"
 msgstr "Përzgjidhni kategori iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
 msgid "Set podcast category"
 msgstr "Caktoni kategori podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Caktoni fjalëkyçe podkasti"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
 msgid "Set podcast image"
 msgstr "Caktoni figurë podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
 msgid "Clean"
 msgstr "Pastroje"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
 msgid "Yes"
 msgstr "Po"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
 msgid "No"
 msgstr "Jo"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
 msgid "Set podcast as explicit"
 msgstr "Vëri shenjë podkastit si eksplicit"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
 msgid "Set podcast copyright"
 msgstr "Caktoni të drejta kopjimi podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
 msgid "Set podcast summary"
 msgstr "Caktoni përmbledhje podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
 msgid "Set podcast author"
 msgstr "Caktoni autor podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Caktoni nëntitull podkasti"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
 msgid "Set podcast title"
 msgstr "Caktoni titull podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "Kjo është URL-ja që parashtroni te iTunes, apo shërbimi për “podcasting”."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
 msgstr "Prurja për podkastin tuaj: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
 msgid "Select podcast category:"
 msgstr "Përzgjidhni kategori podkastesh:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
 msgid "Blog category for podcasts"
 msgstr "Kategori blogu për podkaste"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
 msgid "Podcast category 3"
 msgstr "Kategori 3 podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
 msgid "Podcast category 2"
 msgstr "Kategori 2 podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 1"
 msgstr "Kategori 1 podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Fjalëkyçe podkasti"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
 msgid "Podcast image"
 msgstr "Figurë podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Mark as explicit"
 msgstr "Vëri shenjë si eksplicit"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Podcast copyright"
 msgstr "Të drejta kopjimi podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast summary"
 msgstr "Përmbledhje podkasti"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
 msgstr "Emër talenti Podkast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Nëntitull podkasti"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1299,8 +631,6 @@ msgid "Edit"
 msgstr "Përpunoni"
 
 #: private-site/logged-in-banner.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "Shtëpia Ime"
 
@@ -1428,31 +758,31 @@ msgstr "Kuota hapësire disku"
 msgid "Disk space used"
 msgstr "Hapësirë disku e përdorur"
 
-#: widgets/class-wpcom-category-cloud-widget.php:210
+#: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
 msgstr "Klikoni për më tepër të dhëna"
 
-#: widgets/class-wpcom-category-cloud-widget.php:208
+#: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
 msgstr "Numëro objekte në nëndrejtori drejt shumës mëmë."
 
-#: widgets/class-wpcom-category-cloud-widget.php:200
+#: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
 msgstr "Përqindje shkronjash maksimum:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:194
+#: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
 msgstr "Përqindje shkronjash minimum:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:189
+#: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
 msgstr "ID kategorish, ndarë me presje"
 
-#: widgets/class-wpcom-category-cloud-widget.php:187
+#: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
 msgstr "Përjashto:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:181
+#: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
 msgstr "Numër maksimum kategorish për t’u shfaqur:"
 
@@ -1470,23 +800,13 @@ msgstr "Kategoritë tuaja më të përdorura, në format reje."
 msgid "Category Cloud"
 msgstr "Re Kategorish"
 
-#: private-site/private-site.php:171
-msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr "Jetpack-u është shkëputur & sajti është privat. Që të administroni rregullime dukshmërie, rilidhni Jetpack-un."
-
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Përditëso dukshmërinë"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Kalojeni sajtin publik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
-msgid "Dismiss"
-msgstr "Hidhe tej"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1624,47 +944,47 @@ msgstr "Shfaqni fotot tuaja më të reja Instagram."
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:148
+#: widgets/class-aboutme-widget.php:149
 msgid "Biography"
 msgstr "Jetëshkrim"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:142
 msgid "Headline"
 msgstr "Titull"
 
-#: widgets/class-aboutme-widget.php:134
+#: widgets/class-aboutme-widget.php:135
 msgid "Photo"
 msgstr "Foto"
 
-#: widgets/class-aboutme-widget.php:130
+#: widgets/class-aboutme-widget.php:131
 msgid "Don't Display Name"
 msgstr "Mos Shfaq Emër"
 
-#: widgets/class-aboutme-widget.php:128
+#: widgets/class-aboutme-widget.php:129
 msgid "Display Small"
 msgstr "Shfaqe me të Vogla"
 
-#: widgets/class-aboutme-widget.php:126
+#: widgets/class-aboutme-widget.php:127
 msgid "Display Medium"
 msgstr "Shfaqe me Mesatare"
 
-#: widgets/class-aboutme-widget.php:124
+#: widgets/class-aboutme-widget.php:125
 msgid "Display Large"
 msgstr "Shfaqe me të Mëdha"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:123
 msgid "Display X-Large"
 msgstr "Shfaqe me Ekstra të Mëdha"
 
-#: widgets/class-aboutme-widget.php:111
+#: widgets/class-aboutme-widget.php:112
 msgid "Your about.me URL"
 msgstr "URL-ja juaj about.me"
 
-#: widgets/class-aboutme-widget.php:104
+#: widgets/class-aboutme-widget.php:105
 msgid "Widget title"
 msgstr "Titull widget-i"
 
-#: widgets/class-aboutme-widget.php:97
+#: widgets/class-aboutme-widget.php:98
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "Widget-i about.me s’do të jetë më i përdorshëm pas 1 korrikut, 2016. Pas kësaj date, widget-i do të shfaqë një lidhje të thjeshtë tekst për te profili juaj about.me. Ju lutemi, hiqeni këtë <em>widget</em>."
 
@@ -1681,19 +1001,14 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Shfaqni me një miniaturë profilin tuaj about.me"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "S’arrihet të sillen të dhënat e domosdoshme."
 
-#: footer-credit/theme-optimizations.php:59
+#: footer-credit/theme-optimizations.php:62
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Krijoni një sajt ose blog falas te WordPress.com"
 
-#: footer-credit/theme-optimizations.php:54
+#: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
 msgstr "Krijoni një sajt falas te WordPress.com"
 
@@ -1703,8 +1018,8 @@ msgstr "Bazuar në WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
-#: footer-credit/theme-optimizations.php:52
-#: footer-credit/theme-optimizations.php:57
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
 msgid "Blog at WordPress.com"
 msgstr "Blog te WordPress.com"
 
@@ -1780,10 +1095,6 @@ msgstr "Ruaje"
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr "Aktivizoje &amp; Ruaje"
-
-#: private-site/private-site.php:178
-msgid "Manage your site visibility settings"
-msgstr "Administroni rregullimet tuaja për dukshmëri sajti"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -1898,8 +1209,7 @@ msgstr "Telefon"
 msgid "Email"
 msgstr "Email"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:118
+#: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "Emër"
@@ -1913,27 +1223,27 @@ msgstr "Kërkesë Rezervimi"
 msgid "Reservations"
 msgstr "Rezervime"
 
-#: widgets/class-wpcom-widget-recent-comments.php:476
+#: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
 msgstr "Shfaq komente prej:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:471
+#: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
 msgstr "Ngjyrë sfondi e tekstit:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:465
+#: widgets/class-wpcom-widget-recent-comments.php:466
 msgid "Avatar background color:"
 msgstr "Ngjyrë sfondi e avatarit:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:454
+#: widgets/class-wpcom-widget-recent-comments.php:455
 msgid "No Avatars"
 msgstr "Pa Avatarë"
 
-#: widgets/class-wpcom-widget-recent-comments.php:447
+#: widgets/class-wpcom-widget-recent-comments.php:448
 msgid "(at most 15)"
 msgstr "(15 e shumta)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:441
+#: widgets/class-wpcom-widget-recent-comments.php:442
 msgid "Number of comments to show:"
 msgstr "Numër komentesh për shfaqje:"
 
@@ -1955,37 +1265,37 @@ msgid "Recent Comments"
 msgstr "Komente Së Fundi"
 
 #. translators: %s is a URL to the widgets settings page.
-#: widgets/class-jetpack-posts-i-like-widget.php:277
+#: widgets/class-jetpack-posts-i-like-widget.php:278
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "S’keni pëlqyer ndonjë postim së fundi. Kur të ndodhë, do t’i shfaqë widget-i <a href=\"%s\">Postime Që Pëlqej</a>."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:265
+#: widgets/class-jetpack-posts-i-like-widget.php:266
 msgid "on"
 msgstr "më"
 
 #. translators: %1$s is the post title, %1$s is the blog name.
-#: widgets/class-jetpack-posts-i-like-widget.php:242
+#: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s te %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:117
+#: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
 msgstr "Pëlqime autori për t’u shfaqur:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:99
+#: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
 msgstr "Rrjetë"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "List"
 msgstr "Listë"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:96
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
 msgstr "Shfaqe si:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:91
+#: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
 msgstr "Numër postimesh për shfaqje (1 deri 15):"
 
@@ -2019,62 +1329,62 @@ msgstr "Votova"
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "Shpalosuni lexuesve tuaj se votuat, me një ngjitës “Votova”."
 
-#: widgets/class-gravatar-widget.php:200
+#: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Tekst i shfaqur pas Gravatar-it. Kjo është opsionale dhe mund të përdoret për të përshkruar vetveten ose për çfarë është blogu juaj."
 
-#: widgets/class-gravatar-widget.php:199
+#: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Lidhje Gravatari. Kjo është URL opsionale, e cila do të përdoret kur dikush klikon mbi Gravatarin tuaj:"
 
-#: widgets/class-gravatar-widget.php:189
+#: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
 msgstr "Drejtim gravatari:"
 
-#: widgets/class-gravatar-widget.php:178
+#: widgets/class-gravatar-widget.php:177
 msgid "Size:"
 msgstr "Madhësi:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
 msgstr "Adresë Email Vetjake:"
 
-#: widgets/class-gravatar-widget.php:162
+#: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "Përzgjidhni një përdorues, ose zgjidhni “vetjake” dhe jepni një adresë email vetjake."
 
-#: widgets/class-gravatar-widget.php:157
+#: widgets/class-gravatar-widget.php:156
 msgid "Center"
 msgstr "Në qendër"
 
-#: widgets/class-gravatar-widget.php:156
+#: widgets/class-gravatar-widget.php:155
 msgid "Right"
 msgstr "Djathtas"
 
-#: widgets/class-gravatar-widget.php:155
+#: widgets/class-gravatar-widget.php:154
 msgid "Left"
 msgstr "Majtas"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: widgets/class-gravatar-widget.php:154
-#: widgets/class-widget-top-clicks.php:162
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
 msgid "None"
 msgstr "Asnjë"
 
-#: widgets/class-gravatar-widget.php:151
+#: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
 msgstr "Shumë e Madhe (256 piksela)"
 
-#: widgets/class-gravatar-widget.php:150
+#: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
 msgstr "E madhe (128 piksela)"
 
-#: widgets/class-gravatar-widget.php:149
+#: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
 msgstr "Mesatare (96 piksela)"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
 msgstr "E vogël (64 piksela)"
 
@@ -2091,7 +1401,7 @@ msgstr "Gravatar"
 msgid "Insert a Gravatar image"
 msgstr "Futni figurë Gravatari"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:83
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
 msgstr "Zgjidhni një figurë që të shfaqet në anështyllën tuaj:"
 
@@ -2103,28 +1413,28 @@ msgstr "E saposhtypur"
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Shfaqni te anështylla juaj një stemë “E saposhtypur”"
 
-#: widgets/class-widget-authors-grid.php:142
-#: widgets/class-wpcom-widget-recent-comments.php:452
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
 msgid "Avatar Size (px):"
 msgstr "Madhësi Avatari (px):"
 
-#: widgets/class-widget-authors-grid.php:137
+#: widgets/class-widget-authors-grid.php:138
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "Shfaq krejt autorët (përfshi ata që s’kanë shkruar ndonjë postim)"
 
-#: widgets/class-gravatar-widget.php:160
-#: widgets/class-jetpack-i-voted-widget.php:81
-#: widgets/class-jetpack-posts-i-like-widget.php:86
-#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
 #: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
-#: widgets/class-widget-authors-grid.php:131
-#: widgets/class-widget-top-clicks.php:72
-#: widgets/class-wpcom-category-cloud-widget.php:175
-#: widgets/class-wpcom-freshly-pressed-widget.php:79
-#: widgets/class-wpcom-tag-cloud-widget.php:123
-#: widgets/class-wpcom-widget-recent-comments.php:435
-#: widgets/class-wpcom-widget-reservations.php:60
-#: widgets/tlkio/class-tlkio-widget.php:75
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
 msgid "Title:"
 msgstr "Titull:"
 
@@ -2140,12 +1450,12 @@ msgstr "Shfaq një rrjetë figurash avatarësh të autorëve."
 msgid "Author Grid"
 msgstr "Rrjetë Autorësh"
 
-#: private-site/private-site.php:650
+#: private-site/private-site.php:616
 msgid "Private Site"
 msgstr "Sajt Privat"
 
-#: private-site/private-site.php:460 private-site/private-site.php:577
-#: private-site/private-site.php:809
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
 msgid "This site is private."
 msgstr "Ky sajt është privat."
 
