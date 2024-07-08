@@ -53,9 +53,7 @@ export function setBlockContent( clientId ) {
 			if ( newContent ) {
 				const updateBlockAttributes =
 					dispatchFromRegistry( 'core/block-editor' ).updateBlockAttributes;
-				// const [ newBlock ] = rawHandler( { HTML: toHTMLString( { value: newContent } ) } );
 
-				// if ( newBlock ) {
 				updateBlockAttributes( clientId, { content: toHTMLString( { value: newContent } ) } );
 				features.forEach( feature => {
 					// We need to wait for the highlights to be applied before we can attach events
@@ -63,7 +61,6 @@ export function setBlockContent( clientId ) {
 						feature.events();
 					}, 2000 );
 				} );
-				// }
 
 				dispatch( {
 					type: 'SET_BLOCK_TEXT',
