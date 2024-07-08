@@ -202,4 +202,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-registerBreveHighlights();
+getFeatureAvailability( 'ai-proofread-breve' ) && registerBreveHighlights();
