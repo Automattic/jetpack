@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an undefined variable reference.
