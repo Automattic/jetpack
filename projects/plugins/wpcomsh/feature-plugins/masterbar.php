@@ -14,7 +14,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  * and if it is not already enabled.
  */
 function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) || wpcom_is_nav_redesign_enabled() ) {
+	if ( ! defined( 'JETPACK__VERSION' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return;
 	}
 
@@ -36,7 +36,7 @@ add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
  * @return array
  */
 function atomic_masterbar_filter_jetpack_modules( $modules ) {
-	if ( isset( $modules['masterbar'] ) && wpcom_is_nav_redesign_enabled() ) {
+	if ( isset( $modules['masterbar'] ) && get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		unset( $modules['masterbar'] );
 	}
 
@@ -113,7 +113,7 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  **/
 function wpcomsh_hide_color_schemes() {
 	// Do nothing if the admin interface is wp-admin.
-	if ( wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return false;
 	}
 
@@ -157,7 +157,7 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 		return;
 	}
 
-	if ( isset( $value['color_scheme'] ) && ! wpcom_is_nav_redesign_enabled() ) {
+	if ( isset( $value['color_scheme'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		update_user_option( get_current_user_id(), 'admin_color', $value['color_scheme'] );
 	}
 
@@ -181,7 +181,7 @@ add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options
  */
 function wpcomsh_activate_nav_unification() {
 	// Disable when in the redesigned nav.
-	if ( wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return false;
 	}
 
@@ -289,7 +289,7 @@ function wpcomsh_update_plugin_link_destination( $url, $path ) {
  */
 function wpcomsh_update_plugin_add_filter() {
 	// If site is not connected or nav redesign is enabled, return early.
-	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || wpcom_is_nav_redesign_enabled() ) {
+	if ( ! class_exists( 'Automattic\Jetpack\Status' ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return;
 	}
 
@@ -338,7 +338,7 @@ add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interfa
  *    from wp-admin going forward.
  */
 function wpcomsh_unsync_color_schemes_on_save() {
-	if ( ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 

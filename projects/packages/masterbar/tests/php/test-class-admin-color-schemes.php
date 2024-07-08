@@ -6,7 +6,6 @@
  */
 namespace Automattic\Jetpack\Masterbar;
 
-use Brain\Monkey\Functions;
 use WorDBless\BaseTestCase;
 use WP_Http;
 use WP_REST_Request;
@@ -53,7 +52,7 @@ class Test_Admin_Color_Schemes extends BaseTestCase {
 		);
 
 		if ( 'test_enqueue_core_color_schemes_overrides_for_classic_sites' === $this->getName() ) {
-			Functions\when( 'wpcom_is_nav_redesign_enabled' )->justReturn( true );
+			update_option( 'wpcom_admin_interface', 'wp-admin' );
 		}
 
 		new Admin_Color_Schemes();

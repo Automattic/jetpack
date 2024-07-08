@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.43.0-alpha';
+	const PACKAGE_VERSION = '5.44.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -31,6 +31,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
+
+		// Load ETK features that need higher priority than the ETK plugin.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ), 0 );
 
 		/*
 		 * Please double-check whether you really need to load your feature separately.
@@ -90,6 +93,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
+		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		// To avoid potential collisions with ETK.
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
@@ -105,6 +109,8 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
@@ -115,6 +121,17 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
 		}
+	}
+
+	/**
+	 * Laod ETK features that need higher priority than the ETK plugin.
+	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
+	 */
+	public static function load_etk_features() {
+		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
+		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
+		require_once __DIR__ . '/features/tags-education/tags-education.php';
 	}
 
 	/**
@@ -300,7 +317,7 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
 			return;
 		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
@@ -310,7 +327,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			require_once __DIR__ . '/features/wpcom-simple-odyssey-stats/wpcom-simple-odyssey-stats.php';
 		}
 	}
@@ -328,10 +345,10 @@ class Jetpack_Mu_Wpcom {
 	 * Load WPCOM Site Management widget.
 	 */
 	public static function load_wpcom_site_management_widget() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		if ( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) {
+		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		}
 	}

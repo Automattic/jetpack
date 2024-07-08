@@ -39,7 +39,7 @@ if (
 	// The option should always be available on atomic sites.
 	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
 	// The option will be shown if the simple site has already changed to Classic which means they should have already passed the experiment gate.
-	( function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled() ) ) {
+	( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) ) {
 	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 }
 
@@ -130,7 +130,7 @@ function wpcom_has_admin_interface_changed() {
  * @return bool
  */
 function wpcom_should_show_classic_tour() {
-	if ( ! function_exists( 'wpcom_is_nav_redesign_enabled' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return false;
 	}
 

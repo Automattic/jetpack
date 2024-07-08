@@ -7,6 +7,7 @@ import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
@@ -349,6 +350,20 @@ export function updatingConnection( connectionId, updating = true ) {
 		type: UPDATING_CONNECTION,
 		connectionId,
 		updating,
+	};
+}
+
+/**
+ * Sets the reconnecting account.
+ *
+ * @param {string} reconnectingAccount - Account being reconnected.
+ *
+ * @returns {object} Reconnecting account action.
+ */
+export function setReconnectingAccount( reconnectingAccount ) {
+	return {
+		type: SET_RECONNECTING_ACCOUNT,
+		reconnectingAccount,
 	};
 }
 
