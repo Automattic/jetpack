@@ -103,7 +103,7 @@ if ( ! function_exists( 'jetpack_social_menu' ) ) {
 	 */
 	function jetpack_social_menu() {
 		if ( has_nav_menu( 'jetpack-social-menu' ) ) :
-			$menu_type  = jetpack_social_menu_get_type();
+			$menu_type  = (string) jetpack_social_menu_get_type();
 			$link_after = '</span>';
 
 			if ( 'svg' === $menu_type ) {
