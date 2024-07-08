@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Featured Content: Don't call setup for wpcom platform since jetpack-mu-wpcom already takes care of that.
