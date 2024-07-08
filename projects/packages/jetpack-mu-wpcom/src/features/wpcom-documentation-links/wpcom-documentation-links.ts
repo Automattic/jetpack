@@ -1,0 +1,78 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { addFilter } from '@wordpress/hooks';
+import './wpcom-documentation-links.css';
+
+declare global {
+	interface Window {
+		_currentSiteId: number;
+		_currentSiteType: string;
+		wpcomDocumentationLinksLocale: string;
+	}
+}
+
+/**
+ * Override Core documentation that has matching WordPress.com documentation.
+ *
+ * @param translation - any    Callback function.
+ * @param text        - string Text to be translated.
+ */
+function overrideCoreDocumentationLinksToWpcom( translation: any, text: string ) {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	switch ( text ) {
+		case 'https://wordpress.org/support/article/excerpt/':
+		case 'https://wordpress.org/support/article/settings-sidebar/#excerpt':
+		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt':
+			return 'https://wordpress.com/support/excerpts/';
+		case 'https://wordpress.org/support/article/writing-posts/#post-field-descriptions':
+		case 'https://wordpress.org/support/article/settings-sidebar/#permalink':
+		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#permalink':
+			return 'https://wordpress.com/support/permalinks-and-slugs/';
+		case 'https://wordpress.org/support/article/wordpress-editor/':
+			return 'https://wordpress.com/support/wordpress-editor/';
+		case 'https://wordpress.org/support/article/site-editor/':
+			return 'https://wordpress.com/support/site-editor/';
+		case 'https://wordpress.org/support/article/block-based-widgets-editor/':
+			return 'https://wordpress.com/support/widgets/';
+		case 'https://wordpress.org/plugins/classic-widgets/':
+			return 'https://wordpress.com/plugins/classic-widgets';
+		case 'https://wordpress.org/support/article/styles-overview/':
+			return 'https://wordpress.com/support/using-styles/';
+	}
+
+	return translation;
+}
+
+/**
+ * Override Core documentation that doesn't have matching WordPress.com documentation.
+ *
+ * @param translation - any    Callback function.
+ * @param text        - string Text to be translated.
+ */
+function hideSimpleSiteTranslations( translation: any, text: string ) {
+	switch ( text ) {
+		case 'https://wordpress.org/plugins/classic-widgets/':
+			return '';
+		case 'Want to stick with the old widgets?':
+			return '';
+		case 'Get the Classic Widgets plugin.':
+			return '';
+	}
+
+	return translation;
+}
+
+addFilter(
+	'i18n.gettext_default',
+	'jetpack-mu-wpcom/override-core-docs-to-wpcom',
+	overrideCoreDocumentationLinksToWpcom,
+	9
+);
+
+if ( window?._currentSiteType === 'simple' ) {
+	addFilter(
+		'i18n.gettext_default',
+		'jetpack-mu-wpcom/override-core-docs-to-wpcom',
+		hideSimpleSiteTranslations,
+		10
+	);
+}

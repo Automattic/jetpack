@@ -1,0 +1,47 @@
+<?php
+/**
+ * WPCOM overrides to Core documentation links.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+define( 'MU_WPCOM_DOCUMENTATION_LINKS', true );
+
+/**
+ * Enqueue assets
+ */
+function wpcom_enqueue_documentation_links_assets() {
+	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.asset.php';
+	$script_dependencies = $asset_file['dependencies'] ?? array();
+	$script_version      = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.js' );
+
+	wp_enqueue_script(
+		'wpcom-documentation-links-script',
+		plugins_url( 'build/wpcom-documentation-links/wpcom-documentation-links.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		is_array( $script_dependencies ) ? $script_dependencies : array(),
+		$script_version,
+		true
+	);
+
+	wp_enqueue_style(
+		'wpcom-documentation-links-styles',
+		plugins_url( '/dist/wpcom-documentation-links.css', __FILE__ ),
+		array(),
+		$script_version
+	);
+
+	// This is a way to get the data from the customize-controls script and change the link to the wpcom support page.
+	global $wp_scripts;
+	$data = $wp_scripts->get_data( 'customize-controls', 'data' );
+
+	if ( $data ) {
+		$data = str_replace( 'https:\\/\\/wordpress.org\\/support\\/article\\/site-editor\\/\\', 'https:\\/\\/wordpress.com\\/support\\/site-editor\\/\\', $data );
+		$wp_scripts->registered['customize-controls']->extra['data'] = $data;
+	}
+
+	wp_set_script_translations( 'wpcom-documentation-links-script', 'jetpack-mu-wpcom' );
+}
+
+add_action( 'init', 'wpcom_enqueue_documentation_links_assets' );
