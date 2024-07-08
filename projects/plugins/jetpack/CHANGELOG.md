@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.7-a.1 - 2024-07-08
+### Enhancements
+- AI Assistant: The general purpose image generator is now available to all users. [#38203]
+- Subscriptions: Add command palette commands for quickly changing post access. [#37716]
+- Subscriptions: Improve the Subscribe block loading animation. [#38174]
+
+### Bug fixes
+- Like block: Fix warning displayed when trying to load the Like block on unsupported pages. [#38199]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add feature to tracks event. [#38207]
+- AI Assistant: Update Breve implementation to React. [#38125]
+- AI Assistant: Update Breve toggle location. [#38157]
+- AI Proofread: Change Breve request endpoint. [#38149]
+- AI Proofread: Move prompts to the backend. [#38182]
+- Carousel: Updating event listener to remove unnecessary default event prevention function call. [#38143]
+- Classic Theme Helper: Require Responsive Videos and Featured Content files. [#37969]
+- Featured Content: Don't call setup for wpcom platform since jetpack-mu-wpcom already takes care of that. [#38215]
+- Jetpack AI Breve: Fix popover font and css classnames. [#38161]
+- Jetpack AI Image: Include new entrypoint as a button on the image/gallery/slideshow block. [#38123]
+- Jetpack AI Image: Use better names when saving images. [#38179]
+- Masterbar: Deprecate module files. [#38109]
+- Newsletter settings: fix reply to example email when comment reply chosen. [#38151]
+- Search: Update search close button behaviour. [#38204]
+- Updated package dependencies. [#38132] [#38228] [#38235]
+
 ## 13.6 - 2024-07-02
 ### Enhancements
 - AI Assistant: Hide input when user types on extended block. [#37801]
