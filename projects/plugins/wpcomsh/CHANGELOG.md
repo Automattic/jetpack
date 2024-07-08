@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.27.3 - 2024-07-08
+### Added
+- Add post transfer woo express deactivate plugins, post process cache flush, and post clone set staging environment [#38183]
+
+### Changed
+- Updated package dependencies. [#38228]
+- Use wp-cli `success` function for messages [#38201]
+
+### Fixed
+- Fix generate POT script to follow symlinks in vendor/* and update language files. [#38153]
+
 ## 3.27.2 - 2024-07-01
 ### Changed
 - Internal updates.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Carousel: Updating event listener to remove unnecessary default event prevention function call

@@ -2,7 +2,7 @@
 /**
  * Manage User profile fields.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert instead.
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\WPCOM_User_Profile_Fields_Revert instead.
  *
  * @package automattic/jetpack
  */
@@ -30,19 +30,19 @@ class WPCOM_User_Profile_Fields_Revert {
 	/**
 	 * Profile_Edit_Filter_Fields constructor.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param Connection_Manager $connection_manager The connection manager.
 	 */
 	public function __construct( Connection_Manager $connection_manager ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::__construct' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::__construct' );
 		$this->wpcom_user_profile_fields_revert_wrapper = new Masterbar_WPCOM_User_Profile_Fields_Revert( $connection_manager );
 	}
 
 	/**
 	 * Filter the built-in user profile fields.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param array    $data            {
 	 *                                  Values and keys for the user.
@@ -63,14 +63,14 @@ class WPCOM_User_Profile_Fields_Revert {
 	 * @return array
 	 */
 	public function revert_user_data_on_wp_admin_profile_update( $data, $update, $id ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_data_on_wp_admin_profile_update' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_data_on_wp_admin_profile_update' );
 		return $this->wpcom_user_profile_fields_revert_wrapper->revert_user_data_on_wp_admin_profile_update( $data, $update, $id );
 	}
 
 	/**
 	 * Revert the first_name, last_name and description since this is managed by WP.com.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param array    $meta {
 	 *        Default meta values and keys for the user.
@@ -95,20 +95,20 @@ class WPCOM_User_Profile_Fields_Revert {
 	 * @return array
 	 */
 	public function revert_user_meta_on_wp_admin_profile_change( $meta, $user, $update ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_meta_on_wp_admin_profile_change' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::revert_user_meta_on_wp_admin_profile_change' );
 		return $this->wpcom_user_profile_fields_revert_wrapper->revert_user_meta_on_wp_admin_profile_change( $meta, $user, $update );
 	}
 
 	/**
 	 * Disable the e-mail notification.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param bool  $send     Whether to send or not the email.
 	 * @param array $user     User data.
 	 */
 	public function disable_send_email_change_email( $send, $user ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_send_email_change_email' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_send_email_change_email' );
 		return $this->wpcom_user_profile_fields_revert_wrapper->disable_send_email_change_email( $send, $user );
 	}
 
@@ -117,12 +117,12 @@ class WPCOM_User_Profile_Fields_Revert {
 	 *
 	 * We need this because WP.org uses a custom flow for E-mail changes.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param int $user_id The id of the user that's updated.
 	 */
 	public function disable_email_notification( $user_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_email_notification' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_User_Profile_Fields_Revert::disable_email_notification' );
 		$this->wpcom_user_profile_fields_revert_wrapper->disable_email_notification( $user_id );
 	}
 }

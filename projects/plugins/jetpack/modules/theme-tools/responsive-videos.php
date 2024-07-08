@@ -11,10 +11,10 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		/**
 		 * Load the Responsive videos plugin
 		 *
-		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 * @deprecated 13.7 Moved to Classic Theme Helper package.
 		 */
 	function jetpack_responsive_videos_init() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 
 		/* If the doesn't theme support 'jetpack-responsive-videos', don't continue */
 		if ( ! current_theme_supports( 'jetpack-responsive-videos' ) ) {
@@ -45,13 +45,13 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	/**
 	 * Adds a wrapper to videos and enqueue script
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.7 Moved to Classic Theme Helper package.
 	 *
 	 * @param string $html The video embed HTML.
 	 * @return string
 	 */
 	function jetpack_responsive_videos_embed_html( $html ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 
 		if ( empty( $html ) || ! is_string( $html ) ) {
 			return $html;
@@ -92,7 +92,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	/**
 	 * Check if oEmbed is a `$video_patterns` provider video before wrapping.
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.7 Moved to Classic Theme Helper package.
 	 *
 	 * @param mixed  $html The cached HTML result, stored in post meta.
 	 * @param string $url  he attempted embed URL.
@@ -100,7 +100,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 * @return string
 	 */
 	function jetpack_responsive_videos_maybe_wrap_oembed( $html, $url = null ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 
 		if ( empty( $html ) || ! is_string( $html ) || ! $url ) {
 			return $html;
@@ -167,7 +167,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 *
 	 * @since 7.0.0
 	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+	 * @deprecated 13.7 Moved to Classic Theme Helper package.
 	 *
 	 * @param string $block_content The block content about to be appended.
 	 * @param array  $block         The full block, including name and attributes.
@@ -175,7 +175,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 	 * @return string $block_content String of rendered HTML.
 	 */
 	function jetpack_responsive_videos_remove_wrap_oembed( $block_content, $block ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 
 		if (
 			isset( $block['blockName'] )
