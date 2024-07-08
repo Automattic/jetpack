@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixes scrollbar issue if upsell nudge is loaded in specific viewport.

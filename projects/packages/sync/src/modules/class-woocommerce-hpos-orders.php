@@ -165,8 +165,8 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 		$orders      = wc_get_orders(
 			array(
-				'include' => $ids,
-				'type'    => $this->get_order_types_to_sync( true ),
+				'post__in' => $ids,
+				'type'     => $this->get_order_types_to_sync( true ),
 			)
 		);
 		$orders_data = array();

@@ -152,6 +152,16 @@ export function getUpdatingConnections( state ) {
 }
 
 /**
+ * Get the account being reconnected
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
+ */
+export function getReconnectingAccount( state ) {
+	return state.connectionData?.reconnectingAccount ?? '';
+}
+
+/**
  * Whether a mastodon account is already connected.
  *
  * @param {import("../types").SocialStoreState} state - State object.

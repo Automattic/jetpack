@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Jetpack Sync: Ensure we always sync heartbeat data and active plugins no matter the consumer config

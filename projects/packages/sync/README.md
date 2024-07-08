@@ -66,6 +66,7 @@ the following modules will be enabled no matter the configuration:
 - `Automattic\\Jetpack\\Sync\\Modules\\Callables`
 - `Automattic\\Jetpack\\Sync\\Modules\\Constants`
 - `Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately`
+- `Automattic\\Jetpack\\Sync\\Modules\\Stats`
 - `Automattic\\Jetpack\\Sync\\Modules\\Updates`
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
@@ -99,6 +100,7 @@ It's important to note that we consider a list of certain options required for S
 - `stylesheet`, // Generic site option
 - `time_format`, // Generic site option
 - `timezone_string`, // Generic site option
+- `active_plugins`, // Generic site option
 
 Passing a list of options will result in syncing those options plus the required ones.
 
