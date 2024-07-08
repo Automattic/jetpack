@@ -1,51 +1,67 @@
 /* Additional styling to thickbox that displays modal */
 /* stylelint-disable selector-max-id */
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.jetpack-memberships-modal #TB_title {
+@keyframes jetpack-memberships_button__spinner-animation {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.jetpack-memberships-spinner {
 	display: none;
+	width: 1em;
+	height: 1em;
+	margin: 0 0 0 5px;
+	svg {
+		/* Better center-align the spinner with button text, because 1m height doesn't take line-height into account */
+		margin-bottom: -2px;
+		width: 100%;
+		height: 100%;
+	}
 }
 
-#memberships-modal-window.jetpack-memberships-modal,
-#TB_window.jetpack-memberships-modal {
-	background-color: transparent;
-	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
-	background-size: 50px;
-	background-repeat: no-repeat;
-	background-position: center 150px;
-	margin: 0 !important;
-	box-shadow: none;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	border: none;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	top: 0;
-	width: 100% !important;
-	height: 100%;
+.jetpack-memberships-spinner-rotating {
+	transform-origin: center;
+	animation: jetpack-memberships_button__spinner-animation .75s infinite linear
 }
 
-#memberships-modal-window.jetpack-memberships-modal {
-	padding: 21px;
+.is-loading .jetpack-memberships-spinner {
+	display: inline-block;
 }
 
-.jetpack-memberships-modal #TB_iframeContent,
-.jetpack-memberships-modal #memberships-modal-iframe {
-	margin: 0 !important;
-	height: 100% !important;
-	width: 100% !important;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
-/* This is a class added by Thickbox on open modals. */
-BODY.modal-open {
+body.jetpack-memberships-modal-open {
 	overflow: hidden;
 }
 
-dialog::backdrop {
-	background-color: #000;
-	opacity: 0.7;
+dialog.jetpack-memberships-modal {
+	opacity: 1;
+
+	&, iframe {
+		position: fixed;
+		margin: 0;
+		padding: 0;
+		height: 100%;
+		width: 100%;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		box-shadow: none;
+		border: 0;
+		background: transparent;
+	}
+
+	&::backdrop {
+		background-color: #000;
+		opacity: 0.7;
+		transition: opacity .2s ease-out;
+	}
+
+	&.is-loading {
+		&, &::backdrop {
+			opacity: 0;
+		}
+	}
+
 }

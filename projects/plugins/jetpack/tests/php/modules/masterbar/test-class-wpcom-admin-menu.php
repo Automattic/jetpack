@@ -2,6 +2,8 @@
 /**
  * Tests for WPcom_Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -98,6 +100,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests get_preferred_view
 	 *
 	 * @covers ::get_preferred_view
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_preferred_view
 	 */
 	public function test_get_preferred_view() {
 		static::$admin_menu->set_preferred_view( 'themes.php', 'unknown' );
@@ -115,6 +120,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		if ( ! function_exists( 'add_user_to_blog' ) ) {
 			$this->markTestSkipped( 'Only used on multisite' );
 		}
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_current_user_blog_count' );
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_browse_sites_link' );
 		global $menu;
 
 		// No output when user has just one site.
@@ -145,6 +152,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_new_site_link
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_current_user_blog_count
 	 */
 	public function test_add_new_site_link() {
 		global $menu;
@@ -167,6 +177,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_site_card_menu
 	 *
 	 * @covers ::add_site_card_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_site_card_menu
 	 */
 	public function test_add_site_card_menu() {
 		global $menu;
@@ -201,6 +213,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests set_site_card_menu_class
 	 *
 	 * @covers ::set_site_card_menu_class
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_site_card_menu
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::set_site_card_menu_class
 	 */
 	public function test_set_site_card_menu_class() {
 		global $menu;
@@ -234,6 +249,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_upgrades_menu
 	 *
 	 * @covers ::add_upgrades_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_upgrades_menu
 	 */
 	public function test_add_upgrades_menu() {
 		global $submenu;
@@ -269,6 +286,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_users_menu
 	 *
 	 * @covers ::add_users_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_preferred_view
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_users_menu
 	 */
 	public function test_add_users_menu() {
 		global $submenu;
@@ -284,6 +304,9 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests add_options_menu
 	 *
 	 * @covers ::add_options_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::get_preferred_view
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::add_options_menu
 	 */
 	public function test_add_options_menu() {
 		global $submenu;
@@ -297,6 +320,8 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	 * Tests remove_gutenberg_menu
 	 *
 	 * @covers ::remove_gutenberg_menu
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu::remove_gutenberg_menu
 	 */
 	public function test_remove_gutenberg_menu() {
 		global $menu;

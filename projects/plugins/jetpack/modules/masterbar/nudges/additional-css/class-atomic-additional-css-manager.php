@@ -4,10 +4,14 @@
  *
  * Responsible with replacing the Core Additional CSS section with an upgrade nudge on Atomic.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager instead.
+ *
  * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
+
+use Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager as Masterbar_Atomic_Additional_CSS_Manager;
 
 /**
  * Class Atomic_Additional_CSS_Manager
@@ -17,47 +21,34 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 class Atomic_Additional_CSS_Manager {
 
 	/**
-	 * The site domain.
+	 * Instance of \Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
+	 * Used for deprecation purposes.
 	 *
-	 * @var string
+	 * @var \Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
 	 */
-	private $domain;
+	private $additional_css_wrapper;
 
 	/**
 	 * Atomic_Additional_CSS_Manager constructor.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $domain the Site domain.
 	 */
 	public function __construct( $domain ) {
-		$this->domain = $domain;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::__construct' );
+		$this->additional_css_wrapper = new Masterbar_Atomic_Additional_CSS_Manager( $domain );
 	}
 
 	/**
 	 * Replace the Additional CSS section from Customiz¡er with an upgrade nudge.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param \WP_Customize_Manager $wp_customize_manager Core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		$nudge_url  = $this->get_nudge_url();
-		$nudge_text = __( 'Purchase the Creator plan to<br> activate CSS customization', 'jetpack' );
-
-		$nudge = new CSS_Customizer_Nudge(
-			$nudge_url,
-			$nudge_text
-		);
-
-		$wp_customize_manager->remove_control( 'custom_css' );
-		$wp_customize_manager->remove_section( 'custom_css' );
-
-		$nudge->customize_register_nudge( $wp_customize_manager );
-	}
-
-	/**
-	 * Get the Nudge URL.
-	 *
-	 * @return string
-	 */
-	private function get_nudge_url() {
-		return '/checkout/' . $this->domain . '/business';
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Atomic_Additional_CSS_Manager::register_nudge' );
+		$this->additional_css_wrapper->register_nudge( $wp_customize_manager );
 	}
 }

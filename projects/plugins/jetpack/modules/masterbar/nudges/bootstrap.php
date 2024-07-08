@@ -2,10 +2,16 @@
 /**
  * Bootstrap file for the nudges.
  *
+ * @deprecated 13.7
+ *
  * @package Jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
+
+_deprecated_file( __FILE__, 'jetpack-13.7' );
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -13,9 +19,12 @@ use Automattic\Jetpack\Status\Host;
 /**
  * The WP_Customize_Control core class is loaded only on customize_register.
  *
+ * @deprecated 13.7
+ *
  * @param \WP_Customize_Manager $customize_manager Core customize manager.
  */
 function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\register_css_nudge_control' );
 	require_once __DIR__ . '/additional-css/class-css-nudge-customize-control.php';
 	require_once __DIR__ . '/additional-css/class-css-customizer-nudge.php';
 
@@ -40,9 +49,11 @@ function register_css_nudge_control( \WP_Customize_Manager $customize_manager ) 
  * Load the bootstrap on init action.
  *
  * We need to load on init because otherwise the filter will not be set to true in WPCOM (since the add_filter is set on init).
+ *
+ * @deprecated 13.7
  */
 function load_bootstrap_on_init() {
-
+	_deprecated_function( __FUNCTION__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\load_bootstrap_on_init' );
 	/**
 	 * Disable Additional CSS section from Customizer in WPCOM and Atomic and replace it with a nudge.
 	 *

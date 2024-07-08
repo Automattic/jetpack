@@ -46,12 +46,17 @@ const PerformanceHistoryBody = () => {
 		);
 	}
 
+	const handleUpgrade = () => {
+		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+		navigate( '/upgrade' );
+	};
+
 	return (
 		<GraphComponent
 			{ ...( data as PerformanceHistoryData ) }
 			isFreshStart={ ! freshStartCompleted }
 			needsUpgrade={ needsUpgrade }
-			handleUpgrade={ () => navigate( '/upgrade' ) }
+			handleUpgrade={ handleUpgrade }
 			handleDismissFreshStart={ dismissFreshStart }
 			isLoading={ isFetching && ( ! data || data.periods.length === 0 ) }
 		/>
@@ -68,7 +73,9 @@ const PerformanceHistory = () => {
 					title={ __( 'Historical Performance', 'jetpack-boost' ) }
 					initialOpen={ isPanelOpen }
 					onToggle={ ( value: boolean ) => {
-						recordBoostEvent( 'performance_history_panel_toggle', { status: value ? 'open' : 'close' } );
+						recordBoostEvent( 'performance_history_panel_toggle', {
+							status: value ? 'open' : 'close',
+						} );
 						setPanelOpen( value );
 					} }
 					className={ styles[ 'performance-history-body' ] }

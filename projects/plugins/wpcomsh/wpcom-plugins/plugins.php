@@ -21,9 +21,6 @@ function wpcomsh_plugins_show_banner() {
 	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
 		return;
 	}
-	if ( function_exists( 'current_user_has_wpcom_account' ) && ! current_user_has_wpcom_account() ) {
-		return;
-	}
 
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
