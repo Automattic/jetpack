@@ -1,10 +1,15 @@
 import { renderHook } from '@testing-library/react';
+import useAttachedMedia from '../../use-attached-media';
 import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	VIDEO_LENGTH_TOO_LONG_ERROR,
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../index';
+
+jest.mock( '../../use-attached-media', () => jest.fn() );
+// Mocking attached media to allow validation
+useAttachedMedia.mockReturnValue( [ 1 ] );
 
 const DUMMY_CONNECTIONS = [
 	{
