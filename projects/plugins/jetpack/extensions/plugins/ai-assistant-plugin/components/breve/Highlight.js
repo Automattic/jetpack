@@ -211,7 +211,7 @@ const Highlight = ( {
 				<Popover
 					anchor={ highlightContainerRef.current }
 					placement="bottom"
-					offset={ -3 }
+					offset={ 6 }
 					className="highlight-popover"
 					variant="tooltip"
 					animate={ false }
@@ -224,6 +224,7 @@ const Highlight = ( {
 						setIsVisible( false );
 						setIsHovering( false );
 					} }
+					noArrow={ false }
 				>
 					<div>{ popoverContents }</div>
 					{ isAIOn && (
