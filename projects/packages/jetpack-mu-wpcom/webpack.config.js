@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const jetpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 
 module.exports = [
@@ -20,23 +20,24 @@ module.exports = [
 				'./src/features/override-preview-button-url/override-preview-button-url.js',
 			'paragraph-block-placeholder':
 				'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
+			'tags-education': './src/features/tags-education/tags-education.js',
 		},
-		mode: jetpackConfig.mode,
-		devtool: jetpackConfig.devtool,
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.devtool,
 		output: {
-			...jetpackConfig.output,
+			...jetpackWebpackConfig.output,
 			filename: '[name]/[name].js',
 			path: path.resolve( __dirname, 'src/build' ),
 		},
 		optimization: {
-			...jetpackConfig.optimization,
+			...jetpackWebpackConfig.optimization,
 		},
 		resolve: {
-			...jetpackConfig.resolve,
+			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
 		plugins: [
-			...jetpackConfig.StandardPlugins( {
+			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
 			} ),
 		],
@@ -44,24 +45,30 @@ module.exports = [
 			strictExportPresence: true,
 			rules: [
 				// Transpile JavaScript.
-				jetpackConfig.TranspileRule( {
+				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
 				} ),
 
 				// Transpile @automattic/jetpack-* in node_modules too.
-				jetpackConfig.TranspileRule( {
+				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
 				// Handle CSS.
-				jetpackConfig.CssRule( {
+				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'scss' ],
 					extraLoaders: [ 'sass-loader' ],
 				} ),
 
 				// Handle images.
-				jetpackConfig.FileRule(),
+				jetpackWebpackConfig.FileRule(),
 			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-mu-wpcom',
+			} ),
 		},
 	},
 ];

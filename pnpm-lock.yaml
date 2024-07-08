@@ -2102,6 +2102,9 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
