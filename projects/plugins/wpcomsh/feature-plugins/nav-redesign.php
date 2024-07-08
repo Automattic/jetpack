@@ -6,6 +6,17 @@
  */
 
 /**
+ * Whether to enable the nav redesign.
+ *
+ * @return bool True if the nav redesign is enabled, false otherwise.
+ */
+function wpcom_is_nav_redesign_enabled() {
+	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
+
+	return $uses_wp_admin_interface;
+}
+
+/**
  * Returns whether the current request is coming from the a8c proxy.
  */
 function is_proxied() {
