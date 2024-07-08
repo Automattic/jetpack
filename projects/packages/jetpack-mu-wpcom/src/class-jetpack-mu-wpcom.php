@@ -32,6 +32,9 @@ class Jetpack_Mu_Wpcom {
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
 
+		// Load ETK features that need higher priority than the ETK plugin.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ), 0 );
+
 		/*
 		 * Please double-check whether you really need to load your feature separately.
 		 * Chances are you can just add it to the `load_features` method.
@@ -95,14 +98,10 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
-		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
-		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
-		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/tags-education/tags-education.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
@@ -122,6 +121,17 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
 		}
+	}
+
+	/**
+	 * Laod ETK features that need higher priority than the ETK plugin.
+	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
+	 */
+	public static function load_etk_features() {
+		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
+		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
+		require_once __DIR__ . '/features/tags-education/tags-education.php';
 	}
 
 	/**
