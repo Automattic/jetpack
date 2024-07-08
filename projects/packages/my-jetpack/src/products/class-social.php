@@ -1,6 +1,6 @@
 <?php
 /**
- * Search product
+ * Jetpack Social product
  *
  * @package my-jetpack
  */
