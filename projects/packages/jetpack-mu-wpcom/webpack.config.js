@@ -8,19 +8,23 @@ module.exports = [
 	...verbumConfig,
 	{
 		entry: {
-			'error-reporting': './src/features/error-reporting/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
-			'wpcom-site-menu': './src/features/wpcom-site-menu/wpcom-site-menu.scss',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
 			'core-customizer-css-preview':
 				'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 			'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
+			'error-reporting': './src/features/error-reporting/index.js',
+			'jetpack-global-styles': './src/features/jetpack-global-styles/index.js',
+			'jetpack-global-styles-customizer-fonts':
+				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 			'override-preview-button-url':
 				'./src/features/override-preview-button-url/override-preview-button-url.js',
 			'paragraph-block-placeholder':
 				'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 			'tags-education': './src/features/tags-education/tags-education.js',
+			'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.scss',
+			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
