@@ -43,7 +43,7 @@ class Image_Guide_Proxy {
 			wp_send_json_error( 'Failed to proxy the image.', 400 );
 		}
 
-		$response = wp_remote_get( $photon_url );
+		$response = wp_safe_remote_get( $photon_url );
 		if ( is_wp_error( $response ) ) {
 			wp_send_json_error( 'error', 400 );
 		}

@@ -60,7 +60,7 @@ class CSS_Proxy {
 
 		$css = '';
 		if ( false === $response ) {
-			$response     = wp_remote_get( $proxy_url );
+			$response     = wp_safe_remote_get( $proxy_url );
 			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
 			if ( strpos( $content_type, 'text/css' ) === false ) {
 				wp_cache_set( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), '', HOUR_IN_SECONDS );
