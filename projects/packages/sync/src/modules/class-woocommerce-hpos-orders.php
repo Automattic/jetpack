@@ -160,19 +160,24 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function get_objects_by_id( $object_type, $ids ) {
-		if ( 'order' !== $object_type ) {
-			return $ids;
+		if ( 'order' !== $object_type || empty( $ids ) || ! is_array( $ids ) ) {
+			return array();
 		}
-		$orders      = wc_get_orders(
+
+		$orders = wc_get_orders(
 			array(
-				'post__in' => $ids,
-				'type'     => $this->get_order_types_to_sync( true ),
+				'post__in'    => $ids,
+				'type'        => $this->get_order_types_to_sync( true ),
+				'post_status' => $this->get_all_possible_order_status_keys(),
+				'limit'       => -1,
 			)
 		);
+
 		$orders_data = array();
 		foreach ( $orders as $order ) {
 			$orders_data[ $order->get_id() ] = $this->filter_order_data( $order );
 		}
+
 		return $orders_data;
 	}
 
@@ -300,6 +305,34 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 
 		return $filtered_order_data;
+	}
+
+	/**
+	 * Returns all possible order status keys using 'wc_get_order_statuses', if possible..
+	 *
+	 * @access protected
+	 *
+	 * @return array Filtered order metadata.
+	 */
+	protected function get_all_possible_order_status_keys() {
+		$order_statuses    = array( 'checkout-draft', 'auto-draft', 'trash' );
+		$wc_order_statuses = array();
+		if ( function_exists( 'wc_get_order_statuses' ) ) {
+			$wc_order_statuses = array_keys( wc_get_order_statuses() );
+		} else {
+			$wc_order_statuses = array(
+				'wc-pending',
+				'wc-processing',
+				'wc-on-hold',
+				'wc-completed',
+				'wc-cancelled',
+				'wc-refunded',
+				'wc-failed',
+				'wc-checkout-draft',
+			);
+		}
+
+		return array_unique( array_merge( $wc_order_statuses, $order_statuses ) );
 	}
 
 	/**
