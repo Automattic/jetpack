@@ -13,23 +13,21 @@ define( 'MU_WPCOM_DOCUMENTATION_LINKS', true );
  * Enqueue assets
  */
 function wpcom_enqueue_documentation_links_assets() {
-	$asset_file          = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.asset.php';
-	$script_dependencies = $asset_file['dependencies'] ?? array();
-	$script_version      = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.js' );
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.asset.php';
 
 	wp_enqueue_script(
 		'wpcom-documentation-links-script',
 		plugins_url( 'build/wpcom-documentation-links/wpcom-documentation-links.js', Jetpack_Mu_Wpcom::BASE_FILE ),
-		is_array( $script_dependencies ) ? $script_dependencies : array(),
-		$script_version,
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.js' ),
 		true
 	);
 
 	wp_enqueue_style(
 		'wpcom-documentation-links-styles',
-		plugins_url( '/dist/wpcom-documentation-links.css', __FILE__ ),
+		plugins_url( 'build/wpcom-documentation-links/wpcom-documentation-links.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		$script_version
+		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-documentation-links/wpcom-documentation-links.css' )
 	);
 
 	// This is a way to get the data from the customize-controls script and change the link to the wpcom support page.
