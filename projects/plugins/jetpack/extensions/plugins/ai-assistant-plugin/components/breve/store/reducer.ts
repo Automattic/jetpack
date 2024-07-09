@@ -3,12 +3,24 @@
  */
 import { combineReducers } from '@wordpress/data';
 
-export function popover( state = { isOpen: false }, action ) {
+export function popover( state = {}, action ) {
 	switch ( action.type ) {
-		case 'SET_POPOVER_STATE':
+		case 'SET_HIGHLIGHT_HOVER':
 			return {
 				...state,
-				isOpen: action.isOpen,
+				isHighlightHover: action.isHover,
+			};
+
+		case 'SET_POPOVER_HOVER':
+			return {
+				...state,
+				isPopoverHover: action.isHover,
+			};
+
+		case 'SET_POPOVER_ANCHOR':
+			return {
+				...state,
+				anchor: action.anchor,
 			};
 	}
 

@@ -10,14 +10,11 @@ import { registerFormatType } from '@wordpress/rich-text';
  */
 import BREVE_FEATURES from '../features';
 import './style.scss';
-import getContainer from '../features/container';
 
 // Setup the Breve highlights
 export default function Highlight() {
 	const debounce = useRef( null );
 	const { setBlockContent } = useDispatch( 'jetpack/ai-breve' );
-	const { foundContainer: container } = getContainer();
-	const anchor = container?.querySelector?.( `[data-ai-breve-anchor]` );
 
 	const postContent = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,11 +23,30 @@ export default function Highlight() {
 		return richValues;
 	}, [] );
 
-	const popoverOpen = useSelect(
+	const popoverOpen = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		select => ( select( 'jetpack/ai-breve' ) as any ).isPopoverOpen(),
-		[]
-	);
+		const store = select( 'jetpack/ai-breve' ) as any;
+		const isPopoverHover = store.isPopoverHover();
+		const isHighlightHover = store.isHighlightHover();
+		return isHighlightHover || isPopoverHover;
+	}, [] );
+
+	const anchor = useSelect( select => {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		return ( select( 'jetpack/ai-breve' ) as any ).getPopoverAnchor();
+	}, [] );
+
+	const isPopoverOpen = popoverOpen && anchor;
+
+	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
+
+	const handleMouseEnter = () => {
+		setPopoverHover( true );
+	};
+
+	const handleMouseLeave = () => {
+		setPopoverHover( false );
+	};
 
 	useLayoutEffect( () => {
 		if ( postContent?.length > 0 ) {
@@ -46,7 +62,7 @@ export default function Highlight() {
 
 	return (
 		<>
-			{ popoverOpen && anchor && (
+			{ isPopoverOpen && (
 				<Popover
 					anchor={ anchor }
 					placement="bottom"
@@ -55,6 +71,8 @@ export default function Highlight() {
 					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
+					onMouseEnter={ handleMouseEnter }
+					onMouseLeave={ handleMouseLeave }
 				>
 					<div>Popover</div>
 				</Popover>
