@@ -25,7 +25,7 @@ class CSS_Proxy {
 	 */
 	public function handle_css_proxy() {
 
-		// Verify valid nonce.
+		// Verify valid nonce .
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
 			wp_die( '', 400 );
 		}
@@ -46,7 +46,29 @@ class CSS_Proxy {
 			die( 'Invalid URL' );
 		}
 
-		$response = wp_remote_get( $proxy_url );
+		$url_path = parse_url( $proxy_url, PHP_URL_PATH );
+		if ( ! $url_path || substr( strtolower( $url_path ), -4 ) !== '.css' ) {
+			wp_die( 'Invalid CSS file URL', 400 );
+		}
+
+		$cache_key = 'jb_css_proxy_' . md5( $proxy_url );
+		$response  = wp_cache_get( $cache_key );
+
+		if ( is_array( $response ) && isset( $response['error'] ) ) {
+			wp_die( $response['error'], 400 );
+		}
+
+		if ( false === $response ) {
+			$response     = wp_remote_get( $proxy_url );
+			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
+			if ( strpos( $content_type, 'text/css' ) === false ) {
+				wp_cache_set( $cache_key, array( 'error' => 'Invalid content type. Expected CSS.' ), '', HOUR_IN_SECONDS );
+				wp_die( 'Invalid content type. Expected CSS.', 400 );
+			}
+			$css = wp_remote_retrieve_body( $response );
+			wp_cache_set( $cache_key, $css, '', HOUR_IN_SECONDS );
+		}
+
 		if ( is_wp_error( $response ) ) {
 			// TODO: Nicer error handling.
 			die( 'error' );
@@ -54,10 +76,11 @@ class CSS_Proxy {
 
 		header( 'Content-type: text/css' );
 
-		// Outputting proxied CSS contents unescaped.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $response['body'] );
-
-		die();
+		if ( $css ) {
+			// Outputting proxied CSS contents unescaped.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo wp_strip_all_tags( $css );
+			die();
+		}
 	}
 }
