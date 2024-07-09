@@ -1,0 +1,9 @@
+:root {
+	--jetpack-ai-complex-words: rgba( 251, 192, 45, 1 ); /* Darker yellow for border */
+}
+.has-proofread-highlight {
+	border-bottom: 3px solid;
+	&[data-type='complex-words'] {
+		border-bottom-color: var( --jetpack-ai-complex-words );
+	}
+}
