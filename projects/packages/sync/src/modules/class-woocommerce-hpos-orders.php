@@ -330,7 +330,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return string The WC order status with the 'wc-' prefix if it's a valid order status, initial $status otherwise.
 	 */
 	protected function get_wc_order_status_with_prefix( string $status ) {
-		return in_array( $status, $this->wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
+		return in_array( 'wc-' . $status, $this->wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
 	}
 
 	/**
