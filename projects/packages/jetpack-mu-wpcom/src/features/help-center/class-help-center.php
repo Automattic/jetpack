@@ -299,7 +299,7 @@ class Help_Center {
 	/**
 	 * Returns true if the current screen is the woo commerce admin home page.
 	 */
-	public function is_wc_admin_home_page() {
+	private function is_wc_admin_home_page() {
 		global $current_screen;
 		return $current_screen->id === 'woocommerce_page_wc-admin';
 	}
