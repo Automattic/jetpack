@@ -308,6 +308,8 @@ export default function FeaturedImage( {
 			) }
 			<AiImageModal
 				postContent={ postContent }
+				autoStart={ postContent !== '' }
+				autoStartAction={ handleGenerate }
 				images={ images }
 				currentIndex={ current }
 				title={ __( 'Generate a featured image with AI', 'jetpack' ) }
