@@ -53,8 +53,6 @@
 /jetpack_vendor/automattic/**/src/css/*.scss             production-exclude
 /jetpack_vendor/automattic/**/composer.json              production-exclude
 /modules/**/test/**                                      production-exclude
-/modules/calypsoify/*.css.map                            production-exclude
-/modules/calypsoify/*.scss                               production-exclude
 /modules/masterbar/admin-color-schemes/colors/**/*.scss  production-exclude
 /modules/widgets/follow-button.php                       production-exclude
 /modules/widget-visibility/editor/**                     production-exclude
