@@ -46,7 +46,7 @@ class CSS_Proxy {
 			die( 'Invalid URL' );
 		}
 
-		$url_path = parse_url( $proxy_url, PHP_URL_PATH );
+		$url_path = wp_parse_url( $proxy_url, PHP_URL_PATH );
 		if ( ! $url_path || substr( strtolower( $url_path ), -4 ) !== '.css' ) {
 			wp_die( 'Invalid CSS file URL', 400 );
 		}
