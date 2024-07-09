@@ -81,6 +81,7 @@ describe( 'ConfirmationForm', () => {
 					display_name: 'Additional User 2',
 					profile_picture: 'https://example.com/additional2.jpg',
 					service_name: 'service-1',
+					external_id: 'additional-2',
 				}
 			)
 		);
@@ -103,6 +104,7 @@ describe( 'ConfirmationForm', () => {
 					display_name: 'Additional User 1',
 					profile_picture: 'https://example.com/additional1.jpg',
 					service_name: 'service-1',
+					external_id: 'additional-1',
 				}
 			)
 		);

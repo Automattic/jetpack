@@ -55,6 +55,11 @@ class Boost_Cache {
 	private static $cache_engine_loaded = false;
 
 	/**
+	 * @var bool - Indicates whether WordPress initialized correctly and we can cache the page.
+	 */
+	private $do_cache = false;
+
+	/**
 	 * @param ?Storage\Storage $storage - Optionally provide a Storage subclass to handle actually storing and retrieving cached content. Defaults to a new instance of File_Storage.
 	 */
 	public function __construct( $storage = null ) {
@@ -75,6 +80,7 @@ class Boost_Cache {
 		add_action( 'switch_theme', array( $this, 'invalidate_cache' ) );
 		add_action( 'wp_trash_post', array( $this, 'delete_on_post_trash' ), 10, 2 );
 		add_filter( 'wp_php_error_message', array( $this, 'disable_caching_on_error' ) );
+		add_filter( 'init', array( $this, 'init_do_cache' ) );
 	}
 
 	/**
@@ -175,6 +181,12 @@ class Boost_Cache {
 	 */
 	public function ob_callback( $buffer ) {
 		if ( strlen( $buffer ) > 0 && $this->request->is_cacheable() ) {
+
+			// Do not cache the page as WordPress did not initialize correctly.
+			if ( ! $this->do_cache ) {
+				Logger::debug( 'Page exited early. Do not cache.' );
+				return $buffer;
+			}
 
 			if ( false === stripos( $buffer, '</html>' ) ) {
 				Logger::debug( 'Closing HTML tag not found, not caching' );
@@ -467,5 +479,14 @@ class Boost_Cache {
 		}
 		Logger::debug( 'Fatal error detected, caching disabled' );
 		return $message;
+	}
+
+	/**
+	 * This function is called after WordPress is loaded, on "init".
+	 * It is used to indicate that it is safe to cache and that no
+	 * fatal errors occurred.
+	 */
+	public function init_do_cache() {
+		$this->do_cache = true;
 	}
 }

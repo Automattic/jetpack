@@ -42,6 +42,13 @@
 			rangeStrategy: 'widen',
 		},
 
+		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
+		// https://github.com/WordPress/gutenberg/issues/62202
+		{
+			matchPackageNames: [ '@wordpress/dependency-extraction-webpack-plugin' ],
+			allowedVersions: '<6.0.0',
+		},
+
 		// Various other monorepos and package groupings.
 		{
 			extends: [ 'monorepo:wordpress' ],
@@ -97,8 +104,8 @@
 				'uuid',
 				'@testing-library/preact',
 			],
-			reviewers: [ 'team:jetpack-search' ],
-			addLabels: [ 'Search', 'Instant Search' ],
+			reviewers: [ 'team:red' ],
+			addLabels: [ '[Feature] Search', 'Instant Search' ],
 		},
 	],
 

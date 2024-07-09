@@ -46,12 +46,17 @@ const PerformanceHistoryBody = () => {
 		);
 	}
 
+	const handleUpgrade = () => {
+		recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
+		navigate( '/upgrade' );
+	};
+
 	return (
 		<GraphComponent
 			{ ...( data as PerformanceHistoryData ) }
 			isFreshStart={ ! freshStartCompleted }
 			needsUpgrade={ needsUpgrade }
-			handleUpgrade={ () => navigate( '/upgrade' ) }
+			handleUpgrade={ handleUpgrade }
 			handleDismissFreshStart={ dismissFreshStart }
 			isLoading={ isFetching && ( ! data || data.periods.length === 0 ) }
 		/>

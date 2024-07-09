@@ -3,7 +3,7 @@
 Jetpack Protect plugin
 
 
-**If you are not planning on developing with Jetpack Boost, you should install Jetpack Boost from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-protect-production).
+**If you are not planning on developing with Jetpack Protect, you should install Jetpack Protect from pre-built sources.** Details on that may be found [on this page](https://github.com/Automattic/jetpack-protect-production).
 
 ## Developing
 

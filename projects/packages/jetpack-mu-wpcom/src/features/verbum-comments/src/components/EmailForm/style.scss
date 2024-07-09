@@ -33,7 +33,8 @@
 				width: 100%;
 				height: 100%;
 				padding-left: 48px;
-				border: none;
+				/* Override border styling */ 
+				border: none !important;
 				font-size: 14px;
 				box-sizing: border-box;
 
@@ -44,6 +45,10 @@
 
 				&.invalid-form-data {
 					border: solid 1px #e65054;
+				}
+
+				&:focus-visible {
+					outline: 1px solid var(--verbum-focus-color) !important;
 				}
 
 			}

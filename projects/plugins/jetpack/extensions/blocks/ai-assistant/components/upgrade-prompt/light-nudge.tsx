@@ -17,7 +17,7 @@ export const LightNudge = ( {
 
 	return (
 		<div className="jetpack-upgrade-plan-banner-light">
-			<Notice status="warning" isDismissible={ false }>
+			<Notice status="error" isDismissible={ false }>
 				<p>
 					{ title && <strong>{ title }</strong> }
 					{ description }{ ' ' }

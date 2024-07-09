@@ -2,10 +2,10 @@ import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
-import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
-import ScanPage from './components/scan-page';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
+import FirewallRoute from './routes/firewall';
+import ScanRoute from './routes/scan';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -40,8 +40,8 @@ function render() {
 				<HashRouter>
 					<ScrollToTop />
 					<Routes>
-						<Route path="/" element={ <ScanPage /> } />
-						<Route path="/firewall" element={ <FirewallPage /> } />
+						<Route path="/" element={ <ScanRoute /> } />
+						<Route path="/firewall" element={ <FirewallRoute /> } />
 					</Routes>
 				</HashRouter>
 				<Modal />

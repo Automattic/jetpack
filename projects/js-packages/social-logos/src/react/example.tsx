@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';
-import './example.css';
+import '../css/example.css';
 
 /**
  * An example React component that displays all the social logos.
