@@ -176,7 +176,7 @@ const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia 
  * @returns {object} Social media connection handler.
  */
 const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
-	const attachedMedia = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const hasAttachedMedia = attachedMedia.length > 0;
 	const errors = useRef( {} );
 

@@ -63,12 +63,12 @@ const getHookProps = (
 describe( 'useMediaRestrictions hook', () => {
 	beforeEach( () => {
 		// Mocking attached media to allow validation
-		useAttachedMedia.mockReturnValue( [ 1 ] );
+		useAttachedMedia.mockReturnValue( { attachedMedia: [ 1 ] } );
 	} );
 
 	test( 'Should not run validation if a connection does not require media or if attachedMedia is empty', () => {
 		// Mocking useAttachedMedia to return an empty array to simulate no attached media
-		useAttachedMedia.mockReturnValue( [] );
+		useAttachedMedia.mockReturnValue( { attachedMedia: [] } );
 
 		// Define media that would normally fail validation
 		const INVALID_MEDIA = {
