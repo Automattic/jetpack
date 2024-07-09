@@ -168,7 +168,6 @@ const useWafData = () => {
 		refreshWaf,
 		toggleWaf,
 		toggleAutomaticRules,
-		// toggleManualRules,
 		toggleIpAllowList,
 		toggleIpBlockList,
 		toggleBruteForceProtection,
