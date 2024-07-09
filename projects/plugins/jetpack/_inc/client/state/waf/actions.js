@@ -51,7 +51,8 @@ export const updateWafIpAllowList = allowList => {
  * Update WAF Settings
  *
  * @param {object}  newSettings                    - The new settings to be saved.
- * @param {boolean} newSettings.manualRulesEnabled - Whether manual rules are enabled.
+ * @param {boolean} newSettings.ipAllowListEnabled - Whether IP allow list is enabled.
+ * @param {boolean} newSettings.ipBlockListEnabled - Whether IP block list is enabled.
  * @param {string}  newSettings.ipAllowList        - The IP allow list.
  * @param {string}  newSettings.ipBlockList        - The IP block list.
  * @param {boolean} newSettings.shareData          - Whether to share data.
@@ -66,7 +67,8 @@ export const updateWafSettings = newSettings => {
 		return restApi
 			.updateWafSettings( {
 				jetpack_waf_automatic_rules: newSettings.automaticRulesEnabled,
-				jetpack_waf_ip_list: newSettings.manualRulesEnabled,
+				jetpack_waf_ip_allow_list_enabled: newSettings.ipAllowListEnabled,
+				jetpack_waf_ip_block_list_enabled: newSettings.ipBlockListEnabled,
 				jetpack_waf_ip_allow_list: newSettings.ipAllowList,
 				jetpack_waf_ip_block_list: newSettings.ipBlockList,
 				jetpack_waf_share_data: newSettings.shareData,

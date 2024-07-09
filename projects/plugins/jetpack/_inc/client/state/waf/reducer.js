@@ -18,7 +18,8 @@ export const data = ( state = {}, action ) => {
 				bootstrapPath: action.settings?.bootstrap_path,
 				automaticRulesAvailable: Boolean( action.settings?.automatic_rules_available ),
 				automaticRulesEnabled: Boolean( action.settings?.jetpack_waf_automatic_rules ),
-				manualRulesEnabled: Boolean( action.settings?.jetpack_waf_ip_list ),
+				ipAllowListEnabled: Boolean( action.settings?.jetpack_waf_ip_allow_list_enabled ),
+				ipBlockListEnabled: Boolean( action.settings?.jetpack_waf_ip_block_list_enabled ),
 				ipAllowList: action.settings?.jetpack_waf_ip_allow_list || '',
 				allowListInputState:
 					state.allowListInputState === undefined

@@ -4,7 +4,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import { FormFieldset, FormLabel } from 'components/forms';
+import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -40,7 +40,8 @@ export const Waf = class extends Component {
 	 */
 	state = {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
-		manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+		ipAllowListEnabled: this.props.settings?.ipAllowListEnabled,
+		ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 		ipBlockList: this.props.settings?.ipBlockList,
 		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
@@ -58,7 +59,8 @@ export const Waf = class extends Component {
 			this.setState( {
 				...this.state,
 				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
-				manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+				ipAllowListEnabled: this.props.settings?.ipAllowListEnabled,
+				ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 				ipBlockList: this.props.settings?.ipBlockList,
 				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
@@ -143,11 +145,21 @@ export const Waf = class extends Component {
 	};
 
 	/**
-	 * Toggle manual rules.
+	 * Toggle IP allow list.
 	 */
-	toggleManualRules = () => {
+	toggleIpAllowList = () => {
 		this.setState(
-			{ ...this.state, manualRulesEnabled: ! this.state.manualRulesEnabled },
+			{ ...this.state, ipAllowListEnabled: ! this.state.ipAllowListEnabled },
+			this.onSubmit
+		);
+	};
+
+	/**
+	 * Toggle IP block list.
+	 */
+	toggleIpBlockList = () => {
+		this.setState(
+			{ ...this.state, ipBlockListEnabled: ! this.state.ipBlockListEnabled },
 			this.onSubmit
 		);
 	};
@@ -262,91 +274,102 @@ export const Waf = class extends Component {
 		);
 
 		const ipListSettings = (
-			<div className="waf__settings__toggle-setting">
-				<ToggleControl
-					checked={ this.props.settings?.manualRulesEnabled }
-					toggling={
-						this.props.isUpdatingWafSettings &&
-						this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled
-					}
-					disabled={ baseInputDisabledCase }
-					onChange={ this.toggleManualRules }
-					label={
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
-						</span>
-					}
-				/>
-
-				{ this.state.manualRulesEnabled && (
-					<>
-						<div className="waf__settings__ips">
-							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
-							<Textarea
-								disabled={
-									baseInputDisabledCase ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings?.ipBlockList )
-								}
-								name="ipBlockList"
-								placeholder={ sprintf(
-									/* translators: Placeholder is a list of example IP addresses. */
-									__( 'Example: %s', 'jetpack' ),
-									'\n12.12.12.1\n12.12.12.2'
-								) }
-								value={ this.state.ipBlockList }
-								onChange={ this.handleIpBlockListChange }
-							/>
-							<Button
-								primary
-								rna
-								compact
-								type="button"
-								className="waf__settings__ips__save-button"
-								disabled={
-									baseInputDisabledCase ||
-									this.state.ipBlockList === this.props.settings?.ipBlockList ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings?.ipBlockList )
-								}
-								onClick={ this.onSubmit }
-							>
-								{ __( 'Save block list', 'jetpack' ) }
-							</Button>
-						</div>
-						<div className="waf__settings__ips">
-							<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
-							<Textarea
-								disabled={
-									baseInputDisabledCase ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings?.ipAllowList )
-								}
-								name="ipAllowList"
-								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.props.allowListInputState }
-								onChange={ this.handleIpAllowListChange }
-							/>
-							<Button
-								primary
-								rna
-								compact
-								type="button"
-								className="waf__settings__ips__save-button"
-								disabled={
-									baseInputDisabledCase ||
-									this.state.ipAllowList === this.props.settings?.ipAllowList ||
-									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings?.ipAllowList )
-								}
-								onClick={ this.onSubmit }
-							>
-								{ __( 'Save allow list', 'jetpack' ) }
-							</Button>
-						</div>
-					</>
-				) }
-			</div>
+			<>
+				<div className="waf__settings__toggle-setting">
+					<ToggleControl
+						checked={ this.props.settings?.ipAllowListEnabled }
+						toggling={
+							this.props.isUpdatingWafSettings &&
+							this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
+						}
+						disabled={ baseInputDisabledCase }
+						onChange={ this.toggleIpAllowList }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Always allowed IP addresses', 'jetpack' ) }
+							</span>
+						}
+					/>
+					<div className="waf__settings__ips">
+						<Textarea
+							disabled={
+								baseInputDisabledCase ||
+								this.props.isUpdatingWafSettings ||
+								! this.props.settings?.ipAllowListEnabled
+							}
+							name="ipAllowList"
+							placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
+							value={ this.props.allowListInputState }
+							onChange={ this.handleIpAllowListChange }
+						/>
+						<Button
+							primary
+							rna
+							compact
+							type="button"
+							className="waf__settings__ips__save-button"
+							disabled={
+								baseInputDisabledCase ||
+								this.state.ipAllowList === this.props.settings?.ipAllowList ||
+								( this.props.isUpdatingWafSettings &&
+									this.state.ipAllowList !== this.props.settings?.ipAllowList )
+							}
+							onClick={ this.onSubmit }
+						>
+							{ __( 'Save allow list', 'jetpack' ) }
+						</Button>
+					</div>
+				</div>
+				<div className="waf__settings__toggle-setting">
+					<ToggleControl
+						checked={ this.props.settings?.ipBlockListEnabled }
+						toggling={
+							this.props.isUpdatingWafSettings &&
+							this.state.ipBlockListEnabled !== this.props.settings?.ipBlockListEnabled
+						}
+						disabled={ baseInputDisabledCase }
+						onChange={ this.toggleIpBlockList }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Block specific IP addresses from accessing your site', 'jetpack' ) }
+							</span>
+						}
+					/>
+					<div className="waf__settings__ips">
+						<Textarea
+							disabled={
+								baseInputDisabledCase ||
+								this.props.isUpdatingWafSettings ||
+								! this.props.settings?.ipBlockListEnabled
+							}
+							name="ipBlockList"
+							placeholder={ sprintf(
+								/* translators: Placeholder is a list of example IP addresses. */
+								__( 'Example: %s', 'jetpack' ),
+								'\n12.12.12.1\n12.12.12.2'
+							) }
+							value={ this.state.ipBlockList }
+							onChange={ this.handleIpBlockListChange }
+						/>
+						<Button
+							primary
+							rna
+							compact
+							type="button"
+							className="waf__settings__ips__save-button"
+							disabled={
+								baseInputDisabledCase ||
+								this.state.ipBlockList === this.props.settings?.ipBlockList ||
+								( this.props.isUpdatingWafSettings &&
+									this.state.ipBlockList !== this.props.settings?.ipBlockList )
+							}
+							onClick={ this.onSubmit }
+						>
+							{ __( 'Save block list', 'jetpack' ) }
+						</Button>
+					</div>
+				</div>
+			</>
 		);
 
 		const shareDataSettings = (
