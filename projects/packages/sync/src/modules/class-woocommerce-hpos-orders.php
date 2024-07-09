@@ -302,8 +302,8 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 		if ( '' === $filtered_order_data['status'] ) {
 			$filtered_order_data['status'] = 'pending';
-			$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 		}
+		$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 
 		return $filtered_order_data;
 	}
