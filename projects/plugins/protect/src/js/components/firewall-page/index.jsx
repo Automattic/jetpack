@@ -95,6 +95,9 @@ const FirewallPage = () => {
 	const [ ipAllowListIsUpdating, setIpAllowListIsUpdating ] = useState( false );
 	const [ ipBlockListIsUpdating, setIpBlockListIsUpdating ] = useState( false );
 
+	const ipAllowListHasChanges = formState.jetpack_waf_ip_allow_list !== jetpackWafIpAllowList;
+	const ipBlockListHasChanges = formState.jetpack_waf_ip_block_list !== jetpackWafIpBlockList;
+
 	/**
 	 * Get a custom error message based on the error code.
 	 *
@@ -775,7 +778,7 @@ const FirewallPage = () => {
 					<Button
 						onClick={ saveIpAllowListChanges }
 						isLoading={ ipAllowListIsUpdating }
-						disabled={ formIsSubmitting }
+						disabled={ formIsSubmitting || ! ipAllowListHasChanges }
 					>
 						{ __( 'Save changes', 'jetpack-protect' ) }
 					</Button>
@@ -813,7 +816,7 @@ const FirewallPage = () => {
 					<Button
 						onClick={ saveIpBlockListChanges }
 						isLoading={ ipBlockListIsUpdating }
-						disabled={ formIsSubmitting || ! formState.jetpack_waf_ip_block_list_enabled }
+						disabled={ formIsSubmitting || ! ipBlockListHasChanges }
 					>
 						{ __( 'Save changes', 'jetpack-protect' ) }
 					</Button>
