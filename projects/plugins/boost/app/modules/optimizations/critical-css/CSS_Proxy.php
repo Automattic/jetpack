@@ -25,7 +25,7 @@ class CSS_Proxy {
 	 */
 	public function handle_css_proxy() {
 
-		// Verify valid nonce .
+		// Verify valid nonce.
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
 			wp_die( '', 400 );
 		}
