@@ -13,3 +13,7 @@ export function getPopoverAnchor( state ) {
 export function getBlocksContent( state ) {
 	return state.content;
 }
+
+export function isProofreadEnabled( state ) {
+	return state.configuration.enabled;
+}

@@ -14,14 +14,13 @@ import './style.scss';
 // Setup the Breve highlights
 export default function Highlight() {
 	const debounce = useRef( null );
-	const { setBlockContent } = useDispatch( 'jetpack/ai-breve' );
+	const { setBlockHighlight, setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
 
-	const postContent = useSelect( select => {
+	const blocks = useSelect(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const all = ( select( 'core/block-editor' ) as any ).getBlocks();
-		const richValues = all.filter( block => block.name === 'core/paragraph' );
-		return richValues;
-	}, [] );
+		select => ( select( 'core/block-editor' ) as any ).getBlocks(),
+		[]
+	);
 
 	const popoverOpen = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,8 +37,6 @@ export default function Highlight() {
 
 	const isPopoverOpen = popoverOpen && anchor;
 
-	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
-
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
@@ -49,16 +46,16 @@ export default function Highlight() {
 	};
 
 	useLayoutEffect( () => {
-		if ( postContent?.length > 0 ) {
+		if ( blocks?.length > 0 ) {
 			// Debounce the block content update
 			clearTimeout( debounce.current );
 			debounce.current = setTimeout( () => {
-				postContent.forEach( block => {
-					setBlockContent( block?.clientId );
+				blocks.forEach( block => {
+					setBlockHighlight( block );
 				} );
 			}, 1000 );
 		}
-	}, [ postContent, setBlockContent ] );
+	}, [ blocks, setBlockHighlight ] );
 
 	return (
 		<>
