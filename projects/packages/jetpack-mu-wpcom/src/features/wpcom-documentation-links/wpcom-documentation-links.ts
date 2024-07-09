@@ -16,23 +16,21 @@ declare global {
  */
 function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ) {
 	switch ( text ) {
-		case 'https://wordpress.org/support/article/excerpt/':
-		case 'https://wordpress.org/support/article/settings-sidebar/#excerpt':
+		case 'https://wordpress.org/documentation/article/what-is-an-excerpt-classic-editor/':
 		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt':
 			return 'https://wordpress.com/support/excerpts/';
-		case 'https://wordpress.org/support/article/writing-posts/#post-field-descriptions':
-		case 'https://wordpress.org/support/article/settings-sidebar/#permalink':
+		case 'https://wordpress.org/documentation/article/write-posts-classic-editor/#post-field-descriptions':
 		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#permalink':
 			return 'https://wordpress.com/support/permalinks-and-slugs/';
-		case 'https://wordpress.org/support/article/wordpress-editor/':
+		case 'https://wordpress.org/documentation/article/wordpress-block-editor/':
 			return 'https://wordpress.com/support/wordpress-editor/';
-		case 'https://wordpress.org/support/article/site-editor/':
+		case 'https://wordpress.org/documentation/article/site-editor/':
 			return 'https://wordpress.com/support/site-editor/';
-		case 'https://wordpress.org/support/article/block-based-widgets-editor/':
+		case 'https://wordpress.org/documentation/article/block-based-widgets-editor/':
 			return 'https://wordpress.com/support/widgets/';
 		case 'https://wordpress.org/plugins/classic-widgets/':
 			return 'https://wordpress.com/plugins/classic-widgets';
-		case 'https://wordpress.org/support/article/styles-overview/':
+		case 'https://wordpress.org/documentation/article/styles-overview/':
 			return 'https://wordpress.com/support/using-styles/';
 	}
 

@@ -35,7 +35,7 @@ function wpcom_enqueue_documentation_links_assets() {
 	$data = $wp_scripts->get_data( 'customize-controls', 'data' );
 
 	if ( $data ) {
-		$data = str_replace( 'https:\\/\\/wordpress.org\\/support\\/article\\/site-editor\\/\\', 'https:\\/\\/wordpress.com\\/support\\/site-editor\\/\\', $data );
+		$data = str_replace( 'https:\\/\\/wordpress.org\\/documentation\\/article\\/site-editor\\/\\', 'https:\\/\\/wordpress.com\\/support\\/site-editor\\/\\', $data );
 		$wp_scripts->registered['customize-controls']->extra['data'] = $data;
 	}
 
