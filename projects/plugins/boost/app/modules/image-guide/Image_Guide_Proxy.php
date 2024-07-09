@@ -41,7 +41,6 @@ class Image_Guide_Proxy {
 		$photon_domain     = wp_parse_url( apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com' ), PHP_URL_HOST );
 		if ( $photon_url_domain !== $photon_domain ) {
 			wp_send_json_error( 'Failed to proxy the image.', 400 );
-			return;
 		}
 
 		$response = wp_remote_get( $photon_url );
@@ -50,6 +49,5 @@ class Image_Guide_Proxy {
 		}
 
 		wp_send_json_success( iterator_to_array( wp_remote_retrieve_headers( $response ) ) );
-		die();
 	}
 }
