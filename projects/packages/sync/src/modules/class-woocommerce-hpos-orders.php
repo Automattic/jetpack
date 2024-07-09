@@ -245,7 +245,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		$filtered_order_data = array( 'type' => $order_object->get_type() );
 		$order_data          = $order_object->get_data();
 		foreach ( $allowed_data_keys as $key ) {
-
+			$key       = trim( $key, '_' );
 			$key_parts = explode( '_', $key );
 
 			if ( in_array( $key_parts[0], array( 'order', 'refund' ), true ) ) {
