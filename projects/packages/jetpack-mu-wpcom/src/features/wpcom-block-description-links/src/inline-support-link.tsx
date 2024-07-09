@@ -48,7 +48,7 @@ export default function DescriptionSupportLink( {
 					onClick={ () => {
 						setShowHelpCenter( true );
 						setShowSupportDoc( url, postId );
-						tracks.recordEvent( 'calypso_block_description_support_link_click', {
+						tracks.recordEvent( 'jetpack_mu_wpcom_block_description_support_link_click', {
 							block: title,
 							support_link: url,
 						} );
@@ -63,7 +63,7 @@ export default function DescriptionSupportLink( {
 			) : (
 				<ExternalLink
 					onClick={ () => {
-						tracks.recordEvent( 'calypso_block_description_support_link_click', {
+						tracks.recordEvent( 'jetpack_mu_wpcom_block_description_support_link_click', {
 							block: title,
 							support_link: url,
 						} );
