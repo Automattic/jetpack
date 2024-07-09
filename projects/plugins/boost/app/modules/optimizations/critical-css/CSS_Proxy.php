@@ -55,7 +55,7 @@ class CSS_Proxy {
 		$response  = wp_cache_get( $cache_key );
 
 		if ( is_array( $response ) && isset( $response['error'] ) ) {
-			wp_die( $response['error'], 400 );
+			wp_die( esc_html( $response['error'] ), 400 );
 		}
 
 		if ( false === $response ) {
