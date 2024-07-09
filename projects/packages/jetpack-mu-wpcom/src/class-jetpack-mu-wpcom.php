@@ -132,6 +132,7 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_etk_features() {
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
