@@ -22,43 +22,13 @@ msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
 msgstr "%1$s på <a href=\"%2$s\">%3$s</a>"
 
 #. translators: %s is a link to the WordPress user profile.
-#: widgets/class-gravatar-widget.php:206
+#: widgets/class-gravatar-widget.php:205
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "Du kan ändra din Gravatar från din <a href=\"%s\">profilsida</a>."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Marketing"
-msgstr "Marknadsföring"
 
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Du har inte behörighet att komma åt denna sida."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
-msgid "Plugins"
-msgstr "Tillägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr "Använd WordPress.com äldre adminpanel för att hantera din webbplats."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Default style"
-msgstr "Standardstil"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Use WP-Admin to manage your site."
-msgstr "Använd WP-Admin för att hantera din webbplats."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Classic style"
-msgstr "Klassisk stil"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
-msgid "Admin Interface Style"
-msgstr "Administratörsgränssnittetets stil"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -72,423 +42,9 @@ msgstr "Få tillgång till en mängd gratis och betalda tillägg som kan förbä
 msgid "Flex your site's features with plugins"
 msgstr "Utöka webbplatsens funktioner med tillägg"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
-msgid "Theme Showcase"
-msgstr "Showcase för teman"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
-msgid "Explore themes"
-msgstr "Utforska teman"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
-msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr "Djupdyk i WordPress.coms temavärld. Upptäck de responsiva och fantastiska designförslagen som väntar på att ge din webbplats liv."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
-msgid "Find the perfect theme for your site"
-msgstr "Hitta det perfekta temat för din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Några trevliga ord för att motivera dina läsare att kommentera"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
-msgid "Enable blocks in comments"
-msgstr "Aktivera block i kommentarer"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
-msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr "Låt besökare använda ett WordPress.com- eller Facebook-konto för att kommentera"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
-msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr "Anpassa dina kommentarsformulär med en smart hälsning och ett färgschema."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
-msgid "Color Scheme"
-msgstr "Färgschema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
-msgid "Greeting Text"
-msgstr "Hällsningstext"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
-msgid "Allow Blocks"
-msgstr "Tillåt block"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
-msgid "Verbum"
-msgstr "Verbum"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
-msgid "Dark"
-msgstr "Mörk"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
-msgid "Light"
-msgstr "Light"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
-msgid "Transparent"
-msgstr "Genomskinlig"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
-msgid "Launch your store"
-msgstr "Lansera din butik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
-msgid "Add a domain"
-msgstr "Lägg till en domän"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
-msgid "Grow your business"
-msgstr "Få ditt företag att växa"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
-msgid "Collect sales tax"
-msgstr "Samla in försäljningsmoms"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
-msgid "Get paid with WooPayments"
-msgstr "Få betalt med WooPayments"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
-msgid "Add your products"
-msgstr "Lägg till dina produkter"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
-msgid "Customize your store"
-msgstr "Anpassa din butik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
-msgid "Sunset"
-msgstr "Solnedgång"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
-msgid "Sakura"
-msgstr "Sakura"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
-msgid "Powder Snow"
-msgstr "Pudersnö"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
-msgid "Nightfall"
-msgstr "Skymning"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
-msgid "Contrast"
-msgstr "Kontrast"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
-msgid "Classic Dark"
-msgstr "Klassisk mörk"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
-msgid "Classic Bright"
-msgstr "Klassiskt ljus"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
-msgid "Classic Blue"
-msgstr "Klassiskt blå"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
-msgid "Aquatic"
-msgstr "Hav"
-
-#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
-msgid "Overview"
-msgstr "Översikt"
-
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
-msgid "Share &#8220;%s&#8221; via Jetpack Social"
-msgstr "Dela ”%s” via Jetpack Social"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
-msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr "Klicka på \"Webbhotell\" i sidopanelen för att komma åt inställningarna för paket, domäner, e-post med mera."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
-msgid "WordPress.com"
-msgstr "WordPress.com"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
-msgid "Settings"
-msgstr "Inställningar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
-msgid "Monetize"
-msgstr "Tjäna pengar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
-msgid "Monitoring"
-msgstr "Övervakning"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
-msgid "Configuration"
-msgstr "Konfiguration"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
-msgid "Purchases"
-msgstr "Köp"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
-msgid "Emails"
-msgstr "E-post"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
-msgid "Domains"
-msgstr "Domäner"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
-msgid "Add-ons"
-msgstr "Utökningar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-msgid "Plans"
-msgstr "Paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-msgid "Hosting"
-msgstr "Webbhotell"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
-msgid "All Sites"
-msgstr "Alla webbplatser"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
-msgid "Error: please try commenting again."
-msgstr "Fel: försök att kommentera igen."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
-msgid "Error: your Facebook login has expired."
-msgstr "Fel: Din Facebook-inloggning har löpt ut."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
-msgid "Cancel reply"
-msgstr "Avbryt svar"
-
-#. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
-msgid "Leave a reply to %s"
-msgstr "Lämna ett svar till %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
-msgid "Leave a comment"
-msgstr "Lämna en kommentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
-msgid "Save my name, email, and website in this browser for the next time I comment."
-msgstr "Spara mitt namn, min e-postadress och webbplats i denna webbläsare till nästa gång jag skriver en kommentar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
-msgid "Comment sent successfully"
-msgstr "Kommentar skickad"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
-msgid "Subscribe"
-msgstr "Prenumerera"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
-msgid "Enter your email address"
-msgstr "Ange din e-postadress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
-msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr "Intresserad av att få uppdateringar av blogginlägg? Klicka bara på knappen nedan för att hålla dig uppdaterad!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
-msgid "Never miss a beat!"
-msgstr "Missa aldrig ett slag!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
-msgid "Continue reading"
-msgstr "Fortsätt läsa"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
-msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr "Prenumerera nu för att fortsätta läsa och få åtkomst till hela arkivet."
-
-#. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
-msgid "Discover more from %s"
-msgstr "Upptäck mer från %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
-msgid "Loading your comment..."
-msgstr "Laddar in din kommentar …"
-
-#. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
-msgid "We'll keep you in the loop!"
-msgstr "Vi håller dig uppdaterad!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
-msgid "Optional"
-msgstr "Frivillig"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
-msgid "Website"
-msgstr "Webbplatser"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
-msgid "Write a reply..."
-msgstr "Skriv ett svar …"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
-msgid "Email me new comments"
-msgstr "E-post för nya kommentarer"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
-msgid "Email me new posts"
-msgstr "E-posta mig nya inlägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
-msgid "Notify me of new posts"
-msgstr "Meddela mig om nya inlägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
-msgid "Weekly"
-msgstr "En gång i veckan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
-msgid "WordPress"
-msgstr "WordPress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
-msgid "Comment"
-msgstr "Kommentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
-msgid "Reply"
-msgstr "Svara"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
-msgid "Daily"
-msgstr "Dagligen"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
-msgid "Instantly"
-msgstr "Omedelbart"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
-msgid "(Address never made public)"
-msgstr "(Adress blir aldrig offentlig)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
-msgid "Log out"
-msgstr "Logga ut"
-
-#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
-msgid "Logged in via %s"
-msgstr "Inloggad via %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
-msgid "Log in to leave a comment."
-msgstr "Logga in för att lämna en kommentar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
-msgid "Log in to leave a reply."
-msgstr "Logga in för att lämna ett svar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
-msgid "Leave a comment. (log in optional)"
-msgstr "Lämna en kommentar. (inloggning valfritt)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
-msgid "Leave a reply. (log in optional)"
-msgstr "Lämna ett svar. (logga in valfritt)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
-msgid "Website (optional)"
-msgstr "Webbplats (frivilligt)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
-msgid "Email (address never made public)"
-msgstr "E-post (adress blir aldrig offentlig)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
-msgid "Receive web and mobile notifications for posts on this site."
-msgstr "Ta emot aviseringar på webb och mobil för inlägg på denna webbplats."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
-msgid "Log in or provide your name and email to leave a comment."
-msgstr "Logga in eller ange ditt namn och e-post för att lämna en kommentar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
-msgid "Log in or provide your name and email to leave a reply."
-msgstr "Logga in eller ange ditt namn och e-post för att lämna ett svar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
-msgid "Write a comment..."
-msgstr "Skriv en kommentar …"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
-msgid "Get started"
-msgstr "Kom igång"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
-msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr "Använd WordPress.coms guidade importverktyg för att importera inlägg och kommentarer från Medium, Substack, Squarespace, Wix med flera."
-
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Gå till %1$sJetpack-inställningarna%2$s för fler skrivinställningar som drivs av Jetpack."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
-msgid "Scheduled Updates"
-msgstr "Schemalagda uppdateringar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
-msgid "Verify the email address for your domains"
-msgstr "Verifiera e-postadressen för dina domäner"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
-msgid "Site setup"
-msgstr "Webbplatskonfigurering"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
-msgid "Finish Sensei setup"
-msgstr "Slutför Sensei-installationen"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
-msgid "Finish store setup"
-msgstr "Slutför butiksinställningen"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
-msgid "Update your site's design"
-msgstr "Uppdatera din webbplats design"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
-msgid "Enable post sharing"
-msgstr "Aktivera delning av inlägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
-msgid "Install the mobile app"
-msgstr "Installera mobilappen"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -563,134 +119,6 @@ msgstr "En import körs redan."
 msgid "The backup import has been cancelled."
 msgstr "Importen av säkerhetskopian har avbrutits."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-msgid "Next steps for your site"
-msgstr "Nästa steg för din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
-msgid "Add the Subscribe Block to your site"
-msgstr "Lägg till blocket Prenumerera på din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
-msgid "Import existing subscribers"
-msgstr "Importera befintliga prenumeranter"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
-msgid "View site metrics"
-msgstr "Visa webbplatsstatistik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
-msgid "Set up ssh"
-msgstr "Ställ in SSH"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
-msgid "Install a custom plugin"
-msgstr "Installera ett anpassat tillägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
-msgid "Choose a theme"
-msgstr "Välj ett tema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
-msgid "Set up an offer for your supporters"
-msgstr "Ställ in ett erbjudande för dina supportrar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
-msgid "Connect a Stripe account to collect payments"
-msgstr "Anslut ett Stripe-konto för att samla in betalningar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
-msgid "Add your About page"
-msgstr "Lägg till din sida för ”Om”"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
-msgid "Manage your paid Newsletter plan"
-msgstr "Hantera ditt betalda Newsletter-paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
-msgid "Connect your social media accounts"
-msgstr "Anslut dina konton för sociala media"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
-msgid "Manage your subscribers"
-msgstr "Hantera dina prenumeranter"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
-msgid "Write 3 posts"
-msgstr "Skriv 3 inlägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
-msgid "Get your first 10 subscribers"
-msgstr "Skaffa dina första 10 prenumeranter"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
-msgid "Enable subscribers modal"
-msgstr "Aktivera prenumerantmodal"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
-msgid "Customize welcome message"
-msgstr "Anpassa välkomstmeddelande"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
-msgid "Earn money with your newsletter"
-msgstr "Tjäna pengar med ditt nyhetsbrev"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
-msgid "Update your About page"
-msgstr "Uppdatera din ”Om”-sida"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
-msgid "Migrate content"
-msgstr "Migrera innehåll"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-msgid "Verify email address"
-msgstr "Verifiera e-postadress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
-msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr "Förhindrar att nya inlägg och sidor skapas såväl som befintliga inlägg och sidor från att redigeras, och stänger kommentarer på hela webbplatsen."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
-msgid "Enable Locked Mode"
-msgstr "Aktivera låst läge"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
-msgid "Locked Mode"
-msgstr "Låst läge"
-
-#. translators: link to the help page: https://wordpress.com/help
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
-msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr "För att ta äganderätt till webbplatsen ber vi personen du utser att kontakta oss på %s med en kopia av dödsbeviset."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
-msgid "Choose someone to look after your site when you pass away."
-msgstr "Välj någon som kan ta hand om din webbplats när du går bort."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
-msgid "Legacy Contact"
-msgstr "Kontakt för arv"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
-msgid "Enhanced Ownership"
-msgstr "Förbättrad äganderätt"
-
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "<a href=\"%2$s\">Alternativet \"Vem som helst kan registrera sig\"</a> är för närvarande aktivt. Nuvarande standardroll är %1$s. %4$s <strong>Överväg att inaktivera det här alternativet om öppen registrering inte behövs.<strong>"
@@ -720,149 +148,37 @@ msgstr "Filen finns inte"
 msgid "Could not determine importer type."
 msgstr "Kunde inte fastställa typ av importör"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
-msgid "Share your site"
-msgstr "Dela din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
-msgid "Edit a page"
-msgstr "Redigera en sida"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
-msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Din webbplats innehåller premiumstilar. Uppgradera nu för att publicera dem och låsa upp massor av andra funktioner."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
-msgid "Customize your domain"
-msgstr "Anpassa din domän"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
-msgid "Add a new page"
-msgstr "Lägg till en ny sida"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
-msgid "Drive traffic to your site"
-msgstr "Styr trafik till din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
-msgid "Give your site a name"
-msgstr "Ge din webbplats ett namn"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
-msgid "Claim your free one-year domain"
-msgstr "Hävda din gratis domän i ett år."
-
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "Ge en gåva"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
 msgstr "Miniatyr"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Dela ”%s” via Offentliggör"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Dela"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
-msgid "Upgrade plan"
-msgstr "Uppgradera paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
-msgid "Create paid Newsletter"
-msgstr "Skapa betalt nyhetsbrev"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
-msgid "Set up payment method"
-msgstr "Ställ in betalningsmetod"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
-msgid "Choose a domain"
-msgstr "Välj en domän"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
-msgid "Launch your blog"
-msgstr "Lansera din blogg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
-msgid "Edit site design"
-msgstr "Redigera webbplatsdesign"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
-msgid "Set up your site"
-msgstr "Ställ in din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
-msgid "Name your blog"
-msgstr "Ge din blogg ett namn"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
-msgid "Personalize your site"
-msgstr "Personifiera din webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
-msgid "Upload your first video"
-msgstr "Ladda upp ditt första videoklipp"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
-msgid "Set up your video site"
-msgstr "Ställ in din video-webbplats"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
-msgid "Launch your site"
-msgstr "Lansera din webbplats."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
-msgid "Add links"
-msgstr "Lägg till länkar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
-msgid "Personalize Link in Bio"
-msgstr "Personifiera Link in Bio"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
-msgid "Select a design"
-msgstr "Välj en design"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
-msgid "Start writing"
-msgstr "Börja skriva"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
-msgid "Write your first post"
-msgstr "Skriv ditt första inlägg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
-msgid "Add subscribers"
-msgstr "Lägg till prenumeranter"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
-msgid "Choose a plan"
-msgstr "Välj ett paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
-msgid "Personalize newsletter"
-msgstr "Personifiera nyhetsbrev"
-
-#: vendor/automattic/jetpack-config/src/class-config.php:189
+#: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "Det gick inte att läsa in klass %1$s. Lägg till paketet som innehåller det med hjälp av Composer och se till att be om en Jetpack-autoloader"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "Textdomänsalias bör registreras före %1$s-hooken. Denna notis utlöstes av domänen %2$s."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "Skriptet \"%s\" är beroende av wp-i18n, men anger inte \"textdomain\""
 
@@ -1063,27 +379,27 @@ msgstr "Lyckost! Dina temaformgivare väljer specifika typsnitt åt dig som du a
 msgid "Uncheck to disable"
 msgstr "Avmarkera för att inaktivera"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
 msgstr "Spotify flödes-ID"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
 msgstr "Flödes-ID för Apple Podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
 msgstr "Rubrik"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
 msgstr "Podcast RSS-flöde"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
 msgstr "Lyssna på Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
 msgstr "Lyssna på Apple Podcasts"
 
@@ -1095,97 +411,113 @@ msgstr "Visa information om din Podcast och tillåt besökare att följa via iTu
 msgid "Podcast"
 msgstr "Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
 msgid "Select iTunes category:"
 msgstr "Välj kategori i iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
 msgid "Set podcast category"
 msgstr "Kategori för podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Nyckelord för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
 msgid "Set podcast image"
 msgstr "Bild för podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
 msgid "Clean"
 msgstr "Rensa"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
 msgid "Yes"
 msgstr "Ja"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
 msgid "No"
 msgstr "Nej"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
 msgid "Set podcast as explicit"
 msgstr "Markera podcast för vuxeninnehåll"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
 msgid "Set podcast copyright"
 msgstr "Copyright för podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
 msgid "Set podcast summary"
 msgstr "Beskrivning av podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
 msgid "Set podcast author"
 msgstr "Författare för podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Undertitel för podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
 msgid "Set podcast title"
 msgstr "Titel för podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "Detta är URL:en du ger till iTunes eller annan podcasting-tjänst."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
 msgstr "Podcastens webbflöde: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
 msgid "Select podcast category:"
 msgstr "Välj podcast-kategori:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
 msgid "Blog category for podcasts"
 msgstr "Bloggkategori för podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
 msgid "Podcast category 3"
 msgstr "Podcast-kategori 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
 msgid "Podcast category 2"
 msgstr "Podcast-kategori 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 1"
 msgstr "Podcast-kategori 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Podcast-nyckelord"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
 msgid "Podcast image"
 msgstr "Podcast-bild"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Mark as explicit"
 msgstr "Rapportera vuxeninnehåll"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Podcast copyright"
 msgstr "Podcast-rättigheter"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast summary"
 msgstr "Podcast-beskrivning"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
 msgstr "Podcast-talangnamn"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Podcast-undertitel"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1299,8 +631,6 @@ msgid "Edit"
 msgstr "Redigera"
 
 #: private-site/logged-in-banner.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "Min startsida"
 
@@ -1428,31 +758,31 @@ msgstr "Diskutrymmeskvot"
 msgid "Disk space used"
 msgstr "Använt diskutrymme"
 
-#: widgets/class-wpcom-category-cloud-widget.php:210
+#: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
 msgstr "Klicka för mer information"
 
-#: widgets/class-wpcom-category-cloud-widget.php:208
+#: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
 msgstr "Räkna objekt i underkategorier mot huvudsumman."
 
-#: widgets/class-wpcom-category-cloud-widget.php:200
+#: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
 msgstr "Maximalt typsnitts-procent:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:194
+#: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
 msgstr "Minsta typsnitts-procent:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:189
+#: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
 msgstr "Kategori-ID:n, separerade med kommatecken"
 
-#: widgets/class-wpcom-category-cloud-widget.php:187
+#: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
 msgstr "Exkludera:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:181
+#: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
 msgstr "Maximalt antal kategorier att visa:"
 
@@ -1470,23 +800,13 @@ msgstr "Dina mest använda kategorier i molnformat."
 msgid "Category Cloud"
 msgstr "Kategorimoln"
 
-#: private-site/private-site.php:171
-msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr "Jetpack är frånkopplat och webbplatsen är privat. Anslut Jetpack igen för att hantera inställningarna för webbplatsens synlighet."
-
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Uppdatera synlighet"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Lansera webbplatsen"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
-msgid "Dismiss"
-msgstr "Avfärda"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1624,47 +944,47 @@ msgstr "Visa dina senaste Instagram-bilder."
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:148
+#: widgets/class-aboutme-widget.php:149
 msgid "Biography"
 msgstr "Biografi"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:142
 msgid "Headline"
 msgstr "Rubrik"
 
-#: widgets/class-aboutme-widget.php:134
+#: widgets/class-aboutme-widget.php:135
 msgid "Photo"
 msgstr "Foto"
 
-#: widgets/class-aboutme-widget.php:130
+#: widgets/class-aboutme-widget.php:131
 msgid "Don't Display Name"
 msgstr "Visa inte namn"
 
-#: widgets/class-aboutme-widget.php:128
+#: widgets/class-aboutme-widget.php:129
 msgid "Display Small"
 msgstr "Visa liten"
 
-#: widgets/class-aboutme-widget.php:126
+#: widgets/class-aboutme-widget.php:127
 msgid "Display Medium"
 msgstr "Visa medium"
 
-#: widgets/class-aboutme-widget.php:124
+#: widgets/class-aboutme-widget.php:125
 msgid "Display Large"
 msgstr "Visa stor"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:123
 msgid "Display X-Large"
 msgstr "Visa extra stor"
 
-#: widgets/class-aboutme-widget.php:111
+#: widgets/class-aboutme-widget.php:112
 msgid "Your about.me URL"
 msgstr "Din about.me URL"
 
-#: widgets/class-aboutme-widget.php:104
+#: widgets/class-aboutme-widget.php:105
 msgid "Widget title"
 msgstr "Widget-rubrik"
 
-#: widgets/class-aboutme-widget.php:97
+#: widgets/class-aboutme-widget.php:98
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "Widgeten about.me kommer inte längre att vara tillgänglig efter 1 juli 2016. Efter detta datum kommer widgeten att visa en enkel textlänk till din about.me-profil. Ta bort den här widgeten."
 
@@ -1681,19 +1001,14 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Visa din about.me-profil med miniatyr"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "Det gick inte att hämta begärda data."
 
-#: footer-credit/theme-optimizations.php:59
+#: footer-credit/theme-optimizations.php:62
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Skapa en gratis webbplats eller blogg på WordPress.com"
 
-#: footer-credit/theme-optimizations.php:54
+#: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
 msgstr "Skapa en gratis webbplats på WordPress.com"
 
@@ -1703,8 +1018,8 @@ msgstr "Drivs med WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
-#: footer-credit/theme-optimizations.php:52
-#: footer-credit/theme-optimizations.php:57
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
 msgid "Blog at WordPress.com"
 msgstr "Blogg på WordPress.com"
 
@@ -1780,10 +1095,6 @@ msgstr "Spara"
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr "Aktivera och spara"
-
-#: private-site/private-site.php:178
-msgid "Manage your site visibility settings"
-msgstr "Hantera inställningarna för din webbplats synlighet"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -1898,8 +1209,7 @@ msgstr "Telefon"
 msgid "Email"
 msgstr "E-post"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:118
+#: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "Namn"
@@ -1913,27 +1223,27 @@ msgstr "Bokningsförfrågan"
 msgid "Reservations"
 msgstr "Bokningar"
 
-#: widgets/class-wpcom-widget-recent-comments.php:476
+#: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
 msgstr "Visa kommentarer från:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:471
+#: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
 msgstr "Textens bakgrundsfärg:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:465
+#: widgets/class-wpcom-widget-recent-comments.php:466
 msgid "Avatar background color:"
 msgstr "Profilbildens bakgrundsfärg:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:454
+#: widgets/class-wpcom-widget-recent-comments.php:455
 msgid "No Avatars"
 msgstr "Inga profilbilder"
 
-#: widgets/class-wpcom-widget-recent-comments.php:447
+#: widgets/class-wpcom-widget-recent-comments.php:448
 msgid "(at most 15)"
 msgstr "(som mest 15)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:441
+#: widgets/class-wpcom-widget-recent-comments.php:442
 msgid "Number of comments to show:"
 msgstr "Antal kommentarer att visa:"
 
@@ -1955,37 +1265,37 @@ msgid "Recent Comments"
 msgstr "Senaste kommentarer"
 
 #. translators: %s is a URL to the widgets settings page.
-#: widgets/class-jetpack-posts-i-like-widget.php:277
+#: widgets/class-jetpack-posts-i-like-widget.php:278
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "Du har inte gillat några inlägg på senaste tiden. När du gör det så kan <a href=\"%s\">Inlägg jag gillar-tillägget</a> visa dem för andra."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:265
+#: widgets/class-jetpack-posts-i-like-widget.php:266
 msgid "on"
 msgstr "på"
 
 #. translators: %1$s is the post title, %1$s is the blog name.
-#: widgets/class-jetpack-posts-i-like-widget.php:242
+#: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s på %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:117
+#: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
 msgstr "Författarens antal ”Gilla”-markeringar som ska visas:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:99
+#: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
 msgstr "Rutnät"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "List"
 msgstr "Lista"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:96
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
 msgstr "Visa som:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:91
+#: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
 msgstr "Antal inlägg att visa (1 till 15):"
 
@@ -2019,62 +1329,62 @@ msgstr "Jag har röstat"
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "Visa dina läsare att du har röstat med ett märke ”Jag har röstat”."
 
-#: widgets/class-gravatar-widget.php:200
+#: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Text som visas efter Gravatar. Detta är valfritt och kan användas för att beskriva dig själv eller vad din blogg handlar om."
 
-#: widgets/class-gravatar-widget.php:199
+#: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Gravatar-länk. Detta är en valfri URL som kommer att användas när någon klickar på din Gravatar:"
 
-#: widgets/class-gravatar-widget.php:189
+#: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
 msgstr "Gravatar justering:"
 
-#: widgets/class-gravatar-widget.php:178
+#: widgets/class-gravatar-widget.php:177
 msgid "Size:"
 msgstr "Storlek:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
 msgstr "Anpassad e-postadress:"
 
-#: widgets/class-gravatar-widget.php:162
+#: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "Välj en användare eller välj ”anpassad” och ange en anpassad e-postadress."
 
-#: widgets/class-gravatar-widget.php:157
+#: widgets/class-gravatar-widget.php:156
 msgid "Center"
 msgstr "Centrerat"
 
-#: widgets/class-gravatar-widget.php:156
+#: widgets/class-gravatar-widget.php:155
 msgid "Right"
 msgstr "Höger"
 
-#: widgets/class-gravatar-widget.php:155
+#: widgets/class-gravatar-widget.php:154
 msgid "Left"
 msgstr "Vänster"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: widgets/class-gravatar-widget.php:154
-#: widgets/class-widget-top-clicks.php:162
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
 msgid "None"
 msgstr "Ingen"
 
-#: widgets/class-gravatar-widget.php:151
+#: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
 msgstr "Extra stor (256 pixlar)"
 
-#: widgets/class-gravatar-widget.php:150
+#: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
 msgstr "Stor (128 pixlar)"
 
-#: widgets/class-gravatar-widget.php:149
+#: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
 msgstr "Mellan (96 pixlar)"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
 msgstr "Liten (64 pixlar)"
 
@@ -2091,7 +1401,7 @@ msgstr "Gravatar"
 msgid "Insert a Gravatar image"
 msgstr "Infoga en Gravatar-bild"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:83
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
 msgstr "Välj en bild att visa i din sidopanel:"
 
@@ -2103,28 +1413,28 @@ msgstr "Nyss bloggat"
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Visa en Freshly Pressed-skylt på din sidopanel"
 
-#: widgets/class-widget-authors-grid.php:142
-#: widgets/class-wpcom-widget-recent-comments.php:452
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
 msgid "Avatar Size (px):"
 msgstr "Profilbildens storlek (px):"
 
-#: widgets/class-widget-authors-grid.php:137
+#: widgets/class-widget-authors-grid.php:138
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "Visa alla författare (inklusive de som inte har skrivit några inlägg)"
 
-#: widgets/class-gravatar-widget.php:160
-#: widgets/class-jetpack-i-voted-widget.php:81
-#: widgets/class-jetpack-posts-i-like-widget.php:86
-#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
 #: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
-#: widgets/class-widget-authors-grid.php:131
-#: widgets/class-widget-top-clicks.php:72
-#: widgets/class-wpcom-category-cloud-widget.php:175
-#: widgets/class-wpcom-freshly-pressed-widget.php:79
-#: widgets/class-wpcom-tag-cloud-widget.php:123
-#: widgets/class-wpcom-widget-recent-comments.php:435
-#: widgets/class-wpcom-widget-reservations.php:60
-#: widgets/tlkio/class-tlkio-widget.php:75
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
 msgid "Title:"
 msgstr "Rubrik:"
 
@@ -2140,12 +1450,12 @@ msgstr "Visa profilbilder i ett rutnät av författare."
 msgid "Author Grid"
 msgstr "Författar-rutnät"
 
-#: private-site/private-site.php:650
+#: private-site/private-site.php:616
 msgid "Private Site"
 msgstr "Privat webbplats"
 
-#: private-site/private-site.php:460 private-site/private-site.php:577
-#: private-site/private-site.php:809
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
 msgid "This site is private."
 msgstr "Denna webbplats är privat."
 

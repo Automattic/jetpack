@@ -191,6 +191,16 @@ export function getErrorData( errorCode: SuggestionErrorCode ): RequestingErrorP
 }
 
 /**
+ * Remove the llama artifact from a suggestion.
+ *
+ * @param {string} suggestion - The suggestion.
+ * @returns {string}            The suggestion without the llama artifact.
+ */
+export function removeLlamaArtifact( suggestion: string ): string {
+	return suggestion.replace( /^<\|start_header_id\|>assistant<\|end_header_id\|>[\n]+/, '' );
+}
+
+/**
  * React custom hook to get suggestions from AI,
  * by hitting the query endpoint.
  *
@@ -224,8 +234,14 @@ export default function useAiSuggestions( {
 	 */
 	const handleSuggestion = useCallback(
 		( event: CustomEvent ) => {
-			setSuggestion( event?.detail );
-			onSuggestion?.( event?.detail );
+			const partialSuggestion = removeLlamaArtifact( event?.detail );
+
+			if ( ! partialSuggestion ) {
+				return;
+			}
+
+			setSuggestion( partialSuggestion );
+			onSuggestion?.( partialSuggestion );
 		},
 		[ onSuggestion ]
 	);
@@ -239,7 +255,10 @@ export default function useAiSuggestions( {
 	const handleDone = useCallback(
 		( event: CustomEvent ) => {
 			closeEventSource();
-			onDone?.( event?.detail );
+
+			const fullSuggestion = removeLlamaArtifact( event?.detail );
+
+			onDone?.( fullSuggestion );
 			setRequestingState( 'done' );
 		},
 		[ onDone ]

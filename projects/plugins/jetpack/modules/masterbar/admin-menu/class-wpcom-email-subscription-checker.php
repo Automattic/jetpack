@@ -2,7 +2,7 @@
 /**
  * A class that checks for the existence of email subscriptions for a user.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Masterbar\WPCOM_Email_Subscription_Checker instead.
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\WPCOM_Email_Subscription_Checker instead.
  *
  * @package automattic/jetpack
  */
@@ -15,12 +15,12 @@ class WPCOM_Email_Subscription_Checker {
 	/**
 	 * Checks if a user's site has an email subscription
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @return bool
 	 */
 	public function has_email() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Email_Subscription_Checker::has_email' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Email_Subscription_Checker::has_email' );
 
 		$email_subscriptions_checker_wrapper = new Masterbar_WPCOM_Email_Subscription_Checker();
 

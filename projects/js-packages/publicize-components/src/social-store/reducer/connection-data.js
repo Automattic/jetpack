@@ -2,6 +2,7 @@ import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
@@ -53,6 +54,13 @@ const connectionData = ( state = {}, action ) => {
 			return {
 				...state,
 				deletingConnections: [ ...deleting ],
+			};
+		}
+
+		case SET_RECONNECTING_ACCOUNT: {
+			return {
+				...state,
+				reconnectingAccount: action.reconnectingAccount,
 			};
 		}
 
