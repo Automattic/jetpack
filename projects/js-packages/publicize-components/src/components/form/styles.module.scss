@@ -49,6 +49,7 @@
 
 .enabled-connections-notice {
 	color: var(--jp-gray-50);
+	margin-bottom: 0.5rem;
 }
 
 p.auto-share-title {
@@ -77,7 +78,7 @@ p.auto-share-title {
 	}
 }
 
-.settings-button {
+.settings-button.settings-button {
 	display: block;
-	margin-block: 0.5rem;
+	margin-bottom: 0.5rem;
 }
