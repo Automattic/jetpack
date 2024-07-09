@@ -21,6 +21,7 @@ module.exports = [
 				'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 			'tags-education': './src/features/tags-education/tags-education.js',
 			'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.scss',
+			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
 		},
 		mode: jetpackWebpackConfig.mode,
