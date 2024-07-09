@@ -91,7 +91,7 @@
 }
 
 .manual-rules-section {
-    margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
+    margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
 }
 
 .brute-force-rules-section {
@@ -164,4 +164,9 @@
 .current-ip-text {
     margin-top: calc( var( --spacing-base ) * 2 );
     margin-bottom: calc( var( --spacing-base ) * 3);
+}
+
+.button-container {
+    display: flex;
+    justify-content: right;
 }

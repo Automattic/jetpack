@@ -679,13 +679,16 @@ const FirewallPage = () => {
 					disabled={ formIsSubmitting }
 				/>
 			</div>
-			<Button
-				onClick={ saveIpAllowListChanges }
-				isLoading={ ipAllowListIsUpdating }
-				disabled={ formIsSubmitting }
-			>
-				{ __( 'Save changes', 'jetpack-protect' ) }
-			</Button>
+			<div className={ styles[ 'button-container' ] }>
+				<Button
+					onClick={ saveIpAllowListChanges }
+					size={ 'small' }
+					isLoading={ ipAllowListIsUpdating }
+					disabled={ formIsSubmitting || ! ipAllowListHasChanges }
+				>
+					{ __( 'Save allow list', 'jetpack-protect' ) }
+				</Button>
+			</div>
 		</>
 	);
 
@@ -775,13 +778,16 @@ const FirewallPage = () => {
 							disabled={ formIsSubmitting || ! formState.jetpack_waf_ip_allow_list_enabled }
 						/>
 					</div>
-					<Button
-						onClick={ saveIpAllowListChanges }
-						isLoading={ ipAllowListIsUpdating }
-						disabled={ formIsSubmitting || ! ipAllowListHasChanges }
-					>
-						{ __( 'Save changes', 'jetpack-protect' ) }
-					</Button>
+					<div className={ styles[ 'button-container' ] }>
+						<Button
+							onClick={ saveIpAllowListChanges }
+							size={ 'small' }
+							isLoading={ ipAllowListIsUpdating }
+							disabled={ formIsSubmitting || ! ipAllowListHasChanges }
+						>
+							{ __( 'Save allow list', 'jetpack-protect' ) }
+						</Button>
+					</div>
 				</div>
 			</div>
 			<div
@@ -813,13 +819,16 @@ const FirewallPage = () => {
 							disabled={ formIsSubmitting || ! formState.jetpack_waf_ip_block_list_enabled }
 						/>
 					</div>
-					<Button
-						onClick={ saveIpBlockListChanges }
-						isLoading={ ipBlockListIsUpdating }
-						disabled={ formIsSubmitting || ! ipBlockListHasChanges }
-					>
-						{ __( 'Save changes', 'jetpack-protect' ) }
-					</Button>
+					<div className={ styles[ 'button-container' ] }>
+						<Button
+							onClick={ saveIpBlockListChanges }
+							size={ 'small' }
+							isLoading={ ipBlockListIsUpdating }
+							disabled={ formIsSubmitting || ! ipBlockListHasChanges }
+						>
+							{ __( 'Save block list', 'jetpack-protect' ) }
+						</Button>
+					</div>
 				</div>
 			</div>
 		</>
