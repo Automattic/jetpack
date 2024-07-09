@@ -6,7 +6,6 @@ declare global {
 	interface Window {
 		_currentSiteId: number;
 		_currentSiteType: string;
-		wpcomDocumentationLinksLocale: string;
 	}
 }
 
@@ -17,7 +16,6 @@ declare global {
  * @param text        - string Text to be translated.
  */
 function overrideCoreDocumentationLinksToWpcom( translation: any, text: string ) {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	switch ( text ) {
 		case 'https://wordpress.org/support/article/excerpt/':
 		case 'https://wordpress.org/support/article/settings-sidebar/#excerpt':
