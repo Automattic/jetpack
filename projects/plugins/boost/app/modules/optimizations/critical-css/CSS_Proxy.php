@@ -21,7 +21,7 @@ class CSS_Proxy {
 	/**
 	 * AJAX handler to handle proxying of external CSS resources.
 	 *
-	 * @return never
+	 * @return void
 	 */
 	public function handle_css_proxy() {
 
