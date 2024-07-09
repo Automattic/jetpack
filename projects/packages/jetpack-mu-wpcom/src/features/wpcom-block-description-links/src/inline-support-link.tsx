@@ -15,11 +15,11 @@ interface Props {
 /**
  * Create the block description link.
  *
- * @param {Props} props																  - The component props.
+ * @param {Props} props                                                               - The component props.
  * @param {string | ReactElement<string | JSXElementConstructor<any>>} props.children - The component children.
  * @param {string} props.title                                                        - Block title.
- * @param {string} props.url														  - Support link URL.
- * @param {number} props.postId														  - Post ID.
+ * @param {string} props.url                                                          - Support link URL.
+ * @param {number} props.postId                                                       - Post ID.
  */
 export default function DescriptionSupportLink( {
 	children,
@@ -63,7 +63,7 @@ export default function DescriptionSupportLink( {
 			) : (
 				<ExternalLink
 					onClick={ () => {
-						recordTracksEvent( 'calypso_block_description_support_link_click', {
+						tracks.recordEvent( 'calypso_block_description_support_link_click', {
 							block: title,
 							support_link: url,
 						} );
