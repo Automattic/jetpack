@@ -42,4 +42,4 @@ function wpcom_enqueue_documentation_links_assets() {
 	wp_set_script_translations( 'wpcom-documentation-links-script', 'jetpack-mu-wpcom' );
 }
 
-add_action( 'init', 'wpcom_enqueue_documentation_links_assets' );
+add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_documentation_links_assets', 100 );
