@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
 
@@ -512,6 +513,22 @@ class Admin_Menu extends Base_Admin_Menu {
 		</li>
 		<?php
 		wp_die();
+	}
+
+	/**
+	 * Fixes scrollbar issue if upsell nudge is loaded.
+	 * https://github.com/Automattic/dotcom-forge/issues/7936
+	 */
+	public function wpcom_upsell_nudge_jitm_fix() {
+		$assets_base_path = '../../dist/admin-menu/';
+		Assets::register_script(
+			'wpcom-upsell-nudge-jitm-fix',
+			$assets_base_path . 'wpcom-upsell-nudge-jitm-fix.js',
+			__FILE__,
+			array(
+				'enqueue' => true,
+			)
+		);
 	}
 
 	/**

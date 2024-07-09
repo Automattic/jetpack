@@ -13,12 +13,13 @@ import {
 	getLastPostUrl,
 	currentThemeIsBlockTheme,
 	getSiteId,
-	isWoASite as getIsWoASite,
+	isWoASite,
 } from 'state/initial-state';
-import { getModule, getModuleOverride } from 'state/modules';
+import { getModule, getModuleOverride, isModuleActivated } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteUsesWpAdminInterface } from 'state/site';
+import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import Blaze from './blaze';
 import { GoogleAnalytics } from './google-analytics';
 import { RelatedPosts } from './related-posts';
@@ -97,7 +98,18 @@ export class Traffic extends React.Component {
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
-					<GoogleAnalytics { ...commonProps } site={ this.props.blogID ?? this.props.siteRawUrl } />
+					<GoogleAnalytics
+						{ ...commonProps }
+						site={ this.props.blogID ?? this.props.siteRawUrl }
+						showDeprecationNotice={
+							this.props.isModuleActivated( 'google-analytics' ) &&
+							! this.props.isWoASite &&
+							! this.props.isFetchingPluginsData &&
+							! this.props.isPluginActive(
+								'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
+							)
+						}
+					/>
 				) }
 				{ foundBlaze && <Blaze { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
@@ -116,12 +128,15 @@ export default connect( state => {
 		isOfflineMode: isOfflineMode( state ),
 		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isModuleActivated: module_name => isModuleActivated( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
+		isFetchingPluginsData: isFetchingPluginsData( state ),
+		isPluginActive: plugin_name => isPluginActive( state, plugin_name ),
+		isWoASite: isWoASite( state ),
 		lastPostUrl: getLastPostUrl( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		blogID: getSiteId( state ),
 		siteUsesWpAdminInterface: siteUsesWpAdminInterface( state ),
-		isWoASite: getIsWoASite( state ),
 	};
 } )( Traffic );

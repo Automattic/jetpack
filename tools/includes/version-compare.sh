@@ -88,3 +88,89 @@ function version_compare {
 		[[ ${#A[@]} -gt ${#B[@]} ]]
 	fi
 }
+
+# Compute the difference between two version numbers, semver style.
+#
+# Note this is a bit looser than `pnpm semver`, as it accepts 4-part versions.
+#
+# @param $1 First version.
+# @param $2 Second version.
+# Outputs: equal, suffix, patch, minor, or major.
+function version_diff {
+	# Variable for the version_difference call
+	local INCREMENT
+
+	# Returning 0 if neither $1 > $2, nor $2 > $1
+	if ! version_compare "$1" "$2" 1 && ! version_compare "$2" "$1" 1; then
+		echo "equal"
+		return
+	fi
+
+	if version_compare "$1" "$2"; then
+
+		# $1 is greater than $2
+		version_get_increment "$2" "$1"
+	else
+
+		# $2 is greater than $1
+		version_get_increment "$1" "$2"
+	fi
+
+	case "$INCREMENT" in
+		"1")
+			echo "prerelease"
+			;;
+		"2")
+			echo "patch"
+			;;
+		"3")
+			echo "minor"
+			;;
+		"4")
+			echo "major"
+			;;
+	esac
+}
+
+# Compute the increment needed to get from $1 to $2, semver style.
+#
+# Note this is a bit looser than `pnpm semver`, as it accepts 4-part versions.
+#
+# @param $1 First version.
+# @param $2 Second version.
+function version_get_increment {
+
+	local V1="${1%%+*}" V2="${2%%+*}"
+
+	local A=() B=() i DIFF
+
+	# First, compare the version parts.
+	IFS='.' read -r -a A <<<"${V1%%-*}"
+	IFS='.' read -r -a B <<<"${V2%%-*}"
+
+	while [[ ${#A[@]} -lt ${#B[@]} ]]; do
+		A+=( 0 )
+	done
+	while [[ ${#B[@]} -lt ${#A[@]} ]]; do
+		B+=( 0 )
+	done
+
+	i=0
+
+	# If AA is ahead of BB, we have found our difference.
+	while [[ $i -lt ${#A[@]} && $i -lt ${#B[@]} ]]; do
+		local AA=${A[$i]}
+		local BB=${B[$i]}
+
+		if [[ $AA -lt $BB ]]; then
+			let DIFF="4 - $i"
+
+			INCREMENT=$DIFF
+			return
+		fi
+		i=$((i + 1))
+	done
+
+	# Version parts were equal, this means that the difference is the suffix.
+	INCREMENT=1
+}

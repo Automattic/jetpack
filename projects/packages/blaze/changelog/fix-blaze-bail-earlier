@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Eligibility checks: shortcircuit Blaze feature earlier when a site is not properly connected to WordPress.com.

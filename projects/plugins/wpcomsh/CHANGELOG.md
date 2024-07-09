@@ -1,5 +1,28 @@
 # Changelog
 
+## 3.27.3 - 2024-07-08
+### Added
+- Add post transfer woo express deactivate plugins, post process cache flush, and post clone set staging environment [#38183]
+
+### Changed
+- Updated package dependencies. [#38228]
+- Use wp-cli `success` function for messages [#38201]
+
+### Fixed
+- Fix generate POT script to follow symlinks in vendor/* and update language files. [#38153]
+
+## 3.27.2 - 2024-07-01
+### Changed
+- Internal updates.
+
+## 3.27.1 - 2024-06-28
+### Fixed
+- Wpcomsh: fixed fatal errors in case of null body class values. [#38114]
+
+## 3.27.0 - 2024-06-28
+### Added
+- Added plugin dance command [#38108]
+
 ## 3.26.1 - 2024-06-26
 ### Added
 - Site Migrations: Add tracks events for AIOWPM events. [#37902]

@@ -400,7 +400,7 @@ class Colors_Manager_Common {
 	 * @param array $classes the array of classes to add custom class to.
 	 */
 	public static function body_class( $classes ) {
-		array_push( $classes, 'custom-colors' );
+		$classes[] = 'custom-colors';
 		return $classes;
 	}
 

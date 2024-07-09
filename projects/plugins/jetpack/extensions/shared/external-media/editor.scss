@@ -558,15 +558,17 @@ $grid-size: 8px;
 	}
 }
 
+// Set the wrapper as a flex container to allow displaying multiple buttons side by side.
+.jetpack-external-media-button-wrapper {
+	display: flex;
+}
+
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
 		width: auto;
-		margin-right: 8px;
 		margin-bottom: 1em;
-		padding-left: 6px;
-		padding-right: 6px;
 
 		> svg {
 			display: none;

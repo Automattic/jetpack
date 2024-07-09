@@ -225,8 +225,7 @@ export default function GeneralPurposeImage( {
 		<Button
 			onClick={ handleAccept }
 			variant="primary"
-			isBusy={ currentImage?.generating }
-			disabled={ ! currentImage?.image }
+			disabled={ ! currentImage?.image || currentImage?.generating }
 		>
 			{ __( 'Insert image', 'jetpack' ) }
 		</Button>
@@ -234,10 +233,9 @@ export default function GeneralPurposeImage( {
 
 	return (
 		<AiImageModal
-			autoStart={ false }
 			images={ images }
 			currentIndex={ current }
-			title={ __( 'Generate a image with AI', 'jetpack' ) }
+			title={ __( 'Generate an image with AI', 'jetpack' ) }
 			cost={ generalImageCost }
 			open={ isFeaturedImageModalVisible }
 			placement={ placement }

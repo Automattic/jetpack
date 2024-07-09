@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.2';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -211,7 +211,7 @@ class GA_Manager {
 		$wga       = get_option( $option_name, array() );
 		$is_active = ( new Modules() )->is_active( 'google-analytics', false );
 
-		if ( $is_active !== $wga['is_active'] ) {
+		if ( ! array_key_exists( 'is_active', $wga ) || $is_active !== $wga['is_active'] ) {
 			$wga['is_active'] = $is_active;
 		}
 

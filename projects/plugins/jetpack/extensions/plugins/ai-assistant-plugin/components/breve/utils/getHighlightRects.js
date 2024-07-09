@@ -49,7 +49,7 @@ export const getHighlightRects = element => {
 
 	allRanges.forEach( ( { range, text } ) => {
 		const clientRects = Array.from( range.getClientRects() );
-		clientRects.forEach( rect => {
+		clientRects.forEach( ( rect, rangeIndex ) => {
 			let type;
 			let replacement = text.toLowerCase();
 
@@ -82,9 +82,10 @@ export const getHighlightRects = element => {
 
 			rects.push( {
 				rect,
+				rangeIndex,
 				range,
-				replacementText: `${ text }`, // The original text
-				replacement, // It's replacement. TODO: Rename these to be clearer
+				target: `${ text }`, // The original text
+				replacement, // It's replacement
 				type,
 				highlightId: `${ range.startOffset }${ text }${ range.endOffset }`,
 			} );

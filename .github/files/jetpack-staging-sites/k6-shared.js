@@ -14,6 +14,7 @@ export const sites = [
 		note: 'normal site',
 		blog_id: '215379549',
 	},
+	/* Comment out pending rename. p1720019588866209-slack-C05Q5HSS013
 	{
 		url: 'https://jetpackedgephp74.wpcomstaging.com',
 		note: 'php 7.4',
@@ -24,6 +25,7 @@ export const sites = [
 		note: 'php 8.2',
 		blog_id: '215380000',
 	},
+	*/
 	{
 		url: 'https://jetpackedgeecomm.wpcomstaging.com',
 		note: 'ecommerce plan',

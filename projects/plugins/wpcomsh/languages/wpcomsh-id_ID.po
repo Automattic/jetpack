@@ -22,43 +22,13 @@ msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
 msgstr "%1$s di <a href=\"%2$s\">%3$s</a>"
 
 #. translators: %s is a link to the WordPress user profile.
-#: widgets/class-gravatar-widget.php:206
+#: widgets/class-gravatar-widget.php:205
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "Anda bisa mengubah Gravatar dari <a href=\"%s\">halaman profil</a>."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Marketing"
-msgstr "Pemasaran"
 
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Maaf, Anda tak diizinkan mengakses laman ini."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
-msgid "Plugins"
-msgstr "Plugin"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr "Gunakan dasbor lama WordPress.com untuk mengelola situs Anda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Default style"
-msgstr "Gaya default"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Use WP-Admin to manage your site."
-msgstr "Gunakan WP-Admin untuk mengelola situs Anda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Classic style"
-msgstr "Gaya klasik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
-msgid "Admin Interface Style"
-msgstr "Gaya Antarmuka Admin"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -72,423 +42,9 @@ msgstr "Akses berbagai plugin gratis dan berbayar yang dapat meningkatkan fungsi
 msgid "Flex your site's features with plugins"
 msgstr "Tunjukkan kehebatan fitur situs Anda dengan plugin"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
-msgid "Theme Showcase"
-msgstr "Etalase Tema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
-msgid "Explore themes"
-msgstr "Jelajahi tema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
-msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr "Telusuri lebih dalam dunia tema WordPress.com. Temukan desain responsif dan memukau yang akan menghidupkan situs Anda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
-msgid "Find the perfect theme for your site"
-msgstr "Temukan tema ideal untuk situs Anda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Tambahkan sejumlah ucapan menarik untuk memancing komentar pembaca Anda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
-msgid "Enable blocks in comments"
-msgstr "Aktifkan blok pada komentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
-msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr "Izinkan pengunjung menggunakan akun WordPress.com atau Facebook untuk berkomentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
-msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr "Sesuaikan formulir Comments Anda dengan salam dan skema warna yang cerdas."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
-msgid "Color Scheme"
-msgstr "Skema Warna"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
-msgid "Greeting Text"
-msgstr "Teks Sambutan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
-msgid "Allow Blocks"
-msgstr "Izinkan Blok"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
-msgid "Verbum"
-msgstr "Verbum"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
-msgid "Dark"
-msgstr "Gelap"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
-msgid "Light"
-msgstr "Terang"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
-msgid "Transparent"
-msgstr "Transparan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
-msgid "Launch your store"
-msgstr "Luncurkan toko Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
-msgid "Add a domain"
-msgstr "Tambah domain"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
-msgid "Grow your business"
-msgstr "Kembangkan bisnis Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
-msgid "Collect sales tax"
-msgstr "Pungut pajak penjualan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
-msgid "Get paid with WooPayments"
-msgstr "Terima pembayaran dengan WooPayments"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
-msgid "Add your products"
-msgstr "Tambahkan produk Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
-msgid "Customize your store"
-msgstr "Sesuaikan toko Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
-msgid "Sunset"
-msgstr "Matahari Tenggelam"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
-msgid "Sakura"
-msgstr "Sakura"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
-msgid "Powder Snow"
-msgstr "Serbuk Salju"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
-msgid "Nightfall"
-msgstr "Malam Hari"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
-msgid "Contrast"
-msgstr "Kontras"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
-msgid "Classic Dark"
-msgstr "Gelap Klasik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
-msgid "Classic Bright"
-msgstr "Terang Klasik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
-msgid "Classic Blue"
-msgstr "Biru Klasik"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
-msgid "Aquatic"
-msgstr "Akuatik"
-
-#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
-msgid "Overview"
-msgstr "Ikhtisar"
-
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
-msgid "Share &#8220;%s&#8221; via Jetpack Social"
-msgstr "Bagikan “%s” melalui Jetpack Social"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
-msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr "Untuk mengakses pengaturan paket, domain, email, dll., klik \"Hosting\" pada bilah sisi."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
-msgid "WordPress.com"
-msgstr "WordPress.com"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
-msgid "Settings"
-msgstr "Pengaturan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
-msgid "Monetize"
-msgstr "Monetisasi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
-msgid "Monitoring"
-msgstr "Monitoring"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
-msgid "Configuration"
-msgstr "Konfigurasi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
-msgid "Purchases"
-msgstr "Pembelian"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
-msgid "Emails"
-msgstr "E-mail"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
-msgid "Domains"
-msgstr "Domain"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
-msgid "Add-ons"
-msgstr "Add-on"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-msgid "Plans"
-msgstr "Paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-msgid "Hosting"
-msgstr "Hosting"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
-msgid "All Sites"
-msgstr "Semua Situs"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
-msgid "Error: please try commenting again."
-msgstr "Error: silakan coba berkomentar lagi."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
-msgid "Error: your Facebook login has expired."
-msgstr "Error: login Facebook Anda sudah kedaluwarsa."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
-msgid "Cancel reply"
-msgstr "Batalkan balasan"
-
-#. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
-msgid "Leave a reply to %s"
-msgstr "Tinggalkan Balasan ke %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
-msgid "Leave a comment"
-msgstr "Tinggalkan komentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
-msgid "Save my name, email, and website in this browser for the next time I comment."
-msgstr "Simpan nama, email, dan situs web saya pada peramban ini untuk komentar saya berikutnya."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
-msgid "Comment sent successfully"
-msgstr "Komentar berhasil dikirim"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
-msgid "Subscribe"
-msgstr "Berlangganan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
-msgid "Enter your email address"
-msgstr "Masukkan alamat email Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
-msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr "Ingin mendapatkan pembaruan pos blog? Cukup klik tombol di bawah untuk terus mendapat pembaruan!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
-msgid "Never miss a beat!"
-msgstr "Jangan sampai kelewatan!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
-msgid "Continue reading"
-msgstr "Lanjutkan membaca"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
-msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr "Langganan sekarang agar bisa terus membaca dan mendapatkan akses ke semua arsip."
-
-#. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
-msgid "Discover more from %s"
-msgstr "Jelajahi %s lebih lanjut"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
-msgid "Loading your comment..."
-msgstr "Memuat komentar Anda..."
-
-#. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
-msgid "We'll keep you in the loop!"
-msgstr "Kami akan terus mengirimkan pembaruan!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
-msgid "Optional"
-msgstr "Opsional"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
-msgid "Website"
-msgstr "Situs web"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
-msgid "Write a reply..."
-msgstr "Tulis balasan..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
-msgid "Cancel"
-msgstr "Batal"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
-msgid "Email me new comments"
-msgstr "Kirimkan komentar baru melalui e-mail"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
-msgid "Email me new posts"
-msgstr "Kirimkan pos baru melalui e-mail"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
-msgid "Notify me of new posts"
-msgstr "Beri tahu saya ketika ada pos baru"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
-msgid "Weekly"
-msgstr "Mingguan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
-msgid "WordPress"
-msgstr "WordPress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
-msgid "Comment"
-msgstr "Komentar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
-msgid "Reply"
-msgstr "Balas"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
-msgid "Daily"
-msgstr "Harian"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
-msgid "Instantly"
-msgstr "Secara langsung"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
-msgid "(Address never made public)"
-msgstr "(Alamat takkan pernah dipublikasikan)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
-msgid "Log out"
-msgstr "Keluar"
-
-#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
-msgid "Logged in via %s"
-msgstr "Login melalui %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
-msgid "Log in to leave a comment."
-msgstr "Login untuk berkomentar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
-msgid "Log in to leave a reply."
-msgstr "Login untuk meninggalkan balasan."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
-msgid "Leave a comment. (log in optional)"
-msgstr "Kirim komentar. (tidak harus login)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
-msgid "Leave a reply. (log in optional)"
-msgstr "Kirim balasan. (login opsional)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
-msgid "Website (optional)"
-msgstr "Situs (opsional)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
-msgid "Email (address never made public)"
-msgstr "Email (alamat tidak akan pernah dipublikasikan)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
-msgid "Receive web and mobile notifications for posts on this site."
-msgstr "Terima pemberitahuan web dan seluler untuk pos di situs ini."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
-msgid "Log in or provide your name and email to leave a comment."
-msgstr "Login atau masukkan nama dan email untuk berkomentar."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
-msgid "Log in or provide your name and email to leave a reply."
-msgstr "Login atau masukkan nama dan email untuk membalas."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
-msgid "Write a comment..."
-msgstr "Tulis Komentar..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
-msgid "Get started"
-msgstr "Ayo mulai"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
-msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr "Gunakan pengimpor berpemandu milik WordPress.com untuk mengimpor pos dan komentar dari Medium, Substack, Squarespace, Wix, dan lain-lain."
-
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Kunjungi %1$sPengaturan Jetpack%2$s untuk pengaturan penulisan lebih lengkap yang didukung oleh Jetpack."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
-msgid "Scheduled Updates"
-msgstr "Pembaruan Terjadwal"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
-msgid "Verify the email address for your domains"
-msgstr "Verifikasikan alamat email untuk domain Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
-msgid "Site setup"
-msgstr "Pengaturan situs"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
-msgid "Finish Sensei setup"
-msgstr "Selesaikan penyiapan Sensei"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
-msgid "Finish store setup"
-msgstr "Selesaikan pengaturan toko"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
-msgid "Update your site's design"
-msgstr "Perbarui desain situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
-msgid "Enable post sharing"
-msgstr "Aktifkan berbagi pos"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
-msgid "Install the mobile app"
-msgstr "Instal aplikasi seluler"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -563,134 +119,6 @@ msgstr "Impor telah berjalan."
 msgid "The backup import has been cancelled."
 msgstr "Impor cadangan dibatalkan."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-msgid "Next steps for your site"
-msgstr "Langkah selanjutnya untuk situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
-msgid "Add the Subscribe Block to your site"
-msgstr "Tambahkan Blok Langganan ke situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
-msgid "Import existing subscribers"
-msgstr "Impor pelanggan yang Anda punya"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
-msgid "View site metrics"
-msgstr "Lihat metrik situs "
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
-msgid "Set up ssh"
-msgstr "Siapkan SSH"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
-msgid "Install a custom plugin"
-msgstr "Instal plugin khusus"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
-msgid "Choose a theme"
-msgstr "Pilih tema"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
-msgid "Set up an offer for your supporters"
-msgstr "Siapkan penawaran untuk pendukung Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
-msgid "Connect a Stripe account to collect payments"
-msgstr "Hubungkan akun Stripe untuk menerima pembayaran"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
-msgid "Add your About page"
-msgstr "Tambahkan halaman Tentang Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
-msgid "Manage your paid Newsletter plan"
-msgstr "Kelola paket Buletin berbayar Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
-msgid "Connect your social media accounts"
-msgstr "Sambungkan akun media sosial Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
-msgid "Manage your subscribers"
-msgstr "Kelola pelanggan Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
-msgid "Write 3 posts"
-msgstr "Tulis 3 pos"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
-msgid "Get your first 10 subscribers"
-msgstr "Dapatkan 10 pelanggan pertama Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
-msgid "Enable subscribers modal"
-msgstr "Aktifkan pop-up pelanggan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
-msgid "Customize welcome message"
-msgstr "Sesuaikan pesan sambutan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
-msgid "Earn money with your newsletter"
-msgstr "Raih keuntungan lewat buletin Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
-msgid "Update your About page"
-msgstr "Perbarui halaman Tentang Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
-msgid "Migrate content"
-msgstr "Migrasikan konten"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-msgid "Verify email address"
-msgstr "Verifikasi alamat email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
-msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr "Mencegah pembuatan pos dan halaman baru, mencegah pengeditan pos dan halaman yang sudah ada, serta menutup kolom komentar di seluruh situs."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
-msgid "Enable Locked Mode"
-msgstr "Aktifkan Mode Terkunci"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
-msgid "Locked Mode"
-msgstr "Mode Terkunci"
-
-#. translators: link to the help page: https://wordpress.com/help
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
-msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr "Untuk mengalihkan kepemilikan situs, kami meminta orang yang Anda tunjuk untuk menghubungi kami melalui %s dan menunjukkan salinan akta kematian."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
-msgid "Choose someone to look after your site when you pass away."
-msgstr "Tentukan seseorang untuk menjaga situs Anda jika Anda meninggal dunia."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
-msgid "Legacy Contact"
-msgstr "Kontak Pewaris"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
-msgid "Enhanced Ownership"
-msgstr "Kepemilikan Menyeluruh"
-
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "<a href=\"%2$s\">Pilihan \"Siapa pun dapat mendaftar\"</a> sedang aktif. Peran asal saat ini adalah %1$s. %4$s<strong>Pertimbangkan untuk menonaktifkan pilihan ini jika pendaftaran terbuka tidak diperlukan.<strong>"
@@ -720,149 +148,37 @@ msgstr "Berkas tidak ada"
 msgid "Could not determine importer type."
 msgstr "Tidak dapat menentukan jenis pengimpor"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
-msgid "Share your site"
-msgstr "Bagikan situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
-msgid "Edit a page"
-msgstr "Edit satu halaman"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
-msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Situs Anda memuat gaya premium. Upgrade sekarang untuk memublikasikannya dan mengakses berbagai fitur lainnya."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
-msgid "Customize your domain"
-msgstr "Buat nama domain Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
-msgid "Add a new page"
-msgstr "Tambah halaman baru"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
-msgid "Drive traffic to your site"
-msgstr "Tingkatkan kunjungan ke situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
-msgid "Give your site a name"
-msgstr "Beri nama untuk situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
-msgid "Claim your free one-year domain"
-msgstr "Klaim domain gratis Anda untuk satu tahun"
-
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "Hadiahkan"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
 msgstr "Gambar Miniatur"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Bagikan “%s” dengan Publikasikan"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Bagi"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
-msgid "Upgrade plan"
-msgstr "Upgrade Paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
-msgid "Create paid Newsletter"
-msgstr "Buat Buletin berbayar"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
-msgid "Set up payment method"
-msgstr "Siapkan metode pembayaran"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
-msgid "Choose a domain"
-msgstr "Pilih domain"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
-msgid "Launch your blog"
-msgstr "Luncurkan blog Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
-msgid "Edit site design"
-msgstr "Edit desain situs"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
-msgid "Set up your site"
-msgstr "Lakukan pengaturan situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
-msgid "Name your blog"
-msgstr "Beri Nama Blog Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
-msgid "Personalize your site"
-msgstr "Sesuaikan situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
-msgid "Upload your first video"
-msgstr "Unggah video pertama Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
-msgid "Set up your video site"
-msgstr "Siapkan situs video Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
-msgid "Launch your site"
-msgstr "Luncurkan situs Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
-msgid "Add links"
-msgstr "Tambahkan tautan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
-msgid "Personalize Link in Bio"
-msgstr "Atur Tautan di Bio"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
-msgid "Select a design"
-msgstr "Pilih desain"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
-msgid "Start writing"
-msgstr "Mulai menulis"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
-msgid "Write your first post"
-msgstr "Tuliskan pos pertama Anda"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
-msgid "Add subscribers"
-msgstr "Tambah pelanggan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
-msgid "Choose a plan"
-msgstr "Pilih paket"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
-msgid "Personalize newsletter"
-msgstr "Atur Buletin"
-
-#: vendor/automattic/jetpack-config/src/class-config.php:189
+#: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "Tidak dapat memuat kelas %1$s. Harap tambahkan paket yang berisi situs menggunakan composer dan pastikan Anda mengharuskan Jetpack autoloader"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "Alias textdomain harus didaftarkan sebelum hook %1$s. Peringatan berikut dipicu oleh domain %2$s."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "Skrip \"%s\" bergantung pada wp-i18n tetapi tidak menentukan \"textdomain\""
 
@@ -1063,27 +379,27 @@ msgstr "Beruntunglah Anda! Desainer tema Anda memilih font khusus untuk Anda yan
 msgid "Uncheck to disable"
 msgstr "Hapus centang untuk menonaktifkan"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
 msgstr "ID Feed Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
 msgstr "ID Feed Apple Podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
 msgstr "Judul:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
 msgstr "Feed RSS Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
 msgstr "Dengarkan di Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
 msgstr "Dengarkan di Apple Podcast"
 
@@ -1095,97 +411,113 @@ msgstr "Tampikan informasi tentang Podcast Anda dan izinkan pengunjung untuk men
 msgid "Podcast"
 msgstr "Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
 msgid "Select iTunes category:"
 msgstr "Pilih kategori iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
 msgid "Set podcast category"
 msgstr "Atur kategori podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Atur kata kunci podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
 msgid "Set podcast image"
 msgstr "Atur gambar podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
 msgid "Clean"
 msgstr "Bersih"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
 msgid "Yes"
 msgstr "Ya"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
 msgid "No"
 msgstr "Tidak"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
 msgid "Set podcast as explicit"
 msgstr "Atur podcast untuk dewasa"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
 msgid "Set podcast copyright"
 msgstr "Atur hak cipta podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
 msgid "Set podcast summary"
 msgstr "Atur rangkuman podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
 msgid "Set podcast author"
 msgstr "Atur penyusun podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Atur subtitel podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
 msgid "Set podcast title"
 msgstr "Atur judul podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "Ini adalah URL yang Anda kirimkan ke iTunes atau layanan podcast."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
 msgstr "Feed podcast Anda: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
 msgid "Select podcast category:"
 msgstr "Pilih kategori podcast:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
 msgid "Blog category for podcasts"
 msgstr "Kategori blog untuk podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
 msgid "Podcast category 3"
 msgstr "Kategori podcast 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
 msgid "Podcast category 2"
 msgstr "Kategori podcast 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 1"
 msgstr "Kategori podcast 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Kata kunci podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
 msgid "Podcast image"
 msgstr "Gambar podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Mark as explicit"
 msgstr "Tandai untuk dewasa"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Podcast copyright"
 msgstr "Hak cipta podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast summary"
 msgstr "Rangkuman podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
 msgstr "Nama penyiar podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Subtitel podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1299,8 +631,6 @@ msgid "Edit"
 msgstr "Sunting"
 
 #: private-site/logged-in-banner.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "Beranda Saya"
 
@@ -1428,31 +758,31 @@ msgstr "Kuota ruang disk"
 msgid "Disk space used"
 msgstr "Ruang disk digunakan"
 
-#: widgets/class-wpcom-category-cloud-widget.php:210
+#: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
 msgstr "Klik untuk informasi lengkap."
 
-#: widgets/class-wpcom-category-cloud-widget.php:208
+#: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
 msgstr "Menghitung item di subkategori terhadap total induk."
 
-#: widgets/class-wpcom-category-cloud-widget.php:200
+#: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
 msgstr "Persentase huruf maksimum:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:194
+#: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
 msgstr "Persentase huruf minimum:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:189
+#: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
 msgstr "ID Kategori, dipisahkan dengan koma"
 
-#: widgets/class-wpcom-category-cloud-widget.php:187
+#: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
 msgstr "Eksklusikan:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:181
+#: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
 msgstr "Jumlah kategori maksimal yang ditampilkan:"
 
@@ -1470,23 +800,13 @@ msgstr "Kategori yang paling sering digunakan dalam format cloud."
 msgid "Category Cloud"
 msgstr "Awan Kategori"
 
-#: private-site/private-site.php:171
-msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr "Jetpack terputus & situs bersifat pribadi. Hubungkan kembali Jetpack untuk mengelola pengaturan visibilitas situs."
-
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Perbarui visibilitas"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Luncurkan situs"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
-msgid "Dismiss"
-msgstr "Selesai"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1624,47 +944,47 @@ msgstr "Tampilkan foto Instagram terbaru Anda."
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:148
+#: widgets/class-aboutme-widget.php:149
 msgid "Biography"
 msgstr "Biografi"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:142
 msgid "Headline"
 msgstr "Tajuk Berita"
 
-#: widgets/class-aboutme-widget.php:134
+#: widgets/class-aboutme-widget.php:135
 msgid "Photo"
 msgstr "Foto"
 
-#: widgets/class-aboutme-widget.php:130
+#: widgets/class-aboutme-widget.php:131
 msgid "Don't Display Name"
 msgstr "Jangan Tampilkan Nama"
 
-#: widgets/class-aboutme-widget.php:128
+#: widgets/class-aboutme-widget.php:129
 msgid "Display Small"
 msgstr "Tampilkan Kecil"
 
-#: widgets/class-aboutme-widget.php:126
+#: widgets/class-aboutme-widget.php:127
 msgid "Display Medium"
 msgstr "Tampilkan Medium"
 
-#: widgets/class-aboutme-widget.php:124
+#: widgets/class-aboutme-widget.php:125
 msgid "Display Large"
 msgstr "Tampilkan Besar"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:123
 msgid "Display X-Large"
 msgstr "Tampilkan Ekstra Besar"
 
-#: widgets/class-aboutme-widget.php:111
+#: widgets/class-aboutme-widget.php:112
 msgid "Your about.me URL"
 msgstr "URL tentang.saya milik Anda"
 
-#: widgets/class-aboutme-widget.php:104
+#: widgets/class-aboutme-widget.php:105
 msgid "Widget title"
 msgstr "Judul widget"
 
-#: widgets/class-aboutme-widget.php:97
+#: widgets/class-aboutme-widget.php:98
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "Widget tentang.saya tidak akan tersedia lagi setelah 1 Juli 2016. Setelah tanggal tersebut, widget akan menampilkan tautan teks sederhana ke profil tentang.saya milik Anda. Silakan hapus widget ini."
 
@@ -1681,19 +1001,14 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Tampilkan profil tentang.saya dengan gambar mini"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "Tidak bisa mengambil data yang diminta."
 
-#: footer-credit/theme-optimizations.php:59
+#: footer-credit/theme-optimizations.php:62
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Buat situs web atau blog gratis di WordPress.com"
 
-#: footer-credit/theme-optimizations.php:54
+#: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
 msgstr "Buat situs web gratis di WordPress.com"
 
@@ -1703,8 +1018,8 @@ msgstr "Didukung oleh WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
-#: footer-credit/theme-optimizations.php:52
-#: footer-credit/theme-optimizations.php:57
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
 msgid "Blog at WordPress.com"
 msgstr "Blog di WordPress.com"
 
@@ -1780,10 +1095,6 @@ msgstr "Simpan"
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr "Aktifkan & Simpan"
-
-#: private-site/private-site.php:178
-msgid "Manage your site visibility settings"
-msgstr "Kelola pengaturan visibilitas situs Anda"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -1898,8 +1209,7 @@ msgstr "Telepon"
 msgid "Email"
 msgstr "E-mail"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:118
+#: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "Nama"
@@ -1913,27 +1223,27 @@ msgstr "Permintaan Reservasi"
 msgid "Reservations"
 msgstr "Reservasi"
 
-#: widgets/class-wpcom-widget-recent-comments.php:476
+#: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
 msgstr "Tampilkan komentar dari:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:471
+#: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
 msgstr "Warna latar teks:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:465
+#: widgets/class-wpcom-widget-recent-comments.php:466
 msgid "Avatar background color:"
 msgstr "Warna latar dari Avatar: "
 
-#: widgets/class-wpcom-widget-recent-comments.php:454
+#: widgets/class-wpcom-widget-recent-comments.php:455
 msgid "No Avatars"
 msgstr "Tanpa avatar"
 
-#: widgets/class-wpcom-widget-recent-comments.php:447
+#: widgets/class-wpcom-widget-recent-comments.php:448
 msgid "(at most 15)"
 msgstr "(paling banyak 15)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:441
+#: widgets/class-wpcom-widget-recent-comments.php:442
 msgid "Number of comments to show:"
 msgstr "Jumlah komentar yang ditunjukkan:"
 
@@ -1955,37 +1265,37 @@ msgid "Recent Comments"
 msgstr "Komentar Terbaru"
 
 #. translators: %s is a URL to the widgets settings page.
-#: widgets/class-jetpack-posts-i-like-widget.php:277
+#: widgets/class-jetpack-posts-i-like-widget.php:278
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "Anda belum menyukai pos apa pun baru-baru ini. Setelah melakukannya, widget <a href=\"%s\">Posts I Like</a> ini akan menampilkannya"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:265
+#: widgets/class-jetpack-posts-i-like-widget.php:266
 msgid "on"
 msgstr "pada"
 
 #. translators: %1$s is the post title, %1$s is the blog name.
-#: widgets/class-jetpack-posts-i-like-widget.php:242
+#: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s di %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:117
+#: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
 msgstr "Hal yang disukai penulis untuk ditampilkan:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:99
+#: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
 msgstr "Kolom"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "List"
 msgstr "Daftar"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:96
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
 msgstr "Tampilkan sebagai:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:91
+#: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
 msgstr "Jumlah pos untuk ditampilkan (1 sampai 15):"
 
@@ -2019,62 +1329,62 @@ msgstr "Saya Memberikan Suara"
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "Tunjukkan kepada pembaca bahwa Anda memberikan suara dengan stiker \"Saya Memberikan Suara\"."
 
-#: widgets/class-gravatar-widget.php:200
+#: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Teks yang ditampilkan setelah Gravatar. Tindakan ini bersifat opsional dan dapat digunakan untuk menjelaskan diri Anda atau tema blog Anda."
 
-#: widgets/class-gravatar-widget.php:199
+#: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Link Gravatar. Ini adalah URL opsional yang akan digunakan saat ada yang mengklik Gravatar Anda:"
 
-#: widgets/class-gravatar-widget.php:189
+#: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
 msgstr "Penyejajaran Gravatar:"
 
-#: widgets/class-gravatar-widget.php:178
+#: widgets/class-gravatar-widget.php:177
 msgid "Size:"
 msgstr "Ukuran:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
 msgstr "Alamat Email Tersesuai:"
 
-#: widgets/class-gravatar-widget.php:162
+#: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "Pilih satu pengguna atau pilih \"tersuai\" dan masukkan sebuah alamat email tersuai."
 
-#: widgets/class-gravatar-widget.php:157
+#: widgets/class-gravatar-widget.php:156
 msgid "Center"
 msgstr "Tengah"
 
-#: widgets/class-gravatar-widget.php:156
+#: widgets/class-gravatar-widget.php:155
 msgid "Right"
 msgstr "Kanan"
 
-#: widgets/class-gravatar-widget.php:155
+#: widgets/class-gravatar-widget.php:154
 msgid "Left"
 msgstr "Kiri"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: widgets/class-gravatar-widget.php:154
-#: widgets/class-widget-top-clicks.php:162
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
 msgid "None"
 msgstr "None"
 
-#: widgets/class-gravatar-widget.php:151
+#: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
 msgstr "Ekstra Besar (256 pixel)"
 
-#: widgets/class-gravatar-widget.php:150
+#: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
 msgstr "Besar (128 pixel)"
 
-#: widgets/class-gravatar-widget.php:149
+#: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
 msgstr "Medium (96 piksel)"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
 msgstr "Kecil (64 pixel)"
 
@@ -2091,7 +1401,7 @@ msgstr "Gravatar"
 msgid "Insert a Gravatar image"
 msgstr "Masukkan gambar Gravatar"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:83
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
 msgstr "Pilih gambar untuk ditampilkan di sidebar:"
 
@@ -2103,28 +1413,28 @@ msgstr "Terbitan Terkini"
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Pasang lencana Freshly Pressed di sidebar Anda"
 
-#: widgets/class-widget-authors-grid.php:142
-#: widgets/class-wpcom-widget-recent-comments.php:452
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
 msgid "Avatar Size (px):"
 msgstr "Ukuran Avatar (px):"
 
-#: widgets/class-widget-authors-grid.php:137
+#: widgets/class-widget-authors-grid.php:138
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "Tampilkan semua penulis (termasuk yang belum menulis pos sama sekali)"
 
-#: widgets/class-gravatar-widget.php:160
-#: widgets/class-jetpack-i-voted-widget.php:81
-#: widgets/class-jetpack-posts-i-like-widget.php:86
-#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
 #: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
-#: widgets/class-widget-authors-grid.php:131
-#: widgets/class-widget-top-clicks.php:72
-#: widgets/class-wpcom-category-cloud-widget.php:175
-#: widgets/class-wpcom-freshly-pressed-widget.php:79
-#: widgets/class-wpcom-tag-cloud-widget.php:123
-#: widgets/class-wpcom-widget-recent-comments.php:435
-#: widgets/class-wpcom-widget-reservations.php:60
-#: widgets/tlkio/class-tlkio-widget.php:75
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
 msgid "Title:"
 msgstr "Judul:"
 
@@ -2140,12 +1450,12 @@ msgstr "Menampilkan petak gambar avatar penulis."
 msgid "Author Grid"
 msgstr "Petak Penulis"
 
-#: private-site/private-site.php:650
+#: private-site/private-site.php:616
 msgid "Private Site"
 msgstr "Situs Pribadi"
 
-#: private-site/private-site.php:460 private-site/private-site.php:577
-#: private-site/private-site.php:809
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
 msgid "This site is private."
 msgstr "Situs ini bersifat pribadi."
 

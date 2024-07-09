@@ -1593,7 +1593,6 @@
 
 				if ( ( e.key === ' ' || e.key === 'Enter' ) && isParentCarouselContainer ) {
 					handleClick( e );
-					e.preventDefault(); // Prevent scrolling on space
 					return;
 				}
 			}

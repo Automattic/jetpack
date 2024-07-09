@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $plugins = Plugin::get_all_plugins( true );
 
+// This needs to be defined for show-needed-updates.template.php.
+$plugin = null;
+
 ?>
 
 <?php require __DIR__ . '/header.template.php'; ?>
@@ -34,11 +37,11 @@ $plugins = Plugin::get_all_plugins( true );
 	<?php
 	foreach ( $plugins as $slug => $plugin ) {
 		$classes = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card' );
-		if ( is_plugin_active( $plugin->plugin_file() ) ) {
+		if ( $plugin->is_active( 'stable' ) ) {
 			$classes[] = 'plugin-stable';
 			$verslug   = $plugin->plugin_slug();
 			$version   = $plugin->stable_pretty_version() ?? '';
-		} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
+		} elseif ( $plugin->is_active( 'dev' ) ) {
 			$classes[] = 'plugin-dev';
 			$verslug   = $plugin->dev_plugin_slug();
 			$version   = $plugin->dev_pretty_version() ?? '';
