@@ -58,6 +58,7 @@ class CSS_Proxy {
 			wp_die( esc_html( $response['error'] ), 400 );
 		}
 
+		$css = '';
 		if ( false === $response ) {
 			$response     = wp_remote_get( $proxy_url );
 			$content_type = wp_remote_retrieve_header( $response, 'content-type' );
@@ -74,9 +75,8 @@ class CSS_Proxy {
 			die( 'error' );
 		}
 
-		header( 'Content-type: text/css' );
-
 		if ( $css ) {
+			header( 'Content-type: text/css' );
 			// Outputting proxied CSS contents unescaped.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo wp_strip_all_tags( $css );
