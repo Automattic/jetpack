@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { addFilter } from '@wordpress/hooks';
 import './wpcom-documentation-links.css';
 
@@ -12,10 +11,10 @@ declare global {
 /**
  * Override Core documentation that has matching WordPress.com documentation.
  *
- * @param translation - any    Callback function.
- * @param text        - string Text to be translated.
+ * @param translation - string Translated text.
+ * @param text        - string Original text.
  */
-function overrideCoreDocumentationLinksToWpcom( translation: any, text: string ) {
+function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ) {
 	switch ( text ) {
 		case 'https://wordpress.org/support/article/excerpt/':
 		case 'https://wordpress.org/support/article/settings-sidebar/#excerpt':
@@ -43,10 +42,10 @@ function overrideCoreDocumentationLinksToWpcom( translation: any, text: string )
 /**
  * Override Core documentation that doesn't have matching WordPress.com documentation.
  *
- * @param translation - any    Callback function.
- * @param text        - string Text to be translated.
+ * @param translation - string Translated text.
+ * @param text        - string Original text.
  */
-function hideSimpleSiteTranslations( translation: any, text: string ) {
+function hideSimpleSiteTranslations( translation: string, text: string ) {
 	switch ( text ) {
 		case 'https://wordpress.org/plugins/classic-widgets/':
 			return '';
