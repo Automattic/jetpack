@@ -38,7 +38,7 @@ class Image_Guide_Proxy {
 
 		$photon_url        = Image_CDN_Core::cdn_url( $proxy_url );
 		$photon_url_domain = wp_parse_url( $photon_url, PHP_URL_HOST );
-		$photon_domain     = wp_parse_url( apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com', $image_url ), PHP_URL_HOST );
+		$photon_domain     = wp_parse_url( apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com' ), PHP_URL_HOST );
 		if ( $photon_url_domain !== $photon_domain ) {
 			wp_send_json_error( 'Failed to proxy the image.', 400 );
 			return;
