@@ -63,7 +63,7 @@ class GA_Manager {
 	);
 
 	/**
-	 * This is our constructor, which is private to force the use of get_instance().
+	 * This is our constructor, which is private to force the use of get_instance()
 	 *
 	 * @return void
 	 */
