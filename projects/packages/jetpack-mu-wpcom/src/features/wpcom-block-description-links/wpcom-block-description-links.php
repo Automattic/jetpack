@@ -28,7 +28,7 @@ function wpcom_enqueue_block_description_links_assets() {
 		true
 	);
 
-	Connection_Initial_State::render_script( 'wpcom-wpcom-block-description-links-script' );
+	Connection_Initial_State::render_script( 'wpcom-block-description-links-script' );
 
 	$status            = new Status();
 	$connection        = new Connection_Manager();
