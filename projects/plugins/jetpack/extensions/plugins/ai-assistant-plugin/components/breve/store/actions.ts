@@ -5,21 +5,21 @@ import { select } from '@wordpress/data';
 
 // ACTIONS
 
-export function setHighlightHover( isHover ) {
+export function setHighlightHover( isHover: boolean ) {
 	return {
 		type: 'SET_HIGHLIGHT_HOVER',
 		isHover,
 	};
 }
 
-export function setPopoverHover( isHover ) {
+export function setPopoverHover( isHover: boolean ) {
 	return {
 		type: 'SET_POPOVER_HOVER',
 		isHover,
 	};
 }
 
-export function setPopoverAnchor( anchor ) {
+export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
