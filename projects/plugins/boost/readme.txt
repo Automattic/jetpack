@@ -183,18 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.6 - 2024-06-26
-#### Added
-- General: Automatically enables Page Cache when migrating from WP Super Cache.
-
-
-#### Fixed
-- Image CDN: Improvements to more closely match WP core behavior.
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- Updated package dependencies.
-- Page Cache: Update WP_CACHE detection in wp-config.php
-- Page Cache: Avoid caching error pages.
-- General: Fix instance where deactivating Boost can break caching for other caching plugins.
+### 3.4.7 - 2024-07-10
+#### Security
+- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.
 
 --------
 
