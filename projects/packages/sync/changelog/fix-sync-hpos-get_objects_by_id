@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync HPOS: Ensure get_objects_by_id will return all relevant orders

@@ -3,21 +3,27 @@
  */
 import { create, getTextContent, toHTMLString } from '@wordpress/rich-text';
 import features from '../features';
+import registerEvents from '../features/events';
 import highlight from '../highlight/highlight';
 
-export function setPopoverState( isOpen ) {
+export function setHighlightHover( isHover ) {
 	return {
-		type: 'SET_POPOVER_STATE',
-		isOpen,
+		type: 'SET_HIGHLIGHT_HOVER',
+		isHover,
 	};
 }
 
-export function setBlockText( block ) {
+export function setPopoverHover( isHover ) {
 	return {
-		type: 'SET_BLOCK_TEXT',
-		clientId: block.clientId,
-		text: block.text,
-		index: block.index,
+		type: 'SET_POPOVER_HOVER',
+		isHover,
+	};
+}
+
+export function setPopoverAnchor( anchor ) {
+	return {
+		type: 'SET_POPOVER_ANCHOR',
+		anchor,
 	};
 }
 
@@ -55,12 +61,11 @@ export function setBlockContent( clientId ) {
 					dispatchFromRegistry( 'core/block-editor' ).updateBlockAttributes;
 
 				updateBlockAttributes( clientId, { content: toHTMLString( { value: newContent } ) } );
-				features.forEach( feature => {
-					// We need to wait for the highlights to be applied before we can attach events
-					setTimeout( () => {
-						feature.events();
-					}, 2000 );
-				} );
+
+				// We need to wait for the highlights to be applied before we can attach events
+				setTimeout( () => {
+					registerEvents( clientId );
+				}, 2000 );
 
 				dispatch( {
 					type: 'SET_BLOCK_TEXT',

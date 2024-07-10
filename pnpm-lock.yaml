@@ -2135,6 +2135,9 @@ importers:
       '@wordpress/i18n':
         specifier: 5.2.0
         version: 5.2.0
+      '@wordpress/icons':
+        specifier: 10.2.0
+        version: 10.2.0(react@18.3.1)
       '@wordpress/plugins':
         specifier: 7.2.0
         version: 7.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4073,7 +4076,7 @@ importers:
         version: 7.2.0
       '@wordpress/components':
         specifier: 28.2.0
-        version: 28.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 28.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.2.0
         version: 10.2.0(react@18.3.1)
@@ -4129,6 +4132,9 @@ importers:
       '@babel/runtime':
         specifier: 7.24.7
         version: 7.24.7
+      '@types/react':
+        specifier: 18.3.1
+        version: 18.3.1
       '@wordpress/browserslist-config':
         specifier: 6.2.0
         version: 6.2.0
@@ -4141,6 +4147,9 @@ importers:
       sass-loader:
         specifier: 12.4.0
         version: 12.4.0(sass@1.64.1)(webpack@5.76.0(webpack-cli@4.9.1))
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
       webpack:
         specifier: 5.76.0
         version: 5.76.0(webpack-cli@4.9.1)
