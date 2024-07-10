@@ -41,13 +41,13 @@ const ProtectValueSection = () => {
 		return (
 			sprintf(
 				/* translators: %d is the number of plugins installed on the site. */
-				_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ).replace( ' ', '\xa0' ), // `\xa0` is a non-breaking space.
+				_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
 				pluginsCount
 			) +
 			' ' +
 			/* translators: The ampersand symbol here (&) is meaning "and". */
 			__( '&', 'jetpack-my-jetpack' ) +
-			'\xa0' +
+			'\xa0' + // `\xa0` is a non-breaking space.
 			sprintf(
 				/* translators: %d is the number of themes installed on the site. */
 				_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ).replace( ' ', '\xa0' ), // `\xa0` is a non-breaking space.
