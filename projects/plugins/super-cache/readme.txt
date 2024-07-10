@@ -4,7 +4,7 @@ Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 6.4
 Requires PHP: 7.0
 Tested up to: 6.6
-Stable tag: 1.12.2
+Stable tag: 1.12.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,26 +268,10 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.12.2 - 2024-06-27
-#### Added
-- add an admin notice to encourage migration to Jetpack Boost
-- modify boost install code so it can be used by multiple buttons
-- notify Boost of migration to that plugin
-
-#### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- tell user that Cache module of Boost must be deactivated to use WPSC
-- WP Updated banner designs, added auto-install Jetpack Boost buttons
-
+### 1.12.3 - 2024-07-10
 #### Fixed
-- Detect when WP_CACHE is defined with "const" in wp-config.php
-- Align detection of Boost installs with activation of that plugin
-- create the cache directory before creating the config file
-- do not show migration notice if already using Boost Cache
-- fixed a PHP warning when deactivating the plugin.
-- make sure plugins links is an array before using it.
-- remove the preload interval based on the post count. Preload as often as you want.
-- renamed WPSC_VERSION because it conflicted with other plugins
+- Don't delete the log viewer when doing garbage collection
+- Fix clearing the cache when scheduled posts are published
 
 --------
 

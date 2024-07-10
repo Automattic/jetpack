@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Sync: Ensure HPOS order status is prefixed with 'wc-' before sending it to WPCOM

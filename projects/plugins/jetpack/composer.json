@@ -19,7 +19,6 @@
 		"automattic/jetpack-blaze": "@dev",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
-		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
