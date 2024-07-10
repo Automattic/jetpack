@@ -1,0 +1,15 @@
+@use 'sass:map';
+@use 'sass:string';
+
+$features-colors: (
+	'complex-words': rgba( 251, 192, 45, 1 ),
+);
+
+@mixin feature-color( $feature, $properties ) {
+	$color: map.get( $features-colors, $feature );
+	&[data-type='#{$feature}'] {
+		@each $property in $properties {
+			#{$property}: $color;
+		}
+	}
+}

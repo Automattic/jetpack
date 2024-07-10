@@ -2,19 +2,17 @@
  * WordPress dependencies
  */
 import { getBlockContent } from '@wordpress/blocks';
-import { BaseControl, PanelRow, SVG, Path } from '@wordpress/components';
+import { BaseControl, PanelRow, SVG, Path, CheckboxControl } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
-import { applyFilters } from '@wordpress/hooks';
 /**
  * External dependencies
  */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import config from './dictionaries/dictionaries-config';
+import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
 import './breve.scss';
 
@@ -28,30 +26,8 @@ export const useInit = init => {
 };
 
 const Controls = ( { blocks, active } ) => {
-	// Allow defaults to be customized, but memoise the result so we're not computing things multiple times.
-	const { initialAiOn } = useMemo( () => {
-		return applyFilters( 'breve-sidebar-defaults', {
-			initialAiOn: true,
-		} );
-	}, [] );
-
-	// Jetpack AI Assistant feature functions.
-	const { requireUpgrade } = useAiFeature();
 	const isHighlighting = active;
-
-	// eslint-disable-next-line no-unused-vars
-	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
 	const [ gradeLevel, setGradeLevel ] = useState( null );
-	// eslint-disable-next-line no-unused-vars
-	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
-
-	const [ toggledKeys, setToggledKeys ] = useState( () => {
-		const initialState = {};
-		Object.keys( config.dictionaries ).forEach( key => {
-			initialState[ key ] = true;
-		} );
-		return initialState;
-	} );
 
 	const updateGradeLevel = useCallback( () => {
 		if ( ! isHighlighting ) {
@@ -70,28 +46,10 @@ const Controls = ( { blocks, active } ) => {
 			typeof computedGradeLevel === 'number' ? computedGradeLevel.toFixed( 2 ) : null;
 
 		setGradeLevel( sanitizedGradeLevel );
-
-		// Update the content change flag to trigger a re-highlight.
-		setDebouncedContentChangeFlag( prev => ! prev );
 	}, [ blocks, isHighlighting ] );
 
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
-
-	const handleKeyToggle = key => {
-		setToggledKeys( prev => ( {
-			...prev,
-			[ key ]: ! prev[ key ],
-		} ) );
-	};
-
-	useEffect( () => {
-		if ( requireUpgrade ) {
-			setIsAIOn( false );
-		} else {
-			setIsAIOn( true );
-		}
-	}, [ requireUpgrade ] );
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
@@ -101,7 +59,7 @@ const Controls = ( { blocks, active } ) => {
 	useInit( updateGradeLevel );
 
 	return (
-		<>
+		<div className="jetpack-ai-proofread">
 			<PanelRow>
 				<BaseControl
 					id="breve-sidebar-grade-level"
@@ -133,28 +91,17 @@ const Controls = ( { blocks, active } ) => {
 
 			<PanelRow>
 				<BaseControl id="breve-sidebar-dictionaries" help="">
-					{ Object.keys( config.dictionaries ).map( key => (
-						<div
-							key={ key }
-							className={ `key-row ${ toggledKeys[ key ] ? 'enabled' : '' }` }
-							onClick={ () => handleKeyToggle( key ) }
-							onKeyDown={ event => {
-								if ( [ 'Enter', ' ' ].includes( event.key ) ) {
-									handleKeyToggle( key );
-								}
-							} }
-							role="button"
-							tabIndex={ 0 }
-						>
-							<div className={ `key ${ key }` }></div>
-							<div className="desc">
-								<strong>{ config.dictionaries[ key ].label }</strong>
-							</div>
-						</div>
+					{ features.map( feature => (
+						<CheckboxControl
+							data-type={ feature.config.name }
+							key={ feature.config.name }
+							label={ feature.config.title }
+							checked={ true }
+						/>
 					) ) }
 				</BaseControl>
 			</PanelRow>
-		</>
+		</div>
 	);
 };
 
