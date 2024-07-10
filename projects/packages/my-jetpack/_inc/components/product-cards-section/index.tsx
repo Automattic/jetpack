@@ -1,5 +1,6 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
@@ -77,32 +78,34 @@ const ProductCardsSection = () => {
 	const { ownedProducts = [], unownedProducts = [] } =
 		getMyJetpackWindowInitialState( 'lifecycleStats' );
 
+	const unownedSectionTitle = useMemo( () => {
+		return ownedProducts.length > 0
+			? __( 'Discover more', 'jetpack-my-jetpack' )
+			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
+	}, [ ownedProducts.length ] );
+
 	return (
 		<>
 			{ ownedProducts.length > 0 && (
-				<div className={ styles.ownedProductsSection }>
+				<>
 					<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
 						<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
 					</Col>
 
 					<DisplayItems slugs={ ownedProducts } />
-				</div>
+				</>
 			) }
 
+			<br />
+
 			{ unownedProducts.length > 0 && (
-				<div className={ styles.unownedProductsSection }>
+				<>
 					<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-						{ ownedProducts.length > 0 ? (
-							<Text variant="headline-small">{ __( 'Discover more', 'jetpack-my-jetpack' ) }</Text>
-						) : (
-							<Text variant="headline-small">
-								{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
-							</Text>
-						) }
+						<Text variant="headline-small">{ unownedSectionTitle }</Text>
 					</Col>
 
 					<DisplayItems slugs={ unownedProducts } />
-				</div>
+				</>
 			) }
 		</>
 	);

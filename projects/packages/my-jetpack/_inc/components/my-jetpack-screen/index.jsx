@@ -127,7 +127,7 @@ export default function MyJetpackScreen() {
 	return (
 		<AdminPage siteAdminUrl={ adminUrl }>
 			<IDCModal />
-			<AdminSectionHero className={ styles.adminSection }>
+			<AdminSectionHero>
 				{ ! isNewUser && (
 					<Container horizontalSpacing={ 0 }>
 						<Col>
