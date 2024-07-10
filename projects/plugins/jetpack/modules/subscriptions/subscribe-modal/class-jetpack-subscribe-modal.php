@@ -70,7 +70,7 @@ class Jetpack_Subscribe_Modal {
 			 *
 			 * @since 13.4
 			 *
-			 * @param int 300 Time in milliseconds for the Subscribe Modal to appear upon scrolling.
+			 * @param int 60000 Time in milliseconds for the Subscribe Modal to appear.
 			 */
 			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 60000 ) );
 
