@@ -36,12 +36,12 @@ export type BreveFeatureConfig = {
 
 export type BreveFeature = {
 	config: BreveFeatureConfig;
-	highlight: ( text: string ) => Array< Word >;
+	highlight: ( text: string ) => Array< HighlightedWord >;
 };
 
-export type Word = {
+export type HighlightedWord = {
 	word: string;
-	suggestion: string;
+	suggestion?: string;
 	startIndex: number;
 	endIndex: number;
 };

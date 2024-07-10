@@ -2,25 +2,22 @@
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
-import phrases from './phrases';
+import weaselWords from './words';
 /**
  * Types
  */
 import type { BreveFeatureConfig, HighlightedWord } from '../../types';
 
-export const COMPLEX_WORDS: BreveFeatureConfig = {
-	name: 'complex-words',
-	title: 'Complex words',
+export const AMBIGUOUS_WORDS: BreveFeatureConfig = {
+	name: 'ambiguous-words',
+	title: 'Ambiguous words',
 	tagName: 'span',
-	className: 'has-proofread-highlight--complex-words',
+	className: 'has-proofread-highlight--ambiguous-words',
 };
 
-const list = new RegExp(
-	`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
-	'gi'
-);
+const list = new RegExp( `\\b(${ weaselWords.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
 
-export default function complexWords( text: string ): Array< HighlightedWord > {
+export default function ambiguousWords( text: string ): Array< HighlightedWord > {
 	const matches = text.matchAll( list );
 	const highlightedWords: Array< HighlightedWord > = [];
 
@@ -28,7 +25,6 @@ export default function complexWords( text: string ): Array< HighlightedWord > {
 		const word = match[ 0 ].trim();
 		highlightedWords.push( {
 			word,
-			suggestion: phrases[ word ],
 			startIndex: match.index,
 			endIndex: match.index + word.length,
 		} );
