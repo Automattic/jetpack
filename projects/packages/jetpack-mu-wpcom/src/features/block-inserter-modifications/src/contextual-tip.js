@@ -5,11 +5,12 @@ import { get, filter, deburr, lowerCase, includes } from 'lodash';
 import tipsList from './list';
 
 /**
+ * Create the contextual tip.
  *
- * @param root0
- * @param root0.searchTerm
- * @param root0.random
- * @param root0.canUserCreate
+ * @param {object} props                 - The function props.
+ * @param {string} props.searchTerm      - Search term text.
+ * @param {boolean} props.random         - Whether to choose a random tooltip on multiple matches.
+ * @param {Function} props.canUserCreate - Function to check user permission.
  */
 function ContextualTip( { searchTerm, random = false, canUserCreate } ) {
 	if ( ! searchTerm ) {

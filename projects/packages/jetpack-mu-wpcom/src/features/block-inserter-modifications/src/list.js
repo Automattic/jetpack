@@ -3,10 +3,11 @@ import { __ } from '@wordpress/i18n';
 import TipLink from './tip-link';
 
 /**
+ * Creates the tip content as an React element or text.
  *
- * @param text
- * @param conversion
- * @param textFallback
+ * @param text         - The tip description text string.
+ * @param conversion   - The map used to convert the string to an element.
+ * @param textFallback - The fallback text for the tip description.
  */
 function getTipDescription( text, conversion, textFallback ) {
 	if ( typeof createInterpolateElement !== 'undefined' ) {

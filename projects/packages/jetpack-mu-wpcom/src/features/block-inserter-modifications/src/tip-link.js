@@ -4,13 +4,14 @@ import { inIframe, isSimpleSite } from './utils';
 const isEditorIFramed = inIframe();
 
 /**
+ * Create the link for the contextual tip.
  *
- * @param root0
- * @param root0.section
- * @param root0.children
- * @param root0.subsection
+ * @param {object} props            - The function props.
+ * @param {string} props.children   - The tip content.
+ * @param {string} props.section    - The tip context section.
+ * @param {string} props.subsection - The tip context subsection.
  */
-export default function ( { section, children, subsection } ) {
+export default function ( { children, section, subsection } ) {
 	const { hostname } = window.location;
 	const editorSelector = select( 'core/editor' );
 	const postId = editorSelector.getCurrentPostId();
