@@ -3,6 +3,9 @@
 .jetpack-ai-proofread {
 	margin-bottom: 16px;
 	.components-checkbox-control__input {
-		@include feature-color( 'complex-words', ( 'background', 'border-color' ) );
+		@include features-colors( ( 'border-color' ) );
+		&:checked {
+			@include features-colors( ( 'background-color' ) );
+		}
 	}
 }

@@ -68,14 +68,18 @@ export function registerBreveHighlights() {
 			__experimentalGetPropsForEditableTreePreparation() {
 				return {
 					isProofreadEnabled: globalSelect( 'jetpack/ai-breve' ).isProofreadEnabled(),
+					isFeatureEnabled: globalSelect( 'jetpack/ai-breve' ).isFeatureEnabled( config.name ),
 				};
 			},
-			__experimentalCreatePrepareEditableTree( { isProofreadEnabled }, { blockClientId } ) {
+			__experimentalCreatePrepareEditableTree(
+				{ isProofreadEnabled, isFeatureEnabled },
+				{ blockClientId }
+			) {
 				return ( formats, text ) => {
 					const record = { formats, text } as RichTextValue;
 					const type = `jetpack/ai-proofread-${ config.name }`;
 
-					if ( text && isProofreadEnabled ) {
+					if ( text && isProofreadEnabled && isFeatureEnabled ) {
 						const applied = highlight( {
 							content: record,
 							type,

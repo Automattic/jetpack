@@ -35,3 +35,13 @@ export function toggleProofread( force?: boolean ) {
 		enabled,
 	};
 }
+
+export function toggleFeature( feature: string, force?: boolean ) {
+	const current = select( 'jetpack/ai-breve' ).isFeatureEnabled( feature );
+	const enabled = force === undefined ? ! current : force;
+
+	return {
+		type: enabled ? 'ENABLE_FEATURE' : 'DISABLE_FEATURE',
+		feature,
+	};
+}

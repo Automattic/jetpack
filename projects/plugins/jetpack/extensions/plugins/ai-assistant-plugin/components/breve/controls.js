@@ -4,7 +4,7 @@
 import { getBlockContent } from '@wordpress/blocks';
 import { BaseControl, PanelRow, SVG, Path, CheckboxControl } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { useDispatch, withSelect } from '@wordpress/data';
 /**
  * External dependencies
  */
@@ -25,9 +25,10 @@ export const useInit = init => {
 	}
 };
 
-const Controls = ( { blocks, active } ) => {
+const Controls = ( { blocks, active, disabledFeatures } ) => {
 	const isHighlighting = active;
 	const [ gradeLevel, setGradeLevel ] = useState( null );
+	const { toggleFeature } = useDispatch( 'jetpack/ai-breve' );
 
 	const updateGradeLevel = useCallback( () => {
 		if ( ! isHighlighting ) {
@@ -50,6 +51,13 @@ const Controls = ( { blocks, active } ) => {
 
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
+
+	const handleToggleFeature = useCallback(
+		feature => checked => {
+			toggleFeature( feature, checked );
+		},
+		[ toggleFeature ]
+	);
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
@@ -96,7 +104,8 @@ const Controls = ( { blocks, active } ) => {
 							data-type={ feature.config.name }
 							key={ feature.config.name }
 							label={ feature.config.title }
-							checked={ true }
+							checked={ ! disabledFeatures.includes( feature.config.name ) }
+							onChange={ handleToggleFeature( feature.config.name ) }
 						/>
 					) ) }
 				</BaseControl>
@@ -108,5 +117,6 @@ const Controls = ( { blocks, active } ) => {
 export default compose(
 	withSelect( selectFn => ( {
 		blocks: selectFn( 'core/block-editor' ).getBlocks(),
+		disabledFeatures: selectFn( 'jetpack/ai-breve' ).getDisabledFeatures(),
 	} ) )
 )( Controls );

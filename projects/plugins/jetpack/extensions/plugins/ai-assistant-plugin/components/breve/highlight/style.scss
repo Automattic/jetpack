@@ -2,9 +2,7 @@
 
 .has-proofread-highlight {
 	border-bottom: 3px solid;
-	@each $feature, $color in $features-colors {
-		@include feature-color( $feature, ( 'border-bottom-color' ) );
-	}
+	@include features-colors( ( 'border-bottom-color' ) );
 }
 
 .highlight-popover {
