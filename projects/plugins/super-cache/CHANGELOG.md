@@ -5,6 +5,11 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.3] - 2024-07-10
+### Fixed
+- Don't delete the log viewer when doing garbage collection [#38276]
+- Fix clearing the cache when scheduled posts are published [#38263]
+
 ## [1.12.2] - 2024-06-27
 ### Added
 - add an admin notice to encourage migration to Jetpack Boost [#37933]
@@ -752,6 +757,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[1.12.3]: https://github.com/Automattic/wp-super-cache/compare/v1.12.2...v1.12.3
 [1.12.2]: https://github.com/Automattic/wp-super-cache/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/Automattic/wp-super-cache/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/Automattic/wp-super-cache/compare/v1.11.0...v1.12.0

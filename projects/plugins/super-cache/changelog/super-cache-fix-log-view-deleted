@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WPSC: Don't delete the log viewer when doing garbage collection
