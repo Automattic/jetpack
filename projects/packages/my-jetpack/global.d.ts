@@ -94,6 +94,8 @@ interface Window {
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
+			ownedProducts: JetpackModule[];
+			unownedProducts: JetpackModule[];
 			modules: Array< string >;
 			purchases: Array< string >;
 		};
@@ -288,6 +290,7 @@ interface Window {
 			};
 		};
 		topJetpackMenuItemUrl: string;
+		isAtomic: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

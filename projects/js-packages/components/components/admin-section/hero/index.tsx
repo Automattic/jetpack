@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React from 'react';
 import styles from './style.module.scss';
 import type { AdminSectionBaseProps } from '../types';
@@ -8,8 +9,8 @@ import type { AdminSectionBaseProps } from '../types';
  * @param {AdminSectionBaseProps} props - Component properties.
  * @returns {React.Component} AdminSectionHero component.
  */
-const AdminSectionHero: React.FC< AdminSectionBaseProps > = ( { children } ) => {
-	return <div className={ styles[ 'section-hero' ] }>{ children }</div>;
+const AdminSectionHero: React.FC< AdminSectionBaseProps > = ( { children, className } ) => {
+	return <div className={ clsx( styles[ 'section-hero' ], className ) }>{ children }</div>;
 };
 
 export default AdminSectionHero;

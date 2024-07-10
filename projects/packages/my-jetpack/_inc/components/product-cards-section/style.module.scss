@@ -47,12 +47,30 @@
 	}
 }
 
-.loading-placeholder {
-	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+.ownedProductsSection {
+	margin: -1.5rem;
+	padding: 1.5rem;
+
+	background-color: var( --jp-white-off );
 }
 
-.cardlist {
-	> li {
-		margin-bottom: 0; // Reset base style
+.unownedProductsSection {
+	margin-top: 4rem;
+}
+
+.unownedProductsSection,
+.ownedProductsSection {
+	.cardlist {
+		> li {
+			margin-bottom: 0; // Reset base style
+		}
+	}
+
+	.cardListTitle {
+		margin: 1.5rem 0;
+	}
+
+	.fullStatsCard {
+		margin-bottom: 1.5rem;
 	}
 }
