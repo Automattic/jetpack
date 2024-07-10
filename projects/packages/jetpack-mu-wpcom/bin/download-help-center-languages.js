@@ -49,8 +49,10 @@ const path = require( 'path' );
 				dataParsed[ '' ][ 'plural-forms' ] = dataParsed[ '' ].plural_forms;
 				dataParsed[ '' ].lang = dataParsed[ '' ].language;
 
+				const date = new Date( response.headers[ 'last-modified' ] );
+
 				const JED = {
-					'translation-revision-date': new Date().toISOString(),
+					'translation-revision-date': date.toISOString(),
 					generator: 'Jetpack',
 					domain: 'jetpack-mu-wpcom',
 					locale_data: {
