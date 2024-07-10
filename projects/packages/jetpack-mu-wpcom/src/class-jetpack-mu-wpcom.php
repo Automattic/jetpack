@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.43.0-alpha';
+	const PACKAGE_VERSION = '5.44.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -102,13 +102,17 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
+		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
+		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
+		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
-		require_once __DIR__ . '/features/wpcom-site-menu/wpcom-site-menu.php';
+		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
@@ -129,9 +133,13 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_etk_features() {
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
+		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
+		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 	}
 
 	/**
@@ -317,7 +325,7 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_wpcom_command_palette() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
 			return;
 		}
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
@@ -345,7 +353,7 @@ class Jetpack_Mu_Wpcom {
 	 * Load WPCOM Site Management widget.
 	 */
 	public static function load_wpcom_site_management_widget() {
-		if ( is_agency_managed_site() ) {
+		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {

@@ -20,7 +20,7 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
-import { Breve } from '../breve';
+import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import Proofread from '../proofread';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -112,6 +112,7 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
+	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 
 	const { tracks } = useAnalytics();
 
@@ -124,6 +125,7 @@ export default function AiAssistantPluginSidebar() {
 
 		return postTypeObject?.viewable;
 	}, [] );
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
@@ -138,6 +140,7 @@ export default function AiAssistantPluginSidebar() {
 
 	return (
 		<>
+			{ isBreveAvailable && <Highlight /> }
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
@@ -197,3 +200,6 @@ export default function AiAssistantPluginSidebar() {
 		</>
 	);
 }
+
+// Register the highlight format type from the Breve component
+getFeatureAvailability( 'ai-proofread-breve' ) && registerBreveHighlights();

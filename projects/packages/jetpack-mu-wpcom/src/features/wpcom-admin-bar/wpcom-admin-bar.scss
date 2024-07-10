@@ -1,0 +1,56 @@
+/**
+ * Always shows WP logo (All Sites)
+ */
+#wpadminbar li#wp-admin-bar-wp-logo {
+	display: block !important;
+}
+
+/**
+ * Hides My Sites menu, updates icon, and comments icon
+ */
+#wpadminbar li#wp-admin-bar-my-sites,
+#wpadminbar li#wp-admin-bar-updates,
+#wpadminbar li#wp-admin-bar-comments {
+	display: none !important;
+}
+
+/**
+ * Reader menu
+ */
+#wpadminbar .wp-admin-bar-reader {
+	a.ab-item {
+		display: flex;
+		align-items: center;
+	}
+
+	a.ab-item:before {
+		content: "";
+		width: 20px;
+		height: 20px;
+		margin-right: 8px;
+		background-color: currentColor;
+		// SVG is from https://github.com/Automattic/gridicons/blob/f5b4c69fafc2a395aebce4500cb4f22d7c005745/php/gridicons.php#L481
+		mask-image: url("data:image/svg+xml;base64,PHN2ZyBjbGFzcz0iZ3JpZGljb24gZ3JpZGljb25zLXJlYWRlciIgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGc+PHBhdGggZD0iTTMgNHYxNGMwIDEuMS45IDIgMiAyaDE0YzEuMSAwIDItLjkgMi0yVjRIM3ptNyAxMUg1di0xaDV2MXptMi0ySDV2LTFoN3Yxem0wLTJINXYtMWg3djF6bTcgNGgtNXYtNWg1djV6bTAtN0g1VjZoMTR2MnoiLz48L2c+PC9zdmc+Cg==");
+		mask-position: center;
+		mask-repeat: no-repeat;
+	}
+
+	@media (max-width: 782px) {
+		& {
+			display: flex;
+		}
+
+		& a.ab-item {
+			justify-content: center;
+			text-indent: 0;
+			font-size: 0;
+		}
+
+		& a.ab-item:before {
+			width: 36px;
+			height: 36px;
+			margin: 0 8px;
+			mask-size: cover;
+		}
+	}
+}

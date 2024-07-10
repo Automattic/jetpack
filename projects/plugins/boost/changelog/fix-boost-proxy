@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Jetpack Boost: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.

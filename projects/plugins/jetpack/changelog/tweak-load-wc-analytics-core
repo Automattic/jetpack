@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WooCommerce Analytics: Initialize the module only if is not initialized in WooCommerce core.

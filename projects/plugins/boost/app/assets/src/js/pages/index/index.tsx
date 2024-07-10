@@ -76,6 +76,7 @@ const Index = () => {
 				<CriticalCssMeta />
 
 				<UpgradeCTA
+					identifier="critical-css"
 					description={ __(
 						'Save time by upgrading to Automatic Critical CSS generation.',
 						'jetpack-boost'
@@ -200,6 +201,7 @@ const Index = () => {
 			>
 				{ ! hasPremiumCdnFeatures && (
 					<UpgradeCTA
+						identifier="image-cdn"
 						description={ __(
 							'Auto-resize lazy images and adjust their quality.',
 							'jetpack-boost'
@@ -224,6 +226,7 @@ const Index = () => {
 							</p>
 							{ ! isaState?.available && (
 								<UpgradeCTA
+									identifier="image-guide"
 									description={ __(
 										'Upgrade to scan your site for issues - automatically!',
 										'jetpack-boost'
