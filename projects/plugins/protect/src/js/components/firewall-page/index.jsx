@@ -465,6 +465,15 @@ const FirewallPage = () => {
 		API.wafSeen();
 	}, [ isSeen, setWafIsSeen ] );
 
+	/**
+	 * Disable block list if WAF is disabled
+	 */
+	useEffect( () => {
+		if ( ! isEnabled && jetpackWafIpBlockListEnabled ) {
+			toggleIpBlockList();
+		}
+	}, [ isEnabled, jetpackWafIpBlockListEnabled, toggleIpBlockList ] );
+
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_waf',
@@ -792,17 +801,15 @@ const FirewallPage = () => {
 			</div>
 			<div
 				className={ `${ styles[ 'toggle-section' ] } ${
-					! bruteForceProtection && ! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
+					! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
 				}` }
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_block_list_enabled"
-						checked={
-							( isEnabled || bruteForceProtection ) && formState.jetpack_waf_ip_block_list_enabled
-						}
+						checked={ isEnabled && formState.jetpack_waf_ip_block_list_enabled }
 						onChange={ handleIpBlockListChange }
-						disabled={ formIsSubmitting || ( ! isEnabled && ! bruteForceProtection ) }
+						disabled={ formIsSubmitting || ! isEnabled }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
@@ -816,7 +823,9 @@ const FirewallPage = () => {
 							rows={ 3 }
 							value={ formState.jetpack_waf_ip_block_list }
 							onChange={ handleChange }
-							disabled={ formIsSubmitting || ! formState.jetpack_waf_ip_block_list_enabled }
+							disabled={
+								formIsSubmitting || ! isEnabled || ! formState.jetpack_waf_ip_block_list_enabled
+							}
 						/>
 					</div>
 					<div className={ styles[ 'button-container' ] }>
