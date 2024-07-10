@@ -12,44 +12,41 @@ domReady( function () {
 	}
 
 	let hasLoaded = false;
-	let isScrolling;
-	const timeToWait = Jetpack_Subscriptions.modalLoadTime;
-	const scrollThreshold = Jetpack_Subscriptions.modalScrollThreshold;
+	const targetElement = (
+		document.querySelector( '.entry-content' ) || document.documentElement
+	).getBoundingClientRect();
 
 	function hasPassedScrollThreshold() {
-		const scrollPosition = window.scrollY || document.documentElement.scrollTop;
-		const windowHeight = window.innerHeight;
-		const fullHeight = document.documentElement.scrollHeight;
-		const scrollableDistance = fullHeight - windowHeight;
-
-		if ( scrollableDistance <= 0 ) {
-			return false; // Content fits in viewport, no scrolling needed
-		}
-
-		const scrollPercentage = ( scrollPosition / scrollableDistance ) * 100;
-		return scrollPercentage > scrollThreshold;
+		const scrollPosition = window.scrollY + window.innerHeight / 2;
+		const scrollPositionThreshold =
+			targetElement.top +
+			( targetElement.height * Jetpack_Subscriptions.modalScrollThreshold ) / 100;
+		return scrollPosition > scrollPositionThreshold;
 	}
 
-	function checkConditionsAndOpenModal() {
-		if ( ! hasLoaded && ( hasPassedScrollThreshold() || Date.now() - startTime >= timeToWait ) ) {
+	function onScroll() {
+		if ( ! hasLoaded ) {
+			requestAnimationFrame( () => {
+				if ( hasPassedScrollThreshold() ) {
+					openModal();
+				}
+			} );
+		}
+	}
+
+	window.addEventListener( 'scroll', onScroll, { passive: true } );
+
+	setTimeout( () => {
+		if ( ! hasLoaded ) {
 			openModal();
 		}
-	}
-
-	window.onscroll = function () {
-		window.clearTimeout( isScrolling );
-		isScrolling = setTimeout( function () {
-			checkConditionsAndOpenModal();
-		}, 100 );
-	};
+	}, Jetpack_Subscriptions.modalLoadTime );
 
 	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
 	const form = modal.querySelector( 'form' );
 	if ( form ) {
 		form.addEventListener( 'subscription-modal-loaded', closeModal );
 	}
-	const startTime = Date.now();
-	setTimeout( checkConditionsAndOpenModal, timeToWait );
 
 	// User can edit modal, and could remove close link.
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
@@ -78,6 +75,7 @@ domReady( function () {
 		hasLoaded = true;
 		setModalDismissedCookie();
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
+		window.removeEventListener( 'scroll', onScroll );
 	}
 
 	function closeModal() {
