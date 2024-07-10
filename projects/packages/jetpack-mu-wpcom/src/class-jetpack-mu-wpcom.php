@@ -112,6 +112,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
@@ -136,6 +137,8 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
+		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 	}
 
