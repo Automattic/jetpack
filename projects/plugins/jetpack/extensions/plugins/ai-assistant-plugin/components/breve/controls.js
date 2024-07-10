@@ -1,9 +1,17 @@
 /**
  * WordPress dependencies
  */
-import { BaseControl, PanelRow, SVG, Path, CheckboxControl } from '@wordpress/components';
+import {
+	BaseControl,
+	PanelRow,
+	SVG,
+	Path,
+	CheckboxControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
-import { useDispatch, withSelect } from '@wordpress/data';
+import { useDispatch, useSelect, withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -25,13 +33,17 @@ export const useInit = init => {
 	}
 };
 
-const Controls = ( { blocks, active, disabledFeatures } ) => {
-	const isHighlighting = active;
+const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState( null );
-	const { toggleFeature } = useDispatch( 'jetpack/ai-breve' );
+	const { toggleFeature, toggleProofread } = useDispatch( 'jetpack/ai-breve' );
+
+	const isProofreadEnabled = useSelect(
+		select => select( 'jetpack/ai-breve' ).isProofreadEnabled(),
+		[]
+	);
 
 	const updateGradeLevel = useCallback( () => {
-		if ( ! isHighlighting ) {
+		if ( ! isProofreadEnabled ) {
 			return;
 		}
 
@@ -44,7 +56,7 @@ const Controls = ( { blocks, active, disabledFeatures } ) => {
 			typeof computedGradeLevel === 'number' ? computedGradeLevel.toFixed( 2 ) : null;
 
 		setGradeLevel( sanitizedGradeLevel );
-	}, [ blocks, isHighlighting ] );
+	}, [ blocks, isProofreadEnabled ] );
 
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
@@ -56,6 +68,10 @@ const Controls = ( { blocks, active, disabledFeatures } ) => {
 		[ toggleFeature ]
 	);
 
+	const handleAiFeedbackToggle = useCallback( () => {
+		toggleProofread();
+	}, [ toggleProofread ] );
+
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
 	}, [ debouncedGradeLevelUpdate ] );
@@ -66,11 +82,7 @@ const Controls = ( { blocks, active, disabledFeatures } ) => {
 	return (
 		<div className="jetpack-ai-proofread">
 			<PanelRow>
-				<BaseControl
-					id="breve-sidebar-grade-level"
-					label="Reading level"
-					help="To make it easy to read, aim for level 8-12. Keep words simple and sentences short."
-				>
+				<BaseControl>
 					<div className="grade-level-container">
 						{ gradeLevel !== null && gradeLevel <= 12 && (
 							<>
@@ -87,7 +99,12 @@ const Controls = ( { blocks, active, disabledFeatures } ) => {
 							{ gradeLevel === null ? (
 								<em className="breve-help-text">Write some words to see your grade&nbsp;level.</em>
 							) : (
-								gradeLevel
+								<>
+									{ gradeLevel }
+									<span className="jetpack-ai-proofread__grade-label">
+										{ __( 'Readability score', 'jetpack' ) }
+									</span>
+								</>
 							) }
 						</p>
 					</div>
@@ -95,7 +112,12 @@ const Controls = ( { blocks, active, disabledFeatures } ) => {
 			</PanelRow>
 
 			<PanelRow>
-				<BaseControl id="breve-sidebar-dictionaries" help="">
+				<BaseControl>
+					<ToggleControl
+						checked={ isProofreadEnabled }
+						onChange={ handleAiFeedbackToggle }
+						label={ __( 'Show suggestions', 'jetpack' ) }
+					/>
 					{ features.map( feature => (
 						<CheckboxControl
 							data-type={ feature.config.name }
