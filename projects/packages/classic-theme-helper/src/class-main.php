@@ -23,6 +23,7 @@ class Main {
 	 */
 	public $modules = array(
 		'responsive-videos.php',
+		'social-menu.php',
 	);
 
 	/** Holds the singleton instance of the Loader
