@@ -35,49 +35,45 @@ export function useProtectTooltipCopy( {
 	return {
 		pluginsThemesTooltip: {
 			title: __( 'Improve site safety: secure plugins & themes', 'jetpack-my-jetpack' ),
-			text:
-				sprintf(
-					/* translators: %d is the number of plugins installed on the site. */
-					_n(
-						'Your site has %d plugin',
-						'Your site has %d plugins',
-						pluginsCount,
-						'jetpack-my-jetpack'
-					),
-					pluginsCount
-				) +
-				' ' +
-				sprintf(
-					/* translators: %d is the number of themes installed on the site. */
-					_n( 'and %d theme', 'and %d themes', themesCount, 'jetpack-my-jetpack' ),
-					themesCount
-				) +
-				' ' +
+			text: sprintf(
+				/* translators: %1$s the singular or plural of number of plugin(s), and %2$s is the singular or plural of the number of theme(s). */
 				__(
-					'lacking security measures. Improve your site’s safety by adding protection at no cost.',
+					'Your site has %1$s and %2$s lacking security measures. Improve your site’s safety by adding protection at no cost.',
 					'jetpack-my-jetpack'
 				),
+				sprintf(
+					/* translators: %d is the number of plugins installed on the site. */
+					_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
+					pluginsCount
+				),
+				sprintf(
+					/* translators: %d is the number of themes installed on the site. */
+					_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
+					themesCount
+				)
+			),
 		},
 		scanThreatsTooltip:
 			hasProtectPaidPlan && numThreats
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
-						text:
+						text: sprintf(
+							/* translators: %s is the singular or plural of number of detected critical threats on the site. */
+							__(
+								'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
+								'jetpack-my-jetpack'
+							),
 							sprintf(
 								/* translators: %d is the number of detected scan threats on the site. */
 								_n(
-									'The last scan identified %d critical threat.',
-									'The last scan identified %d critical threats.',
+									'%d critical threat.',
+									'%d critical threats.',
 									numThreats,
 									'jetpack-my-jetpack'
 								),
 								numThreats
-							) +
-							' ' +
-							__(
-								'But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
-								'jetpack-my-jetpack'
-							),
+							)
+						),
 				  }
 				: {
 						title: __( 'Elevate your malware protection', 'jetpack-my-jetpack' ),

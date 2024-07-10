@@ -68,7 +68,7 @@
 
 .scan-threats {
     &__threat-count {
-        font-size: 32px;
+        font-size: calc( var(--font-title-large) - 4px );
         line-height: var(--font-title-large);
         font-weight: 400;
         color: var(--jp-black);
