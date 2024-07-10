@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import { Popover } from '@wordpress/components';
+import { Button, Popover } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 /**
  * Internal dependencies
  */
+import { AiSVG } from '../../ai-icon';
 import features from '../features';
 import registerEvents from '../features/events';
 import highlight from './highlight';
@@ -31,6 +33,14 @@ export default function Highlight() {
 
 	const isPopoverOpen = popoverOpen && anchor;
 
+	const selectedFeatured = anchor ? anchor?.getAttribute?.( 'data-type' ) : null;
+
+	const featureConfig = features?.find?.( feature => feature.config.name === selectedFeatured )
+		?.config ?? {
+		name: '',
+		title: '',
+	};
+
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
@@ -53,7 +63,15 @@ export default function Highlight() {
 					onMouseEnter={ handleMouseEnter }
 					onMouseLeave={ handleMouseLeave }
 				>
-					<div>Popover</div>
+					<div className="highlight-content">
+						<div className="title">
+							<div className="color" data-type={ selectedFeatured } />
+							<div>{ featureConfig?.title }</div>
+						</div>
+						<div className="action">
+							<Button icon={ AiSVG }>{ __( 'Suggest', 'jetpack' ) }</Button>
+						</div>
+					</div>
 				</Popover>
 			) }
 		</>
