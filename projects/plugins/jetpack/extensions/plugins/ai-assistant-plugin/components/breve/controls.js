@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { getBlockContent } from '@wordpress/blocks';
 import { BaseControl, PanelRow, SVG, Path } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -17,6 +16,7 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import config from './dictionaries/dictionaries-config';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
 import './breve.scss';
+import { getPostText } from './utils/getPostText';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
@@ -59,10 +59,7 @@ const Controls = ( { blocks, active } ) => {
 		}
 
 		// Get the text content from all blocks and inner blocks.
-		const allText = blocks
-			.map( block => getBlockContent( block ) )
-			.join( '' )
-			.replace( /<[^>]*>?/gm, ' ' );
+		const allText = getPostText( blocks );
 
 		const computedGradeLevel = calculateFleschKincaid( allText );
 
