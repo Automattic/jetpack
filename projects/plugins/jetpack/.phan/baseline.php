@@ -28,6 +28,7 @@ return [
     // PhanUndeclaredProperty : 35+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
+    // PhanRedefineFunction : 25+ occurrences
     // PhanTypeInvalidDimOffset : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
@@ -38,7 +39,6 @@ return [
     // PhanTypeMismatchDimFetch : 20+ occurrences
     // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
-    // PhanRedefineFunction : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
@@ -444,8 +444,8 @@ return [
         'modules/theme-tools/site-logo/inc/class-site-logo.php' => ['PhanRedundantCondition', 'PhanTypeComparisonToArray', 'PhanTypeMismatchReturn'],
         'modules/theme-tools/site-logo/inc/functions.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'modules/theme-tools/social-links.php' => ['PhanNoopNew', 'PhanTypeMismatchArgumentInternal'],
-        'modules/theme-tools/social-menu.php' => ['PhanTypeMismatchArgumentNullable'],
-        'modules/theme-tools/social-menu/icon-functions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeExpectedObjectPropAccess'],
+        'modules/theme-tools/social-menu.php' => ['PhanRedefineFunction', 'PhanTypeMismatchArgumentNullable'],
+        'modules/theme-tools/social-menu/icon-functions.php' => ['PhanPluginSimplifyExpressionBool', 'PhanRedefineFunction', 'PhanTypeExpectedObjectPropAccess'],
         'modules/tiled-gallery/math/class-constrained-array-rounding.php' => ['PhanTypeMismatchDefault'],
         'modules/tiled-gallery/tiled-gallery.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentProbablyReal'],
         'modules/tiled-gallery/tiled-gallery/templates/carousel-container.php' => ['PhanTypeMismatchArgument'],

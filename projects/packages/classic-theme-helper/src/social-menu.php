@@ -8,7 +8,7 @@
  *
  * add_theme_support( 'jetpack-social-menu' );
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_social_menu_init' ) ) {
@@ -34,7 +34,7 @@ if ( ! function_exists( 'jetpack_social_menu_init' ) ) {
 		*
 		* @param string $social_menu_description Social Menu description
 		*/
-		$social_menu_description = apply_filters( 'jetpack_social_menu_description', __( 'Social Menu', 'jetpack' ) );
+		$social_menu_description = apply_filters( 'jetpack_social_menu_description', __( 'Social Menu', 'jetpack-classic-theme-helper' ) );
 
 		// Register a new menu location
 		register_nav_menus(
@@ -103,13 +103,13 @@ if ( ! function_exists( 'jetpack_social_menu' ) ) {
 	 */
 	function jetpack_social_menu() {
 		if ( has_nav_menu( 'jetpack-social-menu' ) ) :
-			$menu_type  = jetpack_social_menu_get_type();
+			$menu_type  = (string) jetpack_social_menu_get_type();
 			$link_after = '</span>';
 
 			if ( 'svg' === $menu_type ) {
 				$link_after .= jetpack_social_menu_get_svg( array( 'icon' => 'chain' ) );
 			} ?>
-			<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo esc_attr( $menu_type ); ?>" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
+			<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo esc_attr( $menu_type ); ?>" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack-classic-theme-helper' ); ?>">
 				<?php
 					wp_nav_menu(
 						array(
