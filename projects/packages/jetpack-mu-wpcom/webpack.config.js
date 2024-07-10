@@ -25,6 +25,8 @@ module.exports = [
 			'tags-education': './src/features/tags-education/tags-education.js',
 			'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.scss',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
+			'wpcom-documentation-links':
+				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
