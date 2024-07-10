@@ -50,6 +50,10 @@
 		/* stylelint-disable-next-line declaration-property-unit-allowed-list */
 		font-size: 100%;
 		display: inline;
+
+		&.event-countdown__day {
+			font-weight: bold;
+		}
 	}
 
 	.event-countdown__counter-stopped + .event-countdown__event-title {
