@@ -517,6 +517,9 @@ function jetpack_is_frontend() {
  * Build a list of Mastodon instance hosts.
  * That list can be extended via a filter.
  *
+ * @todo This function is now replicated in the Classic Theme Helper package and can be
+ * removed here once Social Links are moved out of Jetpack.
+ *
  * @since 11.8
  *
  * @return array
