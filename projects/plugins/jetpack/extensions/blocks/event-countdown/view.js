@@ -1,5 +1,7 @@
 import domReady from '@wordpress/dom-ready';
 
+import './event-countdown.scss';
+
 domReady( function () {
 	function isUnixTimestamp( dtstr ) {
 		return /^[0-9]+$/.test( dtstr );
