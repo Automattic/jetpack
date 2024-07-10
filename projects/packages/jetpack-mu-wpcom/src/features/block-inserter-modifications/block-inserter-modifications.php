@@ -20,7 +20,7 @@ function wpcom_enqueue_block_inserter_modifications_assets() {
 		plugins_url( 'build/block-inserter-modications/block-inserter-modications.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		$asset_file['dependencies'] ?? array(),
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/block-inserter-modications/block-inserter-modications.js' ),
-		true,
+		true
 	);
 
 	wp_set_script_translations( 'block-inserter-modications-script', 'jetpack-mu-wpcom' );
