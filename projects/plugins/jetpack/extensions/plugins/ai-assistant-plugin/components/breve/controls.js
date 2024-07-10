@@ -118,15 +118,17 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 						onChange={ handleAiFeedbackToggle }
 						label={ __( 'Show suggestions', 'jetpack' ) }
 					/>
-					{ features.map( feature => (
-						<CheckboxControl
-							data-type={ feature.config.name }
-							key={ feature.config.name }
-							label={ feature.config.title }
-							checked={ ! disabledFeatures.includes( feature.config.name ) }
-							onChange={ handleToggleFeature( feature.config.name ) }
-						/>
-					) ) }
+					<div className="feature-checkboxes-container">
+						{ features.map( feature => (
+							<CheckboxControl
+								data-type={ feature.config.name }
+								key={ feature.config.name }
+								label={ feature.config.title }
+								checked={ ! disabledFeatures.includes( feature.config.name ) }
+								onChange={ handleToggleFeature( feature.config.name ) }
+							/>
+						) ) }
+					</div>
 				</BaseControl>
 			</PanelRow>
 		</div>
