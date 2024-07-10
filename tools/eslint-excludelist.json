@@ -65,7 +65,6 @@
 	"projects/plugins/jetpack/extensions/shared/external-media/sources/google-photos/filter-request.js",
 	"projects/plugins/jetpack/extensions/shared/get-validated-attributes.js",
 	"projects/plugins/jetpack/extensions/shared/plan-upgrade-notification.js",
-	"projects/plugins/jetpack/modules/calypsoify/mods-gutenberg.js",
 	"projects/plugins/jetpack/modules/infinite-scroll/infinity-customizer.js",
 	"projects/plugins/jetpack/modules/infinite-scroll/infinity.js",
 	"projects/plugins/jetpack/modules/plugin-search/plugin-search.js",

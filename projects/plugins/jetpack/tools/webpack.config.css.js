@@ -199,15 +199,6 @@ for ( const name of [
 	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
 }
 
-// Calypso scss to compile.
-// prettier-ignore
-for ( const file of glob
-	.sync( 'modules/calypsoify/*.scss' )
-	.filter( n => ! path.basename( n ).startsWith( '_' ) )
-) {
-	weirdRtlEntries[ file.substring( 0, file.length - 5 ) + '.min' ] = './' + file;
-}
-
 // General scss to compile.
 // prettier-ignore
 for ( const file of glob
