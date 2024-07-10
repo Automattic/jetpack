@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations Block: Fix undefined array key warnings with old/malformed blocks.
