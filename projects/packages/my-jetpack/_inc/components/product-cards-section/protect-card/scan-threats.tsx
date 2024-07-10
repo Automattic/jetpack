@@ -11,10 +11,10 @@ import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { InfoTooltip } from './info-tooltip';
-import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
+import { useProtectTooltipCopy, type TooltipContent } from './use-protect-tooltip-copy';
+import type { ReactElement, PropsWithChildren } from 'react';
 
-export const ScanThreats = () => {
-	const { recordEvent } = useAnalytics();
+export const ScanAndThreatStatus = () => {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
@@ -30,10 +30,6 @@ export const ScanThreats = () => {
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
 	const tooltipContent = useProtectTooltipCopy( { pluginsCount, themesCount, numThreats } );
 	const { scanThreatsTooltip } = tooltipContent;
-
-	const useTooltipRef = useRef< HTMLButtonElement >();
-	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
-	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 
 	const criticalScanThreatCount = useMemo( () => {
 		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData;
@@ -55,6 +51,52 @@ export const ScanThreats = () => {
 			0
 		);
 	}, [ fromScanPlugins, fromScanThemes, scanData ] );
+
+	if ( isPluginActive && isSiteConnected ) {
+		if ( hasProtectPaidPlan ) {
+			if ( numThreats ) {
+				return (
+					<ThreatStatus
+						numThreats={ numThreats }
+						criticalThreatCount={ criticalScanThreatCount }
+						tooltipContent={ scanThreatsTooltip }
+					/>
+				);
+			}
+			return <ScanStatus status={ 'success' } tooltipContent={ scanThreatsTooltip } />;
+		}
+		return numThreats ? (
+			<ThreatStatus numThreats={ numThreats } tooltipContent={ scanThreatsTooltip } />
+		) : (
+			<ScanStatus status={ 'partial' } tooltipContent={ scanThreatsTooltip } />
+		);
+	}
+
+	return <ScanStatus status={ 'off' } tooltipContent={ scanThreatsTooltip } />;
+};
+
+/**
+ * ThreatStatus component
+ *
+ * @param {PropsWithChildren} props - The component props
+ * @param {number} props.numThreats - The number of threats
+ * @param {number} props.criticalThreatCount - The number of critical threats
+ * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent - The number of critical threats
+ * @returns {ReactElement} rendered component
+ */
+function ThreatStatus( {
+	numThreats,
+	criticalThreatCount,
+	tooltipContent,
+}: {
+	numThreats: number;
+	criticalThreatCount?: number;
+	tooltipContent?: TooltipContent[ 'scanThreatsTooltip' ];
+} ) {
+	const { recordEvent } = useAnalytics();
+	const useTooltipRef = useRef< HTMLButtonElement >();
+	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
+	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 
 	const toggleTooltip = useCallback(
 		() =>
@@ -81,88 +123,83 @@ export const ScanThreats = () => {
 		}
 	}, [ setIsPopoverVisible, useTooltipRef ] );
 
-	if ( isPluginActive && isSiteConnected ) {
-		if ( hasProtectPaidPlan ) {
-			if ( numThreats ) {
-				if ( criticalScanThreatCount ) {
-					return (
-						<>
-							<div className="value-section__heading">
-								{ __( 'Threats', 'jetpack-my-jetpack' ) }
-							</div>
-							<div className="value-section__data">
-								<div className="scan-threats__critical-threats">
-									<div className="scan-threats__threat-count">{ numThreats }</div>
-									<div className="scan-threats__critical-threat-container">
-										<button
-											className="info-tooltip__button"
-											onClick={ toggleTooltip }
-											ref={ useTooltipRef }
-										>
-											<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
-											<span className="scan-threats__critical-threat-count">
-												{ criticalScanThreatCount }
-											</span>
-										</button>
-										{ isPopoverVisible && (
-											<Popover
-												placement={ isMobileViewport ? 'top-end' : 'right' }
-												noArrow={ false }
-												offset={ 10 }
-												focusOnMount={ 'container' }
-												onClose={ hideTooltip }
-											>
-												<>
-													<h3 className="value-section__tooltip-heading">
-														{ scanThreatsTooltip.title }
-													</h3>
-													<p className="value-section__tooltip-content">
-														{ scanThreatsTooltip.text }
-													</p>
-												</>
-											</Popover>
-										) }
-									</div>
-								</div>
-							</div>
-						</>
-					);
-				}
-				return (
-					<>
-						<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
-						<div className="value-section__data">
-							<div className="scan-threats__threat-count">{ numThreats }</div>
-						</div>
-					</>
-				);
-			}
-			return (
-				<>
-					<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
-					<div className="value-section__data">
-						<div>
-							<img
-								className="value-section__status-icon"
-								src={ ShieldSuccess }
-								alt={ __( 'Shield icon - Scan Status: Secure', 'jetpack-my-jetpack' ) }
-							/>
-						</div>
-						<div className="value-section__status-text">
-							{ __( 'Secure', 'jetpack-my-jetpack' ) }
-						</div>
-					</div>
-				</>
-			);
-		}
-		return numThreats ? (
-			<>
-				<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
-				<div className="value-section__data">
+	return criticalThreatCount ? (
+		<>
+			<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
+			<div className="value-section__data">
+				<div className="scan-threats__critical-threats">
 					<div className="scan-threats__threat-count">{ numThreats }</div>
+					<div className="scan-threats__critical-threat-container">
+						<button
+							className="info-tooltip__button"
+							onClick={ toggleTooltip }
+							ref={ useTooltipRef }
+						>
+							<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
+							<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
+						</button>
+						{ isPopoverVisible && (
+							<Popover
+								placement={ isMobileViewport ? 'top-end' : 'right' }
+								noArrow={ false }
+								offset={ 10 }
+								focusOnMount={ 'container' }
+								onClose={ hideTooltip }
+							>
+								<>
+									<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
+									<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
+								</>
+							</Popover>
+						) }
+					</div>
+				</div>
+			</div>
+		</>
+	) : (
+		<>
+			<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
+			<div className="value-section__data">
+				<div className="scan-threats__threat-count">{ numThreats }</div>
+			</div>
+		</>
+	);
+}
+
+/**
+ * ScanStatus component
+ *
+ * @param {PropsWithChildren} props - The component props
+ * @param {'success' | 'partial' | 'off'} props.status - The number of threats
+ * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent - The number of critical threats
+ * @returns { ReactElement} rendered component
+ */
+function ScanStatus( {
+	status,
+	tooltipContent,
+}: {
+	status: 'success' | 'partial' | 'off';
+	tooltipContent?: TooltipContent[ 'scanThreatsTooltip' ];
+} ) {
+	if ( status === 'success' ) {
+		return (
+			<>
+				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+				<div className="value-section__data">
+					<div>
+						<img
+							className="value-section__status-icon"
+							src={ ShieldSuccess }
+							alt={ __( 'Shield icon - Scan Status: Secure', 'jetpack-my-jetpack' ) }
+						/>
+					</div>
+					<div className="value-section__status-text">{ __( 'Secure', 'jetpack-my-jetpack' ) }</div>
 				</div>
 			</>
-		) : (
+		);
+	}
+	if ( status === 'partial' ) {
+		return (
 			<>
 				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 				<div className="value-section__data">
@@ -186,15 +223,14 @@ export const ScanThreats = () => {
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
+							<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
+							<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
 						</>
 					</InfoTooltip>
 				</div>
 			</>
 		);
 	}
-
 	return (
 		<>
 			<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
@@ -210,4 +246,4 @@ export const ScanThreats = () => {
 			</div>
 		</>
 	);
-};
+}
