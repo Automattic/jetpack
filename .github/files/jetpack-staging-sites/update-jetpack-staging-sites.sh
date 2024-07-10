@@ -18,6 +18,18 @@ SITES='{
     "ssh_string": "jetpackedge.wordpress.com@sftp.wp.com",
     "blog_id": "215379549"
   },
+  "jetpackedgephpold.wpcomstaging.com": {
+    "url": "https://jetpackedgephpold.wpcomstaging.com/",
+    "note": "php old",
+    "ssh_string": "jetpackedgephpold.wordpress.com@sftp.wp.com",
+    "blog_id": "215379848"
+  },
+  "jetpackedgephpnew.wpcomstaging.com": {
+    "url": "https://jetpackedgephpnew.wpcomstaging.com/",
+    "note": "php new",
+    "ssh_string": "jetpackedgephpnew.wordpress.com@sftp.wp.com",
+    "blog_id": "215380000"
+  },
   "jetpackedgeecomm.wpcomstaging.com": {
     "url": "https://jetpackedgeecomm.wpcomstaging.com/",
     "note": "ecommerce plan",
@@ -43,19 +55,6 @@ SITES='{
     "blog_id": "215380213"
   }
 }'
-# Removed from the above pending a rename. p1720019588866209-slack-C05Q5HSS013
-#  "jetpackedgephp74.wpcomstaging.com": {
-#    "url": "https://jetpackedgephp74.wpcomstaging.com/",
-#    "note": "php 7.4",
-#    "ssh_string": "jetpackedgephp74.wordpress.com@sftp.wp.com",
-#    "blog_id": "215379848"
-#  },
-#  "jetpackedgephp82.wpcomstaging.com": {
-#    "url": "https://jetpackedgephp82.wpcomstaging.com/",
-#    "note": "php 8.2",
-#    "ssh_string": "jetpackedgephp82.wordpress.com@sftp.wp.com",
-#    "blog_id": "215380000"
-#  },
 
 ####################################################
 ## Fetch plugin data from the Jetpack Beta Builder.
