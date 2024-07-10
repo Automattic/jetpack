@@ -5,9 +5,9 @@ import { applyFormat } from '@wordpress/rich-text';
 /**
  * Types
  */
-import type { RichTextFormat } from '@wordpress/rich-text/build-types/types';
+import type { RichTextFormat, RichTextValue } from '@wordpress/rich-text/build-types/types';
 
-const applyHighlightFormat = ( { content, type, indexes, attributes = {} } ) => {
+const applyHighlightFormat = ( { content, type, indexes, attributes = {} } ): RichTextValue => {
 	let newContent = content;
 
 	if ( indexes.length > 0 ) {

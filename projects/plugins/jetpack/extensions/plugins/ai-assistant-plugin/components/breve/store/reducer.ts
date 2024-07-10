@@ -49,30 +49,4 @@ export function popover( state = {}, action ) {
 	return state;
 }
 
-export function content( state = [], action ) {
-	switch ( action.type ) {
-		case 'SET_BLOCK_TEXT': {
-			const clientId = action.clientId;
-			const blockText = action.text;
-			const idx = action.index;
-
-			if ( idx > -1 ) {
-				const newState = [ ...state ];
-				newState[ idx ].text = blockText;
-				return newState;
-			}
-
-			return [
-				...state,
-				{
-					clientId,
-					text: blockText,
-				},
-			];
-		}
-	}
-
-	return state;
-}
-
-export default combineReducers( { popover, content, configuration } );
+export default combineReducers( { popover, configuration } );

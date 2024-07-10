@@ -3,24 +3,18 @@
  */
 import { Popover } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useLayoutEffect, useRef } from '@wordpress/element';
 import { registerFormatType } from '@wordpress/rich-text';
 /**
  * Internal dependencies
  */
-import BREVE_FEATURES from '../features';
+import features from '../features';
+import registerEvents from '../features/events';
+import highlight from './highlight';
 import './style.scss';
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const debounce = useRef( null );
-	const { setBlockHighlight, setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
-
-	const blocks = useSelect(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		select => ( select( 'core/block-editor' ) as any ).getBlocks(),
-		[]
-	);
+	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
 
 	const popoverOpen = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,18 +39,6 @@ export default function Highlight() {
 		setPopoverHover( false );
 	};
 
-	useLayoutEffect( () => {
-		if ( blocks?.length > 0 ) {
-			// Debounce the block content update
-			clearTimeout( debounce.current );
-			debounce.current = setTimeout( () => {
-				blocks.forEach( block => {
-					setBlockHighlight( block );
-				} );
-			}, 1000 );
-		}
-	}, [ blocks, setBlockHighlight ] );
-
 	return (
 		<>
 			{ isPopoverOpen && (
@@ -79,8 +61,46 @@ export default function Highlight() {
 }
 
 export function registerBreveHighlights() {
-	BREVE_FEATURES.forEach( ( { config } ) => {
-		const { name, ...settings } = config;
-		registerFormatType( `jetpack/ai-proofread-${ name }`, settings as never );
+	features.forEach( ( { config, highlight: featureHighlight } ) => {
+		const { name, ...configSettings } = config;
+		const settings = {
+			...configSettings,
+			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
+				return {
+					blockClientId,
+				};
+			},
+			__experimentalCreatePrepareEditableTree( { blockClientId } ) {
+				return ( formats, text ) => {
+					const record = { formats, text };
+
+					const applied = highlight( {
+						content: record,
+						indexes: featureHighlight( record.text ),
+						type: `jetpack/ai-proofread-${ config.name }`,
+						attributes: { 'data-type': config.name },
+					} );
+
+					setTimeout( () => {
+						registerEvents( blockClientId );
+					}, 100 );
+
+					return applied.formats;
+				};
+			},
+		} as never;
+
+		registerFormatType( `jetpack/ai-proofread-${ name }`, settings );
+	} );
+}
+
+export function unregisterBreveHighlights( filter = [] ) {
+	const removeFeatures = filter.length
+		? features.filter( ( { config } ) => filter.includes( config.name ) )
+		: features;
+
+	removeFeatures.forEach( ( { config } ) => {
+		const { name } = config;
+		registerFormatType( `jetpack/ai-proofread-${ name }`, null );
 	} );
 }
