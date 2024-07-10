@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Image_Guide;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Add an ajax endpoint to proxy external CSS files.
  */
@@ -34,12 +36,18 @@ class Image_Guide_Proxy {
 			wp_send_json_error( 'Invalid URL', 400 );
 		}
 
-		$response = wp_remote_get( $proxy_url );
+		$photon_url        = Image_CDN_Core::cdn_url( $proxy_url );
+		$photon_url_domain = wp_parse_url( $photon_url, PHP_URL_HOST );
+		$photon_domain     = wp_parse_url( apply_filters( 'jetpack_photon_domain', 'https://i0.wp.com' ), PHP_URL_HOST );
+		if ( $photon_url_domain !== $photon_domain ) {
+			wp_send_json_error( 'Failed to proxy the image.', 400 );
+		}
+
+		$response = wp_safe_remote_get( $photon_url );
 		if ( is_wp_error( $response ) ) {
 			wp_send_json_error( 'error', 400 );
 		}
 
 		wp_send_json_success( iterator_to_array( wp_remote_retrieve_headers( $response ) ) );
-		die();
 	}
 }
