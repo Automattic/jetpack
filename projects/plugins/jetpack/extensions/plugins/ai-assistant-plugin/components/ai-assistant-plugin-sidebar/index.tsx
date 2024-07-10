@@ -3,9 +3,9 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -57,32 +57,12 @@ const JetpackAndSettingsContent = ( {
 }: JetpackSettingsContentProps ) => {
 	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 	const { checkoutUrl } = useAICheckout();
-	const { toggleProofread } = useDispatch( 'jetpack/ai-breve' );
-
-	const isProofreadEnabled = useSelect(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		select => ( select( 'jetpack/ai-breve' ) as any ).isProofreadEnabled(),
-		[]
-	);
-
-	const handleAiFeedbackToggle = () => {
-		toggleProofread();
-	};
-
-	const aiFeedbackLabel = (
-		<div className="jetpack-ai-feedback__label">
-			{ __( 'AI feedback', 'jetpack' ) }
-			{ isBreveAvailable && (
-				<ToggleControl checked={ isProofreadEnabled } onChange={ handleAiFeedbackToggle } />
-			) }
-		</div>
-	);
 
 	return (
 		<>
 			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ aiFeedbackLabel }>
-					{ isBreveAvailable && <Breve active={ isProofreadEnabled } /> }
+				<BaseControl label={ __( 'AI Proofread', 'jetpack' ) }>
+					{ isBreveAvailable && <Breve /> }
 					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
