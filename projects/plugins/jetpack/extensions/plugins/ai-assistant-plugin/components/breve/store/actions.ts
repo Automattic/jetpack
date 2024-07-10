@@ -29,6 +29,7 @@ export function setPopoverAnchor( anchor ) {
 export function toggleProofread( force?: boolean ) {
 	const current = select( 'jetpack/ai-breve' ).isProofreadEnabled();
 	const enabled = force === undefined ? ! current : force;
+
 	return {
 		type: 'SET_PROOFREAD_ENABLED',
 		enabled,

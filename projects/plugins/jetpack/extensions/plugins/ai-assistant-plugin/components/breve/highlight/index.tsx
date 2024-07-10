@@ -2,8 +2,8 @@
  * External dependencies
  */
 import { Popover } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { registerFormatType } from '@wordpress/rich-text';
+import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
+import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 /**
  * Internal dependencies
  */
@@ -65,42 +65,36 @@ export function registerBreveHighlights() {
 		const { name, ...configSettings } = config;
 		const settings = {
 			...configSettings,
-			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
+			__experimentalGetPropsForEditableTreePreparation() {
 				return {
-					blockClientId,
+					isProofreadEnabled: globalSelect( 'jetpack/ai-breve' ).isProofreadEnabled(),
 				};
 			},
-			__experimentalCreatePrepareEditableTree( { blockClientId } ) {
+			__experimentalCreatePrepareEditableTree( { isProofreadEnabled }, { blockClientId } ) {
 				return ( formats, text ) => {
-					const record = { formats, text };
+					const record = { formats, text } as RichTextValue;
+					const type = `jetpack/ai-proofread-${ config.name }`;
 
-					const applied = highlight( {
-						content: record,
-						indexes: featureHighlight( record.text ),
-						type: `jetpack/ai-proofread-${ config.name }`,
-						attributes: { 'data-type': config.name },
-					} );
+					if ( text && isProofreadEnabled ) {
+						const applied = highlight( {
+							content: record,
+							type,
+							indexes: featureHighlight( record.text ),
+							attributes: { 'data-type': config.name },
+						} );
 
-					setTimeout( () => {
-						registerEvents( blockClientId );
-					}, 100 );
+						setTimeout( () => {
+							registerEvents( blockClientId );
+						}, 100 );
 
-					return applied.formats;
+						return applied.formats;
+					}
+
+					return removeFormat( record, type, 0, record.text.length ).formats;
 				};
 			},
 		} as never;
 
 		registerFormatType( `jetpack/ai-proofread-${ name }`, settings );
-	} );
-}
-
-export function unregisterBreveHighlights( filter = [] ) {
-	const removeFeatures = filter.length
-		? features.filter( ( { config } ) => filter.includes( config.name ) )
-		: features;
-
-	removeFeatures.forEach( ( { config } ) => {
-		const { name } = config;
-		registerFormatType( `jetpack/ai-proofread-${ name }`, null );
 	} );
 }
