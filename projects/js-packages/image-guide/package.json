@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-image-guide",
-	"version": "0.5.10",
+	"version": "0.5.11-alpha",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/image-guide/#readme",
 	"type": "module",
@@ -49,7 +49,7 @@
 		"postcss": "8.4.31",
 		"rollup": "2.79.1",
 		"rollup-plugin-postcss": "4.0.2",
-		"rollup-plugin-svelte": "7.1.0",
+		"rollup-plugin-svelte": "7.2.2",
 		"rollup-plugin-svelte-svg": "1.0.0-beta.6",
 		"sass": "1.64.1",
 		"svelte": "3.58.0",
