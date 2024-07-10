@@ -12,18 +12,57 @@
 	font-style: normal;
 	font-weight: 400;
 	line-height: 18px;
-	padding: 8px;
 	width: auto;
-}
 
-.highlight-popover div.components-popover__content {
-	align-items: center;
-	column-gap: 12px;
-	display: flex;
-	padding: 16px;
-	white-space: nowrap;
-}
+	.highlight-content {
+		align-items: center;
+		display: flex;
+		justify-content: space-between;
+		gap: 32px;
 
-.highlight-popover button {
-	box-shadow: none !important; // Fixing a strange left border
+		.title {
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+			gap: 8px;
+			font-size: 14px;
+			font-weight: 500;
+
+			.color {
+				width: 24px;
+				height: 24px;
+				border-radius: 50%;
+				@include features-colors( ( 'background-color' ) );
+			}
+		}
+
+		.action {
+			font-size: 13px;
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 4px;
+
+			.components-button {
+				padding-top: 0px;
+				padding-bottom: 0px;
+				padding-right: 0px;
+				height: unset;
+			}
+
+			& > svg,
+			path {
+				fill: #0277a8;
+			}
+		}
+	}
+
+	& div.components-popover__content {
+		align-items: center;
+		column-gap: 12px;
+		display: flex;
+		padding: 8px 12px;
+		white-space: nowrap;
+		margin-top: 8px;
+	}
 }
