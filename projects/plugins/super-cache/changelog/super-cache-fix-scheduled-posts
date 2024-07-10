@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WPSC: fix clearing the cache when scheduled posts are published
