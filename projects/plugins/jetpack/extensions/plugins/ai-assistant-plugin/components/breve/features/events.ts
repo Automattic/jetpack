@@ -30,15 +30,17 @@ function handleMouseLeave( e ) {
 export default function registerEvents( clientId: string ) {
 	const { foundContainer: container } = getContainer();
 	const id = `block-${ clientId }`;
-	const block = container?.querySelector( `#${ id }` );
+	const block = container?.querySelector?.( `#${ id }` );
 
 	features.forEach( ( { config } ) => {
 		const items = block?.querySelectorAll?.( `[data-type='${ config.name }']` );
-		items.forEach( highlightEl => {
-			highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
-			highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
-			highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
-			highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
-		} );
+		if ( items?.length > 0 ) {
+			items.forEach( highlightEl => {
+				highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
+				highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
+				highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
+				highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
+			} );
+		}
 	} );
 }

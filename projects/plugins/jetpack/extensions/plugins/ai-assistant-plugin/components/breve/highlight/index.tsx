@@ -2,26 +2,19 @@
  * External dependencies
  */
 import { Popover } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useLayoutEffect, useRef } from '@wordpress/element';
-import { registerFormatType } from '@wordpress/rich-text';
+import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
+import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 /**
  * Internal dependencies
  */
-import BREVE_FEATURES from '../features';
+import features from '../features';
+import registerEvents from '../features/events';
+import highlight from './highlight';
 import './style.scss';
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const debounce = useRef( null );
-	const { setBlockContent } = useDispatch( 'jetpack/ai-breve' );
-
-	const postContent = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const all = ( select( 'core/block-editor' ) as any ).getBlocks();
-		const richValues = all.filter( block => block.name === 'core/paragraph' );
-		return richValues;
-	}, [] );
+	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
 
 	const popoverOpen = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,8 +31,6 @@ export default function Highlight() {
 
 	const isPopoverOpen = popoverOpen && anchor;
 
-	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
-
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
@@ -47,18 +38,6 @@ export default function Highlight() {
 	const handleMouseLeave = () => {
 		setPopoverHover( false );
 	};
-
-	useLayoutEffect( () => {
-		if ( postContent?.length > 0 ) {
-			// Debounce the block content update
-			clearTimeout( debounce.current );
-			debounce.current = setTimeout( () => {
-				postContent.forEach( block => {
-					setBlockContent( block?.clientId );
-				} );
-			}, 1000 );
-		}
-	}, [ postContent, setBlockContent ] );
 
 	return (
 		<>
@@ -82,8 +61,40 @@ export default function Highlight() {
 }
 
 export function registerBreveHighlights() {
-	BREVE_FEATURES.forEach( ( { config } ) => {
-		const { name, ...settings } = config;
-		registerFormatType( `jetpack/ai-proofread-${ name }`, settings as never );
+	features.forEach( ( { config, highlight: featureHighlight } ) => {
+		const { name, ...configSettings } = config;
+		const settings = {
+			...configSettings,
+			__experimentalGetPropsForEditableTreePreparation() {
+				return {
+					isProofreadEnabled: globalSelect( 'jetpack/ai-breve' ).isProofreadEnabled(),
+				};
+			},
+			__experimentalCreatePrepareEditableTree( { isProofreadEnabled }, { blockClientId } ) {
+				return ( formats, text ) => {
+					const record = { formats, text } as RichTextValue;
+					const type = `jetpack/ai-proofread-${ config.name }`;
+
+					if ( text && isProofreadEnabled ) {
+						const applied = highlight( {
+							content: record,
+							type,
+							indexes: featureHighlight( record.text ),
+							attributes: { 'data-type': config.name },
+						} );
+
+						setTimeout( () => {
+							registerEvents( blockClientId );
+						}, 100 );
+
+						return applied.formats;
+					}
+
+					return removeFormat( record, type, 0, record.text.length ).formats;
+				};
+			},
+		} as never;
+
+		registerFormatType( `jetpack/ai-proofread-${ name }`, settings );
 	} );
 }

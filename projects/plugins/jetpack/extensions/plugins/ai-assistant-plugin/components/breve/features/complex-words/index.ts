@@ -13,7 +13,7 @@ export const COMPLEX_WORDS = {
 
 export default function complexWords( text ) {
 	const list = new RegExp(
-		`(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
+		`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
 		'gi'
 	);
 
