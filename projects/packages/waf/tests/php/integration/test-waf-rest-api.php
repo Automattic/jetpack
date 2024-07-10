@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Waf\REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Integration tests for the REST API endpoints registered by the WAF.
@@ -23,6 +24,23 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 
 		// Set the WPCOM JSON API base URL so the site will attempt to make requests.
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+
+		// Add the WAF module to the available modules.
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_waf_to_available_modules' ), 10, 1 );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_waf_to_available_modules' ), 10, 1 );
+	}
+
+	/**
+	 * Add "waf" to the available Jetpack modules.
+	 *
+	 * @param array $modules The available modules.
+	 * @return array The available modules, including "waf".
+	 */
+	public function add_waf_to_available_modules( $modules ) {
+		if ( ! in_array( 'waf', $modules, true ) ) {
+			$modules[] = 'waf';
+		}
+		return $modules;
 	}
 
 	/**
@@ -170,6 +188,9 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 				)
 			)
 		);
+
+		// Enable the WAF.
+		Waf_Runner::enable();
 
 		// Call the endpoint.
 		$response = REST_Controller::update_waf( $request );
