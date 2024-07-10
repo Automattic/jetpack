@@ -4,9 +4,14 @@
 import { combineReducers } from '@wordpress/data';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-proofread-enabled' );
+const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
+	'jetpack-ai-proofread-disabled-features'
+);
 const initialConfiguration = {
 	// TODO: Confirm that we will start it as true
 	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
+	disabled:
+		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
 };
 
 export function configuration( state = initialConfiguration, action ) {
@@ -18,6 +23,30 @@ export function configuration( state = initialConfiguration, action ) {
 			return {
 				...state,
 				enabled,
+			};
+		}
+		case 'ENABLE_FEATURE': {
+			const disabled = state.disabled.filter( feature => feature !== action.feature );
+			window.localStorage.setItem(
+				'jetpack-ai-proofread-disabled-features',
+				JSON.stringify( disabled )
+			);
+
+			return {
+				...state,
+				disabled,
+			};
+		}
+		case 'DISABLE_FEATURE': {
+			const disabled = [ ...state.disabled, action.feature ];
+			window.localStorage.setItem(
+				'jetpack-ai-proofread-disabled-features',
+				JSON.stringify( disabled )
+			);
+
+			return {
+				...state,
+				disabled,
 			};
 		}
 	}

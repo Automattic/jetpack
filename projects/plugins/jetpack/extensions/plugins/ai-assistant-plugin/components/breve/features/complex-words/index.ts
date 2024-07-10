@@ -6,7 +6,7 @@ import phrases from './phrases';
 
 export const COMPLEX_WORDS = {
 	name: 'complex-words',
-	title: 'Jetpack AI Proofread Complex Words',
+	title: 'Complex words',
 	tagName: 'span',
 	className: 'has-proofread-highlight',
 };
