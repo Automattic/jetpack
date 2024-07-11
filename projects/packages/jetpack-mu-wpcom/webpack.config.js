@@ -8,6 +8,7 @@ module.exports = [
 	...verbumConfig,
 	{
 		entry: {
+			'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
