@@ -709,8 +709,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2(postcss@8.4.31)
       rollup-plugin-svelte:
-        specifier: 7.1.0
-        version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
+        specifier: 7.2.2
+        version: 7.2.2(rollup@2.79.1)(svelte@3.58.0)
       rollup-plugin-svelte-svg:
         specifier: 1.0.0-beta.6
         version: 1.0.0-beta.6(svelte@3.58.0)
@@ -3578,8 +3578,8 @@ importers:
         specifier: 4.0.2
         version: 4.0.2(postcss@8.4.31)
       rollup-plugin-svelte:
-        specifier: 7.1.0
-        version: 7.1.0(rollup@2.79.1)(svelte@3.58.0)
+        specifier: 7.2.2
+        version: 7.2.2(rollup@2.79.1)(svelte@3.58.0)
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -6612,6 +6612,10 @@ packages:
     engines: {node: '>= 8.0.0'}
     peerDependencies:
       rollup: ^1.20.0||^2.0.0
+
+  '@rollup/pluginutils@4.2.1':
+    resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
+    engines: {node: '>= 8.0.0'}
 
   '@rollup/pluginutils@5.1.0':
     resolution: {integrity: sha512-XTIWOPPcpvyKI6L1NHo0lFlCyznUEyPmPY1mc3KpPVDYulHSTvyeLNVW00QTLIAFNhR3kYnJTQHeGqU4M3n09g==}
@@ -13014,9 +13018,6 @@ packages:
   require-main-filename@2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
 
-  require-relative@0.8.7:
-    resolution: {integrity: sha512-AKGr4qvHiryxRb19m3PsLRGuKVAbJLUD7E6eOaHkfKhwc+vSgVOCY5xNvm9EkolBKTOf0GrQAZKLimOCz81Khg==}
-
   requireindex@1.2.0:
     resolution: {integrity: sha512-L9jEkOi3ASd9PYit2cwRfyppc9NoABujTP8/5gFcbERmo5jUoAKovIC3fsF17pkTnGsrByysqX+Kxd2OTNI1ww==}
     engines: {node: '>=0.10.5'}
@@ -13113,8 +13114,8 @@ packages:
     peerDependencies:
       svelte: '*'
 
-  rollup-plugin-svelte@7.1.0:
-    resolution: {integrity: sha512-vopCUq3G+25sKjwF5VilIbiY6KCuMNHP1PFvx2Vr3REBNMDllKHFZN2B9jwwC+MqNc3UPKkjXnceLPEjTjXGXg==}
+  rollup-plugin-svelte@7.2.2:
+    resolution: {integrity: sha512-hgnIblTRewaBEVQD6N0Q43o+y6q1TmDRhBjaEzQCi50bs8TXqjc+d1zFZyE8tsfgcfNHZQzclh4RxlFUB85H8Q==}
     engines: {node: '>=10'}
     peerDependencies:
       rollup: '>=2.0.0'
@@ -16844,6 +16845,11 @@ snapshots:
       estree-walker: 1.0.1
       picomatch: 2.2.3
       rollup: 2.79.1
+
+  '@rollup/pluginutils@4.2.1':
+    dependencies:
+      estree-walker: 2.0.2
+      picomatch: 2.2.3
 
   '@rollup/pluginutils@5.1.0(rollup@2.79.1)':
     dependencies:
@@ -26226,8 +26232,6 @@ snapshots:
 
   require-main-filename@2.0.0: {}
 
-  require-relative@0.8.7: {}
-
   requireindex@1.2.0: {}
 
   requires-port@1.0.0: {}
@@ -26329,11 +26333,11 @@ snapshots:
       svelte: 3.58.0
       svgo: 3.3.2
 
-  rollup-plugin-svelte@7.1.0(rollup@2.79.1)(svelte@3.58.0):
+  rollup-plugin-svelte@7.2.2(rollup@2.79.1)(svelte@3.58.0):
     dependencies:
-      require-relative: 0.8.7
+      '@rollup/pluginutils': 4.2.1
+      resolve.exports: 2.0.2
       rollup: 2.79.1
-      rollup-pluginutils: 2.8.2
       svelte: 3.58.0
 
   rollup-pluginutils@2.8.2:

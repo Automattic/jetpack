@@ -1,22 +1,28 @@
 /**
  * WordPress dependencies
  */
-import { getBlockContent } from '@wordpress/blocks';
-import { BaseControl, PanelRow, SVG, Path } from '@wordpress/components';
+import {
+	BaseControl,
+	PanelRow,
+	SVG,
+	Path,
+	CheckboxControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
-import { applyFilters } from '@wordpress/hooks';
+import { useDispatch, useSelect, withSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 /**
  * Internal dependencies
  */
-import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import config from './dictionaries/dictionaries-config';
+import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
 import './breve.scss';
+import { getPostText } from './utils/getPostText';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
@@ -27,42 +33,22 @@ export const useInit = init => {
 	}
 };
 
-const Controls = ( { blocks, active } ) => {
-	// Allow defaults to be customized, but memoise the result so we're not computing things multiple times.
-	const { initialAiOn } = useMemo( () => {
-		return applyFilters( 'breve-sidebar-defaults', {
-			initialAiOn: true,
-		} );
-	}, [] );
-
-	// Jetpack AI Assistant feature functions.
-	const { requireUpgrade } = useAiFeature();
-	const isHighlighting = active;
-
-	// eslint-disable-next-line no-unused-vars
-	const [ isAIOn, setIsAIOn ] = useState( initialAiOn );
+const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState( null );
-	// eslint-disable-next-line no-unused-vars
-	const [ debouncedContentChangeFlag, setDebouncedContentChangeFlag ] = useState( false );
+	const { toggleFeature, toggleProofread } = useDispatch( 'jetpack/ai-breve' );
 
-	const [ toggledKeys, setToggledKeys ] = useState( () => {
-		const initialState = {};
-		Object.keys( config.dictionaries ).forEach( key => {
-			initialState[ key ] = true;
-		} );
-		return initialState;
-	} );
+	const isProofreadEnabled = useSelect(
+		select => select( 'jetpack/ai-breve' ).isProofreadEnabled(),
+		[]
+	);
 
 	const updateGradeLevel = useCallback( () => {
-		if ( ! isHighlighting ) {
+		if ( ! isProofreadEnabled ) {
 			return;
 		}
 
 		// Get the text content from all blocks and inner blocks.
-		const allText = blocks
-			.map( block => getBlockContent( block ) )
-			.join( '' )
-			.replace( /<[^>]*>?/gm, ' ' );
+		const allText = getPostText( blocks );
 
 		const computedGradeLevel = calculateFleschKincaid( allText );
 
@@ -70,28 +56,21 @@ const Controls = ( { blocks, active } ) => {
 			typeof computedGradeLevel === 'number' ? computedGradeLevel.toFixed( 2 ) : null;
 
 		setGradeLevel( sanitizedGradeLevel );
-
-		// Update the content change flag to trigger a re-highlight.
-		setDebouncedContentChangeFlag( prev => ! prev );
-	}, [ blocks, isHighlighting ] );
+	}, [ blocks, isProofreadEnabled ] );
 
 	// Calculating the grade level is expensive, so debounce it to avoid recalculating it on every keypress.
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
 
-	const handleKeyToggle = key => {
-		setToggledKeys( prev => ( {
-			...prev,
-			[ key ]: ! prev[ key ],
-		} ) );
-	};
+	const handleToggleFeature = useCallback(
+		feature => checked => {
+			toggleFeature( feature, checked );
+		},
+		[ toggleFeature ]
+	);
 
-	useEffect( () => {
-		if ( requireUpgrade ) {
-			setIsAIOn( false );
-		} else {
-			setIsAIOn( true );
-		}
-	}, [ requireUpgrade ] );
+	const handleAiFeedbackToggle = useCallback( () => {
+		toggleProofread();
+	}, [ toggleProofread ] );
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
@@ -101,13 +80,9 @@ const Controls = ( { blocks, active } ) => {
 	useInit( updateGradeLevel );
 
 	return (
-		<>
+		<div className="jetpack-ai-proofread">
 			<PanelRow>
-				<BaseControl
-					id="breve-sidebar-grade-level"
-					label="Reading level"
-					help="To make it easy to read, aim for level 8-12. Keep words simple and sentences short."
-				>
+				<BaseControl>
 					<div className="grade-level-container">
 						{ gradeLevel !== null && gradeLevel <= 12 && (
 							<>
@@ -124,7 +99,12 @@ const Controls = ( { blocks, active } ) => {
 							{ gradeLevel === null ? (
 								<em className="breve-help-text">Write some words to see your grade&nbsp;level.</em>
 							) : (
-								gradeLevel
+								<>
+									{ gradeLevel }
+									<span className="jetpack-ai-proofread__grade-label">
+										{ __( 'Readability score', 'jetpack' ) }
+									</span>
+								</>
 							) }
 						</p>
 					</div>
@@ -132,34 +112,30 @@ const Controls = ( { blocks, active } ) => {
 			</PanelRow>
 
 			<PanelRow>
-				<BaseControl id="breve-sidebar-dictionaries" help="">
-					{ Object.keys( config.dictionaries ).map( key => (
-						<div
-							key={ key }
-							className={ `key-row ${ toggledKeys[ key ] ? 'enabled' : '' }` }
-							onClick={ () => handleKeyToggle( key ) }
-							onKeyDown={ event => {
-								if ( [ 'Enter', ' ' ].includes( event.key ) ) {
-									handleKeyToggle( key );
-								}
-							} }
-							role="button"
-							tabIndex={ 0 }
-						>
-							<div className={ `key ${ key }` }></div>
-							<div className="desc">
-								<strong>{ config.dictionaries[ key ].label }</strong>
-							</div>
-						</div>
+				<BaseControl>
+					<ToggleControl
+						checked={ isProofreadEnabled }
+						onChange={ handleAiFeedbackToggle }
+						label={ __( 'Show suggestions', 'jetpack' ) }
+					/>
+					{ features.map( feature => (
+						<CheckboxControl
+							data-type={ feature.config.name }
+							key={ feature.config.name }
+							label={ feature.config.title }
+							checked={ ! disabledFeatures.includes( feature.config.name ) }
+							onChange={ handleToggleFeature( feature.config.name ) }
+						/>
 					) ) }
 				</BaseControl>
 			</PanelRow>
-		</>
+		</div>
 	);
 };
 
 export default compose(
 	withSelect( selectFn => ( {
 		blocks: selectFn( 'core/block-editor' ).getBlocks(),
+		disabledFeatures: selectFn( 'jetpack/ai-breve' ).getDisabledFeatures(),
 	} ) )
 )( Controls );

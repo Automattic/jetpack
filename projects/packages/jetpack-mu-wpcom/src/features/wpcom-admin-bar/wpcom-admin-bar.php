@@ -83,6 +83,37 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 15 );
 
 /**
+ * Adds (Profile) -> My Account menu pointing to /me/account.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
+	if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
+		return;
+	}
+
+	$logout_node = $wp_admin_bar->get_node( 'logout' );
+	if ( $logout_node ) {
+		// Adds the 'My Account' menu item before 'Log Out'.
+		$wp_admin_bar->remove_node( 'logout' );
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'id'     => 'wpcom-profile',
+			'parent' => 'user-actions',
+			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
+			'href'   => 'https://wordpress.com/me/account',
+		)
+	);
+
+	if ( $logout_node ) {
+		$wp_admin_bar->add_node( (array) $logout_node );
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
+
+/**
  * Hides the Help Center menu.
  */
 function wpcom_hide_help_center_menu() {

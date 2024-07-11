@@ -6,14 +6,14 @@ import phrases from './phrases';
 
 export const COMPLEX_WORDS = {
 	name: 'complex-words',
-	title: 'Jetpack AI Proofread Complex Words',
+	title: 'Complex words',
 	tagName: 'span',
 	className: 'has-proofread-highlight',
 };
 
 export default function complexWords( text ) {
 	const list = new RegExp(
-		`(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
+		`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
 		'gi'
 	);
 

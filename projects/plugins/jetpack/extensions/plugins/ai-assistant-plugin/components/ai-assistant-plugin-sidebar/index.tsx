@@ -3,12 +3,11 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import React from 'react';
@@ -56,28 +55,14 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const { checkoutUrl } = useAICheckout();
 	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-	const [ isHighlighting, setIsHighlighting ] = useState( true );
-
-	const handleAiFeedbackToggle = () => {
-		setIsHighlighting( current => ! current );
-	};
-
-	const aiFeedbackLabel = (
-		<div className="jetpack-ai-feedback__label">
-			{ __( 'AI feedback', 'jetpack' ) }
-			{ isBreveAvailable && (
-				<ToggleControl checked={ isHighlighting } onChange={ handleAiFeedbackToggle } />
-			) }
-		</div>
-	);
+	const { checkoutUrl } = useAICheckout();
 
 	return (
 		<>
 			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ aiFeedbackLabel }>
-					{ isBreveAvailable && <Breve active={ isHighlighting } /> }
+				<BaseControl label={ __( 'AI Proofread', 'jetpack' ) }>
+					{ isBreveAvailable && <Breve /> }
 					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
