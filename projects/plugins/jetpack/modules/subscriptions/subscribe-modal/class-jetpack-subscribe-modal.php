@@ -88,7 +88,7 @@ class Jetpack_Subscribe_Modal {
 			$scroll_threshold = absint( apply_filters( 'jetpack_subscribe_modal_scroll_threshold', 50 ) );
 
 			/**
-			 * Filter lets you control the interval how often a user gets to see the modal. Default is 24 hours.
+			 * Filter to control the interval at which the subscribe modal is shown to the same user.  The default interval is 24 hours.```
 			 *
 			 * @since 13.7
 			 *
