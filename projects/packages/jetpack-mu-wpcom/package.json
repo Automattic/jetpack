@@ -16,7 +16,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
-		"build-js": "pnpm clean && webpack && node bin/download-help-center-languages.js",
+		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
 		"lint": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx .",
