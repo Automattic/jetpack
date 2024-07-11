@@ -69,7 +69,7 @@ export default function ThreatFixHeader( { threat, fixAllDialog, onCheckFix } ) 
 				<Icon icon={ threat.icon } className={ styles.threat__icon } />
 				<div className={ styles.threat__summary }>
 					<Text className={ styles.threat__summary__label } mb={ 1 }>
-						{ threat.label }
+						{ threat.title }
 					</Text>
 					<Text className={ styles.threat__summary__title }>
 						{ getFixerMessage( threat.fixable ) }
