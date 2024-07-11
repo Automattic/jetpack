@@ -35,7 +35,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 			if ( ! checked ) {
 				setThreatIds( threatIds.filter( id => id !== threat.id ) );
 			} else {
-				setThreatIds( threatIds.push( threat.id ) );
+				setThreatIds( [ ...threatIds, threat.id ] );
 			}
 		},
 		[ threatIds ]

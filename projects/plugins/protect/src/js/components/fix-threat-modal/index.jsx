@@ -7,7 +7,7 @@ import ThreatFixHeader from '../threat-fix-header';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
+const FixThreatModal = ( { id, fixable, title, icon, severity } ) => {
 	const { setModal, fixThreats } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
 
@@ -39,7 +39,7 @@ const FixThreatModal = ( { id, fixable, label, icon, severity } ) => {
 
 				<div className={ styles.list }>
 					<ThreatFixHeader
-						threat={ { id, fixable, label, icon, severity } }
+						threat={ { id, fixable, title, icon, severity } }
 						fixAllDialog={ false }
 					/>
 				</div>

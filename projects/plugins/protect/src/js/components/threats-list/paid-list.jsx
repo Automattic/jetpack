@@ -53,7 +53,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, label, title, icon, severity, fixable },
+				props: { id, fixable, title, icon, severity },
 			} );
 		};
 	};
