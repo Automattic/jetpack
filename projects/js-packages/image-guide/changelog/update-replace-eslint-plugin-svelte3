@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove svelte variables unused since #31145. No change to functionality.
-
-

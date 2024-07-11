@@ -400,11 +400,6 @@ function wp_cache_postload() {
 		return true;
 	}
 
-	if ( wpsc_is_backend() ) {
-		wp_cache_debug( 'wp_cache_postload: backend detected, not running' );
-		return true;
-	}
-
 	if ( isset( $wp_super_cache_late_init ) && true == $wp_super_cache_late_init ) {
 		wp_cache_debug( 'Supercache Late Init: add wp_cache_serve_cache_file to init', 3 );
 		add_action( 'init', 'wp_cache_late_loader', 9999 );
@@ -2775,7 +2770,7 @@ function wp_cache_rebuild_or_delete( $file ) {
 }
 
 function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
-	global $cache_path, $cache_max_time, $blog_cache_dir, $wp_cache_preload_on;
+	global $cache_path, $cache_max_time, $blog_cache_dir, $wp_cache_preload_on, $wp_cache_debug_log;
 
 	if ( $cache_max_time == 0 ) {
 		wp_cache_debug( 'wp_cache_phase2_clean_expired: disabled because GC disabled.', 2 );
@@ -2786,6 +2781,14 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 	if ( ! wp_cache_writers_entry() ) {
 		return false;
 	}
+
+	// make sure we have a debug log viewer
+	if ( empty( $wp_cache_debug_log ) ) {
+		wpsc_create_debug_log();
+	} else {
+		touch( $cache_path . 'view_' . $wp_cache_debug_log ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_touch
+	}
+
 	$now = time();
 	wp_cache_debug( "Cleaning expired cache files in $blog_cache_dir", 2 );
 	$deleted = 0;

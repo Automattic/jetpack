@@ -297,6 +297,14 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns true if the current screen is the woo commerce admin home page.
+	 */
+	private function is_wc_admin_home_page() {
+		global $current_screen;
+		return $current_screen->id === 'woocommerce_page_wc-admin';
+	}
+
+	/**
 	 * Returns true if the current user is connected through Jetpack
 	 */
 	public function is_jetpack_disconnected() {
@@ -359,6 +367,10 @@ class Help_Center {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
 		if ( ! is_admin() ) {
+			return;
+		}
+
+		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
 
