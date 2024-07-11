@@ -173,7 +173,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 
 	RELEASED_PLUGINS=$(
 		jq \
-			--arg property "$( echo "$PLUGIN" | sed 's/[\/\-]/_/g' )_release_type" \
+			--arg property "${PLUGIN//[\/-]/_}_release_type" \
 			--arg value "$VERSION_DIFF" \
 			'.[ $property ] = $value' <<< "$RELEASED_PLUGINS"
 	)
