@@ -51,8 +51,6 @@ class Jetpack_Subscribe_Modal {
 			add_action( 'wp_footer', array( $this, 'add_subscribe_modal_to_frontend' ) );
 		}
 		add_filter( 'get_block_template', array( $this, 'get_block_template_filter' ), 10, 3 );
-		// just for testing.
-		add_filter( 'jetpack_subscribe_modal_interval', '__return_zero' );
 	}
 
 	/**
