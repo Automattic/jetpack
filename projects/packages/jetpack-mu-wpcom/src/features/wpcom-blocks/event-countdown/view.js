@@ -3,6 +3,11 @@ import domReady from '@wordpress/dom-ready';
 import './event-countdown.scss';
 
 domReady( function () {
+	/**
+	 * Test whether the value is unix timestamp or not.
+	 *
+	 * @param dtstr - the value to test
+	 */
 	function isUnixTimestamp( dtstr ) {
 		return /^[0-9]+$/.test( dtstr );
 	}
@@ -40,9 +45,15 @@ domReady( function () {
 		}
 	}
 
-	// function called by interval to update displayed time
-	// Countdown element passed in as the dom node to search
-	// within, supporting multiple events per page
+	/**
+	 * The function called by interval to update displayed time
+	 * Countdown element passed in as the dom node to search
+	 * within, supporting multiple events per page
+	 *
+	 * @param ts - The timestamp of the countdown
+	 * @param elem - The element of the countdown container
+	 * @param id - The ID of the countdown
+	 */
 	function updateCountdown( ts, elem, id ) {
 		const now = Date.now();
 		const diff = ts - now;
@@ -73,9 +84,13 @@ domReady( function () {
 		elem.getElementsByClassName( 'event-countdown__second' )[ 0 ].innerHTML = secs;
 	}
 
-	// what should we do after the event has passed
-	// the majority of views will be well after and
-	// not during the transition
+	/**
+	 * what should we do after the event has passed
+	 * the majority of views will be well after and
+	 * not during the transition
+	 *
+	 * @param elem - The element of the countdown container
+	 */
 	function itsHappening( elem ) {
 		const countdown = elem.getElementsByClassName( 'event-countdown__counter' )[ 0 ];
 		const fireworks = document.createElement( 'div' );

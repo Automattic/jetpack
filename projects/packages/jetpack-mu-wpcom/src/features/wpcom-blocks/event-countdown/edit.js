@@ -32,7 +32,7 @@ const EventCountDownBlockEdit = ( { attributes, setAttributes, isSelected } ) =>
 
 	const settings = __experimentalGetSettings();
 
-	let label = __( 'Choose Date', 'jetpack' );
+	let label = __( 'Choose Date', 'jetpack-mu-wpcom' );
 	let eventDate;
 
 	if ( attributes.eventTimestamp ) {
@@ -62,30 +62,30 @@ const EventCountDownBlockEdit = ( { attributes, setAttributes, isSelected } ) =>
 		<div { ...blockProps }>
 			{ isSelected && (
 				<Placeholder
-					label={ __( 'Event Countdown', 'jetpack' ) }
+					label={ __( 'Event Countdown', 'jetpack-mu-wpcom' ) }
 					instructions={ __(
 						'Count down to an event. Set a title and pick a time and date.',
-						'jetpack'
+						'jetpack-mu-wpcom'
 					) }
 					icon={ <EventCountdownIcon /> }
 				>
 					<div>
 						<label htmlFor={ `event-countdown-title-${ instanceId }` }>
-							<strong>{ __( 'Title:', 'jetpack' ) }</strong>
+							<strong>{ __( 'Title:', 'jetpack-mu-wpcom' ) }</strong>
 						</label>
 						<input
 							type="text"
 							id={ `event-countdown-title-${ instanceId }` }
 							value={ attributes.eventTitle || '' }
 							className={ clsx( 'components-placeholder__input', 'event-countdown__event-title' ) }
-							aria-label={ __( 'Event Title', 'jetpack' ) }
-							placeholder={ __( 'Event Title', 'jetpack' ) }
+							aria-label={ __( 'Event Title', 'jetpack-mu-wpcom' ) }
+							placeholder={ __( 'Event Title', 'jetpack-mu-wpcom' ) }
 							onChange={ evt => setAttributes( { eventTitle: evt.target.value } ) }
 						/>
 					</div>
 					<div>
 						<label htmlFor={ `event-countdown-date-${ instanceId }` }>
-							<strong>{ __( 'Date:', 'jetpack' ) }</strong>
+							<strong>{ __( 'Date:', 'jetpack-mu-wpcom' ) }</strong>
 						</label>
 						<Dropdown
 							position="bottom left"

@@ -2102,6 +2102,9 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -2120,6 +2123,9 @@ importers:
       '@wordpress/base-styles':
         specifier: 5.2.0
         version: 5.2.0
+      '@wordpress/blocks':
+        specifier: 13.2.0
+        version: 13.2.0(react@18.3.1)
       '@wordpress/components':
         specifier: 28.2.0
         version: 28.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

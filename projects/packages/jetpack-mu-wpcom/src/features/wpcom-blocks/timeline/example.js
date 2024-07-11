@@ -8,7 +8,7 @@ const example = {
 				{
 					name: 'core/heading',
 					attributes: {
-						content: __( 'Spring', 'jetpack' ),
+						content: __( 'Spring', 'jetpack-mu-wpcom' ),
 					},
 				},
 			],
@@ -19,7 +19,7 @@ const example = {
 				{
 					name: 'core/heading',
 					attributes: {
-						content: __( 'Summer', 'jetpack' ),
+						content: __( 'Summer', 'jetpack-mu-wpcom' ),
 					},
 				},
 			],
@@ -30,7 +30,7 @@ const example = {
 				{
 					name: 'core/heading',
 					attributes: {
-						content: __( 'Fall', 'jetpack' ),
+						content: __( 'Fall', 'jetpack-mu-wpcom' ),
 					},
 				},
 			],
@@ -41,7 +41,7 @@ const example = {
 				{
 					name: 'core/heading',
 					attributes: {
-						content: __( 'Winter', 'jetpack' ),
+						content: __( 'Winter', 'jetpack-mu-wpcom' ),
 					},
 				},
 			],
