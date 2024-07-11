@@ -5,6 +5,11 @@
 
 namespace A8C\FSE\Mailerlite;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+// Turn off the feature on ETK plugin.
+define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
+
 /**
  * Mailerlite widget class
  * Display a subscriber popup for Mailerlite.
@@ -64,11 +69,12 @@ class WPCOM_Widget_Mailerlite extends \WP_Widget {
 		}
 
 		wp_register_script( 'mailerlite-universal', 'https://static.mailerlite.com/js/universal.js', array(), '20200521', true );
+		$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/mailerlite-subscriber-popup/mailerlite-subscriber-popup.asset.php';
 		wp_enqueue_script(
 			'mailerlite-subscriber-popup',
-			plugins_url( 'subscriber-popup.js', __FILE__ ),
+			plugins_url( 'build/mailerlite-subscriber-popup/mailerlite-subscriber-popup.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 			array( 'mailerlite-universal' ),
-			'20200521',
+			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/mailerlite-subscriber-popup/mailerlite-subscriber-popup.js' ),
 			true
 		);
 		wp_localize_script(
