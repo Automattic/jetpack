@@ -163,14 +163,14 @@ class Help_Center {
 			);
 		}
 
-		// `wp_set_script_translations` uses es_ES as the text domain, but we don't have translations for that.
-		// We want the locale to be 639 (i.e en, es, fr, etc).
-		add_filter( 'pre_determine_locale', array( $this, 'determine_iso_639_locale' ), 1 );
-
-		// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch -- Jetpack is not responsible for the translate of this script.
-		wp_set_script_translations( 'help-center', 'default', plugin_dir_path( __FILE__ ) . 'languages' );
-
-		remove_filter( 'pre_determine_locale', array( $this, 'determine_iso_639_locale' ) );
+		// Load translations directly from widgets.wp.com.
+		wp_enqueue_script(
+			'help-center-translations',
+			'https://widgets.wp.com/help-center/languages/' . self::determine_iso_639_locale() . '-v1.js',
+			array( 'wp-i18n' ),
+			$version,
+			true
+		);
 	}
 
 	/**
