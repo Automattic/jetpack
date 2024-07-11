@@ -219,7 +219,7 @@ return [
         'extensions/blocks/wordads/wordads.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
         'extensions/plugins/sharing/sharing.php' => ['PhanRedundantCondition'],
         'functions.compat.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturn'],
-        'functions.global.php' => ['PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument', 'PhanRedefineFunction'],
+        'functions.global.php' => ['PhanRedefineFunction', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument'],
         'functions.opengraph.php' => ['PhanTypeArraySuspicious'],
         'json-endpoints/class.wpcom-json-api-add-widget-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
