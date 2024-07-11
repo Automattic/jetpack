@@ -6,10 +6,11 @@ import features from '../features/index.js';
 // Map of types to the corresponding AI Assistant request type.
 const requestTypeMap = {
 	'complex-words': 'breve-phrase',
-	'long-sentence': 'breve-long-sentence',
 	'ambiguous-words': 'breve-weasel',
-	adverb: 'breve-adverb',
-	adjective: 'breve-adjective',
+	// TODO: Return as soon start to support these features
+	// 'long-sentence': 'breve-long-sentence',
+	// adverb: 'breve-adverb',
+	// adjective: 'breve-adjective',
 };
 
 export const getRequestMessages = ( { feature, sentence, paragraph } ) => {
