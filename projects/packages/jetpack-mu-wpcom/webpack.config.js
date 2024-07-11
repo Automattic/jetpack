@@ -8,6 +8,7 @@ module.exports = [
 	...verbumConfig,
 	{
 		entry: {
+			'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
 			'block-theme-previews': './src/features/block-theme-previews/index.js',
 			'core-customizer-css':
 				'./src/features/custom-css/custom-css/js/core-customizer-css.core-4.9.js',
