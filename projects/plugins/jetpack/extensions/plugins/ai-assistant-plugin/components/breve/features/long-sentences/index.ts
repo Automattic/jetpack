@@ -19,13 +19,15 @@ const sentenceRegex = /[^\s][^.!?]+[.!?]+/g;
 export default function longSentences( text: string ): Array< HighlightedWord > {
 	const highlightedWords: Array< HighlightedWord > = [];
 
+	const sentenceMatches = text.match( sentenceRegex );
+
+	if ( ! sentenceMatches ) {
+		return highlightedWords;
+	}
+
 	const sentences = [
 		// Unique sentences with more than 20 words
-		...new Set(
-			( text.match( sentenceRegex ) || [] ).filter(
-				sentence => sentence.split( /\s+/ ).length > 20
-			)
-		),
+		...new Set( sentenceMatches.filter( sentence => sentence.split( /\s+/ ).length > 20 ) ),
 	];
 
 	sentences.forEach( sentence => {
