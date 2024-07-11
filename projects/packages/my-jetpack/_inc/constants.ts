@@ -13,6 +13,7 @@ export const MyJetpackRoutes = {
 	AddCRM: '/add-crm',
 	AddCreator: '/add-creator',
 	AddJetpackAI: '/add-jetpack-ai',
+	JetpackAI: '/jetpack-ai',
 	AddExtras: '/add-extras',
 	AddProtect: '/add-protect',
 	AddScan: '/add-scan',

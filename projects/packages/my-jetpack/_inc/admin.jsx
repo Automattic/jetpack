@@ -84,8 +84,7 @@ const MyJetpack = () => {
 								<Route path={ MyJetpackRoutes.AddLicense } element={ <AddLicenseScreen /> } />
 							) }
 							<Route path={ MyJetpackRoutes.RedeemToken } element={ <RedeemTokenScreen /> } />
-							<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
-							<Route path="/jetpack-ai" element={ <JetpackAiProductPage /> } />
+							<Route path={ MyJetpackRoutes.JetpackAI } element={ <JetpackAiProductPage /> } />
 						</Routes>
 					</HashRouter>
 				</QueryClientProvider>
