@@ -96,7 +96,16 @@ export function popover(
 
 export function suggestions(
 	state = {},
-	action: { type: string; id: string; feature: string; loading: boolean }
+	action: {
+		type: string;
+		id: string;
+		feature: string;
+		loading: boolean;
+		suggestions?: {
+			revisedText: string;
+			suggestion: string;
+		};
+	}
 ) {
 	switch ( action.type ) {
 		case 'SET_SUGGESTIONS_LOADING': {
@@ -111,6 +120,24 @@ export function suggestions(
 					[ id ]: {
 						...currentItem,
 						loading: action.loading,
+					},
+				},
+			};
+		}
+
+		case 'SET_SUGGESTIONS': {
+			const { id, feature } = action;
+			const current = { ...state };
+			const currentItem = current?.[ feature ]?.[ id ] || {};
+
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ id ]: {
+						...currentItem,
+						loading: false,
+						suggestions: action.suggestions,
 					},
 				},
 			};

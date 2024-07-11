@@ -5,6 +5,7 @@ import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
+import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
@@ -26,42 +27,55 @@ import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types'
 export default function Highlight() {
 	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
-	const { anchor, virtual, popoverOpen, id, feature, identifier, block, title, loading } =
-		useSelect( select => {
-			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
-			// Popover
-			const isPopoverHover = breveSelect.isPopoverHover();
-			const isHighlightHover = breveSelect.isHighlightHover();
+	const {
+		anchor,
+		virtual,
+		popoverOpen,
+		id,
+		feature,
+		identifier,
+		block,
+		title,
+		loading,
+		suggestions,
+	} = useSelect( select => {
+		const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+		// Popover
+		const isPopoverHover = breveSelect.isPopoverHover();
+		const isHighlightHover = breveSelect.isHighlightHover();
 
-			// Anchor data
-			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor();
-			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
-			const anchorId = anchorEl?.getAttribute?.( 'data-id' );
-			const anchorIdentifier = anchorEl?.getAttribute?.( 'data-identifier' );
-			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
-			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
-				name: '',
-				title: '',
-			};
+		// Anchor data
+		const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor();
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
+		const anchorId = anchorEl?.getAttribute?.( 'data-id' );
+		const anchorIdentifier = anchorEl?.getAttribute?.( 'data-identifier' );
+		const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
+		const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
+			name: '',
+			title: '',
+		};
 
-			// Suggestions
-			const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
+		// Suggestions
+		const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
+		const suggestionsData = breveSelect.getSuggestions( anchorFeature, anchorId );
 
-			return {
-				config,
-				anchor: anchorEl,
-				virtual: virtualEl,
-				title: config?.title,
-				feature: anchorFeature,
-				id: anchorId,
-				identifier: anchorIdentifier,
-				block: anchorBlock,
-				popoverOpen: isHighlightHover || isPopoverHover,
-				loading: loadingSuggestions,
-			};
-		}, [] );
+		return {
+			config,
+			anchor: anchorEl,
+			virtual: virtualEl,
+			title: config?.title,
+			feature: anchorFeature,
+			id: anchorId,
+			identifier: anchorIdentifier,
+			block: anchorBlock,
+			popoverOpen: isHighlightHover || isPopoverHover,
+			loading: loadingSuggestions,
+			suggestions: suggestionsData,
+		};
+	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
+	const hasSuggestions = Boolean( suggestions?.suggestion );
 
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
@@ -100,22 +114,35 @@ export default function Highlight() {
 					onMouseEnter={ handleMouseEnter }
 					onMouseLeave={ handleMouseLeave }
 				>
-					<div className="highlight-content">
+					<div
+						className={ clsx( 'highlight-content', {
+							'has-suggestions': hasSuggestions,
+						} ) }
+					>
 						<div className="title">
 							<div className="color" data-type={ feature } />
 							<div>{ title }</div>
 						</div>
-						<div className="action">
-							{ loading ? (
-								<div className="loading">
-									<Spinner />
+						{ hasSuggestions ? (
+							<div className="suggestion-container">
+								<div className="suggestion">{ suggestions?.suggestion }</div>
+								<div className="helper">
+									{ __( 'Click on a suggestion to insert it.', 'jetpack' ) }
 								</div>
-							) : (
-								<Button icon={ AiSVG } onClick={ handleSuggestions }>
-									{ __( 'Suggest', 'jetpack' ) }
-								</Button>
-							) }
-						</div>
+							</div>
+						) : (
+							<div className="action">
+								{ loading ? (
+									<div className="loading">
+										<Spinner />
+									</div>
+								) : (
+									<Button icon={ AiSVG } onClick={ handleSuggestions }>
+										{ __( 'Suggest', 'jetpack' ) }
+									</Button>
+								) }
+							</div>
+						) }
 					</div>
 				</Popover>
 			) }

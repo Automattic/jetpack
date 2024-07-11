@@ -79,13 +79,24 @@ export function setSuggestions( {
 		)
 			.then( response => {
 				// eslint-disable-next-line no-console
-				console.log( response );
-				dispatch( {
-					type: 'SET_SUGGESTIONS_LOADING',
-					id,
-					feature,
-					loading: false,
-				} );
+				try {
+					const suggestions = JSON.parse( response );
+					dispatch( {
+						type: 'SET_SUGGESTIONS',
+						id,
+						feature,
+						suggestions,
+					} );
+				} catch ( e ) {
+					// eslint-disable-next-line no-console
+					console.error( e );
+					dispatch( {
+						type: 'SET_SUGGESTIONS_LOADING',
+						id,
+						feature,
+						loading: false,
+					} );
+				}
 			} )
 			.catch( () => {
 				dispatch( {
