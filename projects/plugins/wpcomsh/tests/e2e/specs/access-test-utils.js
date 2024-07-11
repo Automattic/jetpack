@@ -6,8 +6,12 @@ const fetch = require( 'node-fetch' );
 
 const envVars = get( global, 'process.env', {} );
 
-const { AUTH_COOKIE_NAME, SUBSCRIBER_USER_ID, SUBSCRIBER_RESTAPI_NONCE, SUBSCRIBER_AUTH_COOKIE } =
-	envVars;
+const {
+	AUTH_COOKIE_NAME,
+	SUBSCRIBER_USER_ID,
+	SUBSCRIBER_RESTAPI_NONCE,
+	SUBSCRIBER_AUTH_COOKIE,
+} = envVars;
 
 const subscriberCookies = `${ AUTH_COOKIE_NAME }=${ SUBSCRIBER_AUTH_COOKIE }`;
 const siteBaseUrl = 'http://nginx:8989';

@@ -1,56 +1,60 @@
 // NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos.
 
-( function () {
-	document.addEventListener( 'DOMContentLoaded', function () {
-		const hostnames = [ 'wordpress.com', 'w.link', 'automattic.com' ];
+(function () {
+	document.addEventListener("DOMContentLoaded", function () {
+		const hostnames = ['wordpress.com', 'w.link', 'automattic.com'];
 		// Make sure we never show the banner on these hostnames.
-		if ( hostnames.includes( window.location.hostname ) ) {
+		if (hostnames.includes(window.location.hostname)) {
 			return;
 		}
 
-		var bumpStat = function ( statName ) {
+		var bumpStat = function (statName) {
 			new Image().src =
 				document.location.protocol +
-				'//pixel.wp.com/b.gif' +
-				'?v=wpcom-no-pv' +
-				'&x_simple_gifting_banner=' +
+				"//pixel.wp.com/b.gif" +
+				"?v=wpcom-no-pv" +
+				"&x_simple_gifting_banner=" +
 				statName +
-				'&rand=' +
+				"&rand=" +
 				Math.random();
 		};
 
-		if ( ! document.cookie.includes( 'wpcom_gifting_banner_gifter=true' ) ) {
+		if (!document.cookie.includes("wpcom_gifting_banner_gifter=true")) {
 			giftingBanner();
-			bumpStat( 'viewed_total' );
+			bumpStat("viewed_total");
 
-			document.getElementById( 'wpcom-gifting-banner-button' ).onclick = function () {
-				bumpStat( 'clicked' );
-				window.location.href = gifting_banner.checkout_link;
-			};
-			document.getElementById( 'wpcom-gifting-banner-more-info-button' ).onclick = function () {
-				bumpStat( 'moreinfo' );
-				window.open( gifting_banner.more_info_link, '_blank' );
-			};
+			document.getElementById("wpcom-gifting-banner-button").onclick =
+				function () {
+					bumpStat("clicked");
+					window.location.href = gifting_banner.checkout_link;
+				};
+			document.getElementById("wpcom-gifting-banner-more-info-button").onclick =
+				function () {
+					bumpStat("moreinfo");
+					window.open(gifting_banner.more_info_link, "_blank");
+				};
 		}
-	} );
+	});
 
 	function giftingBanner() {
 		// Check for hash in URL to see if we should dismiss the banner
 		var hash = location.hash;
-		if ( '#gift-thank-you' === hash ) {
+		if ("#gift-thank-you" === hash) {
 			var expiration = new Date();
 			expiration.setTime(
-				expiration.getTime() + 1000 * 60 * 60 * 24 * gifting_banner.dismiss_days_count
+				expiration.getTime() +
+				1000 * 60 * 60 * 24 * gifting_banner.dismiss_days_count
 			);
-			var expires = 'expires=' + expiration.toUTCString();
-			document.cookie = 'wpcom_gifting_banner_gifter=true;' + expires + ';path=/';
-			location.hash = '';
+			var expires = "expires=" + expiration.toUTCString();
+			document.cookie =
+				"wpcom_gifting_banner_gifter=true;" + expires + ";path=/";
+			location.hash = "";
 			return;
 		}
-		var notice = document.createElement( 'div' );
-		notice.setAttribute( 'id', 'wpcom-gifting-banner' );
-		notice.classList.add( 'wpcom-gifting-banner' );
-		document.documentElement.classList.add( 'has-wpcom-gifting-banner' );
+		var notice = document.createElement("div");
+		notice.setAttribute("id", "wpcom-gifting-banner");
+		notice.classList.add("wpcom-gifting-banner");
+		document.documentElement.classList.add("has-wpcom-gifting-banner");
 		notice.innerHTML =
 			'<div class="wpcom-gifting-banner__inner">' +
 			'<svg class="wpcom-gifting-banner__logo" xmlns="http://www.w3.org/2000/svg">\
@@ -70,24 +74,38 @@
 			'<span class="wpcom-gifting-banner__title"></span>' +
 			'<img class="wpcom-gifting-banner__img" alt="🎁" src="https://s.w.org/images/core/emoji/14.0.0/svg/1f381.svg"/>' +
 			'<span class="wpcom-gifting-banner__subtitle"></span>' +
-			'</div>' +
+			"</div>" +
 			'<button id="wpcom-gifting-banner-button" class="wpcom-gifting-banner__button"></button>' +
-			'</div>';
+			"</div>";
 
-		const title = document.createTextNode( gifting_banner.i18n.title );
-		const subtitle = document.createTextNode( gifting_banner.i18n.subtitle );
-		const more_info_button = document.createElement( 'BUTTON' );
-		more_info_button.setAttribute( 'id', 'wpcom-gifting-banner-more-info-button' );
-		more_info_button.setAttribute( 'class', 'wpcom-gifting-banner__more-info-button' );
-		const button_text = document.createTextNode( gifting_banner.i18n.button_text );
+		const title = document.createTextNode(gifting_banner.i18n.title);
+		const subtitle = document.createTextNode(gifting_banner.i18n.subtitle);
+		const more_info_button = document.createElement("BUTTON");
+		more_info_button.setAttribute(
+			"id",
+			"wpcom-gifting-banner-more-info-button"
+		);
+		more_info_button.setAttribute(
+			"class",
+			"wpcom-gifting-banner__more-info-button"
+		);
+		const button_text = document.createTextNode(
+			gifting_banner.i18n.button_text
+		);
 
-		notice.getElementsByClassName( 'wpcom-gifting-banner__title' )[ 0 ].appendChild( title );
-		notice.getElementsByClassName( 'wpcom-gifting-banner__subtitle' )[ 0 ].appendChild( subtitle );
 		notice
-			.getElementsByClassName( 'wpcom-gifting-banner__subtitle' )[ 0 ]
-			.appendChild( more_info_button );
-		notice.getElementsByClassName( 'wpcom-gifting-banner__button' )[ 0 ].appendChild( button_text );
+			.getElementsByClassName("wpcom-gifting-banner__title")[0]
+			.appendChild(title);
+		notice
+			.getElementsByClassName("wpcom-gifting-banner__subtitle")[0]
+			.appendChild(subtitle);
+		notice
+			.getElementsByClassName("wpcom-gifting-banner__subtitle")[0]
+			.appendChild(more_info_button);
+		notice
+			.getElementsByClassName("wpcom-gifting-banner__button")[0]
+			.appendChild(button_text);
 
-		document.body.prepend( notice );
+		document.body.prepend(notice);
 	}
-} )();
+})();

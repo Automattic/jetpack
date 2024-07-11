@@ -1,41 +1,43 @@
 /* global wpcomPluginsBanner */
 
-document.addEventListener( 'DOMContentLoaded', () => {
-	const pluginBrowser = document.querySelector( '#plugin-filter' );
-	if ( ! pluginBrowser ) {
+document.addEventListener("DOMContentLoaded", () => {
+	const pluginBrowser = document.querySelector("#plugin-filter");
+	if (!pluginBrowser) {
 		return;
 	}
 
 	document.documentElement.style.setProperty(
-		'--wpcom-plugins-banner-image',
-		`url(${ wpcomPluginsBanner.bannerBackground })`
+		"--wpcom-plugins-banner-image",
+		`url(${wpcomPluginsBanner.bannerBackground})`
 	);
 
 	pluginBrowser.insertAdjacentHTML(
-		'beforebegin',
+		"beforebegin",
 		`
 		<div class="wpcom-plugins-banner">
 			<div class="wpcom-plugins-banner__content">
-				<img src="${ wpcomPluginsBanner.logo }" alt="WordPress.com">
-				<h3>${ wpcomPluginsBanner.title }</h3>
-				<p>${ wpcomPluginsBanner.description }</p>
-				<a href="${ wpcomPluginsBanner.actionUrl }">${ wpcomPluginsBanner.actionText }</a>
+				<img src="${wpcomPluginsBanner.logo}" alt="WordPress.com">
+				<h3>${wpcomPluginsBanner.title}</h3>
+				<p>${wpcomPluginsBanner.description}</p>
+				<a href="${wpcomPluginsBanner.actionUrl}">${wpcomPluginsBanner.actionText}</a>
 			</div>
 		</div>
 	`
 	);
 
-	const wpcomPluginObserver = new MutationObserver( () => {
+	const wpcomPluginObserver = new MutationObserver(() => {
 		if (
-			! document.querySelector( '.plugin-install-search .current' ) ||
-			document.querySelector( '.no-plugin-results' )
+			!document.querySelector(".plugin-install-search .current") ||
+			document.querySelector(".no-plugin-results")
 		) {
-			document.querySelector( '.wpcom-plugins-banner' ).classList.remove( 'hidden' );
+			document
+				.querySelector(".wpcom-plugins-banner")
+				.classList.remove("hidden");
 		} else {
-			document.querySelector( '.wpcom-plugins-banner' ).classList.add( 'hidden' );
+			document.querySelector(".wpcom-plugins-banner").classList.add("hidden");
 		}
-	} );
-	wpcomPluginObserver.observe( document.getElementById( 'plugin-filter' ), {
+	});
+	wpcomPluginObserver.observe(document.getElementById("plugin-filter"), {
 		childList: true,
-	} );
-} );
+	});
+});
