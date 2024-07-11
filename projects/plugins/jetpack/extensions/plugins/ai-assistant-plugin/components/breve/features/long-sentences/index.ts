@@ -5,7 +5,7 @@ import { escapeRegExp } from '../../utils/escapeRegExp';
 /**
  * Types
  */
-import type { BreveFeatureConfig, HighlightedWord } from '../../types';
+import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
 export const LONG_SENTENCES: BreveFeatureConfig = {
 	name: 'long-sentences',
@@ -16,13 +16,13 @@ export const LONG_SENTENCES: BreveFeatureConfig = {
 
 const sentenceRegex = /[^\s][^.!?]+[.!?]+/g;
 
-export default function longSentences( text: string ): Array< HighlightedWord > {
-	const highlightedWords: Array< HighlightedWord > = [];
+export default function longSentences( text: string ): Array< HighlightedText > {
+	const highlightedTexts: Array< HighlightedText > = [];
 
 	const sentenceMatches = text.match( sentenceRegex );
 
 	if ( ! sentenceMatches ) {
-		return highlightedWords;
+		return highlightedTexts;
 	}
 
 	const sentences = [
@@ -35,13 +35,13 @@ export default function longSentences( text: string ): Array< HighlightedWord > 
 		const matches = text.matchAll( regex );
 
 		for ( const match of matches ) {
-			highlightedWords.push( {
-				word: sentence,
+			highlightedTexts.push( {
+				text: sentence,
 				startIndex: match.index,
 				endIndex: match.index + sentence.length,
 			} );
 		}
 	} );
 
-	return highlightedWords;
+	return highlightedTexts;
 }
