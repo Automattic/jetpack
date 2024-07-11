@@ -156,6 +156,8 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 };
 
 const ConnectionStatusCard: ConnectionStatusCardType = ( {
+	apiNonce,
+	apiRoot,
 	redirectUri = null,
 	title = __( 'Connection', 'jetpack-my-jetpack' ),
 	connectionInfoText = __(
@@ -168,13 +170,12 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	context,
 	onConnectUser = null,
 } ) => {
-	const { apiRoot, apiNonce, isRegistered, isUserConnected, userConnectionData } =
-		useMyJetpackConnection( {
-			redirectUri,
-			skipUserConnection: false,
-			autoTrigger: false,
-			from: 'my-jetpack',
-		} );
+	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
+		redirectUri,
+		skipUserConnection: false,
+		autoTrigger: false,
+		from: 'my-jetpack',
+	} );
 
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
