@@ -99,28 +99,13 @@ domReady( function () {
 	}
 
 	function storeCloseTimestamp() {
-		if ( window.localStorage ) {
-			localStorage.setItem( modalDismissedCookie, Date.now() );
-			return;
-		}
-		// Set a cookie.
-		const expires = new Date( Date.now() + Jetpack_Subscriptions.modalInterval ).toUTCString();
-		document.cookie = `${ modalDismissedCookie }=true; expires=${ expires };path=/;`;
+		localStorage.setItem( modalDismissedCookie, Date.now() );
 	}
 
 	function hasEnoughTimePassed() {
-		const hasModalDismissedCookie =
-			document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
-
-		if ( hasModalDismissedCookie ) {
-			return false;
-		}
-
-		if ( window.localStorage ) {
-			const timeSinceLastModal = localStorage.getItem( modalDismissedCookie );
-			return Date.now() - timeSinceLastModal > Jetpack_Subscriptions.modalInterval;
-		}
-
-		return true;
+		return (
+			Date.now() - localStorage.getItem( modalDismissedCookie ) >
+			Jetpack_Subscriptions.modalInterval
+		);
 	}
 } );
