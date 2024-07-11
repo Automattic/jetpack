@@ -2,7 +2,8 @@
 @use 'sass:string';
 
 $features-colors: (
-	'complex-words': rgba( 251, 192, 45, 1 ),
+	'complex-words': rgba( 240, 184, 73, 1 ),
+	'ambiguous-words': rgba( 0, 175, 82, 1 ),
 );
 
 @mixin properties( $feature, $color, $properties ) {

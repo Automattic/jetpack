@@ -45,12 +45,14 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/typography": "1.0.0",
 		"@preact/signals": "^1.2.2",
 		"@sentry/browser": "7.80.1",
 		"@wordpress/api-fetch": "7.2.0",
 		"@wordpress/base-styles": "5.2.0",
+		"@wordpress/blocks": "13.2.0",
 		"@wordpress/components": "28.2.0",
 		"@wordpress/data": "10.2.0",
 		"@wordpress/dom-ready": "^4.0.0",

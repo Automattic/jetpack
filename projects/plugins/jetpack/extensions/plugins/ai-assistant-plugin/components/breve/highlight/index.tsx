@@ -5,6 +5,7 @@ import { Button, Popover } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
+import React from 'react';
 /**
  * Internal dependencies
  */
@@ -13,27 +14,30 @@ import features from '../features';
 import registerEvents from '../features/events';
 import highlight from './highlight';
 import './style.scss';
+/**
+ * Types
+ */
+import type { BreveSelect } from '../types';
+import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
 
 // Setup the Breve highlights
 export default function Highlight() {
 	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
 
 	const popoverOpen = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const store = select( 'jetpack/ai-breve' ) as any;
+		const store = select( 'jetpack/ai-breve' ) as BreveSelect;
 		const isPopoverHover = store.isPopoverHover();
 		const isHighlightHover = store.isHighlightHover();
 		return isHighlightHover || isPopoverHover;
 	}, [] );
 
 	const anchor = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		return ( select( 'jetpack/ai-breve' ) as any ).getPopoverAnchor();
+		return ( select( 'jetpack/ai-breve' ) as BreveSelect ).getPopoverAnchor();
 	}, [] );
 
 	const isPopoverOpen = popoverOpen && anchor;
 
-	const selectedFeatured = anchor ? anchor?.getAttribute?.( 'data-type' ) : null;
+	const selectedFeatured = anchor ? ( anchor as HTMLElement )?.getAttribute?.( 'data-type' ) : null;
 
 	const featureConfig = features?.find?.( feature => feature.config.name === selectedFeatured )
 		?.config ?? {
@@ -79,21 +83,28 @@ export default function Highlight() {
 }
 
 export function registerBreveHighlights() {
-	features.forEach( ( { config, highlight: featureHighlight } ) => {
+	features.forEach( feature => {
+		const { highlight: featureHighlight, config } = feature;
 		const { name, ...configSettings } = config;
+
 		const settings = {
 			...configSettings,
+
 			__experimentalGetPropsForEditableTreePreparation() {
 				return {
-					isProofreadEnabled: globalSelect( 'jetpack/ai-breve' ).isProofreadEnabled(),
-					isFeatureEnabled: globalSelect( 'jetpack/ai-breve' ).isFeatureEnabled( config.name ),
+					isProofreadEnabled: (
+						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
+					 ).isProofreadEnabled(),
+					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
+						config.name
+					),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
 				{ isProofreadEnabled, isFeatureEnabled },
 				{ blockClientId }
 			) {
-				return ( formats, text ) => {
+				return ( formats: Array< RichTextFormatList >, text: string ) => {
 					const record = { formats, text } as RichTextValue;
 					const type = `jetpack/ai-proofread-${ config.name }`;
 
