@@ -80,7 +80,7 @@ class Help_Center {
 	 * @param string $version The version of the asset file to get.
 	 */
 	public function enqueue_script( $variant, $dependencies, $version ) {
-		$script_dependencies = $dependencies;
+		$script_dependencies = $dependencies ?? array();
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
 			// Crazy high number to prevent Jetpack removing it
@@ -107,12 +107,25 @@ class Help_Center {
 			);
 		}
 
+		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
+			// Load translations directly from widgets.wp.com.
+			wp_enqueue_script(
+				'help-center-translations',
+				'https://widgets.wp.com/help-center/languages/' . self::determine_iso_639_locale() . '-v1.js',
+				array( 'wp-i18n' ),
+				$version,
+				true
+			);
+
+			$script_dependencies[] = 'help-center-translations';
+		}
+
 		// If the user is not connected, the Help Center icon will link to the support page.
 		// The disconnected version is significantly smaller than the connected version.
 		wp_enqueue_script(
 			'help-center',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . '.min.js',
-			is_array( $script_dependencies ) ? $script_dependencies : array(),
+			$script_dependencies,
 			$version,
 			true
 		);
@@ -162,15 +175,6 @@ class Help_Center {
 				'before'
 			);
 		}
-
-		// Load translations directly from widgets.wp.com.
-		wp_enqueue_script(
-			'help-center-translations',
-			'https://widgets.wp.com/help-center/languages/' . self::determine_iso_639_locale() . '-v1.js',
-			array( 'wp-i18n' ),
-			$version,
-			true
-		);
 	}
 
 	/**
