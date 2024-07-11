@@ -1,12 +1,14 @@
 .value-section {
     display: flex;
     justify-content: space-between;
+    margin-top: calc(var(--spacing-base) / 2);
 
     &__heading {
         font-size: var(--font-body-extra-small);
         color: var(--jp-gray-100);
         font-weight: 500;
         margin-bottom: 10px;
+        line-height: var(--font-title-small);
     }
 
     &__last-scan {
@@ -16,7 +18,7 @@
         margin-top: var(--spacing-base);
         column-gap: 1px;
         position: absolute;
-        right: calc(var(--spacing-base)*3);
+        right: calc(var(--spacing-base) * 3);
         width: calc(57% - (var(--spacing-base) * 3));
         div {
             font-size: var(--font-body-extra-small);
@@ -68,7 +70,7 @@
 
 .scan-threats {
     &__threat-count {
-        font-size: calc( var(--font-title-large) - 4px );
+        font-size: calc(var(--font-title-large) - 4px);
         line-height: var(--font-title-large);
         font-weight: 400;
         color: var(--jp-black);

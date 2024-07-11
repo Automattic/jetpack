@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { useCallback, type FC } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import ProductCard from '../../connected-product-card';
 import ProtectValueSection from './protect-value-section';
-import type { FC } from 'react';
 
 const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 	// Override the primary action button to read "Protect your site" instead
@@ -13,8 +13,15 @@ const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 		},
 	};
 
+	const noDescription = useCallback( () => null, [] );
+
 	return (
-		<ProductCard admin={ admin } slug="protect" primaryActionOverride={ primaryActionOverride }>
+		<ProductCard
+			admin={ admin }
+			slug="protect"
+			primaryActionOverride={ primaryActionOverride }
+			Description={ noDescription }
+		>
 			<ProtectValueSection />
 		</ProductCard>
 	);
