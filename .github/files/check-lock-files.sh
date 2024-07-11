@@ -30,7 +30,7 @@ for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.
 	echo "::endgroup::"
 	if ! git diff --exit-code pnpm-lock.yaml; then
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.
-		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`pnpm install\` in the appropriate directory."
+		echo "::error file=$FILE::$FILE is not up to date!%0AYou can probably fix this by running \`pnpm install\`.%0AIf that doesn't do it, try \`pnpm install --resolution-only\`."
 		echo "---"
 		EXIT=1
 	fi

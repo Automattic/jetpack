@@ -7,38 +7,42 @@ import { dispatch } from '@wordpress/data';
  */
 import getContainer from './container';
 import features from './index';
+/**
+ * Types
+ */
+import type { BreveDispatch } from '../types';
 
-let timeout;
+let timeout: number;
 
-function handleMouseEnter( e ) {
+function handleMouseEnter( e: React.MouseEvent ) {
 	e.stopPropagation();
 	clearTimeout( timeout );
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	( dispatch( 'jetpack/ai-breve' ) as any ).setHighlightHover( true );
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	( dispatch( 'jetpack/ai-breve' ) as any ).setPopoverAnchor( e.target );
+	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
+	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( e.target );
 }
 
-function handleMouseLeave( e ) {
+function handleMouseLeave( e: React.MouseEvent ) {
 	e.stopPropagation();
 	timeout = setTimeout( () => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		( dispatch( 'jetpack/ai-breve' ) as any ).setHighlightHover( false );
+		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
 	}, 100 );
 }
 
 export default function registerEvents( clientId: string ) {
 	const { foundContainer: container } = getContainer();
 	const id = `block-${ clientId }`;
-	const block = container?.querySelector( `#${ id }` );
+	const block = container?.querySelector?.( `#${ id }` );
 
 	features.forEach( ( { config } ) => {
-		const items = block?.querySelectorAll?.( `[data-type='${ config.name }']` );
-		items.forEach( highlightEl => {
-			highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
-			highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
-			highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
-			highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
-		} );
+		const items = block?.querySelectorAll?.( `[data-type='${ config.name }']` ) || [];
+
+		if ( items?.length > 0 ) {
+			items.forEach( highlightEl => {
+				highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
+				highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
+				highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
+				highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
+			} );
+		}
 	} );
 }

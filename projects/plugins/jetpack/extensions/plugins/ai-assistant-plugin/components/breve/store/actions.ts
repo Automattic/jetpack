@@ -1,79 +1,47 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { create, getTextContent, toHTMLString } from '@wordpress/rich-text';
-import features from '../features';
-import registerEvents from '../features/events';
-import highlight from '../highlight/highlight';
+import { select } from '@wordpress/data';
 
-export function setHighlightHover( isHover ) {
+// ACTIONS
+
+export function setHighlightHover( isHover: boolean ) {
 	return {
 		type: 'SET_HIGHLIGHT_HOVER',
 		isHover,
 	};
 }
 
-export function setPopoverHover( isHover ) {
+export function setPopoverHover( isHover: boolean ) {
 	return {
 		type: 'SET_POPOVER_HOVER',
 		isHover,
 	};
 }
 
-export function setPopoverAnchor( anchor ) {
+export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
 	};
 }
 
-export function setBlockContent( clientId ) {
-	return ( { registry: { select, dispatch: dispatchFromRegistry }, dispatch } ) => {
-		const block = select( 'core/block-editor' ).getBlock( clientId );
-		const blocks = select( 'jetpack/ai-breve' ).getBlocksContent();
-		const blockIndex = blocks.findIndex( b => b.clientId === clientId );
-		const savedText = blocks[ blockIndex ]?.text ?? '';
+export function toggleProofread( force?: boolean ) {
+	const current = select( 'jetpack/ai-breve' ).isProofreadEnabled();
+	const enabled = force === undefined ? ! current : force;
 
-		const currentContent =
-			typeof block.attributes.content === 'string'
-				? create( { html: block.attributes.content } )
-				: create( block.attributes.content );
+	return {
+		type: 'SET_PROOFREAD_ENABLED',
+		enabled,
+	};
+}
 
-		const currentText = getTextContent( currentContent );
-		const changed = currentText !== savedText;
+export function toggleFeature( feature: string, force?: boolean ) {
+	const current = select( 'jetpack/ai-breve' ).isFeatureEnabled( feature );
+	const enabled = force === undefined ? ! current : force;
 
-		if ( changed && currentText ) {
-			const newContent = features.reduce(
-				( acc, feature ) => {
-					return highlight( {
-						content: acc,
-						indexes: feature.highlight( getTextContent( acc ) ),
-						type: `jetpack/ai-proofread-${ feature.config.name }`,
-						attributes: { 'data-type': feature.config.name },
-					} );
-				},
-				// We started with a fresh text
-				create( { text: currentText } )
-			);
-
-			if ( newContent ) {
-				const updateBlockAttributes =
-					dispatchFromRegistry( 'core/block-editor' ).updateBlockAttributes;
-
-				updateBlockAttributes( clientId, { content: toHTMLString( { value: newContent } ) } );
-
-				// We need to wait for the highlights to be applied before we can attach events
-				setTimeout( () => {
-					registerEvents( clientId );
-				}, 2000 );
-
-				dispatch( {
-					type: 'SET_BLOCK_TEXT',
-					clientId: block.clientId,
-					text: currentText,
-					index: blockIndex === -1 ? undefined : blockIndex,
-				} );
-			}
-		}
+	return {
+		type: enabled ? 'ENABLE_FEATURE' : 'DISABLE_FEATURE',
+		feature,
 	};
 }
