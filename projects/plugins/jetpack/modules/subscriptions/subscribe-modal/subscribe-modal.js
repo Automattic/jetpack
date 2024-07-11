@@ -1,7 +1,7 @@
 /* global Jetpack_Subscriptions */
 const { domReady } = wp;
 domReady( () => {
-	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
+	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
 
 	if ( ! modal || ! hasEnoughTimePassed() ) {
@@ -95,7 +95,7 @@ domReady( () => {
 	// Remove all event listeners. That would add the modal again.
 	function removeEventListeners() {
 		window.removeEventListener( 'scroll', onScroll );
-		window.clearInterval( modalInactiveInterval );
+		clearInterval( modalInactiveInterval );
 	}
 
 	function storeCloseTimestamp() {
@@ -103,9 +103,7 @@ domReady( () => {
 	}
 
 	function hasEnoughTimePassed() {
-		return (
-			Date.now() - localStorage.getItem( modalDismissedCookie ) >
-			Jetpack_Subscriptions.modalInterval
-		);
+		const lastDismissed = localStorage.getItem( modalDismissedCookie );
+		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
 	}
 } );
