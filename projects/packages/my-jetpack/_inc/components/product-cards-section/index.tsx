@@ -21,11 +21,17 @@ type DisplayItemsProps = {
 	slugs: JetpackModule[];
 };
 
+type DisplayItemType = Record<
+	// We don't have a card for Security or Extras, and scan is displayed as protect.
+	Exclude< JetpackModule, 'extras' | 'scan' | 'security' >,
+	FC< { admin: boolean } >
+>;
+
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowInitialState();
 
-	const items = {
+	const items: DisplayItemType = {
 		backup: BackupCard,
 		protect: ProtectCard,
 		'anti-spam': AntiSpamCard,
@@ -36,7 +42,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 		crm: CrmCard,
 		creator: ! isAtomic ? CreatorCard : null,
 		social: SocialCard,
-		ai: AiCard,
+		'jetpack-ai': AiCard,
 	};
 
 	return (
