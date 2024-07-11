@@ -86,7 +86,6 @@ domReady( function () {
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
 		window.removeEventListener( 'scroll', onScroll );
 		window.removeEventListener( 'storage', onLocalStorage );
-		window.clearInterval( scrollThrottle );
 	}
 
 	function closeModal() {
