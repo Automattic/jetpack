@@ -34,3 +34,7 @@ export function isFeatureEnabled( state: BreveState, feature: string ) {
 export function getDisabledFeatures( state: BreveState ) {
 	return state.configuration?.disabled;
 }
+
+export function getSuggestionsLoading( state: BreveState, feature: string, id: string ) {
+	return state.suggestions?.[ feature ]?.[ id ]?.loading;
+}

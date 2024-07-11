@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { Button, Popover } from '@wordpress/components';
+import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
+import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
  * Internal dependencies
@@ -23,42 +24,66 @@ import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types'
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
-	const popoverOpen = useSelect( select => {
-		const store = select( 'jetpack/ai-breve' ) as BreveSelect;
-		const isPopoverHover = store.isPopoverHover();
-		const isHighlightHover = store.isHighlightHover();
-		return isHighlightHover || isPopoverHover;
-	}, [] );
+	const { anchor, virtual, popoverOpen, id, feature, identifier, block, title, loading } =
+		useSelect( select => {
+			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+			// Popover
+			const isPopoverHover = breveSelect.isPopoverHover();
+			const isHighlightHover = breveSelect.isHighlightHover();
 
-	const { target: anchor, virtual } = useSelect( select => {
-		return (
-			( select( 'jetpack/ai-breve' ) as BreveSelect ).getPopoverAnchor() ?? {
-				target: null,
-				virtual: null,
-			}
-		);
-	}, [] );
+			// Anchor data
+			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor();
+			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
+			const anchorId = anchorEl?.getAttribute?.( 'data-id' );
+			const anchorIdentifier = anchorEl?.getAttribute?.( 'data-identifier' );
+			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
+			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
+				name: '',
+				title: '',
+			};
+
+			// Suggestions
+			const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
+
+			return {
+				config,
+				anchor: anchorEl,
+				virtual: virtualEl,
+				title: config?.title,
+				feature: anchorFeature,
+				id: anchorId,
+				identifier: anchorIdentifier,
+				block: anchorBlock,
+				popoverOpen: isHighlightHover || isPopoverHover,
+				loading: loadingSuggestions,
+			};
+		}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
 
-	const selectedFeatured = anchor ? ( anchor as HTMLElement )?.getAttribute?.( 'data-type' ) : null;
-
-	const featureConfig = features?.find?.( feature => feature.config.name === selectedFeatured )
-		?.config ?? {
-		name: '',
-		title: '',
-	};
-
-	const handleMouseEnter = ( e: React.MouseEvent ) => {
-		e.stopPropagation();
+	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
 
 	const handleMouseLeave = ( e: React.MouseEvent ) => {
 		e.stopPropagation();
 		setPopoverHover( false );
+	};
+
+	const handleSuggestions = () => {
+		const sentence = ( anchor as HTMLElement )?.innerText;
+		const content = ( anchor as HTMLElement )?.parentElement?.innerText;
+
+		setSuggestions( {
+			id,
+			feature,
+			identifier,
+			sentence,
+			content,
+			blockClientId: block,
+		} );
 	};
 
 	return (
@@ -77,11 +102,19 @@ export default function Highlight() {
 				>
 					<div className="highlight-content">
 						<div className="title">
-							<div className="color" data-type={ selectedFeatured } />
-							<div>{ featureConfig?.title }</div>
+							<div className="color" data-type={ feature } />
+							<div>{ title }</div>
 						</div>
 						<div className="action">
-							<Button icon={ AiSVG }>{ __( 'Suggest', 'jetpack' ) }</Button>
+							{ loading ? (
+								<div className="loading">
+									<Spinner />
+								</div>
+							) : (
+								<Button icon={ AiSVG } onClick={ handleSuggestions }>
+									{ __( 'Suggest', 'jetpack' ) }
+								</Button>
+							) }
 						</div>
 					</div>
 				</Popover>
@@ -114,18 +147,25 @@ export function registerBreveHighlights() {
 			},
 			__experimentalCreatePrepareEditableTree(
 				{ isProofreadEnabled, isFeatureEnabled },
-				{ blockClientId }
+				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
 					const record = { formats, text } as RichTextValue;
 					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
+						const highlights = featureHighlight( text );
+
 						const applied = highlight( {
 							content: record,
 							type,
-							indexes: featureHighlight( record.text ),
-							attributes: { 'data-type': config.name },
+							indexes: highlights,
+							attributes: {
+								'data-type': config.name,
+								'data-id': md5( text ),
+								'data-identifier': richTextIdentifier ?? 'none',
+								'data-block': blockClientId,
+							},
 						} );
 
 						setTimeout( () => {

@@ -94,4 +94,30 @@ export function popover(
 	return state;
 }
 
-export default combineReducers( { popover, configuration } );
+export function suggestions(
+	state = {},
+	action: { type: string; id: string; feature: string; loading: boolean }
+) {
+	switch ( action.type ) {
+		case 'SET_SUGGESTIONS_LOADING': {
+			const { id, feature } = action;
+			const current = { ...state };
+			const currentItem = current?.[ feature ]?.[ id ] || {};
+
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ id ]: {
+						...currentItem,
+						loading: action.loading,
+					},
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions } );

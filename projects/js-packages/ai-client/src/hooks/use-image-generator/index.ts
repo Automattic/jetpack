@@ -150,7 +150,7 @@ const getStableDiffusionImageGenerationPrompt = async (
 	 */
 	const data = await askQuestionSync( prompt, { feature } );
 
-	return data.choices?.[ 0 ]?.message?.content;
+	return data;
 };
 
 const useImageGenerator = () => {
