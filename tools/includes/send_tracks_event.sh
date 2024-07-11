@@ -14,8 +14,7 @@ function send_tracks_event {
 	USER_AGENT='jetpack-monorepo-cli'
 	PAYLOAD=$(jq -nr \
 		--arg email "$(git config --get user.email)" \
-		--arg timestamp "$( date +%s000 )" \
-		'.commonProps = {"_ul": $email, "_ut": "anon", "_rt": $timestamp}'
+		'.commonProps = {"_ul": $email, "_ut": "anon", "_rt": ( now * 1000 | round ) }'
 	)
 
 	# Add event name to payload.
