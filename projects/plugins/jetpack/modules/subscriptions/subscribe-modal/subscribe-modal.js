@@ -4,9 +4,16 @@ domReady( () => {
 	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
 
+	function hasEnoughTimePassed() {
+		const lastDismissed = localStorage.getItem( modalDismissedCookie );
+		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
+	}
+
 	if ( ! modal || ! hasEnoughTimePassed() ) {
 		return;
 	}
+
+	const modalLoadTimeout = setTimeout( openModal, Jetpack_Subscriptions.modalLoadTime );
 
 	const targetElement = (
 		document.querySelector( '.entry-content' ) || document.documentElement
@@ -38,9 +45,6 @@ domReady( () => {
 		}
 	}
 	window.addEventListener( 'storage', onLocalStorage );
-
-	// Check if the page is inactive
-	const modalInactiveInterval = setInterval( openModal, Jetpack_Subscriptions.modalLoadTime );
 
 	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
 	const form = modal.querySelector( 'form' );
@@ -95,15 +99,10 @@ domReady( () => {
 	// Remove all event listeners. That would add the modal again.
 	function removeEventListeners() {
 		window.removeEventListener( 'scroll', onScroll );
-		clearInterval( modalInactiveInterval );
+		clearTimeout( modalLoadTimeout );
 	}
 
 	function storeCloseTimestamp() {
 		localStorage.setItem( modalDismissedCookie, Date.now() );
-	}
-
-	function hasEnoughTimePassed() {
-		const lastDismissed = localStorage.getItem( modalDismissedCookie );
-		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
 	}
 } );
