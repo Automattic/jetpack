@@ -2,6 +2,34 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.54.3] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.54.2] - 2024-06-25
+### Added
+- Added social preview for Threads [#38003]
+
+## [0.54.1] - 2024-06-24
+### Fixed
+- Updated threads icon color [#37977]
+
+## [0.54.0] - 2024-06-21
+### Added
+- Added Chip component [#37916]
+
+## [0.53.10] - 2024-06-12
+### Changed
+- Updated package dependencies. [#37796]
+
+## [0.53.9] - 2024-06-11
+### Changed
+- Updated package dependencies. [#37779]
+
+## [0.53.8] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
 ## [0.53.7] - 2024-06-05
 ### Changed
 - Updated package dependencies. [#37669]
@@ -1055,6 +1083,13 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.54.3]: https://github.com/Automattic/jetpack-components/compare/0.54.2...0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-components/compare/0.54.1...0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-components/compare/0.54.0...0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-components/compare/0.53.10...0.54.0
+[0.53.10]: https://github.com/Automattic/jetpack-components/compare/0.53.9...0.53.10
+[0.53.9]: https://github.com/Automattic/jetpack-components/compare/0.53.8...0.53.9
+[0.53.8]: https://github.com/Automattic/jetpack-components/compare/0.53.7...0.53.8
 [0.53.7]: https://github.com/Automattic/jetpack-components/compare/0.53.6...0.53.7
 [0.53.6]: https://github.com/Automattic/jetpack-components/compare/0.53.5...0.53.6
 [0.53.5]: https://github.com/Automattic/jetpack-components/compare/0.53.4...0.53.5

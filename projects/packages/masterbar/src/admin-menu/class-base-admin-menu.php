@@ -166,7 +166,7 @@ abstract class Base_Admin_Menu {
 
 		// Only add submenu when there are other submenu items.
 		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -226,7 +226,7 @@ abstract class Base_Admin_Menu {
 				$submenu_item[0] ?? '',
 				$submenu_item[1] ?? 'read',
 				$submenus_to_update[ $submenu_item[2] ],
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 				0 === $i ? 0 : $i + 1
 			);
 		}

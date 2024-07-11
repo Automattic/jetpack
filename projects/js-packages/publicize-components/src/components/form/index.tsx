@@ -6,8 +6,7 @@
  * sharing message.
  */
 
-import { Button } from '@automattic/jetpack-components';
-import { Disabled, ExternalLink, PanelRow } from '@wordpress/components';
+import { Disabled, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,13 +21,13 @@ import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conve
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
-import { ManageConnectionsModalWithTrigger as ManageConnectionsModal } from '../manage-connections-modal';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
+import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
 import styles from './styles.module.scss';
@@ -48,7 +47,6 @@ export default function PublicizeForm() {
 	const {
 		isPublicizeEnabled,
 		isPublicizeDisabledBySitePlan,
-		connectionsAdminUrl,
 		needsUserConnection,
 		userConnectionUrl,
 	} = usePublicizeConfig();
@@ -68,7 +66,7 @@ export default function PublicizeForm() {
 		[]
 	);
 
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 
@@ -77,7 +75,6 @@ export default function PublicizeForm() {
 		useMediaDetails( mediaId )[ 0 ],
 		{
 			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
 		}
 	);
 	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
@@ -101,12 +98,15 @@ export default function PublicizeForm() {
 
 	return (
 		<Wrapper>
+			{
+				// Render modal only once
+				useAdminUiV1 ? <ManageConnectionsModal /> : null
+			}
 			{ hasConnections ? (
 				<>
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					<EnabledConnectionsNotice />
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
@@ -149,19 +149,7 @@ export default function PublicizeForm() {
 											'jetpack'
 										) }
 									</span>
-									{ useAdminUiV1 ? (
-										<ManageConnectionsModal
-											trigger={
-												<Button variant="secondary" size="small">
-													{ __( 'Connect an account', 'jetpack' ) }
-												</Button>
-											}
-										/>
-									) : (
-										<ExternalLink href={ connectionsAdminUrl }>
-											{ __( 'Connect an account', 'jetpack' ) }
-										</ExternalLink>
-									) }
+									<SettingsButton label={ __( 'Connect an account', 'jetpack' ) } />
 								</p>
 							);
 						}

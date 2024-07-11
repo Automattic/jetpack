@@ -11,21 +11,45 @@ domReady( function () {
 		return;
 	}
 
-	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	let hasLoaded = false;
-	let isScrolling;
+	const targetElement = (
+		document.querySelector( '.entry-content' ) || document.documentElement
+	).getBoundingClientRect();
 
-	window.onscroll = function () {
-		window.clearTimeout( isScrolling );
+	function hasPassedScrollThreshold() {
+		const scrollPosition = window.scrollY + window.innerHeight / 2;
+		const scrollPositionThreshold =
+			targetElement.top +
+			( targetElement.height * Jetpack_Subscriptions.modalScrollThreshold ) / 100;
+		return scrollPosition > scrollPositionThreshold;
+	}
 
-		isScrolling = setTimeout( function () {
-			if ( ! hasLoaded ) {
-				openModal();
-			}
-		}, Jetpack_Subscriptions.modalLoadTime );
-	};
+	function onScroll() {
+		if ( ! hasLoaded ) {
+			requestAnimationFrame( () => {
+				if ( hasPassedScrollThreshold() ) {
+					openModal();
+				}
+			} );
+		}
+	}
+
+	window.addEventListener( 'scroll', onScroll, { passive: true } );
+
+	setTimeout( () => {
+		if ( ! hasLoaded ) {
+			openModal();
+		}
+	}, Jetpack_Subscriptions.modalLoadTime );
+
+	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
+	const form = modal.querySelector( 'form' );
+	if ( form ) {
+		form.addEventListener( 'subscription-modal-loaded', closeModal );
+	}
 
 	// User can edit modal, and could remove close link.
+	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	if ( close ) {
 		close.onclick = function ( event ) {
 			event.preventDefault();
@@ -51,6 +75,7 @@ domReady( function () {
 		hasLoaded = true;
 		setModalDismissedCookie();
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
+		window.removeEventListener( 'scroll', onScroll );
 	}
 
 	function closeModal() {

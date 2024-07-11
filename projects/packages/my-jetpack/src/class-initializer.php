@@ -37,7 +37,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.24.4-alpha';
+	const PACKAGE_VERSION = '4.27.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -59,7 +59,7 @@ class Initializer {
 
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 
-	const MISSING_SITE_CONNECTION_NOTIFICATION_KEY = 'missing-site-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -104,6 +104,7 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
@@ -238,6 +239,7 @@ class Initializer {
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
 					'purchases'                 => self::get_purchases(),
@@ -493,10 +495,16 @@ class Initializer {
 	/**
 	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
 	 *
+	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
+	 *
 	 * @return void
 	 */
-	public static function queue_historically_active_jetpack_modules_update() {
-		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
+		$plugin_filenames = Products::get_all_plugin_filenames();
+
+		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
+			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+		}
 	}
 
 	/**
@@ -506,18 +514,15 @@ class Initializer {
 	 * @return void
 	 */
 	public static function setup_historically_active_jetpack_modules_sync() {
-		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) ) {
+		if ( get_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY ) && ! wp_doing_ajax() ) {
 			self::update_historically_active_jetpack_modules();
 			delete_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY );
 		}
 
 		$actions = array(
-			'jetpack_site_before_disconnected',
 			'jetpack_site_registered',
 			'jetpack_user_authorized',
-			'jetpack_unlinked_user',
 			'activated_plugin',
-			'my_jetpack_init',
 		);
 
 		foreach ( $actions as $action ) {
@@ -538,38 +543,19 @@ class Initializer {
 	public static function update_historically_active_jetpack_modules() {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$products                    = Products::get_products();
-		$active_module_statuses      = array(
-			'active',
-			'can_upgrade',
-		);
-		$broken_module_statuses      = array(
-			'site_connection_error',
-			'user_connection_error',
-		);
-		// This is defined as the statuses in which the user willingly has the module disabled whether it be by
-		// default, uninstalling the plugin, disabling the module, or not renewing their plan.
-		$disabled_module_statuses = array(
-			'inactive',
-			'module_disabled',
-			'plugin_absent',
-			'plugin_absent_with_plan',
-			'needs_purchase',
-			'needs_purchase_or_free',
-			'needs_first_site_connection',
-		);
 
 		foreach ( $products as $product ) {
 			$status       = $product['status'];
 			$product_slug = $product['slug'];
 			// We want to leave modules in the array if they've been active in the past
 			// and were not manually disabled by the user.
-			if ( in_array( $status, $broken_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$broken_module_statuses, true ) ) {
 				continue;
 			}
 
 			// If the module is active and not already in the array, add it
 			if (
-				in_array( $status, $active_module_statuses, true ) &&
+				in_array( $status, Products::$active_module_statuses, true ) &&
 				! in_array( $product_slug, $historically_active_modules, true )
 			) {
 					$historically_active_modules[] = $product_slug;
@@ -577,7 +563,7 @@ class Initializer {
 
 			// If the module has been disabled due to a manual user action,
 			// or because of a missing plan error, remove it from the array
-			if ( in_array( $status, $disabled_module_statuses, true ) ) {
+			if ( in_array( $status, Products::$disabled_module_statuses, true ) ) {
 				$historically_active_modules = array_values( array_diff( $historically_active_modules, array( $product_slug ) ) );
 			}
 		}
@@ -668,7 +654,7 @@ class Initializer {
 	/**
 	 * Returns true if the site has file write access to the plugins folder, false otherwise.
 	 *
-	 * @return bool
+	 * @return string
 	 **/
 	public static function has_file_system_write_access() {
 
@@ -757,18 +743,62 @@ class Initializer {
 	}
 
 	/**
+	 * Check for features broken by a disconnected user or site
+	 *
+	 * @return array
+	 */
+	public static function check_for_broken_modules() {
+		$connection        = new Connection_Manager();
+		$is_user_connected = $connection->is_user_connected() || $connection->has_connected_owner();
+		$is_site_connected = $connection->is_connected();
+		$broken_modules    = array(
+			'needs_site_connection' => array(),
+			'needs_user_connection' => array(),
+		);
+
+		if ( $is_user_connected && $is_site_connected ) {
+			return $broken_modules;
+		}
+
+		$products                    = Products::get_products_classes();
+		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
+
+		foreach ( $products as $product ) {
+			if ( ! in_array( $product::$slug, $historically_active_modules, true ) ) {
+				continue;
+			}
+
+			if ( $product::$requires_user_connection && ! $is_user_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_user_connection'], true ) ) {
+					$broken_modules['needs_user_connection'][] = $product::$slug;
+				}
+			} elseif ( ! $is_site_connected ) {
+				if ( ! in_array( $product::$slug, $broken_modules['needs_site_connection'], true ) ) {
+					$broken_modules['needs_site_connection'][] = $product::$slug;
+				}
+			}
+		}
+
+		return $broken_modules;
+	}
+
+	/**
 	 *  Add relevant red bubble notifications
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
 	 */
 	public static function add_red_bubble_alerts( array $red_bubble_slugs ) {
+		if ( wp_doing_ajax() ) {
+			return array();
+		}
+
 		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
 		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
 			$red_bubble_slugs['welcome-banner-active'] = null;
 			return $red_bubble_slugs;
 		} else {
-			return self::alert_if_missing_site_connection( $red_bubble_slugs );
+			return self::alert_if_missing_connection( $red_bubble_slugs );
 		}
 	}
 
@@ -778,9 +808,40 @@ class Initializer {
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array
 	 */
-	public static function alert_if_missing_site_connection( array $red_bubble_slugs ) {
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			$red_bubble_slugs[ self::MISSING_SITE_CONNECTION_NOTIFICATION_KEY ] = null;
+	public static function alert_if_missing_connection( array $red_bubble_slugs ) {
+		$broken_modules = self::check_for_broken_modules();
+		$connection     = new Connection_Manager();
+
+		if ( ! empty( $broken_modules['needs_user_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! empty( $broken_modules['needs_site_connection'] ) ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => true,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! $connection->is_user_connected() && ! $connection->has_connected_owner() ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'user',
+				'is_error' => false,
+			);
+			return $red_bubble_slugs;
+		}
+
+		if ( ! $connection->is_connected() ) {
+			$red_bubble_slugs[ self::MISSING_CONNECTION_NOTIFICATION_KEY ] = array(
+				'type'     => 'site',
+				'is_error' => false,
+			);
+			return $red_bubble_slugs;
 		}
 
 		return $red_bubble_slugs;

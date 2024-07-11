@@ -1,5 +1,6 @@
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConnectionBanner from 'components/connection-banner';
@@ -15,7 +16,6 @@ import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
 	isConnectionOwner,
-	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
 	isReconnectingSite,
@@ -29,9 +29,14 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
+	getSiteAdminUrl,
+	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
+import { getModule, isModuleActivated } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
+import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
+import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -61,36 +66,6 @@ export class DevVersionNotice extends React.Component {
 DevVersionNotice.propTypes = {
 	isDevVersion: PropTypes.bool.isRequired,
 	userIsSubscriber: PropTypes.bool.isRequired,
-};
-
-export class StagingSiteNotice extends React.Component {
-	static displayName = 'StagingSiteNotice';
-
-	render() {
-		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			const stagingSiteSupportLink = getRedirectUrl( 'jetpack-support-staging-sites' ),
-				props = {
-					text: __( 'You are running Jetpack on a staging server.', 'jetpack' ),
-					status: 'is-basic',
-					showDismiss: false,
-				};
-
-			return (
-				<SimpleNotice { ...props }>
-					<NoticeAction href={ stagingSiteSupportLink }>
-						{ __( 'More Info', 'jetpack' ) }
-					</NoticeAction>
-				</SimpleNotice>
-			);
-		}
-
-		return false;
-	}
-}
-
-StagingSiteNotice.propTypes = {
-	isStaging: PropTypes.bool.isRequired,
-	isInIdentityCrisis: PropTypes.bool.isRequired,
 };
 
 export class OfflineModeNotice extends React.Component {
@@ -233,10 +208,6 @@ class JetpackNotices extends React.Component {
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
-				<StagingSiteNotice
-					isStaging={ this.props.isStaging }
-					isInIdentityCrisis={ this.props.isInIdentityCrisis }
-				/>
 				<PlanConflictWarning />
 				<DismissableNotices />
 				{ ! this.props.isReconnectingSite &&
@@ -269,6 +240,27 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				{ this.props.startFreshEnabled && (
+					<SimpleNotice status="is-warning" showDismiss={ false }>
+						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
+					</SimpleNotice>
+				) }
+				{ this.props.showGoogleAnalyticsNotice && (
+					<SimpleNotice status="is-warning" showDismiss={ false }>
+						<div>
+							{ __(
+								"Jetpack's Google Analytics feature will be removed on August 6, 2024.",
+								'jetpack'
+							) }
+						</div>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
+							{ __(
+								'Read this document for details and how to keep tracking visits with Google Analytics',
+								'jetpack'
+							) }
+						</ExternalLink>
+					</SimpleNotice>
+				) }
 			</div>
 		);
 	}
@@ -287,13 +279,22 @@ export default connect(
 			isDevVersion: isDevVersion( state ),
 			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
-			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			connectionErrors: getConnectionErrors( state ),
 			siteDataErrors: getSiteDataErrors( state ),
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
+			showGoogleAnalyticsNotice:
+				isModuleActivated( state, 'google-analytics' ) &&
+				! isWoASite( state ) &&
+				! isFetchingPluginsData( state ) &&
+				! isPluginActive(
+					state,
+					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
+				),
 		};
 	},
 	dispatch => {

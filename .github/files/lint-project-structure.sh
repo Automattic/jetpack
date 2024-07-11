@@ -9,12 +9,6 @@ BASE=$PWD
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/.github/versions.sh"
 
-if [[ -n "$CI" ]]; then
-	function debug {
-		blue "$@"
-	}
-fi
-
 EXIT=0
 declare -A OKFILES
 for F in README.md .gitkeep .gitignore; do
@@ -405,6 +399,31 @@ for PROJECT in projects/*/*; do
 				echo "::error file=$PROJECT/CHANGELOG.md,line=${LINE%%:*}::Changelog should not mention semver when project does not use semver."
 			fi
 		fi
+	fi
+
+	# - `.extra.dependencies.test-only` must refer to dev dependencies.
+	if jq -e '.extra.dependencies["test-only"] // empty' "$PROJECT/composer.json" >/dev/null; then
+		while IFS=$'\t' read -r LINE DEP; do
+			if [[ ! -e "projects/$DEP/composer.json" ]]; then
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" does not exist in the monorepo."
+			elif [[ "$DEP" == packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/composer.json" )
+				if ! jq -e --arg N "$N" '.["require-dev"][$N]' "$PROJECT/composer.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			elif [[ "$DEP" == js-packages/* ]]; then
+				N=$( jq -r .name "projects/$DEP/package.json" 2>/dev/null || true )
+				if ! jq -e --arg N "$N" '.devDependencies[$N]' "$PROJECT/package.json" &>/dev/null; then
+					EXIT=1
+					echo "::error file=$PROJECT/composer.json,line=${LINE}::Project \"$DEP\" ($N) is not a dev dependency of $SLUG."
+				fi
+			else
+				EXIT=1
+				echo "::error file=$PROJECT/composer.json,line=${LINE}::Dependency \"$DEP\" is neither a package nor a js-package."
+			fi
+		done < <( jq --stream -r 'if length == 2 and .[0][:-1] == ["extra","dependencies","test-only"] then [input_line_number,.[1]] | @tsv else empty end' "$PROJECT/composer.json" )
 	fi
 
 done

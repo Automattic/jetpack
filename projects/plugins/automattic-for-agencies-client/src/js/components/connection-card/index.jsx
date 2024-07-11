@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectButton } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import BrandedCard from '../branded-card';
 import CheckIcon from '../check-icon';
@@ -212,7 +212,7 @@ export default function ConnectionCard() {
 	return (
 		<BrandedCard>
 			<div
-				className={ classNames( styles.card, {
+				className={ clsx( styles.card, {
 					[ styles[ 'card--sharing' ] ]: showSharingDetails,
 					[ styles[ 'card--connection' ] ]: ! showSharingDetails,
 				} ) }

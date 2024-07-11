@@ -1,0 +1,100 @@
+.ai-image-modal {
+	&__content {
+		display: flex;
+		margin-top: 32px;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__actions {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+
+	&__user-prompt {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		flex-direction: row;
+	}
+
+	&__user-prompt-textarea {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+
+		div {
+			width: 100%;
+			display: flex;
+		}
+
+		textarea {
+			width: 100%;
+			outline: none;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+			padding: 12px;
+			color: var( --studio-black );
+		}
+
+		textarea:disabled {
+			opacity: 0.5;
+		}
+	}
+
+	&__actions-left {
+		width: 50%;
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	&__actions-right {
+		width: 50%;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	&__action-buttons {
+		display: flex;
+		justify-content: center;
+		gap: 12px;
+	}
+
+	&__image-canvas {
+		width: 100%;
+		margin-top: 24px;
+		& > .jetpack-ai-upgrade-banner {
+			margin-bottom: 8px;
+		}
+	}
+
+	&__footer {
+		display: flex;
+		justify-content: flex-start;
+		margin-right: -32px;
+		margin-left: -32px;
+		margin-top: 32px;
+		margin-bottom: -32px;
+		padding: 8px 32px;
+		border-top: solid 1px #dcdcde;
+		height: 60px;
+
+		&__feedback-button {
+			display: inline-block;
+
+			a {
+				text-decoration: none;
+			}
+		}
+
+		.icon {
+			width: 20px;
+			height: 20px;
+			color: var( --studio-gray-20 );
+			margin-left: 4px;
+		}
+	}
+}

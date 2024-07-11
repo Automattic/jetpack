@@ -36,10 +36,6 @@
 	$: imageURL = store.url;
 	$: imageName = $imageURL.split( '/' ).pop();
 
-	// Get the image origin
-	$: origin = new URL( window.location.href ).origin;
-	$: imageOrigin = new URL( $imageURL ).origin;
-
 	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
@@ -71,6 +67,7 @@
 
 <svelte:window bind:scrollY />
 <Portal>
+	<!-- eslint-disable-next-line svelte/valid-compile -- Complains about the div needing an ARIA role, but I have no idea what might be correct for this. -->
 	<div
 		class="jetpack-boost-guide-popup keep-guide-open"
 		in:fly={{ duration: 150, y: 4, easing: backOut }}

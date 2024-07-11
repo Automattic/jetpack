@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.18 - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## 0.12.17 - 2024-06-21
+### Changed
+- Update dependencies. [#37979]
+
+## 0.12.16 - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## 0.12.15 - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
 ## 0.12.14 - 2024-06-05
 ### Changed
 - Updated package dependencies. [#37669]

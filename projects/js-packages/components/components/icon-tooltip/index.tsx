@@ -1,5 +1,5 @@
 import { Popover } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 import Button from '../button';
 import Gridicon from '../gridicon/index';
@@ -71,7 +71,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
 
-	const wrapperClassNames = classNames( 'icon-tooltip-wrapper', className );
+	const wrapperClassNames = clsx( 'icon-tooltip-wrapper', className );
 	const iconShiftBySize = {
 		left: isAnchorWrapper ? 0 : -( POPOVER_HELPER_WIDTH / 2 - iconSize / 2 ) + 'px',
 	};
@@ -86,7 +86,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 				</Button>
 			) }
 			<div
-				className={ classNames( 'icon-tooltip-helper', { 'is-wide': wide } ) }
+				className={ clsx( 'icon-tooltip-helper', { 'is-wide': wide } ) }
 				style={ iconShiftBySize }
 			>
 				{ ( isForcedToShow || isVisible ) && (

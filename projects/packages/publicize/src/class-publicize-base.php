@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use WP_Error;
@@ -272,6 +273,21 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	abstract public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
+
+	/**
+	 * Whether to use the v1 admin UI.
+	 */
+	public function use_admin_ui_v1(): bool {
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
+			return true;
+		}
+
+		// Otherwise, check the constant and the plan feature.
+		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
+			|| $this->has_connections_management_feature();
+	}
 
 	/**
 	 * Does the given user have a connection to the service on the given blog?
@@ -1143,13 +1159,17 @@ abstract class Publicize_Base {
 					'template' => ( new Jetpack_Social_Settings\Settings() )->sig_get_default_template(),
 					'enabled'  => false,
 				),
+				'version'                  => 2,
 			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media'               => array(
+						'version'                  => array(
+							'type' => 'number',
+						),
+						'attached_media'           => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1166,10 +1186,7 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'should_upload_attached_media' => array(
-							'type' => 'boolean',
-						),
-						'image_generator_settings'     => array(
+						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'     => array(
@@ -1872,6 +1889,14 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	public function publicize_connections_url( $source = 'calypso-marketing-connections' ) {
+		if ( $this->use_admin_ui_v1() && current_user_can( 'manage_options' ) ) {
+			$is_social_active = defined( 'JETPACK_SOCIAL_PLUGIN_DIR' );
+
+			$page = $is_social_active ? 'jetpack-social' : 'jetpack#/sharing';
+
+			return ( new Paths() )->admin_url( array( 'page' => $page ) );
+		}
+
 		$allowed_sources = array( 'jetpack-social-connections-admin-page', 'jetpack-social-connections-classic-editor', 'calypso-marketing-connections' );
 		$source          = in_array( $source, $allowed_sources, true ) ? $source : 'calypso-marketing-connections';
 		$blog_id         = Connection_Manager::get_site_id( true );
@@ -2015,16 +2040,8 @@ abstract class Publicize_Base {
 	public function get_supported_additional_connections() {
 		$additional_connections = array();
 
-		if ( $this->has_connection_feature( 'instagram' ) ) {
-			$additional_connections[] = 'instagram-business';
-		}
-
-		if ( $this->has_connection_feature( 'mastodon' ) ) {
-			$additional_connections[] = 'mastodon';
-		}
-
-		if ( $this->has_connection_feature( 'nextdoor' ) ) {
-			$additional_connections[] = 'nextdoor';
+		if ( $this->has_connection_feature( 'threads' ) ) {
+			$additional_connections[] = 'threads';
 		}
 
 		return $additional_connections;

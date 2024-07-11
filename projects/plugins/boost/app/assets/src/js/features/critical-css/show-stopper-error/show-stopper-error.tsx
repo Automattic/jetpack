@@ -10,6 +10,7 @@ import NumberedList from '../numbered-list/numbered-list';
 import getCriticalCssErrorSetInterpolateVars from '$lib/utils/get-critical-css-error-set-interpolate-vars';
 import formatErrorSetUrls from '$lib/utils/format-error-set-urls';
 import actionLinkInterpolateVar from '$lib/utils/action-link-interpolate-var';
+import { recordBoostEvent } from '$lib/utils/analytics';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -40,6 +41,11 @@ const ShowStopperError: React.FC< ShowStopperErrorTypes > = ( {
 						<FoldingElement
 							labelExpandedText={ __( 'Learn what to do', 'jetpack-boost' ) }
 							labelCollapsedText={ __( 'Learn what to do', 'jetpack-boost' ) }
+							onExpand={ ( isExpanded: boolean ) => {
+								if ( isExpanded ) {
+									recordBoostEvent( 'critical_css_learn_more_expanded', {} );
+								}
+							} }
 						>
 							<div className="raw-error">
 								<p>{ __( 'Please follow the troubleshooting steps below', 'jetpack-boost' ) }</p>
@@ -112,6 +118,9 @@ const DocumentationSection = ( {
 						href={ getSupportLinkCriticalCss( errorType ) }
 						target="_blank"
 						rel="noopener noreferrer"
+						onClick={ () => {
+							recordBoostEvent( 'critical_css_learn_more', {} );
+						} }
 					/>
 				),
 			} ) }
@@ -154,7 +163,13 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 								'jetpack-boost'
 							),
 							{
-								...actionLinkInterpolateVar( retry, 'retry' ),
+								...actionLinkInterpolateVar( () => {
+									recordBoostEvent( 'critical_css_retry', {
+										error_type: 'CssGenLibraryFailure',
+									} );
+
+									retry();
+								}, 'retry' ),
 							}
 						) }
 					</p>
@@ -170,7 +185,16 @@ const OtherErrors = ( { cssState, retry, showRetry, supportLink }: ShowStopperEr
 						) }
 					</p>
 					{ showRetry ? (
-						<button className="secondary" onClick={ retry }>
+						<button
+							className="secondary"
+							onClick={ () => {
+								recordBoostEvent( 'critical_css_retry', {
+									error_type: 'UnknownError',
+								} );
+
+								retry();
+							} }
+						>
 							{ __( 'Refresh', 'jetpack-boost' ) }
 						</button>
 					) : (

@@ -3,3 +3,11 @@
 .jetpack-ai-title-optimization__header {
 	margin-bottom: 2em;
 }
+
+.jetpack-ai-feedback__label {
+	display: flex;
+	gap: 16px;
+	.components-toggle-control {
+		margin-bottom: 8px;
+	}
+}

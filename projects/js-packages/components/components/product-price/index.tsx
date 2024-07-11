@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /*
  * Internal dependencies
  */
@@ -48,7 +48,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 	return (
 		<>
 			<div className={ styles.container }>
-				<div className={ classnames( styles[ 'price-container' ], 'product-price_container' ) }>
+				<div className={ clsx( styles[ 'price-container' ], 'product-price_container' ) }>
 					<Price
 						value={ offPrice ?? price }
 						currency={ currency }
@@ -64,7 +64,7 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 						/>
 					) }
 					{ discountElt && (
-						<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+						<Text className={ clsx( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
 							{ discountElt }
 						</Text>
 					) }
@@ -74,10 +74,10 @@ const ProductPrice: React.FC< ProductPriceProps > = ( {
 				{ children ? (
 					children
 				) : (
-					<Text className={ classnames( styles.legend, 'product-price_legend' ) }>{ legend }</Text>
+					<Text className={ clsx( styles.legend, 'product-price_legend' ) }>{ legend }</Text>
 				) }
 				{ promoLabel && (
-					<Text className={ classnames( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
+					<Text className={ clsx( styles[ 'promo-label' ], 'product-price_promo_label' ) }>
 						{ promoLabel }
 					</Text>
 				) }

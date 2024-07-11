@@ -171,11 +171,12 @@ class Status {
 	/**
 	 * If is a staging site.
 	 *
-	 * @todo Add IDC detection to a package.
+	 * @deprecated since 3.3.0
 	 *
 	 * @return bool
 	 */
 	public function is_staging_site() {
+		_deprecated_function( __FUNCTION__, '3.3.0', 'in_safe_mode' );
 		$cached = Cache::get( 'is_staging_site' );
 		if ( null !== $cached ) {
 			return $cached;
@@ -259,6 +260,64 @@ class Status {
 
 		Cache::set( 'is_staging_site', $is_staging );
 		return $is_staging;
+	}
+
+	/**
+	 * If the site is in safe mode.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @return bool
+	 */
+	public function in_safe_mode() {
+		$cached = Cache::get( 'in_safe_mode' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$in_safe_mode = false;
+		if ( method_exists( 'Automattic\\Jetpack\\Identity_Crisis', 'validate_sync_error_idc_option' ) && \Automattic\Jetpack\Identity_Crisis::validate_sync_error_idc_option() ) {
+			$in_safe_mode = true;
+		}
+		/**
+		 * Filters in_safe_mode check.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool $in_safe_mode If the current site is in safe mode.
+		 */
+		$in_safe_mode = apply_filters( 'jetpack_is_in_safe_mode', $in_safe_mode );
+
+		Cache::set( 'in_safe_mode', $in_safe_mode );
+		return $in_safe_mode;
+	}
+
+	/**
+	 * If the site is a development/staging site.
+	 * This is a new version of is_staging_site added to separate safe mode from the legacy staging mode.
+	 * This method checks for core WP_ENVIRONMENT_TYPE setting
+	 * Using the jetpack_is_development_site filter.
+	 *
+	 * @since 3.3.0
+	 *
+	 * @return bool
+	 */
+	public static function is_development_site() {
+		$cached = Cache::get( 'is_development_site' );
+		if ( null !== $cached ) {
+			return $cached;
+		}
+		$is_dev_site = ! in_array( wp_get_environment_type(), array( 'production', 'local' ), true );
+		/**
+		 * Filters is_development_site check.
+		 *
+		 * @since 3.3.0
+		 *
+		 * @param bool $is_dev_site If the current site is a staging or dev site.
+		 */
+		$is_dev_site = apply_filters( 'jetpack_is_development_site', $is_dev_site );
+
+		Cache::set( 'is_development_site', $is_dev_site );
+		return $is_dev_site;
 	}
 
 	/**

@@ -13,8 +13,8 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'full-site-editing', 'photon-opencv', 'wpcom' ),
-		'parse_file_list' => array(
+		'+stubs'                          => array( 'full-site-editing', 'photon-opencv', 'wpcom' ),
+		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//
@@ -26,6 +26,13 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/modules/custom-css/custom-css.php',        // class Jetpack_Custom_CSS_Enhancements
 			__DIR__ . '/../../../plugins/jetpack/class-jetpack-stats-dashboard-widget.php', // class Jetpack_Stats_Dashboard_Widget
 			__DIR__ . '/../../../plugins/jetpack/modules/masterbar/nudges/bootstrap.php',   // function Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control  phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			__DIR__ . '/../../../plugins/wpcomsh/wpcomsh.php',                              // function wpcomsh_record_tracks_event
+		),
+		'exclude_analysis_directory_list' => array(
+			'src/features/custom-css/csstidy/',
+			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
+			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
+			'src/features/custom-css/custom-css/preprocessors/lessc.inc.php',
 		),
 	)
 );

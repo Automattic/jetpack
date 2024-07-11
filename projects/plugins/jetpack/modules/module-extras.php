@@ -38,11 +38,9 @@ $tools = array(
 
 // Some features are only available when connected to WordPress.com.
 $connected_tools = array(
-	'calypsoify/class-jetpack-calypsoify.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
-	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
 	// These oEmbed providers are available when connected to WordPress.com.
 	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.

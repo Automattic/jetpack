@@ -13,7 +13,7 @@ import {
 	store as socialStore,
 	useShareLimits,
 } from '@automattic/jetpack-publicize-components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
 import StatCards from '../stat-cards';
@@ -52,6 +52,8 @@ const Header = () => {
 
 	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 
+	const { openConnectionsModal } = useDispatch( socialStore );
+
 	return (
 		<>
 			<Container horizontalSpacing={ 0 }>
@@ -68,10 +70,18 @@ const Header = () => {
 				<Col sm={ 4 } md={ 4 } lg={ 5 }>
 					<H3 mt={ 2 }>{ __( 'Write once, post everywhere', 'jetpack-social' ) }</H3>
 					<div className={ styles.actions }>
-						{ ! useAdminUiV1 && isModuleEnabled && ! hasConnections && (
-							<Button href={ connectionsAdminUrl } isExternalLink={ true }>
-								{ __( 'Connect accounts', 'jetpack-social' ) }
-							</Button>
+						{ isModuleEnabled && ! hasConnections && (
+							<>
+								{ useAdminUiV1 ? (
+									<Button onClick={ openConnectionsModal }>
+										{ __( 'Connect accounts', 'jetpack-social' ) }
+									</Button>
+								) : (
+									<Button href={ connectionsAdminUrl } isExternalLink={ true }>
+										{ __( 'Connect accounts', 'jetpack-social' ) }
+									</Button>
+								) }
+							</>
 						) }
 						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
 							{ __( 'Write a post', 'jetpack-social' ) }

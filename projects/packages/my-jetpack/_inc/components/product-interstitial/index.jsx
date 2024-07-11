@@ -12,7 +12,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -114,24 +114,17 @@ export default function ProductInterstitial( {
 		[ slug, pricingForUi ]
 	);
 
-	const trackProductClick = useCallback(
-		( isFreePlan = false, customSlug = null ) => {
+	const trackProductOrBundleClick = useCallback(
+		options => {
+			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const productSlug = customSlug ? customSlug : bundle ?? slug;
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
+				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				ctaText,
 			} );
 		},
-		[ recordEvent, slug, getProductSlugForTrackEvent ]
-	);
-
-	const trackBundleClick = useCallback(
-		( isFreePlan = false ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: bundle,
-				product_slug: getProductSlugForTrackEvent( isFreePlan ),
-			} );
-		},
-		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+		[ recordEvent, slug, getProductSlugForTrackEvent, bundle ]
 	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
@@ -235,7 +228,7 @@ export default function ProductInterstitial( {
 							slug={ slug }
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductClick }
+							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
 						/>
@@ -249,7 +242,7 @@ export default function ProductInterstitial( {
 							<Col sm={ 4 } md={ 4 } lg={ 7 }>
 								<ProductDetailCard
 									slug={ slug }
-									trackButtonClick={ trackProductClick }
+									trackButtonClick={ trackProductOrBundleClick }
 									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
@@ -265,12 +258,12 @@ export default function ProductInterstitial( {
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
-								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
 								{ bundle ? (
 									<ProductDetailCard
 										slug={ bundle }
-										trackButtonClick={ trackBundleClick }
+										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
 										hideTOS={ hideTOS || showBundledTOS }

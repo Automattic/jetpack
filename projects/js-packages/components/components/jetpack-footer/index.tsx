@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 import { getRedirectUrl } from '../..';
 import { STORE_ID as CONNECTION_STORE_ID } from '../../../../js-packages/connection/state/store';
@@ -111,7 +111,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 
 	return (
 		<footer
-			className={ classnames(
+			className={ clsx(
 				'jp-dashboard-footer',
 				{
 					'is-sm': isSm,
@@ -143,7 +143,7 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 								target={ item.target }
 								onClick={ item.onClick }
 								onKeyDown={ item.onKeyDown }
-								className={ classnames( 'jp-dashboard-footer__menu-item', {
+								className={ clsx( 'jp-dashboard-footer__menu-item', {
 									'is-external': isExternalLink,
 								} ) }
 								role={ item.role }

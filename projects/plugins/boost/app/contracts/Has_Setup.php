@@ -14,8 +14,6 @@ interface Has_Setup {
 	 * This is a good place to attach hooks
 	 * or perform other tasks that need
 	 * to be performed once.
-	 *
-	 * @return mixed
 	 */
 	public function setup();
 }

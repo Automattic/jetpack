@@ -1,5 +1,6 @@
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody, PanelRow } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
@@ -19,10 +20,20 @@ export const settings = {
 			initialOpen: false,
 		};
 
-		const isPostPublished = useSelect(
-			select => select( editorStore ).isCurrentPostPublished(),
-			[]
-		);
+		const { isViewable, isPostPublished } = useSelect( select => {
+			const postTypeName = select( editorStore ).getCurrentPostType();
+			const postTypeObject = select( coreStore ).getPostType( postTypeName );
+
+			return {
+				isViewable: postTypeObject?.viewable,
+				isPostPublished: select( editorStore ).isCurrentPostPublished(),
+			};
+		}, [] );
+
+		// If the post type is not viewable, do not render my plugin.
+		if ( ! isViewable ) {
+			return null;
+		}
 
 		function QRPostPanelBodyContent() {
 			return (

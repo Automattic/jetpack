@@ -1576,8 +1576,29 @@
 			} );
 		}
 
-		// Register the event listener for starting the gallery
-		document.body.addEventListener( 'click', function ( e ) {
+		// Register the event listeners for starting the gallery
+		document.body.addEventListener( 'click', handleInteraction );
+		document.body.addEventListener( 'keydown', handleInteraction );
+
+		function handleInteraction( e ) {
+			if ( e.type === 'click' ) {
+				handleClick( e );
+				return;
+			}
+
+			if ( e.type === 'keydown' ) {
+				const parentElement = document.activeElement.parentElement;
+				const isParentCarouselContainer =
+					parentElement && parentElement.classList.contains( 'tiled-gallery__item' );
+
+				if ( ( e.key === ' ' || e.key === 'Enter' ) && isParentCarouselContainer ) {
+					handleClick( e );
+					return;
+				}
+			}
+		}
+
+		function handleClick( e ) {
 			var isCompatible =
 				window.CSS && window.CSS.supports && window.CSS.supports( 'display', 'grid' );
 
@@ -1647,7 +1668,7 @@
 				var index = Array.prototype.indexOf.call( gallery.querySelectorAll( itemSelector ), item );
 				loadSwiper( gallery, { startIndex: index } );
 			}
-		} );
+		}
 
 		// Handle lightbox (single image gallery) for images linking to 'Attachment Page'.
 		if ( Number( jetpackCarouselStrings.single_image_gallery ) === 1 ) {

@@ -41,7 +41,7 @@ function jetpack_matt_random_redirect() {
 		wp_die( 'Please <a href="https://en.support.wordpress.com/contact/" rel="noopener noreferrer" target="_blank">contact support</a>' );
 	}
 
-	_deprecated_file( __FILE__, 'jetpack-$$next-version$$', '', esc_html__( 'Starting Jetpack 13.6, Jetpack will no longer support the Random Redirect module.', 'jetpack' ) );
+	_deprecated_file( __FILE__, 'jetpack-13.6', '', esc_html__( 'Starting Jetpack 13.6, Jetpack will no longer support the Random Redirect module.', 'jetpack' ) );
 
 	$where      = array(
 		"post_password = ''",

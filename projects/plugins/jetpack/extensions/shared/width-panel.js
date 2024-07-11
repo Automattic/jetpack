@@ -7,7 +7,7 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import './width-panel.scss';
 
 const widthUnits = [
@@ -58,7 +58,7 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 	return (
 		<BaseControl label={ showLabel && __( 'Width', 'jetpack' ) }>
 			<div
-				className={ classnames( 'jetpack-block-width-controls', {
+				className={ clsx( 'jetpack-block-width-controls', {
 					'is-aligned': isAlignedLeftOrRight,
 				} ) }
 			>

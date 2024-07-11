@@ -23,7 +23,7 @@ import {
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEmpty, isEqual, join } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -246,7 +246,7 @@ function OpenTableEdit( {
 		</Placeholder>
 	);
 
-	const editClasses = classnames( {
+	const editClasses = clsx( {
 		[ `is-style-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],

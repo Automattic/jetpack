@@ -3,7 +3,7 @@ import Header from '$layout/header/header';
 import ActivateLicense from '$features/activate-license/activate-license';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './card-page.module.scss';
 
 type CardPageProps = {
@@ -34,7 +34,7 @@ const CardPage = ( {
 							{ children }
 						</div>
 
-						<div className={ classNames( styles.cta, 'px-2 my-4' ) }>{ sidebarItem }</div>
+						<div className={ clsx( styles.cta, 'px-2 my-4' ) }>{ sidebarItem }</div>
 					</div>
 					{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
 				</div>

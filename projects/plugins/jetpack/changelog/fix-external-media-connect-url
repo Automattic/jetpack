@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-External media: Ensured the connect URL has the correct blog ID and verification values.

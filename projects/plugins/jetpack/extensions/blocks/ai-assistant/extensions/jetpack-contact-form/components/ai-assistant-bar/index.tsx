@@ -18,7 +18,7 @@ import {
 } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
@@ -260,7 +260,7 @@ export default function AiAssistantBar( {
 			>
 				<div
 					ref={ wrapperRef }
-					className={ classNames( 'jetpack-ai-assistant__bar', {
+					className={ clsx( 'jetpack-ai-assistant__bar', {
 						[ className ]: className,
 						'is-fixed': isAssistantBarFixed,
 						'is-mobile-mode': isMobileMode,

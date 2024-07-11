@@ -1,7 +1,7 @@
 import { CONNECTION_STORE_ID, ConnectButton } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useMemo } from 'react';
 import BrandedCard from '../branded-card';
 import CloseCircleIcon from '../close-circle-icon';
@@ -35,7 +35,7 @@ export default function DisconnectedCard() {
 					) }
 				</h1>
 				<p
-					className={ classNames(
+					className={ clsx(
 						styles.connection_status,
 						styles[ 'connection_status--disconnected' ]
 					) }

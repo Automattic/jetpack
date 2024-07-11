@@ -57,6 +57,14 @@
 			}).prependTo( '#css-help-links' );
 		}
 
+		// Show deprecation warning if Start Fresh option is enabled
+		if ( !! window._jp_css_settings.startFresh && window._currentSiteType !== 'atomic' ) {
+			customize.notifications.add( new customize.Notification( 'start-fresh-warning', {
+				message: window._jp_css_settings.l10n.startFreshCustomizerWarning,
+				type: 'warning',
+			} ) );
+		}
+
 		customize( 'jetpack_custom_css[preprocessor]', function( preprocessorSetting ) {
 			preprocessorSetting.bind( function( curr ) {
 				var preprocessor_modes = {

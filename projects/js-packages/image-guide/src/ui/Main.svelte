@@ -66,6 +66,7 @@
 </script>
 
 {#if $guideState === 'active'}
+	<!-- eslint-disable-next-line svelte/valid-compile -- Complains about the div needing an ARIA role, but I have no idea what might be correct for this. -->
 	<div
 		class="guide {size}"
 		class:show={show !== false}

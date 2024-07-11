@@ -13,7 +13,7 @@ import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
  * Internal dependencies
@@ -132,9 +132,7 @@ const UploadingThumbnail = ( {
 	const infoText = uploadProgress === 1 ? completingText : uploadingText;
 
 	return (
-		<div
-			className={ classnames( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }
-		>
+		<div className={ clsx( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }>
 			<ProgressBar
 				className={ styles[ 'progress-bar' ] }
 				size="small"
@@ -213,7 +211,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 
 		return (
 			<div
-				className={ classnames( className, styles.thumbnail, {
+				className={ clsx( className, styles.thumbnail, {
 					[ styles[ 'is-small' ] ]: isSmall,
 				} ) }
 				ref={ ref }

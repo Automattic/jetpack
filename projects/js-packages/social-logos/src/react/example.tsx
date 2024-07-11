@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';
-import './example.css';
+import '../css/example.css';
 
 /**
  * An example React component that displays all the social logos.
@@ -47,6 +47,7 @@ function SocialLogosExample() {
 			<div className="display-control-group">
 				<div className="display-control">
 					<h4>Small icons</h4>
+					{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
 					<label className="switch">
 						<input type="checkbox" onChange={ handleSmallIconsToggle } checked={ useSmallIcons } />
 						<span className="handle"></span>
@@ -54,6 +55,7 @@ function SocialLogosExample() {
 				</div>
 				<div className="display-control">
 					<h4>Icon names</h4>
+					{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869 */ }
 					<label className="switch">
 						<input type="checkbox" onChange={ handleIconNamesToggle } checked={ showIconNames } />
 						<span className="handle"></span>

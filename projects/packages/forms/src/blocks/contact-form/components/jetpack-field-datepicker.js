@@ -1,7 +1,7 @@
 import { SelectControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useFormStyle, useFormWrapper } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -41,7 +41,7 @@ const JetpackDatePicker = props => {
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
 
-	const classes = classnames( 'jetpack-field', {
+	const classes = clsx( 'jetpack-field', {
 		'is-selected': isSelected,
 		'has-placeholder': !! placeholder,
 	} );

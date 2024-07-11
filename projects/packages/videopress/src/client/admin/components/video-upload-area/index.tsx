@@ -4,7 +4,7 @@
 import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, captureVideo } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,7 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 
 	return (
 		<div
-			className={ classnames( styles.wrapper, className, {
+			className={ clsx( styles.wrapper, className, {
 				[ styles.small ]: isSm,
 			} ) }
 		>
@@ -43,18 +43,18 @@ const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) =
 				ref={ inputRef }
 				type="file"
 				accept={ fileInputExtensions }
-				className={ classnames( styles[ 'file-input' ] ) }
+				className={ clsx( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
 				multiple={ hasVideoPressPurchase }
 			/>
-			<Icon icon={ captureVideo } size={ 32 } className={ classnames( styles.icon ) } />
+			<Icon icon={ captureVideo } size={ 32 } className={ clsx( styles.icon ) } />
 			<Text variant="title-small">
 				{ __( 'Drag and drop your video here', 'jetpack-videopress-pkg' ) }
 			</Text>
 			<Button
 				size="small"
 				variant="secondary"
-				className={ classnames( styles.button ) }
+				className={ clsx( styles.button ) }
 				onClick={ handleClickEvent }
 			>
 				{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }

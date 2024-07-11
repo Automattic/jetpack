@@ -1,6 +1,6 @@
+import clsx from 'clsx';
 import { translate } from '../i18n';
 import { commentParent } from '../state';
-import { classNames } from '../utils';
 import { CustomLoadingSpinner } from './custom-loading-spinner';
 
 export const EditorPlaceholder = ( { onClick, loading } ) => {
@@ -12,7 +12,7 @@ export const EditorPlaceholder = ( { onClick, loading } ) => {
 			onKeyDown={ onClick }
 		>
 			<div
-				class={ classNames( 'editor__main loading-placeholder', {
+				class={ clsx( 'editor__main loading-placeholder', {
 					loading,
 				} ) }
 			>

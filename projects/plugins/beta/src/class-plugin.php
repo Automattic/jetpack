@@ -19,6 +19,14 @@ use WP_Error;
 class Plugin {
 
 	/**
+	 * Regex for the loader added to a mu-plugin loader.
+	 *
+	 * @todo When we drop support for PHP <7.1.0, make this a private const.
+	 * @var string
+	 */
+	private static $mu_loader_regex = '#^<\?php\s+/\* Load Jetpack Beta dev version: \*/\s+return require\s*(?:\(\s*)?__DIR__\s*.\s*(?:\x27[^\x27]*\x27|"[^"]*")(?:\s*\))?\s*;#';
+
+	/**
 	 * Class instances.
 	 *
 	 * @var Plugin[]
@@ -94,6 +102,14 @@ class Plugin {
 	 * @var bool
 	 */
 	protected $unpublished = false;
+
+	/**
+	 * If the plugin is to be installed as a mu-plugin.
+	 *
+	 * @since 4.1.0
+	 * @var bool
+	 */
+	protected $is_mu_plugin = false;
 
 	/**
 	 * Manifest data.
@@ -214,7 +230,8 @@ class Plugin {
 			$this->{$k} = $config[ $k ];
 		}
 
-		$this->unpublished = ! empty( $config['unpublished'] );
+		$this->unpublished  = ! empty( $config['unpublished'] );
+		$this->is_mu_plugin = ! empty( $config['is_mu_plugin'] );
 	}
 
 	/**
@@ -330,6 +347,36 @@ class Plugin {
 	}
 
 	/**
+	 * Get the plugin file path.
+	 *
+	 * @since 4.1.0
+	 * @return string
+	 */
+	public function plugin_path() {
+		return ( $this->is_mu_plugin ? WPMU_PLUGIN_DIR : WP_PLUGIN_DIR ) . '/' . $this->plugin_file();
+	}
+
+	/**
+	 * Get the dev plugin file path.
+	 *
+	 * @since 4.1.0
+	 * @return string
+	 */
+	public function dev_plugin_path() {
+		return ( $this->is_mu_plugin ? WPMU_PLUGIN_DIR : WP_PLUGIN_DIR ) . '/' . $this->dev_plugin_file();
+	}
+
+	/**
+	 * Is this a mu-plugin?
+	 *
+	 * @since 4.1.0
+	 * @return bool
+	 */
+	public function is_mu_plugin() {
+		return $this->is_mu_plugin;
+	}
+
+	/**
 	 * Get the manifest data (i.e. branches) for the plugin.
 	 *
 	 * @param bool $no_cache Set true to bypass the transients cache.
@@ -387,7 +434,7 @@ class Plugin {
 	 * @return object|null
 	 */
 	public function dev_info() {
-		$file = WP_PLUGIN_DIR . "/{$this->dev_plugin_slug()}/.jpbeta.json";
+		$file = dirname( $this->dev_plugin_path() ) . '/.jpbeta.json';
 		if ( ! file_exists( $file ) ) {
 			return null;
 		}
@@ -405,6 +452,38 @@ class Plugin {
 			$info->source = 'trunk';
 		}
 		return is_object( $info ) ? $info : null;
+	}
+
+	/**
+	 * Determine if the plugin is active. Works for mu-plugins.
+	 *
+	 * @since 4.1.0
+	 * @param string $which Which version to make active: "stable" or "dev".
+	 * @return bool Is active?
+	 * @throws InvalidArgumentException If `$which` is invalid.
+	 */
+	public function is_active( $which ) {
+		if ( $which === 'stable' ) {
+			$path = $this->plugin_file();
+		} elseif ( $which === 'dev' ) {
+			$path = $this->dev_plugin_file();
+		} else {
+			throw new InvalidArgumentException( __METHOD__ . ': $which must be "stable" or "dev".' );
+		}
+
+		if ( ! $this->is_mu_plugin ) {
+			return is_plugin_active( $path );
+		}
+
+		$file = WPMU_PLUGIN_DIR . '/' . $this->plugin_slug() . '-loader.php';
+		if ( ! file_exists( $file ) ) {
+			return false;
+		}
+
+		// If the loader snippet is present, dev is active. If not, assume stable is active (or there wouldn't be a loader).
+		// That assumption ignores things like how the usual wpcomsh-loader.php checks for IS_ATOMIC, but there's not much we can do about that and it's unlikely to matter anyway.
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Not a remote URL.
+		return ( (bool) preg_match( self::$mu_loader_regex, (string) file_get_contents( $file ) ) ) === ( $which === 'dev' );
 	}
 
 	/**
@@ -427,6 +506,11 @@ class Plugin {
 			$to   = $this->dev_plugin_file();
 		} else {
 			throw new InvalidArgumentException( __METHOD__ . ': $which must be "stable" or "dev".' );
+		}
+
+		// If we're a mu-plugin, we have to fake it by manually adjusting the mu-plugin loader.
+		if ( $this->is_mu_plugin ) {
+			return $this->update_mu_plugin_loader( $which );
 		}
 
 		// If the target is already active, nothing to do.
@@ -462,9 +546,79 @@ class Plugin {
 	}
 
 	/**
+	 * Update the <slug>-loader.php file to activate/deactivate a mu-plugin.
+	 *
+	 * @param string $which Which version to make active: "stable" or "dev".
+	 * @return null|WP_Error
+	 */
+	private function update_mu_plugin_loader( $which ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
+		if ( ! WP_Filesystem( $creds ) ) {
+			// Any problems and we exit.
+			return new WP_Error( 'fs_error', 'Filesystem Problem' );
+		}
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			return new WP_Error( 'fs_error', 'global $wp_filesystem is not set' );
+		}
+
+		$dir = $wp_filesystem->find_folder( WPMU_PLUGIN_DIR );
+
+		$file = $dir . '/' . $this->plugin_slug() . '-loader.php';
+		if ( ! $wp_filesystem->exists( $file ) ) {
+			if ( $which !== 'dev' || ! file_exists( $this->dev_plugin_path() ) ) {
+				return null;
+			}
+			$tmp      = get_plugin_data( $this->dev_plugin_path(), false, false );
+			$contents = "<?php\n/**\n * Loader generated by Jetpack Beta plugin\n\n";
+			if ( ! empty( $tmp['Name'] ) ) {
+				$value     = str_replace( '*/', '', $tmp['Name'] );
+				$contents .= " * Plugin Name: $value\n";
+			}
+			if ( ! empty( $tmp['Description'] ) ) {
+				$value     = str_replace( '*/', '', $tmp['Description'] );
+				$contents .= " * Description: $value\n";
+			}
+			$contents .= " */\n";
+		} else {
+			$contents = $wp_filesystem->get_contents( $file );
+			if ( $contents === false ) {
+				return is_wp_error( $wp_filesystem->errors ) && $wp_filesystem->errors->has_errors() ? $wp_filesystem->errors : new WP_Error( 'fs_error', "Unknown error while reading {$this->plugin_slug()}-loader.php" );
+			}
+			if ( ! str_starts_with( $contents, '<?php' ) ) {
+				return new WP_Error( 'bad_mu_loader', "Mu-plugin loader {$this->plugin_slug()}-loader.php is unparseable" );
+			}
+		}
+
+		// Strip our loader snippet, then re-add it if necessary.
+		$new_contents = preg_replace( self::$mu_loader_regex, '<?php', $contents );
+		if ( $which === 'dev' && file_exists( $this->dev_plugin_path() ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export -- Used for escaping, not output.
+			$new_contents = '<?php /* Load Jetpack Beta dev version: */ return require __DIR__ . ' . var_export( "/{$this->dev_plugin_file()}", true ) . ';' . substr( $new_contents, 5 );
+		}
+
+		// Write the file, or delete it if it's our auto-generated file and turns out to be empty.
+		if ( preg_match( '#^<\?php\s*/\*\*\n \* Loader generated by Jetpack Beta plugin\n\n(?: \* Plugin Name: .*\n)?(?: \* Description: .*\n)? \*/\s*$#', $new_contents ) ) {
+			$what = 'deleting';
+			$ok   = $wp_filesystem->delete( $file );
+		} elseif ( $contents !== $new_contents ) {
+			$what = 'updating';
+			$ok   = $wp_filesystem->put_contents( $file, $new_contents );
+		} else {
+			$what = 'nothing';
+			$ok   = true;
+		}
+		if ( ! $ok ) {
+			return is_wp_error( $wp_filesystem->errors ) && $wp_filesystem->errors->has_errors() ? $wp_filesystem->errors : new WP_Error( 'fs_error', "Unknown error while $what {$this->plugin_slug()}-loader.php" );
+		}
+		return null;
+	}
+
+	/**
 	 * Install & activate the plugin for the given branch.
 	 *
-	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", or "release".
+	 * @param string $source Source of installation: "stable", "trunk", "rc", "pr", "release", or "unknown".
 	 * @param string $id When `$source` is "pr", the PR branch name. When "release", the version.
 	 * @return null|WP_Error
 	 * @throws InvalidArgumentException If `$source` is invalid.
@@ -508,7 +662,7 @@ class Plugin {
 		if ( 'dev' === $which ) {
 			$fs_info = $this->dev_info();
 		} else {
-			$file = WP_PLUGIN_DIR . '/' . $this->plugin_file();
+			$file = $this->plugin_path();
 			if ( file_exists( $file ) ) {
 				$tmp     = get_plugin_data( $file, false, false );
 				$fs_info = (object) array(
@@ -629,14 +783,14 @@ class Plugin {
 		if ( ! $dev_info ) {
 			return $default;
 		}
-		$file = WP_PLUGIN_DIR . '/' . $this->dev_plugin_file();
+		$file = $this->dev_plugin_path();
 		if ( ! file_exists( $file ) ) {
 			return $default;
 		}
 		$tmp = get_plugin_data( $file, false, false );
 
 		// Read the plugin's to-test.md, or our generic testing tips should that not exist.
-		$file = WP_PLUGIN_DIR . '/' . $this->dev_plugin_slug() . '/to-test.md';
+		$file = dirname( $this->dev_plugin_path() ) . '/to-test.md';
 		if ( ! file_exists( $file ) ) {
 			$file = __DIR__ . '/../docs/testing/testing-tips.md';
 		}
@@ -667,7 +821,7 @@ class Plugin {
 	 * @return string|null
 	 */
 	public function stable_pretty_version() {
-		$file = WP_PLUGIN_DIR . '/' . $this->plugin_file();
+		$file = $this->plugin_path();
 		if ( ! file_exists( $file ) ) {
 			return null;
 		}
@@ -688,7 +842,7 @@ class Plugin {
 	public function dev_pretty_version() {
 		$dev_info = $this->dev_info();
 		if ( ! $dev_info ) {
-			$file = WP_PLUGIN_DIR . '/' . $this->dev_plugin_file();
+			$file = $this->dev_plugin_path();
 			if ( file_exists( $file ) ) {
 				$tmp = get_plugin_data( $file, false, false );
 				return $tmp['Version'];
@@ -845,12 +999,42 @@ class Plugin {
 		$skin     = new WP_Ajax_Upgrader_Skin();
 		$upgrader = new Plugin_Upgrader( $skin );
 		$upgrader->init();
+
+		// If this is a mu-plugin, overwrite the destination to put it into WPMU_PLUGIN_DIR.
+		$mu_fixers = array();
+		if ( $this->is_mu_plugin ) {
+			$destination                           = WPMU_PLUGIN_DIR . '/' . ( $which === 'dev' ? $this->dev_plugin_slug() : $this->plugin_slug() );
+			$mu_fixers['upgrader_package_options'] = static function ( $options ) use ( $destination ) {
+				$options['destination'] = $destination;
+				return $options;
+			};
+
+			// Also, WPMU_PLUGIN_DIR may not exist. Try to create it.
+			// We hook upgrader_clear_destination instead of doing it directly so Plugin_Upgrader will already have set up $wp_filesystem for us.
+			$mu_fixers['upgrader_clear_destination'] = static function ( $removed ) {
+				global $wp_filesystem;
+				$dir = $wp_filesystem->find_folder( WPMU_PLUGIN_DIR );
+				if ( $dir && ! $wp_filesystem->exists( $dir ) ) {
+					$wp_filesystem->mkdir( $dir, FS_CHMOD_DIR );
+				}
+				return $removed;
+			};
+
+			foreach ( $mu_fixers as $hook => $fixer ) {
+				add_filter( $hook, $fixer );
+			}
+		}
+
 		$result = $upgrader->install(
 			$info->download_url,
 			array(
 				'overwrite_package' => true,
 			)
 		);
+
+		foreach ( $mu_fixers as $hook => $fixer ) {
+			remove_filter( $hook, $fixer );
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -866,7 +1050,7 @@ class Plugin {
 		// Record the source info, if it's a dev version.
 		if ( 'dev' === $which ) {
 			global $wp_filesystem; // Should have been set up by the upgrader already.
-			$wp_filesystem->put_contents( WP_PLUGIN_DIR . '/' . $this->dev_plugin_slug() . '/.jpbeta.json', wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+			$wp_filesystem->put_contents( dirname( $this->dev_plugin_path() ) . '/.jpbeta.json', wp_json_encode( $info, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 		}
 
 		return null;
