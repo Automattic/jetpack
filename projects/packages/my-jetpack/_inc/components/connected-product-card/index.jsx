@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 /**
@@ -12,6 +11,7 @@ import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ProductCard from '../product-card';
 
@@ -28,7 +28,7 @@ const ConnectedProductCard = ( {
 	onMouseEnter,
 	onMouseLeave,
 } ) => {
-	const { isRegistered, isUserConnected } = useConnection();
+	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );

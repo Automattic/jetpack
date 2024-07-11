@@ -20,13 +20,16 @@ interface MyJetpackConnection {
 	// The useConnection hook is not typed, so we don't know what other properties it returns.
 	// We could define the types here, but that hook returns a lot of data and it's not best practices
 	// to duplicate them here. The best approach would be to type the useConnection hook itself.
-	[ key: string ]: unknown;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	[ key: string ]: any;
 }
 
-const useMyJetpackConnection = (): MyJetpackConnection => {
+type useMyJetpackConnectionType = ( connectionProps?: object ) => MyJetpackConnection;
+
+const useMyJetpackConnection: useMyJetpackConnectionType = ( connectionProps = {} ) => {
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
-	const connectionData = useConnection( { apiRoot, apiNonce } );
+	const connectionData = useConnection( { apiRoot, apiNonce, ...connectionProps } );
 	const { registrationNonce } = getMyJetpackWindowConnectionState();
 
 	// Alias: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php/#L315

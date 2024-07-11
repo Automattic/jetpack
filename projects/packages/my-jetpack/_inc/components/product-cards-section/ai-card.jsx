@@ -1,12 +1,12 @@
-import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import ProductCard from '../connected-product-card';
 
 const AiCard = ( { admin } ) => {
-	const { userConnectionData } = useConnection();
+	const { userConnectionData } = useMyJetpackConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
 	const userId = currentUser?.id || 0;
