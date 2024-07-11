@@ -30,13 +30,13 @@ const Controls = ( { alignment, clientId, toggleAlignment } ) => {
 					onClick={ () => toggleAlignment( 'left' ) }
 					isActive={ alignment === 'left' }
 					icon={ positionLeft }
-					title={ __( 'Left', 'jetpack' ) }
+					title={ __( 'Left', 'jetpack-mu-wpcom' ) }
 				/>
 				<ToolbarButton
 					onClick={ () => toggleAlignment( 'right' ) }
 					isActive={ alignment === 'right' }
 					icon={ positionRight }
-					title={ __( 'Right', 'jetpack' ) }
+					title={ __( 'Right', 'jetpack-mu-wpcom' ) }
 				/>
 			</ToolbarGroup>
 		</BlockControls>
@@ -72,14 +72,14 @@ const TimelineItemEdit = ( { attributes, clientId, setAttributes } ) => {
 			<li style={ style } className={ classes }>
 				<InspectorControls>
 					<PanelColorSettings
-						title={ __( 'Color Settings', 'jetpack' ) }
+						title={ __( 'Color Settings', 'jetpack-mu-wpcom' ) }
 						enableAlpha
 						colorSettings={ [
 							{
 								value: attributes.background,
 								onChange: background =>
 									setAttributes( { background: background || DEFAULT_BACKGROUND } ),
-								label: __( 'Background Color', 'jetpack' ),
+								label: __( 'Background Color', 'jetpack-mu-wpcom' ),
 							},
 						] }
 					/>

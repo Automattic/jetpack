@@ -24,9 +24,9 @@ const TimelineEdit = ( { clientId, attributes, setAttributes } ) => {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Timeline settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Timeline settings', 'jetpack-mu-wpcom' ) }>
 					<ToggleControl
-						label={ __( 'Alternate items', 'jetpack' ) }
+						label={ __( 'Alternate items', 'jetpack-mu-wpcom' ) }
 						onChange={ toggleAlternate }
 						checked={ isAlternating }
 					/>

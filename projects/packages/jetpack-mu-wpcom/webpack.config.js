@@ -27,6 +27,11 @@ module.exports = [
 				'./src/features/paragraph-block-placeholder/paragraph-block-placeholder.js',
 			'tags-education': './src/features/tags-education/tags-education.js',
 			'wpcom-admin-bar': './src/features/wpcom-admin-bar/wpcom-admin-bar.scss',
+			'wpcom-blocks-event-countdown-editor':
+				'./src/features/wpcom-blocks/event-countdown/editor.js',
+			'wpcom-blocks-event-countdown-view': './src/features/wpcom-blocks/event-countdown/view.js',
+			'wpcom-blocks-timeline-editor': './src/features/wpcom-blocks/timeline/editor.js',
+			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
 			'wpcom-documentation-links':

@@ -45,23 +45,23 @@ const EventCountdown = ( { eventTitle, eventTimestamp, eventDate, isPreviewing }
 			<div className="event-countdown__counter">
 				<p>
 					<strong className="event-countdown__day">{ days }</strong>{ ' ' }
-					{ _x( 'days', 'Countdown days remaining', 'jetpack' ) }
+					{ _x( 'days', 'Countdown days remaining', 'jetpack-mu-wpcom' ) }
 				</p>
 				<p>
 					<span>
 						<strong className="event-countdown__hour">{ hours }</strong>{ ' ' }
-						{ _x( 'hours', 'Countdown hours remaining', 'jetpack' ) }
+						{ _x( 'hours', 'Countdown hours remaining', 'jetpack-mu-wpcom' ) }
 					</span>
 					<span>
 						<strong className="event-countdown__minute">{ mins }</strong>{ ' ' }
-						{ _x( 'minutes', 'Countdown minutes remaining', 'jetpack' ) }
+						{ _x( 'minutes', 'Countdown minutes remaining', 'jetpack-mu-wpcom' ) }
 					</span>
 					<span>
 						<strong className="event-countdown__second">{ secs }</strong>{ ' ' }
-						{ _x( 'seconds', 'Countdown seconds remaining', 'jetpack' ) }
+						{ _x( 'seconds', 'Countdown seconds remaining', 'jetpack-mu-wpcom' ) }
 					</span>
 				</p>
-				<p>{ __( 'until', 'jetpack' ) }</p>
+				<p>{ __( 'until', 'jetpack-mu-wpcom' ) }</p>
 			</div>
 			<div className="event-countdown__event-title">
 				<p>{ eventTitle }</p>
