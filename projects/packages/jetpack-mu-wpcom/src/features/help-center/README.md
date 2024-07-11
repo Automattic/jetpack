@@ -47,16 +47,9 @@ If you do want to modify PHP files. Please follow the development process of [`j
 
 ### Translations
 
-Translation are download from `widgets.wp.com/help-center/languages` during `jetpack-mu-plugin` build process. Please cd into `projects/packages/jetpack-mu-wpcom` and run:
-
-1. pnpm run build-production-js
-2. jetpack rsync mu-wpcom-plugin
-
-This will update the translations files.
+Translation are enqueued from `widgets.wp.com/help-center/languages` and are downloaded on the client side as normal JS files. This means they're decoupled from `jetpack-mu-plugin` and will be downloaded from your sandbox if you're sandboxing widgets.wp.com. This also means you don't have to re-deploy `jetpack-mu-plugin` after modifying them; releasing them to widgets.wp.com is sufficient.
 
 ### Deployment
 
 After every change to the Help Center PHP files, you'll have to deploy `jetpack-mu-plugin`.
 
-> [!IMPORTANT]
-> If you add new phrases to the Help Center. They will only be translated in Atomic sites after `jetpack-mu-plugin` is released. Which happens twice a day.
