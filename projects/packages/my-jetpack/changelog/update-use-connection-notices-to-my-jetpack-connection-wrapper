@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace uses of useConnection with useMyJetpackConnection
