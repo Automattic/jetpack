@@ -1,6 +1,6 @@
 /* global Jetpack_Subscriptions */
 const { domReady } = wp;
-domReady( function () {
+domReady( () => {
 	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
 
@@ -34,7 +34,7 @@ domReady( function () {
 	function onLocalStorage( event ) {
 		if ( event.key === modalDismissedCookie ) {
 			closeModal();
-			uninitialize();
+			removeEventListeners();
 		}
 	}
 	window.addEventListener( 'storage', onLocalStorage );
@@ -80,7 +80,7 @@ domReady( function () {
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
 		window.addEventListener( 'click', closeOnWindowClick );
-		uninitialize();
+		removeEventListeners();
 	}
 
 	function closeModal() {
@@ -93,7 +93,7 @@ domReady( function () {
 	}
 
 	// Remove all event listeners. That would add the modal again.
-	function uninitialize() {
+	function removeEventListeners() {
 		window.removeEventListener( 'scroll', onScroll );
 		window.clearInterval( modalInactiveInterval );
 	}
