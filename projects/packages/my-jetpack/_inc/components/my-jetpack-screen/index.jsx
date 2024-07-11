@@ -3,7 +3,6 @@
  */
 import {
 	AdminSection,
-	AdminSectionHero,
 	AdminPage,
 	Container,
 	Col,
@@ -127,37 +126,37 @@ export default function MyJetpackScreen() {
 	return (
 		<AdminPage siteAdminUrl={ adminUrl }>
 			<IDCModal />
-			<AdminSectionHero>
-				{ ! isNewUser && (
-					<Container horizontalSpacing={ 0 }>
-						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-						</Col>
-					</Container>
-				) }
-				<WelcomeBanner />
-				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
-					{ noticeMessage && ! isWelcomeBannerVisible && (
-						<Col>
-							{
-								<GlobalNotice
-									message={ noticeMessage }
-									title={ noticeTitle }
-									options={ noticeOptions }
-								/>
-							}
-						</Col>
-					) }
+			{ ! isNewUser && (
+				<Container horizontalSpacing={ 0 }>
 					<Col>
-						<ProductCardsSection />
+						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 					</Col>
-					{ jetpackManage.isEnabled && (
-						<Col>
-							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
-						</Col>
-					) }
 				</Container>
-			</AdminSectionHero>
+			) }
+			<WelcomeBanner />
+			{ noticeMessage && ! isWelcomeBannerVisible && (
+				<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+					<Col>
+						{
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
+						}
+					</Col>
+				</Container>
+			) }
+
+			<ProductCardsSection />
+
+			{ jetpackManage.isEnabled && (
+				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+					<Col>
+						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+					</Col>
+				</Container>
+			) }
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>

@@ -1,4 +1,4 @@
-import { Container, Col, Text } from '@automattic/jetpack-components';
+import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -15,7 +15,7 @@ import SocialCard from './social-card';
 import StatsCard from './stats-card';
 import styles from './style.module.scss';
 import VideopressCard from './videopress-card';
-import type { FC } from 'react';
+import type { FC, ReactNode } from 'react';
 
 type DisplayItemsProps = {
 	slugs: JetpackModule[];
@@ -74,7 +74,11 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	);
 };
 
-const ProductCardsSection = () => {
+interface ProductCardsSectionProps {
+	noticeMessage: ReactNode;
+}
+
+const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
 	const { ownedProducts = [], unownedProducts = [] } =
 		getMyJetpackWindowInitialState( 'lifecycleStats' );
 
@@ -87,25 +91,31 @@ const ProductCardsSection = () => {
 	return (
 		<>
 			{ ownedProducts.length > 0 && (
-				<>
-					<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-						<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
-					</Col>
+				<AdminSectionHero>
+					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+						<Col>
+							<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
+								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
+							</Col>
 
-					<DisplayItems slugs={ ownedProducts } />
-				</>
+							<DisplayItems slugs={ ownedProducts } />
+						</Col>
+					</Container>
+				</AdminSectionHero>
 			) }
 
 			<br />
 
 			{ unownedProducts.length > 0 && (
-				<>
-					<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-						<Text variant="headline-small">{ unownedSectionTitle }</Text>
-					</Col>
+				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+					<Col>
+						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
+							<Text variant="headline-small">{ unownedSectionTitle }</Text>
+						</Col>
 
-					<DisplayItems slugs={ unownedProducts } />
-				</>
+						<DisplayItems slugs={ unownedProducts } />
+					</Col>
+				</Container>
 			) }
 		</>
 	);
