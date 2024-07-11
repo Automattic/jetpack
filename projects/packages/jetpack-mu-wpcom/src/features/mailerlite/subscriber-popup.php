@@ -116,16 +116,15 @@ class WPCOM_Widget_Mailerlite extends \WP_Widget {
 			)
 		);
 
-		echo '
-		<p><label for="' . esc_attr( $this->get_field_id( 'account' ) ) . '">';
-		/* translators: link to documentation */
-		printf( wp_kses_post( __( 'Account ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack-mu-wpcom' ) ), 'https://wordpress.com/support/widgets/mailerlite/' );
-		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'account' ) ) . '" name="' . esc_attr( $this->get_field_name( 'account' ) ) . '" type="text" value="' . esc_attr( $instance['account'] ) . '" />
-		</label></p>
-		<p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'UUID:', 'jetpack-mu-wpcom' );
-		echo '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'uuid' ) ) . '" name="' . esc_attr( $this->get_field_name( 'uuid' ) ) . '" type="text" value="' . esc_attr( $instance['uuid'] ) . '" />';
-		echo '</label></p>
-		';
+    $html = '<p><label for="' . esc_attr( $this->get_field_id( 'account' ) ) . '">';
+    $html .= sprintf( wp_kses_post( __( 'Account ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack-mu-wpcom' ) ), 'https://wordpress.com/support/widgets/mailerlite/' );
+    $html .= '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'account' ) ) . '" name="' . esc_attr( $this->get_field_name( 'account' ) ) . '" type="text" value="' . esc_attr( $instance['account'] ) . '" />
+    </label></p>
+    <p><label for="' . esc_attr( $this->get_field_id( 'shelf' ) ) . '">' . esc_html__( 'UUID:', 'jetpack-mu-wpcom' );
+    $html .= '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'uuid' ) ) . '" name="' . esc_attr( $this->get_field_name( 'uuid' ) ) . '" type="text" value="' . esc_attr( $instance['uuid'] ) . '" />';
+    $html .= '</label></p>';
+
+		return $html;
 	}
 }
 
