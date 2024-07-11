@@ -14,7 +14,6 @@
  */
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
-	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'geo-location.php',
