@@ -128,6 +128,25 @@ interface Window {
 							transition_after_renewal_count: number;
 							usage_limit?: number;
 						};
+						tiers?: {
+							[ key: string ]: {
+								available: boolean;
+								currencyCode: string;
+								discountPrice: number;
+								fullPrice: number;
+								introductoryOffer?: {
+									costPerInterval: number;
+									intervalCount: number;
+									intervalUnit: string;
+									shouldProrateWhenOfferEnds: boolean;
+									transitionAfterRenewalCount: number;
+									usageLimit?: number;
+								};
+								isIntroductoryOffer: boolean;
+								productTerm: string;
+								wpcomProductSlug: string;
+							};
+						};
 					};
 					purchase_url?: string;
 					requires_user_connection: boolean;

@@ -115,6 +115,34 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	}
 }
 
+.priceContainer {
+	display: flex;
+	align-items: baseline;
+	gap: calc(var(--spacing-base) * 0.5);
+	margin-bottom: var(--spacing-base);
+}
+
+.price {
+	font-size: var(--font-body);
+	color: var(--jp-gray-100);
+	font-weight: 600;
+
+	&.discounted {
+		color: var(--jp-gray-30);
+		text-decoration: line-through;
+	}
+}
+
+.term {
+	font-size: var(--font-body-extra-small);
+	color: var(--jp-gray-30);
+}
+
+.recommendationLink {
+	padding: calc(var(--spacing-base) * 0.5) var(--spacing-base) !important;
+}
+
+
 .status {
 	white-space: nowrap;
 	height: $actions-size;
