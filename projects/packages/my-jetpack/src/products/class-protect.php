@@ -267,7 +267,11 @@ class Protect extends Product {
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
 				// Protect is available as jetpack_scan product and as part of the Security or Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_scan' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_security' ) || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+				if (
+					strpos( $purchase->product_slug, 'jetpack_scan' ) !== false ||
+					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
+				) {
 					return true;
 				}
 			}
