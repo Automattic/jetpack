@@ -132,6 +132,7 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
