@@ -17,6 +17,7 @@ import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( {
 	admin,
+	recommendation,
 	slug,
 	children,
 	isDataLoading,
@@ -73,6 +74,7 @@ const ConnectedProductCard = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
+			recommendation={ recommendation }
 			isFetching={ isActivating || isInstalling }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ isInstalling }
@@ -94,6 +96,7 @@ const ConnectedProductCard = ( {
 ConnectedProductCard.propTypes = {
 	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
+	recommendation: PropTypes.bool,
 	slug: PropTypes.string.isRequired,
 	isDataLoading: PropTypes.bool,
 	additionalActions: PropTypes.array,

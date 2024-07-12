@@ -2,14 +2,33 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import {
+	useCallback,
+	useState,
+	useEffect,
+	useMemo,
+	useRef,
+	FC,
+	ComponentProps,
+	MouseEventHandler,
+} from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
+import { ProductCardProps } from '.';
 
-const ActionButton = ( {
+type ActionButtonProps< A = MouseEventHandler< HTMLButtonElement > > = ProductCardProps & {
+	onFixConnection?: A;
+	onManage?: A;
+	onAdd?: A;
+	onInstall?: A;
+	onLearnMore?: A;
+	className?: string;
+};
+
+const ActionButton: FC< ActionButtonProps > = ( {
 	status,
 	admin,
 	name,
@@ -28,7 +47,7 @@ const ActionButton = ( {
 	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
-	const [ currentAction, setCurrentAction ] = useState( {} );
+	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
@@ -165,8 +184,8 @@ const ActionButton = ( {
 					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
+						PRODUCT_STATUSES.SITE_CONNECTION_ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {

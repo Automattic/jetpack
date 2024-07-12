@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import ProductCard from '../connected-product-card';
 
-const AiCard = ( { admin } ) => {
+const AiCard = props => {
 	const { userConnectionData } = useConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
@@ -27,10 +27,10 @@ const AiCard = ( { admin } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
 			slug="jetpack-ai"
-			upgradeInInterstitial={ true }
 			primaryActionOverride={ userOverrides }
+			upgradeInInterstitial
+			{ ...props }
 		/>
 	);
 };

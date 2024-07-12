@@ -121,16 +121,16 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	}
 };
 
-const BackupCard = ( { admin } ) => {
+const BackupCard = props => {
 	const slug = 'backup';
 	const { detail } = useProduct( slug );
 	const { status } = detail;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	return hasBackups ? (
-		<WithBackupsValueSection admin={ admin } slug={ slug } />
+		<WithBackupsValueSection slug={ slug } { ...props } />
 	) : (
-		<NoBackupsValueSection admin={ admin } slug={ slug } />
+		<NoBackupsValueSection slug={ slug } { ...props } />
 	);
 };
 
