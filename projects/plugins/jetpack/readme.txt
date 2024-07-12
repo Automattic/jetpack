@@ -326,29 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.6 - 2024-07-02
+### 13.7-a.1 - 2024-07-08
 #### Enhancements
-- AI Assistant: Hide input when user types on extended block.
-- Goodreads Block: provide support for additional profile URLs.
-- Newsletter: Add ability to manage the newsletter byline appearance.
-- Newsletter: Adding a new toggle to control the newsletter author line.
-- Newsletter: Email replies can become comments on your blog.
-- Social: Add Threads preview to Social Previews.
-- Tiled Gallery: Increase accessibility of Tiled Gallery carousel images.
-
-#### Improved compatibility
-- Block Editor: Ensure that no Jetpack features are displayed in the site editor's sidebar when not necessary.
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- Offline Mode: do not display Jetpack's outbound SSL notice when in Offline mode.
+- AI Assistant: The general purpose image generator is now available to all users.
+- Subscriptions: Add command palette commands for quickly changing post access.
+- Subscriptions: Improve the Subscribe block loading animation.
 
 #### Bug fixes
-- AI Assistant: Disable extensions when AI Assistant block is hidden.
-- External Media: Do not display External Media options in the Caption edit field.
-- External media: Ensure connect URL has the correct blog ID and verification values.
-- Like block: Fix editor styling.
-- Publicize: Fix a race condition with refreshing the active social connections.
-- Slideshow: Ensure whole block is selectable in the editor.
-- User Content Link Tracking: Check domain before redirecting to subscribe.wordpress.com.
+- Like block: Fix warning displayed when trying to load the Like block on unsupported pages.
 
 --------
 
