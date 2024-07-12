@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../../../../modules//google-fonts/current/class-jetpack-google-font-face.php.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/class-jetpack-google-font-face.php.php';
 
 class WP_Test_Jetpack_Google_Font_Face extends WP_UnitTestCase {
 	private $google_font_face;
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Google_Font_Face extends WP_UnitTestCase {
 	public function test_collect_blocks_with_valid_font_family( $block_content, $expected_fonts ) {
 		$parsed_block = parse_blocks( $block_content );
 
-		$this->google_font_face->collect_block_fonts( $parsed_block );
+		$this->google_font_face->collect_block_fonts( $block_content, $parsed_block );
 
 		$this->assertEquals( $expected_fonts, $this->google_font_face->fonts_in_use );
 	}
