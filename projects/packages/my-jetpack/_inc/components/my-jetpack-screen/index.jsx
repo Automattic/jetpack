@@ -125,6 +125,8 @@ export default function MyJetpackScreen() {
 
 	return (
 		<AdminPage siteAdminUrl={ adminUrl }>
+			<hr className={ styles.separator } />
+
 			<IDCModal />
 			{ ! isNewUser && (
 				<Container horizontalSpacing={ 0 }>
@@ -135,7 +137,7 @@ export default function MyJetpackScreen() {
 			) }
 			<WelcomeBanner />
 			{ noticeMessage && ! isWelcomeBannerVisible && (
-				<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						{
 							<GlobalNotice

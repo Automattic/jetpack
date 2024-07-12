@@ -110,8 +110,6 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 				</AdminSectionHero>
 			) }
 
-			<br />
-
 			{ unownedProducts.length > 0 && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
