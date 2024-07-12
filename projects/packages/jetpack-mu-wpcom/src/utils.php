@@ -5,6 +5,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Helper function to return the site slug for Calypso URLs.
  * The fallback logic here is derived from the following code:
@@ -50,4 +52,36 @@ function wpcom_get_calypso_origin() {
 		'https://wordpress.com',
 	);
 	return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
+}
+
+/**
+ * Returns the Calypso domain that originated the current request.
+ *
+ * @param string $asset_name The name of the asset.
+ * @param array  $asset_types The types of the asset.
+ */
+function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) {
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+
+	if ( in_array( 'js', $asset_types, true ) ) {
+		$js_file = "build/$asset_name/$asset_name.js";
+		wp_enqueue_script(
+			"jetpack-mu-wpcom-$asset_name-script",
+			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
+			$asset_file['dependencies'] ?? array(),
+			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
+			true
+		);
+	}
+
+	if ( in_array( 'css', $asset_types, true ) ) {
+		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
+		$css_file = "build/$asset_name/$asset_name.$css_ext";
+		wp_enqueue_style(
+			"jetpack-mu-wpcom-$asset_name-style",
+			plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
+			array(),
+			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $css_file )
+		);
+	}
 }

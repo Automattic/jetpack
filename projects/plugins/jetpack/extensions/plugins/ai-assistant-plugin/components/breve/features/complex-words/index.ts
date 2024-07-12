@@ -3,26 +3,30 @@
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
 import phrases from './phrases';
+/**
+ * Types
+ */
+import type { BreveFeatureConfig, HighlightedWord } from '../../types';
 
-export const COMPLEX_WORDS = {
+export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
 	title: 'Complex words',
 	tagName: 'span',
-	className: 'has-proofread-highlight',
+	className: 'has-proofread-highlight--complex-words',
 };
 
-export default function complexWords( text ) {
-	const list = new RegExp(
-		`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
-		'gi'
-	);
+const list = new RegExp(
+	`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
+	'gi'
+);
 
+export default function complexWords( text: string ): Array< HighlightedWord > {
 	const matches = text.matchAll( list );
-	const words = [];
+	const highlightedWords: Array< HighlightedWord > = [];
 
 	for ( const match of matches ) {
 		const word = match[ 0 ].trim();
-		words.push( {
+		highlightedWords.push( {
 			word,
 			suggestion: phrases[ word ],
 			startIndex: match.index,
@@ -30,5 +34,5 @@ export default function complexWords( text ) {
 		} );
 	}
 
-	return words;
+	return highlightedWords;
 }

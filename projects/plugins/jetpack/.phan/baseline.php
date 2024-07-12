@@ -51,8 +51,8 @@ return [
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
     // PhanTypeComparisonToArray : 9 occurrences
-    // PhanDeprecatedClass : 8 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
+    // PhanDeprecatedClass : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
@@ -81,7 +81,6 @@ return [
     // PhanImpossibleConditionInLoop : 2 occurrences
     // PhanParamTooManyCallable : 2 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 2 occurrences
-    // PhanPluginUseReturnValueInternalKnown : 2 occurrences
     // PhanRedefineFunctionInternal : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeMismatchArgumentInternalProbablyReal : 2 occurrences
@@ -94,6 +93,7 @@ return [
     // PhanPluginDuplicateSwitchCase : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
+    // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
@@ -501,7 +501,6 @@ return [
         'modules/wordads/php/class-wordads-api.php' => ['PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'modules/wordads/php/class-wordads-params.php' => ['PhanTypeMismatchReturn'],
         'modules/wordads/php/class-wordads-sidebar-widget.php' => ['PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
-        'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' => ['PhanDeprecatedClass', 'PhanDeprecatedFunction', 'PhanPluginUseReturnValueInternalKnown'],
         'sal/class.json-api-date.php' => ['PhanPluginDuplicateExpressionAssignmentOperation', 'PhanRedundantCondition', 'PhanTypeMismatchArgumentInternalProbablyReal'],
         'sal/class.json-api-links.php' => ['PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'sal/class.json-api-post-base.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset', 'PhanTypeSuspiciousNonTraversableForeach'],

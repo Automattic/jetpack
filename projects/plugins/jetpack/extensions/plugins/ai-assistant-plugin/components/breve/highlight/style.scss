@@ -1,6 +1,6 @@
 @import '../features/features.colors';
 
-.has-proofread-highlight {
+[class^="has-proofread-highlight"] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
 }

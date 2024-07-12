@@ -2,6 +2,7 @@
 
 .jetpack-ai-proofread {
 	margin-bottom: 24px;
+
 	.components-checkbox-control {
 		color: #757575;
 
@@ -21,5 +22,11 @@
 	&__grade-label {
 		color: #757575;
 		margin-left: 12px;
+	}
+
+	.feature-checkboxes-container {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
 	}
 }

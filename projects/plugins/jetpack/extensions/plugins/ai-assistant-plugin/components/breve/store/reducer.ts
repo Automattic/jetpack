@@ -14,7 +14,10 @@ const initialConfiguration = {
 		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
 };
 
-export function configuration( state = initialConfiguration, action ) {
+export function configuration(
+	state = initialConfiguration,
+	action: { type: string; enabled?: boolean; feature?: string }
+) {
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
 			const enabled = action?.enabled !== undefined ? action?.enabled : ! state?.enabled;
@@ -54,7 +57,10 @@ export function configuration( state = initialConfiguration, action ) {
 	return state;
 }
 
-export function popover( state = {}, action ) {
+export function popover(
+	state = {},
+	action: { type: string; isHover?: boolean; anchor?: HTMLElement }
+) {
 	switch ( action.type ) {
 		case 'SET_HIGHLIGHT_HOVER':
 			return {

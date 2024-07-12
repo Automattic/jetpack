@@ -1,4 +1,4 @@
-import { derived, Writable, writable } from 'svelte/store';
+import { derived, writable, type Writable } from 'svelte/store';
 
 /**
  * Guide State is a Svelte Store that keeps track
