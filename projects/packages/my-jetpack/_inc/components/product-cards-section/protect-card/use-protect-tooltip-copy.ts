@@ -1,4 +1,4 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import useProduct from '../../../data/products/use-product';
 import type { ReactElement } from 'react';
 
@@ -36,13 +36,21 @@ export function useProtectTooltipCopy( {
 		pluginsThemesTooltip: {
 			title: __( 'Improve site safety: secure plugins & themes', 'jetpack-my-jetpack' ),
 			text: sprintf(
-				/* translators: %1$d is the number of plugins and %2$d is the number of themes installed on the site. */
+				/* translators: %1$s the singular or plural of number of plugin(s), and %2$s is the singular or plural of the number of theme(s). */
 				__(
-					'Your site has %1$d plugins and %2$d themes lacking security measures. Improve your site’s safety by adding protection at no cost.',
+					'Your site has %1$s and %2$s lacking security measures. Improve your site’s safety by adding protection at no cost.',
 					'jetpack-my-jetpack'
 				),
-				pluginsCount,
-				themesCount
+				sprintf(
+					/* translators: %d is the number of plugins installed on the site. */
+					_n( '%d plugin', '%d plugins', pluginsCount, 'jetpack-my-jetpack' ),
+					pluginsCount
+				),
+				sprintf(
+					/* translators: %d is the number of themes installed on the site. */
+					_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
+					themesCount
+				)
 			),
 		},
 		scanThreatsTooltip:
@@ -50,12 +58,21 @@ export function useProtectTooltipCopy( {
 				? {
 						title: __( 'Auto-fix threats', 'jetpack-my-jetpack' ),
 						text: sprintf(
-							/* translators: %d is the number of detected scan threats on the site. */
+							/* translators: %s is the singular or plural of number of detected critical threats on the site. */
 							__(
-								'The last scan identified %d critical threats. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
+								'The last scan identified %s. But don’t worry, use the “Auto-fix” button in the product to automatically fix most threats.',
 								'jetpack-my-jetpack'
 							),
-							numThreats
+							sprintf(
+								/* translators: %d is the number of detected scan threats on the site. */
+								_n(
+									'%d critical threat.',
+									'%d critical threats.',
+									numThreats,
+									'jetpack-my-jetpack'
+								),
+								numThreats
+							)
 						),
 				  }
 				: {

@@ -27,11 +27,28 @@ type JetpackModule =
 	| 'stats'
 	| 'ai';
 
+type ThreatItem = {
+	// Protect API properties (free plan)
+	id: string;
+	title: string;
+	fixed_in: string;
+	description: string | null;
+	source: string | null;
+	// Scan API properties (paid plan)
+	context: string | null;
+	filename: string | null;
+	first_detected: string | null;
+	fixable: boolean | null;
+	severity: number | null;
+	signature: string | null;
+	status: number | null;
+};
+
 type ScanItem = {
 	checked: boolean;
 	name: string;
 	slug: string;
-	threats: string[];
+	threats: ThreatItem[];
 	type: string;
 	version: string;
 };
