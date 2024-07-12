@@ -122,7 +122,9 @@ class Jetpack_Google_Font_Face {
 	public function collect_block_fonts( $content, $parsed_block ) {
 		if ( ! is_admin() && isset( $parsed_block['attrs']['fontFamily'] ) ) {
 			$block_font_family = $parsed_block['attrs']['fontFamily'];
-			$this->add_font( $block_font_family );
+			if ( is_string( $block_font_family ) ) {
+				$this->add_font( $block_font_family );
+			}
 		}
 
 		return $content;
