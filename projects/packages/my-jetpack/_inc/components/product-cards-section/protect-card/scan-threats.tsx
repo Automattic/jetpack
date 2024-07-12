@@ -63,16 +63,16 @@ export const ScanAndThreatStatus = () => {
 					/>
 				);
 			}
-			return <ScanStatus status={ 'success' } tooltipContent={ scanThreatsTooltip } />;
+			return <ScanStatus status="success" tooltipContent={ scanThreatsTooltip } />;
 		}
 		return numThreats ? (
 			<ThreatStatus numThreats={ numThreats } tooltipContent={ scanThreatsTooltip } />
 		) : (
-			<ScanStatus status={ 'partial' } tooltipContent={ scanThreatsTooltip } />
+			<ScanStatus status="partial" tooltipContent={ scanThreatsTooltip } />
 		);
 	}
 
-	return <ScanStatus status={ 'off' } tooltipContent={ scanThreatsTooltip } />;
+	return <ScanStatus status="off" tooltipContent={ scanThreatsTooltip } />;
 };
 
 /**
@@ -123,40 +123,44 @@ function ThreatStatus( {
 		}
 	}, [ setIsPopoverVisible, useTooltipRef ] );
 
-	return criticalThreatCount ? (
-		<>
-			<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
-			<div className="value-section__data">
-				<div className="scan-threats__critical-threats">
-					<div className="scan-threats__threat-count">{ numThreats }</div>
-					<div className="scan-threats__critical-threat-container">
-						<button
-							className="info-tooltip__button"
-							onClick={ toggleTooltip }
-							ref={ useTooltipRef }
-						>
-							<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
-							<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
-						</button>
-						{ isPopoverVisible && (
-							<Popover
-								placement={ isMobileViewport ? 'top-end' : 'right' }
-								noArrow={ false }
-								offset={ 10 }
-								focusOnMount={ 'container' }
-								onClose={ hideTooltip }
+	if ( criticalThreatCount ) {
+		return (
+			<>
+				<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
+				<div className="value-section__data">
+					<div className="scan-threats__critical-threats">
+						<div className="scan-threats__threat-count">{ numThreats }</div>
+						<div className="scan-threats__critical-threat-container">
+							<button
+								className="info-tooltip__button"
+								onClick={ toggleTooltip }
+								ref={ useTooltipRef }
 							>
-								<>
-									<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
-									<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
-								</>
-							</Popover>
-						) }
+								<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
+								<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
+							</button>
+							{ isPopoverVisible && (
+								<Popover
+									placement={ isMobileViewport ? 'top-end' : 'right' }
+									noArrow={ false }
+									offset={ 10 }
+									focusOnMount={ 'container' }
+									onClose={ hideTooltip }
+								>
+									<>
+										<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
+										<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
+									</>
+								</Popover>
+							) }
+						</div>
 					</div>
 				</div>
-			</div>
-		</>
-	) : (
+			</>
+		);
+	}
+
+	return (
 		<>
 			<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
