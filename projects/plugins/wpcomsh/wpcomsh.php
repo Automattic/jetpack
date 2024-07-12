@@ -2,15 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.27.3-alpha
+ * Version: 3.28.0-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-// Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.27.3-alpha' );
+define( 'WPCOMSH_VERSION', '3.28.0-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );

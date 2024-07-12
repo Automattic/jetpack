@@ -22,43 +22,13 @@ msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
 msgstr "⁦%1$s⁩ على <a href=\"%2$s\">%3$s</a>"
 
 #. translators: %s is a link to the WordPress user profile.
-#: widgets/class-gravatar-widget.php:206
+#: widgets/class-gravatar-widget.php:205
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "يمكنك تعديل الجرافتار الخاص بك من <a href=\"%s\">صفحة ملفك الشخصي</a>."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Marketing"
-msgstr "التسويق"
 
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "عذرًا، غير مسموح لك الوصول إلى هذه الصفحة."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
-msgid "Plugins"
-msgstr "إضافات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr "استخدم لوحة التحكم القديمة لووردبريس.كوم لإدارة موقعك."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Default style"
-msgstr "النمط الافتراضي"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Use WP-Admin to manage your site."
-msgstr "استخدم WP-Admin لإدارة موقعك."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Classic style"
-msgstr "النمط الكلاسيكي"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
-msgid "Admin Interface Style"
-msgstr "نمط واجهة المسؤول"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -72,423 +42,9 @@ msgstr "يمكنك الوصول إلى مجموعة متنوعة من الإضا
 msgid "Flex your site's features with plugins"
 msgstr "تطوير ميزات موقعك باستخدام الإضافات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
-msgid "Theme Showcase"
-msgstr "عرض القالب"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
-msgid "Explore themes"
-msgstr "استكشاف القوالب"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
-msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr "تعمَّق في عالم قوالب ووردبريس.كوم. اكتشف التصميمات سريعة الاستجابة والمذهلة التي تنتظر إضفاء الحيوية على موقعك."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
-msgid "Find the perfect theme for your site"
-msgstr "البحث عن القالب المثالي لموقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "بضع كلمات جذابة لتحفيز القراء على التعليق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
-msgid "Enable blocks in comments"
-msgstr "تمكين المكوِّنات في التعليقات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
-msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr "السماح للزائرين باستخدام حسابات على ووردبريس.كوم أو فيسبوك أو للتعليق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
-msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr "اضبط نموذج التعليقات مع نظام التحية ونظام الألوان الذكي."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
-msgid "Color Scheme"
-msgstr "نظام الألوان"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
-msgid "Greeting Text"
-msgstr "نص التحية"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
-msgid "Allow Blocks"
-msgstr "السماح بالمكوِّنات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
-msgid "Verbum"
-msgstr "Verbum"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
-msgid "Dark"
-msgstr "غامق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
-msgid "Light"
-msgstr "فاتح"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
-msgid "Transparent"
-msgstr "شفاف"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
-msgid "Launch your store"
-msgstr "أطلق متجرك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
-msgid "Add a domain"
-msgstr "إضافة نطاق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
-msgid "Grow your business"
-msgstr "نمو أعمالك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
-msgid "Collect sales tax"
-msgstr "تحصيل ضريبة المبيعات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
-msgid "Get paid with WooPayments"
-msgstr "الحصول على المدفوعات من خلال WooPayments"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
-msgid "Add your products"
-msgstr "إضافة منتجاتك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
-msgid "Customize your store"
-msgstr "تخصيص متجرك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
-msgid "Sunset"
-msgstr "غروب الشمس"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
-msgid "Sakura"
-msgstr "ساكورا"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
-msgid "Powder Snow"
-msgstr "مسحوق الثلج"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
-msgid "Nightfall"
-msgstr "الغسق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
-msgid "Contrast"
-msgstr "تباين"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
-msgid "Classic Dark"
-msgstr "أسود كلاسيكي"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
-msgid "Classic Bright"
-msgstr "ساطع كلاسيكي"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
-msgid "Classic Blue"
-msgstr "أزرق كلاسيكي"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
-msgid "Aquatic"
-msgstr "مائي"
-
-#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
-msgid "Overview"
-msgstr "نظرة عامة"
-
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
-msgid "Share &#8220;%s&#8221; via Jetpack Social"
-msgstr "مشاركة \"%s\" عبر Jetpack Social"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
-msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr "للوصول إلى إعدادات الخطط والنطاقات ورسائل البريد الإلكتروني وغير ذلك، انقر على \"استضافة\" في الشريط الجانبي."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
-msgid "WordPress.com"
-msgstr "ووردبريس.كوم"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
-msgid "Settings"
-msgstr "الإعدادات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
-msgid "Monetize"
-msgstr "تحقيق أرباح"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
-msgid "Monitoring"
-msgstr "مراقبة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
-msgid "Configuration"
-msgstr "تهيئة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
-msgid "Purchases"
-msgstr "عمليات الشراء"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
-msgid "Emails"
-msgstr "رسائل البريد الإلكتروني"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
-msgid "Domains"
-msgstr "أسماء النطاقات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
-msgid "Add-ons"
-msgstr "الإضافات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-msgid "Plans"
-msgstr "الخطط"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-msgid "Hosting"
-msgstr "الاستضافة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
-msgid "All Sites"
-msgstr "جميع المواقع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
-msgid "Error: please try commenting again."
-msgstr "خطأ: يرجى محاولة التعليق مجددًا."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
-msgid "Error: your Facebook login has expired."
-msgstr "خطأ: لقد انتهت صلاحية تسجيل دخولك في فسبوك."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
-msgid "Cancel reply"
-msgstr "إلغاء الرد"
-
-#. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
-msgid "Leave a reply to %s"
-msgstr "اترك رداً على %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
-msgid "Leave a comment"
-msgstr "أضف تعليق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
-msgid "Save my name, email, and website in this browser for the next time I comment."
-msgstr "احفظ اسمي، بريدي الإلكتروني، والموقع الإلكتروني في هذا المتصفح لاستخدامها المرة المقبلة في تعليقي."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
-msgid "Comment sent successfully"
-msgstr "تم إرسال التعليق بنجاح"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
-msgid "Subscribe"
-msgstr "اشترك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
-msgid "Enter your email address"
-msgstr "أدخل عنوان بريدك الإلكتروني"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
-msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr "هل تهتم بتلقي تحديثات التدوينات؟ ما عليك سوى النقر على الزر أدناه للبقاء على اطلاع بالمستجدات!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
-msgid "Never miss a beat!"
-msgstr "لا تفوِّت شيئًا!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
-msgid "Continue reading"
-msgstr "أكمل قراءة الموضوع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
-msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr "اشترك الآن للاستمرار في القراءة والحصول على حق الوصول إلى الأرشيف الكامل."
-
-#. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
-msgid "Discover more from %s"
-msgstr "اكتشاف المزيد من %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
-msgid "Loading your comment..."
-msgstr "جارٍ تحميل تعليقك..."
-
-#. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
-msgid "We'll keep you in the loop!"
-msgstr "سنبقيك مطلعًا بالمستجدات!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
-msgid "Optional"
-msgstr "اختياري"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
-msgid "Website"
-msgstr "موقع إلكتروني"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
-msgid "Write a reply..."
-msgstr "كتابة رد..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
-msgid "Cancel"
-msgstr "إلغاء"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
-msgid "Email me new comments"
-msgstr "رسائل بريد إلكتروني لتعليقات جديدة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
-msgid "Email me new posts"
-msgstr "أرسل رسالة بالبريد الإلكتروني تتضمن المقالات الجديدة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
-msgid "Notify me of new posts"
-msgstr "أخطرني بالمقالات الجديدة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
-msgid "Weekly"
-msgstr "أسبوعيًّا"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
-msgid "WordPress"
-msgstr "ووردبريس"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
-msgid "Comment"
-msgstr "التعليق"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
-msgid "Reply"
-msgstr "رد"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
-msgid "Daily"
-msgstr "يومياً"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
-msgid "Instantly"
-msgstr "على الفور"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
-msgid "(Address never made public)"
-msgstr "(البريد الإلكتروني لن يتم نشره)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
-msgid "Log out"
-msgstr "تسجيل الخروج"
-
-#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
-msgid "Logged in via %s"
-msgstr "تم تسجيل الدخول بواسطة %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
-msgid "Log in to leave a comment."
-msgstr "سجِّل الدخول لترك تعليق."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
-msgid "Log in to leave a reply."
-msgstr "سجّل الدخول لترك رد."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
-msgid "Leave a comment. (log in optional)"
-msgstr "اترك تعليقًا. (تسجيل الدخول اختياري)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
-msgid "Leave a reply. (log in optional)"
-msgstr "اترك ردًا. (تسجيل الدخول اختياري)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
-msgid "Website (optional)"
-msgstr "موقع الويب (اختياري)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
-msgid "Email (address never made public)"
-msgstr "البريد الإلكتروني (لن يصبح العنوان عامًّا مطلقًا)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
-msgid "Receive web and mobile notifications for posts on this site."
-msgstr "تلقى تنبيهات على الويب والهاتف المحمول للتدوينات من هذا الموقع."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
-msgid "Log in or provide your name and email to leave a comment."
-msgstr "سجِّل الدخول أو أدخل اسمك وبريدك الإلكتروني لترك تعليق."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
-msgid "Log in or provide your name and email to leave a reply."
-msgstr "سجِّل الدخول لإدخال اسمك وبريدك الإلكتروني لترك رد."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
-msgid "Write a comment..."
-msgstr "اكتب تعليقاً..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
-msgid "Get started"
-msgstr "ابدأ"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
-msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr "استخدم أداة الاستيراد الموجَّهة في ووردبريس.كوم لاستيراد التدوينات والتعليقات من Medium وSubstack وSquarespace وWix والمزيد."
-
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "تفضَّل بزيارة ⁦%1$s⁩إعدادات Jetpack⁦%2$s⁩ للحصول على مزيد من إعدادات الكتابة المدعومة من Jetpack."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
-msgid "Scheduled Updates"
-msgstr "تحديثات مجدولة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
-msgid "Verify the email address for your domains"
-msgstr "تحقق من عنوان البريد الإلكتروني للنطاقات الخاصة بك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
-msgid "Site setup"
-msgstr "إعداد الموقع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
-msgid "Finish Sensei setup"
-msgstr "أكمل إعداد Sensei"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
-msgid "Finish store setup"
-msgstr "أكمل إعداد المتجر"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
-msgid "Update your site's design"
-msgstr "قم بتحديث تصميم موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
-msgid "Enable post sharing"
-msgstr "تمكين مشاركة المقالة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
-msgid "Install the mobile app"
-msgstr "تثبيت التطبيق للهاتف المحمول"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -563,134 +119,6 @@ msgstr "ثمَّة استيراد قيد التشغيل بالفعل."
 msgid "The backup import has been cancelled."
 msgstr "تم إلغاء استيراد النسخة الاحتياطية."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-msgid "Next steps for your site"
-msgstr "الخطوات التالية لموقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
-msgid "Add the Subscribe Block to your site"
-msgstr "إضافة مكوّن Subscribe إلى موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
-msgid "Import existing subscribers"
-msgstr "استورد المشتركين الحاليين"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
-msgid "View site metrics"
-msgstr "عرض مقاييس الموقع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
-msgid "Set up ssh"
-msgstr "إعداد ssh"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
-msgid "Install a custom plugin"
-msgstr "ثبّت إضافة مخصصة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
-msgid "Choose a theme"
-msgstr "اختر قالباً"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
-msgid "Set up an offer for your supporters"
-msgstr "إعداد عرض لداعميك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
-msgid "Connect a Stripe account to collect payments"
-msgstr "ربط حساب Stripe لتحصيل المدفوعات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
-msgid "Add your About page"
-msgstr "إضافة صفحة \"نبذة عني\" الخاصة بك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
-msgid "Manage your paid Newsletter plan"
-msgstr "إدارة خطة الرسائل الإخبارية المدفوعة لديك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
-msgid "Connect your social media accounts"
-msgstr "توصيل حسابات وسائل التواصل الاجتماعي الخاصة بك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
-msgid "Manage your subscribers"
-msgstr "إدارة المشتركين لديك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
-msgid "Write 3 posts"
-msgstr "كتابة 3 تدوينات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
-msgid "Get your first 10 subscribers"
-msgstr "الحصول على أول 10 مشتركين"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
-msgid "Enable subscribers modal"
-msgstr "تمكين نموذج الاشتراكات"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
-msgid "Customize welcome message"
-msgstr "تخصيص رسالة الترحيب"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
-msgid "Earn money with your newsletter"
-msgstr "جني الأموال باستخدام خدمة الرسائل الإخبارية لديك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
-msgid "Update your About page"
-msgstr "تحديث صفحة \"نبذة عنك\""
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
-msgid "Migrate content"
-msgstr "ترحيل المحتوى"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-msgid "Verify email address"
-msgstr "التحقق من عنوان البريد الإلكتروني"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
-msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr "يمنع إنشاء تدوينة وصفحة جديدتين بالإضافة إلى تحرير التدوينات والصفحات الموجودة، كما يغلق موقع التعليقات على نطاق واسع."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
-msgid "Enable Locked Mode"
-msgstr "فعّل وضع القفل"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
-msgid "Locked Mode"
-msgstr "وضع القفل"
-
-#. translators: link to the help page: https://wordpress.com/help
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
-msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr "للحصول على ملكية الموقع، نطلب من الشخص الذي تحدِّده أن يتصل بنا على %s لتزويدنا بنسخة من شهادة الوفاة."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
-msgid "Choose someone to look after your site when you pass away."
-msgstr "اختر شخصًا ليعتني بموقعك بعد مماتك."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
-msgid "Legacy Contact"
-msgstr "جهة اتصال قديمة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
-msgid "Enhanced Ownership"
-msgstr "الملكية المحسَّنة"
-
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "أصبح الخيار <a href=\"%2$s\">\"يمكن لأي شخص التسجيل\"</a> نشطًا حاليًا. الدور الافتراضي الحالي هو %1$s. %4$s <strong>يرجى النظر في تعطيل هذا الخيار في حال عدم وجود حاجة إلى التسجيل المفتوح.<strong>"
@@ -720,149 +148,37 @@ msgstr "الملف غير موجود"
 msgid "Could not determine importer type."
 msgstr "يتعذر تحديد نوع أداة الاستيراد"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
-msgid "Share your site"
-msgstr "مشاركة موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
-msgid "Edit a page"
-msgstr "تحرير صفحة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
-msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "يحتوي موقعك على الأنماط المميزة. قم بالترقية الآن لنشرها وافتح أعدادًا كبيرة من الميزات الأخرى."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
-msgid "Customize your domain"
-msgstr "خصّص نطاقك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
-msgid "Add a new page"
-msgstr "إضافة صفحة جديدة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
-msgid "Drive traffic to your site"
-msgstr "جذب حركة المرور إلى موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
-msgid "Give your site a name"
-msgstr "حدّد اسما لموقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
-msgid "Claim your free one-year domain"
-msgstr "المطالبة بنطاقك المجاني لمدة عام"
-
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "مُهدًى إلى مؤلف الموقع"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
 msgstr "صورة مصغرة"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "مشاركة \"%s\" عبر ميزة الإشهار"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "مشاركة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
-msgid "Upgrade plan"
-msgstr "قم بترقية خطتك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
-msgid "Create paid Newsletter"
-msgstr "إنشاء خدمة الرسائل الإخبارية المدفوعة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
-msgid "Set up payment method"
-msgstr "إعداد طريقة الدفع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
-msgid "Choose a domain"
-msgstr "اختر نطاقًا"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
-msgid "Launch your blog"
-msgstr "أطلق مدوّنتك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
-msgid "Edit site design"
-msgstr "تحرير تصميم الموقع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
-msgid "Set up your site"
-msgstr "تهيئة موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
-msgid "Name your blog"
-msgstr "سمِّ مدونتك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
-msgid "Personalize your site"
-msgstr "خصّص موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
-msgid "Upload your first video"
-msgstr "ارفع أول مقطع فيديو لك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
-msgid "Set up your video site"
-msgstr "ابدأ بإعداد موقع الفيديو الخاص بك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
-msgid "Launch your site"
-msgstr "ابدأ تشغيل موقعك"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
-msgid "Add links"
-msgstr "إضافة روابط"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
-msgid "Personalize Link in Bio"
-msgstr "تخصيص Link in Bio"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
-msgid "Select a design"
-msgstr "حدّد تصميمًا"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
-msgid "Start writing"
-msgstr "ابدأ الكتابة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
-msgid "Write your first post"
-msgstr "أكتب مقالتك الأولى"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
-msgid "Add subscribers"
-msgstr "أضف مشتركين"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
-msgid "Choose a plan"
-msgstr "اختر خطة"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
-msgid "Personalize newsletter"
-msgstr "تخصيص الرسائل الإخبارية"
-
-#: vendor/automattic/jetpack-config/src/class-config.php:189
+#: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "يتعذر تحميل الفئة %1$s. يرجى إضافة الحزمة التي تحتوي عليها باستخدام المؤلف والتأكُّد من أنَّك تحتاج إلى برنامج التحميل التلقائي من Jetpack"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "ينبغي تسجيل الأسماء المستعارة لنطاق النص قبل موضع إضافة ⁦%1$s⁩. تم إرسال هذه الملحوظة بواسطة نطاق ⁦%2$s⁩."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "يعتمد البرنامج النصي \"%s\" على wp-i18n، لكنه لا يقوم بتحديد \"textdomain\""
 
@@ -1063,27 +379,27 @@ msgstr "أنت محظوظ! لقد اختار لك مصمِّمو القالب ا
 msgid "Uncheck to disable"
 msgstr "ألغِ التحديد لتعطيل"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
 msgstr "معرّف موجز Spotify "
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
 msgstr "معرّف موجز Apple Podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
 msgstr "العنوان:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
 msgstr "موجز RSS للبودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
 msgstr "الاستماع على Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
 msgstr "الاستماع على Apple Podcasts"
 
@@ -1095,97 +411,113 @@ msgstr "عرض المعلومات حول البودكاست الخاص بك وا
 msgid "Podcast"
 msgstr "البث الصوتي"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
 msgid "Select iTunes category:"
 msgstr "تحديد تصنيف iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
 msgid "Set podcast category"
 msgstr "تعيين تصنيف البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "تعيين الكلمات المفتاحية للبودكاست"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
 msgid "Set podcast image"
 msgstr "تعيين صورة البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
 msgid "Clean"
 msgstr "نظيف"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
 msgid "Yes"
 msgstr "نعم"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
 msgid "No"
 msgstr "لا"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
 msgid "Set podcast as explicit"
 msgstr "تعيين البودكاست على أنه صريح"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
 msgid "Set podcast copyright"
 msgstr "تعيين حقوق نشر البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
 msgid "Set podcast summary"
 msgstr "تعيين ملخص البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
 msgid "Set podcast author"
 msgstr "تعيين مؤلف البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "تعيين العنوان الفرعي للبودكاست"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
 msgid "Set podcast title"
 msgstr "تعيين عنوان البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "هذا هو عنوان URL الذي ترسله إلى iTunes أو خدمة البث الصوتي."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
 msgstr "موجز البودكاست الخاص بك: ⁦%1$s⁩"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
 msgid "Select podcast category:"
 msgstr "تحديد تصنيف البودكاست:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
 msgid "Blog category for podcasts"
 msgstr "تصنيف المدونة لوسائط البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
 msgid "Podcast category 3"
 msgstr "تصنيف البودكاست 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
 msgid "Podcast category 2"
 msgstr "تصنيف البودكاست 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 1"
 msgstr "تصنيف البودكاست 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "الكلمات المفتاحية للبودكاست"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
 msgid "Podcast image"
 msgstr "صورة البث الصوتي"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Mark as explicit"
 msgstr "الوسم بأنه صريح"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Podcast copyright"
 msgstr "حقوق نشر البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast summary"
 msgstr "ملخص البودكاست"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
 msgstr "اسم موهبة البودكاست"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "العنوان الفرعي للبودكاست"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1303,8 +635,6 @@ msgid "Edit"
 msgstr "تعديل"
 
 #: private-site/logged-in-banner.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "صفحتي الرئيسية"
 
@@ -1432,31 +762,31 @@ msgstr "المساحة المتوافرة على القرص"
 msgid "Disk space used"
 msgstr "المساحة المستخدمة على القرص"
 
-#: widgets/class-wpcom-category-cloud-widget.php:210
+#: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
 msgstr "انقر لمزيد من المعلومات"
 
-#: widgets/class-wpcom-category-cloud-widget.php:208
+#: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
 msgstr "احسب العناصر في التصنيفات الفرعية إلى أن تصل إلى الإجمالي الأصل."
 
-#: widgets/class-wpcom-category-cloud-widget.php:200
+#: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
 msgstr "الحد الأقصى لنسبة الخط :"
 
-#: widgets/class-wpcom-category-cloud-widget.php:194
+#: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
 msgstr "الحجم الأصغر للخط"
 
-#: widgets/class-wpcom-category-cloud-widget.php:189
+#: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
 msgstr "معرفات التصنيفات، مفصولة بفاصلة."
 
-#: widgets/class-wpcom-category-cloud-widget.php:187
+#: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
 msgstr "إستثناء:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:181
+#: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
 msgstr "أقصى عدد من التصنيفات ليتم عرضها:"
 
@@ -1474,23 +804,13 @@ msgstr "تصنيفاتك الأكثر استخدامًا بتنسيق السحا
 msgid "Category Cloud"
 msgstr "سحابة التصنيفات"
 
-#: private-site/private-site.php:171
-msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr "تم فصل Jetpack وأصبح الموقع خاصًا. أعد الاتصال بـ Jetpack لإدارة إعدادات رؤية موقعك."
-
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "تحديث الرؤية"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "بدء الموقع"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
-msgid "Dismiss"
-msgstr "تجاهل"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1628,47 +948,47 @@ msgstr "اعرض أحدث صورك على إنستغرام."
 msgid "Instagram"
 msgstr "إنستغرام"
 
-#: widgets/class-aboutme-widget.php:148
+#: widgets/class-aboutme-widget.php:149
 msgid "Biography"
 msgstr "السيرة الذاتية"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:142
 msgid "Headline"
 msgstr "العنوان الرئيسي"
 
-#: widgets/class-aboutme-widget.php:134
+#: widgets/class-aboutme-widget.php:135
 msgid "Photo"
 msgstr "صورة"
 
-#: widgets/class-aboutme-widget.php:130
+#: widgets/class-aboutme-widget.php:131
 msgid "Don't Display Name"
 msgstr "عدم عرض الاسم"
 
-#: widgets/class-aboutme-widget.php:128
+#: widgets/class-aboutme-widget.php:129
 msgid "Display Small"
 msgstr "عرض بحجم صغير"
 
-#: widgets/class-aboutme-widget.php:126
+#: widgets/class-aboutme-widget.php:127
 msgid "Display Medium"
 msgstr "عرض بحجم متوسط"
 
-#: widgets/class-aboutme-widget.php:124
+#: widgets/class-aboutme-widget.php:125
 msgid "Display Large"
 msgstr "عرض بحجم كبير"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:123
 msgid "Display X-Large"
 msgstr "عرض بحجم كبير جدًا"
 
-#: widgets/class-aboutme-widget.php:111
+#: widgets/class-aboutme-widget.php:112
 msgid "Your about.me URL"
 msgstr "عنوان URL الخاص بـ about.me المخصص لك"
 
-#: widgets/class-aboutme-widget.php:104
+#: widgets/class-aboutme-widget.php:105
 msgid "Widget title"
 msgstr "عنوان المربع الجانبي"
 
-#: widgets/class-aboutme-widget.php:97
+#: widgets/class-aboutme-widget.php:98
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "لن يتوافر المربع الجانبي about.me بعد 1 يوليو 2016. سيعرض المربع الجانبي بعد هذا التاريخ رابطًا نصيًا بسيطًا لملفك الشخصي about.me. يرجى إزالة هذا المربع الجانبي."
 
@@ -1685,19 +1005,14 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "عرض ملفك الشخصي about.me مع صورة مصغَّرة"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "يتعذَّر إحضار البيانات المطلوبة."
 
-#: footer-credit/theme-optimizations.php:59
+#: footer-credit/theme-optimizations.php:62
 msgid "Create a free website or blog at WordPress.com"
 msgstr "أنشئ موقعاً أو مدونة مجانية على ووردبريس دوت كوم."
 
-#: footer-credit/theme-optimizations.php:54
+#: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
 msgstr "إنشاء موقع مجاني على وردبرس.كوم"
 
@@ -1707,8 +1022,8 @@ msgstr "يعمل من خلال WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
-#: footer-credit/theme-optimizations.php:52
-#: footer-credit/theme-optimizations.php:57
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
 msgid "Blog at WordPress.com"
 msgstr "المدونة لدى وردبرس.كوم"
 
@@ -1784,10 +1099,6 @@ msgstr "حفظ"
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr "تفعيل وحفظ"
-
-#: private-site/private-site.php:178
-msgid "Manage your site visibility settings"
-msgstr "إدارة إعدادات رؤية موقعك"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -1902,8 +1213,7 @@ msgstr "هاتف"
 msgid "Email"
 msgstr "البريد الإلكتروني"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:118
+#: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "الاسم"
@@ -1917,27 +1227,27 @@ msgstr "استعلام حول الحجز"
 msgid "Reservations"
 msgstr "الحجوزات"
 
-#: widgets/class-wpcom-widget-recent-comments.php:476
+#: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
 msgstr "إظهار التعليقات من:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:471
+#: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
 msgstr "لون خلفية الخط:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:465
+#: widgets/class-wpcom-widget-recent-comments.php:466
 msgid "Avatar background color:"
 msgstr "لون خلفية الصّورة الرمزية:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:454
+#: widgets/class-wpcom-widget-recent-comments.php:455
 msgid "No Avatars"
 msgstr "لا صورة رمزية"
 
-#: widgets/class-wpcom-widget-recent-comments.php:447
+#: widgets/class-wpcom-widget-recent-comments.php:448
 msgid "(at most 15)"
 msgstr "(15 كحد أقصى)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:441
+#: widgets/class-wpcom-widget-recent-comments.php:442
 msgid "Number of comments to show:"
 msgstr "عدد التعليقات:"
 
@@ -1959,37 +1269,37 @@ msgid "Recent Comments"
 msgstr "أحدث التعليقات"
 
 #. translators: %s is a URL to the widgets settings page.
-#: widgets/class-jetpack-posts-i-like-widget.php:277
+#: widgets/class-jetpack-posts-i-like-widget.php:278
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "لم تعجبك أي مقالات مؤخرًا. بمجرد إبداء إعجابك، سيعرضها <a href=\"%s\">هذا المربع الجانبي</a> بالمقالات التي أعجبتني."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:265
+#: widgets/class-jetpack-posts-i-like-widget.php:266
 msgid "on"
 msgstr "في"
 
 #. translators: %1$s is the post title, %1$s is the blog name.
-#: widgets/class-jetpack-posts-i-like-widget.php:242
+#: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s في %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:117
+#: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
 msgstr "إعجابات المؤلف التي سيتم عرضها:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:99
+#: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
 msgstr "شبكة"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "List"
 msgstr "قائمة"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:96
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
 msgstr "أعرض كـ:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:91
+#: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
 msgstr "عدد المواضيع الواجب عرضها (1 إلى 15):"
 
@@ -2023,62 +1333,62 @@ msgstr "أصَوِّت"
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "وضِّح لقرائك أنَّك صَوَّت باستخدام ملصق \"صَوَّت\"."
 
-#: widgets/class-gravatar-widget.php:200
+#: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "النص المعروض بعد جرافاتار. هذا اختياري ويمكن أن يستخدم لوصف نفسك أو مدونتك."
 
-#: widgets/class-gravatar-widget.php:199
+#: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "رابط جرافاتار. هذا عنوان URL اختياري سيتم استخدامه عندما ينقر أي شخص على جرافاتار الخاص بك:"
 
-#: widgets/class-gravatar-widget.php:189
+#: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
 msgstr "محاذاة الصورة الرمزية "
 
-#: widgets/class-gravatar-widget.php:178
+#: widgets/class-gravatar-widget.php:177
 msgid "Size:"
 msgstr "الحجم:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
 msgstr "بريد إلكتروني مخصص:"
 
-#: widgets/class-gravatar-widget.php:162
+#: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "حدد مستخدم أو اختر \"مخصص\" وأدخل البريد الإلكتروني المخصص."
 
-#: widgets/class-gravatar-widget.php:157
+#: widgets/class-gravatar-widget.php:156
 msgid "Center"
 msgstr "سانتر"
 
-#: widgets/class-gravatar-widget.php:156
+#: widgets/class-gravatar-widget.php:155
 msgid "Right"
 msgstr "يمين"
 
-#: widgets/class-gravatar-widget.php:155
+#: widgets/class-gravatar-widget.php:154
 msgid "Left"
 msgstr "يسار"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: widgets/class-gravatar-widget.php:154
-#: widgets/class-widget-top-clicks.php:162
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
 msgid "None"
 msgstr "بدون"
 
-#: widgets/class-gravatar-widget.php:151
+#: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
 msgstr "كبير جدا (256)"
 
-#: widgets/class-gravatar-widget.php:150
+#: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
 msgstr "كبير (128 بكسل)"
 
-#: widgets/class-gravatar-widget.php:149
+#: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
 msgstr "وسط (96 بكسل)"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
 msgstr "صغير (64 بكسل)"
 
@@ -2095,7 +1405,7 @@ msgstr "صورة رمزية"
 msgid "Insert a Gravatar image"
 msgstr "إدارج صورة  رمزية"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:83
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
 msgstr "اختيار صورة لعرضها في الشريط الجانبي الخاص بك:"
 
@@ -2107,28 +1417,28 @@ msgstr "نشر حديثاً"
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "عرض شارة منشورة حديثًا في الشريط الجانبي الخاص بك"
 
-#: widgets/class-widget-authors-grid.php:142
-#: widgets/class-wpcom-widget-recent-comments.php:452
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
 msgid "Avatar Size (px):"
 msgstr "حجم صورة الأفاتار (بكسل):"
 
-#: widgets/class-widget-authors-grid.php:137
+#: widgets/class-widget-authors-grid.php:138
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "عرض كل المؤلفين (بما في ذلك المؤلفون الذين لم يكتبوا أي مقالات)"
 
-#: widgets/class-gravatar-widget.php:160
-#: widgets/class-jetpack-i-voted-widget.php:81
-#: widgets/class-jetpack-posts-i-like-widget.php:86
-#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
 #: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
-#: widgets/class-widget-authors-grid.php:131
-#: widgets/class-widget-top-clicks.php:72
-#: widgets/class-wpcom-category-cloud-widget.php:175
-#: widgets/class-wpcom-freshly-pressed-widget.php:79
-#: widgets/class-wpcom-tag-cloud-widget.php:123
-#: widgets/class-wpcom-widget-recent-comments.php:435
-#: widgets/class-wpcom-widget-reservations.php:60
-#: widgets/tlkio/class-tlkio-widget.php:75
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
 msgid "Title:"
 msgstr "العنوان:"
 
@@ -2144,12 +1454,12 @@ msgstr "إظهار شبكة من صور مؤلف أفاتار."
 msgid "Author Grid"
 msgstr "شبكة المؤلف"
 
-#: private-site/private-site.php:650
+#: private-site/private-site.php:616
 msgid "Private Site"
 msgstr "موقع خاص"
 
-#: private-site/private-site.php:460 private-site/private-site.php:577
-#: private-site/private-site.php:809
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
 msgid "This site is private."
 msgstr "هذا الموقع خاص."
 

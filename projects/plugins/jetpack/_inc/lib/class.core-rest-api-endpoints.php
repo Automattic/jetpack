@@ -2663,7 +2663,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'wpcom_subscription_emails_use_excerpt' => array(
 				'description'       => esc_html__( 'Whether to use the excerpt in the email or not', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),

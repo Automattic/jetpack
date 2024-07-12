@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Learn More link destination when the site was never connected.

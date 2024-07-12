@@ -4,7 +4,7 @@
  *
  * Is responsible with registering the Additional CSS section in WPCOM.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager instead.
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager instead.
  *
  * @package Jetpack
  */
@@ -31,24 +31,24 @@ class WPCOM_Additional_CSS_Manager {
 	/**
 	 * WPCOM_Additional_CSS_Manager constructor.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param string $domain the Site domain.
 	 */
 	public function __construct( $domain ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::__construct' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::__construct' );
 		$this->wpcom_additional_css_wrapper = new Masterbar_WPCOM_Additional_CSS_Manager( $domain );
 	}
 
 	/**
 	 * Register the Additional CSS nudge.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 13.7
 	 *
 	 * @param \WP_Customize_Manager $wp_customize_manager The core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::register_nudge' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::register_nudge' );
 		$this->wpcom_additional_css_wrapper->register_nudge( $wp_customize_manager );
 	}
 }

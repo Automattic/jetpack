@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Classic Theme Helper - Featured Content: Moved check for plugins page to init since setup is used now externally

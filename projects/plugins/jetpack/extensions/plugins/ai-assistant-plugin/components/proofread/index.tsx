@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import './style.scss';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
 /**
@@ -27,6 +28,7 @@ export default function Proofread( {
 	disabled?: boolean;
 	busy?: boolean;
 } ) {
+	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
 	const { tracks } = useAnalytics();
@@ -96,6 +98,13 @@ export default function Proofread( {
 		} );
 	};
 
+	const defaultCopy = __(
+		'Get suggestions on how to enhance your post to better engage your audience.',
+		'jetpack'
+	);
+
+	const withBreveCopy = __( 'Get feedback on content structure.', 'jetpack' );
+
 	return (
 		<div>
 			{ isProofreadModalVisible && (
@@ -103,12 +112,7 @@ export default function Proofread( {
 					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 				</AiAssistantModal>
 			) }
-			<p>
-				{ __(
-					'Get suggestions on how to enhance your post to better engage your audience.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ isBreveAvailable ? withBreveCopy : defaultCopy }</p>
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"
