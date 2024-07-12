@@ -7,7 +7,7 @@
         font-size: var(--font-body-extra-small);
         color: var(--jp-gray-100);
         font-weight: 500;
-        margin-bottom: 10px;
+        margin-bottom: calc(var(--spacing-base) + 2px);
         line-height: var(--font-title-small);
     }
 
@@ -36,9 +36,9 @@
 
     &__tooltip-heading {
         font-size: var(--font-title-small);
-        line-height: 30px;
+        line-height: calc(var(--font-title-small) + 6px);;
         color: var(--jp-black);
-        margin: 0 0 16px;
+        margin: 0 0 calc(var(--spacing-base) * 2);
         font-weight: 500;
     }
 
@@ -59,7 +59,7 @@
 
     &__status-icon {
         display: block;
-        margin-right: 6px;
+        margin-right: calc(var(--spacing-base) - 2px);
     }
 
     &__status-text {
@@ -92,7 +92,7 @@
 
     &__critical-threat-count {
         color: var(--jp-red-50);
-        margin-left: 2px;
+        margin-left: calc(var(--spacing-base) / 4);
     }
 }
 
