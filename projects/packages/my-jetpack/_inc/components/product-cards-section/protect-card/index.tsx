@@ -32,6 +32,9 @@ const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 		shouldShowButton: shouldShowSecondaryButton,
 	};
 
+	// This is a workaround to remove the Description from the product card. However if we end
+	// up needing to remove the Description from additional cards in the future, we might consider
+	// extending <ProductCard /> functionality to support that.
 	const noDescription = useCallback( () => null, [] );
 
 	return (
