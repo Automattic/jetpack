@@ -171,9 +171,11 @@ class Products {
 	 * - The user has a plan that includes the product
 	 * - The user has the standalone plugin for the product installed
 	 *
+	 * @param string $type The type of ownership to return ('owned' or 'unowned').
+	 *
 	 * @return array
 	 */
-	public static function get_products_by_ownership() {
+	public static function get_products_by_ownership( $type ) {
 		$historically_active_modules = \Jetpack_Options::get_option( 'historically_active_modules', array() );
 		$owned_active_products       = array();
 		$owned_warning_products      = array();
@@ -207,7 +209,7 @@ class Products {
 			array_push( $unowned_products, $product_slug );
 		}
 
-		return array(
+		$data = array(
 			'owned'   => array_values(
 				array_unique(
 					array_merge(
@@ -219,6 +221,8 @@ class Products {
 			),
 			'unowned' => array_unique( $unowned_products ),
 		);
+
+		return $data[ $type ];
 	}
 
 	/**

@@ -45,6 +45,18 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 		'jetpack-ai': AiCard,
 	};
 
+	const filteredSlugs = slugs.filter( slug => {
+		if ( slug === 'stats' && showFullJetpackStatsCard ) {
+			return false;
+		}
+
+		if ( ! items[ slug ] ) {
+			return false;
+		}
+
+		return true;
+	} );
+
 	return (
 		<>
 			{ slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
@@ -59,15 +71,8 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 				horizontalSpacing={ 0 }
 				horizontalGap={ 3 }
 			>
-				{ slugs.map( product => {
-					if ( product === 'stats' && showFullJetpackStatsCard ) {
-						return null;
-					}
-
+				{ filteredSlugs.map( product => {
 					const Item = items[ product ];
-					if ( ! Item ) {
-						return null;
-					}
 
 					return (
 						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
