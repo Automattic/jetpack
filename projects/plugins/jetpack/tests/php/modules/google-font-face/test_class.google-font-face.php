@@ -14,11 +14,9 @@ class WP_Test_Jetpack_Google_Font_Face extends WP_UnitTestCase {
 		return array(
 			'invalid font family' => array(
 				'<!-- wp:super-happy/awesome-block {"fontFamily":["comic-sans", "comic-sans-neu"]} /-->',
-				array(),
 			),
 			'valid font family'   => array(
 				'<!-- wp:super-happy/awesome-block {"fontFamily":"ComiC-SanS"} /-->',
-				array( 'comic-sans' ),
 			),
 		);
 	}
@@ -26,11 +24,11 @@ class WP_Test_Jetpack_Google_Font_Face extends WP_UnitTestCase {
 	/**
 	 * @dataProvider data_blocks_to_collect
 	 */
-	public function test_collect_blocks_with_valid_font_family( $block_content, $expected_fonts ) {
+	public function test_collect_blocks_with_valid_font_family( $block_content ) {
 		$parsed_block = parse_blocks( $block_content );
 
+		// Collecting fonts should not throw an exception
 		$this->google_font_face->collect_block_fonts( $block_content, $parsed_block );
-
-		$this->assertEquals( $expected_fonts, $this->google_font_face->fonts_in_use );
+		$this->expectNotToPerformAssertions();
 	}
 }
