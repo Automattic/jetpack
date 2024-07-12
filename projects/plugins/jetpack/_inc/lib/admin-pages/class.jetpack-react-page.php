@@ -47,7 +47,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		do_action( 'jetpack_admin_menu', $hook );
 
 		if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
+			return;
 		}
 		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'jetpack' !== $page ) {
@@ -56,7 +56,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				wp_safe_redirect( admin_url( 'admin.php?page=jetpack#/' . $section ) );
 				exit;
 			}
-			return;
+			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
 
 		// Adding a redirect meta tag if the REST API is disabled.
