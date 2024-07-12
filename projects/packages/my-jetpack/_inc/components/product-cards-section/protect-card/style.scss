@@ -64,7 +64,9 @@
 
     &__status-text {
         margin-right: 1px;
-        letter-spacing: -0.24px;
+        // Reduce the letter spacing slightly.
+        // The specific letter spacing is per the design mockup.
+        letter-spacing: -0.24px; // https://wp.me/p1HpG7-rFA
     }
 }
 
