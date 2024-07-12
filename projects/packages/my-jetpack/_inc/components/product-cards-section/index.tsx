@@ -71,7 +71,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 
 					return (
 						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
-							<Item admin={ !! userIsAdmin } />
+							<Item admin={ userIsAdmin === '1' } />
 						</Col>
 					);
 				} ) }
