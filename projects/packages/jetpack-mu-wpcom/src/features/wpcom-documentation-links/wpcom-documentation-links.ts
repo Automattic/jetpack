@@ -1,3 +1,5 @@
+import { localizeUrl } from '@automattic/i18n-utils';
+import { getUserLocale } from '@automattic/jetpack-components';
 import { addFilter } from '@wordpress/hooks';
 import './wpcom-documentation-links.css';
 
@@ -15,23 +17,35 @@ declare global {
  * @param text        - string Original text.
  */
 function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ) {
+	let url;
 	switch ( text ) {
 		case 'https://wordpress.org/documentation/article/what-is-an-excerpt-classic-editor/':
 		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt':
-			return 'https://wordpress.com/support/excerpts/';
+			url = 'https://wordpress.com/support/excerpts/';
+			break;
 		case 'https://wordpress.org/documentation/article/write-posts-classic-editor/#post-field-descriptions':
 		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#permalink':
-			return 'https://wordpress.com/support/permalinks-and-slugs/';
+			url = 'https://wordpress.com/support/permalinks-and-slugs/';
+			break;
 		case 'https://wordpress.org/documentation/article/wordpress-block-editor/':
-			return 'https://wordpress.com/support/wordpress-editor/';
+			url = 'https://wordpress.com/support/wordpress-editor/';
+			break;
 		case 'https://wordpress.org/documentation/article/site-editor/':
-			return 'https://wordpress.com/support/site-editor/';
+			url = 'https://wordpress.com/support/site-editor/';
+			break;
 		case 'https://wordpress.org/documentation/article/block-based-widgets-editor/':
-			return 'https://wordpress.com/support/widgets/';
+			url = 'https://wordpress.com/support/widgets/';
+			break;
 		case 'https://wordpress.org/plugins/classic-widgets/':
-			return 'https://wordpress.com/plugins/classic-widgets';
+			url = 'https://wordpress.com/plugins/classic-widgets';
+			break;
 		case 'https://wordpress.org/documentation/article/styles-overview/':
-			return 'https://wordpress.com/support/using-styles/';
+			url = 'https://wordpress.com/support/using-styles/';
+			break;
+	}
+
+	if ( url ) {
+		return localizeUrl( url, getUserLocale().toLowerCase() );
 	}
 
 	return translation;
