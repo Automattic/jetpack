@@ -2149,9 +2149,12 @@ abstract class Publicize_Base {
 			! is_singular()
 			|| ! $post instanceof WP_Post
 			|| ! isset( $post->ID )
+			|| empty( $post->post_author )
 		) {
 			return $tags;
 		}
+
+		$post_mastodon_connections = array();
 
 		// Loop through active connections.
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
@@ -2159,7 +2162,7 @@ abstract class Publicize_Base {
 				continue;
 			}
 
-			// services have multiple connections.
+			// services can have multiple connections. Store them all in our array.
 			foreach ( $connections as $connection ) {
 				$connection_id   = $this->get_connection_id( $connection );
 				$mastodon_handle = $connection['external_display'] ?? '';
@@ -2173,7 +2176,33 @@ abstract class Publicize_Base {
 					continue;
 				}
 
-				$tags['fediverse:creator'] = esc_attr( $mastodon_handle );
+				$post_mastodon_connections[] = array(
+					'user_id'       => (int) $connection['user_id'],
+					'connection_id' => (int) $connection_id,
+					'handle'        => $mastodon_handle,
+					'global'        => $this->is_global_connection( $connection ),
+				);
+			}
+		}
+
+		// If we have no Mastodon connections, skip.
+		if ( empty( $post_mastodon_connections ) ) {
+			return $tags;
+		}
+
+		/*
+		 * Select a single Mastodon connection to use.
+		 * It should be either the first connection belonging to the post author,
+		 * or the first global connection.
+		 */
+		foreach ( $post_mastodon_connections as $mastodon_connection ) {
+			if ( $post->post_author === $mastodon_connection['user_id'] ) {
+				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
+				break;
+			}
+
+			if ( $mastodon_connection['global'] ) {
+				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
 				break;
 			}
 		}
