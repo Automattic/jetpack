@@ -403,6 +403,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
+
+		// Purchases endpoint.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_purchases' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -1099,6 +1110,25 @@ class REST_Controller {
 			),
 			null,
 			'wpcom'
+		);
+	}
+
+	/**
+	 * Get purchases array; I don't see anything sensetive in there, so didn't sentinizie it.
+	 * Plus it is the same case as Jetpack.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_site_purchases( $req ) {
+		return WPCOM_Client::request_as_blog_cached(
+			sprintf(
+				'/sites/%d/purchases?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_query_params()
+				)
+			)
 		);
 	}
 

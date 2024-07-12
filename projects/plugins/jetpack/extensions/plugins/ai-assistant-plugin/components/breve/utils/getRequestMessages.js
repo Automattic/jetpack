@@ -3,32 +3,36 @@
  */
 import config from '../dictionaries/dictionaries-config.js';
 
-export const getRequestMessages = ( { replacementText, type, parentSentenceText, blockText } ) => {
+// Map of types to the corresponding AI Assistant request type.
+const requestTypeMap = {
+	phrase: 'breve-phrase',
+	'long-sentence': 'breve-long-sentence',
+	weasel: 'breve-weasel',
+	adverb: 'breve-adverb',
+	adjective: 'breve-adjective',
+};
+
+export const getRequestMessages = ( { target, type, sentence, blockText } ) => {
 	const dictConfig = config.dictionaries[ type ];
-	if ( ! dictConfig || ! dictConfig.apiRequest ) {
-		throw new Error( `Invalid type: ${ type } or missing apiRequest configuration.` );
+
+	if ( ! dictConfig ) {
+		throw new Error( `Invalid type: ${ type }.` );
 	}
 
-	let systemMessageTemplate = dictConfig.apiRequest.systemMessage;
-	if ( dictConfig.type === 'key-value' ) {
-		const value = dictConfig.dictionary[ replacementText.toLowerCase() ] || '';
-		systemMessageTemplate = systemMessageTemplate.replace( '{value}', value );
-	}
-	const systemMessage = systemMessageTemplate.replace( '{text}', replacementText );
-
-	const userMessage = `
-    Sentence: ${ parentSentenceText }
-    Paragraph: ${ blockText }
-  `;
+	const paragraph = blockText;
+	const replacement =
+		dictConfig.type === 'key-value' ? dictConfig.dictionary[ target.toLowerCase() ] || '' : null;
 
 	return [
 		{
-			role: 'system',
-			content: systemMessage,
-		},
-		{
-			role: 'user',
-			content: userMessage,
+			role: 'jetpack-ai',
+			context: {
+				type: requestTypeMap[ type ],
+				target,
+				replacement,
+				sentence,
+				paragraph,
+			},
 		},
 	];
 };

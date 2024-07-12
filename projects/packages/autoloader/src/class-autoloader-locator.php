@@ -37,7 +37,7 @@ class Autoloader_Locator {
 
 		foreach ( $plugin_paths as $plugin_path ) {
 			$version = $this->get_autoloader_version( $plugin_path );
-			if ( ! $this->version_selector->is_version_update_required( $latest_version, $version ) ) {
+			if ( ! $version || ! $this->version_selector->is_version_update_required( $latest_version, $version ) ) {
 				continue;
 			}
 
