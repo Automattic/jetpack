@@ -48,6 +48,10 @@ To clean up your site, we suggest using a malware removal tool, or if possible r
 
 [Learn more about cleaning your site](https://jetpack.com/support/scan/how-to-clean-your-hacked-wordpress-site/)
 
+== BRUTE FORCE ATTACK PROTECTION ==
+
+Jetpack Protect blocks unwanted login attempts from malicious botnets and distributed attacks.
+
 = Is my site under attack? =
 Brute force attacks are the most common form of hacking — and hackers don’t discriminate. As the most commonly used Content Management System on the web, WordPress sites make an attractive target for hackers looking to exploit code vulnerabilities unique to WordPress. 
 
@@ -56,12 +60,13 @@ Using large networks of computers known as botnets, hackers can try to gain acce
 Recently, attackers have found a way to “amplify” these attacks against the WordPress XML-RPC file – making it easier for attackers to try and break into your site.
 
 WordPress brute force attacks can:
-
 - Slow down your site (or cause it to stop responding) because of repeated server requests.
 - Allow unauthorized access to your site for hackers to modify your code or insert spammy links.
 - Put your site content and data at risk.
 
 That’s where Jetpack Protect comes in. Our state-of-the-art security tools automatically block these attacks, protecting your WordPress site from unauthorized access.
+
+On average, Jetpack blocks 5,193 WordPress brute force attacks over a site’s lifetime. It allows you to protect yourself against both traditional brute force attacks and distributed brute force attacks that use many servers against your site.
 
 == UPGRADE PROTECT TO REMOVE MALWARE IN ONE CLICK AND BE PROTECTED BY OUR WAF ==
 By upgrading Protect, you unlock total site security from WordPress experts:
