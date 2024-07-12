@@ -1,33 +1,61 @@
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
-import useScanHistory from '../use-scan-history';
 
 /**
  * Get parsed data from the initial state
  *
+ * @param {object} options - The options to use when getting the data.
+ * @param {string} options.sourceType - 'scan' or 'history'.
+ * @param {string} options.statusFilter - 'all', 'fixed', or 'ignored'.
  * @returns {object} The information available in Protect's initial state.
  */
-export default function useProtectData() {
-	const { viewingScanHistory, scanHistory } = useScanHistory();
-
-	const { status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
+export default function useProtectData( { sourceType = 'scan', statusFilter = 'all' } = {} ) {
+	const { status, scanHistory, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
 		status: select( STORE_ID ).getStatus(),
+		scanHistory: select( STORE_ID ).getScanHistory(),
 		jetpackScan: select( STORE_ID ).getJetpackScan(),
 		hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
 	} ) );
 
-	const source = viewingScanHistory ? scanHistory : status;
+	const source = useMemo( () => {
+		const data = sourceType === 'history' ? { ...scanHistory } : { ...status };
+
+		// Filter the threats based on the status filter.
+		if ( statusFilter === 'all' ) {
+			return data;
+		}
+
+		return {
+			core: ( data.core || [] ).filter( threat => threat.status === statusFilter ),
+			plugins: ( data.plugins || [] ).reduce( ( acc, plugin ) => {
+				const threats = plugin.threats.filter( threat => threat.status === statusFilter );
+				if ( threats.length > 0 ) {
+					acc.push( { ...plugin, threats } );
+				}
+				return acc;
+			}, [] ),
+			themes: ( data.themes || [] ).reduce( ( acc, theme ) => {
+				const threats = theme.threats.filter( threat => threat.status === statusFilter );
+				if ( threats.length > 0 ) {
+					acc.push( { ...theme, threats } );
+				}
+				return acc;
+			}, [] ),
+			files: ( data.files || [] ).filter( threat => threat.status === statusFilter ),
+			database: ( data.database || [] ).filter( threat => threat.status === statusFilter ),
+		};
+	}, [ sourceType, status, scanHistory, statusFilter ] );
 
 	const numCoreThreats = useMemo( () => {
-		if ( viewingScanHistory ) {
+		if ( 'history' === sourceType ) {
 			return ( source.core || [] ).reduce(
 				( numThreats, core ) => numThreats + core.threats.length,
 				0
 			);
 		}
 		return source.core?.threats?.length || 0;
-	}, [ viewingScanHistory, source.core ] );
+	}, [ sourceType, source.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>

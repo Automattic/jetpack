@@ -4,7 +4,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
@@ -28,9 +27,9 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	severity,
+	status,
 } ) => {
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
-	const { viewingScanHistory } = useScanHistory();
 	const { setModal } = useDispatch( STORE_ID );
 	const { recordEvent } = useAnalyticsTracks();
 
@@ -72,6 +71,7 @@ const ThreatAccordionItem = ( {
 			severity={ severity }
 			firstDetected={ firstDetected }
 			fixedOn={ fixedOn }
+			status={ status }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
@@ -82,7 +82,9 @@ const ThreatAccordionItem = ( {
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
-						{ __( 'What is the problem?', 'jetpack-protect' ) }
+						{ status !== 'fixed'
+							? __( 'What is the problem?', 'jetpack-protect' )
+							: __( 'What was the problem?', 'jetpack-protect' ) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }
@@ -106,7 +108,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ context && <MarkedLines context={ context } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
-			{ fixedIn && (
+			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
 						{ __( 'How to fix it?', 'jetpack-protect' ) }
@@ -121,12 +123,12 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				{ ! viewingScanHistory && (
+				{ status !== 'ignored' && status !== 'fixed' && (
 					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
-				{ fixable && (
+				{ fixable && status !== 'fixed' && (
 					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
@@ -176,9 +178,7 @@ const PaidList = ( { list } ) => {
 						diff,
 						filename,
 						firstDetected, // todo: still needs a proper fix
-						first_detected,
 						fixedIn,
-						fixed_in,
 						fixedOn,
 						fixed_on,
 						icon,
@@ -192,14 +192,15 @@ const PaidList = ( { list } ) => {
 						title,
 						type,
 						version,
+						status,
 					} ) => (
 						<ThreatAccordionItem
 							context={ context }
 							description={ description }
 							diff={ diff }
 							filename={ filename }
-							firstDetected={ firstDetected ?? first_detected }
-							fixedIn={ fixedIn ?? fixed_in }
+							firstDetected={ firstDetected }
+							fixedIn={ fixedIn }
 							fixedOn={ fixedOn ?? fixed_on }
 							icon={ icon }
 							fixable={ fixable }
@@ -213,6 +214,7 @@ const PaidList = ( { list } ) => {
 							title={ title }
 							type={ type }
 							version={ version }
+							status={ status }
 						/>
 					)
 				) }

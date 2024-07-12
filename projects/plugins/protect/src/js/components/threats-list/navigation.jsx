@@ -8,12 +8,12 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
-const ThreatsNavigation = ( { selected, onSelect } ) => {
+const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
 	const {
 		plugins,
 		themes,
@@ -22,7 +22,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		numFilesThreats,
 		numDatabaseThreats,
 		hasRequiredPlan,
-	} = useProtectData();
+	} = useProtectData( { sourceType, statusFilter } );
 
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
@@ -51,6 +51,16 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		recordEvent( 'jetpack_protect_navigation_database_click' );
 	}, [ recordEvent ] );
 
+	const allLabel = useMemo( () => {
+		if ( statusFilter === 'fixed' ) {
+			return __( 'All fixed threats', 'jetpack-protect' );
+		}
+		if ( statusFilter === 'ignored' ) {
+			return __( 'All ignored threats', 'jetpack-protect' );
+		}
+		return __( 'All threats', 'jetpack-protect' );
+	}, [ statusFilter ] );
+
 	return (
 		<Navigation
 			selected={ selected }
@@ -60,7 +70,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 			<NavigationItem
 				initial
 				id="all"
-				label={ __( 'All threats', 'jetpack-protect' ) }
+				label={ allLabel }
 				icon={ warningIcon }
 				badge={ numThreats }
 				disabled={ numThreats <= 0 }
