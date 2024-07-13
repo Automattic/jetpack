@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Added a default value for the WAF mode option to prevent it from being undefined prior to activating the module.
+
+
