@@ -7,17 +7,19 @@ import { applyFormat } from '@wordpress/rich-text';
  */
 import type { RichTextFormat, RichTextValue } from '@wordpress/rich-text/build-types/types';
 
+export type HighlightProps = {
+	content: RichTextValue;
+	type: string;
+	indexes: Array< { startIndex: number; endIndex: number } >;
+	attributes?: { [ key: string ]: string };
+};
+
 const applyHighlightFormat = ( {
 	content,
 	type,
 	indexes,
 	attributes = {},
-}: {
-	content: RichTextValue;
-	type: string;
-	indexes: Array< { startIndex: number; endIndex: number } >;
-	attributes: { [ key: string ]: string };
-} ): RichTextValue => {
+}: HighlightProps ): RichTextValue => {
 	let newContent = content;
 
 	if ( indexes.length > 0 ) {
@@ -40,6 +42,6 @@ const applyHighlightFormat = ( {
 	return newContent;
 };
 
-export default function highlight( { content, type, indexes, attributes } ) {
+export default function highlight( { content, type, indexes, attributes }: HighlightProps ) {
 	return applyHighlightFormat( { indexes, content, type, attributes } );
 }

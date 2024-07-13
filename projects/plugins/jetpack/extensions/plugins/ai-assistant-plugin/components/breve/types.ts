@@ -4,7 +4,9 @@ export type BreveState = {
 	popover?: {
 		isHighlightHover?: boolean;
 		isPopoverHover?: boolean;
-		anchor?: HTMLElement | EventTarget;
+		anchors?: Array< HTMLElement | EventTarget >;
+		level?: number;
+		frozenAnchor?: HTMLElement | EventTarget;
 	};
 	configuration?: {
 		enabled?: boolean;
@@ -16,6 +18,7 @@ export type BreveSelect = {
 	isHighlightHover: () => boolean;
 	isPopoverHover: () => boolean;
 	getPopoverAnchor: () => HTMLElement | EventTarget;
+	getPopoverLevel: () => number;
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
@@ -25,6 +28,10 @@ export type BreveDispatch = {
 	setHighlightHover: ( isHover: boolean ) => void;
 	setPopoverHover: ( isHover: boolean ) => void;
 	setPopoverAnchor: ( anchor: HTMLElement | EventTarget ) => void;
+	increasePopoverLevel: () => void;
+	decreasePopoverLevel: () => void;
+	toggleProofread: ( force?: boolean ) => void;
+	toggleFeature: ( feature: string, force?: boolean ) => void;
 };
 
 export type BreveFeatureConfig = {

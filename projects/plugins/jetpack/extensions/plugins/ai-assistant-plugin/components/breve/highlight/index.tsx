@@ -17,12 +17,13 @@ import './style.scss';
 /**
  * Types
  */
-import type { BreveSelect } from '../types';
+import type { BreveDispatch, BreveSelect } from '../types';
+import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
 import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
+	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
 	const popoverOpen = useSelect( select => {
 		const store = select( 'jetpack/ai-breve' ) as BreveSelect;
@@ -45,11 +46,13 @@ export default function Highlight() {
 		title: '',
 	};
 
-	const handleMouseEnter = () => {
+	const handleMouseEnter = ( e: React.MouseEvent ) => {
+		e.stopPropagation();
 		setPopoverHover( true );
 	};
 
-	const handleMouseLeave = () => {
+	const handleMouseLeave = ( e: React.MouseEvent ) => {
+		e.stopPropagation();
 		setPopoverHover( false );
 	};
 
@@ -86,8 +89,12 @@ export function registerBreveHighlights() {
 	features.forEach( feature => {
 		const { highlight: featureHighlight, config } = feature;
 		const { name, ...configSettings } = config;
+		const formatName = `jetpack/ai-proofread-${ name }`;
 
 		const settings = {
+			name: formatName,
+			interactive: false,
+			edit: () => {},
 			...configSettings,
 
 			__experimentalGetPropsForEditableTreePreparation() {
@@ -106,7 +113,7 @@ export function registerBreveHighlights() {
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
 					const record = { formats, text } as RichTextValue;
-					const type = `jetpack/ai-proofread-${ config.name }`;
+					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
 						const applied = highlight( {
@@ -126,8 +133,8 @@ export function registerBreveHighlights() {
 					return removeFormat( record, type, 0, record.text.length ).formats;
 				};
 			},
-		} as never;
+		} as WPFormat;
 
-		registerFormatType( `jetpack/ai-proofread-${ name }`, settings );
+		registerFormatType( formatName, settings );
 	} );
 }
