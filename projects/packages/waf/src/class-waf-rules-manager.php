@@ -115,10 +115,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function update_rules_if_changed() {
-		Waf_Constants::define_mode();
-		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			throw new Waf_Exception( 'Invalid firewall mode.' );
-		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			self::generate_automatic_rules();

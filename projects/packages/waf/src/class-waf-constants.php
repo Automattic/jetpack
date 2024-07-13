@@ -75,7 +75,7 @@ class Waf_Constants {
 	 */
 	public static function define_mode() {
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( Waf_Runner::MODE_OPTION_NAME );
+			$mode_option = get_option( Waf_Runner::MODE_OPTION_NAME, Waf_Runner::MODE_DEFAULT_VALUE );
 			define( 'JETPACK_WAF_MODE', $mode_option );
 		}
 	}

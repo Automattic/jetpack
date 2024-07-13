@@ -18,6 +18,7 @@ class Waf_Runner {
 
 	const WAF_MODULE_NAME              = 'waf';
 	const MODE_OPTION_NAME             = 'jetpack_waf_mode';
+	const MODE_DEFAULT_VALUE           = 'normal';
 	const SHARE_DATA_OPTION_NAME       = 'jetpack_waf_share_data';
 	const SHARE_DEBUG_DATA_OPTION_NAME = 'jetpack_waf_share_debug_data';
 
@@ -64,6 +65,15 @@ class Waf_Runner {
 	 */
 	public static function did_run() {
 		return defined( 'JETPACK_WAF_RUN' );
+	}
+
+	/**
+	 * Get the default mode for the WAF.
+	 *
+	 * @return string
+	 */
+	public static function default_mode() {
+		return 'normal';
 	}
 
 	/**
