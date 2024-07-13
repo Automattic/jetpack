@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Option field: remove onSplit prop in favor of splitting feature
+
+

@@ -255,16 +255,37 @@ class Protect extends Product {
 	}
 
 	/**
-	 * Checks if the site has a paid plan for the product
+	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
-	 * @return bool
+	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		$scan_data = static::get_state_from_wpcom();
-		if ( is_wp_error( $scan_data ) ) {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
-		return is_object( $scan_data ) && isset( $scan_data->state ) && 'unavailable' !== $scan_data->state;
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				// Protect is available as jetpack_scan product and as part of the Security or Complete plan.
+				if (
+					strpos( $purchase->product_slug, 'jetpack_scan' ) !== false ||
+					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
+					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
+				) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the product can be upgraded - i.e. this shows the /#add-protect interstitial
+	 *
+	 * @return boolean
+	 */
+	public static function is_upgradable() {
+		return ! self::has_paid_plan_for_product();
 	}
 
 	/**
@@ -292,6 +313,6 @@ class Protect extends Product {
 	 * @return array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
-		return array( 'security' );
+		return array( 'security', 'complete' );
 	}
 }

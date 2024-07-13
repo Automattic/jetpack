@@ -109,6 +109,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -132,6 +133,7 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
