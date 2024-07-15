@@ -1,3 +1,4 @@
+import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
 import uid from 'component-uid';
 import RootChild from 'components/root-child';
@@ -5,7 +6,6 @@ import debugFactory from 'debug';
 import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
 import {
 	bindWindowListeners,
 	unbindWindowListeners,
@@ -68,6 +68,9 @@ class Popover extends Component {
 			top: -99999,
 			positionClass: this.getPositionClass( props.position ),
 		};
+
+		this.domContainerRef = createRef();
+		this.domContextRef = createRef();
 	}
 
 	componentDidMount() {
@@ -78,10 +81,10 @@ class Popover extends Component {
 
 	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
-		if ( ! isDOMElement( nextProps.context ) ) {
-			this.domContext = ReactDom.findDOMNode( nextProps.context );
+		if ( ! isDOMElement( nextProps.context ) && nextProps.context !== null ) {
+			this.domContextRef.current = nextProps.context.current;
 		} else {
-			this.domContext = nextProps.context;
+			this.domContextRef.current = nextProps.context;
 		}
 
 		if ( ! nextProps.isVisible ) {
@@ -102,7 +105,7 @@ class Popover extends Component {
 			}
 		}
 
-		if ( ! this.domContainer || ! this.domContext ) {
+		if ( ! this.domContainerRef.current || ! this.domContextRef.current ) {
 			return null;
 		}
 
@@ -163,7 +166,7 @@ class Popover extends Component {
 	}
 
 	// --- click outside ---
-	bindClickoutHandler( el = this.domContainer ) {
+	bindClickoutHandler( el = this.domContainerRef.current ) {
 		if ( ! el ) {
 			this.debug( 'no element to bind clickout side ' );
 			return null;
@@ -193,10 +196,12 @@ class Popover extends Component {
 
 	onClickout( event ) {
 		let shouldClose =
-			this.domContext && this.domContext.contains && ! this.domContext.contains( event.target );
+			this.domContextRef.current &&
+			this.domContextRef.current.contains &&
+			! this.domContextRef.current.contains( event.target );
 
 		if ( this.props.ignoreContext && shouldClose ) {
-			const ignoreContext = ReactDom.findDOMNode( this.props.ignoreContext );
+			const ignoreContext = this.props.ignoreContext.current;
 			shouldClose =
 				shouldClose &&
 				ignoreContext &&
@@ -241,16 +246,16 @@ class Popover extends Component {
 		this.bindClickoutHandler( domContainer );
 
 		// store DOM element referencies
-		this.domContainer = domContainer;
-
+		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
 		if ( ! isDOMElement( this.props.context ) ) {
-			this.domContext = ReactDom.findDOMNode( this.props.context );
+			this.domContextRef.current = this.props.context.current;
 		} else {
-			this.domContext = this.props.context;
+			this.domContextRef.current = this.props.context;
 		}
 
-		this.domContainer.focus();
+		this.domContainerRef.current.focus();
+		//this.domContainer.focus();
 		this.setPosition();
 	}
 
@@ -262,17 +267,18 @@ class Popover extends Component {
 	 * Computes the position of the Popover in function
 	 * of its main container and the target.
 	 *
-	 * @return {Object} reposition parameters
+	 * @returns {object} reposition parameters
 	 */
 	computePosition() {
 		if ( ! this.props.isVisible ) {
 			return null;
 		}
 
-		const { domContainer, domContext } = this;
+		const { domContainerRef, domContextRef } = this;
+
 		const { position } = this.props;
 
-		if ( ! domContainer || ! domContext ) {
+		if ( ! domContainerRef.current || ! domContextRef.current ) {
 			this.debug( '[WARN] no DOM elements to work' );
 			return null;
 		}
@@ -282,13 +288,20 @@ class Popover extends Component {
 		this.debug( 'position: %o', position );
 
 		if ( this.props.autoPosition ) {
-			suggestedPosition = suggestPosition( position, domContainer, domContext );
+			suggestedPosition = suggestPosition(
+				position,
+				domContainerRef.current,
+				domContextRef.current
+			);
 			this.debug( 'suggested position: %o', suggestedPosition );
 		}
 
 		const reposition = assign(
 			{},
-			constrainLeft( offset( suggestedPosition, domContainer, domContext ), domContainer ),
+			constrainLeft(
+				offset( suggestedPosition, domContainerRef.current, domContextRef.current ),
+				domContainerRef.current
+			),
 			{ positionClass: this.getPositionClass( suggestedPosition ) }
 		);
 
@@ -360,7 +373,7 @@ class Popover extends Component {
 			return null;
 		}
 
-		this.domContext.focus();
+		this.domContextRef.current.focus();
 		this.props.onClose( wasCanceled );
 	}
 
