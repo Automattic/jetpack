@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch, select } from '@wordpress/data';
+import { dispatch } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -10,31 +10,47 @@ import features from './index';
 /**
  * Types
  */
-import type { BreveDispatch, BreveSelect } from '../types';
+import type { BreveDispatch } from '../types';
 
 let highlightTimeout: number;
+let anchorTimeout: number;
 
 function handleMouseEnter( e: React.MouseEvent ) {
-	e.stopPropagation();
 	clearTimeout( highlightTimeout );
-	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).increasePopoverLevel();
-	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
-	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( e.target );
+	clearTimeout( anchorTimeout );
+
+	anchorTimeout = setTimeout( () => {
+		const el = e.target as HTMLElement;
+		const rect = el.getBoundingClientRect();
+		const diff = e.clientY - Math.floor( rect.top );
+		const offset = diff < 10 ? 20 : 10;
+
+		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
+		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
+			target: e.target as HTMLElement,
+			virtual: {
+				getBoundingClientRect() {
+					return {
+						top: e.clientY + offset,
+						left: e.clientX,
+						bottom: e.clientY,
+						right: e.clientX,
+						width: 0,
+						height: 0,
+						x: e.clientX,
+						y: e.clientY,
+					} as DOMRect;
+				},
+				contextElement: e.target as HTMLElement,
+			},
+		} as unknown as HTMLElement );
+	}, 100 );
 }
 
-function handleMouseLeave( e: React.MouseEvent ) {
-	e.stopPropagation();
-	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).decreasePopoverLevel();
-
+function handleMouseLeave() {
 	highlightTimeout = setTimeout( () => {
-		// If the mouse is still over any highlight, don't hide the popover
-		const { getPopoverLevel } = select( 'jetpack/ai-breve' ) as BreveSelect;
-		if ( getPopoverLevel() > 0 ) {
-			return;
-		}
-
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
-	}, 50 );
+	}, 100 );
 }
 
 export default function registerEvents( clientId: string ) {
@@ -47,8 +63,8 @@ export default function registerEvents( clientId: string ) {
 
 		if ( items?.length > 0 ) {
 			items.forEach( highlightEl => {
-				highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
-				highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
+				highlightEl?.removeEventListener?.( 'mouseover', handleMouseEnter );
+				highlightEl?.addEventListener?.( 'mouseover', handleMouseEnter );
 				highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
 				highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
 			} );

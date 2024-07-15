@@ -14,14 +14,7 @@ export function isPopoverHover( state: BreveState ) {
 }
 
 export function getPopoverAnchor( state: BreveState ): HTMLElement | EventTarget | null {
-	if ( state.popover?.frozenAnchor ) {
-		return state.popover.frozenAnchor;
-	}
-
-	// Returns the last non-nullish anchor in the array
-	return (
-		( state.popover?.anchors ?? [] ) as Array< HTMLElement | EventTarget | null >
-	 ).reduceRight( ( acc, anchor ) => acc ?? anchor, null );
+	return state?.popover?.anchor ?? null;
 }
 
 export function getPopoverLevel( state: BreveState ) {
