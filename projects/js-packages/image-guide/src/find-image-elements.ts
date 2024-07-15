@@ -9,6 +9,9 @@ import { MeasurableImage, type FetchFn } from './MeasurableImage.js';
 export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
 	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
 		if ( el instanceof HTMLImageElement ) {
+			if ( isSvgUrl( el.src ) ) {
+				return false;
+			}
 			return true;
 		}
 		if ( el instanceof HTMLElement ) {
@@ -75,9 +78,6 @@ export async function getMeasurableImages(
 	const nodes = findMeasurableElements( domNodes );
 	const images = nodes.map( node => {
 		if ( node instanceof HTMLImageElement ) {
-			if ( isSvgUrl( node.src ) ) {
-				return null;
-			}
 			return new MeasurableImage( node, imageTagSource, fetchFn );
 		} else if ( node instanceof HTMLElement ) {
 			if ( ! backgroundImageSource( node ) ) {
