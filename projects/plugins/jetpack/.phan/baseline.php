@@ -337,7 +337,6 @@ return [
         'modules/custom-css/csstidy/class.csstidy-print.php' => ['PhanPluginRedundantAssignmentInLoop', 'PhanTypeMismatchReturn'],
         'modules/custom-css/csstidy/class.csstidy.php' => ['PhanCompatibleNegativeStringOffset', 'PhanImpossibleCondition', 'PhanInfiniteRecursion', 'PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         'modules/custom-css/custom-css.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable'],
-        'modules/custom-post-types/comics.php' => ['PhanParamTooMany', 'PhanRedundantCondition', 'PhanTypeMismatchArgument'],
         'modules/custom-post-types/nova.php' => ['PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/custom-post-types/portfolios.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
         'modules/custom-post-types/testimonial.php' => ['PhanTypeMismatchArgumentProbablyReal'],
