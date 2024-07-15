@@ -1,10 +1,10 @@
 export type BreveControls = () => React.JSX.Element;
 
-type Anchor = {
+export type Anchor = {
 	target: HTMLElement;
 	virtual: {
 		getBoundingClientRect: () => DOMRect;
-		contextElement: HTMLElement;
+		contextElement?: HTMLElement;
 	};
 };
 
@@ -34,7 +34,7 @@ export type BreveSelect = {
 export type BreveDispatch = {
 	setHighlightHover: ( isHover: boolean ) => void;
 	setPopoverHover: ( isHover: boolean ) => void;
-	setPopoverAnchor: ( anchor: HTMLElement | EventTarget ) => void;
+	setPopoverAnchor: ( anchor: Anchor ) => void;
 	increasePopoverLevel: () => void;
 	decreasePopoverLevel: () => void;
 	toggleProofread: ( force?: boolean ) => void;

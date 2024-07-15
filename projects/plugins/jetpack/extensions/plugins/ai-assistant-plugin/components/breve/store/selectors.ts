@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import type { BreveState } from '../types';
+import type { Anchor, BreveState } from '../types';
 
 // POPOVER
 
@@ -13,7 +13,7 @@ export function isPopoverHover( state: BreveState ) {
 	return state.popover?.isPopoverHover;
 }
 
-export function getPopoverAnchor( state: BreveState ): HTMLElement | EventTarget | null {
+export function getPopoverAnchor( state: BreveState ): Anchor {
 	return state?.popover?.anchor ?? null;
 }
 

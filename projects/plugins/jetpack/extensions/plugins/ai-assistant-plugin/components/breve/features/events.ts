@@ -10,7 +10,7 @@ import features from './index';
 /**
  * Types
  */
-import type { BreveDispatch } from '../types';
+import type { BreveDispatch, Anchor } from '../types';
 
 let highlightTimeout: number;
 let anchorTimeout: number;
@@ -21,14 +21,17 @@ function handleMouseEnter( e: React.MouseEvent ) {
 
 	anchorTimeout = setTimeout( () => {
 		const el = e.target as HTMLElement;
-		const rect = el.getBoundingClientRect();
-		const diff = e.clientY - Math.floor( rect.top );
-		const offset = diff === 0 ? 10 : 0;
+		let virtual = el;
 
-		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
-		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
-			target: e.target as HTMLElement,
-			virtual: {
+		const words = el?.innerText?.match?.( /\b\w+\b/g );
+		const shouldPointToCursor = words?.length > 3;
+
+		if ( shouldPointToCursor ) {
+			const rect = el.getBoundingClientRect();
+			const diff = e.clientY - Math.floor( rect.top );
+			const offset = diff === 0 ? 10 : 0;
+
+			virtual = {
 				getBoundingClientRect() {
 					return {
 						top: e.clientY + offset,
@@ -42,8 +45,14 @@ function handleMouseEnter( e: React.MouseEvent ) {
 					} as DOMRect;
 				},
 				contextElement: e.target as HTMLElement,
-			},
-		} as unknown as HTMLElement );
+			} as unknown as HTMLElement;
+		}
+
+		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
+		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
+			target: e.target as HTMLElement,
+			virtual: virtual,
+		} as Anchor );
 	}, 100 );
 }
 
