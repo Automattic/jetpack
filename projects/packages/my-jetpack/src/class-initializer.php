@@ -26,6 +26,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
 
@@ -260,6 +261,7 @@ class Initializer {
 				),
 				'latestBoostSpeedScores' => $latest_score,
 				'scanData'               => $scan_data,
+				'wafConfig'              => Waf_Runner::get_config(),
 			)
 		);
 

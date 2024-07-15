@@ -290,6 +290,18 @@ interface Window {
 		topJetpackMenuItemUrl: string;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
+		wafConfig: {
+			automatic_rules_available: boolean;
+			bootstrap_path: string;
+			brute_force_protection: boolean;
+			jetpack_waf_automatic_rules: string;
+			jetpack_waf_ip_allow_list: string;
+			jetpack_waf_ip_block_list: boolean;
+			jetpack_waf_ip_list: boolean;
+			jetpack_waf_share_data: string;
+			jetpack_waf_share_debug_data: boolean;
+			standalone_mode: boolean;
+		};
 	};
 	JP_CONNECTION_INITIAL_STATE: {
 		apiRoot: string;

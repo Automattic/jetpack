@@ -3,8 +3,9 @@ import { useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { timeSince } from '../../../utils/time-since';
+import { AutoFirewallStatus } from './auto-firewall-status';
 import { InfoTooltip } from './info-tooltip';
-import { ScanAndThreatStatus } from './scan-threats';
+import { ScanAndThreatStatus } from './scan-threats-status';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { TooltipContent } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
@@ -101,7 +102,9 @@ const ValueSection: FC< {
 				</div>
 				<div className="value-section__auto-firewall">
 					<div className="value-section__heading">Auto-Firewall</div>
-					<div></div>
+					<div className="value-section__data">
+						<AutoFirewallStatus />
+					</div>
 				</div>
 				<div className="value-section__logins-blocked">
 					<div className="value-section__heading">Logins Blocked</div>
