@@ -84,7 +84,11 @@ const ThreatAccordionItem = ( {
 					<Text variant="title-small" mb={ 2 }>
 						{ status !== 'fixed'
 							? __( 'What is the problem?', 'jetpack-protect' )
-							: __( 'What was the problem?', 'jetpack-protect' ) }
+							: __(
+									'What was the problem?',
+									'jetpack-protect',
+									/** dummy arg to avoid bad minification */ 0
+							  ) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }

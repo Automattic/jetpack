@@ -39,7 +39,11 @@ const ScanHistoryRoute = () => {
 						case 'fixed':
 							return __( 'All fixed threats', 'jetpack-protect' );
 						case 'ignored':
-							return __( 'All ignored threats', 'jetpack-protect' );
+							return __(
+								'All ignored threats',
+								'jetpack-protect',
+								/** dummy arg to avoid bad minification */ 0
+							);
 						default:
 							return __( 'All threats', 'jetpack-protect' );
 					}
