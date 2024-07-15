@@ -485,7 +485,6 @@ class Main extends React.Component {
 					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 					*/ }
 					<ul role="list">
-						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>

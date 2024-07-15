@@ -886,7 +886,7 @@ class Table_Checksum {
 	 *
 	 * @see Automattic\Jetpack\SyncActions::initialize_woocommerce
 	 *
-	 * @since $$next-version$$
+	 * @since 3.3.0
 	 *
 	 * @return bool
 	 */
@@ -895,7 +895,7 @@ class Table_Checksum {
 		 * On WordPress.com, we can't directly check if the site has support for WooCommerce HPOS tables.
 		 * Having the option to override the functionality here helps with syncing WooCommerce HPOS tables.
 		 *
-		 * @since $$next-version$$
+		 * @since 3.3.0
 		 *
 		 * @param bool If we should we force-enable WooCommerce HPOS tables support.
 		 */
