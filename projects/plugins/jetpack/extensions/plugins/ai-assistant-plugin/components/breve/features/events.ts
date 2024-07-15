@@ -23,7 +23,7 @@ function handleMouseEnter( e: React.MouseEvent ) {
 		const el = e.target as HTMLElement;
 		const rect = el.getBoundingClientRect();
 		const diff = e.clientY - Math.floor( rect.top );
-		const offset = diff === 0 ? 20 : 10;
+		const offset = diff === 0 ? 20 : 0;
 
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
