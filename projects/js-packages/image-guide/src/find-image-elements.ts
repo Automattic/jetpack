@@ -55,6 +55,11 @@ export function backgroundImageSource( node: HTMLElement ) {
 	return null;
 }
 
+function isSvgUrl( srcUrl: string ): boolean {
+	const url = new URL( srcUrl );
+	return url.pathname.toLowerCase().endsWith( '.svg' );
+}
+
 /**
  * Create MeasurableImage objects from a list of nodes
  * and remove any nodes that can't be measured.
@@ -70,6 +75,9 @@ export async function getMeasurableImages(
 	const nodes = findMeasurableElements( domNodes );
 	const images = nodes.map( node => {
 		if ( node instanceof HTMLImageElement ) {
+			if ( isSvgUrl( node.src ) ) {
+				return null;
+			}
 			return new MeasurableImage( node, imageTagSource, fetchFn );
 		} else if ( node instanceof HTMLElement ) {
 			if ( ! backgroundImageSource( node ) ) {
@@ -79,7 +87,6 @@ export async function getMeasurableImages(
 				 */
 				return null;
 			}
-
 			return new MeasurableImage( node, backgroundImageSource );
 		}
 
