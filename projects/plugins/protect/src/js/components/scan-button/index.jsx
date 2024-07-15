@@ -1,16 +1,10 @@
 import { Button } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { STORE_ID } from '../../state/store';
 
-/**
- * Scan Button Component
- *
- * @param {object} props - The component props.
- * @returns {React.ReactElement} Button that triggers a scan on click.
- */
-export default function ScanButton( { ...props } ) {
+const ScanButton = forwardRef( ( props, ref ) => {
 	const { scan } = useDispatch( STORE_ID );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing(), [] );
 
@@ -23,6 +17,7 @@ export default function ScanButton( { ...props } ) {
 
 	return (
 		<Button
+			ref={ ref }
 			variant="secondary"
 			isLoading={ scanIsEnqueuing }
 			onClick={ handleScanClick() }
@@ -31,4 +26,6 @@ export default function ScanButton( { ...props } ) {
 			{ __( 'Scan now', 'jetpack-protect' ) }
 		</Button>
 	);
-}
+} );
+
+export default ScanButton;
