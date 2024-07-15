@@ -4,6 +4,10 @@
 
 const fs = require( 'fs' );
 const path = require( 'path' );
+const {
+	requestToExternal,
+	requestToHandle,
+} = require( '@automattic/jetpack-webpack-config/dependencies' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const webpack = jetpackWebpackConfig.webpack;
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
@@ -111,7 +115,12 @@ const sharedWebpackConfig = {
 	node: {},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: { injectPolyfill: true },
+			DependencyExtractionPlugin: {
+				injectPolyfill: true,
+				useDefaults: false,
+				requestToExternal,
+				requestToHandle,
+			},
 		} ),
 	],
 	externals: {

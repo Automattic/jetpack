@@ -1,8 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	ConnectionManagement,
-	RefreshJetpackSocialSettingsWrapper,
-} from '@automattic/jetpack-publicize-components';
+import { ConnectionManagement } from '@automattic/jetpack-publicize';
+import { RefreshJetpackSocialSettingsWrapper } from '@automattic/jetpack-publicize-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
