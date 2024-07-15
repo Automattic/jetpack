@@ -27,7 +27,12 @@ export default function useProtectData( { sourceType = 'scan', statusFilter = 'a
 		}
 
 		return {
-			core: ( data.core || [] ).filter( threat => threat.status === statusFilter ),
+			core: ( data.core || [] )
+				.map( core => {
+					const threats = core.threats.filter( threat => threat.status === statusFilter );
+					return { ...core, threats };
+				} )
+				.filter( core => core.threats.length > 0 ),
 			plugins: ( data.plugins || [] ).reduce( ( acc, plugin ) => {
 				const threats = plugin.threats.filter( threat => threat.status === statusFilter );
 				if ( threats.length > 0 ) {

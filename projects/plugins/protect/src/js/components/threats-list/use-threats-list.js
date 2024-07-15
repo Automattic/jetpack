@@ -140,10 +140,10 @@ const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } 
 	}, [ unsortedList ] );
 
 	useEffect( () => {
-		if ( selected !== 'all' && status !== 'all' && item === null ) {
+		if ( selected !== 'all' && status !== 'all' && list.length === 0 ) {
 			setSelected( 'all' );
 		}
-	}, [ selected, status, item ] );
+	}, [ selected, status, item, list ] );
 
 	return {
 		item,
