@@ -9,16 +9,14 @@ import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
 	description,
-	filename,
 	fixedIn,
 	icon,
 	id,
+	label,
 	name,
 	source,
-	table,
 	title,
 	type,
-	version,
 } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
@@ -36,32 +34,10 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
-	/**
-	 * Get Label
-	 *
-	 * @returns {string} Threat label based on the assumed threat type (extension, file, database, etc).
-	 */
-	const getLabel = useCallback( () => {
-		if ( name && version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ name } (${ version })`;
-		}
-
-		if ( filename ) {
-			// File threat i.e. "index.php"
-			return filename.split( '/' ).pop();
-		}
-
-		if ( table ) {
-			// Database threat i.e. "wp_posts"
-			return table;
-		}
-	}, [ filename, name, table, version ] );
-
 	return (
 		<FreeAccordionItem
 			id={ id }
-			label={ getLabel() }
+			label={ label }
 			title={ title }
 			icon={ icon }
 			onOpen={ useCallback( () => {
@@ -111,12 +87,25 @@ const FreeList = ( { list } ) => {
 	return (
 		<FreeAccordion>
 			{ list.map(
-				( { description, fixedIn, icon, id, name, source, table, title, type, version } ) => (
+				( {
+					description,
+					fixedIn,
+					icon,
+					id,
+					label,
+					name,
+					source,
+					table,
+					title,
+					type,
+					version,
+				} ) => (
 					<ThreatAccordionItem
 						description={ description }
 						fixedIn={ fixedIn }
 						icon={ icon }
 						id={ id }
+						label={ label }
 						key={ id }
 						name={ name }
 						source={ source }
