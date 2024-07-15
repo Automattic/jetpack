@@ -1,4 +1,5 @@
 import { SocialIcon } from '@automattic/jetpack-components';
+import { PostPublishManualSharing, PostPublishReviewPrompt } from '@automattic/jetpack-publicize';
 import {
 	SocialPreviewsModal,
 	SocialPreviewsPanel,
@@ -6,8 +7,6 @@ import {
 	usePublicizeConfig,
 	useSocialMediaConnections,
 	PublicizePanel,
-	PostPublishReviewPrompt,
-	PostPublishManualSharing,
 	useSyncPostDataToStore,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
