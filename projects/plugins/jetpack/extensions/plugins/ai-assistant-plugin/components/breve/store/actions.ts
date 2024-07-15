@@ -52,12 +52,12 @@ export function setSuggestions( {
 	id,
 	feature,
 	sentence,
-	content,
+	blockId,
 }: {
 	id: string;
 	feature: string;
 	sentence: string;
-	content: string;
+	blockId: string;
 } ) {
 	return ( { dispatch } ) => {
 		dispatch( {
@@ -71,7 +71,7 @@ export function setSuggestions( {
 			getRequestMessages( {
 				feature,
 				sentence,
-				paragraph: content,
+				blockId,
 			} ),
 			{
 				feature: 'jetpack-ai-breve',

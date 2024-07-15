@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { rawHandler } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -26,53 +27,46 @@ import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types'
 // Setup the Breve highlights
 export default function Highlight() {
 	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
-	const {
-		anchor,
-		virtual,
-		popoverOpen,
-		id,
-		feature,
-		identifier,
-		block,
-		title,
-		loading,
-		suggestions,
-	} = useSelect( select => {
-		const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
-		// Popover
-		const isPopoverHover = breveSelect.isPopoverHover();
-		const isHighlightHover = breveSelect.isHighlightHover();
+	const { anchor, virtual, popoverOpen, id, feature, block, title, loading, suggestions } =
+		useSelect( select => {
+			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-		// Anchor data
-		const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor();
-		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
-		const anchorId = anchorEl?.getAttribute?.( 'data-id' );
-		const anchorIdentifier = anchorEl?.getAttribute?.( 'data-identifier' );
-		const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
-		const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
-			name: '',
-			title: '',
-		};
+			// Popover
+			const isPopoverHover = breveSelect.isPopoverHover();
+			const isHighlightHover = breveSelect.isHighlightHover();
 
-		// Suggestions
-		const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
-		const suggestionsData = breveSelect.getSuggestions( anchorFeature, anchorId );
+			// Anchor data
+			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor() ?? {
+				target: null,
+				virtual: null,
+			};
+			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
+			const anchorId = anchorEl?.getAttribute?.( 'data-id' );
+			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
+			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
+				name: '',
+				title: '',
+			};
 
-		return {
-			config,
-			anchor: anchorEl,
-			virtual: virtualEl,
-			title: config?.title,
-			feature: anchorFeature,
-			id: anchorId,
-			identifier: anchorIdentifier,
-			block: anchorBlock,
-			popoverOpen: isHighlightHover || isPopoverHover,
-			loading: loadingSuggestions,
-			suggestions: suggestionsData,
-		};
-	}, [] );
+			// Suggestions
+			const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
+			const suggestionsData = breveSelect.getSuggestions( anchorFeature, anchorId );
+
+			return {
+				config,
+				anchor: anchorEl,
+				virtual: virtualEl,
+				title: config?.title,
+				feature: anchorFeature,
+				id: anchorId,
+				block: anchorBlock,
+				popoverOpen: isHighlightHover || isPopoverHover,
+				loading: loadingSuggestions,
+				suggestions: suggestionsData,
+			};
+		}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
 	const hasSuggestions = Boolean( suggestions?.suggestion );
@@ -88,16 +82,18 @@ export default function Highlight() {
 
 	const handleSuggestions = () => {
 		const sentence = ( anchor as HTMLElement )?.innerText;
-		const content = ( anchor as HTMLElement )?.parentElement?.innerText;
 
 		setSuggestions( {
 			id,
 			feature,
-			identifier,
 			sentence,
-			content,
-			blockClientId: block,
+			blockId: block,
 		} );
+	};
+
+	const handleApplySuggestion = () => {
+		const [ newBlock ] = rawHandler( { HTML: suggestions?.revisedText } );
+		updateBlockAttributes( block, newBlock.attributes );
 	};
 
 	return (
@@ -125,7 +121,9 @@ export default function Highlight() {
 						</div>
 						{ hasSuggestions ? (
 							<div className="suggestion-container">
-								<div className="suggestion">{ suggestions?.suggestion }</div>
+								<button className="suggestion" onClick={ handleApplySuggestion }>
+									{ suggestions?.suggestion }
+								</button>
 								<div className="helper">
 									{ __( 'Click on a suggestion to insert it.', 'jetpack' ) }
 								</div>

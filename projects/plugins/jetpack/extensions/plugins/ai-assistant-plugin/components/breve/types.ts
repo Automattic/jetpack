@@ -61,10 +61,8 @@ export type BreveDispatch = {
 	setSuggestions: ( suggestions: {
 		id: string;
 		feature: string;
-		identifier: string;
 		sentence: string;
-		content: string;
-		blockClientId: string;
+		blockId: string;
 	} ) => void;
 };
 
