@@ -67,6 +67,7 @@
 		".": "./src/index.js",
 		"./webpack": "./src/webpack.js",
 		"./babel": "./src/babel.js",
-		"./babel/preset": "./src/babel-preset.js"
+		"./babel/preset": "./src/babel-preset.js",
+		"./dependencies": "./src/dependencies.js"
 	}
 }
