@@ -171,7 +171,7 @@ class REST_Controller {
 		}
 
 		// Only attempt to update the WAF if the module is supported and enabled.
-		if ( Waf_Runner::is_supported_environment() && Waf_Runner::is_enabled() ) {
+		if ( Waf_Runner::is_supported_environment() ) {
 			try {
 				Waf_Runner::update_waf();
 			} catch ( Waf_Exception $e ) {
