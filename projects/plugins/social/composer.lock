@@ -944,7 +944,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "30a6edcd2d389f004c01baa26957a959889fe19e"
+				"reference": "47ae5a0b8d190174ef6f1dc257ac726599570ab4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -960,6 +960,7 @@
 				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
+				"automattic/jetpack-waf": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
@@ -1730,6 +1731,128 @@
 			"transport-options": {
 				"relative": true
 			}
+		},
+		{
+			"name": "automattic/jetpack-waf",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/waf",
+				"reference": "7c30728a366806da71f9eb62fb015980ae79ebb2"
+			},
+			"require": {
+				"automattic/jetpack-connection": "@dev",
+				"automattic/jetpack-constants": "@dev",
+				"automattic/jetpack-ip": "@dev",
+				"automattic/jetpack-status": "@dev",
+				"php": ">=7.0",
+				"wikimedia/aho-corasick": "^1.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"automattic/wordbless": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"mirror-repo": "Automattic/jetpack-waf",
+				"textdomain": "jetpack-waf",
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
+				},
+				"branch-alias": {
+					"dev-trunk": "0.16.x-dev"
+				}
+			},
+			"autoload": {
+				"files": [
+					"cli.php"
+				],
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --configuration tests/php/integration/phpunit.xml.dist --colors=always",
+					"./vendor/phpunit/phpunit/phpunit --configuration tests/php/unit/phpunit.xml.dist --colors=always"
+				],
+				"post-install-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"post-update-cmd": [
+					"WorDBless\\Composer\\InstallDropin::copy"
+				],
+				"test-coverage-html": [
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/integration/phpunit.xml.dist",
+					"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/unit/phpunit.xml.dist"
+				],
+				"test-php": [
+					"@composer phpunit"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "Tools to assist with the Jetpack Web Application Firewall",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
+			"name": "wikimedia/aho-corasick",
+			"version": "v1.0.1",
+			"source": {
+				"type": "git",
+				"url": "https://github.com/wikimedia/AhoCorasick.git",
+				"reference": "2f3a1bd765913637a66eade658d11d82f0e551be"
+			},
+			"dist": {
+				"type": "zip",
+				"url": "https://api.github.com/repos/wikimedia/AhoCorasick/zipball/2f3a1bd765913637a66eade658d11d82f0e551be",
+				"reference": "2f3a1bd765913637a66eade658d11d82f0e551be",
+				"shasum": ""
+			},
+			"require": {
+				"php": ">=5.5.9"
+			},
+			"require-dev": {
+				"jakub-onderka/php-console-highlighter": "0.3.2",
+				"jakub-onderka/php-parallel-lint": "1.0.0",
+				"mediawiki/mediawiki-codesniffer": "18.0.0",
+				"mediawiki/minus-x": "0.3.1",
+				"phpunit/phpunit": "4.8.36 || ^6.5"
+			},
+			"type": "library",
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"notification-url": "https://packagist.org/downloads/",
+			"license": [
+				"Apache-2.0"
+			],
+			"authors": [
+				{
+					"name": "Ori Livneh",
+					"email": "ori@wikimedia.org"
+				}
+			],
+			"description": "An implementation of the Aho-Corasick string matching algorithm.",
+			"homepage": "https://gerrit.wikimedia.org/g/AhoCorasick",
+			"keywords": [
+				"ahocorasick",
+				"matcher"
+			],
+			"support": {
+				"source": "https://github.com/wikimedia/AhoCorasick/tree/v1.0.1"
+			},
+			"time": "2018-05-01T18:13:32+00:00"
 		}
 	],
 	"packages-dev": [
