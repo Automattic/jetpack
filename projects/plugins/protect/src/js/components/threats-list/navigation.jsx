@@ -56,7 +56,11 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 			return __( 'All fixed threats', 'jetpack-protect' );
 		}
 		if ( statusFilter === 'ignored' ) {
-			return __( 'All ignored threats', 'jetpack-protect' );
+			return __(
+				'All ignored threats',
+				'jetpack-protect',
+				/** dummy arg to avoid bad minification */ 0
+			);
 		}
 		return __( 'All threats', 'jetpack-protect' );
 	}, [ statusFilter ] );
