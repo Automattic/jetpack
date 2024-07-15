@@ -8,7 +8,5 @@
 		"outDir": "./build/",
 		"target": "es2019",
 		"verbatimModuleSyntax": true,
-		"module": "ESNext",
-		"moduleResolution": "bundler"
 	}
 }
