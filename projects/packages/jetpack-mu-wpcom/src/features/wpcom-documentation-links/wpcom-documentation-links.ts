@@ -1,5 +1,4 @@
 import { localizeUrl } from '@automattic/i18n-utils';
-import { getUserLocale } from '@automattic/jetpack-components';
 import { addFilter } from '@wordpress/hooks';
 import './wpcom-documentation-links.css';
 
@@ -45,7 +44,7 @@ function overrideCoreDocumentationLinksToWpcom( translation: string, text: strin
 	}
 
 	if ( url ) {
-		return localizeUrl( url, getUserLocale().toLowerCase() );
+		return localizeUrl( url );
 	}
 
 	return translation;

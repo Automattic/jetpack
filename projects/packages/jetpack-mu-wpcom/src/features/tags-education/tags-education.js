@@ -1,5 +1,4 @@
 import { localizeUrl } from '@automattic/i18n-utils';
-import { getUserLocale } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -17,10 +16,7 @@ const addTagsEducationLink = createHigherOrderComponent( PostTaxonomyType => {
 			<>
 				<PostTaxonomyType { ...props } />
 				<ExternalLink
-					href={ localizeUrl(
-						'https://wordpress.com/support/posts/tags/',
-						getUserLocale().toLowerCase()
-					) }
+					href={ localizeUrl( 'https://wordpress.com/support/posts/tags/' ) }
 					onClick={ () => {
 						tracks.recordEvent( 'jetpack_mu_wpcom_tags_education_link_click' );
 					} }

@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const pkgDir = require( 'pkg-dir' );
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const verbumConfig = require( './verbum.webpack.config.js' );
 
@@ -52,12 +51,7 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
-				'i18n-calypso': findPackage( 'i18n-calypso' ),
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
-			},
-			fallback: {
-				...jetpackWebpackConfig.resolve.fallback,
-				events: require.resolve( 'events/' ),
 			},
 		},
 		node: false,
@@ -97,22 +91,3 @@ module.exports = [
 		},
 	},
 ];
-
-/**
- * Given a package name, finds the absolute path for it.
- *
- * require.resolve() will resolve to the main file of the package, using Node's resolution algorithm to find
- * a `package.json` and looking at the field `main`. This function will return the folder that contains `package.json`
- * instead of trying to resolve the main file.
- *
- * Example: `@wordpress/data` may resolve to `/home/myUser/wp-calypso/node_modules/@wordpress/data`.
- *
- * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
- * `node_modules`
- * @param {string} pkgName - Name of the package to search for.
- */
-function findPackage( pkgName ) {
-	const fullPath = require.resolve( pkgName );
-	const packagePath = pkgDir.sync( fullPath );
-	return packagePath;
-}
