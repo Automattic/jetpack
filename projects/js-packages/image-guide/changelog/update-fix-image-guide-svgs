@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed a bug where image guide would show up for svg images.
