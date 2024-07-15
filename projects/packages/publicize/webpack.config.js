@@ -1,11 +1,28 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
+/**
+ * @type {import('webpack').Configuration[]} Webpack configuration.
+ */
 module.exports = [
 	{
 		entry: {
 			[ 'classic-editor-share-limits' ]: './src/js/classic-editor-share-limits.js',
 			[ 'classic-editor-connections' ]: './src/js/classic-editor-connections.js',
+			social: {
+				import: './src/js/jetpack-publicize.ts',
+				filename: 'jetpack-publicize.js',
+				library: {
+					name: 'JetpackPublicize',
+					type: 'umd',
+				},
+			},
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-publicize',
+			} ),
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

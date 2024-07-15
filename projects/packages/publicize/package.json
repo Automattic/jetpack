@@ -26,14 +26,30 @@
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
+	"exports": {
+		".": {
+			"jetpack:src": "./src/js/jetpack-publicize.ts",
+			"default": "./build/jetpack-publicize.js"
+		}
+	},
 	"devDependencies": {
+		"@automattic/calypso-color-schemes": "3.1.3",
+		"@automattic/color-studio": "2.6.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@csstools/postcss-global-data": "2.1.1",
 		"@wordpress/browserslist-config": "6.2.0",
+		"autoprefixer": "10.4.14",
 		"concurrently": "7.6.0",
+		"postcss": "8.4.31",
+		"postcss-custom-properties": "12.1.7",
+		"postcss-loader": "6.2.0",
+		"sass": "1.64.1",
+		"sass-loader": "12.4.0",
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
+		"@automattic/jetpack-publicize-components": "workspace:*",
 		"@wordpress/i18n": "5.2.0"
 	}
 }
