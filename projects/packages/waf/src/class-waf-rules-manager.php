@@ -86,11 +86,6 @@ class Waf_Rules_Manager {
 	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_cron() {
-		Waf_Constants::define_mode();
-		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return new WP_Error( 'waf_invalid_mode', 'Invalid firewall mode.' );
-		}
-
 		try {
 			self::generate_automatic_rules();
 			self::generate_ip_rules();
@@ -127,10 +122,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function update_rules_if_changed() {
-		Waf_Constants::define_mode();
-		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			throw new Waf_Exception( 'Invalid firewall mode.' );
-		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			self::generate_automatic_rules();
