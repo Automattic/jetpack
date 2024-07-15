@@ -7,6 +7,8 @@
 		"sourceMap": true,
 		"outDir": "./build/",
 		"target": "es2019",
-		"verbatimModuleSyntax": true
+		"verbatimModuleSyntax": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler"
 	}
 }
