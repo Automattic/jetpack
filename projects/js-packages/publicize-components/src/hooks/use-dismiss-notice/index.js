@@ -11,7 +11,6 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
  */
 
 const NOTICES = {
-	instagram: 'instagram',
 	advancedUpgradeEditor: 'advanced-upgrade-nudge-editor',
 	advancedUpgradeAdmin: 'advanced-upgrade-nudge-admin',
 	autoConversion: 'auto-conversion-editor-notice',
