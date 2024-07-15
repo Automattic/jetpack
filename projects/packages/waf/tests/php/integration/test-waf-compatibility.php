@@ -189,4 +189,40 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		// Check that the automatic rules option is enabled by default.
 		$this->assertTrue( Waf_Runner::is_enabled() );
 	}
+
+	/**
+	 * Test the default options for the IP allow and block lists.
+	 */
+	public function testIpListsDefaultOptions() {
+		// Enable the WAF module.
+		Waf_Runner::enable();
+
+		// Validate default options on fresh installs.
+		$this->assertFalse( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
+		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
+
+		// Add content to the allow list.
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '1.2.3.4' );
+
+		$this->assertTrue( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
+		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
+
+		// Toggle the old generic option from true to false.
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
+
+		// Options default to false when the old generic option is set to false.
+		$this->assertFalse( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
+		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
+
+		// Set the old generic option to true.
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+
+		// Options default to true when the old generic option is set to true.
+		$this->assertTrue( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
+		$this->assertTrue( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
+	}
 }

@@ -2,6 +2,44 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.7-a.3 - 2024-07-15
+### Enhancements
+- Blocks: Add the EventCoutdown block. [#38250]
+- Blocks: Add the Timeline block. [#38255]
+- Newsletter: Improve the modal overlay. [#38266]
+- Social: Added recommendation steps for the Social plan. [#38219]
+- Subscriptions: Implemented a more dynamic approach to displaying the modal. [#38079]
+
+### Improved compatibility
+- Blocks: Changed the use of default parameters in the Map block for React 19 compatibility. [#38274]
+
+### Bug fixes
+- Donations Block: Fix undefined array key warnings with old/malformed blocks. [#38281]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: Redirect Jetpack pages. [#38148]
+- AI Assistant: Add ambiguous words to proofread features list. [#38292]
+- AI Assistant: Add long sentences feature to proofread. [#38314]
+- AI Assistant: Add Popover content for AI Proofread. [#38290]
+- AI Assistant: Fix blocks content definition. [#38270]
+- AI Assistant: Integrate AI Proofread toggle with code. [#38280]
+- AI Breve: Update highlight. [#38189]
+- AI Proofread: Toggle specific feature. [#38286]
+- AI Proofread: Update hover events. [#38261]
+- AI Proofread: Update sidebar layout. [#38289]
+- Blocks: Honor the `$symbol` arg when passed an unknown currency. [#38281]
+- Calypsoify: Removing functionality from Jetpack. [#38259]
+- Custom Post Types: Remove Comic post type. [#38309]
+- Jetpack AI: Add beta flag to control logo generator extension. [#38322]
+- Jetpack AI Image: Trigger featured image auto generation when there is content on the post. [#38262]
+- General: Fix redirect for comments pending approval. [#38301]
+- MU WPCOM: Move countdown and timeline blocks from jetpack to jetpack-mu-wpcom. [#38298]
+- Newsletter Settings: Fix default value for Full text vs Excerpt. [#38256]
+- Random Redirect: Remove module. [#38310]
+- Theme tools: Add social menu to Classic Theme Helper package. [#38243]
+- WPCOM Block Editor: Removing functionality from Jetpack. [#38299]
+- WooCommerce Analytics: Initialize the module only if is not initialized in WooCommerce core. [#38236]
+
 ## 13.7-a.1 - 2024-07-08
 ### Enhancements
 - AI Assistant: The general purpose image generator is now available to all users. [#38203]

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -10,22 +10,31 @@ import features from './index';
 /**
  * Types
  */
-import type { BreveDispatch } from '../types';
+import type { BreveDispatch, BreveSelect } from '../types';
 
-let timeout: number;
+let highlightTimeout: number;
 
 function handleMouseEnter( e: React.MouseEvent ) {
 	e.stopPropagation();
-	clearTimeout( timeout );
+	clearTimeout( highlightTimeout );
+	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).increasePopoverLevel();
 	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
 	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( e.target );
 }
 
 function handleMouseLeave( e: React.MouseEvent ) {
 	e.stopPropagation();
-	timeout = setTimeout( () => {
+	( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).decreasePopoverLevel();
+
+	highlightTimeout = setTimeout( () => {
+		// If the mouse is still over any highlight, don't hide the popover
+		const { getPopoverLevel } = select( 'jetpack/ai-breve' ) as BreveSelect;
+		if ( getPopoverLevel() > 0 ) {
+			return;
+		}
+
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
-	}, 100 );
+	}, 50 );
 }
 
 export default function registerEvents( clientId: string ) {

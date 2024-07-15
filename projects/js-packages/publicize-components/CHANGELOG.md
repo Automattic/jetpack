@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.1] - 2024-07-15
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+
+### Fixed
+- Fixed an issue with frontend media validation [#38234]
+
 ## [0.56.0] - 2024-07-08
 ### Added
 - Updated the connections cofirmation logic to preselect the reconnecting account by default on confirmation screen [#38193]
@@ -776,6 +783,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.56.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.1...v0.56.0
 [0.55.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.0...v0.55.1
 [0.55.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.54.6...v0.55.0
