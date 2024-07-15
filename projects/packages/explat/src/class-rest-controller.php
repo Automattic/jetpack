@@ -84,11 +84,8 @@ class REST_Controller {
 
 		if ( $request['as_connected_user'] && $is_user_connected ) {
 			$response = Client::wpcom_json_api_request_as_user(
-				$request_path,
-				'v2',
-				$args,
-				null,
-				'wpcom'
+				add_query_arg( $args, $request_path ),
+				'v2'
 			);
 		} else {
 			$response = wp_remote_get(

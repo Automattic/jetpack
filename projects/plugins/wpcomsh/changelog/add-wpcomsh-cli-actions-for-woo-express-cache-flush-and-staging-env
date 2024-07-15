@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add post transfer woo express deactivate plugins, post process cache flush, and post clone set staging environment

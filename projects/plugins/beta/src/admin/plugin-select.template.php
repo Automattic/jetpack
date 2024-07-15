@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $plugins = Plugin::get_all_plugins( true );
 
+// This needs to be defined for show-needed-updates.template.php.
+$plugin = null;
+
 ?>
 
 <?php require __DIR__ . '/header.template.php'; ?>

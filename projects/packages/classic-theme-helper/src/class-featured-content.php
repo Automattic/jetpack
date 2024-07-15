@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 use Automattic\Jetpack\Assets;
 use WP_Customize_Manager;
 use WP_Query;
-if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 
 	/**
 	 * Featured Content.
@@ -88,6 +88,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['p
 		 */
 		public static function init() {
 
+			if ( isset( $GLOBALS['pagenow'] ) && 'plugins.php' === $GLOBALS['pagenow'] ) {
+				return;
+			}
 			/**
 			 * Array variable to store theme support.
 			 *
@@ -757,6 +760,4 @@ if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) && isset( $GLOBALS['p
 			}
 		}
 	}
-
-	Featured_Content::setup();
 }
