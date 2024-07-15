@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const verbumConfig = require( './verbum.webpack.config.js' );
 
 module.exports = [
