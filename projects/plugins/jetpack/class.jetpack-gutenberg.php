@@ -770,13 +770,13 @@ class Jetpack_Gutenberg {
 		}
 
 		wp_localize_script(
-			'jetpack-blocks-editor',
+			'jetpack-publicize',
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
 
 		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
+		Connection_Initial_State::render_script( 'jetpack-publicize' );
 	}
 
 	/**
