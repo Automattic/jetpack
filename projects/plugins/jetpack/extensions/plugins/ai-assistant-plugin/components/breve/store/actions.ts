@@ -81,7 +81,6 @@ export function setSuggestions( {
 			}
 		)
 			.then( response => {
-				// eslint-disable-next-line no-console
 				try {
 					const suggestions = JSON.parse( response );
 					dispatch( {
@@ -91,8 +90,6 @@ export function setSuggestions( {
 						suggestions,
 					} );
 				} catch ( e ) {
-					// eslint-disable-next-line no-console
-					console.error( e );
 					dispatch( {
 						type: 'SET_SUGGESTIONS_LOADING',
 						id,
