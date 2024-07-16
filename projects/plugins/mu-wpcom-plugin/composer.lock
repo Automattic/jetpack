@@ -676,6 +676,74 @@
             }
         },
         {
+            "name": "automattic/jetpack-google-analytics",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/google-analytics",
+                "reference": "9aacc5acb62eda87adf12a76dcc1d006103adf5c"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "^0.4.2",
+                "yoast/phpunit-polyfills": "1.1.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-google-analytics",
+                "textdomain": "jetpack-google-analytics",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-ga-manager.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Set up Google Analytics without touching a line of code.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-ip",
             "version": "dev-trunk",
             "dist": {
@@ -937,7 +1005,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "b38d3b2528ad88fb370897a5e7860b0725e06850"
+                "reference": "94b20f27ba3452f454c50a288931cc3e57c363ba"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -946,6 +1014,7 @@
                 "automattic/jetpack-classic-theme-helper": "@dev",
                 "automattic/jetpack-compat": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-google-analytics": "@dev",
                 "automattic/jetpack-masterbar": "@dev",
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
@@ -1437,7 +1506,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "89d46505557c31b54cb41a8ae6f38070640f1d0f"
+                "reference": "9e674c384f72544b488e3af3d9348692d32cee54"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1470,7 +1539,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

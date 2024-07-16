@@ -19,10 +19,23 @@ export function setPopoverHover( isHover: boolean ) {
 	};
 }
 
-export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
+export function setPopoverAnchor( anchor: HTMLElement | EventTarget, level: number ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
+		level,
+	};
+}
+
+export function increasePopoverLevel() {
+	return {
+		type: 'INCREASE_POPOVER_LEVEL',
+	};
+}
+
+export function decreasePopoverLevel() {
+	return {
+		type: 'DECREASE_POPOVER_LEVEL',
 	};
 }
 

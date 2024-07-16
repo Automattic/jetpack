@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.44.0-alpha';
+	const PACKAGE_VERSION = '5.44.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -109,6 +109,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();

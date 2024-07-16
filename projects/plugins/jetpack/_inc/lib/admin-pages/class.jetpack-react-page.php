@@ -46,7 +46,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/** This action is documented in class.jetpack-admin.php */
 		do_action( 'jetpack_admin_menu', $hook );
 
-		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
+		if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		$page = sanitize_text_field( wp_unslash( $_GET['page'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'jetpack' !== $page ) {
+			if ( strpos( $page, 'jetpack/' ) === 0 ) {
+				$section = substr( $page, 8 );
+				wp_safe_redirect( admin_url( 'admin.php?page=jetpack#/' . $section ) );
+				exit;
+			}
 			return; // No need to handle the fallback redirection if we are not on the Jetpack page.
 		}
 
