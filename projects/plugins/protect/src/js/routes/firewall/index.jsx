@@ -664,6 +664,12 @@ const FirewallPage = () => {
 					<Text variant="title-medium" mb={ 2 }>
 						{ __( 'Always allow specific IP addresses', 'jetpack-protect' ) }
 					</Text>
+					<Text mb={ 1 }>
+						{ __(
+							"IP addresses added to this list will never be blocked by Jetpack's security features.",
+							'jetpack-protect'
+						) }
+					</Text>
 					<div className={ styles[ 'manual-rules-section' ] }>
 						<Textarea
 							id="jetpack_waf_ip_allow_list"
@@ -716,30 +722,27 @@ const FirewallPage = () => {
 	);
 
 	const bruteForceProtectionSettings = (
-		<>
-			<div className={ styles[ 'toggle-section' ] }>
-				<div className={ styles[ 'toggle-section__control' ] }>
-					<FormToggle
-						id="brute_force_protection"
-						checked={ formState.brute_force_protection }
-						onChange={ handleBruteForceProtectionChange }
-						disabled={ formIsSubmitting }
-					/>
-				</div>
-				<div className={ styles[ 'toggle-section__content' ] }>
-					<Text variant="title-medium" mb={ 2 }>
-						{ __( 'Enable brute force protection', 'jetpack-protect' ) }
-					</Text>
-					<Text>
-						{ __(
-							'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
-							'jetpack-protect'
-						) }
-					</Text>
-				</div>
+		<div className={ styles[ 'toggle-section' ] }>
+			<div className={ styles[ 'toggle-section__control' ] }>
+				<FormToggle
+					id="brute_force_protection"
+					checked={ formState.brute_force_protection }
+					onChange={ handleBruteForceProtectionChange }
+					disabled={ formIsSubmitting }
+				/>
 			</div>
-			{ ipAllowListSettings }
-		</>
+			<div className={ styles[ 'toggle-section__content' ] }>
+				<Text variant="title-medium" mb={ 2 }>
+					{ __( 'Enable brute force protection', 'jetpack-protect' ) }
+				</Text>
+				<Text>
+					{ __(
+						'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
+						'jetpack-protect'
+					) }
+				</Text>
+			</div>
+		</div>
 	);
 
 	const ipBlockListSettings = (
@@ -799,6 +802,7 @@ const FirewallPage = () => {
 						{ wafSupported && automaticRulesSettings }
 						{ bruteForceProtectionSettings }
 						{ wafSupported && ipBlockListSettings }
+						{ ipAllowListSettings }
 					</div>
 				</Col>
 			</Container>
