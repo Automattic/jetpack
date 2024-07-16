@@ -35,13 +35,7 @@ const ConnectedProductCard = ( {
 		useInstallStandalonePlugin( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
 	const { detail } = useProduct( slug );
-	const {
-		name,
-		description: defaultDescription,
-		longDescription,
-		requiresUserConnection,
-		status,
-	} = detail;
+	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 
@@ -64,9 +58,8 @@ const ConnectedProductCard = ( {
 	] );
 
 	const DefaultDescription = () => {
-		const productDescription = ! recommendation ? defaultDescription : longDescription;
 		// Replace the last space with a non-breaking space to prevent widows
-		const cardDescription = productDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
 
 		return (
 			<Text variant="body-small" style={ { flexGrow: 1 } }>
