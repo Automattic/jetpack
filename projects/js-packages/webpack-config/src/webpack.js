@@ -116,11 +116,11 @@ const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
 	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
 
 	const requestToExternal = request => {
-		return finalRequestMap[ request ]?.external || undefined;
+		return finalRequestMap[ request ]?.external;
 	};
 
 	const requestToHandle = request => {
-		return finalRequestMap[ request ]?.handle || undefined;
+		return finalRequestMap[ request ]?.handle;
 	};
 
 	return [
