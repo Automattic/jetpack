@@ -260,8 +260,10 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
-				'scanData'               => $scan_data,
-				'wafConfig'              => Waf_Runner::get_config(),
+				'protect'                => array(
+					'scanData'  => $scan_data,
+					'wafConfig' => Waf_Runner::get_config(),
+				),
 			)
 		);
 

@@ -14,7 +14,9 @@ export const AutoFirewallStatus = () => {
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const { wafConfig: wafData } = getMyJetpackWindowInitialState();
+	const {
+		protect: { wafConfig: wafData },
+	} = getMyJetpackWindowInitialState();
 	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData;
 
 	if ( isPluginActive && isSiteConnected ) {
