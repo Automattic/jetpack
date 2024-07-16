@@ -13,7 +13,7 @@ import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 type SubmitRecommendationsResult = Record< string, number >;
 
-const useRecommendationsSection = () => {
+const useEvaluationRecommendations = () => {
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const [ recommendedModules, setRecommendedModules ] = useValueStore(
 		'recommendedModules',
@@ -77,4 +77,4 @@ const useRecommendationsSection = () => {
 	};
 };
 
-export default useRecommendationsSection;
+export default useEvaluationRecommendations;

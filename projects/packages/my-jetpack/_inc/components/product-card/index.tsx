@@ -1,15 +1,12 @@
-import formatCurrency from '@automattic/format-currency';
-import { Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { FC, MouseEventHandler, ReactNode, useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
-import useProduct from '../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import Card from '../card';
 import ActionButton from './action-button';
+import PriceComponent from './pricing-component';
+import RecommendationActions from './recommendation-actions';
 import SecondaryButton, { SecondaryButtonProps } from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
@@ -178,7 +175,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
 		>
-			{ recommendation && <Price slug={ slug } /> }
+			{ recommendation && <PriceComponent slug={ slug } /> }
 			<Description />
 
 			{ isDataLoading ? (
@@ -218,77 +215,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 				</div>
 			) }
 		</Card>
-	);
-};
-
-const usePricing = ( slug: string ) => {
-	const { detail } = useProduct( slug );
-
-	if ( detail.tiers.length === 0 ) {
-		const {
-			pricingForUi: { discountPricePerMonth, fullPricePerMonth, currencyCode },
-		} = detail;
-		return { discountPrice: discountPricePerMonth, fullPrice: fullPricePerMonth, currencyCode };
-	}
-
-	if ( detail.tiers.includes( 'upgraded' ) ) {
-		const { discountPrice, fullPrice, currencyCode } = detail.pricingForUi.tiers.upgraded;
-		const hasDiscount = discountPrice && discountPrice !== fullPrice;
-		return {
-			discountPrice: hasDiscount ? discountPrice / 12 : null,
-			fullPrice: fullPrice / 12,
-			currencyCode,
-		};
-	}
-
-	return { discountPrice: 0, fullPrice: 0, currencyCode: '' };
-};
-
-const Price = ( { slug }: { slug: string } ) => {
-	const { discountPrice, fullPrice, currencyCode } = usePricing( slug );
-
-	return (
-		<div className={ styles.priceContainer }>
-			{ discountPrice && (
-				<span className={ clsx( styles.price ) }>
-					{ formatCurrency( discountPrice, currencyCode ) }
-				</span>
-			) }
-			<span className={ clsx( styles.price, discountPrice && styles.discounted ) }>
-				{ formatCurrency( fullPrice, currencyCode ) }
-			</span>
-			<span className={ styles.term }>/month, billed yearly</span>
-		</div>
-	);
-};
-
-const RecommendationActions = ( { slug }: { slug: string } ) => {
-	const { detail } = useProduct( slug );
-	const { isUserConnected } = useMyJetpackConnection();
-	const { adminUrl, siteSuffix } = getMyJetpackWindowInitialState();
-	const purchaseUrl = getProductCheckoutUrl(
-		detail.wpcomProductSlug,
-		siteSuffix,
-		`${ adminUrl }?page=my-jetpack`,
-		isUserConnected
-	);
-	const learnMoreUrl = `#/add-${ slug }`;
-	return (
-		<div className={ styles.actions }>
-			<div className={ clsx( styles.buttons, styles.recommendation ) }>
-				<Button size="small" href={ purchaseUrl }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
-				</Button>
-				<Button
-					className={ styles.recommendationLink }
-					size="small"
-					variant="link"
-					href={ learnMoreUrl }
-				>
-					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-				</Button>
-			</div>
-		</div>
 	);
 };
 

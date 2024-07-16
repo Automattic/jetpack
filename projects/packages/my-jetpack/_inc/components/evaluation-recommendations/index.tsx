@@ -1,10 +1,10 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import useRecommendationsSection from '../../data/recommendations-section/use-recommendations-section';
+import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 
 const EvaluationRecommendations: React.FC = () => {
-	const { isSectionVisible, recommendedModules } = useRecommendationsSection();
+	const { isSectionVisible, recommendedModules } = useEvaluationRecommendations();
 
 	if ( ! isSectionVisible ) {
 		return null;
