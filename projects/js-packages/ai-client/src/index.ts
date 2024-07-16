@@ -40,3 +40,8 @@ export * from './types.js';
  * Libs
  */
 export * from './libs/index.js';
+
+/*
+ * Logo Generator
+ */
+export * from './logo-generator/index.js';
