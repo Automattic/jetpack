@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.6] - 2024-07-15
+### Added
+- AI Client: Filter suggestions starting with llama artifacts [#38208]
+
 ## [0.14.5] - 2024-07-08
 ### Changed
 - Updated package dependencies. [#38132]
@@ -347,6 +351,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies. [#31659]
 - Updated package dependencies. [#31785]
 
+[0.14.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.5...v0.14.6
 [0.14.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.4...v0.14.5
 [0.14.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.3...v0.14.4
 [0.14.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.14.2...v0.14.3
