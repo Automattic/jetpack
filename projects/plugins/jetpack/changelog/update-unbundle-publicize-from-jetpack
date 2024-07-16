@@ -1,5 +1,4 @@
-Significance: patch
+Significance: minor
 Type: other
-Comment: Bundling tools update
 
-
+Extracted common UI logic from Jetpack to publicize package to load it dynamically at runtime

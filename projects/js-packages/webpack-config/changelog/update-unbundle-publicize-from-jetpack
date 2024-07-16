@@ -1,5 +1,4 @@
-Significance: patch
-Type: changed
-Comment: Bundling tools update
+Significance: minor
+Type: added
 
-
+Extracted common UI logic from Social to publicize package to load it dynamically at runtime
