@@ -326,14 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.7-a.1 - 2024-07-08
+### 13.7-a.3 - 2024-07-15
 #### Enhancements
-- AI Assistant: The general purpose image generator is now available to all users.
-- Subscriptions: Add command palette commands for quickly changing post access.
-- Subscriptions: Improve the Subscribe block loading animation.
+- Blocks: Add the EventCoutdown block.
+- Blocks: Add the Timeline block.
+- Newsletter: Improve the modal overlay.
+- Social: Added recommendation steps for the Social plan.
+- Subscriptions: Implemented a more dynamic approach to displaying the modal.
+
+#### Improved compatibility
+- Blocks: Changed the use of default parameters in the Map block for React 19 compatibility.
 
 #### Bug fixes
-- Like block: Fix warning displayed when trying to load the Like block on unsupported pages.
+- Donations Block: Fix undefined array key warnings with old/malformed blocks.
 
 --------
 

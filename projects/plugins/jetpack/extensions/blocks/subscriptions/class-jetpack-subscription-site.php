@@ -155,6 +155,7 @@ class Jetpack_Subscription_Site {
 						: 'is-style-button';
 
 					$hooked_block['attrs']['className'] = $class_name;
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-navigation';
 				}
 
 				return $hooked_block;

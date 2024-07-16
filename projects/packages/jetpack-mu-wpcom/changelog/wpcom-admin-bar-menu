@@ -1,9 +1,0 @@
-Significance: minor
-Type: changed
-
-Updates the WordPress.com admin bar as follows:
-
-1. Repurposes the WordPress logo as a link to /sites.
-2. Adds Reader menu.
-3. Hides the updates icon.
-4. Hides the comments icon.
