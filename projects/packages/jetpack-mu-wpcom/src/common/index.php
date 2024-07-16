@@ -29,3 +29,13 @@ function get_iso_639_locale( $language ) {
 
 	return $language;
 }
+
+/**
+ * Returns ISO 639 conforming locale string of the current user.
+ *
+ * @return string ISO 639 locale string e.g. "en"
+ */
+function determine_iso_639_locale() {
+	$locale = get_user_locale();
+	return get_iso_639_locale( $locale );
+}

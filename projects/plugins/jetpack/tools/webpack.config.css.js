@@ -161,7 +161,6 @@ const weirdRtlNominEntries = {};
 
 // Admin CSS files to insert into weirdRtlNominEntries and weirdRtlEntries.
 for ( const name of [
-	'modules/custom-post-types/comics/comics',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
