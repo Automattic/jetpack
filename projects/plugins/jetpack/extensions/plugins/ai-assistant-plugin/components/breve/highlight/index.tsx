@@ -115,7 +115,9 @@ export default function Highlight() {
 
 		// Apply known fixes for table and list-item blocks
 		if ( block.name === 'core/table' ) {
-			render = fixes.table( suggestions?.html, true );
+			render = fixes.table( suggestions?.html, true, {
+				hasFixedLayout: block.attributes?.hasFixedLayout,
+			} );
 		}
 
 		if ( block.name === 'core/list-item' ) {

@@ -30,7 +30,11 @@ const addListComments = ( content: string ) => {
 };
 
 type Fixes = {
-	[ key in Fix ]: ( content: string, extension?: boolean ) => string;
+	[ key in Fix ]: (
+		content: string,
+		extension?: boolean,
+		options?: { [ key: string ]: unknown }
+	) => string;
 };
 export const fixes: Fixes = {
 	list: ( content: string, extension = false ) => {
@@ -61,14 +65,18 @@ export const fixes: Fixes = {
 		// Fix encoding of <br /> tags
 		return content.replaceAll( /\s*&lt;br \/&gt;\s*/g, '<br />' );
 	},
-	table: ( content: string, extension = false ) => {
+	table: ( content: string, extension = false, { hasFixedLayout = false } ) => {
 		if ( ! extension ) {
 			return content;
 		}
 
-		return content
-			.replace( /^<figure.*?>/g, '' ) // Remove figure start for table block
-			.replace( /<\/figure>$/g, '' ); // Remove figure end for table block
+		if ( content.startsWith( '<!-- wp:table' ) ) {
+			return content;
+		}
+
+		return `<!-- wp:table { "hasFixedLayout":${
+			hasFixedLayout ? 'true' : 'false'
+		} } -->${ content }<!-- /wp:table -->`;
 	},
 };
 
