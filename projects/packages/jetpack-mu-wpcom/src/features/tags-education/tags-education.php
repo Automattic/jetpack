@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 define( 'MU_WPCOM_TAGS_EDUCATION', true );
 
@@ -29,7 +30,7 @@ function wpcom_enqueue_tags_education_assets() {
 		array( 'actionText' => __( 'Build your audience with tags', 'jetpack-mu-wpcom' ) )
 	);
 
-	wpcom_enqueue_tracking_scripts( 'wpcom-tags-education-script' );
+	Common\wpcom_enqueue_tracking_scripts( 'wpcom-tags-education-script' );
 }
 
 add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_tags_education_assets', 100 );

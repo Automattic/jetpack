@@ -1,5 +1,4 @@
 /* global wpcomGlobalStyles */
-import { getPlan, PLAN_PREMIUM } from '@automattic/calypso-products';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ExternalLink, Notice } from '@wordpress/components';
@@ -39,7 +38,7 @@ function GlobalStylesWarningNotice() {
 		trackEvent( 'calypso_global_styles_gating_notice_view_canvas_show' );
 	}, [ trackEvent ] );
 
-	const planName = getPlan( PLAN_PREMIUM ).getTitle();
+	const planName = wpcomGlobalStyles.planName;
 
 	const upgradeTranslation = sprintf(
 		/* translators: %s is the short-form Premium plan name */
@@ -191,7 +190,7 @@ function GlobalStylesEditNotice() {
 				: 'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external wpcom-global-styles-action-is-support',
 		} );
 
-		const planName = getPlan( PLAN_PREMIUM ).getTitle();
+		const planName = wpcomGlobalStyles.planName;
 		createWarningNotice(
 			sprintf(
 				/* translators: %s is the short-form Premium plan name */

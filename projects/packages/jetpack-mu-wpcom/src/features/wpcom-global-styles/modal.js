@@ -1,6 +1,5 @@
 /* global wpcomGlobalStyles */
 
-import { getPlan, PLAN_PREMIUM } from '@automattic/calypso-products';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -63,7 +62,7 @@ const GlobalStylesModal = () => {
 		return null;
 	}
 
-	const planName = getPlan( PLAN_PREMIUM ).getTitle();
+	const planName = wpcomGlobalStyles.planName;
 	const description = sprintf(
 		/* translators: %s is the short-form Premium plan name */
 		__(

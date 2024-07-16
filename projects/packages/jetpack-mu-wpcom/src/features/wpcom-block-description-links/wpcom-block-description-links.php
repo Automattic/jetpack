@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
 
@@ -23,7 +24,7 @@ function wpcom_enqueue_block_description_links_assets() {
 		true
 	);
 
-	wpcom_enqueue_tracking_scripts( 'wpcom-block-description-links-script' );
+	Common\wpcom_enqueue_tracking_scripts( 'wpcom-block-description-links-script' );
 }
 
 add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_block_description_links_assets', 100 );

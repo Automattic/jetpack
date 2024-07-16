@@ -9,6 +9,8 @@
 define( 'MU_WPCOM_GLOBAL_STYLES', true );
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Plans;
 
 /**
  * Checks if Global Styles should be limited on the given site.
@@ -168,7 +170,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	);
 	wp_set_script_translations( 'wpcom-global-styles-editor', 'jetpack-mu-wpcom' );
 
-	wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-editor' );
+	Common\wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-editor' );
 
 	$reset_global_styles_support_url = 'https://wordpress.com/support/using-styles/#reset-all-styles';
 	if ( class_exists( 'WPCom_Languages' ) ) {
@@ -182,6 +184,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'upgradeUrl'                  => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
 			'wpcomBlogId'                 => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'resetGlobalStylesSupportUrl' => $reset_global_styles_support_url,
+			'planName'                    => Plans::get_plan( 'value_bundle' )->product_name_short,
 		)
 	);
 	wp_enqueue_style(
@@ -216,7 +219,7 @@ function wpcom_global_styles_enqueue_assets() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js' ),
 		true
 	);
-	wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-frontend' );
+	Common\wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-frontend' );
 
 	wp_enqueue_style(
 		'wpcom-global-styles-frontend',
