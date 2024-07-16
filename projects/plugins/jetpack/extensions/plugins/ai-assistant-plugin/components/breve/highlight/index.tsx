@@ -108,7 +108,6 @@ export default function Highlight() {
 					anchor={ virtual }
 					placement="bottom"
 					className="highlight-popover"
-					offset={ 2 }
 					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
