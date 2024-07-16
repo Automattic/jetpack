@@ -31,7 +31,6 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-publicize-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@automattic/jetpack-publicize": "workspace:*",
 		"@wordpress/api-fetch": "7.2.0",
 		"@wordpress/components": "28.2.0",
 		"@wordpress/data": "10.2.0",

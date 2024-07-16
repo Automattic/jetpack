@@ -10,7 +10,7 @@ module.exports = [
 			[ 'classic-editor-share-limits' ]: './src/js/classic-editor-share-limits.js',
 			[ 'classic-editor-connections' ]: './src/js/classic-editor-connections.js',
 			[ 'jetpack-publicize' ]: {
-				import: './src/js/jetpack-publicize.ts',
+				import: './src/js/jetpack-publicize.js',
 				library: {
 					name: 'JetpackPublicize',
 					type: 'umd',
@@ -36,7 +36,16 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// We don't want to externalize this package, we rather want to bundle it.
+						'@automattic/jetpack-publicize-components': {},
+					},
+				},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [

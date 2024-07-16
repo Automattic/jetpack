@@ -26,12 +26,6 @@
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
-	"exports": {
-		".": {
-			"jetpack:src": "./src/js/jetpack-publicize.ts",
-			"default": "./build/jetpack-publicize.js"
-		}
-	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "3.1.3",
 		"@automattic/color-studio": "2.6.0",

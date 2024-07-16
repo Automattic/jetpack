@@ -5,8 +5,7 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { ConnectionManagement } from '@automattic/jetpack-publicize';
-import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';

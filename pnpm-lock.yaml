@@ -3667,9 +3667,6 @@ importers:
       '@automattic/jetpack-partner-coupon':
         specifier: workspace:*
         version: link:../../js-packages/partner-coupon
-      '@automattic/jetpack-publicize':
-        specifier: workspace:*
-        version: link:../../packages/publicize
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
@@ -4224,9 +4221,6 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-publicize':
-        specifier: workspace:*
-        version: link:../../packages/publicize
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
