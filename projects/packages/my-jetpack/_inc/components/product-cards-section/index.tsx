@@ -99,9 +99,21 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
 	}, [ ownedProducts.length ] );
 
+	const filterProducts = ( products: JetpackModule[] ) => {
+		return products.filter( product => {
+			if ( product === 'scan' || product === 'security' || product === 'extras' ) {
+				return false;
+			}
+			return true;
+		} );
+	};
+
+	const filteredOwnedProducts = filterProducts( ownedProducts );
+	const filteredUnownedProducts = filterProducts( unownedProducts );
+
 	return (
 		<>
-			{ ownedProducts.length > 0 && (
+			{ filteredOwnedProducts.length > 0 && (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 						<Col>
@@ -109,20 +121,20 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
 							</Col>
 
-							<DisplayItems slugs={ ownedProducts } />
+							<DisplayItems slugs={ filteredOwnedProducts } />
 						</Col>
 					</Container>
 				</AdminSectionHero>
 			) }
 
-			{ unownedProducts.length > 0 && (
+			{ filteredUnownedProducts.length > 0 && (
 				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col>
 						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
 							<Text variant="headline-small">{ unownedSectionTitle }</Text>
 						</Col>
 
-						<DisplayItems slugs={ unownedProducts } />
+						<DisplayItems slugs={ filteredUnownedProducts } />
 					</Col>
 				</Container>
 			) }
