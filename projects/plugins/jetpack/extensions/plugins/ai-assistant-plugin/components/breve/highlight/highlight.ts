@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { applyFormat } from '@wordpress/rich-text';
+import md5 from 'crypto-js/md5';
 /**
  * Types
  */
@@ -26,11 +27,13 @@ const applyHighlightFormat = ( {
 		newContent = indexes.reduce(
 			(
 				acc: RichTextValue,
-				{ startIndex, endIndex }: { startIndex: number; endIndex: number }
+				{ startIndex, endIndex, text }: { startIndex: number; endIndex: number; text: string }
 			) => {
+				const currentAttr = { ...attributes, 'data-id': md5( text ) };
+
 				const format = {
 					type,
-					attributes,
+					attributes: currentAttr,
 				} as RichTextFormat;
 
 				return applyFormat( acc, format, startIndex, endIndex );

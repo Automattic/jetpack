@@ -8,7 +8,6 @@ import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data'
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
-import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
  * Internal dependencies
@@ -191,7 +190,6 @@ export function registerBreveHighlights() {
 							indexes: highlights,
 							attributes: {
 								'data-type': config.name,
-								'data-id': md5( text ),
 								'data-identifier': richTextIdentifier ?? 'none',
 								'data-block': blockClientId,
 							},
