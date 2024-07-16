@@ -15,7 +15,7 @@ import type { BreveDispatch, Anchor } from '../types';
 let highlightTimeout: number;
 let anchorTimeout: number;
 
-function handleMouseEnter( e: React.MouseEvent ) {
+function handleMouseEnter( e: MouseEvent ) {
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 
@@ -67,9 +67,11 @@ export default function registerEvents( clientId: string ) {
 	const block = container?.querySelector?.( `#${ id }` );
 
 	features.forEach( ( { config } ) => {
-		const items = block?.querySelectorAll?.( `[data-type='${ config.name }']` ) || [];
+		const items: NodeListOf< HTMLElement > | undefined = block?.querySelectorAll?.(
+			`[data-type='${ config.name }']`
+		);
 
-		if ( items?.length > 0 ) {
+		if ( items && items?.length > 0 ) {
 			items.forEach( highlightEl => {
 				highlightEl?.removeEventListener?.( 'mouseover', handleMouseEnter );
 				highlightEl?.addEventListener?.( 'mouseover', handleMouseEnter );

@@ -13,7 +13,7 @@ export function isPopoverHover( state: BreveState ) {
 	return state.popover?.isPopoverHover;
 }
 
-export function getPopoverAnchor( state: BreveState ): Anchor {
+export function getPopoverAnchor( state: BreveState ): Anchor | null {
 	return state?.popover?.anchor ?? null;
 }
 
