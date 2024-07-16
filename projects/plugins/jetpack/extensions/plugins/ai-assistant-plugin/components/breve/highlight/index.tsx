@@ -42,9 +42,10 @@ export default function Highlight() {
 				target: null,
 				virtual: null,
 			};
-			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' );
-			const anchorId = anchorEl?.getAttribute?.( 'data-id' );
-			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' );
+			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+			const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
+			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' ) as string;
+
 			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
 				name: '',
 				title: '',
@@ -82,7 +83,7 @@ export default function Highlight() {
 
 	const handleSuggestions = () => {
 		const target = ( anchor as HTMLElement )?.innerText;
-		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText;
+		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText as string;
 
 		setSuggestions( {
 			id,
