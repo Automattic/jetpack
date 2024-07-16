@@ -8,6 +8,8 @@
 // Turn off the feature on ETK plugin.
 define( 'MU_WPCOM_GLOBAL_STYLES', true );
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Checks if Global Styles should be limited on the given site.
  *
@@ -135,13 +137,6 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		return;
 	}
 
-	$asset_file   = plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles.asset.php';
-	$asset        = file_exists( $asset_file )
-		? require $asset_file
-		: null;
-	$dependencies = $asset['dependencies'] ?? array();
-	$version      = $asset['version'] ?? filemtime( plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles.min.js' );
-
 	$calypso_domain = 'https://wordpress.com';
 	if (
 		! empty( $_GET['origin'] ) && // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -162,14 +157,18 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		? \WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() )
 		: wp_parse_url( home_url( '/' ), PHP_URL_HOST );
 
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.asset.php';
+
 	wp_enqueue_script(
 		'wpcom-global-styles-editor',
-		plugins_url( 'dist/wpcom-global-styles.min.js', __FILE__ ),
-		$dependencies,
-		$version,
+		plugins_url( 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.js' ),
 		true
 	);
 	wp_set_script_translations( 'wpcom-global-styles-editor', 'jetpack-mu-wpcom' );
+
+	wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-editor' );
 
 	$reset_global_styles_support_url = 'https://wordpress.com/support/using-styles/#reset-all-styles';
 	if ( class_exists( 'WPCom_Languages' ) ) {
@@ -179,7 +178,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		'wpcom-global-styles-editor',
 		'wpcomGlobalStyles',
 		array(
-			'assetsUrl'                   => plugins_url( 'dist/', __FILE__ ),
+			'assetsUrl'                   => plugins_url( '', __FILE__ ),
 			'upgradeUrl'                  => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
 			'wpcomBlogId'                 => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'resetGlobalStylesSupportUrl' => $reset_global_styles_support_url,
@@ -187,9 +186,9 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 	);
 	wp_enqueue_style(
 		'wpcom-global-styles-editor',
-		plugins_url( 'dist/wpcom-global-styles.css', __FILE__ ),
+		plugins_url( 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		filemtime( plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles.css' )
+		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.css' )
 	);
 }
 add_action( 'enqueue_block_editor_assets', 'wpcom_global_styles_enqueue_block_editor_assets' );
@@ -208,25 +207,22 @@ function wpcom_global_styles_enqueue_assets() {
 		return;
 	}
 
-	$asset_file   = plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles-view.asset.php';
-	$asset        = file_exists( $asset_file )
-		? require $asset_file
-		: null;
-	$dependencies = $asset['dependencies'] ?? array();
-	$version      = $asset['version'] ?? filemtime( plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles-view.min.js' );
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-editor/wpcom-global-styles-editor.asset.php';
 
 	wp_enqueue_script(
-		'wpcom-global-styles',
-		plugins_url( 'dist/wpcom-global-styles-view.min.js', __FILE__ ),
-		$dependencies,
-		$version,
+		'wpcom-global-styles-frontend',
+		plugins_url( 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.js' ),
 		true
 	);
+	wpcom_enqueue_tracking_scripts( 'wpcom-global-styles-frontend' );
+
 	wp_enqueue_style(
-		'wpcom-global-styles',
-		plugins_url( 'dist/wpcom-global-styles-view.css', __FILE__ ),
+		'wpcom-global-styles-frontend',
+		plugins_url( 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		filemtime( plugin_dir_path( __FILE__ ) . 'dist/wpcom-global-styles-view.css' )
+		filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-global-styles-frontend/wpcom-global-styles-frontend.css' )
 	);
 }
 add_action( 'wp_enqueue_scripts', 'wpcom_global_styles_enqueue_assets' );

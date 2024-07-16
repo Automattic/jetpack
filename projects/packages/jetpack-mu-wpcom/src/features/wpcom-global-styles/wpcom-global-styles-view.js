@@ -1,5 +1,5 @@
-/* global launchBarUserData */
-import { recordTracksEvent } from '@automattic/calypso-analytics';
+/* global launchBarUserData, JP_CONNECTION_INITIAL_STATE */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import './wpcom-global-styles-view.scss';
 
 /**
@@ -8,7 +8,12 @@ import './wpcom-global-styles-view.scss';
  * @param props - {object} Additional props to track.
  */
 function recordEvent( button, props = {} ) {
-	recordTracksEvent( 'wpcom_launchbar_button_click', {
+	const { wpcomUser: { login, ID } = {}, blogId } =
+		JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser || {};
+	jetpackAnalytics.initialize( ID, login, {
+		blog_id: blogId,
+	} );
+	jetpackAnalytics.tracks.recordEvent( 'wpcom_launchbar_button_click', {
 		button,
 		blog_id: launchBarUserData?.blogId,
 		...props,
