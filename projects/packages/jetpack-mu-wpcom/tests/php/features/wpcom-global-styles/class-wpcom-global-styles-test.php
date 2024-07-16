@@ -5,6 +5,10 @@
  * @package full-site-editing-plugin
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-global-styles/index.php';
+
 /**
  * Class WPCOM_Global_Styles_Test
  */
