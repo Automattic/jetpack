@@ -23,8 +23,7 @@ function handleMouseEnter( e: React.MouseEvent ) {
 		const el = e.target as HTMLElement;
 		let virtual = el;
 
-		const words = el?.innerText?.match?.( /\b\w+\b/g );
-		const shouldPointToCursor = words?.length > 3;
+		const shouldPointToCursor = el.getAttribute( 'data-type' ) === 'long-sentences';
 
 		if ( shouldPointToCursor ) {
 			const rect = el.getBoundingClientRect();
