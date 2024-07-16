@@ -96,8 +96,7 @@ export default function Highlight() {
 
 	const handleApplySuggestion = () => {
 		// Apply known fixes
-		const render = fixes.listItem( suggestions?.html, true ); // Replace li for WP tags
-
+		const render = fixes.table( fixes.listItem( suggestions?.html, true ) );
 		const [ newBlock ] = rawHandler( { HTML: render } );
 		updateBlockAttributes( block, newBlock.attributes );
 	};
