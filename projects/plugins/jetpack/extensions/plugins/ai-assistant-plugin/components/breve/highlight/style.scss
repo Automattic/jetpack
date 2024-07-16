@@ -75,19 +75,15 @@
 			flex-direction: column;
 			border-top: 1px solid #dcdcde;
 
-			.suggestion {
-				padding: 14px 8px;
-				cursor: pointer;
-				&:hover {
-					background-color: #dcdcde;
-				}
-			}
-
 			.helper {
 				padding: 8px;
 				background-color: #f6f7f7;
 				white-space: nowrap;
 				color: #646970;
+			}
+
+			.components-button.is-tertiary {
+				color: #000000;
 			}
 		}
 	}

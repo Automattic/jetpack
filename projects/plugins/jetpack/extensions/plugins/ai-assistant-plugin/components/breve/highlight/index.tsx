@@ -96,7 +96,7 @@ export default function Highlight() {
 
 	const handleApplySuggestion = () => {
 		// Apply known fixes
-		const render = fixes.table( fixes.listItem( suggestions?.html, true ) );
+		const render = fixes.table( fixes.listItem( suggestions?.html, true ), true );
 		const [ newBlock ] = rawHandler( { HTML: render } );
 		updateBlockAttributes( block, newBlock.attributes );
 	};
@@ -126,9 +126,9 @@ export default function Highlight() {
 						</div>
 						{ hasSuggestions ? (
 							<div className="suggestion-container">
-								<button className="suggestion" onClick={ handleApplySuggestion }>
+								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
-								</button>
+								</Button>
 								<div className="helper">
 									{ __( 'Click on a suggestion to insert it.', 'jetpack' ) }
 								</div>
