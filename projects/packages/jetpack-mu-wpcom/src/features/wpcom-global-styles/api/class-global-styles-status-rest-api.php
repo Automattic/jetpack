@@ -2,7 +2,7 @@
 /**
  * WPCOM Global Styles Info API.
  *
- * @package full-site-editing-plugin
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**

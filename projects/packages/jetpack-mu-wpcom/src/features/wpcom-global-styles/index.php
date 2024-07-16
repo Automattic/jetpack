@@ -2,7 +2,7 @@
 /**
  * Limit Global Styles on WP.com to paid plans.
  *
- * @package full-site-editing-plugin
+ * @package automattic/jetpack-mu-wpcom
  */
 
 // Turn off the feature on ETK plugin.
