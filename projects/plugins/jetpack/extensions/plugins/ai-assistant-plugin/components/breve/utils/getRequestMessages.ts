@@ -8,8 +8,8 @@ import features from '../features/index.js';
 // Map of types to the corresponding AI Assistant request type.
 const requestTypeMap = {
 	'complex-words': 'breve-phrase',
-	'ambiguous-words': 'breve-weasel',
 	// TODO: Return as soon start to support these features
+	// 'ambiguous-words': 'breve-weasel',
 	// 'long-sentence': 'breve-long-sentence',
 	// adverb: 'breve-adverb',
 	// adjective: 'breve-adjective',
