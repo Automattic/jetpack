@@ -23,7 +23,6 @@ const StatsSection = () => {
 		},
 	} );
 	const counts = statsCounts?.past_seven_days || {};
-	const previousCounts = statsCounts?.between_past_eight_and_fifteen_days || {};
 	const { recordEvent } = useAnalytics();
 
 	/**
@@ -69,7 +68,7 @@ const StatsSection = () => {
 			secondaryAction={ viewStatsButton }
 			showMenu
 		>
-			<StatsCards counts={ counts } previousCounts={ previousCounts } />
+			<StatsCards counts={ counts } />
 		</ProductCard>
 	);
 };

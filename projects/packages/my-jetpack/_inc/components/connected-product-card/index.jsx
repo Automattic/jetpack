@@ -57,6 +57,10 @@ const ConnectedProductCard = ( {
 	] );
 
 	const DefaultDescription = () => {
+		if ( slug === 'stats' ) {
+			return null;
+		}
+
 		// Replace the last space with a non-breaking space to prevent widows
 		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
 
