@@ -134,7 +134,7 @@ const BackupCard = props => {
 	);
 };
 
-const WithBackupsValueSection = ( { admin, slug } ) => {
+const WithBackupsValueSection = props => {
 	const { data, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_HISTORY_KEY,
 		query: {
@@ -149,7 +149,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
-			product: slug,
+			product: props.slug,
 			undo_backup_id: undoBackupId,
 		} );
 	};
@@ -178,8 +178,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
-			slug={ slug }
+			{ ...props }
 			showMenu
 			isDataLoading={ isLoading }
 			Description={ lastRewindableEvent ? WithBackupsDescription : null }
@@ -195,7 +194,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	);
 };
 
-const NoBackupsValueSection = ( { admin, slug } ) => {
+const NoBackupsValueSection = props => {
 	const [ itemsToShow, setItemsToShow ] = useState( 3 );
 	const { data: backupStats, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_STATS_KEY,
@@ -246,7 +245,7 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isLoading }>
+		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
 				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }
