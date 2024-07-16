@@ -32,11 +32,16 @@ export default function Highlight() {
 		return isHighlightHover || isPopoverHover;
 	}, [] );
 
-	const anchor = useSelect( select => {
-		return ( select( 'jetpack/ai-breve' ) as BreveSelect ).getPopoverAnchor();
+	const { target: anchor, virtual } = useSelect( select => {
+		return (
+			( select( 'jetpack/ai-breve' ) as BreveSelect ).getPopoverAnchor() ?? {
+				target: null,
+				virtual: null,
+			}
+		);
 	}, [] );
 
-	const isPopoverOpen = popoverOpen && anchor;
+	const isPopoverOpen = popoverOpen && virtual;
 
 	const selectedFeatured = anchor ? ( anchor as HTMLElement )?.getAttribute?.( 'data-type' ) : null;
 
@@ -60,10 +65,10 @@ export default function Highlight() {
 		<>
 			{ isPopoverOpen && (
 				<Popover
-					anchor={ anchor }
+					anchor={ virtual }
 					placement="bottom"
-					offset={ -3 }
 					className="highlight-popover"
+					offset={ 2 }
 					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
