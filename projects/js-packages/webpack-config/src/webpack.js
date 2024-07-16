@@ -110,6 +110,10 @@ const defaultRequestMap = {
 		external: 'JetpackPublicize',
 		handle: 'jetpack-publicize',
 	},
+	'@automattic/jetpack-connection': {
+		external: 'JetpackConnection',
+		handle: 'jetpack-connection',
+	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {

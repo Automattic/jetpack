@@ -1845,6 +1845,9 @@ importers:
 
   projects/packages/connection:
     dependencies:
+      '@automattic/jetpack-connection':
+        specifier: workspace:*
+        version: link:../../js-packages/connection
       '@automattic/jetpack-idc':
         specifier: workspace:*
         version: link:../../js-packages/idc

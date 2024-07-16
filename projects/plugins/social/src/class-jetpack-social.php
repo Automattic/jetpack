@@ -177,7 +177,7 @@ class Jetpack_Social {
 			array(
 				'in_footer'        => true,
 				'textdomain'       => 'jetpack-social',
-				'css_dependencies' => array( 'jetpack-publicize' ),
+				'css_dependencies' => array( 'jetpack-publicize', 'jetpack-connection' ),
 			)
 		);
 

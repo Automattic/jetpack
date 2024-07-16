@@ -29,6 +29,13 @@ module.exports = [
 			},
 			'identity-crisis': './src/identity-crisis/_inc/admin.jsx',
 			...ssoEntries,
+			[ 'jetpack-connection' ]: {
+				import: './src/js/jetpack-connection.js',
+				library: {
+					name: 'JetpackConnection',
+					type: 'umd',
+				},
+			},
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -46,6 +53,12 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name].css' },
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// We don't want to externalize this package, we rather want to bundle it.
+						'@automattic/jetpack-connection': {},
+					},
+				},
 			} ),
 		],
 		module: {
@@ -64,6 +77,9 @@ module.exports = [
 					extensions: [ 'css', 'sass', 'scss' ],
 					extraLoaders: [ 'sass-loader' ],
 				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
 			],
 		},
 		externals: {

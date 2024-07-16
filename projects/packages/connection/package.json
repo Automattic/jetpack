@@ -25,6 +25,7 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
 		"@wordpress/data": "10.2.0",
 		"@wordpress/element": "6.2.0"
