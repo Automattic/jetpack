@@ -58,28 +58,6 @@ class Publicize_UI {
 
 		// Management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen).
 		add_action( 'post_submitbox_misc_actions', array( $this, 'post_page_metabox' ) );
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'register_assets' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'register_assets' ) );
-	}
-
-	/**
-	 * Register assets.
-	 */
-	public function register_assets() {
-
-		if ( ! wp_script_is( 'jetpack-publicize', 'registered' ) ) {
-
-			Assets::register_script(
-				'jetpack-publicize',
-				'../build/jetpack-publicize.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-publicize-pkg',
-				)
-			);
-		}
 	}
 
 	/**

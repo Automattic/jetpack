@@ -909,6 +909,9 @@ class Jetpack {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
+		// Assets should be registered regardless of connection status.
+		\Automattic\Jetpack\Publicize\Publicize_Assets::configure();
+
 		$modules = new Automattic\Jetpack\Modules();
 		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
 			$config->ensure( 'publicize' );
