@@ -1,8 +1,4 @@
 const path = require( 'path' );
-const {
-	requestToExternal,
-	requestToHandle,
-} = require( '@automattic/jetpack-webpack-config/dependencies' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const { glob } = require( 'glob' );
@@ -129,12 +125,7 @@ module.exports = [
 		entry: moduleEntries,
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				injectPolyfill: true,
-				useDefaults: false,
-				requestToExternal,
-				requestToHandle,
-			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 		output: {
 			...sharedWebpackConfig.output,
@@ -158,12 +149,7 @@ module.exports = [
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
-			...jetpackWebpackConfig.DependencyExtractionPlugin( {
-				injectPolyfill: true,
-				useDefaults: false,
-				requestToExternal,
-				requestToHandle,
-			} ),
+			...jetpackWebpackConfig.DependencyExtractionPlugin( { injectPolyfill: true } ),
 		],
 		externals: {
 			...sharedWebpackConfig.externals,

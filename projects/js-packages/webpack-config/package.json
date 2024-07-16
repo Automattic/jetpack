@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.2.11-alpha",
+	"version": "3.2.10",
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
 	"bugs": {
@@ -67,7 +67,6 @@
 		".": "./src/index.js",
 		"./webpack": "./src/webpack.js",
 		"./babel": "./src/babel.js",
-		"./babel/preset": "./src/babel-preset.js",
-		"./dependencies": "./src/dependencies.js"
+		"./babel/preset": "./src/babel-preset.js"
 	}
 }

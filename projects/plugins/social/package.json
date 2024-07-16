@@ -56,7 +56,6 @@
 		"@types/react": "18.3.1",
 		"@types/react-dom": "18.3.0",
 		"@wordpress/browserslist-config": "6.2.0",
-		"@wordpress/dependency-extraction-webpack-plugin": "5.9.0",
 		"autoprefixer": "10.4.14",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",

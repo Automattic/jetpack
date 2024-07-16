@@ -105,7 +105,32 @@ const DefinePlugin = defines => [
 	} ),
 ];
 
-const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
+const defaultRequestMap = {
+	'@automattic/jetpack-publicize': {
+		external: 'JetpackPublicize',
+		handle: 'jetpack-publicize',
+	},
+};
+
+const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
+	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+
+	const requestToExternal = request => {
+		return finalRequestMap[ request ]?.external || undefined;
+	};
+
+	const requestToHandle = request => {
+		return finalRequestMap[ request ]?.handle || undefined;
+	};
+
+	return [
+		new DependencyExtractionWebpackPlugin( {
+			...options,
+			requestToExternal,
+			requestToHandle,
+		} ),
+	];
+};
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),

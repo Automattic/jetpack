@@ -1,8 +1,4 @@
 const path = require( 'path' );
-const {
-	requestToExternal,
-	requestToHandle,
-} = require( '@automattic/jetpack-webpack-config/dependencies' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const socialWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
@@ -20,12 +16,7 @@ const socialWebpackConfig = {
 	node: false,
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
-			DependencyExtractionPlugin: {
-				injectPolyfill: true,
-				useDefaults: false,
-				requestToExternal,
-				requestToHandle,
-			},
+			DependencyExtractionPlugin: { injectPolyfill: true },
 		} ),
 	],
 	module: {
