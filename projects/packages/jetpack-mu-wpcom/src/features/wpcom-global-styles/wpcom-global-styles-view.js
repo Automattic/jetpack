@@ -8,9 +8,8 @@ import './wpcom-global-styles-view.scss';
  * @param props - {object} Additional props to track.
  */
 function recordEvent( button, props = {} ) {
-	const { wpcomUser: { login, ID } = {}, blogId } =
-		JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser || {};
-	jetpackAnalytics.initialize( ID, login, {
+	const { username, id, blogId } = JP_CONNECTION_INITIAL_STATE.userConnectionData.currentUser || {};
+	jetpackAnalytics.initialize( id, username, {
 		blog_id: blogId,
 	} );
 	jetpackAnalytics.tracks.recordEvent( 'wpcom_launchbar_button_click', {
