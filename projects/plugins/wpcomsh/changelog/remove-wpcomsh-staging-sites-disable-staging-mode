@@ -1,0 +1,3 @@
+Significance: patch
+Type: removed
+Comment: The changes are no longer needed after https://github.com/Automattic/jetpack/pull/37023 got merged.
