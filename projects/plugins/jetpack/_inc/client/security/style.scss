@@ -34,6 +34,7 @@
 .waf__settings {
     margin-top: 24px;
     margin-left: 64px;
+	margin-bottom: 24px;
 
     &__toggle-setting {
         flex-wrap: wrap;
@@ -57,6 +58,7 @@
 
     &__ips {
         width: 100%;
+        margin-left: 64px;
     }
 
     &__ips__save-button {
@@ -194,4 +196,14 @@
 			}
 		}
 	}
+}
+
+.allow-list-button-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.jp-form-settings-group p {
+	margin-bottom: 0.5rem;
 }
