@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
@@ -92,7 +93,13 @@ export default function Highlight() {
 	};
 
 	const handleApplySuggestion = () => {
-		const [ newBlock ] = rawHandler( { HTML: suggestions?.revisedText } );
+		// Apply known fixes
+		const render = renderHTMLFromMarkdown( {
+			content: suggestions?.revisedText,
+			rules: [ 'listItem', 'list', 'paragraph' ],
+			extension: true,
+		} );
+		const [ newBlock ] = rawHandler( { HTML: render } );
 		updateBlockAttributes( block, newBlock.attributes );
 	};
 
