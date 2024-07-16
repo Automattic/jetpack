@@ -4,20 +4,25 @@ import React from 'react';
 import { render, screen, waitFor } from 'test/test-utils';
 import Popover from '../index';
 
-const TestComponent = ( { ignoreContext } ) => {
-	const [ context, setContext ] = useState( null );
-	const [ isVisible, setIsVisible ] = useState( false ); // Manage isVisible dynamically
+const TestComponent = ( { ignoreContext, nonDomContext } ) => {
+	const [ context, setContext ] = useState( nonDomContext || null );
+	const [ isVisible, setIsVisible ] = useState( false );
 
 	const toggleContext = useCallback( () => {
-		const newContext = context ? null : document.createElement( 'div' );
-		setContext( newContext );
-		setIsVisible( !! newContext );
-	}, [ context, setContext, setIsVisible ] );
+		if ( context ) {
+			setContext( nonDomContext || null );
+			setIsVisible( false );
+		} else {
+			const newContext = document.createElement( 'div' );
+			setContext( newContext );
+			setIsVisible( true );
+		}
+	}, [ context, nonDomContext ] );
 
 	const handleClose = useCallback( () => {
-		setContext( null );
+		setContext( nonDomContext || null );
 		setIsVisible( false );
-	}, [ setContext, setIsVisible ] );
+	}, [ setContext, setIsVisible, nonDomContext ] );
 
 	return (
 		<div>
@@ -36,8 +41,7 @@ const TestComponent = ( { ignoreContext } ) => {
 
 describe( 'TestComponent', () => {
 	it( 'should not show Popover when context is not a DOM element', async () => {
-		render( <TestComponent /> );
-
+		render( <TestComponent nonDomContext={ {} } /> );
 		expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
 	} );
 
@@ -50,7 +54,7 @@ describe( 'TestComponent', () => {
 		} );
 	} );
 	it( 'should handle ignoreContext correctly', async () => {
-		const ignoreContextRef = React.createRef(); // Mock ref for ignoreContext
+		const ignoreContextRef = React.createRef();
 
 		render( <TestComponent ignoreContext={ ignoreContextRef } /> );
 
