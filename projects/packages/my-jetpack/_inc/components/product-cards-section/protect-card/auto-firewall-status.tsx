@@ -6,7 +6,7 @@ import ShieldInactive from './assets/shield-inactive.svg';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { InfoTooltip } from './info-tooltip';
-import { useProtectTooltipCopy, type TooltipContent } from './use-protect-tooltip-copy';
+import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { ReactElement, PropsWithChildren } from 'react';
 
 export const AutoFirewallStatus = () => {
@@ -17,18 +17,15 @@ export const AutoFirewallStatus = () => {
 	const { wafConfig: wafData } = getMyJetpackWindowInitialState();
 	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData;
 
-	const tooltipContent = useProtectTooltipCopy();
-	const { autoFirewallTooltip } = tooltipContent;
-
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled ) {
-			return <WafStatus status="success" tooltipContent={ autoFirewallTooltip } />;
+			return <WafStatus status="success" />;
 		}
 
-		return <WafStatus status="inactive" tooltipContent={ autoFirewallTooltip } />;
+		return <WafStatus status="inactive" />;
 	}
 
-	return <WafStatus status="off" tooltipContent={ autoFirewallTooltip } />;
+	return <WafStatus status="off" />;
 };
 
 /**
@@ -36,16 +33,16 @@ export const AutoFirewallStatus = () => {
  *
  * @param {PropsWithChildren} props - The component props
  * @param {'success' | 'inactive' | 'off'} props.status - The number of threats
- * @param {TooltipContent[ 'autoFirewallTooltip' ]} props.tooltipContent - The Firewall Inactive tooltip content
+ *
  * @returns {ReactElement} rendered component
  */
-function WafStatus( {
-	status,
-	tooltipContent,
-}: {
-	status: 'success' | 'inactive' | 'off';
-	tooltipContent?: TooltipContent[ 'autoFirewallTooltip' ];
-} ) {
+function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+	const slug = 'protect';
+	const { detail } = useProduct( slug );
+	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const tooltipContent = useProtectTooltipCopy();
+	const { autoFirewallTooltip } = tooltipContent;
+
 	if ( status === 'success' ) {
 		return (
 			<>
@@ -71,19 +68,21 @@ function WafStatus( {
 					/>
 				</div>
 				<div className="value-section__status-text">{ __( 'Inactive', 'jetpack-my-jetpack' ) }</div>
-				<InfoTooltip
-					tracksEventName={ 'protect_card_tooltip_open' }
-					tracksEventProps={ {
-						location: 'auto-firewall',
-						status: 'inactive',
-						hasPaidPlan: false,
-					} }
-				>
-					<>
-						<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
-						<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
-					</>
-				</InfoTooltip>
+				{ ! hasProtectPaidPlan && (
+					<InfoTooltip
+						tracksEventName={ 'protect_card_tooltip_open' }
+						tracksEventProps={ {
+							location: 'auto-firewall',
+							status: 'inactive',
+							hasPaidPlan: false,
+						} }
+					>
+						<>
+							<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
+							<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
+						</>
+					</InfoTooltip>
+				) }
 			</>
 		);
 	}
