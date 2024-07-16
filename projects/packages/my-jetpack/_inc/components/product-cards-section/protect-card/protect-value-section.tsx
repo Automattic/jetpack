@@ -112,7 +112,9 @@ const ValueSection: FC< {
 				</div>
 				<div className="value-section__logins-blocked">
 					<div className="value-section__heading">Logins Blocked</div>
-					<div></div>
+					<div className="value-section__data">
+						<div className="logins_blocked__count">0</div>
+					</div>
 				</div>
 			</div>
 		</>
