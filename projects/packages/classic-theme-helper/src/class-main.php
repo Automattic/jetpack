@@ -23,6 +23,7 @@ class Main {
 	 */
 	public $modules = array(
 		'responsive-videos.php',
+		'jetpack-color.php',
 	);
 
 	/** Holds the singleton instance of the Loader
@@ -39,7 +40,7 @@ class Main {
 			self::$instance = new Main();
 			self::$instance->load_modules();
 			// TODO Commenting below since we still load them from theme-tools module
-			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
 			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
 		}
 
