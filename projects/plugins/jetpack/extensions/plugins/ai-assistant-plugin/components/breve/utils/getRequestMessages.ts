@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { getBlockContent } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import features from '../features/index.js';
 
@@ -14,20 +15,21 @@ const requestTypeMap = {
 	// adjective: 'breve-adjective',
 };
 
-export const getRequestMessages = ( { feature, sentence, blockId } ) => {
+export const getRequestMessages = ( { feature, target, sentence, blockId } ) => {
 	const block = select( 'core/block-editor' ).getBlock( blockId );
-	const html = block?.originalContent;
+	const html = getBlockContent( block );
 	const dictionary = features?.find?.( ftr => ftr.config.name === feature )?.dictionary || {};
-	const replacement = dictionary[ sentence.toLowerCase() ] || null;
+	const replacement = dictionary[ target.toLowerCase() ] || null;
 
 	return [
 		{
 			role: 'jetpack-ai' as const,
 			context: {
 				type: requestTypeMap[ feature ],
+				target,
 				sentence,
-				replacement,
 				html,
+				replacement,
 			},
 		},
 	];

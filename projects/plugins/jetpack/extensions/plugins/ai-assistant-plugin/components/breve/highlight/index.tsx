@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { renderHTMLFromMarkdown } from '@automattic/jetpack-ai-client';
+import { fixes } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
@@ -82,10 +82,12 @@ export default function Highlight() {
 	};
 
 	const handleSuggestions = () => {
-		const sentence = ( anchor as HTMLElement )?.innerText;
+		const target = ( anchor as HTMLElement )?.innerText;
+		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText;
 
 		setSuggestions( {
 			id,
+			target,
 			feature,
 			sentence,
 			blockId: block,
@@ -94,11 +96,8 @@ export default function Highlight() {
 
 	const handleApplySuggestion = () => {
 		// Apply known fixes
-		const render = renderHTMLFromMarkdown( {
-			content: suggestions?.revisedText,
-			rules: [ 'listItem', 'list', 'paragraph' ],
-			extension: true,
-		} );
+		const render = fixes.listItem( suggestions?.html, true ); // Replace li for WP tags
+
 		const [ newBlock ] = rawHandler( { HTML: render } );
 		updateBlockAttributes( block, newBlock.attributes );
 	};

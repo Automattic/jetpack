@@ -24,7 +24,7 @@ export type BreveState = {
 			[ key: string ]: {
 				loading: boolean;
 				suggestions: {
-					revisedText: string;
+					html: string;
 					suggestion: string;
 				};
 			};
@@ -45,7 +45,7 @@ export type BreveSelect = {
 		feature: string,
 		id: string
 	) => {
-		revisedText: string;
+		html: string;
 		suggestion: string;
 	};
 };
@@ -61,6 +61,7 @@ export type BreveDispatch = {
 	setSuggestions: ( suggestions: {
 		id: string;
 		feature: string;
+		target: string;
 		sentence: string;
 		blockId: string;
 	} ) => void;

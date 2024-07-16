@@ -51,11 +51,13 @@ export function toggleFeature( feature: string, force?: boolean ) {
 export function setSuggestions( {
 	id,
 	feature,
+	target,
 	sentence,
 	blockId,
 }: {
 	id: string;
 	feature: string;
+	target: string;
 	sentence: string;
 	blockId: string;
 } ) {
@@ -70,6 +72,7 @@ export function setSuggestions( {
 		askQuestionSync(
 			getRequestMessages( {
 				feature,
+				target,
 				sentence,
 				blockId,
 			} ),
