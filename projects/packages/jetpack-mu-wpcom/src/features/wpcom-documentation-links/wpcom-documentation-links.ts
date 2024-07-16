@@ -16,33 +16,51 @@ declare global {
  * @param text        - string Original text.
  */
 function overrideCoreDocumentationLinksToWpcom( translation: string, text: string ) {
-	let url;
-	switch ( text ) {
-		case 'https://wordpress.org/documentation/article/what-is-an-excerpt-classic-editor/':
-		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt':
-			url = 'https://wordpress.com/support/excerpts/';
-			break;
-		case 'https://wordpress.org/documentation/article/write-posts-classic-editor/#post-field-descriptions':
-		case 'https://wordpress.org/documentation/article/page-post-settings-sidebar/#permalink':
-			url = 'https://wordpress.com/support/permalinks-and-slugs/';
-			break;
-		case 'https://wordpress.org/documentation/article/wordpress-block-editor/':
-			url = 'https://wordpress.com/support/wordpress-editor/';
-			break;
-		case 'https://wordpress.org/documentation/article/site-editor/':
-			url = 'https://wordpress.com/support/site-editor/';
-			break;
-		case 'https://wordpress.org/documentation/article/block-based-widgets-editor/':
-			url = 'https://wordpress.com/support/widgets/';
-			break;
-		case 'https://wordpress.org/plugins/classic-widgets/':
-			url = 'https://wordpress.com/plugins/classic-widgets';
-			break;
-		case 'https://wordpress.org/documentation/article/styles-overview/':
-			url = 'https://wordpress.com/support/using-styles/';
-			break;
-	}
+	const documentLinksMap = {
+		/**
+		 * Excerpts
+		 */
+		'https://wordpress.org/documentation/article/what-is-an-excerpt-classic-editor/':
+			'https://wordpress.com/support/excerpts/',
+		'https://wordpress.org/documentation/article/page-post-settings-sidebar/#excerpt':
+			'https://wordpress.com/support/excerpts/',
 
+		/**
+		 * Permalinks and Slugs
+		 */
+		'https://wordpress.org/documentation/article/write-posts-classic-editor/#post-field-descriptions':
+			'https://wordpress.com/support/permalinks-and-slugs/',
+		'https://wordpress.org/documentation/article/page-post-settings-sidebar/#permalink':
+			'https://wordpress.com/support/permalinks-and-slugs/',
+
+		/**
+		 * Wordpress Editor
+		 */
+		'https://wordpress.org/documentation/article/wordpress-block-editor/':
+			'https://wordpress.com/support/wordpress-editor/',
+
+		/**
+		 * Site Editor
+		 */
+		'https://wordpress.org/documentation/article/site-editor/':
+			'https://wordpress.com/support/site-editor/',
+
+		/**
+		 * Widgets
+		 */
+		'https://wordpress.org/documentation/article/block-based-widgets-editor/':
+			'https://wordpress.com/support/widgets/',
+		'https://wordpress.org/plugins/classic-widgets/':
+			'https://wordpress.com/plugins/classic-widgets',
+
+		/**
+		 * Styles
+		 */
+		'https://wordpress.org/documentation/article/styles-overview/':
+			'https://wordpress.com/support/using-styles/',
+	};
+
+	const url = documentLinksMap[ text ] ?? '';
 	if ( url ) {
 		return localizeUrl( url );
 	}

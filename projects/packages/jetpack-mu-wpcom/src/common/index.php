@@ -36,6 +36,6 @@ function get_iso_639_locale( $language ) {
  * @return string ISO 639 locale string e.g. "en"
  */
 function determine_iso_639_locale() {
-	$locale = get_user_locale() ?? get_locale();
+	$locale = get_user_locale();
 	return get_iso_639_locale( $locale );
 }
