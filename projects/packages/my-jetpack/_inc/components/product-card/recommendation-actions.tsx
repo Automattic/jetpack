@@ -19,14 +19,14 @@ const useUpsellLinks = ( slug: string ) => {
 			`${ adminUrl }?page=my-jetpack`,
 			isUserConnected
 		);
-		const learnMoreUrl = `#/add-${ slug }`;
+		const interstitialUrl = `#/add-${ slug }`;
 
-		return { purchaseUrl, learnMoreUrl };
+		return { purchaseUrl, interstitialUrl };
 	}, [ slug, detail.wpcomProductSlug, isUserConnected ] );
 };
 
 const RecommendationActions = ( { slug }: { slug: string } ) => {
-	const { purchaseUrl, learnMoreUrl } = useUpsellLinks( slug );
+	const { purchaseUrl, interstitialUrl } = useUpsellLinks( slug );
 
 	return (
 		<div className={ styles.actions }>
@@ -38,9 +38,9 @@ const RecommendationActions = ( { slug }: { slug: string } ) => {
 					className={ styles.recommendationLink }
 					size="small"
 					variant="link"
-					href={ learnMoreUrl }
+					href={ interstitialUrl }
 				>
-					{ __( 'Learn more', 'jetpack-my-jetpack' ) }
+					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			</div>
 		</div>
