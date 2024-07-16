@@ -125,9 +125,9 @@ const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
 
 	return [
 		new DependencyExtractionWebpackPlugin( {
-			...options,
 			requestToExternal,
 			requestToHandle,
+			...options,
 		} ),
 	];
 };
