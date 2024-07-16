@@ -23,6 +23,22 @@ function wpcom_enqueue_admin_bar_assets() {
 		array(),
 		Jetpack_Mu_Wpcom::PACKAGE_VERSION
 	);
+
+	/**
+	 * Hotfix the order of the admin menu items due to WP 6.6
+	 * See https://core.trac.wordpress.org/ticket/61615.
+	 */
+	$wp_version = get_bloginfo( 'version' );
+	if ( version_compare( $wp_version, '6.6', '<=' ) && version_compare( $wp_version, '6.6.RC', '>=' ) ) {
+		wp_add_inline_style(
+			'wpcom-admin-bar',
+			<<<CSS
+				#wpadminbar .quicklinks .ab-top-secondary>li {
+					float: right;
+				}
+CSS
+		);
+	}
 }
 add_action( 'admin_bar_menu', 'wpcom_enqueue_admin_bar_assets' );
 
