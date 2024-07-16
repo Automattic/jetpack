@@ -35,7 +35,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 			if ( ! checked ) {
 				setThreatIds( threatIds.filter( id => id !== threat.id ) );
 			} else {
-				setThreatIds( threatIds.push( threat.id ) );
+				setThreatIds( [ ...threatIds, threat.id ] );
 			}
 		},
 		[ threatIds ]
@@ -69,6 +69,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 					<Button
 						isLoading={ Boolean( threatsUpdating ) && threatsUpdating[ threatIds[ 0 ] ] }
 						onClick={ handleFixClick() }
+						disabled={ ! threatIds.length }
 					>
 						{ __( 'Fix all threats', 'jetpack-protect' ) }
 					</Button>

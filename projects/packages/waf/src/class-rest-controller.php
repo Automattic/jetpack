@@ -107,7 +107,9 @@ class REST_Controller {
 		}
 
 		// IP Lists Enabled
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
 		if ( isset( $request[ Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
+			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
 			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ) );
 		}
 
@@ -115,10 +117,16 @@ class REST_Controller {
 		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
 			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] );
 		}
+		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] );
+		}
 
 		// IP Allow List
 		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
 			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] );
+		}
+		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] );
 		}
 
 		// Share Data
