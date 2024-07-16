@@ -21,15 +21,25 @@ import './style.scss';
  * Types
  */
 import type { BreveDispatch, BreveSelect } from '../types';
+import type { Block } from '@automattic/jetpack-ai-client';
 import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
 import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
+
+type CoreBlockEditorSelect = {
+	getBlock: ( clientId: string ) => Block;
+};
 
 // Setup the Breve highlights
 export default function Highlight() {
 	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { getBlock } = useSelect( select => {
+		const selector = select( 'core/block-editor' ) as CoreBlockEditorSelect;
 
-	const { anchor, virtual, popoverOpen, id, feature, block, title, loading, suggestions } =
+		return { getBlock: selector.getBlock };
+	}, [] );
+
+	const { anchor, virtual, popoverOpen, id, feature, blockId, title, loading, suggestions } =
 		useSelect( select => {
 			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
@@ -44,7 +54,7 @@ export default function Highlight() {
 			};
 			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
 			const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
-			const anchorBlock = anchorEl?.getAttribute?.( 'data-block' ) as string;
+			const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
 			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
 				name: '',
@@ -62,7 +72,7 @@ export default function Highlight() {
 				title: config?.title,
 				feature: anchorFeature,
 				id: anchorId,
-				block: anchorBlock,
+				blockId: anchorBlockId,
 				popoverOpen: isHighlightHover || isPopoverHover,
 				loading: loadingSuggestions,
 				suggestions: suggestionsData,
@@ -90,15 +100,30 @@ export default function Highlight() {
 			target,
 			feature,
 			sentence,
-			blockId: block,
+			blockId,
 		} );
 	};
 
 	const handleApplySuggestion = () => {
-		// Apply known fixes
-		const render = fixes.table( fixes.listItem( suggestions?.html, true ), true );
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			return;
+		}
+
+		let render = suggestions?.html;
+
+		// Apply known fixes for table and list-item blocks
+		if ( block.name === 'core/table' ) {
+			render = fixes.table( suggestions?.html, true );
+		}
+
+		if ( block.name === 'core/list-item' ) {
+			render = fixes.listItem( suggestions?.html, true );
+		}
+
 		const [ newBlock ] = rawHandler( { HTML: render } );
-		updateBlockAttributes( block, newBlock.attributes );
+		updateBlockAttributes( blockId, newBlock.attributes );
 	};
 
 	return (
