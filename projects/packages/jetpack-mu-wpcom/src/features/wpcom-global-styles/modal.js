@@ -1,11 +1,11 @@
 /* global wpcomGlobalStyles */
 
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
+import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
 
 import './modal.scss';
@@ -13,7 +13,6 @@ import './modal.scss';
 const GlobalStylesModal = () => {
 	const isSiteEditor = useSelect( select => !! select( 'core/edit-site' ), [] );
 	const { viewCanvasPath } = useCanvas();
-	const { tracks } = useAnalytics();
 
 	const isVisible = useSelect(
 		select => {
@@ -44,15 +43,15 @@ const GlobalStylesModal = () => {
 
 	useEffect( () => {
 		if ( isVisible ) {
-			tracks.recordEvent( 'calypso_global_styles_gating_modal_show', {
+			wpcomTrackEvent( 'calypso_global_styles_gating_modal_show', {
 				context: 'site-editor',
 			} );
 		}
-	}, [ isVisible, tracks ] );
+	}, [ isVisible ] );
 
 	const closeModal = () => {
 		dismissModal();
-		tracks.recordEvent( 'calypso_global_styles_gating_modal_dismiss', {
+		wpcomTrackEvent( 'calypso_global_styles_gating_modal_dismiss', {
 			context: 'site-editor',
 		} );
 	};
@@ -93,7 +92,7 @@ const GlobalStylesModal = () => {
 							href={ wpcomGlobalStyles.upgradeUrl }
 							target="_top"
 							onClick={ () =>
-								tracks.recordEvent( 'calypso_global_styles_gating_modal_upgrade_click', {
+								wpcomTrackEvent( 'calypso_global_styles_gating_modal_upgrade_click', {
 									context: 'site-editor',
 								} )
 							}
