@@ -25,7 +25,9 @@ function jetpack_get_google_fonts_data() {
 	 * Returning a non-null value from this filter will bypass the default retrieval
 	 * and return the filtered value instead.
 	 *
-	 * @since TBD
+	 * @module google-fonts
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param null|array $pre The pre-filtered Google Fonts data, default null.
 	 */
