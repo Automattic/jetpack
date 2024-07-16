@@ -1,11 +1,7 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import React, { useMemo } from 'react';
-import {
-	CONNECTION_SERVICE_INSTAGRAM_BUSINESS,
-	CONNECTION_SERVICE_MASTODON,
-	CONNECTION_SERVICE_NEXTDOOR,
-} from '../../social-store';
+import { CONNECTION_SERVICE_THREADS } from '../../social-store';
 import { getSupportedAdditionalConnections } from '../../utils';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
@@ -13,6 +9,7 @@ import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
 import MastodonPreview from './mastodon';
 import { Nextdoor } from './nextdoor';
+import { Threads } from './threads';
 import TumblrPreview from './tumblr';
 import Twitter from './twitter';
 
@@ -23,11 +20,7 @@ import Twitter from './twitter';
  */
 export function useAvailableSerivces() {
 	const additionalConnections = getSupportedAdditionalConnections();
-	const isInstagramSupported = additionalConnections.includes(
-		CONNECTION_SERVICE_INSTAGRAM_BUSINESS
-	);
-	const isMastodonSupported = additionalConnections.includes( CONNECTION_SERVICE_MASTODON );
-	const isNextdoorSupported = additionalConnections.includes( CONNECTION_SERVICE_NEXTDOOR );
+	const isThreadsSupported = additionalConnections.includes( CONNECTION_SERVICE_THREADS );
 
 	return useMemo(
 		() =>
@@ -50,12 +43,22 @@ export function useAvailableSerivces() {
 					name: 'facebook',
 					preview: FacebookPreview,
 				},
-				isInstagramSupported
+				{
+					title: __( 'Instagram', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
+					name: 'instagram',
+					preview: Instagram,
+				},
+				isThreadsSupported
 					? {
-							title: __( 'Instagram', 'jetpack' ),
-							icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
-							name: 'instagram',
-							preview: Instagram,
+							title: _x(
+								'Threads',
+								'The name of the social media network - threads.net',
+								'jetpack'
+							),
+							icon: props => <SocialServiceIcon serviceName="threads" { ...props } />,
+							name: 'threads',
+							preview: Threads,
 					  }
 					: null,
 				{
@@ -64,29 +67,25 @@ export function useAvailableSerivces() {
 					name: 'linkedin',
 					preview: LinkedIn,
 				},
-				isNextdoorSupported
-					? {
-							title: __( 'Nextdoor', 'jetpack' ),
-							icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
-							name: 'nextdoor',
-							preview: Nextdoor,
-					  }
-					: null,
+				{
+					title: __( 'Nextdoor', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="nextdoor" { ...props } />,
+					name: 'nextdoor',
+					preview: Nextdoor,
+				},
 				{
 					title: __( 'Tumblr', 'jetpack' ),
 					icon: props => <SocialServiceIcon serviceName="tumblr-alt" { ...props } />,
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},
-				isMastodonSupported
-					? {
-							title: __( 'Mastodon', 'jetpack' ),
-							icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
-							name: 'mastodon',
-							preview: MastodonPreview,
-					  }
-					: null,
+				{
+					title: __( 'Mastodon', 'jetpack' ),
+					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
+					name: 'mastodon',
+					preview: MastodonPreview,
+				},
 			].filter( Boolean ),
-		[ isInstagramSupported, isMastodonSupported, isNextdoorSupported ]
+		[ isThreadsSupported ]
 	);
 }

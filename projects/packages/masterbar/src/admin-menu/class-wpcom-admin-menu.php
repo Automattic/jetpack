@@ -33,6 +33,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'wpcom_upsell_nudge_jitm_fix' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -110,7 +111,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		// Add the menu item.
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'site-switcher', 'jetpack-masterbar' ), __( 'Browse sites', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
@@ -143,7 +144,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		}
 
 		$this->add_admin_menu_separator();
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'Add New Site', 'jetpack-masterbar' ), __( 'Add New Site', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/start?ref=calypso-sidebar', null, 'dashicons-plus-alt' );
 	}
 
@@ -170,7 +171,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		// @todo is_simple_site_redirect accepts the blog id. How is this even working with the domain?
 		if ( function_exists( 'is_simple_site_redirect' ) && is_simple_site_redirect( $this->domain ) ) {
 			$badge .= '<span class="site__badge site__badge-redirect">' . esc_html__( 'Redirect', 'jetpack-masterbar' ) . '</span>';
 		}
@@ -193,7 +193,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			$badge
 		);
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( 'site-card', $site_card, 'read', get_home_url(), null, $icon, 1 );
 		add_filter( 'add_menu_classes', array( $this, 'set_site_card_menu_class' ) );
 	}
@@ -274,7 +274,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'read', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
 	}
 
@@ -305,17 +305,17 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
 		}
 
 		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack-masterbar' ), __( 'Add-Ons', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
 		}
 	}
@@ -342,7 +342,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		if ( $user_can_customize ) {
 			$customize_custom_css_url = add_query_arg( array( 'autofocus' => array( 'section' => 'jetpack_custom_css' ) ), $customize_url );
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( 'themes.php', esc_attr__( 'Additional CSS', 'jetpack-masterbar' ), __( 'Additional CSS', 'jetpack-masterbar' ), 'customize', esc_url( $customize_custom_css_url ), null, 20 );
 		}
 
@@ -364,9 +364,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
 		$this->update_submenus( $slug, $submenus_to_update );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'users.php', esc_attr__( 'Add New User', 'jetpack-masterbar' ), __( 'Add New User', 'jetpack-masterbar' ), 'promote_users', 'https://wordpress.com/people/new/' . $this->domain, null, 1 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/' . $this->domain, null, 3 );
 	}
 
@@ -376,7 +376,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack-masterbar' ), __( 'Hosting Configuration', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
 	}
 

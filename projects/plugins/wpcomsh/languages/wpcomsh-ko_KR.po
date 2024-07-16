@@ -1,0 +1,1527 @@
+# Translation of WordPress.com - Site Helper in Korean
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-05-28 09:54:03+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: ko_KR\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#. translators: comments widget: 1: comment author, 2: comment link, 3: comment
+#. title
+#. translators: comments widget: 1: comment author link HTML, 2: comment link,
+#. 3: comment title
+#: widgets/class-wpcom-widget-recent-comments.php:342
+#: widgets/class-wpcom-widget-recent-comments.php:387
+msgctxt "widgets"
+msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
+msgstr "%1$s이(가) <a href=\"%2$s\">%3$s</a>에 댓글 남김"
+
+#. translators: %s is a link to the WordPress user profile.
+#: widgets/class-gravatar-widget.php:205
+msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
+msgstr "<a href=\"%s\">프로필 페이지</a>에서 그라바타를 변경할 수 있습니다."
+
+#: support-session.php:224 support-session.php:236
+msgid "Sorry, you are not allowed to access this page."
+msgstr "죄송합니다. 이 페이지에 접근할 권한이 없습니다."
+
+#: wpcom-plugins/plugins.php:42
+msgid "Explore plugins"
+msgstr "플러그인 둘러보기"
+
+#: wpcom-plugins/plugins.php:40
+msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
+msgstr "사이트의 기능을 향상시킬 수 있는 다양한 무료 및 유료 플러그인을 이용하세요."
+
+#: wpcom-plugins/plugins.php:39
+msgid "Flex your site's features with plugins"
+msgstr "플러그인으로 사이트 기능을 향상시키세요."
+
+#: notices/feature-moved-to-jetpack-notices.php:21
+msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
+msgstr "젯팩에서 지원되는 쓰기 설정에 대해 더 알아보려면 %1$s젯팩 설정%2$s을 참조하세요."
+
+#: imports/utils/class-filerestorer.php:167
+msgid "No files are restored."
+msgstr "파일을 복원할 수 없습니다."
+
+#: imports/utils/class-filerestorer.php:97
+msgid "No files are queued."
+msgstr "파일을 대기열에 추가할 수 없습니다."
+
+#: imports/playground/class-sql-postprocessor.php:383
+msgid "Missing temporary tables."
+msgstr "임시 테이블이 누락되었습니다."
+
+#: imports/playground/class-sql-postprocessor.php:376
+msgid "Temporary prefix is equals to current prefix."
+msgstr "임시 접두사가 현재 접두사와 같습니다."
+
+#: imports/playground/class-sql-postprocessor.php:314
+msgid "Error update links."
+msgstr "링크 업데이트 오류입니다."
+
+#: imports/playground/class-sql-postprocessor.php:304
+msgid "Error update posts."
+msgstr "글 업데이트 오류입니다."
+
+#: imports/playground/class-sql-postprocessor.php:296
+msgid "The site is not connected."
+msgstr "사이트에 연결되어 있지 않습니다."
+
+#: imports/playground/class-sql-postprocessor.php:288
+msgid "Jetpack is not installed."
+msgstr "젯팩이 설치되지 않았습니다."
+
+#: imports/playground/class-sql-postprocessor.php:250
+msgid "Error saving whitelist options."
+msgstr "화이트리스트 옵션 저장 오류입니다."
+
+#: imports/playground/class-sql-postprocessor.php:174
+msgid "Missing home URL."
+msgstr "홈 URL이 누락되었습니다."
+
+#: imports/playground/class-sql-postprocessor.php:164
+msgid "Missing site URL."
+msgstr "사이트 URL이 누락되었습니다."
+
+#: imports/playground/class-sql-postprocessor.php:155
+msgid "The site URL is not valid."
+msgstr "사이트 URL이 유효하지 않습니다."
+
+#: imports/playground/class-sql-postprocessor.php:151
+msgid "The home URL is not valid."
+msgstr "홈 URL이 유효하지 않습니다."
+
+#: imports/playground/class-sql-importer.php:45
+msgid "SQL import failed"
+msgstr "SQL 가져오기 실패"
+
+#: imports/playground/class-sql-importer.php:27
+msgid "SQL file not exists"
+msgstr "SQL 파일 없음"
+
+#: imports/class-backup-import-manager.php:385
+#: imports/class-backup-import-manager.php:426
+msgid "No backup import found."
+msgstr "백업 가져오기를 찾을 수 없습니다."
+
+#: imports/class-backup-import-manager.php:371
+msgid "An import is already running."
+msgstr "가져오기가 이미 실행되고 있습니다."
+
+#: imports/class-backup-import-manager.php:233
+msgid "The backup import has been cancelled."
+msgstr "백업 가져오기가 취소되었습니다."
+
+#: notices/anyone-can-register-notice.php:79
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
+msgstr "<a href=\"%2$s\">\"누구나 등록 가능\" 옵션</a>이 현재 활성 상태입니다. 현재 기본 역할은 %1$s입니다. %4$s <strong>공개 등록이 필요하지 않으면 이 옵션을 비활성화하는 것을 고려해 주세요.<strong>"
+
+#: notices/anyone-can-register-notice.php:74
+msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <a href=\"%3$s\"><strong>Please consider disabling this option if open registration is not needed.</strong></a>."
+msgstr "<a href=\"%2$s\">\"누구나 등록 가능\" 옵션</a>이 현재 활성 상태입니다. 현재 기본 역할은 %1$s입니다. %4$s <a href=\"%3$s\"><strong>공개 등록이 필요하지 않으면 이 옵션을 비활성화하는 것을 고려해 주세요.</strong></a>"
+
+#: imports/utils/class-fileextractor.php:82
+msgid "The TAR file could not be extracted."
+msgstr "TAR 파일을 추출할 수 없습니다."
+
+#: imports/utils/class-fileextractor.php:43
+msgid "File type is not supported"
+msgstr "파일 형식이 지원되지 않음"
+
+#: imports/utils/class-fileextractor.php:33
+msgid "Could not create folder"
+msgstr "폴더를 생성할 수 없음"
+
+#: imports/utils/class-fileextractor.php:29
+msgid "File not exists"
+msgstr "파일이 없음"
+
+#: imports/class-backup-import-manager.php:326
+#: imports/class-backup-import-manager.php:345
+msgid "Could not determine importer type."
+msgstr "가져오기 도구 유형을 결정할 수 없음"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:138
+#: frontend-notices/gifting-banner/gifting-banner.php:160
+msgctxt "verb"
+msgid "Gift"
+msgstr "선물하기"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+msgid "Thumbnail"
+msgstr "섬네일"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "배포 기능을 통해 \"%s\" 공유"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+msgctxt "Share the post on social networks"
+msgid "Share"
+msgstr "공유"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:135
+msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
+msgstr "%1$s 클래스를 로드할 수 없습니다. 작성 도구를 사용하여 이 클래스가 포함된 패키지를 추가하고 젯팩 오토로더가 필요한지 확인하세요."
+
+#. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
+msgstr "Textdomain은 %1$s 훅 전에 등록해야 합니다. 이 공지는 %2$s 도메인에 의해 트리거되었습니다."
+
+#. translators: %s is the script handle.
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
+msgstr "\"%s\" 스크립트는 wp-i18n에 따라 다르지만 이를 통해 \"textdomain\"이 지정되지는 않습니다."
+
+#: vendor/automattic/custom-fonts/providers/google.php:280
+msgctxt "Add new subset (greek, cyrillic, devanagari, vietnamese)"
+msgid "no-subset"
+msgstr "korean"
+
+#: vendor/automattic/custom-fonts/providers/base.php:302
+msgctxt "font-style"
+msgid "Ultra Bold Oblique"
+msgstr "매우 굵은 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:301
+msgctxt "font-style"
+msgid "Ultra Bold Italic"
+msgstr "매우 굵은 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:300
+msgctxt "font-style"
+msgid "Ultra Bold"
+msgstr "매우 굵게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:299
+msgctxt "font-style"
+msgid "Extra Bold Oblique"
+msgstr "아주 굵은 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:298
+msgctxt "font-style"
+msgid "Extra Bold Italic"
+msgstr "아주 굵은 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:297
+msgctxt "font-style"
+msgid "Extra Bold"
+msgstr "아주 굵게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:296
+msgctxt "font-style"
+msgid "Bold Oblique"
+msgstr "굵은 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:295
+msgctxt "font-style"
+msgid "Bold Italic"
+msgstr "굵은 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:294
+msgctxt "font-style"
+msgid "Bold"
+msgstr "굵게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:293
+msgctxt "font-style"
+msgid "Semibold Oblique"
+msgstr "약간 굵은 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:292
+msgctxt "font-style"
+msgid "Semibold Italic"
+msgstr "약간 굵은 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:291
+msgctxt "font-style"
+msgid "Semibold"
+msgstr "약간 굵게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:290
+msgctxt "font-style"
+msgid "Medium Oblique"
+msgstr "중간 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:289
+msgctxt "font-style"
+msgid "Medium Italic"
+msgstr "중간 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:288
+msgctxt "font-style"
+msgid "Medium"
+msgstr "중간"
+
+#: vendor/automattic/custom-fonts/providers/base.php:287
+msgctxt "font-style"
+msgid "Oblique"
+msgstr "오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:286
+msgctxt "font-style"
+msgid "Italic"
+msgstr "이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:285
+msgctxt "font-style"
+msgid "Regular"
+msgstr "보통"
+
+#: vendor/automattic/custom-fonts/providers/base.php:284
+msgctxt "font-style"
+msgid "Light Oblique"
+msgstr "가는 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:283
+msgctxt "font-style"
+msgid "Light Italic"
+msgstr "가는 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:282
+msgctxt "font-style"
+msgid "Light"
+msgstr "가늘게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:281
+msgctxt "font-style"
+msgid "Extra Light Oblique"
+msgstr "아주 가는 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:280
+msgctxt "font-style"
+msgid "Extra Light Italic"
+msgstr "아주 가는 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:279
+msgctxt "font-style"
+msgid "Extra Light"
+msgstr "아주 가늘게"
+
+#: vendor/automattic/custom-fonts/providers/base.php:278
+msgctxt "font-style"
+msgid "Thin Oblique"
+msgstr "얇은 오블리크"
+
+#: vendor/automattic/custom-fonts/providers/base.php:277
+msgctxt "font-style"
+msgid "Thin Italic"
+msgstr "얇은 이탤릭"
+
+#: vendor/automattic/custom-fonts/providers/base.php:276
+msgctxt "font-style"
+msgid "Thin"
+msgstr "얇게"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:41
+msgid "Huge"
+msgstr "특대"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:40
+msgid "Large"
+msgstr "대"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:39
+msgid "Normal Size"
+msgstr "보통 크기"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:38
+msgid "Normal"
+msgstr "일반"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:37
+msgid "Small"
+msgstr "작음"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:36
+msgid "Tiny"
+msgstr "최소"
+
+#: vendor/automattic/custom-fonts/fonts-customize-control.php:35
+msgid "Default Theme Font"
+msgstr "기본 테마 글꼴"
+
+#: vendor/automattic/custom-fonts/custom-fonts.php:146
+#: vendor/automattic/custom-fonts/custom-fonts.php:162
+msgid "Fonts"
+msgstr "글꼴"
+
+#: vendor/automattic/custom-fonts/css-generator.php:63
+msgid "Headings"
+msgstr "헤딩"
+
+#: vendor/automattic/custom-fonts/css-generator.php:56
+msgid "Base Font"
+msgstr "기본 글꼴"
+
+#: vendor/automattic/custom-fonts/css-generator.php:49
+msgid "Site Title"
+msgstr "사이트 제목"
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:56
+msgid "You added a Typekit kit ID through our legacy interface, which is no longer supported. Uncheck the checkbox below and click \"Save\" to remove your kit from this blog and use our easy new interface for choosing fonts."
+msgstr "더는 지원되지 않는 레거시 인터페이스를 통해 Typekit 키트 ID를 추가하셨습니다. 아래 확인란의 선택을 취소하고 \"저장\"을 클릭하여 이 블로그에서 키트를 제거하고 글꼴을 선택하기 쉬운 새 인터페이스를 사용하세요."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:54
+msgid "Lucky you! Your theme designers chose specific fonts for you that you can’t pick otherwise. If you aren’t happy with these fonts, uncheck the checkbox below and click \"Save\" to choose other fonts."
+msgstr "운이 좋았습니다! 귀하가 고를 수 없었을 특수한 글꼴을 테마 디자이너가 선택했습니다. 이 글꼴이 마음에 들지 않으면 아래 확인란을 취소하고 \"저장\"을 누른 후 다른 글꼴을 선택하세요."
+
+#: vendor/automattic/custom-fonts-typekit/advanced-mode.php:23
+msgid "Uncheck to disable"
+msgstr "사용하지 않으려면 취소"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+msgid "Spotify Feed ID"
+msgstr "Spotify 피드 ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+msgid "Apple Podcasts Feed ID"
+msgstr "Apple 팟캐스트 피드 ID"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+msgid "Title"
+msgstr "타이틀:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+msgid "Podcast RSS Feed"
+msgstr "팟캐스트 RSS 피드"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+msgid "Listen on Spotify"
+msgstr "Spotify에서 듣기"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+msgid "Listen on Apple Podcasts"
+msgstr "Apple 팟캐스트에서 듣기"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:15
+msgid "Display information about your Podcast and allow visitors to follow via iTunes"
+msgstr "팟캐스트에 관한 정보를 표시하고 방문자에게 iTunes를 통한 팔로우 허용"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:13
+msgid "Podcast"
+msgstr "팟캐스트"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+msgid "Select iTunes category:"
+msgstr "iTunes 카테고리 선택:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+msgid "Set podcast category"
+msgstr "팟캐스트 카테고리 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "팟캐스트 키워드 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+msgid "Set podcast image"
+msgstr "팟캐스트 이미지 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+msgid "Clean"
+msgstr "유해성 콘텐츠 제외"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+msgid "Yes"
+msgstr "예"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+msgid "No"
+msgstr "아니요"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+msgid "Set podcast as explicit"
+msgstr "팟캐스트를 유해성으로 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+msgid "Set podcast copyright"
+msgstr "팟캐스트 저작권 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+msgid "Set podcast summary"
+msgstr "팟캐스트 요약 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+msgid "Set podcast author"
+msgstr "팟캐스트 제작자 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "팟캐스트 자막 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+msgid "Set podcast title"
+msgstr "팟캐스트 제목 설정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+msgid "This is the URL you submit to iTunes or podcasting service."
+msgstr "이 URL을 iTunes 또는 팟캐스트 서비스에 제출합니다."
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+msgid "Your podcast feed: %1$s"
+msgstr "회원님의 팟캐스트 피드: %1$s"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+msgid "Select podcast category:"
+msgstr "팟캐스트 카테고리 선택:"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+msgid "Blog category for podcasts"
+msgstr "팟캐스트의 블로그 카테고리"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+msgid "Podcast category 3"
+msgstr "팟캐스트 카테고리 3"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+msgid "Podcast category 2"
+msgstr "팟캐스트 카테고리 2"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+msgid "Podcast category 1"
+msgstr "팟캐스트 카테고리 1"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "팟캐스트 키워드"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+msgid "Podcast image"
+msgstr "팟캐스트 이미지"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+msgid "Mark as explicit"
+msgstr "유행성으로 지정"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+msgid "Podcast copyright"
+msgstr "팟캐스트 저작권"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+msgid "Podcast summary"
+msgstr "팟캐스트 요약"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+msgid "Podcast talent name"
+msgstr "팟캐스트 출연자 이름"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "팟캐스트 자막"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
+msgid "Podcast title"
+msgstr "팟캐스트 제목"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:18
+msgid "Category to set as feed"
+msgstr "피드로 설정할 카테고르"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:16
+msgid "Podcasting"
+msgstr "팟캐스트"
+
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:67
+msgid "Tweets by %s"
+msgstr "%s의 트윗"
+
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr "다음 단계"
+
+#: notices/anyone-can-register-notice.php:112
+msgid "This may pose a security risk to your site."
+msgstr "사이트에 보안 위험을 초래할 수 있습니다."
+
+#: notices/anyone-can-register-notice.php:106
+msgid "It allows a user to post content."
+msgstr "사용자가 글 콘텐츠를 공개할 수 있습니다."
+
+#: notices/anyone-can-register-notice.php:100
+msgid "It allows a user to post/modify/delete all content."
+msgstr "사용자가 모든 콘텐츠를 공개/수정/삭제할 수 있습니다."
+
+#: notices/anyone-can-register-notice.php:94
+msgid "It allows a user control over your orders and products."
+msgstr "사용자가 회원님의 주문과 상품을 제어할 수 있습니다."
+
+#: notices/anyone-can-register-notice.php:88
+msgid "It allows a user full control over your site and its contents."
+msgstr "사용자가 회원님의 사이트와 해당 콘텐츠를 완전히 제어할 수 있습니다."
+
+#: imports/utils/class-fileextractor.php:64
+msgid "The ZIP file could not be extracted."
+msgstr "ZIP 파일의 압축을 풀 수 없습니다."
+
+#: imports/utils/class-fileextractor.php:57
+msgid "The ZIP file could not be opened."
+msgstr "ZIP 파일을 열 수 없습니다."
+
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "사이트가 비공개로 표시되어서 이미지 CDN이 비활성화되었습니다. 이미지 썸네일이 미디어 라이브러리에 표시되지 않으면 공개 예정 모드로 전환할 수 있습니다.  <a href=\"%1$s\" target=_blank>자세히 알아보세요</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:250
+msgid "Gift the author a WordPress.com plan."
+msgstr "글쓴이에게 워드프레스닷컴 요금제를 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:238
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "글쓴이에게 워드프레스닷컴 요금제를 %d일 후에 만료되기 전에 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:227
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "글쓴이에게 워드프레스닷컴 업그레이드를 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:200
+msgid "This site's plan has expired."
+msgstr "이 사이트의 요금제가 만료되었습니다."
+
+#: notices/plan-notices.php:135
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Entrepreneur 요금제가 %2$s에 만료되었습니다. <a href=\"%1$s\">요금제를 다시 활성화</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Entrepreneur 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:109
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Pro 요금제가 %2$s에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Pro 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:104
+msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Entrepreneur 요금제가 %2$s에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Entrepreneur 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:99
+msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Creator 요금제가 %2$s에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Creator 요금제 기능을 계속 사용하세요."
+
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "할당 용량을 모두 사용했습니다. 업로드하기 전에 파일을 삭제해주세요"
+
+#: private-site/logged-in-banner.php:127
+msgid "Change theme"
+msgstr "테마 변경"
+
+#: private-site/logged-in-banner.php:126
+msgid "Change"
+msgstr "변경"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit page"
+msgstr "페이지 편집"
+
+#: private-site/logged-in-banner.php:113
+msgid "Edit post"
+msgstr "이 글 편집"
+
+#: private-site/logged-in-banner.php:112
+msgid "Edit"
+msgstr "편집"
+
+#: private-site/logged-in-banner.php:163
+msgid "My Home"
+msgstr "내 홈"
+
+#: private-site/logged-in-banner.php:86
+msgid "Launch"
+msgstr "시작"
+
+#: private-site/logged-in-banner.php:82
+msgid "Update"
+msgstr "업데이트"
+
+#: notices/plan-notices.php:125
+msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong>의 Explorer 요금제가 %2$s에 만료되었습니다. <a href=\"%1$s\">요금제를 다시 활성화</a>하여 사이트로 수익 창출, 비디오프레스, Google 애널리틱스 지원과 같은 Explorer 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:120
+msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong>의 Starter 요금제가 %2$s에 만료되었습니다. <a href=\"%1$s\">요금제를 다시 활성화</a>하여 6GB 저장 공간, 워드프레스닷컴 광고 없음, 구독자 전용 콘텐츠와 같은 Starter 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:94
+msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "<strong>%3$s</strong>의 Explorer 요금제가 %2$s에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 사이트로 수익 창출, 비디오프레스, Google 애널리틱스 지원과 같은 Explorer 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:89
+msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "<strong>%3$s</strong>의 Starter 요금제가 %2$s에 만료됩니다. <a href=\"%1$s\">요금제를 갱신</a>하여 6GB 저장 공간, 워드프레스닷컴 광고 없음, 구독자 전용 콘텐츠와 같은 Starter 요금제 기능을 계속 사용하세요."
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr "%2$s부터 보안 업데이트가 수신되지 않는 PHP <strong>%1$s</strong>을(를) 현재 사용 중이십니다. <a href=\"%4$s\">호스팅 구성</a>을 변경하여 PHP %3$s 이상으로 업데이트하세요."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:206
+msgid "Enjoy this site?"
+msgstr "이 사이트가 마음에 드시나요?"
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:130
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "주의하세요! 현재 검색 엔진의 사이트 색인화가 차단되어 있습니다. 검색 엔진의 검색 결과에 이 사이트가 표시되도록 하려면 사이트를 시작해야 합니다. 사이트의 프라이버시 설정을 변경하려면 %1$s여기를 클릭%2$s하세요."
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr "주의하세요! 사이트의 현재 모드가 공개 예정입니다. 검색 엔진의 검색 결과에 이 사이트가 표시되도록 하려면 사이트를 시작해야 합니다. 사이트의 프라이버시 설정을 변경하려면 %1$s여기를 클릭%2$s하세요."
+
+#: feature-plugins/class-theme-homepage-switcher.php:111
+msgid "Home"
+msgstr "홈"
+
+#: feature-plugins/class-template-first-themes.php:170
+msgid "Blog"
+msgstr "블로그"
+
+#: feature-plugins/hooks.php:244
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "프록시 설정됨에만 해당: 프록시가 설정되어서 이 내용을 볼 수 있습니다. 여기로 이동한 이유를 모르면 사용하지 마세요."
+
+#: feature-plugins/hooks.php:233
+msgid "You do not have permission to access this page."
+msgstr "이 페이지에 접근할 권한이 없습니다."
+
+#: feature-plugins/masterbar.php:105
+msgid "Set your color scheme on WordPress.com."
+msgstr "워드프레스닷컴에서 색 구성표를 설정하세요."
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "Additional CSS"
+msgstr "추가 CSS"
+
+#: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+msgid "CSS"
+msgstr "CSS"
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
+msgstr "모든 Atomic 사이트에 사전 설치되고 활성화된 기능과 도구를 제공하는 워드프레스닷컴"
+
+#. translators: Message about how a managed theme is updated.
+#. translators: Information about how a managed plugin is updated, for
+#. debugging purposes.
+#. translators: Information about how a managed theme is updated, for debugging
+#. purposes.
+#: feature-plugins/managed-plugins.php:506
+#: feature-plugins/managed-plugins.php:517
+#: feature-plugins/managed-plugins.php:528
+msgid "Updates managed by WordPress.com"
+msgstr "업데이트 관리: 워드프레스닷컴"
+
+#: notices/plan-notices.php:130
+msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Creator 요금제가 %2$s에 만료되었습니다. <a href=\"%1$s\">요금제를 다시 활성화</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Creator 요금제 기능을 계속 사용하세요."
+
+#: notices/plan-notices.php:140
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong>의 Pro 요금제가 %2$s에 만료되었습니다. <a href=\"%1$s\">요금제를 다시 활성화</a>하여 사용자 정의 플러그인과 테마, SFTP, phpMyAdmin 접근 권한과 같은 Pro 요금제 기능을 계속 사용하세요."
+
+#: private-site/access-denied-preview-login-template.php:63
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr "비공개 사이트입니다. 이 사이트를 보려면 로그인해야 합니다."
+
+#: private-site/access-denied-preview-login-template.php:60
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr "비공개 사이트입니다. 사용 권한이 있는 아이디로 로그인해야 미리보기 할 수 있습니다."
+
+#: private-site/access-denied-coming-soon-template.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:294
+msgid "Start your website"
+msgstr "웹사이트 만들기"
+
+#: private-site/access-denied-coming-soon-template.php:52
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:290
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr "웹사이트 제작. 상품 판매. 블로그 글 작성. 무엇이든 가능합니다."
+
+#: private-site/access-denied-coming-soon-template.php:46
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:273
+msgid "Coming Soon"
+msgstr "Coming Soon"
+
+#: notices/storage-notices.php:116
+msgid "Disk space quota"
+msgstr "디스크 공간 할당량"
+
+#: notices/storage-notices.php:112
+msgid "Disk space used"
+msgstr "사용된 디스크 공간"
+
+#: widgets/class-wpcom-category-cloud-widget.php:211
+msgid "Click for more information"
+msgstr "자세한 정보를 원하시면 클릭하세요"
+
+#: widgets/class-wpcom-category-cloud-widget.php:209
+msgid "Count items in sub-categories toward parent total."
+msgstr "상위 합계에 대한 하위 카테고리의 항목 수를 계산합니다."
+
+#: widgets/class-wpcom-category-cloud-widget.php:201
+msgid "Maximum font percentage:"
+msgstr "최대 글꼴 퍼센트:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:195
+msgid "Minimum font percentage:"
+msgstr "최소 글꼴 퍼센트:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:190
+msgid "Category IDs, separated by commas"
+msgstr "쉼표로 분리된 카테고리 ID"
+
+#: widgets/class-wpcom-category-cloud-widget.php:188
+msgid "Exclude:"
+msgstr "제외:"
+
+#: widgets/class-wpcom-category-cloud-widget.php:182
+msgid "Maximum number of categories to show:"
+msgstr "표시할 최대 카테고리 수:"
+
+#. translators: link to support doc about categories
+#: widgets/class-wpcom-category-cloud-widget.php:141
+msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
+msgstr "사이트에서 추가 <a href=\"%s\">카테고리</a>를 사용하는 경우 여기에 표시됩니다."
+
+#: widgets/class-wpcom-category-cloud-widget.php:29
+msgid "Your most used categories in cloud format."
+msgstr "클라우드 형식에서 가장 많이 사용된 카테고리입니다."
+
+#: widgets/class-wpcom-category-cloud-widget.php:27
+#: widgets/class-wpcom-category-cloud-widget.php:65
+msgid "Category Cloud"
+msgstr "카테고리 클라우드"
+
+#: private-site/logged-in-banner.php:81
+msgid "Update visibility"
+msgstr "가시성 업데이트"
+
+#: private-site/logged-in-banner.php:85
+msgid "Launch site"
+msgstr "사이트 시작"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "현재 업로드 한도 <strong>%2$s</strong>회 중 <strong>%1$s</strong>회를 사용 중입니다(%3$s%%)."
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter 사용자 이름:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "'트위터 타임라인' 위젯으로 전환하세요. 이 위젯은 이후에 사라지고 새 위젯이 더 많은 사용자 정의를 허용합니다."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "트위터 업데이트"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "<a href=\"%s\">트위터 위젯</a>에 대한 트위터 사용자명을 구성하세요."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Twitter의 트윗 표시"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "트위터"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "분류:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "택소노미가 태그 클라우드 위젯을 지원하지 않기 때문에 태그 클라우드가 표시되지 않습니다."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "태그 수 보이기"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "표시된 최대 태그 수"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "태그 수:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "태그"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "태그 구름"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "가장 많이 사용한 태그 클라우드."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "트윗과 타임스탬프 사이에 표시할 텍스트:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "팔로우 버튼 표시"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "리트윗 포함"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "배포 기능으로 푸시된 트윗 숨기기"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "답글 숨기기"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "표시할 트윗의 최대 수:"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "오류: 트위터 계정이 %1$s공개%2$s인지 확인하세요."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "오류: Twitter가 응답하지 않습니다. 몇 분 기다리신 후 이 페이지를 새로고침하세요."
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "앱"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "새 이미지를 사이트에 표시하는 데 최대 %d분이 걸릴 수 있습니다."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "열 수:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "레이아웃"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "표시할 수:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "이미지"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "위젯 제목"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Instagram 이미지가 없습니다."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "Instagram에서 이미지를 가져오는 동안 오류가 발생했습니다. 잠시 후에 다시 시도하세요."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "최신 Instagram 사진을 표시합니다."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/class-aboutme-widget.php:149
+msgid "Biography"
+msgstr "인물 소개"
+
+#: widgets/class-aboutme-widget.php:142
+msgid "Headline"
+msgstr "헤드라인"
+
+#: widgets/class-aboutme-widget.php:135
+msgid "Photo"
+msgstr "사진"
+
+#: widgets/class-aboutme-widget.php:131
+msgid "Don't Display Name"
+msgstr "이름 표시 안 함"
+
+#: widgets/class-aboutme-widget.php:129
+msgid "Display Small"
+msgstr "작게 표시"
+
+#: widgets/class-aboutme-widget.php:127
+msgid "Display Medium"
+msgstr "보통으로 표시"
+
+#: widgets/class-aboutme-widget.php:125
+msgid "Display Large"
+msgstr "크게 표시"
+
+#: widgets/class-aboutme-widget.php:123
+msgid "Display X-Large"
+msgstr "매우 크게 표시"
+
+#: widgets/class-aboutme-widget.php:112
+msgid "Your about.me URL"
+msgstr "내 about.me URL"
+
+#: widgets/class-aboutme-widget.php:105
+msgid "Widget title"
+msgstr "위젯 제목"
+
+#: widgets/class-aboutme-widget.php:98
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr "2016년 7월 1일 이후에는 about.me 위젯을 더 이상 사용할 수 없습니다. 이후 이 위젯에는 about.me 프로필로 연결되는 간단한 텍스트 링크가 표시됩니다. 이 위젯을 제거하세요."
+
+#: widgets/class-aboutme-widget.php:41
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr "더 이상 about.me 위젯을 사용할 수 없습니다. 이 위젯을 제거하려면 <a href=\"%s\">설정으로 이동</a>하세요. 이 메시지는 사이트 방문자에게는 표시되지 않습니다."
+
+#: widgets/class-aboutme-widget.php:20
+msgid "About.me Widget"
+msgstr "About.me 위젯"
+
+#: widgets/class-aboutme-widget.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "about.me 프로필을 썸네일과 함께 표시"
+
+#: safeguard/utils.php:68
+msgid "Unable to fetch the requested data."
+msgstr "요청한 데이터를 가져올 수 없습니다."
+
+#: footer-credit/theme-optimizations.php:62
+msgid "Create a free website or blog at WordPress.com"
+msgstr "WordPress.com에서 무료 웹사이트 또는 블로그 만들기"
+
+#: footer-credit/theme-optimizations.php:57
+msgid "Create a free website at WordPress.com"
+msgstr "WordPress.com에서 무료 웹사이트 만들기"
+
+#: footer-credit/footer-credit/footer-credit.php:104
+msgid "Powered by WordPress.com"
+msgstr "Powered by 워드프레스닷컴"
+
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:103
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
+msgid "Blog at WordPress.com"
+msgstr "WordPress.com 제공"
+
+#: footer-credit/footer-credit/footer-credit.php:102
+msgid "A WordPress.com Website"
+msgstr "워드프레스닷컴 웹사이트"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "WordPress.com Logo"
+msgstr "WordPress.com 로고"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:208
+msgid "Create a website or blog at WordPress.com"
+msgstr "워드프레스닷컴에서 웹사이트 또는 블로그 만들기"
+
+#: footer-credit/footer-credit/customizer.php:103
+msgid "Footer Credit"
+msgstr "푸터 크레딧"
+
+#: footer-credit/footer-credit/customizer.php:80
+msgid "Upgrade to Business"
+msgstr "비즈니스로 업그레이드"
+
+#: footer-credit/footer-credit/customizer.php:72
+msgid "Hide (Business Plan Required)"
+msgstr "숨기기(비즈니스 요금제 필요)"
+
+#: footer-credit/footer-credit/customizer.php:70
+msgid "Hide"
+msgstr "숨기기"
+
+#: footer-credit/footer-credit/customizer.php:59
+msgid "Default"
+msgstr "기본"
+
+#: footer-credit/footer-credit-optimizations.php:171
+msgid "Design by"
+msgstr "디자인:"
+
+#: footer-credit/footer-credit-optimizations.php:157
+msgid "by"
+msgstr "by"
+
+#: footer-credit/footer-credit-optimizations.php:138
+msgid "Theme"
+msgstr "테마"
+
+#: footer-credit/footer-credit-optimizations.php:119
+msgid "Proudly powered by WordPress"
+msgstr "WordPress가 지원합니다"
+
+#: customizer-fixes/customizer-fixes.php:26
+msgid "Save Settings"
+msgstr "설정 저장"
+
+#: customizer-fixes/customizer-fixes.php:25
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "저장되지 않은 변경사항을 삭제하시겠습니까?"
+
+#: customizer-fixes/customizer-fixes.php:24
+msgid "Saved"
+msgstr "저장함"
+
+#: customizer-fixes/customizer-fixes.php:23
+msgid "Save Changes"
+msgstr "변경 사항 저장"
+
+#: customizer-fixes/customizer-fixes.php:22
+msgid "Save"
+msgstr "저장하기"
+
+#: customizer-fixes/customizer-fixes.php:21
+msgid "Activate &amp; Save"
+msgstr "활성화 및 저장"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr "이 플러그인은 워드프레스닷컴에서 설치되었으며 요금제 구독에 포함된 기능을 제공합니다."
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr "%s 플러그인은 자동으로 관리됩니다."
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "얼마나 많은 내용을 표시하시겠습니까?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "카테고리별 필터"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "댓글 표시"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "페이지에 표시"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "글 표시"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "최고 등급"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "점수가 높은 글, 페이지 또는 댓글의 목록."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "상위 클릭 수는 48-72시간 동안의 통계로부터 계산됩니다. 변경되는 데는 약간의 시간이 걸립니다."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "표시할 URL:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "표시 길이:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "블로그에서 사람들이 가장 많이 클릭한 링크를 나열합니다."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "상위 클릭 수"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "높이(픽셀):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "채널:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io Webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "tlk.io webchat을 추가합니다."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "보이기:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "이메일 제목:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "받는 사람 이메일 주소:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "출발"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "도착"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "어린이 수"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "성인 수"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "메시지"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "전화"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "이메일"
+
+#: widgets/class-aboutme-widget.php:119
+#: widgets/class-wpcom-widget-reservations.php:39
+msgid "Name"
+msgstr "이름"
+
+#: widgets/class-wpcom-widget-reservations.php:33
+msgid "Reservation Inquiry"
+msgstr "예약 문의"
+
+#: widgets/class-wpcom-widget-reservations.php:27
+#: widgets/class-wpcom-widget-reservations.php:32
+msgid "Reservations"
+msgstr "예약"
+
+#: widgets/class-wpcom-widget-recent-comments.php:477
+msgid "Show comments from:"
+msgstr "댓글 보기:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:472
+msgid "Text background color:"
+msgstr "텍스트 배경 색깔:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:466
+msgid "Avatar background color:"
+msgstr "아바타 배경 색깔:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:455
+msgid "No Avatars"
+msgstr "아바타 없음"
+
+#: widgets/class-wpcom-widget-recent-comments.php:448
+msgid "(at most 15)"
+msgstr "(최대 15개)"
+
+#: widgets/class-wpcom-widget-recent-comments.php:442
+msgid "Number of comments to show:"
+msgstr "보여줄 댓글의 수:"
+
+#: widgets/class-wpcom-widget-recent-comments.php:362
+msgid "There are no public comments available to display."
+msgstr "표시할 수 있는 공개 댓글이 없습니다."
+
+#: widgets/class-wpcom-widget-recent-comments.php:312
+msgid "Anonymous"
+msgstr "익명"
+
+#: widgets/class-wpcom-widget-recent-comments.php:56
+msgid "Display your site's most recent comments"
+msgstr "사이트의 가장 최근 댓글 표시"
+
+#: widgets/class-wpcom-widget-recent-comments.php:53
+#: widgets/class-wpcom-widget-recent-comments.php:192
+msgid "Recent Comments"
+msgstr "최근 댓글"
+
+#. translators: %s is a URL to the widgets settings page.
+#: widgets/class-jetpack-posts-i-like-widget.php:278
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "최근에 어떤 글도 좋아요를 표시하지 않았습니다. 좋아요를 표시하면 <a href=\"%s\">좋아하는 블로그</a> 위젯에 표시됩니다."
+
+#: widgets/class-jetpack-posts-i-like-widget.php:266
+msgid "on"
+msgstr "/"
+
+#. translators: %1$s is the post title, %1$s is the blog name.
+#: widgets/class-jetpack-posts-i-like-widget.php:243
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%2$s의 %1$s"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:118
+msgid "Author's likes to display:"
+msgstr "표시할 작성자의 좋아요 수:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:100
+msgid "Grid"
+msgstr "그리드"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:99
+msgid "List"
+msgstr "목록"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:97
+msgid "Display as:"
+msgstr "다음으로 표시하기:"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:92
+msgid "Number of posts to show (1 to 15):"
+msgstr "표시할 글 수(1~15개):"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:22
+msgid "A list of the posts I most recently liked"
+msgstr "최근에 연결한 글 목록"
+
+#: widgets/class-jetpack-posts-i-like-widget.php:20
+#: widgets/class-jetpack-posts-i-like-widget.php:27
+msgid "Posts I Like"
+msgstr "좋아하는 블로그"
+
+#: widgets/class-music-player-widget.php:96
+msgid "Choose songs"
+msgstr "노래 선택"
+
+#: widgets/class-music-player-widget.php:18
+#: widgets/class-music-player-widget.php:101
+msgid "Music Player"
+msgstr "뮤직 플레이어"
+
+#: widgets/class-music-player-widget.php:16
+msgid "A multi-song music player"
+msgstr "여러 노래 음악 플레이어"
+
+#: widgets/class-jetpack-i-voted-widget.php:30
+msgid "I Voted"
+msgstr "투표 완료"
+
+#: widgets/class-jetpack-i-voted-widget.php:27
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "\"투표 완료” 스티커로 투표했다는 것을 독자에게 보여 주세요."
+
+#: widgets/class-gravatar-widget.php:199
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Gravatar 다음에 표시되는 텍스트. 이것은 선택사항이며 자기소개 또는 블로그 소개에 사용할 수 있습니다."
+
+#: widgets/class-gravatar-widget.php:198
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar 링크. 이것은 다른 사람이 Gravatar를 클릭할 때 사용되는 선택적인 URL입니다:"
+
+#: widgets/class-gravatar-widget.php:188
+msgid "Gravatar alignment:"
+msgstr "Gravatar 정렬:"
+
+#: widgets/class-gravatar-widget.php:177
+msgid "Size:"
+msgstr "크기:"
+
+#: widgets/class-gravatar-widget.php:174
+msgid "Custom Email Address:"
+msgstr "사용자 정의 이메일 주소:"
+
+#: widgets/class-gravatar-widget.php:161
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "사용자를 선택하거나 \"custom\"을 선택하고 사용자 정의 이메일 주소를 입력하세요."
+
+#: widgets/class-gravatar-widget.php:156
+msgid "Center"
+msgstr "중앙"
+
+#: widgets/class-gravatar-widget.php:155
+msgid "Right"
+msgstr "오른쪽"
+
+#: widgets/class-gravatar-widget.php:154
+msgid "Left"
+msgstr "왼쪽"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
+msgid "None"
+msgstr "없음"
+
+#: widgets/class-gravatar-widget.php:150
+msgid "Extra Large (256 pixels)"
+msgstr "특대(256픽셀)"
+
+#: widgets/class-gravatar-widget.php:149
+msgid "Large (128 pixels)"
+msgstr "Large(128픽셀)"
+
+#: widgets/class-gravatar-widget.php:148
+msgid "Medium (96 pixels)"
+msgstr "Medium(96픽셀)"
+
+#: widgets/class-gravatar-widget.php:147
+msgid "Small (64 pixels)"
+msgstr "작음 (64 픽셀)"
+
+#. translators: %s is the URL to the widget settings.
+#: widgets/class-gravatar-widget.php:98
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "<a href=\"%s\">그라바타 위젯</a> 설정에서 사용자를 선택하거나 이메일 주소를 입력해야 합니다."
+
+#: widgets/class-gravatar-widget.php:20
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/class-gravatar-widget.php:17
+msgid "Insert a Gravatar image"
+msgstr "Gravatar 이미지 삽입"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
+msgid "Choose an image to display in your sidebar:"
+msgstr "사이드바에 표시할 이미지 선택:"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:16
+msgid "Freshly Pressed"
+msgstr "최근 등록된 글"
+
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "사이트바에 최근에 등록된 글 뱃지 표시"
+
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
+msgid "Avatar Size (px):"
+msgstr "아바타 크기(px):"
+
+#: widgets/class-widget-authors-grid.php:138
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "모든 작성자 표시(글을 쓰지 않은 사람 포함)"
+
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
+#: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
+msgid "Title:"
+msgstr "타이틀:"
+
+#: widgets/class-widget-authors-grid.php:62
+msgid "Authors"
+msgstr "글쓴이"
+
+#: widgets/class-widget-authors-grid.php:17
+msgid "Show a grid of author avatar images."
+msgstr "작성자 아바타 이미지의 그리드를 표시합니다."
+
+#: widgets/class-widget-authors-grid.php:14
+msgid "Author Grid"
+msgstr "작성자 그리드"
+
+#: private-site/private-site.php:616
+msgid "Private Site"
+msgstr "비공개 사이트"
+
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
+msgid "This site is private."
+msgstr "이 사이트는 비공개 상태입니다."
+
+#: private-site/access-denied-coming-soon-template.php:55
+#: private-site/access-denied-private-site-template.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/coming-soon/fallback-coming-soon-page.php:293
+msgid "Log in"
+msgstr "로그인"
+
+#: private-site/access-denied-private-site-template.php:47
+msgid "Switch user"
+msgstr "사용자 전환"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr "이 사이트를 볼 수 있는 권한을 가진 사용자로 로그인해야 합니다."
+
+#: privacy/class-wp-privacy-participating-plugins.php:181
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+"참고: 이 도구에는 워드프레스 및 참여하는 플러그인에서 제공하는\n"
+"개인정보 보호정책 정보만 표시됩니다. 참여하지 않는 플러그인의 개인정보 보호정책\n"
+"정보는 포함되지 않습니다. 참여하지 않는 플러그인의\n"
+"개인정보 보호정책 정보를 별도로 가져오는 것은 회원님의 책임입니다."
+
+#: privacy/class-wp-privacy-participating-plugins.php:126
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+"참고: 이 도구에서는 워드프레스 및 참여하는 플러그인에서 저장된 개인 데이터만\n"
+"내보냅니다. 참여하지 않는 플러그인에서 저장된 개인 데이터는\n"
+"내보내지 않습니다. 참여하지 않는 플러그인에서 저장된 개인 데이터를\n"
+"별도로 내보내는 것은 회원님의 책임입니다. 현재 내보낸 개인 데이터에는\n"
+"다음 항목만 포함됩니다."
+
+#: privacy/class-wp-privacy-participating-plugins.php:74
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+"참고: 이 도구에서는 워드프레스 및 참여하는 플러그인에서 저장된 개인 데이터만\n"
+"지웁니다. 등록된 사용자는 삭제하지 않고, 참여하지 않는\n"
+"플러그인에서 저장된 개인 데이터도 지우지 않습니다. 등록된 사용자 및\n"
+"참여하지 않는 플러그인에서 저장된 개인 데이터를 삭제하는 것은 회원님의\n"
+"책임입니다. 현재 지워지는 개인 데이터에는 다음 항목만\n"
+"포함됩니다."
+
+#: logo-tool/logo-tool.php:80
+msgid "Create logo"
+msgstr "로고 만들기"
+
+#: logo-tool/logo-tool.php:68
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "사이트에 표시할 로고를 추가하세요. 로고가 없나요? 지금 프로 로고 구매 - 시작하려면 “로고 만들기”를 클릭하세요."
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr "WP.com 사이트 도우미"

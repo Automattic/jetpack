@@ -2,6 +2,8 @@
 /**
  * Tests for Domain_Only_Admin_Menu class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -64,7 +66,11 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 		parent::set_up();
 		global $menu;
 
+		$this->setExpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::__construct' );
 		// Initialize in setUp so it registers hooks for every test.
+		$instances = new \ReflectionProperty( 'Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu', 'instances' );
+		$instances->setAccessible( true );
+		$instances->setValue( null, null );
 		static::$admin_menu = Domain_Only_Admin_Menu::get_instance();
 
 		$menu = static::$menu_data;
@@ -76,11 +82,14 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * Tests reregister_menu_items when email subscriptions don't exist.
 	 *
 	 * @covers ::reregister_menu_items
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::set_email_subscription_checker
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::reregister_menu_items
 	 */
 	public function test_reregister_menu_items_without_email_subscriptions() {
 		global $menu;
 
-		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker = $this->getMockBuilder( 'Automattic\Jetpack\Masterbar\WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
 		$mock_email_checker->method( 'has_email' )->willReturn( false ); // always returns false
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );
@@ -97,11 +106,14 @@ class Test_Domain_Only_Admin_Menu extends WP_UnitTestCase {
 	 * Tests reregister_menu_items with email subscriptions .
 	 *
 	 * @covers ::reregister_menu_items
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::set_email_subscription_checker
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Domain_Only_Admin_Menu::reregister_menu_items
 	 */
 	public function test_reregister_menu_items_with_email_subscriptions() {
 		global $menu;
 
-		$mock_email_checker = $this->getMockBuilder( 'WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
+		$mock_email_checker = $this->getMockBuilder( 'Automattic\Jetpack\Masterbar\WPCOM_Email_Subscription_Checker' )->setMethods( array( 'has_email' ) )->getMock();
 		$mock_email_checker->method( 'has_email' )->willReturn( true ); // always returns true
 
 		static::$admin_menu->set_email_subscription_checker( $mock_email_checker );

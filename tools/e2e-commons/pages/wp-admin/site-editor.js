@@ -1,10 +1,10 @@
-import WpPage from '../wp-page.js';
-import logger from '../../logger.js';
-import { resolveSiteUrl } from '../../helpers/utils-helper.js';
-import { waitForBlock } from '../../helpers/blocks-helper.js';
-import { EditorCanvas } from './index.js';
 import { expect } from '@playwright/test';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.js';
+import logger from '../../logger.js';
 import { SitePage } from '../index.js';
+import WpPage from '../wp-page.js';
+import { EditorCanvas } from './index.js';
 
 export default class SiteEditorPage extends WpPage {
 	constructor( page ) {
@@ -61,9 +61,9 @@ export default class SiteEditorPage extends WpPage {
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
 		await this.click( `.editor-block-list-item-jetpack-${ blockName }` );
 
-		const blockElement = await this.canvasPage
+		const blockElement = this.canvasPage
 			.canvas()
-			.waitForSelector( `div[data-type='jetpack/${ blockName }']` );
+			.locator( `div[data-type='jetpack/${ blockName }']` );
 		const blockId = await blockElement.getAttribute( 'data-block' );
 		logger.info( `Block inserted: {name: ${ blockName }, id: ${ blockId }}` );
 		await this.canvasPage.canvas().focus( `#block-${ blockId }` );

@@ -1,0 +1,32 @@
+@import './features/features.colors';
+
+.jetpack-ai-proofread {
+	margin-bottom: 24px;
+
+	.components-checkbox-control {
+		color: #757575;
+
+		&__input {
+			@include features-colors( ( 'border-color' ) );
+			&:checked {
+				@include features-colors( ( 'background-color' ) );
+			}
+		}
+	}
+
+	.components-toggle-control {
+		color: #1e1e1e;
+		margin-bottom: 16px;
+	}
+
+	&__grade-label {
+		color: #757575;
+		margin-left: 12px;
+	}
+
+	.feature-checkboxes-container {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+}

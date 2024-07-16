@@ -1,9 +1,32 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
-	// ?
+	// ES2024
+	'no-arraybuffer-prototype-transfer': 'javascript.builtins.ArrayBuffer.transfer',
 	'no-atomics-waitasync': 'javascript.builtins.Atomics.waitAsync',
+	'no-object-map-groupby': [
+		'javascript.builtins.Map.groupBy',
+		'javascript.builtins.Object.groupBy',
+	],
+	'no-promise-withresolvers': 'javascript.builtins.Promise.withResolvers',
 	'no-regexp-v-flag': 'javascript.builtins.RegExp.unicodeSets',
+	'no-resizable-and-growable-arraybuffers': [
+		'javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option',
+		'javascript.builtins.ArrayBuffer.maxByteLength',
+		'javascript.builtins.ArrayBuffer.resizable',
+		'javascript.builtins.ArrayBuffer.resize',
+		'javascript.builtins.SharedArrayBuffer.SharedArrayBuffer.maxByteLength_option',
+		'javascript.builtins.SharedArrayBuffer.grow',
+		'javascript.builtins.SharedArrayBuffer.growable',
+		'javascript.builtins.SharedArrayBuffer.maxByteLength',
+	],
+	'no-set-prototype-difference': 'javascript.builtins.Set.difference',
+	'no-set-prototype-intersection': 'javascript.builtins.Set.intersection',
+	'no-set-prototype-isdisjointfrom': 'javascript.builtins.Set.isDisjointFrom',
+	'no-set-prototype-issubsetof': 'javascript.builtins.Set.isSubsetOf',
+	'no-set-prototype-issupersetof': 'javascript.builtins.Set.isSupersetOf',
+	'no-set-prototype-symmetricdifference': 'javascript.builtins.Set.symmetricDifference',
+	'no-set-prototype-union': 'javascript.builtins.Set.union',
 	'no-string-prototype-iswellformed-towellformed': [
 		'javascript.builtins.String.isWellFormed',
 		'javascript.builtins.String.toWellFormed',

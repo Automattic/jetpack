@@ -4,10 +4,14 @@
  *
  * Is responsible with registering the Additional CSS section in WPCOM.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager instead.
+ *
  * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
+
+use Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager as Masterbar_WPCOM_Additional_CSS_Manager;
 
 /**
  * Class WPCOM_Disable_Additional_CSS
@@ -17,45 +21,34 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 class WPCOM_Additional_CSS_Manager {
 
 	/**
-	 * The site domain.
+	 * Instance of \Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager
+	 * Used for deprecation purposes.
 	 *
-	 * @var string
+	 * @var \Automattic\Jetpack\Masterbar\WPCOM_Additional_CSS_Manager
 	 */
-	private $domain;
+	private $wpcom_additional_css_wrapper;
 
 	/**
 	 * WPCOM_Additional_CSS_Manager constructor.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $domain the Site domain.
 	 */
 	public function __construct( $domain ) {
-		$this->domain = $domain;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::__construct' );
+		$this->wpcom_additional_css_wrapper = new Masterbar_WPCOM_Additional_CSS_Manager( $domain );
 	}
 
 	/**
 	 * Register the Additional CSS nudge.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param \WP_Customize_Manager $wp_customize_manager The core customize manager.
 	 */
 	public function register_nudge( \WP_Customize_Manager $wp_customize_manager ) {
-		$nudge_url  = $this->get_nudge_url();
-		$nudge_text = __( 'Purchase the Explorer plan to<br> activate CSS customization', 'jetpack' );
-
-		$nudge = new CSS_Customizer_Nudge(
-			$nudge_url,
-			$nudge_text,
-			'jetpack_custom_css'
-		);
-
-		$nudge->customize_register_nudge( $wp_customize_manager );
-	}
-
-	/**
-	 * Get the nudge URL in WPCOM.
-	 *
-	 * @return string
-	 */
-	private function get_nudge_url() {
-		return '/checkout/' . $this->domain . '/premium';
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager::register_nudge' );
+		$this->wpcom_additional_css_wrapper->register_nudge( $wp_customize_manager );
 	}
 }

@@ -10,11 +10,14 @@
 		"automattic/jetpack-calypsoify": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/scheduled-updates": "@dev",
-		"automattic/jetpack-compat": "@dev"
+		"automattic/jetpack-compat": "@dev",
+		"automattic/jetpack-google-analytics": "@dev",
+		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.1.0",
@@ -59,7 +62,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.35.x-dev"
+			"dev-trunk": "5.44.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

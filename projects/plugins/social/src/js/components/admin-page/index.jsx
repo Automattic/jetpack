@@ -21,7 +21,6 @@ import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -32,14 +31,12 @@ const Admin = () => {
 
 	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
 
-	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
 		isModuleEnabled,
 		showPricingPage,
-		hasPaidPlan,
-		isShareLimitEnabled,
+		hasPaidFeatures,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
 		isAutoConversionAvailable,
@@ -50,8 +47,7 @@ const Admin = () => {
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
-			hasPaidPlan: store.hasPaidPlan(),
-			isShareLimitEnabled: store.isShareLimitEnabled(),
+			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
 			isAutoConversionAvailable: store.isAutoConversionAvailable(),
@@ -95,7 +91,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -110,7 +106,6 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
-						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (

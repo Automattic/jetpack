@@ -1,0 +1,6 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	// List all sources and source-containing subdirs.
+	"include": [ "./src/client/**/*" ],
+	"files": [ "./global.d.ts" ]
+}

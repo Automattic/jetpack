@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dili
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
-Tested up to: 6.5
+Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 3.3.1
+Stable tag: 3.4.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,20 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.1-beta - 2024-06-11
-#### Added
-- Page Cache: Added cache rebuild functionality.
-- Page Cache: Remove the advanced-cache.php when the Cache module is disabled.
-- Page Cache: Allow easy migration from WPSC to Boost Cache.
-- Critical CSS: Add a friendly error if css gen library is broken or missing.
-
-#### Changed
-- Critical CSS: Improve source providers collecting logic.
-- Critical CSS: Improve UI when errors are present.
-- Minification: Change minification library.
-- Minification: Skip files ending in `.min.js` and `.min.css` from minification.
-- Dependency: Remove the explicit Plugin Install dependency.
-- Dependency: Updated package dependencies.
+### 3.4.7 - 2024-07-10
+#### Security
+- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.
 
 --------
 

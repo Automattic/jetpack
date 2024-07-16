@@ -76,6 +76,12 @@ function fixDeps( pkg ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
 	}
 
+	// Outdated dependency. And it doesn't really use it in our configuration anyway.
+	// No upstream bug link yet.
+	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
+		pkg.dependencies.svgo = '*';
+	}
+
 	// Missing dep or peer dep on @babel/runtime
 	// https://github.com/zillow/react-slider/issues/296
 	if (
@@ -141,6 +147,15 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ p ] += ' || ^18';
 			}
 		}
+	}
+
+	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
+	// https://github.com/ai/size-limit/issues/366
+	if ( pkg.name === 'size-limit' ) {
+		pkg.peerDependencies ??= {};
+		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
 	}
 
 	return pkg;

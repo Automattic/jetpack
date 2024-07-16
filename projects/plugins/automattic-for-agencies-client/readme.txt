@@ -1,10 +1,10 @@
 === Automattic For Agencies Client ===
-Contributors: automattic
+Contributors: automattic, jeherve, njweller, rcanepa
 Tags: agency, dashboard, management, sites, monitoring
 Requires at least: 6.4
 Requires PHP: 7.0
-Tested up to: 6.5
-Stable tag: 0.1.0
+Tested up to: 6.6
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,5 +49,5 @@ Once connected, your site will display within Automattic for Agencies.
 - Dashboard: switch to a smaller and faster dependency (`clsx`) to handle class names.
 - Dashboard: update the connection screen's messaging to make our Terms of Service clearer.
 - Dependencies: remove the 'jetpack-identity-crisis' dependency.
-- Dependencies: update multiple dependencies. [#37669], [#37767], [#37776],
+- Dependencies: update multiple dependencies.
 

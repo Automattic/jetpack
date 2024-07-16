@@ -110,8 +110,27 @@ const useThreatsList = () => {
 		};
 	}, [ core, database, files, plugins, selected, themes ] );
 
+	const getLabel = threat => {
+		if ( threat.name && threat.version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ threat.name } (${ threat.version })`;
+		}
+
+		if ( threat.filename ) {
+			// File threat i.e. "index.php"
+			return threat.filename.split( '/' ).pop();
+		}
+
+		if ( threat.table ) {
+			// Database threat i.e. "wp_posts"
+			return threat.table;
+		}
+	};
+
 	const list = useMemo( () => {
-		return [ ...unsortedList ].sort( sortThreats );
+		return unsortedList
+			.sort( sortThreats )
+			.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 	}, [ unsortedList ] );
 
 	return {

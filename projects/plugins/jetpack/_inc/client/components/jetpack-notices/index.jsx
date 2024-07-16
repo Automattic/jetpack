@@ -1,5 +1,6 @@
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConnectionBanner from 'components/connection-banner';
@@ -28,9 +29,14 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
+	getSiteAdminUrl,
+	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
+import { getModule, isModuleActivated } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
+import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
+import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -234,6 +240,27 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
+				{ this.props.startFreshEnabled && (
+					<SimpleNotice status="is-warning" showDismiss={ false }>
+						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
+					</SimpleNotice>
+				) }
+				{ this.props.showGoogleAnalyticsNotice && (
+					<SimpleNotice status="is-warning" showDismiss={ false }>
+						<div>
+							{ __(
+								"Jetpack's Google Analytics feature will be removed on August 6, 2024.",
+								'jetpack'
+							) }
+						</div>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
+							{ __(
+								'Read this document for details and how to keep tracking visits with Google Analytics',
+								'jetpack'
+							) }
+						</ExternalLink>
+					</SimpleNotice>
+				) }
 			</div>
 		);
 	}
@@ -258,6 +285,16 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
+			showGoogleAnalyticsNotice:
+				isModuleActivated( state, 'google-analytics' ) &&
+				! isWoASite( state ) &&
+				! isFetchingPluginsData( state ) &&
+				! isPluginActive(
+					state,
+					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
+				),
 		};
 	},
 	dispatch => {

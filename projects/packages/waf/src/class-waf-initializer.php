@@ -181,11 +181,6 @@ class Waf_Initializer {
 
 				Waf_Compatibility::run_compatibility_migrations();
 
-				Waf_Constants::define_mode();
-				if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-					return new WP_Error( 'waf_mode_invalid', 'Invalid firewall mode.' );
-				}
-
 				try {
 					Waf_Rules_Manager::generate_ip_rules();
 					Waf_Rules_Manager::generate_rules();

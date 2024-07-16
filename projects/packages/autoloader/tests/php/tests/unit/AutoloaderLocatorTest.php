@@ -63,15 +63,25 @@ class AutoloaderLocatorTest extends TestCase {
 		$this->assertNull( $latest );
 		$this->assertNull( $latest_version );
 
-		$latest = $this->autoloader_locator->find_latest_autoloader(
+		$latest_version = null;
+		$latest         = $this->autoloader_locator->find_latest_autoloader(
 			array( self::$older_plugin_dir ),
 			$latest_version
 		);
 		$this->assertEquals( self::$older_plugin_dir, $latest );
 		$this->assertEquals( self::OLDER_VERSION, $latest_version );
 
-		$latest = $this->autoloader_locator->find_latest_autoloader(
+		$latest_version = null;
+		$latest         = $this->autoloader_locator->find_latest_autoloader(
 			array( TEST_PLUGIN_DIR, self::$older_plugin_dir ),
+			$latest_version
+		);
+		$this->assertEquals( TEST_PLUGIN_DIR, $latest );
+		$this->assertEquals( Test_Plugin_Factory::VERSION_CURRENT, $latest_version );
+
+		$latest_version = null;
+		$latest         = $this->autoloader_locator->find_latest_autoloader(
+			array( TEST_PLUGIN_DIR, WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'this-does-not-exist' ),
 			$latest_version
 		);
 		$this->assertEquals( TEST_PLUGIN_DIR, $latest );

@@ -1,7 +1,12 @@
-import { AuthorizePage } from 'jetpack-e2e-commons/pages/wpcom/index.js';
 import logger from 'jetpack-e2e-commons/logger.js';
+import { AuthorizePage } from 'jetpack-e2e-commons/pages/wpcom/index.js';
 import { JetpackSocialPage } from '../pages/index.js';
 
+/**
+ * Connect Jetpack Social
+ * @param {page} page - Playwright page object
+ * @param {boolean} premium - Whether to connect with a Premium plan
+ */
 export async function connect( page, premium = false ) {
 	logger.step( 'Connect Jetpack Social' );
 
@@ -11,9 +16,9 @@ export async function connect( page, premium = false ) {
 	socialPage = await JetpackSocialPage.init( page );
 
 	if ( premium ) {
-		socialPage.getSocial();
+		await socialPage.getSocial();
 		// todo add purchase steps
 	} else {
-		socialPage.startForFree();
+		await socialPage.startForFree();
 	}
 }

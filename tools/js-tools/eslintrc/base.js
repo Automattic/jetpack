@@ -201,7 +201,10 @@ module.exports = {
 		'jsdoc/check-indentation': 1,
 		'jsdoc/check-param-names': 1, // Recommended
 		'jsdoc/check-syntax': 1,
-		'jsdoc/check-tag-names': 1, // Recommended
+		'jsdoc/check-tag-names': [
+			1, // Recommended
+			{ definedTags: [ 'jest-environment' ] },
+		],
 		'jsdoc/check-types': [
 			'error',
 			{

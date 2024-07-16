@@ -6,6 +6,8 @@
  * @since 9.1.0
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */
@@ -83,9 +85,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$is_wpcom                = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$should_use_nav_redesign = function_exists( 'wpcom_is_nav_redesign_enabled' ) && wpcom_is_nav_redesign_enabled();
-		if ( ! $is_wpcom && ! $should_use_nav_redesign ) {
+		if ( ! ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 			require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/load.php';
 		}
 
@@ -379,7 +379,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 */
 	private function prepare_dashicon( $icon ) {
 		if ( empty( $this->dashicon_set ) ) {
-			$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+			$this->dashicon_list = include JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/dashicon-set.php';
 		}
 
 		if ( isset( $this->dashicon_list[ $icon ] ) && $this->dashicon_list[ $icon ] ) {

@@ -28,6 +28,7 @@ use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Paths;
+use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -167,9 +168,6 @@ class Jetpack {
 		'latex'               => array(
 			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 		),
-		'random-redirect'     => array(
-			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		),
 		'sharedaddy'          => array(
 			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
@@ -258,9 +256,6 @@ class Jetpack {
 			'Wordfence Security'                => 'wordfence/wordfence.php',
 			'All In One WP Security & Firewall' => 'all-in-one-wp-security-and-firewall/wp-security.php',
 			'iThemes Security'                  => 'better-wp-security/better-wp-security.php',
-		),
-		'random-redirect'    => array(
-			'Random Redirect 2' => 'random-redirect-2/random-redirect.php',
 		),
 		'related-posts'      => array(
 			'YARPP'                       => 'yet-another-related-posts-plugin/yarpp.php',
@@ -861,6 +856,8 @@ class Jetpack {
 
 		// Add 5-star
 		add_filter( 'plugin_row_meta', array( $this, 'add_5_star_review_link' ), 10, 2 );
+
+		Deprecate::instance();
 	}
 
 	/**
@@ -3238,7 +3235,11 @@ p {
 			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
-		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
+		if (
+			current_user_can( 'manage_options' )
+			&& ! self::permit_ssl()
+			&& ! $is_offline_mode
+		) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
