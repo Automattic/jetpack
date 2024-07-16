@@ -6,7 +6,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
-import image from './image.svg';
 import { useCanvas } from './use-canvas';
 
 import './modal.scss';
@@ -104,7 +103,7 @@ const GlobalStylesModal = () => {
 					</div>
 				</div>
 				<div className="wpcom-global-styles-modal__image">
-					<img src={ image } alt="" />
+					<img src={ wpcomGlobalStyles.modalImage } alt="" />
 				</div>
 			</div>
 		</Modal>
