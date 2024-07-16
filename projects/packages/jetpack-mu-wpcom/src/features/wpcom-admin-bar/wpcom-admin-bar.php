@@ -33,8 +33,13 @@ function wpcom_enqueue_admin_bar_assets() {
 		wp_add_inline_style(
 			'wpcom-admin-bar',
 			<<<CSS
-				#wpadminbar .quicklinks .ab-top-secondary>li {
-					float: right;
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
+					display: flex;
+					flex-direction: row-reverse;
+				}
+
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
+					order: -1;
 				}
 CSS
 		);
