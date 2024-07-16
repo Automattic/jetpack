@@ -1,6 +1,6 @@
 import {
 	NumberControl as BlockEditorNumberControl,
-	__experimentalNumberControl as ExperimentalNumberControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as ExperimentalNumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextControl,
 } from '@wordpress/components';
 

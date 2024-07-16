@@ -5,8 +5,7 @@ import { PanelColorSettings } from '@wordpress/block-editor';
 import {
 	PanelRow,
 	ToggleControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToolsPanelItem as ToolsPanelItem,
+	__experimentalToolsPanelItem as ToolsPanelItem, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';

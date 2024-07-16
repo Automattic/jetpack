@@ -1,3 +1,3 @@
 module.exports = {
-	extends: [ '../preload', 'plugin:@wordpress/eslint-plugin/recommended' ],
+	extends: [ '../preload', 'plugin:@wordpress/recommended' ],
 };
