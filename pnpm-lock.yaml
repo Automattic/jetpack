@@ -2105,9 +2105,6 @@ importers:
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
-      '@automattic/jetpack-analytics':
-        specifier: workspace:*
-        version: link:../../js-packages/analytics
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
