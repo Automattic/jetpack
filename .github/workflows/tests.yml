@@ -78,6 +78,14 @@ jobs:
           pnpm install
           echo "::endgroup::"
 
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && "$TEST_SCRIPT" == "test-php" ]]; then
+            echo "::group::Clear composer cache for roots/wordpress"
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress" "$DIR/roots/wordpress-no-content"
+            echo "::endgroup::"
+          fi
+
       - name: Detect changed projects
         id: changed
         run: |
@@ -105,12 +113,6 @@ jobs:
           FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
-          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
-          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" ) ]]; then
-            DIR=$(composer config cache-files-dir)
-            rm -rf "$DIR/roots/wordpress"
-          fi
-
           EXIT=0
           mkdir artifacts
           for P in composer.json projects/*/*/composer.json; do
