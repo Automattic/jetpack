@@ -553,7 +553,10 @@ export const Waf = class extends Component {
 					onChange={ this.toggleIpBlockList }
 					label={
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Block specific IP addresses from accessing your site', 'jetpack' ) }
+							{ __(
+								'Manual rules - Block specific IP addresses from accessing your site',
+								'jetpack'
+							) }
 						</span>
 					}
 				/>
@@ -626,6 +629,7 @@ export const Waf = class extends Component {
 					{ isWafActive && ! this.props.isFetchingWafSettings && (
 						<FormFieldset className="waf__settings">
 							{ automaticRulesSettings }
+							{ ipBlockListSettings }
 							{ shareDataSettings }
 							{ shareDebugDataSettings }
 						</FormFieldset>
@@ -641,7 +645,6 @@ export const Waf = class extends Component {
 							{ this.props.getModule( 'protect' ).description }
 						</span>
 					</ModuleToggle>
-					{ isWafActive && ! this.props.isFetchingWafSettings && ipBlockListSettings }
 					{ ipAllowListSettings }
 				</SettingsGroup>
 				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }
