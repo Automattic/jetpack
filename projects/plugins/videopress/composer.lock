@@ -944,7 +944,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f8d772f6c04b05b1fed240ab09cb9723b677db33"
+                "reference": "a41e05669aceb5dff88c10468a3b7faf0152b1e4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1679,7 +1679,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "7c30728a366806da71f9eb62fb015980ae79ebb2"
+                "reference": "8877a29b9be7e4ab5b3a13a9afdde2b65870cfe8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1706,7 +1706,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.16.x-dev"
+                    "dev-trunk": "0.17.x-dev"
                 }
             },
             "autoload": {
