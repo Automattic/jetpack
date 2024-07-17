@@ -254,6 +254,10 @@ abstract class Publicize_Base {
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
 		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
+
+		// Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_fediverse_creator_open_graph_tag' ), 10, 1 );
+		add_filter( 'jetpack_open_graph_output', array( $this, 'filter_fediverse_cards_output' ), 10, 1 );
 	}
 
 	/**
@@ -2115,6 +2119,95 @@ abstract class Publicize_Base {
 	 */
 	public static function can_manage_connection( $connection_data ) {
 		return current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection_data['user_id'];
+	}
+
+	/**
+	 * Display a Fediverse actor Open Graph tag when the post author has a Mastodon connection.
+	 *
+	 * @see https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
+	 *
+	 * @param array $tags Current tags.
+	 *
+	 * @return array
+	 */
+	public function add_fediverse_creator_open_graph_tag( $tags ) {
+		global $post;
+
+		if (
+			! is_singular()
+			|| ! $post instanceof WP_Post
+			|| ! isset( $post->ID )
+			|| empty( $post->post_author )
+		) {
+			return $tags;
+		}
+
+		$post_mastodon_connections = array();
+
+		// Loop through active connections.
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			if ( 'mastodon' !== $service_name ) {
+				continue;
+			}
+
+			// services can have multiple connections. Store them all in our array.
+			foreach ( $connections as $connection ) {
+				$connection_id   = $this->get_connection_id( $connection );
+				$mastodon_handle = $connection['external_display'] ?? '';
+
+				if ( empty( $mastodon_handle ) ) {
+					continue;
+				}
+
+				// Did we skip this connection for this post?
+				if ( get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
+					continue;
+				}
+
+				$post_mastodon_connections[] = array(
+					'user_id'       => (int) $connection['user_id'],
+					'connection_id' => (int) $connection_id,
+					'handle'        => $mastodon_handle,
+					'global'        => $this->is_global_connection( $connection ),
+				);
+			}
+		}
+
+		// If we have no Mastodon connections, skip.
+		if ( empty( $post_mastodon_connections ) ) {
+			return $tags;
+		}
+
+		/*
+		 * Select a single Mastodon connection to use.
+		 * It should be either the first connection belonging to the post author,
+		 * or the first global connection.
+		 */
+		foreach ( $post_mastodon_connections as $mastodon_connection ) {
+			if ( $post->post_author === $mastodon_connection['user_id'] ) {
+				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
+				break;
+			}
+
+			if ( $mastodon_connection['global'] ) {
+				$tags['fediverse:creator'] = esc_attr( $mastodon_connection['handle'] );
+				break;
+			}
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Update the markup for the Open Graph tag to match the expected output for Mastodon
+	 * (name instead of property).
+	 *
+	 * @param string $og_tag A single OG tag.
+	 *
+	 * @return string Result of the OG tag.
+	 */
+	public static function filter_fediverse_cards_output( $og_tag ) {
+		return ( str_contains( $og_tag, 'fediverse:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
 }
 

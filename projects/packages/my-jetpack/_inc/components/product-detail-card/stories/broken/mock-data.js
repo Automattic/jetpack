@@ -90,7 +90,6 @@ export const extrasProductData = {
 		"Secure and speed up your site for free with Jetpack's powerful WordPress tools.",
 	status: 'active',
 	features: [
-		'Measure your impact with beautiful stats',
 		'Speed up your site with optimized images',
 		'Protect your site against bot attacks',
 		'Get notifications if your site goes offline',

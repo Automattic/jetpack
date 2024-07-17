@@ -14,7 +14,6 @@ const Template = props => (
 		<p>Secure and speed up your site for free with Jetpack's powerful WordPress tools</p>
 
 		<ul>
-			<li>Measure your impact with beautiful stats</li>
 			<li>Speed up your site with optimized images</li>
 			<li>Protect your site against bot attacks</li>
 			<li>Get notifications if your site goes offline</li>

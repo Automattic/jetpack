@@ -47,8 +47,9 @@
 	}
 }
 
-.loading-placeholder {
-	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+.cardListTitle,
+.fullStatsCard {
+	margin-bottom: 1.5rem;
 }
 
 .cardlist {
