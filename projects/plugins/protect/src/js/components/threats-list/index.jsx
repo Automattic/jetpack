@@ -111,8 +111,8 @@ const ThreatsList = () => {
 												onClick={ handleFixAllThreatsClick( fixableList ) }
 											>
 												{ sprintf(
-													/* translators: Translates to Show fixable threats $s: Number of fixable threats. */
-													__( 'Show fixable threats (%s)', 'jetpack-protect' ),
+													/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
+													__( 'Show auto fixers (%s)', 'jetpack-protect' ),
 													fixableList.length
 												) }
 											</Button>
