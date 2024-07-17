@@ -667,7 +667,7 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
-		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array( 'jetpack-publicize' );
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
