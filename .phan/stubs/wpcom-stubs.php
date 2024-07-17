@@ -4,10 +4,11 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit a25939eb7a9654c086d1701613a63deaea5c909e.
+ * Stubs automatically generated from WordPress.com commit d1bd2bf47aa20e287e8fdc56351f27ef986e6401.
  */
 
 namespace {
+    \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
     /**
      * @param object $blog
@@ -43,6 +44,9 @@ namespace {
      * @return string
      */
     function localized_wpcom_url($url, $the_locale = \null)
+    {
+    }
+    class WPCom_Languages
     {
     }
     /**
@@ -171,6 +175,12 @@ namespace {
         public static function api_only_get_active_plans_v1_4($blog_id = \false, $coupon_code = \null, $use_query_param_data = \false)
         {
         }
+    }
+    /**
+    * @return Store_Product|null
+    */
+    function get_store_product($product_id, $meta = \null, $currency = \null, $blog_id = \null, ?int $usage_quantity = \null, ?string $plan_id = \null)
+    {
     }
     class Store_Product
     {
@@ -1172,6 +1182,12 @@ namespace {
      * @return int|string|false
      */
     function wpcom_get_blog_owner($blog_id = \null)
+    {
+    }
+    function add_blog_sticker($sticker, $notes = \NULL, $who = \NULL, $_blog_id = \NULL)
+    {
+    }
+    function remove_blog_sticker($sticker, $notes = \NULL, $who = \null, $_blog_id = \NULL)
     {
     }
     /**
