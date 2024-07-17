@@ -80,6 +80,9 @@ const useLogoGenerator = () => {
 	const { ID = null, name = null, description = null } = siteDetails || {};
 	const siteId = ID ? String( ID ) : null;
 
+	const aiAssistantFeatureData = getAiAssistantFeature( siteId );
+	const logoGenerationCost = aiAssistantFeatureData?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
+
 	const generateFirstPrompt = async function (): Promise< string > {
 		setFirstLogoPromptFetchError( null );
 		increaseAiAssistantRequestsCount();
@@ -231,7 +234,7 @@ User request:${ prompt }`;
 			setSaveToLibraryError( null );
 
 			try {
-				debug( 'Saving logo for site', siteId );
+				debug( 'Saving logo for site' );
 
 				// If the logo is already saved, return its mediaId and mediaURL.
 				if ( logo.mediaId ) {
@@ -261,7 +264,7 @@ User request:${ prompt }`;
 				setIsSavingLogoToLibrary( false );
 			}
 		},
-		[ siteId, setIsSavingLogoToLibrary, setSaveToLibraryError ]
+		[ setIsSavingLogoToLibrary, setSaveToLibraryError ]
 	);
 
 	const applyLogo = useCallback( async () => {
@@ -302,59 +305,55 @@ User request:${ prompt }`;
 		[ siteId, addLogoToHistory ]
 	);
 
-	const generateLogo = async function ( { prompt }: { prompt: string } ): Promise< void > {
-		debug( 'Generating logo for site', siteId );
+	const generateLogo = useCallback(
+		async function ( { prompt }: { prompt: string } ): Promise< void > {
+			debug( 'Generating logo for site' );
 
-		setIsRequestingImage( true );
-
-		try {
-			if ( ! siteId ) {
-				throw new Error( 'Missing siteId or logo' );
-			}
-
-			const feature = getAiAssistantFeature( siteId );
-			const cost = feature.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
-
-			if ( cost == null ) {
-				throw new Error( 'Missing cost information' );
-			}
-
-			increaseAiAssistantRequestsCount( cost );
-
-			let image;
+			setIsRequestingImage( true );
 
 			try {
-				image = await generateImage( { prompt } );
-
-				if ( ! image || ! image.data.length ) {
-					throw new Error( 'No image returned' );
+				if ( logoGenerationCost ) {
+					throw new Error( 'Missing cost information' );
 				}
-			} catch ( error ) {
-				increaseAiAssistantRequestsCount( -cost );
-				throw error;
-			}
 
-			// response_format=url returns object with url, otherwise b64_json
-			const logo: Logo = {
-				url: 'data:image/png;base64,' + image.data[ 0 ].b64_json,
-				description: prompt,
-			};
+				increaseAiAssistantRequestsCount( logoGenerationCost );
 
-			try {
-				const savedLogo = await saveLogo( logo );
-				storeLogo( {
-					url: savedLogo.mediaURL,
+				let image;
+
+				try {
+					image = await generateImage( { prompt } );
+
+					if ( ! image || ! image.data.length ) {
+						throw new Error( 'No image returned' );
+					}
+				} catch ( error ) {
+					increaseAiAssistantRequestsCount( -logoGenerationCost );
+					throw error;
+				}
+
+				// response_format=url returns object with url, otherwise b64_json
+				const logo: Logo = {
+					url: 'data:image/png;base64,' + image.data[ 0 ].b64_json,
 					description: prompt,
-					mediaId: savedLogo.mediaId,
-				} );
-			} catch ( error ) {
-				storeLogo( logo );
-				throw error;
+				};
+
+				try {
+					const savedLogo = await saveLogo( logo );
+					storeLogo( {
+						url: savedLogo.mediaURL,
+						description: prompt,
+						mediaId: savedLogo.mediaId,
+					} );
+				} catch ( error ) {
+					storeLogo( logo );
+					throw error;
+				}
+			} finally {
+				setIsRequestingImage( false );
 			}
-		} finally {
-			setIsRequestingImage( false );
-		}
-	};
+		},
+		[ logoGenerationCost, increaseAiAssistantRequestsCount, saveLogo, storeLogo, generateImage ]
+	);
 
 	return {
 		logos,
