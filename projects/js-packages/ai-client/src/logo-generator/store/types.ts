@@ -203,3 +203,5 @@ export type AiAssistantFeatureEndpointResponseProps = {
 		};
 	};
 };
+
+export type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;

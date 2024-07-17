@@ -2,16 +2,15 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import useImageGenerator from '../../hooks/use-image-generator/index.js';
+import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.js';
 import requestJwt from '../../jwt/index.js';
 import { stashLogo } from '../lib/logo-storage.js';
-import { saveToMediaLibrary } from '../lib/save-to-media-library.js';
 import { setSiteLogo } from '../lib/set-site-logo.js';
 import wpcomLimitedRequest from '../lib/wpcom-limited-request.js';
 import { STORE_NAME } from '../store/index.js';
@@ -19,7 +18,7 @@ import useRequestErrors from './use-request-errors.js';
 /**
  * Types
  */
-import type { Logo, Selectors } from '../store/types.js';
+import type { Logo, Selectors, SaveLogo } from '../store/types.js';
 
 const debug = debugFactory( 'jetpack-ai-calypso:use-logo-generator' );
 
@@ -76,6 +75,7 @@ const useLogoGenerator = () => {
 	} = useRequestErrors();
 
 	const { generateImageWithParameters } = useImageGenerator();
+	const { saveToMediaLibrary } = useSaveToMediaLibrary();
 
 	const { ID = null, name = null, description = null } = siteDetails || {};
 	const siteId = ID ? String( ID ) : null;
@@ -210,7 +210,7 @@ User request:${ prompt }`;
 			const body = {
 				prompt: imageGenerationPrompt,
 				feature: 'jetpack-ai-logo-generator',
-				response_format: 'url',
+				response_format: 'b64_json',
 			};
 
 			const data = await generateImageWithParameters( body );
@@ -222,17 +222,11 @@ User request:${ prompt }`;
 		}
 	};
 
-	type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;
-
 	const saveLogo = useCallback< SaveLogo >(
 		async logo => {
 			setSaveToLibraryError( null );
 
 			try {
-				if ( ! siteId ) {
-					throw new Error( 'Missing siteId or logo' );
-				}
-
 				debug( 'Saving logo for site', siteId );
 
 				// If the logo is already saved, return its mediaId and mediaURL.
@@ -247,18 +241,12 @@ User request:${ prompt }`;
 
 				setIsSavingLogoToLibrary( true );
 
-				const { ID: mediaId, URL: mediaURL } = await saveToMediaLibrary( {
-					siteId,
-					url: logo.url,
-					attrs: {
-						caption: logo.description,
-						description: logo.description,
-						title: __( 'Site logo', 'jetpack-ai-client' ),
-						alt: logo.description,
-					},
-				} );
+				const { id: mediaId, url: mediaURL } = await saveToMediaLibrary(
+					logo.url,
+					'site-logo.png'
+				);
 
-				savedLogo.mediaId = mediaId;
+				savedLogo.mediaId = parseInt( mediaId );
 				savedLogo.mediaURL = mediaURL;
 
 				return savedLogo;
@@ -344,7 +332,7 @@ User request:${ prompt }`;
 
 			// response_format=url returns object with url, otherwise b64_json
 			const logo: Logo = {
-				url: image.data[ 0 ].url,
+				url: 'data:image/png;base64,' + image.data[ 0 ].b64_json,
 				description: prompt,
 			};
 
