@@ -140,7 +140,7 @@ class Waf_Stats {
 	 * @param bool $refresh_from_wpcom Whether to refresh the data from the API.
 	 * @return array|\WP_Error
 	 */
-	public static function get_global_stats( $refresh_from_wpcom = false ) {
+	public static function get_global_stats( bool $refresh_from_wpcom = false ): array|\WP_Error {
 		if ( self::$global_stats !== null ) {
 			return self::$global_stats;
 		}
