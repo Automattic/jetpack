@@ -267,7 +267,7 @@ function wpcom_track_global_styles( $blog_id, $post, $updated ) {
 	// These properties are for debugging purposes and should be eventually edited or removed.
 	$event_props = array(
 		'should_limit' => (bool) wpcom_should_limit_global_styles(),
-		'is_simple'    => (bool) ! function_exists( 'wpcomsh_record_tracks_event' ),
+		'is_simple'    => ! function_exists( 'wpcomsh_record_tracks_event' ),
 		'theme'        => get_stylesheet(),
 	);
 
