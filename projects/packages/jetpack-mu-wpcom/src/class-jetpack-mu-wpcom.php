@@ -53,7 +53,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
-			add_action( 'random_redirect', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
 		// These features run only on atomic sites.
