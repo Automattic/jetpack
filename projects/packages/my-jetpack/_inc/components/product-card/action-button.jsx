@@ -91,9 +91,13 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
-				const buttonText = isOwned
-					? __( 'Get plan', 'jetpack-my-jetpack' )
-					: __( 'Learn more', 'jetpack-my-jetpack' );
+				let buttonText;
+				if ( isOwned ) {
+					buttonText = __( 'Get plan', 'jetpack-my-jetpack' );
+				} else {
+					buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
+				}
+
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
