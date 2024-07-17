@@ -83,6 +83,22 @@ export function mergeConnections( freshConnections ) {
 			toggleable: true,
 		};
 
+		// A connection was added after the test call started, so we need to add it to the list.
+		if ( prevConnections.length > freshConnections.length ) {
+			const addedConnection = prevConnections.find(
+				conn =>
+					! freshConnections.some( freshConn =>
+						freshConn.connection_id
+							? freshConn.connection_id === conn.connection_id
+							: freshConn.id === conn.id
+					)
+			);
+
+			if ( addedConnection ) {
+				connections.push( addedConnection );
+			}
+		}
+
 		/*
 		 * Iterate connection by connection,
 		 * in order to refresh or update current connections.
@@ -93,6 +109,11 @@ export function mergeConnections( freshConnections ) {
 					? conn.connection_id === freshConnection.connection_id
 					: conn.id === freshConnection.id
 			);
+
+			// If a connection was removed after the test call started, we need to remove it from freshConnections.
+			if ( ! prevConnection ) {
+				continue;
+			}
 
 			const connection = {
 				...defaults,
