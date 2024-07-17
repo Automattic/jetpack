@@ -71,6 +71,9 @@ function make_phan_config( $dir, $options = array() ) {
 			case 'amp':
 				$stubs[] = "$root/.phan/stubs/amp-stubs.php";
 				break;
+			case 'gutenberg':
+				$stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
+				break;
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
 				break;
