@@ -93,6 +93,7 @@ function jetpack_matt_random_redirect() {
 		$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts AS p WHERE $where ORDER BY RAND() LIMIT 1", ...$where_args ) );
 	}
 
+	// @phan-suppress-next-line PhanTypeMismatchArgument
 	$permalink = get_permalink( $random_id );
 	wp_safe_redirect( $permalink );
 	exit;
