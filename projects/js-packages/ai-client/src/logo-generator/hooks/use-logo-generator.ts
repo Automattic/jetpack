@@ -8,9 +8,9 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import useImageGenerator from '../../hooks/use-image-generator/index.js';
 import requestJwt from '../../jwt/index.js';
 import { stashLogo } from '../lib/logo-storage.js';
-//import { requestJwt } from '../lib/request-token.js';
 import { saveToMediaLibrary } from '../lib/save-to-media-library.js';
 import { setSiteLogo } from '../lib/set-site-logo.js';
 import wpcomLimitedRequest from '../lib/wpcom-limited-request.js';
@@ -75,6 +75,8 @@ const useLogoGenerator = () => {
 		setLogoUpdateError,
 	} = useRequestErrors();
 
+	const { generateImageWithParameters } = useImageGenerator();
+
 	const { ID = null, name = null, description = null } = siteDetails || {};
 	const siteId = ID ? String( ID ) : null;
 
@@ -104,15 +106,19 @@ Site description: ${ description }`;
 				stream: false,
 			};
 
+			const parameters = {
+				url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
+				method: 'POST',
+				data: body,
+				headers: {
+					Authorization: `Bearer ${ tokenData.token }`,
+					'Content-Type': 'application/json',
+				},
+			};
+
 			const data = await wpcomLimitedRequest< {
 				choices: Array< { message: { content: string } } >;
-			} >( {
-				apiNamespace: 'wpcom/v2',
-				path: '/jetpack-ai-query',
-				method: 'POST',
-				token: tokenData.token,
-				body,
-			} );
+			} >( parameters );
 
 			return data?.choices?.[ 0 ]?.message?.content;
 		} catch ( error ) {
@@ -207,13 +213,7 @@ User request:${ prompt }`;
 				response_format: 'url',
 			};
 
-			const data = await wpcomLimitedRequest( {
-				apiNamespace: 'wpcom/v2',
-				path: '/jetpack-ai-image',
-				method: 'POST',
-				token: tokenData.token,
-				body,
-			} );
+			const data = await generateImageWithParameters( body );
 
 			return data as { data: { url: string }[] };
 		} catch ( error ) {
@@ -222,9 +222,9 @@ User request:${ prompt }`;
 		}
 	};
 
-	const saveLogo = useCallback<
-		( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >
-	>(
+	type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;
+
+	const saveLogo = useCallback< SaveLogo >(
 		async logo => {
 			setSaveToLibraryError( null );
 
