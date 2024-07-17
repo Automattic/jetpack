@@ -49,11 +49,12 @@ export default function PublicizeForm() {
 		userConnectionUrl,
 	} = usePublicizeConfig();
 
-	const { numberOfSharesRemaining, useAdminUiV1 } = useSelect( select => {
+	const { numberOfSharesRemaining, useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			numberOfSharesRemaining: store.numberOfSharesRemaining(),
 			useAdminUiV1: store.useAdminUiV1(),
+			featureFlags: store.featureFlags(),
 		};
 	}, [] );
 
@@ -106,6 +107,7 @@ export default function PublicizeForm() {
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
+					{ featureFlags.useEditorPreview ? <p>New modal trigger goes here</p> : null }
 					{ shouldAutoConvert && showValidationNotice && mediaId && <AutoConversionNotice /> }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
