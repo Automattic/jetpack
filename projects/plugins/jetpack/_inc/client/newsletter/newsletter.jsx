@@ -86,7 +86,7 @@ function Newsletter( props ) {
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __(
-							'Let visitors subscribe to this site and receive emails when you publish a post.',
+							'Let visitors subscribe to this site and receive emails when you publish a post',
 							'jetpack'
 						) }
 					</span>
