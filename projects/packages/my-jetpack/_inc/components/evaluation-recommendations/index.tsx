@@ -4,7 +4,8 @@ import useEvaluationRecommendations from '../../data/evaluation-recommendations/
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 
 const EvaluationRecommendations: React.FC = () => {
-	const { isSectionVisible, recommendedModules } = useEvaluationRecommendations();
+	const { isSectionVisible, recommendedModules, redoEvaluation, removeEvaluationResult } =
+		useEvaluationRecommendations();
 
 	if ( ! isSectionVisible ) {
 		return null;

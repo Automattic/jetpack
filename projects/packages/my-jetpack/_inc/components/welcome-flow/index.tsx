@@ -15,7 +15,7 @@ import type { FC } from 'react';
 
 const WelcomeFlow: FC = () => {
 	const { recordEvent } = useAnalytics();
-	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
+	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { submitEvaluation, saveEvaluationResult } = useEvaluationRecommendations();
 	const {
 		siteIsRegistered,
@@ -73,10 +73,6 @@ const WelcomeFlow: FC = () => {
 		},
 		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
-
-	if ( ! isWelcomeBannerVisible ) {
-		return null;
-	}
 
 	return (
 		<Container horizontalSpacing={ 3 } className={ styles[ 'banner-container' ] }>

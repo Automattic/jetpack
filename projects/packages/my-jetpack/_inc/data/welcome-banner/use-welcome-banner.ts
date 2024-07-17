@@ -31,8 +31,13 @@ const useWelcomeBanner = () => {
 		handleDismissWelcomeBanner( null, { onSuccess: () => setIsWelcomeBannerVisible( false ) } );
 	}, [ handleDismissWelcomeBanner, setIsWelcomeBannerVisible ] );
 
+	const showWelcomeBanner = useCallback( () => {
+		setIsWelcomeBannerVisible( true );
+	}, [ setIsWelcomeBannerVisible ] );
+
 	return {
 		dismissWelcomeBanner,
+		showWelcomeBanner,
 		isWelcomeBannerVisible,
 	};
 };
