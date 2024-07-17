@@ -1,18 +1,18 @@
 <?php
 /**
- * PublicizeAssets.
+ * Connection_Assets.
  *
- * @package automattic/jetpack-publicize
+ * @package automattic/jetpack-connection
  */
 
-namespace Automattic\Jetpack\Publicize;
+namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Assets;
 
 /**
- * PublicizeAssets class.
+ * Connection_Assets class.
  */
-class Publicize_Assets {
+class Connection_Assets {
 
 	/**
 	 * Initialize the class.
@@ -25,17 +25,19 @@ class Publicize_Assets {
 	 * Register assets.
 	 */
 	public static function register_assets() {
-		if ( ! wp_script_is( 'jetpack-publicize', 'registered' ) ) {
+		if ( ! wp_script_is( 'jetpack-connection', 'registered' ) ) {
 
 			Assets::register_script(
-				'jetpack-publicize',
-				'../build/jetpack-publicize.js',
+				'jetpack-connection',
+				'../dist/jetpack-connection.js',
 				__FILE__,
 				array(
 					'in_footer'  => true,
-					'textdomain' => 'jetpack-publicize-pkg',
+					'textdomain' => 'jetpack-idc',
 				)
 			);
+
+			Initial_State::render_script( 'jetpack-connection' );
 		}
 	}
 }

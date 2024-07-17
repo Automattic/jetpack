@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\A8c_Mc_Stats;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
 use Automattic\Jetpack\Partner;
@@ -156,28 +155,6 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
-
-		add_action( 'init', array( __CLASS__, 'register_assets' ) );
-	}
-
-	/**
-	 * Register assets.
-	 */
-	public static function register_assets() {
-		if ( ! wp_script_is( 'jetpack-connection', 'registered' ) ) {
-
-			Assets::register_script(
-				'jetpack-connection',
-				'../dist/jetpack-connection.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-idc',
-				)
-			);
-
-			Initial_State::render_script( 'jetpack-connection' );
-		}
 	}
 
 	/**

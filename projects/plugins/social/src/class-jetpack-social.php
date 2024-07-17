@@ -79,6 +79,7 @@ class Jetpack_Social {
 
 				// Assets should be registered regardless of connection status.
 				\Automattic\Jetpack\Publicize\Publicize_Assets::configure();
+				\Automattic\Jetpack\Connection\Connection_Assets::configure();
 
 				if ( ! $this->is_connected() ) {
 					return;
