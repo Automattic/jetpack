@@ -180,11 +180,11 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 		'wpcom-global-styles-editor',
 		'wpcomGlobalStyles',
 		array(
-			'assetsUrl'                   => plugins_url( '', __FILE__ ),
 			'upgradeUrl'                  => "$calypso_domain/plans/$site_slug?plan=value_bundle&feature=style-customization",
 			'wpcomBlogId'                 => wpcom_global_styles_get_wpcom_current_blog_id(),
 			'resetGlobalStylesSupportUrl' => $reset_global_styles_support_url,
 			'planName'                    => Plans::get_plan( 'value_bundle' )->product_name_short,
+			'modalImage'                  => plugins_url( 'image.svg', __FILE__ ),
 		)
 	);
 	wp_enqueue_style(

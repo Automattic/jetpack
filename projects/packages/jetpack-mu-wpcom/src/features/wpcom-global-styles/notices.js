@@ -1,5 +1,4 @@
 /* global wpcomGlobalStyles */
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -12,31 +11,28 @@ import {
 } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { wpcomTrackEvent } from '../../common/tracks';
 import { useCanvas } from './use-canvas';
 import { useGlobalStylesConfig } from './use-global-styles-config';
 import { usePreview } from './use-preview';
+
 import './notice.scss';
 
 const GLOBAL_STYLES_VIEW_NOTICE_SELECTOR = 'wpcom-global-styles-notice-container';
 
-const useTrackEvent = () => {
-	const { tracks } = useAnalytics();
-	return ( eventName, isSiteEditor = true ) =>
-		tracks.recordEvent( eventName, {
-			context: isSiteEditor ? 'site-editor' : 'post-editor',
-			blog_id: wpcomGlobalStyles.wpcomBlogId,
-		} );
-};
+const trackEvent = ( eventName, isSiteEditor = true ) =>
+	wpcomTrackEvent( eventName, {
+		context: isSiteEditor ? 'site-editor' : 'post-editor',
+		blog_id: wpcomGlobalStyles.wpcomBlogId,
+	} );
 
 /**
  * Limited GS notice for the view canvas of the site editor.
  */
 function GlobalStylesWarningNotice() {
-	const trackEvent = useTrackEvent();
-
 	useEffect( () => {
 		trackEvent( 'calypso_global_styles_gating_notice_view_canvas_show' );
-	}, [ trackEvent ] );
+	}, [] );
 
 	const planName = wpcomGlobalStyles.planName;
 
@@ -122,7 +118,6 @@ function GlobalStylesEditNotice() {
 		[ canvas ]
 	);
 	const { previewPostWithoutCustomStyles, canPreviewPost } = usePreview();
-	const trackEvent = useTrackEvent();
 
 	const { createWarningNotice, removeNotice } = useDispatch( 'core/notices' );
 	const { editEntityRecord } = useDispatch( 'core' );
@@ -130,12 +125,12 @@ function GlobalStylesEditNotice() {
 	const upgradePlan = useCallback( () => {
 		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
 		trackEvent( 'calypso_global_styles_gating_notice_upgrade_click', isSiteEditor );
-	}, [ isSiteEditor, trackEvent ] );
+	}, [ isSiteEditor ] );
 
 	const previewPost = useCallback( () => {
 		previewPostWithoutCustomStyles();
 		trackEvent( 'calypso_global_styles_gating_notice_preview_click', isSiteEditor );
-	}, [ isSiteEditor, previewPostWithoutCustomStyles, trackEvent ] );
+	}, [ isSiteEditor, previewPostWithoutCustomStyles ] );
 
 	const resetGlobalStyles = useCallback( () => {
 		if ( ! globalStylesId ) {
@@ -148,12 +143,12 @@ function GlobalStylesEditNotice() {
 		} );
 
 		trackEvent( 'calypso_global_styles_gating_notice_reset_click', isSiteEditor );
-	}, [ editEntityRecord, globalStylesId, isSiteEditor, trackEvent ] );
+	}, [ editEntityRecord, globalStylesId, isSiteEditor ] );
 
 	const openResetGlobalStylesSupport = useCallback( () => {
 		window.open( wpcomGlobalStyles.resetGlobalStylesSupportUrl, '_blank' ).focus();
 		trackEvent( 'calypso_global_styles_gating_notice_reset_support_click', isSiteEditor );
-	}, [ isSiteEditor, trackEvent ] );
+	}, [ isSiteEditor ] );
 
 	const showNotice = useCallback( () => {
 		const actions = [
@@ -216,7 +211,6 @@ function GlobalStylesEditNotice() {
 		previewPost,
 		resetGlobalStyles,
 		upgradePlan,
-		trackEvent,
 	] );
 
 	useEffect( () => {
