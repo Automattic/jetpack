@@ -50,23 +50,6 @@ const AllowList = class extends Component {
 	};
 
 	/**
-	 * Get a custom error message based on the error code.
-	 *
-	 * @param {object} error - Error object.
-	 * @returns {string|boolean} Custom error message or false if no custom message exists.
-	 */
-	getCustomErrorMessage = error => {
-		switch ( error.code ) {
-			case 'file_system_error':
-				return __( 'A filesystem error occurred.', 'jetpack' );
-			case 'rules_api_error':
-				return __( 'An error occurred retrieving the latest automatic firewall rules.', 'jetpack' );
-			default:
-				return false;
-		}
-	};
-
-	/**
 	 * Handle settings updates.
 	 *
 	 * @returns {void}
@@ -94,7 +77,7 @@ const AllowList = class extends Component {
 					sprintf(
 						/* translators: placeholder is an error code or an error message. */
 						__( 'Error updating settings. %s', 'jetpack' ),
-						this.getCustomErrorMessage( error.response ) || error.message || error.code
+						error.message || error.code
 					),
 					{
 						id: 'module-setting-update',
