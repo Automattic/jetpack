@@ -196,7 +196,8 @@ const isMediaSourceConnected = async ( source: MediaSource ) =>
  * @returns {boolean} True if the inserter is opened false otherwise.
  */
 const isInserterOpened = (): boolean => {
-	const selectIsInserterOpened = select( 'core/editor' )?.isInserterOpened;
+	/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+	const selectIsInserterOpened = ( select( 'core/editor' ) as any )?.isInserterOpened;
 
 	const editorIsInserterOpened = selectIsInserterOpened?.();
 
