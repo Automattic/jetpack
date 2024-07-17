@@ -5,7 +5,35 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+/**
+ * Whether the current user is logged-in via WordPress.com account.
+ *
+ * @return bool True if the user has associated WordPress.com account.
+ */
+function is_wpcom_user() {
+	// If the site is explicitly marked as agency-managed, treat the user as non-wpcom user.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return false;
+	}
+
+	$user_id = get_current_user_id();
+
+	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
+		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
+		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
+		$has_account = isset( $user->ID );
+	} else {
+		// On Atomic sites, use the Connection Manager to check if the user has a WordPress.com account.
+		$connection_manager = new Connection_Manager();
+		$wpcom_user_data    = $connection_manager->get_connected_user_data( $user_id );
+		$has_account        = isset( $wpcom_user_data['ID'] );
+	}
+
+	return $has_account;
+}
 
 /**
  * Helper function to return the site slug for Calypso URLs.
