@@ -11,8 +11,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import Textarea from '../components/textarea';
-import { updateWafSettings } from '../state/waf/actions';
-import { getWafSettings, isFetchingWafSettings, isUpdatingWafSettings } from '../state/waf/reducer';
+import { getSetting } from '../state/settings/reducer';
+import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
+import {
+	getWafSettings,
+	getWafIpAllowListInputState,
+	isFetchingWafSettings,
+	isUpdatingWafSettings,
+} from '../state/waf/reducer';
 
 const AllowList = class extends Component {
 	/**
@@ -121,8 +127,15 @@ const AllowList = class extends Component {
 	};
 
 	render() {
+		const isWafActive = this.props.getOptionValue( 'waf' );
+		const isProtectActive = this.props.getOptionValue( 'protect' );
+		const wafUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const baseInputDisabledCase =
-			this.props.isFetchingWafSettings || this.props.isSavingAnyOption( [ 'waf' ] );
+			( ! isWafActive && ! isProtectActive ) ||
+			( wafUnavailableInOfflineMode && protectUnavailableInOfflineMode ) ||
+			this.props.isFetchingWafSettings ||
+			this.props.isSavingAnyOption( [ 'waf' ] );
 
 		const moduleHeader = (
 			<div className="waf__header">
@@ -138,7 +151,7 @@ const AllowList = class extends Component {
 				onSubmit={ this.onSubmit }
 				hideButton={ true }
 			>
-				<QueryWafSettings />
+				{ ( isWafActive || isProtectActive ) && <QueryWafSettings /> }
 				<SettingsGroup
 					disableInOfflineMode
 					support={ {
@@ -229,7 +242,13 @@ const AllowList = class extends Component {
 
 export default connect(
 	state => {
+		const allowListInputState = getWafIpAllowListInputState( state );
+
 		return {
+			allowListInputState:
+				allowListInputState !== null
+					? allowListInputState
+					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
@@ -237,6 +256,7 @@ export default connect(
 	},
 	dispatch => {
 		return {
+			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
 			updateWafSettings: newSettings => dispatch( updateWafSettings( newSettings ) ),
 			createNotice: ( type, message, props ) => dispatch( createNotice( type, message, props ) ),
 			removeNotice: notice => dispatch( removeNotice( notice ) ),

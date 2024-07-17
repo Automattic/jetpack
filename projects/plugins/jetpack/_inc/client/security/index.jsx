@@ -112,7 +112,7 @@ export class Security extends Component {
 				) }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
-				<AllowList { ...commonProps } />
+				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
 		);
