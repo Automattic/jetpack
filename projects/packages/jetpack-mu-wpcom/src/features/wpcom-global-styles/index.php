@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+// @phan-file-suppress PhanRedefineFunction
 // Turn off the feature on ETK plugin.
 define( 'MU_WPCOM_GLOBAL_STYLES', true );
 
@@ -133,7 +134,6 @@ function wpcom_global_styles_is_self_hosted_site( $blog_id ) {
  * Enqueues the WP.com Global Styles scripts and styles for the block editor.
  *
  * @return void
- * @suppress PhanRedefineFunction
  */
 function wpcom_global_styles_enqueue_block_editor_assets() {
 	if ( ! wpcom_should_limit_global_styles() ) {
@@ -351,7 +351,6 @@ function wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id = 
  * Checks if the current blog has custom styles in use.
  *
  * @return bool Returns true if custom styles are in use.
- * @suppress PhanRedefineFunction
  */
 function wpcom_global_styles_in_use() {
 	/*
