@@ -51,6 +51,13 @@ class Anti_Spam extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * Akismet has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

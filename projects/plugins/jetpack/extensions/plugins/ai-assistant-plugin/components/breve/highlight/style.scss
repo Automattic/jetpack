@@ -1,6 +1,6 @@
 @import '../features/features.colors';
 
-[class^="has-proofread-highlight"] {
+[class^='has-proofread-highlight'] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
 }
@@ -63,6 +63,5 @@
 		display: flex;
 		padding: 8px 12px;
 		white-space: nowrap;
-		margin-top: 8px;
 	}
 }
