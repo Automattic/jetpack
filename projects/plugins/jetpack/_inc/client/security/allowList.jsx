@@ -207,6 +207,7 @@ const AllowList = class extends Component {
 													rna
 													compact
 													disabled={
+														this.props.isUpdatingWafSettings ||
 														! this.props.settings?.ipAllowListEnabled ||
 														this.currentIpIsSafelisted() ||
 														this.props.isSavingAnyOption( [ 'jetpack_waf_ip_allow_list' ] )
