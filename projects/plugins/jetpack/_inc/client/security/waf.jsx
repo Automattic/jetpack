@@ -41,7 +41,6 @@ export const Waf = class extends Component {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
 		ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 		ipBlockList: this.props.settings?.ipBlockList,
-		ipAllowList: this.props.settings?.ipAllowList,
 		shareData: this.props.settings?.shareData,
 		shareDebugData: this.props.settings?.shareDebugData,
 	};
@@ -59,7 +58,6 @@ export const Waf = class extends Component {
 				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
 				ipBlockListEnabled: this.props.settings?.ipBlockListEnabled,
 				ipBlockList: this.props.settings?.ipBlockList,
-				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
 				shareDebugData: this.props.settings?.shareDebugData,
 			} );
@@ -150,15 +148,6 @@ export const Waf = class extends Component {
 	 */
 	handleIpBlockListChange = event => {
 		this.setState( { ...this.state, ipBlockList: event?.target?.value } );
-	};
-
-	/**
-	 * Handle IP allow list change.
-	 *
-	 * @param {Event} event - = The event object.
-	 */
-	handleIpAllowListChange = event => {
-		this.props.updateWafIpAllowList( event.target.value );
 	};
 
 	/**

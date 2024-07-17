@@ -113,13 +113,3 @@ export function getWafSettings( state ) {
 export function getAutomaticRulesAvailable( state ) {
 	return get( state.jetpack.waf, [ 'data', 'automaticRulesAvailable' ], false );
 }
-
-/**
- * Returns the current contents of the allow list text box.
- *
- * @param {object} state - Global state tree
- * @returns {string|null} IP allow list, or null when not set.
- */
-export function getWafIpAllowListInputState( state ) {
-	return get( state.jetpack.waf, [ 'data', 'allowListInputState' ], null );
-}

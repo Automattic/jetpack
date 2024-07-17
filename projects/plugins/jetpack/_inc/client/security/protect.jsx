@@ -4,13 +4,8 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import analytics from 'lib/analytics';
-import { includes } from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
-import { getSetting } from '../state/settings';
-import { getWafIpAllowListInputState, updateWafIpAllowList } from '../state/waf';
 
 const ProtectComponent = class extends Component {
 	/**
@@ -27,40 +22,6 @@ const ProtectComponent = class extends Component {
 			);
 		}
 	}
-
-	currentIpIsSafelisted = () => {
-		// get current IP allow list in textarea from this.props.allowListInputState;
-		return !! includes( this.props.allowListInputState, this.props.currentIp );
-	};
-
-	updateIPAllowList = event => {
-		// Enable button if IP is not in the textarea
-		this.currentIpIsSafelisted();
-		// Update the allow list
-		this.props.updateWafIpAllowList( event.target.value );
-	};
-
-	addToSafelist = () => {
-		const newSafelist =
-			this.props.allowListInputState +
-			( 0 >= this.props.allowListInputState.length ? '' : '\n' ) +
-			this.props.currentIp;
-
-		// Update the allow list
-		this.props.updateWafIpAllowList( newSafelist );
-
-		analytics.tracks.recordJetpackClick( {
-			target: 'add-to-whitelist', // Left as-is to preserve historical stats trends.
-			feature: 'protect',
-		} );
-	};
-
-	trackOpenCard = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'foldable-settings-open',
-			feature: 'protect',
-		} );
-	};
 
 	render() {
 		const isProtectActive = this.props.getOptionValue( 'protect' ),
@@ -104,20 +65,4 @@ const ProtectComponent = class extends Component {
 	}
 };
 
-export const Protect = connect(
-	state => {
-		const allowListInputState = getWafIpAllowListInputState( state );
-
-		return {
-			allowListInputState:
-				null !== allowListInputState
-					? allowListInputState
-					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
-		};
-	},
-	dispatch => {
-		return {
-			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
-		};
-	}
-)( withModuleSettingsFormHelpers( ProtectComponent ) );
+export const Protect = withModuleSettingsFormHelpers( ProtectComponent );
