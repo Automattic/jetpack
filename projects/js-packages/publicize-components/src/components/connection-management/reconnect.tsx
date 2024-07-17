@@ -11,7 +11,6 @@ export type ReconnectProps = {
 	service: SupportedService;
 	connection: Connection;
 	variant?: React.ComponentProps< typeof Button >[ 'variant' ];
-	onConfirmReconnect?: VoidFunction;
 };
 
 /**
@@ -21,13 +20,9 @@ export type ReconnectProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function Reconnect( {
-	connection,
-	service,
-	variant = 'link',
-	onConfirmReconnect,
-}: ReconnectProps ) {
-	const { deleteConnectionById, setKeyringResult } = useDispatch( socialStore );
+export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
+	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =
+		useDispatch( socialStore );
 
 	const { isDisconnecting } = useSelect(
 		select => {
@@ -45,10 +40,10 @@ export function Reconnect( {
 			setKeyringResult( result );
 
 			if ( result?.ID ) {
-				onConfirmReconnect?.();
+				openConnectionsModal();
 			}
 		},
-		[ onConfirmReconnect, setKeyringResult ]
+		[ openConnectionsModal, setKeyringResult ]
 	);
 
 	const requestAccess = useRequestAccess( { service, onConfirm } );
@@ -63,6 +58,12 @@ export function Reconnect( {
 			return;
 		}
 
+		await setReconnectingAccount(
+			// Join service name and external ID
+			// just in case the external ID alone is not unique.
+			`${ connection.service_name }:${ connection.external_id }`
+		);
+
 		const formData = new FormData();
 
 		if ( service.ID === 'mastodon' ) {
@@ -70,24 +71,22 @@ export function Reconnect( {
 		}
 
 		requestAccess( formData );
-	}, [ connection, deleteConnectionById, requestAccess, service.ID ] );
+	}, [ connection, deleteConnectionById, requestAccess, service.ID, setReconnectingAccount ] );
 
 	if ( ! connection.can_disconnect ) {
 		return null;
 	}
 
 	return (
-		<>
-			<Button
-				size="small"
-				onClick={ onClickReconnect }
-				disabled={ isDisconnecting }
-				variant={ variant }
-			>
-				{ isDisconnecting
-					? __( 'Disconnecting…', 'jetpack' )
-					: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
-			</Button>
-		</>
+		<Button
+			size="small"
+			onClick={ onClickReconnect }
+			disabled={ isDisconnecting }
+			variant={ variant }
+		>
+			{ isDisconnecting
+				? __( 'Disconnecting…', 'jetpack' )
+				: _x( 'Reconnect', 'Reconnect a social media account', 'jetpack' ) }
+		</Button>
 	);
 }

@@ -120,9 +120,9 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture } = connection;
+			const { display_name, profile_display_name, profile_picture, external_display } = connection;
 
-			displayName = 'twitter' === service ? profile_display_name : display_name;
+			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
 		}
@@ -152,12 +152,13 @@ export function getUpdatingConnections( state ) {
 }
 
 /**
- * Whether a connection is being created.
+ * Get the account being reconnected
+ *
  * @param {import("../types").SocialStoreState} state - State object.
- * @returns {boolean} Whether a connection is being created.
+ * @returns {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
  */
-export function isCreatingConnection( state ) {
-	return state.connectionData?.creatingConnection ?? false;
+export function getReconnectingAccount( state ) {
+	return state.connectionData?.reconnectingAccount ?? '';
 }
 
 /**
@@ -194,4 +195,14 @@ export function getServices( state ) {
  */
 export function getKeyringResult( state ) {
 	return state.connectionData?.keyringResult;
+}
+
+/**
+ * Whether the connections modal is open.
+ * @param {import("../types").SocialStoreState} state - State object.
+ *
+ * @returns {boolean} Whether the connections modal is open.
+ */
+export function isConnectionsModalOpen( state ) {
+	return state.connectionData?.isConnectionsModalOpen ?? false;
 }

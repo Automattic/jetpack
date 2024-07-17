@@ -47,12 +47,24 @@
 	}
 }
 
-.loading-placeholder {
-	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
+.cardListTitle,
+.fullStatsCard {
+	margin-bottom: 1.5rem;
 }
 
 .cardlist {
 	> li {
 		margin-bottom: 0; // Reset base style
 	}
+}
+
+// Since we're adding so much info into the My Jetpack product cards, here we'll increase
+// the min-width of the cards to 300px, and otherwise wrap around.
+@media screen and (min-width: 599px) and (max-width: 1290px) {
+	ul.cardlist {
+		grid-template-columns: repeat( auto-fill, minmax( 300px, 1fr ) );
+		> li {
+			grid-column-end: auto;
+		}
+	}	
 }

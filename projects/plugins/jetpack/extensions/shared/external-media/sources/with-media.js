@@ -5,7 +5,7 @@ import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { uniqBy } from 'lodash';
 import { PATH_RECENT } from '../constants';
 import { authenticateMediaSource } from '../media-service';
@@ -299,7 +299,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown ) {
 					  );
 
 				const describedby = 'jetpack-external-media-browser__description';
-				const classes = classnames( {
+				const classes = clsx( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
 					'is-jetpack-app-media': mediaSource === 'jetpack_app_media',

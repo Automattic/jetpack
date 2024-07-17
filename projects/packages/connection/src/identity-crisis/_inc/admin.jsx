@@ -33,6 +33,7 @@ function render() {
 		consumerData,
 		isAdmin,
 		possibleDynamicSiteUrlDetected,
+		isDevelopmentSite,
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
@@ -51,6 +52,7 @@ function render() {
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
+				isDevelopmentSite={ isDevelopmentSite }
 			/>
 		);
 		WPElement.createRoot( container ).render( component );

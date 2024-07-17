@@ -32,30 +32,31 @@ echo "::endgroup::"
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
 	trunk)
-		TAG=trunk
+		WORDPRESS_TAG=trunk
 		;;
 	latest)
-		TAG=$(php ./tools/get-wp-version.php)
+		WORDPRESS_TAG=$(php ./tools/get-wp-version.php)
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		TAG=6.4
+		WORDPRESS_TAG=6.5
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
 		exit 1
 		;;
 esac
-git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
+git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
-git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
+git clone --depth=1 --branch "$WORDPRESS_TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
 
 if [[ -n "$GITHUB_ENV" ]]; then
 	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
 	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
+	echo "WORDPRESS_TAG=$WORDPRESS_TAG" >> "$GITHUB_ENV"
 fi
 
 # Don't symlink, it breaks when copied later.
@@ -69,6 +70,12 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	NAME="$(basename "$DIR")"
 
 	echo "::group::Installing plugin $NAME into WordPress"
+
+	if php -r 'exit( preg_match( "/^>=\\s*(\\d+\\.\\d+)$/", $argv[1], $m ) && version_compare( PHP_VERSION, $m[1], "<" ) ? 0 : 1 );' "$( jq -r '.require.php // ""' "$DIR/composer.json" )"; then
+		echo "::endgroup::"
+		echo "Skipping install of plugin $NAME, requires PHP $( jq -r '.require.php // ""' "$DIR/composer.json" )"
+		continue
+	fi
 
 	if jq --arg script "skip-$TEST_SCRIPT" -e '.scripts[$script] // false' "$DIR/composer.json" > /dev/null; then
 		{ composer --working-dir="$DIR" run "skip-$TEST_SCRIPT"; CODE=$?; } || true
@@ -117,6 +124,19 @@ for PLUGIN in projects/plugins/*/composer.json; do
 	fi
 	cd "$BASE"
 
+	# Upgrade/downgrade WorDBless if necessary.
+	if [[ ( "$WP_BRANCH" == 'trunk' || "$WP_BRANCH" == 'previous' ) && "$TEST_SCRIPT" == "test-php" ]]; then
+		VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
+		if [[ -n "$VER" ]]; then
+			INSVER=$WORDPRESS_TAG
+			[[ "$WORDPRESS_TAG" == 'trunk' ]] && INSVER="dev-main as $VER"
+			echo "Supposed to run tests against WordPress $WORDPRESS_TAG, so setting roots/wordpress and roots/wordpress-no-content to \"$INSVER\""
+			# Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+			rm -rf "$DIR/wordpress"
+			composer --working-dir="$DIR" require --dev roots/wordpress="$INSVER" roots/wordpress-no-content="$INSVER"
+		fi
+	fi
+
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1
 	ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$NAME"
@@ -157,6 +177,16 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	fi
 
 	cd "$BASE"
+	echo "::endgroup::"
+fi
+
+# Install the wpcomsh plugin used for some Jetpack integration tests.
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	echo "::group::Installing wpcomsh into WordPress"
+
+	mkdir "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins"
+	cp -r "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/wpcomsh" "/tmp/wordpress-$WP_BRANCH/src/wp-content/mu-plugins/wpcomsh"
+
 	echo "::endgroup::"
 fi
 

@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.28.0] - 2024-07-15
+### Added
+- Add scan/threat info to the Protect card in My Jetpack. [#38165]
+
+### Changed
+- Protect card: Add the Last scan time (with tooltip) based on product state. [#38091]
+- Updated package dependencies. [#38091]
+
+### Fixed
+- Fix Learn More link destination when the site was never connected. [#38225]
+
+## [4.27.2] - 2024-07-10
+### Fixed
+- Social: Fixed plan slug [#38222]
+
+## [4.27.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [4.27.0] - 2024-07-01
+### Added
+- Add the Google Analytics deprecation notice. [#38078]
+
+### Changed
+- Reduce amount of historically active modules updates by only triggering on activation of plugin is a jetpack plugin [#38065]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+
+## [4.26.0] - 2024-06-27
+### Changed
+- Jetpack AI: Add Title Optimization section on the product page. [#38072]
+
+## [4.25.4] - 2024-06-26
+### Fixed
+- Move historically active modules sync to admin_init [#38041]
+
+## [4.25.3] - 2024-06-24
+### Added
+- Add more default args for tracks events [#37974]
+
+## [4.25.2] - 2024-06-21
+### Fixed
+- Remove the need for api requests in broken modules check [#37908]
+
+## [4.25.1] - 2024-06-17
+### Fixed
+- Remove check for broken modules from red bubble connection check [#37911]
+
+## [4.25.0] - 2024-06-17
+### Changed
+- Show tooltip on card hover instead of letter hover [#37858]
+- Update connection footer to conditionally render warnings or errors [#37802]
+- Update connection status card tests to TS [#37829]
+
+## [4.24.7] - 2024-06-13
+### Changed
+- Updated package dependencies. [#37796]
+
+## [4.24.6] - 2024-06-11
+### Changed
+- Conditionally show connection banner as error or info [#37707]
+- Updated package dependencies. [#37779]
+
+## [4.24.5] - 2024-06-10
+### Changed
+- Change codebase to use clsx instead of classnames. [#37708]
+
+## [4.24.4] - 2024-06-10
+### Added
+- Add mechanism to track previously working plugins [#37537]
+
+### Changed
+- Move PRODUCT_STATUSES to constants file [#37748]
+- Send user to siteless pricing page if site is not connected [#37667]
+
 ## [4.24.3] - 2024-06-05
 ### Changed
 - Updated package dependencies. [#37669]
@@ -1495,6 +1571,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
+[4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2
+[4.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.0...4.27.1
+[4.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.26.0...4.27.0
+[4.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.4...4.26.0
+[4.25.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.3...4.25.4
+[4.25.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.2...4.25.3
+[4.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.1...4.25.2
+[4.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.0...4.25.1
+[4.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.7...4.25.0
+[4.24.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.6...4.24.7
+[4.24.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.5...4.24.6
+[4.24.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.4...4.24.5
+[4.24.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.3...4.24.4
 [4.24.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.2...4.24.3
 [4.24.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.1...4.24.2
 [4.24.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.24.0...4.24.1

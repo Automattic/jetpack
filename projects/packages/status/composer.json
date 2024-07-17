@@ -49,12 +49,11 @@
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.2.x-dev"
+			"dev-trunk": "3.3.x-dev"
 		},
 		"dependencies": {
 			"test-only": [
 				"packages/connection",
-				"packages/identity-crisis",
 				"packages/plans"
 			]
 		}

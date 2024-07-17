@@ -11,6 +11,10 @@ if [[ "$WITH_WOOCOMMERCE" == true ]]; then
 	exit 0
 fi
 
+if [[ "$WITH_WPCOMSH" == true ]]; then
+	export JETPACK_TEST_WPCOMSH=1
+fi
+
 echo "::group::Jetpack tests"
 phpunit
 echo "::endgroup::"
@@ -21,7 +25,7 @@ if [[ "$WP_BRANCH" == "trunk" ]]; then
 	echo "::endgroup::"
 fi
 
-if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.0" ]]; then
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.2" ]]; then
 	echo "::group::Jetpack Legacy Full Sync tests"
 	LEGACY_FULL_SYNC=1 phpunit --group=legacy-full-sync
 	echo "::endgroup::"

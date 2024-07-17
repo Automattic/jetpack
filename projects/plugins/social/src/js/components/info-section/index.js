@@ -1,6 +1,6 @@
 import { Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './styles.module.scss';
 
 const InfoSection = () => {
@@ -13,11 +13,7 @@ const InfoSection = () => {
 	};
 
 	return (
-		<Container
-			className={ classNames( viewportClasses ) }
-			horizontalSpacing={ 7 }
-			horizontalGap={ 3 }
-		>
+		<Container className={ clsx( viewportClasses ) } horizontalSpacing={ 7 } horizontalGap={ 3 }>
 			<div className={ styles.column }>
 				<Text variant="title-medium" className={ styles.title }>
 					{ __( 'Did you know?', 'jetpack-social' ) }

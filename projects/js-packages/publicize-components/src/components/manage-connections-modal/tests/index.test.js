@@ -9,7 +9,6 @@ jest.mock( '../confirmation-form', () => ( {
 
 describe( 'ManageConnectionsModal', () => {
 	let stubSetKeyringResult, stubGetKeyringResult;
-	const onCloseModal = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
@@ -17,7 +16,7 @@ describe( 'ManageConnectionsModal', () => {
 	} );
 
 	it( 'renders ServicesList when there is no keyringResult', () => {
-		render( <ManageConnectionsModal onCloseModal={ onCloseModal } /> );
+		render( <ManageConnectionsModal /> );
 
 		expect( screen.queryByText( 'Confirmation Form' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Manage Jetpack Social connections' ) ).toBeInTheDocument();
@@ -26,7 +25,7 @@ describe( 'ManageConnectionsModal', () => {
 	it( 'renders ConfirmationForm when there is a keyringResult', () => {
 		stubGetKeyringResult.mockReturnValue( { ID: 'facebook' } );
 
-		render( <ManageConnectionsModal onCloseModal={ onCloseModal } /> );
+		render( <ManageConnectionsModal /> );
 
 		expect( screen.getByText( 'Confirmation Form' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Connection confirmation' ) ).toBeInTheDocument();
@@ -35,11 +34,10 @@ describe( 'ManageConnectionsModal', () => {
 	it( 'closes the modal and resets keyringResult when closeModal is called', async () => {
 		const user = userEvent.setup();
 
-		render( <ManageConnectionsModal onCloseModal={ onCloseModal } /> );
+		render( <ManageConnectionsModal /> );
 
 		await user.click( screen.getByRole( 'button', { name: /close/i } ) );
 
 		expect( stubSetKeyringResult ).toHaveBeenCalledWith( null );
-		expect( onCloseModal ).toHaveBeenCalled();
 	} );
 } );

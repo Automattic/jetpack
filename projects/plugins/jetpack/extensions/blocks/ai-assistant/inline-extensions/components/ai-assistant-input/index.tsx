@@ -5,7 +5,7 @@ import { ExtensionAIControl } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /*
  * Internal dependencies
@@ -28,6 +28,7 @@ export type AiAssistantInputProps = {
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
 	blockType: ExtendedInlineBlockProp;
+	feature: string;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
 	close?: () => void;
@@ -35,7 +36,7 @@ export type AiAssistantInputProps = {
 	tryAgain?: () => void;
 };
 
-const defaultClassNames = classNames(
+const defaultClassNames = clsx(
 	'jetpack-ai-assistant-extension-ai-input',
 	'wp-block' // Some themes, like Twenty Twenty, use this class to set the element's side margins.
 );
@@ -48,6 +49,7 @@ export default function AiAssistantInput( {
 	wrapperRef,
 	action,
 	blockType,
+	feature,
 	request,
 	stopSuggestion,
 	close,
@@ -77,10 +79,11 @@ export default function AiAssistantInput( {
 	const handleSend = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
 			block_type: blockType,
+			feature,
 		} );
 
 		request?.( value );
-	}, [ blockType, request, tracks, value ] );
+	}, [ blockType, feature, request, tracks, value ] );
 
 	const handleStopSuggestion = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_stop', {
@@ -153,7 +156,7 @@ export default function AiAssistantInput( {
 
 	return (
 		<ExtensionAIControl
-			className={ classNames( defaultClassNames, className ) }
+			className={ clsx( defaultClassNames, className ) }
 			placeholder={ placeholder }
 			disabled={ disabled }
 			value={ value }

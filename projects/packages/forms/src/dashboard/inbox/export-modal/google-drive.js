@@ -3,7 +3,7 @@
  */
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { tap } from 'lodash';
 /**
  * Internal dependencies
@@ -51,7 +51,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 			} );
 	}, [ onExport ] );
 
-	const buttonClasses = classnames( 'button', 'export-button', 'export-gdrive', {
+	const buttonClasses = clsx( 'button', 'export-button', 'export-gdrive', {
 		'button-primary': ! isWpcom(),
 	} );
 

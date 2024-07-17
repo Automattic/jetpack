@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { omit } from 'lodash';
 import React from 'react';
 
@@ -22,7 +22,7 @@ export default class TextInput extends React.Component {
 
 	render() {
 		const { className, selectOnFocus } = this.props;
-		const classes = classNames( className, {
+		const classes = clsx( className, {
 			'dops-text-input': true,
 			'is-error': this.props.isError,
 			'is-valid': this.props.isValid,

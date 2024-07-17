@@ -180,7 +180,7 @@ if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 		 */
 		public static function sso_not_allowed_in_staging( $message ) {
 			_deprecated_function( __METHOD__, 'jetpack-13.5', 'Automattic\\Jetpack\\Connection\\Manager\\SSO\\Notices::sso_not_allowed_in_staging' );
-
+			// @phan-suppress-next-line PhanDeprecatedFunction
 			return Notices::sso_not_allowed_in_staging( $message );
 		}
 	}

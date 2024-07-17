@@ -43,7 +43,7 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	creatingConnection?: boolean;
+	reconnectingAccount?: string;
 	keyringResult?: KeyringResult;
 };
 

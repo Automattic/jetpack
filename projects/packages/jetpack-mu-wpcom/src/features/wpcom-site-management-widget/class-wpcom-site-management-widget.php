@@ -32,6 +32,10 @@ class WPCOM_Site_Management_Widget {
 	 * Register widget with WordPress.
 	 */
 	public function __construct() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 	}
@@ -203,7 +207,7 @@ class WPCOM_Site_Management_Widget {
 									),
 									array(
 										'name' => __( 'Logs', 'jetpack-mu-wpcom' ),
-										'href' => "/site-monitoring/$domain/php",
+										'href' => "/site-logs/$domain/php",
 									),
 									array(
 										'name' => __( 'Staging Site', 'jetpack-mu-wpcom' ),

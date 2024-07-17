@@ -243,6 +243,7 @@ const OptionFieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
+		splitting: true,
 	},
 };
 

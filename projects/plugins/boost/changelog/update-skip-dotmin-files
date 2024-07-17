@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Minification: Skip files ending in `.min.js` and `.min.css` from minification

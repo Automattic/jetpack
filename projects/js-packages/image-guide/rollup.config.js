@@ -8,7 +8,7 @@ import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
-import svelteSVG from 'rollup-plugin-svelte-svg';
+import { svelteSVG } from 'rollup-plugin-svelte-svg';
 import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './tsconfig.json';
 

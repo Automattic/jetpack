@@ -1,5 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import JetpackProductCard from 'components/jetpack-product-card';
 import { MoneyBackGuarantee } from 'components/money-back-guarantee';
 import analytics from 'lib/analytics';
@@ -106,7 +106,7 @@ const ProductDescription = props => {
 		} );
 	}, [ product ] );
 
-	const classes = classNames( {
+	const classes = clsx( {
 		'jp-product-description': true,
 		'jp-product-description--split': !! relatedPlan,
 	} );

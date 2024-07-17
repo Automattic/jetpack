@@ -1,4 +1,4 @@
-import classnames from 'classnames';
+import clsx from 'clsx';
 import styles from './style.module.scss';
 
 /**
@@ -23,7 +23,7 @@ const ProgressBar = ( { className, total = 100, value } ) => {
 	};
 
 	return (
-		<div className={ classnames( className, styles[ 'progress-bar' ] ) }>
+		<div className={ clsx( className, styles[ 'progress-bar' ] ) }>
 			<div className={ styles[ 'progress-bar__wrapper' ] }>
 				<div
 					aria-valuemax={ total }

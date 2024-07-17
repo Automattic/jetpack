@@ -60,9 +60,6 @@
 		<testsuite name="videopress">
 			<directory prefix="test_" suffix=".php">tests/php/modules/videopress</directory>
 		</testsuite>
-		<testsuite name="wpcom-block-editor">
-			<directory prefix="test_" suffix=".php">tests/php/modules/wpcom-block-editor</directory>
-		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
 			<directory prefix="class-test-" suffix=".php">tests/php/sync</directory>

@@ -10,13 +10,13 @@ domReady( function () {
 		return;
 	}
 
-	const close = document.querySelector( '.jetpack-subscribe-overlay__close' );
+	const close = overlay.querySelector( '.jetpack-subscribe-overlay__close' );
 	close.onclick = function ( event ) {
 		event.preventDefault();
 		closeOverlay();
 	};
 
-	const toContent = document.querySelector( '.jetpack-subscribe-overlay__to-content' );
+	const toContent = overlay.querySelector( '.jetpack-subscribe-overlay__to-content' );
 	// User can edit overlay, and could remove to content link.
 	if ( toContent ) {
 		toContent.onclick = function ( event ) {
@@ -25,9 +25,10 @@ domReady( function () {
 		};
 	}
 
-	const form = document.querySelector( '.jetpack-subscribe-overlay form' );
+	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
+	const form = overlay.querySelector( 'form' );
 	if ( form ) {
-		form.addEventListener( 'submit', closeOverlay );
+		form.addEventListener( 'subscription-modal-loaded', closeOverlay );
 	}
 
 	function closeOverlayOnEscapeKeydown( event ) {

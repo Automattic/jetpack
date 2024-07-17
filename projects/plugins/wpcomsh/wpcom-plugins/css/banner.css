@@ -1,0 +1,123 @@
+:root {
+	--wpcom-plugins-banner-image: '';
+}
+
+@font-face {
+	font-display: swap;
+	font-family: "Recoleta";
+	font-weight: 400;
+	src: url("https://s1.wp.com/i/fonts/recoleta/400.woff2") format("woff2"), url("https://s1.wp.com/i/fonts/recoleta/400.woff") format("woff");
+}
+
+.wpcom-plugins-banner {
+	background-color: #242424;
+	padding: 64px 32px;
+	border-radius: 10px;
+	margin: 25px 0;
+	background-image: var(--wpcom-plugins-banner-image);
+	background-repeat: no-repeat;
+	background-position: bottom right 64px;
+	background-size: 530px;
+}
+
+.rtl .wpcom-plugins-banner {
+	background-position: bottom left 64px;
+}
+
+.wpcom-plugins-banner__content {
+	width: 540px;
+}
+
+#wpcontent .wpcom-plugins-banner h3,
+#wpcontent .wpcom-plugins-banner p {
+	font-weight: 400;
+	letter-spacing: -0.32px;
+	margin: 10px 0;
+	text-wrap: pretty;
+}
+
+.wpcom-plugins-banner h3 {
+	font-family: 'Recoleta';
+	font-size: 32px;
+	line-height: 40px;
+	color: #FFF;
+}
+
+.wpcom-plugins-banner p {
+	font-size: 16px;
+	line-height: 24px;
+	color: #A7AAAD;
+}
+
+.wpcom-plugins-banner a,
+.wpcom-plugins-banner a:visited {
+	background-color: #3858E9;
+	color: white;
+	border-radius: 4px;
+	padding: 10px 24px;
+	font-size: 14px;
+	line-height: 20px;
+	letter-spacing: 0.32px;
+	text-decoration: none;
+	display: inline-block;
+	margin-top: 32px;
+}
+
+.wpcom-plugins-banner a:hover,
+.wpcom-plugins-banner a:focus {
+	background-color: white;
+	color: #1d2327;
+}
+
+@media (max-width: 1260px) {
+	.wpcom-plugins-banner {
+		padding: 32px;
+		background-size: 400px;
+	}
+
+	.wpcom-plugins-banner a {
+		padding: 10px 20px;
+		margin-top: 12px;
+	}
+}
+
+@media (max-width: 1120px) {
+	.wpcom-plugins-banner {
+		background-position: bottom right 5px;
+		background-size: 300px
+	}
+	.rtl .wpcom-plugins-banner {
+		background-position: bottom left 5px;
+	}
+}
+
+@media (max-width: 850px) {
+	.wpcom-plugins-banner {
+		background-image: none;
+	}
+
+	.wpcom-plugins-banner__content {
+		width: auto;
+	}
+}
+
+@media (max-width: 782px) {
+	.wpcom-plugins-banner {
+		padding: 24px;
+	}
+
+	.wpcom-plugins-banner h3,
+	.wpcom-plugins-banner p {
+		margin: 8px 0;
+	}
+
+	.wpcom-plugins-banner h3 {
+		font-size: 24px;
+		line-height: 32px;
+	}
+
+	.wpcom-plugins-banner p {
+		font-size: 14px;
+		line-height: 20px;
+	}
+}

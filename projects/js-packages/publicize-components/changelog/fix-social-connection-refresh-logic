@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed double request issue and simplifed refresh logic

@@ -1,7 +1,7 @@
 import { ProductPrice, TermsOfService } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
@@ -50,13 +50,13 @@ const JetpackProductCard = props => {
 		} );
 	}, [ productSlug ] );
 
-	const classes = classNames( {
+	const classes = clsx( {
 		'jp-product-card': true,
 		'jp-product-card--has-media': hasMedia,
 		'jp-product-card--has-cta': hasCta,
 	} );
 
-	const buttonClasses = classNames( [
+	const buttonClasses = clsx( [
 		'jp-product-card__checkout',
 		`jp-product-card__checkout--${ priority }`,
 	] );

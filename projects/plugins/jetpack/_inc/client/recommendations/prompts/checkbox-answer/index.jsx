@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import InfoPopover from 'components/info-popover';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
@@ -22,10 +22,7 @@ const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheck
 
 	return (
 		<div className="jp-checkbox-answer__container">
-			<label
-				htmlFor={ answerKey }
-				className={ classNames( 'jp-checkbox-answer__title', { checked } ) }
-			>
+			<label htmlFor={ answerKey } className={ clsx( 'jp-checkbox-answer__title', { checked } ) }>
 				<input
 					id={ answerKey }
 					className="jp-checkbox-answer__checkbox-input"

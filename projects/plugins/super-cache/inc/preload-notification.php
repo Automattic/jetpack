@@ -11,7 +11,7 @@ function wpsc_preload_notification_scripts() {
 			'preload-notification',
 			plugins_url( '/js/preload-notification.js', __DIR__ ),
 			array( 'jquery', 'wp-i18n' ),
-			WPSC_VERSION,
+			WPSC_VERSION_ID,
 			true
 		);
 

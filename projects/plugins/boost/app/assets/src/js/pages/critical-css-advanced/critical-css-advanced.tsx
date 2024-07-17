@@ -13,7 +13,7 @@ import styles from './critical-css-advanced.module.scss';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Provider } from '$features/critical-css';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 type HeadingMetaProps = {
 	dismissedIssues: Provider[];
@@ -163,7 +163,7 @@ const Recommendation = ( { provider, setDismissed }: RecommendationProps ) => {
 			className={ styles[ 'recommendation-animation-wrapper' ] }
 			style={ animationStyles }
 		>
-			<div ref={ ref } className={ classNames( 'panel', styles.panel ) }>
+			<div ref={ ref } className={ clsx( 'panel', styles.panel ) }>
 				<CloseButton onClick={ () => setIsDismissed( true ) } />
 
 				<h4>

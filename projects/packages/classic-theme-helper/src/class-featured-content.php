@@ -2,12 +2,15 @@
 /**
  * Theme Tools: functions for Featured Content enhancements.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
-use Automattic\Jetpack\Assets;
+namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+use Automattic\Jetpack\Assets;
+use WP_Customize_Manager;
+use WP_Query;
+if ( ! class_exists( __NAMESPACE__ . '\Featured_Content' ) ) {
 
 	/**
 	 * Featured Content.
@@ -85,6 +88,9 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 */
 		public static function init() {
 
+			if ( isset( $GLOBALS['pagenow'] ) && 'plugins.php' === $GLOBALS['pagenow'] ) {
+				return;
+			}
 			/**
 			 * Array variable to store theme support.
 			 *
@@ -754,34 +760,4 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			}
 		}
 	}
-
-    // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
-	/**
-	 * Adds the featured content plugin to the set of files for which action
-	 * handlers should be copied when the theme context is loaded by the REST API.
-	 *
-	 * @param array $copy_dirs Copy paths with actions to be copied.
-	 * @return array Copy paths with featured content plugin
-	 */
-	function wpcom_rest_api_featured_content_copy_plugin_actions( $copy_dirs ) {
-		$copy_dirs[] = __FILE__;
-		return $copy_dirs;
-	}
-	add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
-
-	/**
-	 * Delayed initialization for API Requests.
-	 *
-	 * @param object $request REST request object.
-	 */
-	function wpcom_rest_request_before_callbacks( $request ) {
-		Featured_Content::init();
-		return $request;
-	}
-
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
-		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks' );
-	}
-
-	Featured_Content::setup();
 }

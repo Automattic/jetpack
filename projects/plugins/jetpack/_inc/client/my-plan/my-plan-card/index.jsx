@@ -1,4 +1,4 @@
-import classNames from 'classnames';
+import clsx from 'clsx';
 import PlanIcon from 'components/plans/plan-icon/index';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -16,12 +16,12 @@ const MyPlanCard = ( {
 	isPlan,
 	cardClassNames = [],
 } ) => {
-	cardClassNames = classNames( 'my-plan-card', ...cardClassNames, {
+	cardClassNames = clsx( 'my-plan-card', ...cardClassNames, {
 		'is-placeholder': isPlaceholder,
 		'is-plan': isPlan,
 		'has-action-only': action && ! details && ! isPlaceholder,
 	} );
-	const detailsClassNames = classNames( 'my-plan-card__details', { 'is-error': isError } );
+	const detailsClassNames = clsx( 'my-plan-card__details', { 'is-error': isError } );
 
 	return (
 		<div className={ cardClassNames }>

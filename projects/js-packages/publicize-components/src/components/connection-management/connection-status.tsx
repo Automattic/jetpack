@@ -1,11 +1,11 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
+import { Disconnect } from './disconnect';
 import { Reconnect } from './reconnect';
 
 export type ConnectionStatusProps = {
 	connection: Connection;
-	onConfirmReconnect?: VoidFunction;
 	service: SupportedService;
 };
 
@@ -16,11 +16,7 @@ export type ConnectionStatusProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionStatus( {
-	connection,
-	service,
-	onConfirmReconnect,
-}: ConnectionStatusProps ) {
+export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
 	if ( connection.status !== 'broken' ) {
 		return null;
 	}
@@ -28,14 +24,16 @@ export function ConnectionStatus( {
 	return (
 		<div>
 			<span className="description">
-				{ __( 'There is an issue with this connection.', 'jetpack' ) }
+				{ service
+					? __( 'There is an issue with this connection.', 'jetpack' )
+					: _x( 'This platform is no longer supported.', '', 'jetpack' ) }
 			</span>
 			&nbsp;
-			<Reconnect
-				connection={ connection }
-				service={ service }
-				onConfirmReconnect={ onConfirmReconnect }
-			/>
+			{ service ? (
+				<Reconnect connection={ connection } service={ service } />
+			) : (
+				<Disconnect connection={ connection } variant="link" isDestructive={ false } />
+			) }
 		</div>
 	);
 }

@@ -2,7 +2,7 @@ import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { useState, useEffect } from '@wordpress/element';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { LoadingPostsGrid } from '../../shared/components/loading-posts-grid';
 import { TopPostsBlockControls, TopPostsInspectorControls } from './controls';
 import { InactiveStatsPlaceholder } from './inactive-placeholder';
@@ -173,7 +173,7 @@ function TopPostsEdit( { attributes, setAttributes } ) {
 	}
 
 	return (
-		<div { ...blockProps } className={ classNames( className, `is-${ layout }-layout` ) }>
+		<div { ...blockProps } className={ clsx( className, `is-${ layout }-layout` ) }>
 			{ content }
 		</div>
 	);

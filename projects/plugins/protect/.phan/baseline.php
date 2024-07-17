@@ -9,27 +9,17 @@
  */
 return [
     // # Issue statistics:
-    // PhanPluginDuplicateConditionalNullCoalescing : 45+ occurrences
-    // PhanParamTooMany : 6 occurrences
-    // PhanTypeMismatchArgument : 5 occurrences
-    // PhanTypeMismatchProperty : 2 occurrences
-    // PhanTypeMismatchReturnProbablyReal : 2 occurrences
+    // PhanParamTooMany : 2 occurrences
     // PhanNoopNew : 1 occurrence
-    // PhanPluginSimplifyExpressionBool : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
+    // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
+    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'jetpack-protect.php' => ['PhanNoopNew'],
         'src/class-credentials.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-plan.php' => ['PhanTypeMismatchReturnProbablyReal'],
-        'src/class-protect-status.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-rest-controller.php' => ['PhanParamTooMany'],
-        'src/class-scan-status.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty'],
-        'src/class-status.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeMismatchArgument'],
         'src/class-threats.php' => ['PhanParamTooMany'],
-        'tests/php/test-scan-status.php' => ['PhanTypeMismatchArgument'],
-        'tests/php/test-status.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

@@ -1,14 +1,6 @@
-const loadIgnorePatterns = require( 'jetpack-js-tools/load-eslint-ignore.js' );
-
 // .eslintrc.js
 module.exports = {
-	root: true,
-	extends: [
-		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/esnext' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/playwright' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/prettier' ),
-	],
-	ignorePatterns: loadIgnorePatterns( __dirname ),
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/playwright' ) ],
 	parserOptions: {
 		requireConfigFile: false,
 	},
@@ -22,5 +14,7 @@ module.exports = {
 	rules: {
 		'no-console': 0,
 		'playwright/no-skipped-test': 0,
+		// False positives when using `page.getByRole()`
+		'testing-library/prefer-screen-queries': 0,
 	},
 };

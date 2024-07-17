@@ -9,7 +9,7 @@ import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publi
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
@@ -94,11 +94,11 @@ const SocialModuleToggle: React.FC = () => {
 			</Text>
 			{ ! hasPaidFeatures ? (
 				<ContextualUpgradeTrigger
-					className={ classNames( styles.cut, { [ styles.small ]: isSmall } ) }
+					className={ clsx( styles.cut, { [ styles.small ]: isSmall } ) }
 					description={ __( 'Unlock advanced sharing options', 'jetpack-social' ) }
 					cta={ __( 'Power up Jetpack Social', 'jetpack-social' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
-						site: blogID ?? siteSuffix,
+						site: `${ blogID ?? siteSuffix }`,
 						query: 'redirect_to=admin.php?page=jetpack-social',
 					} ) }
 					tooltipText={ __(

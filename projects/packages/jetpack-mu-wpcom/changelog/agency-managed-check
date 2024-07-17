@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Hide wpcom features when site is agency-managed or user is local

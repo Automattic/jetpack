@@ -31,8 +31,7 @@ class REST_Controller {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SOCIAL_BASIC_YEARLY    = 'jetpack_social_basic_yearly';
-	const JETPACK_SOCIAL_ADVANCED_YEARLY = 'jetpack_social_advanced_yearly';
+	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
 
 	/**
 	 * Constructor
@@ -83,7 +82,7 @@ class REST_Controller {
 
 		// Dismiss a notice.
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated $$next_version$$.
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',
@@ -147,7 +146,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'update_connection_permission_check' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
@@ -159,9 +158,59 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
 			)
 		);
+	}
+
+	/**
+	 * Manage connection permission check
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can manage the connection, false otherwise.
+	 */
+	public function manage_connection_permission_check( WP_REST_Request $request ) {
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * Publicize instance.
+		 *
+		 * @var Publicize $publicize Publicize instance.
+		 */
+		global $publicize;
+
+		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
+
+		$owns_connection = isset( $connection['user_id'] ) && get_current_user_id() === (int) $connection['user_id'];
+
+		return $owns_connection;
+	}
+
+	/**
+	 * Update connection permission check.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can update the connection, false otherwise.
+	 */
+	public function update_connection_permission_check( WP_REST_Request $request ) {
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return false;
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return $this->require_author_privilege_callback();
 	}
 
 	/**
@@ -326,8 +375,7 @@ class REST_Controller {
 
 		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		return array(
-			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
-			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+			'v1' => $products->{self::JETPACK_SOCIAL_V1_YEARLY},
 		);
 	}
 

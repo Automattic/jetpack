@@ -1,18 +1,18 @@
 import { RichText, useBlockProps } from '@wordpress/block-editor';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import getColorAndStyleProps from './color-props';
 
 export default function save( { attributes } ) {
 	const { borderRadius, text, align } = attributes;
 	const colorProps = getColorAndStyleProps( attributes );
-	const containerClasses = classnames(
+	const containerClasses = clsx(
 		'wp-block-button',
 		'wp-block-premium-content-login-button',
 		{ alignleft: align === 'left' },
 		{ aligncenter: align === 'center' },
 		{ alignright: align === 'right' }
 	);
-	const buttonClasses = classnames( 'wp-block-button__link', colorProps.className, {
+	const buttonClasses = clsx( 'wp-block-button__link', colorProps.className, {
 		'no-border-radius': borderRadius === 0,
 	} );
 	const buttonStyle = {

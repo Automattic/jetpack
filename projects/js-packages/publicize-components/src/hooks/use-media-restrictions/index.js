@@ -1,4 +1,5 @@
 import { useRef, useMemo } from '@wordpress/element';
+import useAttachedMedia from '../use-attached-media';
 import {
 	DEFAULT_RESTRICTIONS,
 	GLOBAL_MAX_SIZE,
@@ -128,21 +129,22 @@ const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits )
  * @param {object} metaData - Media metadata, mime, fileSize and length.
  * @param {object} mediaData - Data for media, width, height, source_url etc.
  * @param {string} serviceName - The name of the social media service we want to validate against. facebook, tumblr etc.
- * @param {boolean} shouldUploadAttachedMedia - Whether the social post is set to have the media attached, the 'Share as social post' option.
+ * @param {boolean} hasAttachedMedia - Whether the media is attached.
  * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
  */
-const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttachedMedia ) => {
+const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia ) => {
 	const restrictions = RESTRICTIONS[ serviceName ] ?? DEFAULT_RESTRICTIONS;
 
 	if ( ! metaData || Object.keys( metaData ).length === 0 ) {
 		return restrictions.requiresMedia ? NO_MEDIA_ERROR : null;
 	}
 
-	if ( ! restrictions.requiresMedia && ! shouldUploadAttachedMedia ) {
+	const { mime, fileSize } = metaData;
+
+	// If the media is not required and there is no attached media, we don't need to validate it.
+	if ( ! restrictions.requiresMedia && ! hasAttachedMedia ) {
 		return null;
 	}
-
-	const { mime, fileSize } = metaData;
 
 	if ( ! ( mime && restrictions.allowedMediaTypes.includes( mime.toLowerCase() ) ) ) {
 		return FILE_TYPE_ERROR;
@@ -170,14 +172,12 @@ const getValidationError = ( metaData, mediaData, serviceName, shouldUploadAttac
  *
  * @param {object} connections - Currently enabled connections.
  * @param {object} media - Currently enabled connections.
- * @param { { isSocialImageGeneratorEnabledForPost: boolean, shouldUploadAttachedMedia: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
+ * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
  * @returns {object} Social media connection handler.
  */
-const useMediaRestrictions = (
-	connections,
-	media,
-	{ isSocialImageGeneratorEnabledForPost, shouldUploadAttachedMedia }
-) => {
+const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
+	const { attachedMedia } = useAttachedMedia();
+	const hasAttachedMedia = attachedMedia.length > 0;
 	const errors = useRef( {} );
 
 	return useMemo( () => {
@@ -188,7 +188,7 @@ const useMediaRestrictions = (
 						media.metaData,
 						media.mediaData,
 						service_name,
-						shouldUploadAttachedMedia
+						hasAttachedMedia
 					);
 					if ( error ) {
 						errs[ connection_id ] = error;
@@ -208,7 +208,7 @@ const useMediaRestrictions = (
 		connections,
 		media.metaData,
 		media.mediaData,
-		shouldUploadAttachedMedia,
+		hasAttachedMedia,
 	] );
 };
 

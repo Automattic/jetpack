@@ -14,7 +14,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -287,7 +287,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const blockProps = useBlockProps( {
 		ref: blockRef,
-		className: classNames( { 'is-waiting-response': isWaitingResponse } ),
+		className: clsx( { 'is-waiting-response': isWaitingResponse } ),
 	} );
 
 	const promptPlaceholder = __( 'Ask Jetpack AI…', 'jetpack' );

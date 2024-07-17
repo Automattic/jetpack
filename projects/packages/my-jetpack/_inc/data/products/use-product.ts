@@ -22,6 +22,10 @@ const getDiscountPricePerMonth = ( product: ProductCamelCase ) => {
 export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
 	const { items: products } = getMyJetpackWindowInitialState( 'products' );
 
+	if ( ! products ) {
+		return {};
+	}
+
 	return Object.entries( products ).reduce(
 		( acc, [ key, product ] ) => ( { ...acc, [ key ]: prepareProductData( product ) } ),
 		{}

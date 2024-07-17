@@ -133,7 +133,7 @@ class Utils {
 	 */
 	public static function has_been_used() {
 		foreach ( Plugin::get_plugin_file_map() as $dev ) {
-			if ( file_exists( WP_PLUGIN_DIR . "/$dev" ) ) {
+			if ( file_exists( WP_PLUGIN_DIR . "/$dev" ) || file_exists( WPMU_PLUGIN_DIR . "/$dev" ) ) {
 				return true;
 			}
 		}

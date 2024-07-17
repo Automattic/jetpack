@@ -4,11 +4,11 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 13.6-a.0
+ * Version: 13.7-a.4
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.4
+ * Requires at least: 6.5
  * Requires PHP: 7.0
  *
  * @package automattic/jetpack
@@ -32,9 +32,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.4' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '6.5' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '7.0' );
-define( 'JETPACK__VERSION', '13.6-a.0' );
+define( 'JETPACK__VERSION', '13.7-a.4' );
 
 /**
  * Constant used to fetch the connection owner token
