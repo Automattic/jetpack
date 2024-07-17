@@ -130,7 +130,7 @@ const AllowList = class extends Component {
 		const isWafActive = this.props.getOptionValue( 'waf' );
 		const isProtectActive = this.props.getOptionValue( 'protect' );
 		const wafUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
-		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' );
 		const baseInputDisabledCase =
 			( ! isWafActive && ! isProtectActive ) ||
 			( wafUnavailableInOfflineMode && protectUnavailableInOfflineMode ) ||
@@ -183,8 +183,7 @@ const AllowList = class extends Component {
 							<div className="waf__settings__ips">
 								<Textarea
 									disabled={
-										isWafActive ||
-										isProtectActive ||
+										baseInputDisabledCase ||
 										this.props.isUpdatingWafSettings ||
 										! this.props.settings?.ipAllowListEnabled
 									}
