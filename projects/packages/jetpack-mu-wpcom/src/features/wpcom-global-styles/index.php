@@ -5,7 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-// @phan-file-suppress PhanRedefineFunction
 // Turn off the feature on ETK plugin.
 define( 'MU_WPCOM_GLOBAL_STYLES', true );
 

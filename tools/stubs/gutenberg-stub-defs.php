@@ -12,9 +12,9 @@ if ( ! is_dir( $work_dir ) ) {
 	throw new RuntimeException( 'WORK_DIR is not set or does not refer to a directory' );
 }
 
-$data = file_get_contents( "$work_dir/full-site-editing/full-site-editing-plugin.php" );
+$data = file_get_contents( "$work_dir/wordpress/gutenberg/gutenberg.php" );
 if ( ! preg_match( '/^ \* Version: (\d+\.\d+.*)/m', (string) $data, $m ) ) {
-	throw new RuntimeException( "Failed to extract version from $work_dir/full-site-editing/full-site-editing-plugin.php" );
+	throw new RuntimeException( "Failed to extract version from $work_dir/wordpress/gutenberg/gutenberg.php" );
 }
 $version = $m[1];
 
@@ -27,10 +27,12 @@ return array(
 	 * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
 	 */
 	HEAD,
-	'basedir' => "$work_dir/full-site-editing/",
+	'basedir' => "$work_dir/wordpress/gutenberg/",
 	'files'   => array(
-		'dotcom-fse/helpers.php' => array(
-			'function' => array( 'A8C\FSE\is_full_site_editing_active', 'A8C\FSE\is_site_eligible_for_full_site_editing' ),
+		'lib/class-wp-theme-json-data-gutenberg.php' => array(
+			'class' => array(
+				'WP_Theme_JSON_Data_Gutenberg' => array(),
+			),
 		),
 	),
 );
