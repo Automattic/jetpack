@@ -113,10 +113,19 @@ const ValueSection: FC< {
 				<div className="value-section__logins-blocked">
 					<div className="value-section__heading">Logins Blocked</div>
 					<div className="value-section__data">
-						<div className="logins_blocked__count">0</div>
+						<LoginsBlockedStatus />
 					</div>
 				</div>
 			</div>
 		</>
 	);
+};
+
+const LoginsBlockedStatus = () => {
+	const {
+		protect: { wafConfig: wafData },
+	} = getMyJetpackWindowInitialState();
+	const { blocked_logins: blockedLoginsCount } = wafData;
+
+	return <div className="logins_blocked__count">{ blockedLoginsCount }</div>;
 };
