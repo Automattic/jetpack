@@ -162,7 +162,9 @@ const AllowList = class extends Component {
 					<FormFieldset>
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
-								checked={ this.props.settings?.ipAllowListEnabled }
+								checked={
+									( isWafActive || isProtectActive ) && this.props.settings?.ipAllowListEnabled
+								}
 								toggling={
 									this.props.isUpdatingWafSettings &&
 									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
@@ -181,7 +183,10 @@ const AllowList = class extends Component {
 							<div className="waf__settings__ips">
 								<Textarea
 									disabled={
-										this.props.isUpdatingWafSettings || ! this.props.settings?.ipAllowListEnabled
+										isWafActive ||
+										isProtectActive ||
+										this.props.isUpdatingWafSettings ||
+										! this.props.settings?.ipAllowListEnabled
 									}
 									name="ipAllowList"
 									placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
