@@ -37,19 +37,16 @@ $border_radius: math.div($bar-height, 2);
         font-size: var(--font-body);
         line-height: 24px;
     }
-}
 
-.components-popover {
-    width: calc(100% - 63px);
-    max-width: 340px;
-    min-height: 150px;
-
-    @media (min-width: 783px) {
-        width: 100%;
-    }
-    &__content {
-        width: 100%;
+    &__parent {
+        width: calc(100vw - 63px);
+        max-width: 340px;
+        min-height: 150px;
         padding: 24px;
+    
+        @media (min-width: 783px) {
+            width: 100vw;
+        }
         p:last-child {
             margin-bottom: 0;
         }
@@ -90,3 +87,4 @@ $border_radius: math.div($bar-height, 2);
     color: var(--jp-green-50);
 	fill: var(--jp-green-50);
 }
+
