@@ -276,8 +276,8 @@ abstract class Base_Admin_Menu {
 			)
 		);
 
-		// Load nav unification styles for the admin bar when the user isn't using wp-admin interface style.
-		if ( ! $this->use_wp_admin_interface() && ! ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) ) {
+		// Load nav unification styles when the user isn't using wp-admin interface style.
+		if ( ! $this->use_wp_admin_interface() ) {
 			Assets::register_script(
 				'jetpack-admin-nav-unification',
 				$assets_base_path . 'admin-menu-nav-unification.js',
