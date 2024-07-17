@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue with connection and connection_test_result merging
