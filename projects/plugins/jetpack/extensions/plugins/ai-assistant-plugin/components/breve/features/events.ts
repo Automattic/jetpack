@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -10,7 +10,7 @@ import features from './index';
 /**
  * Types
  */
-import type { BreveDispatch, Anchor } from '../types';
+import type { BreveDispatch, Anchor, BreveSelect } from '../types';
 
 let highlightTimeout: number;
 let anchorTimeout: number;
@@ -19,7 +19,15 @@ function handleMouseEnter( e: MouseEvent ) {
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 
+	const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+
 	anchorTimeout = setTimeout( () => {
+		const isPopoverHover = breveSelect.isPopoverHover();
+
+		if ( isPopoverHover ) {
+			return;
+		}
+
 		const el = e.target as HTMLElement;
 		let virtual = el;
 
