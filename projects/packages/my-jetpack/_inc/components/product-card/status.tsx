@@ -15,8 +15,6 @@ interface StatusProps {
 type StatusStateFunction = ( status: keyof typeof PRODUCT_STATUSES, isOwned: boolean ) => string;
 
 const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
-	let label: string;
-
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -33,13 +31,11 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 			return __( 'Needs user account', 'jetpack-my-jetpack' );
 		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 			return __( 'Needs connection', 'jetpack-my-jetpack' );
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
-			if ( isOwned ) {
-				label = __( 'Owned', 'jetpack-my-jetpack' );
-			} else {
-				label = __( 'Not owned', 'jetpack-my-jetpack' );
-			}
-			return label;
+		case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+			const needsPlanText = __( 'Needs plan', 'jetpack-my-jetpack' );
+			const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
+			return isOwned ? needsPlanText : inactiveText;
+		}
 		default:
 			return __( 'Inactive', 'jetpack-my-jetpack' );
 	}
