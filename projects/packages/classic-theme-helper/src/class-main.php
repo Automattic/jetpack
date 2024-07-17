@@ -66,7 +66,7 @@ class Main {
 	 */
 	public static function jetpack_load_theme_tools() {
 		if ( current_theme_supports( 'tonesque' ) ) {
-			require_once __DIR__ . '../_inc/lib/tonesque.php';
+			require_once __DIR__ . '/../_inc/lib/tonesque.php';
 		}
 	}
 
