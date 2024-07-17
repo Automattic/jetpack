@@ -62,8 +62,17 @@ export default function Highlight() {
 			};
 
 			// Suggestions
-			const loadingSuggestions = breveSelect.getSuggestionsLoading( anchorFeature, anchorId );
-			const suggestionsData = breveSelect.getSuggestions( anchorFeature, anchorId );
+			const loadingSuggestions = breveSelect.getSuggestionsLoading( {
+				feature: anchorFeature,
+				id: anchorId,
+				blockId: anchorBlockId,
+			} );
+
+			const suggestionsData = breveSelect.getSuggestions( {
+				feature: anchorFeature,
+				id: anchorId,
+				blockId: anchorBlockId,
+			} );
 
 			return {
 				config,

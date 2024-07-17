@@ -31,7 +31,7 @@ const applyHighlightFormat = ( {
 				return { start: startIndex, end: endIndex, text } as RichTextValue;
 			} )
 			.reduce( ( acc: RichTextValue, { start, end, text }: RichTextValue ) => {
-				const currentAttr = { ...attributes, 'data-id': md5( text ) };
+				const currentAttr = { ...attributes, 'data-id': md5( `${ text }-${ start }-${ end }` ) };
 
 				const format = {
 					type,

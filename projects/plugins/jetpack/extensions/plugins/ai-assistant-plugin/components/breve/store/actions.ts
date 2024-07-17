@@ -66,6 +66,7 @@ export function setSuggestions( {
 			type: 'SET_SUGGESTIONS_LOADING',
 			id,
 			feature,
+			blockId,
 			loading: true,
 		} );
 
@@ -88,12 +89,14 @@ export function setSuggestions( {
 						id,
 						feature,
 						suggestions,
+						blockId,
 					} );
 				} catch ( e ) {
 					dispatch( {
 						type: 'SET_SUGGESTIONS_LOADING',
 						id,
 						feature,
+						blockId,
 						loading: false,
 					} );
 				}
@@ -103,6 +106,7 @@ export function setSuggestions( {
 					type: 'SET_SUGGESTIONS_LOADING',
 					id,
 					feature,
+					blockId,
 					loading: false,
 				} );
 			} );

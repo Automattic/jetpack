@@ -35,10 +35,16 @@ export function getDisabledFeatures( state: BreveState ) {
 	return state.configuration?.disabled;
 }
 
-export function getSuggestionsLoading( state: BreveState, feature: string, id: string ) {
-	return state.suggestions?.[ feature ]?.[ id ]?.loading;
+export function getSuggestionsLoading(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.[ id ]?.loading;
 }
 
-export function getSuggestions( state: BreveState, feature: string, id: string ) {
-	return state.suggestions?.[ feature ]?.[ id ]?.suggestions;
+export function getSuggestions(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.[ id ]?.suggestions;
 }

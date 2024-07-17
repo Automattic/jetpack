@@ -100,6 +100,7 @@ export function suggestions(
 		type: string;
 		id: string;
 		feature: string;
+		blockId: string;
 		loading: boolean;
 		suggestions?: {
 			revisedText: string;
@@ -107,37 +108,40 @@ export function suggestions(
 		};
 	}
 ) {
+	const { id, feature, blockId } = action ?? {};
+	const current = { ...state };
+	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
+	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+
 	switch ( action.type ) {
 		case 'SET_SUGGESTIONS_LOADING': {
-			const { id, feature } = action;
-			const current = { ...state };
-			const currentItem = current?.[ feature ]?.[ id ] || {};
-
 			return {
 				...current,
 				[ feature ]: {
 					...( current[ feature ] ?? {} ),
-					[ id ]: {
-						...currentItem,
-						loading: action.loading,
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: action.loading,
+						},
 					},
 				},
 			};
 		}
 
 		case 'SET_SUGGESTIONS': {
-			const { id, feature } = action;
-			const current = { ...state };
-			const currentItem = current?.[ feature ]?.[ id ] || {};
-
 			return {
 				...current,
 				[ feature ]: {
 					...( current[ feature ] ?? {} ),
-					[ id ]: {
-						...currentItem,
-						loading: false,
-						suggestions: action.suggestions,
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: false,
+							suggestions: action.suggestions,
+						},
 					},
 				},
 			};

@@ -40,11 +40,24 @@ export type BreveSelect = {
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
-	getSuggestionsLoading: ( feature: string, id: string ) => boolean;
-	getSuggestions: (
-		feature: string,
-		id: string
-	) => {
+	getSuggestionsLoading: ( {
+		feature,
+		id,
+		blockId,
+	}: {
+		feature: string;
+		id: string;
+		blockId: string;
+	} ) => boolean;
+	getSuggestions: ( {
+		feature,
+		id,
+		blockId,
+	}: {
+		feature: string;
+		id: string;
+		blockId: string;
+	} ) => {
 		html: string;
 		suggestion: string;
 	};
