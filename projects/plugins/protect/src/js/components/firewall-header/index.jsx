@@ -12,7 +12,8 @@ const FirewallHeader = ( {
 	status,
 	hasRequiredPlan,
 	automaticRulesAvailable,
-	jetpackWafIpList,
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
@@ -51,7 +52,8 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 								hasRequiredPlan={ hasRequiredPlan }
@@ -75,7 +77,8 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 								hasRequiredPlan={ hasRequiredPlan }
@@ -116,7 +119,8 @@ const ConnectedFirewallHeader = () => {
 	const {
 		config: {
 			jetpackWafAutomaticRules,
-			jetpackWafIpList,
+			jetpackWafIpBlockListEnabled,
+			jetpackWafIpAllowListEnabled,
 			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
@@ -139,7 +143,8 @@ const ConnectedFirewallHeader = () => {
 			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
 			automaticRulesAvailable={ automaticRulesAvailable }
-			jetpackWafIpList={ jetpackWafIpList }
+			jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+			jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }

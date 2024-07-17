@@ -62,7 +62,7 @@ function JetpackFieldMultiple( props ) {
 					<InnerBlocks
 						allowedBlocks={ ALLOWED_BLOCKS }
 						template={ [ [ `jetpack/field-option-${ type }`, {} ] ] }
-						templateInsertUpdatesSelection={ false }
+						templateInsertUpdatesSelection={ true }
 					/>
 				</div>
 			</div>

@@ -18,7 +18,6 @@ import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
 import useRefreshAutoConversionSettings from '../../hooks/use-refresh-auto-conversion-settings';
-import useRefreshConnections from '../../hooks/use-refresh-connections';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
@@ -41,7 +40,6 @@ import { ValidationNotice } from './validation-notice';
  */
 export default function PublicizeForm() {
 	const { connections, hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const refreshConnections = useRefreshConnections();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { shouldShowNotice, NOTICES } = useDismissNotice();
 	const {
@@ -93,8 +91,6 @@ export default function PublicizeForm() {
 	) {
 		refreshAutoConversionSettings();
 	}
-
-	refreshConnections();
 
 	return (
 		<Wrapper>

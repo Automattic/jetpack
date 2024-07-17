@@ -45,6 +45,13 @@ class Boost extends Product {
 	public static $plugin_slug = 'jetpack-boost';
 
 	/**
+	 * Boost has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Whether this product requires a user connection
 	 *
 	 * @var string

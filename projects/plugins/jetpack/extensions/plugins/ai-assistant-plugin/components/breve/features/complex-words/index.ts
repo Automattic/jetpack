@@ -6,7 +6,9 @@ import phrases from './phrases';
 /**
  * Types
  */
-import type { BreveFeatureConfig, HighlightedWord } from '../../types';
+import type { BreveFeatureConfig, HighlightedText } from '../../types';
+
+export const dictionary = phrases;
 
 export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
@@ -20,19 +22,19 @@ const list = new RegExp(
 	'gi'
 );
 
-export default function complexWords( text: string ): Array< HighlightedWord > {
-	const matches = text.matchAll( list );
-	const highlightedWords: Array< HighlightedWord > = [];
+export default function complexWords( blockText: string ): Array< HighlightedText > {
+	const matches = blockText.matchAll( list );
+	const highlightedTexts: Array< HighlightedText > = [];
 
 	for ( const match of matches ) {
-		const word = match[ 0 ].trim();
-		highlightedWords.push( {
-			word,
-			suggestion: phrases[ word ],
+		const text = match[ 0 ].trim();
+		highlightedTexts.push( {
+			text,
+			suggestion: phrases[ text ],
 			startIndex: match.index,
-			endIndex: match.index + word.length,
+			endIndex: match.index + text.length,
 		} );
 	}
 
-	return highlightedWords;
+	return highlightedTexts;
 }

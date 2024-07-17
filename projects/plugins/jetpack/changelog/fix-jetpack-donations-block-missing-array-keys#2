@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack_Currencies: Honor the `$symbol` arg when passed an unknown currency.

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+jetpack_get_google_fonts_data: Added an optional filter to short circuit fetching google font data

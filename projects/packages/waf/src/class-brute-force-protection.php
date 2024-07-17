@@ -14,6 +14,7 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 use WP_Error;
@@ -634,6 +635,15 @@ class Brute_Force_Protection {
 	}
 
 	/**
+	 * Whether or not the IP allow list is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function ip_allow_list_enabled() {
+		return get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, true );
+	}
+
+	/**
 	 * Checks if the IP address is in the allow list.
 	 *
 	 * @deprecated 0.11.0 Use ip_is_allowed()
@@ -656,6 +666,11 @@ class Brute_Force_Protection {
 		// If we found an exact match in wp-config.
 		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK === $ip ) {
 			return true;
+		}
+
+		// Allow list must be enabled.
+		if ( ! $this->ip_allow_list_enabled() ) {
+			return false;
 		}
 
 		$allow_list = Brute_Force_Protection_Shared_Functions::get_local_allow_list();

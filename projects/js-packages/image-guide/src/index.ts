@@ -1,5 +1,5 @@
-import { Dimensions, FetchFn, MeasurableImage, Weight } from './MeasurableImage.js';
-import { TracksCallback } from './analytics.js';
+import { MeasurableImage, type Dimensions, type FetchFn, type Weight } from './MeasurableImage.js';
+import { type TracksCallback } from './analytics.js';
 import { getMeasurableImages } from './find-image-elements.js';
 import { setupLoadListener } from './initialize.js';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';

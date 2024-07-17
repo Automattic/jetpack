@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "5.44.0-alpha",
+	"version": "5.45.0-alpha",
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
 	"bugs": {
@@ -16,7 +16,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build": "echo 'Not implemented.'",
-		"build-js": "pnpm clean && webpack && node bin/download-help-center-languages.js",
+		"build-js": "pnpm clean && webpack",
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm build-js",
 		"lint": "eslint --ext .js,.jsx,.cjs,.mjs,.ts,.tsx .",
@@ -45,6 +45,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
+		"@automattic/i18n-utils": "1.2.3",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/typography": "1.0.0",

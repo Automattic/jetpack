@@ -1,10 +1,13 @@
 /**
  * External dependencies
  */
-import { Button, Popover } from '@wordpress/components';
+import { fixes } from '@automattic/jetpack-ai-client';
+import { rawHandler } from '@wordpress/blocks';
+import { Button, Popover, Spinner } from '@wordpress/components';
 import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
@@ -17,49 +20,129 @@ import './style.scss';
 /**
  * Types
  */
-import type { BreveSelect } from '../types';
+import type { BreveDispatch, BreveSelect } from '../types';
+import type { Block } from '@automattic/jetpack-ai-client';
+import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
 import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
+
+type CoreBlockEditorSelect = {
+	getBlock: ( clientId: string ) => Block;
+};
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover } = useDispatch( 'jetpack/ai-breve' );
+	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { getBlock } = useSelect( select => {
+		const selector = select( 'core/block-editor' ) as CoreBlockEditorSelect;
 
-	const popoverOpen = useSelect( select => {
-		const store = select( 'jetpack/ai-breve' ) as BreveSelect;
-		const isPopoverHover = store.isPopoverHover();
-		const isHighlightHover = store.isHighlightHover();
-		return isHighlightHover || isPopoverHover;
+		return { getBlock: selector.getBlock };
 	}, [] );
 
-	const anchor = useSelect( select => {
-		return ( select( 'jetpack/ai-breve' ) as BreveSelect ).getPopoverAnchor();
-	}, [] );
+	const { anchor, virtual, popoverOpen, id, feature, blockId, title, loading, suggestions } =
+		useSelect( select => {
+			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-	const isPopoverOpen = popoverOpen && anchor;
+			// Popover
+			const isPopoverHover = breveSelect.isPopoverHover();
+			const isHighlightHover = breveSelect.isHighlightHover();
 
-	const selectedFeatured = anchor ? ( anchor as HTMLElement )?.getAttribute?.( 'data-type' ) : null;
+			// Anchor data
+			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor() ?? {
+				target: null,
+				virtual: null,
+			};
+			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+			const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
+			const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
-	const featureConfig = features?.find?.( feature => feature.config.name === selectedFeatured )
-		?.config ?? {
-		name: '',
-		title: '',
-	};
+			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
+				name: '',
+				title: '',
+			};
+
+			// Suggestions
+			const loadingSuggestions = breveSelect.getSuggestionsLoading( {
+				feature: anchorFeature,
+				id: anchorId,
+				blockId: anchorBlockId,
+			} );
+
+			const suggestionsData = breveSelect.getSuggestions( {
+				feature: anchorFeature,
+				id: anchorId,
+				blockId: anchorBlockId,
+			} );
+
+			return {
+				config,
+				anchor: anchorEl,
+				virtual: virtualEl,
+				title: config?.title,
+				feature: anchorFeature,
+				id: anchorId,
+				blockId: anchorBlockId,
+				popoverOpen: isHighlightHover || isPopoverHover,
+				loading: loadingSuggestions,
+				suggestions: suggestionsData,
+			};
+		}, [] );
+
+	const isPopoverOpen = popoverOpen && virtual;
+	const hasSuggestions = Boolean( suggestions?.suggestion );
 
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
 
-	const handleMouseLeave = () => {
+	const handleMouseLeave = ( e: React.MouseEvent ) => {
+		e.stopPropagation();
 		setPopoverHover( false );
+	};
+
+	const handleSuggestions = () => {
+		const target = ( anchor as HTMLElement )?.innerText;
+		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText as string;
+
+		setSuggestions( {
+			id,
+			target,
+			feature,
+			sentence,
+			blockId,
+		} );
+	};
+
+	const handleApplySuggestion = () => {
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			return;
+		}
+
+		let render = suggestions?.html;
+
+		// Apply known fixes for table and list-item blocks
+		if ( block.name === 'core/table' ) {
+			render = fixes.table( suggestions?.html, true, {
+				hasFixedLayout: block.attributes?.hasFixedLayout,
+			} );
+		}
+
+		if ( block.name === 'core/list-item' ) {
+			render = fixes.listItem( suggestions?.html, true );
+		}
+
+		const [ newBlock ] = rawHandler( { HTML: render } );
+		updateBlockAttributes( blockId, newBlock.attributes );
 	};
 
 	return (
 		<>
 			{ isPopoverOpen && (
 				<Popover
-					anchor={ anchor }
+					anchor={ virtual }
 					placement="bottom"
-					offset={ -3 }
 					className="highlight-popover"
 					variant="tooltip"
 					animate={ false }
@@ -67,14 +150,37 @@ export default function Highlight() {
 					onMouseEnter={ handleMouseEnter }
 					onMouseLeave={ handleMouseLeave }
 				>
-					<div className="highlight-content">
+					<div
+						className={ clsx( 'highlight-content', {
+							'has-suggestions': hasSuggestions,
+						} ) }
+					>
 						<div className="title">
-							<div className="color" data-type={ selectedFeatured } />
-							<div>{ featureConfig?.title }</div>
+							<div className="color" data-type={ feature } />
+							<div>{ title }</div>
 						</div>
-						<div className="action">
-							<Button icon={ AiSVG }>{ __( 'Suggest', 'jetpack' ) }</Button>
-						</div>
+						{ hasSuggestions ? (
+							<div className="suggestion-container">
+								<Button variant="tertiary" onClick={ handleApplySuggestion }>
+									{ suggestions?.suggestion }
+								</Button>
+								<div className="helper">
+									{ __( 'Click on a suggestion to insert it.', 'jetpack' ) }
+								</div>
+							</div>
+						) : (
+							<div className="action">
+								{ loading ? (
+									<div className="loading">
+										<Spinner />
+									</div>
+								) : (
+									<Button icon={ AiSVG } onClick={ handleSuggestions }>
+										{ __( 'Suggest', 'jetpack' ) }
+									</Button>
+								) }
+							</div>
+						) }
 					</div>
 				</Popover>
 			) }
@@ -86,8 +192,12 @@ export function registerBreveHighlights() {
 	features.forEach( feature => {
 		const { highlight: featureHighlight, config } = feature;
 		const { name, ...configSettings } = config;
+		const formatName = `jetpack/ai-proofread-${ name }`;
 
 		const settings = {
+			name: formatName,
+			interactive: false,
+			edit: () => {},
 			...configSettings,
 
 			__experimentalGetPropsForEditableTreePreparation() {
@@ -102,18 +212,24 @@ export function registerBreveHighlights() {
 			},
 			__experimentalCreatePrepareEditableTree(
 				{ isProofreadEnabled, isFeatureEnabled },
-				{ blockClientId }
+				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
 					const record = { formats, text } as RichTextValue;
-					const type = `jetpack/ai-proofread-${ config.name }`;
+					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
+						const highlights = featureHighlight( text );
+
 						const applied = highlight( {
 							content: record,
 							type,
-							indexes: featureHighlight( record.text ),
-							attributes: { 'data-type': config.name },
+							indexes: highlights,
+							attributes: {
+								'data-type': config.name,
+								'data-identifier': richTextIdentifier ?? 'none',
+								'data-block': blockClientId,
+							},
 						} );
 
 						setTimeout( () => {
@@ -126,8 +242,8 @@ export function registerBreveHighlights() {
 					return removeFormat( record, type, 0, record.text.length ).formats;
 				};
 			},
-		} as never;
+		} as WPFormat;
 
-		registerFormatType( `jetpack/ai-proofread-${ name }`, settings );
+		registerFormatType( formatName, settings );
 	} );
 }

@@ -25,8 +25,8 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			);
 			// eslint-disable-next-line no-empty
 		} catch ( e ) {}
-		// For avoiding Firefox reload, we need to force reload bypassing the cache.
-		window.location.reload( true );
+
+		window.location = destinationUrl.toString();
 	}
 
 	function JetpackSubscriptionModalOnCommentMessageListener( event ) {
