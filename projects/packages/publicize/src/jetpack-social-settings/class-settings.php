@@ -215,6 +215,10 @@ class Settings {
 
 			$settings['is_publicize_enabled'] = true;
 			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
+
+			foreach ( self::FEATURE_FLAGS as $feature_flag ) {
+				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->use_feature_flag( $feature_flag['flag_name'], $feature_flag['plan_name'] );
+			}
 		} else {
 			$settings['connectionData'] = array(
 				'connections' => array(),
@@ -222,10 +226,6 @@ class Settings {
 		}
 
 		$settings['connectionRefreshPath'] = ! empty( $settings['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results';
-
-		foreach ( self::FEATURE_FLAGS as $feature_flag ) {
-			$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->use_feature_flag( $feature_flag['flag_name'], $feature_flag['plan_name'] );
-		}
 
 		return $settings;
 	}
