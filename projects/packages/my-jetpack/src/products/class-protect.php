@@ -62,6 +62,13 @@ class Protect extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * Protect has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string

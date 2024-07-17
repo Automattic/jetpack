@@ -2105,6 +2105,9 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/i18n-utils':
+        specifier: 1.2.3
+        version: 1.2.3
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -4882,6 +4885,12 @@ packages:
   '@automattic/calypso-color-schemes@3.1.3':
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
 
+  '@automattic/calypso-config@1.2.0':
+    resolution: {integrity: sha512-7NE5oVOEyQ4KRz1VNnPIHgW+mcwxnkcs/+Cymba7OA7SYKARiTg3ETGlZGX19S0F7gjYZMq+IeLHeAZSrNjz/Q==}
+
+  '@automattic/calypso-url@1.1.0':
+    resolution: {integrity: sha512-oA6pzfrp538gq5JEjE0ARDjvR8Efhw+jrK15TJPjAq5Q+vhPSJhH8sYKEsMAoYZV3d5nnyUcmI5Evge+yq4zeg==}
+
   '@automattic/color-studio@2.6.0':
     resolution: {integrity: sha512-2LzB6bbQw1vayZxZy5Y+DnCYU7x8tPu+rZhNkWD7V8QZTSJMJO65XKZhYaCByC+C5OegXyGyZzcqEOHHdj5iiQ==}
 
@@ -4893,6 +4902,12 @@ packages:
 
   '@automattic/format-currency@1.0.1':
     resolution: {integrity: sha512-RY2eiUlDiqNSHiJzz2YmH/mw4IjAUO5hkxbwcVGHJkBZowdq/WcSG2yhXc8N9cV9N1fTO/ryCuJvGnpHUe+mAg==}
+
+  '@automattic/i18n-utils@1.2.3':
+    resolution: {integrity: sha512-zvZlazUoEasLATrta3ljfxu2uaZWgHRNKWf56KKBlrPiIxNQvx9D7YyN2MhiV27e/PuAhB0gI4ghqp3gzurKmA==}
+
+  '@automattic/languages@1.0.0':
+    resolution: {integrity: sha512-froTyDbTmLitHkvY9WLCpFdjUo6moOLkDKw63J2fLiB2gBApy2thkBV+LRx4Z0kIF5iXVkQF4yYOPYkT9Sr13Q==}
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
@@ -14633,6 +14648,14 @@ snapshots:
 
   '@automattic/calypso-color-schemes@3.1.3': {}
 
+  '@automattic/calypso-config@1.2.0': {}
+
+  '@automattic/calypso-url@1.1.0':
+    dependencies:
+      photon: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
   '@automattic/color-studio@2.6.0': {}
 
   '@automattic/explat-client-react-helpers@0.1.0':
@@ -14646,6 +14669,22 @@ snapshots:
       tslib: 2.5.0
 
   '@automattic/format-currency@1.0.1':
+    dependencies:
+      tslib: 2.5.0
+
+  '@automattic/i18n-utils@1.2.3':
+    dependencies:
+      '@automattic/calypso-config': 1.2.0
+      '@automattic/calypso-url': 1.1.0
+      '@automattic/languages': 1.0.0
+      '@wordpress/compose': 7.2.0(react@18.3.1)
+      '@wordpress/i18n': 5.2.0
+      react: 18.3.1
+      tslib: 2.5.0
+    transitivePeerDependencies:
+      - supports-color
+
+  '@automattic/languages@1.0.0':
     dependencies:
       tslib: 2.5.0
 
