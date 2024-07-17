@@ -77,7 +77,6 @@ export function popover(
 			return {
 				...state,
 				isPopoverHover: action.isHover,
-				frozenAnchor: action.isHover ? ( state.anchors ?? [] )[ ( state.level ?? 1 ) - 1 ] : null,
 			};
 
 		case 'SET_POPOVER_ANCHOR': {
@@ -85,33 +84,9 @@ export function popover(
 				return state;
 			}
 
-			const anchors = [ ...( state.anchors ?? [] ) ];
-
-			anchors[ Math.max( ( state.level ?? 1 ) - 1, 0 ) ] = action.anchor;
-
 			return {
 				...state,
-				anchors,
-			};
-		}
-
-		case 'INCREASE_POPOVER_LEVEL': {
-			const level = ( state.level ?? 0 ) + 1;
-
-			return {
-				...state,
-				level,
-			};
-		}
-
-		case 'DECREASE_POPOVER_LEVEL': {
-			const level = Math.max( ( state.level ?? 1 ) - 1, 0 );
-			const anchors = ( state.anchors ?? [] ).slice( 0, level );
-
-			return {
-				...state,
-				level,
-				anchors,
+				anchor: action.anchor,
 			};
 		}
 	}
