@@ -163,15 +163,19 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 				stream: false,
 			};
 
+			const parameters = {
+				url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
+				method: 'POST',
+				data: body,
+				headers: {
+					Authorization: `Bearer ${ tokenData.token }`,
+					'Content-Type': 'application/json',
+				},
+			};
+
 			const data = await wpcomLimitedRequest< {
 				choices: Array< { message: { content: string } } >;
-			} >( {
-				apiNamespace: 'wpcom/v2',
-				path: '/jetpack-ai-query',
-				method: 'POST',
-				token: tokenData.token,
-				body,
-			} );
+			} >( parameters );
 
 			return data?.choices?.[ 0 ]?.message?.content;
 		} catch ( error ) {
