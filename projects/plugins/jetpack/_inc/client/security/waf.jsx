@@ -17,7 +17,6 @@ import {
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isModuleFound } from 'state/search';
 import { getSitePlan, siteHasFeature } from 'state/site';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
@@ -514,7 +513,6 @@ export default connect(
 			settings: getWafSettings( state ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			sitePlan,
-			isModuleFound: module_name => isModuleFound( state, module_name ),
 		};
 	},
 	dispatch => {
