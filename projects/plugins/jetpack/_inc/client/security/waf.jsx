@@ -630,22 +630,11 @@ export const Waf = class extends Component {
 						<FormFieldset className="waf__settings">
 							{ automaticRulesSettings }
 							{ ipBlockListSettings }
+							{ ipAllowListSettings }
 							{ shareDataSettings }
 							{ shareDebugDataSettings }
 						</FormFieldset>
 					) }
-					<ModuleToggle
-						slug="protect"
-						disabled={ protectUnavailableInOfflineMode }
-						activated={ isProtectActive }
-						toggling={ this.props.isSavingAnyOption( 'protect' ) }
-						toggleModule={ this.props.toggleModuleNow }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ this.props.getModule( 'protect' ).description }
-						</span>
-					</ModuleToggle>
-					{ ipAllowListSettings }
 				</SettingsGroup>
 				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }
 				{ ! this.props.hasScan && ! this.props.isFetchingSettings && upgradeBanner }
