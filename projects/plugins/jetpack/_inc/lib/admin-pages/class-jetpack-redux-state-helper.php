@@ -49,7 +49,6 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_initial_state() {
 		global $is_safari;
-		global $wp_version;
 
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
@@ -248,7 +247,7 @@ class Jetpack_Redux_State_Helper {
 			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
-			'subscriptionSiteEditSupported' => $current_theme->is_block_theme() && version_compare( $wp_version, '6.5-beta2', '>=' ),
+			'subscriptionSiteEditSupported' => $current_theme->is_block_theme(),
 		);
 	}
 
@@ -263,10 +262,9 @@ class Jetpack_Redux_State_Helper {
 		// If Gutenberg is not installed,
 		// check if we run a version of WP that would include support.
 		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
-			global $wp_version;
 			return array(
 				'isAvailable'         => false,
-				'hasInteractivityApi' => version_compare( $wp_version, '6.4', '>=' ),
+				'hasInteractivityApi' => true,
 			);
 		}
 

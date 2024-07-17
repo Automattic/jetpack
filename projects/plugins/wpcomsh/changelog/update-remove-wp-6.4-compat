@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove code for compatibility with WordPress before 6.5.
