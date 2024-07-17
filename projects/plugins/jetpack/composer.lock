@@ -1812,7 +1812,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "a41e05669aceb5dff88c10468a3b7faf0152b1e4"
+				"reference": "0c5dffa0f434993147dd2c710de0c7832c48e54f"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
