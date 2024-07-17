@@ -149,7 +149,7 @@ const AllowList = class extends Component {
 
 		const moduleHeader = (
 			<div className="waf__header">
-				<span>{ _x( 'Always Allowed IP Addresses', 'Settings header', 'jetpack' ) }</span>
+				<span>{ _x( 'Always allowed IP addresses', 'Settings header', 'jetpack' ) }</span>
 			</div>
 		);
 
