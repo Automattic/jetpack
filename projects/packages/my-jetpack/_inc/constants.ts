@@ -32,7 +32,7 @@ export const PRODUCT_STATUSES = {
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
-	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
+	NEEDS_ACTIVATION: 'needs_activation',
 	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
 	USER_CONNECTION_ERROR: 'user_connection_error',
 	CAN_UPGRADE: 'can_upgrade',

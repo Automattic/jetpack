@@ -26,6 +26,7 @@ const ActionButton = ( {
 	onInstall,
 	onLearnMore,
 	upgradeInInterstitial,
+	isOwned,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState( {} );
@@ -43,6 +44,8 @@ const ActionButton = ( {
 		return {
 			variant: ! isBusy ? 'primary' : undefined,
 			disabled: isBusy,
+			size: 'small',
+			weight: 'regular',
 			className,
 		};
 	}, [ isBusy, className ] );
@@ -54,9 +57,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onLearnMore,
 					...( primaryActionOverride &&
@@ -69,9 +70,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: '',
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onInstall,
 					...( primaryActionOverride &&
@@ -84,9 +83,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 					...( primaryActionOverride &&
@@ -94,13 +91,14 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
 				};
 			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+				const buttonText = isOwned
+					? __( 'Get plan', 'jetpack-my-jetpack' )
+					: __( 'Learn more', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
-					label: __( 'Learn more', 'jetpack-my-jetpack' ),
+					label: buttonText,
 					onClick: onAdd,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.NEEDS_PURCHASE in primaryActionOverride &&
@@ -115,9 +113,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onAdd,
 					...( primaryActionOverride &&
@@ -125,19 +121,6 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
-				return {
-					...buttonState,
-					href: `#/add-${ slug }`,
-					size: 'small',
-					variant: 'primary',
-					weight: 'regular',
-					label: __( 'Learn more', 'jetpack-my-jetpack' ),
-					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ] ),
-				};
 			case PRODUCT_STATUSES.ACTIVE: {
 				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
@@ -145,9 +128,7 @@ const ActionButton = ( {
 					...buttonState,
 					disabled: isManageDisabled || buttonState?.disabled,
 					href: manageUrl,
-					size: 'small',
 					variant: 'secondary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onManage,
 					...( primaryActionOverride &&
@@ -159,10 +140,8 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: '#/connection',
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
-					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
+					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
@@ -171,9 +150,7 @@ const ActionButton = ( {
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {
 					href: '#/connection',
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
@@ -182,12 +159,11 @@ const ActionButton = ( {
 				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:
+			case PRODUCT_STATUSES.NEEDS_ACTIVATION:
 				return {
 					...buttonState,
 					href: '',
-					size: 'small',
 					variant: 'secondary',
-					weight: 'regular',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
 					...( primaryActionOverride &&
@@ -212,6 +188,7 @@ const ActionButton = ( {
 		manageUrl,
 		onManage,
 		primaryActionOverride,
+		isOwned,
 	] );
 
 	const allActions = useMemo(
