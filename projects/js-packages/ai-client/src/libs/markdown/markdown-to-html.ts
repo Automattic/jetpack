@@ -7,7 +7,7 @@ import MarkdownIt from 'markdown-it';
  */
 import type { Options } from 'markdown-it';
 
-export type Fix = 'list' | 'paragraph' | 'listItem';
+export type Fix = 'list' | 'paragraph' | 'listItem' | 'table';
 
 const addListComments = ( content: string ) => {
 	return (
@@ -30,9 +30,13 @@ const addListComments = ( content: string ) => {
 };
 
 type Fixes = {
-	[ key in Fix ]: ( content: string, extension?: boolean ) => string;
+	[ key in Fix ]: (
+		content: string,
+		extension?: boolean,
+		options?: { [ key: string ]: unknown }
+	) => string;
 };
-const fixes: Fixes = {
+export const fixes: Fixes = {
 	list: ( content: string, extension = false ) => {
 		// Fix list indentation
 		const fixedIndentation = content
@@ -60,6 +64,19 @@ const fixes: Fixes = {
 
 		// Fix encoding of <br /> tags
 		return content.replaceAll( /\s*&lt;br \/&gt;\s*/g, '<br />' );
+	},
+	table: ( content: string, extension = false, { hasFixedLayout = false } ) => {
+		if ( ! extension ) {
+			return content;
+		}
+
+		if ( content.startsWith( '<!-- wp:table' ) ) {
+			return content;
+		}
+
+		return `<!-- wp:table { "hasFixedLayout":${
+			hasFixedLayout ? 'true' : 'false'
+		} } -->${ content }<!-- /wp:table -->`;
 	},
 };
 

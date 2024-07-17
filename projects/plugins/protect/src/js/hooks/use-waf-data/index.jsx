@@ -74,16 +74,32 @@ const useWafData = () => {
 	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafAutomaticRules ] );
 
 	/**
-	 * Toggle Manual Rules
+	 * Toggle IP Allow List
 	 *
-	 * Flips the switch on the WAF IP list feature, and then refreshes the data.
+	 * Flips the switch on the WAF IP allow list feature, and then refreshes the data.
 	 */
-	const toggleManualRules = useCallback( () => {
+	const toggleIpAllowList = useCallback( () => {
 		setWafIsUpdating( true );
-		return API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } )
+		return API.updateWaf( {
+			jetpack_waf_ip_allow_list_enabled: ! waf.config.jetpackWafIpAllowListEnabled,
+		} )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpAllowListEnabled ] );
+
+	/**
+	 * Toggle IP Block List
+	 *
+	 * Flips the switch on the WAF IP block list feature, and then refreshes the data.
+	 */
+	const toggleIpBlockList = useCallback( () => {
+		setWafIsUpdating( true );
+		return API.updateWaf( {
+			jetpack_waf_ip_block_list_enabled: ! waf.config.jetpackWafIpBlockListEnabled,
+		} )
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpBlockListEnabled ] );
 
 	/**
 	 * Toggle Brute Force Protection
@@ -152,7 +168,8 @@ const useWafData = () => {
 		refreshWaf,
 		toggleWaf,
 		toggleAutomaticRules,
-		toggleManualRules,
+		toggleIpAllowList,
+		toggleIpBlockList,
 		toggleBruteForceProtection,
 		toggleShareData,
 		toggleShareDebugData,
