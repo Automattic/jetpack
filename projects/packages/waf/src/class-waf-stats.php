@@ -151,6 +151,11 @@ class Waf_Stats {
 			$global_stats = self::get_global_stats_from_options();
 		}
 
+		// Ensure that $global_stats is not null and is of the correct type
+		if ( $global_stats === null || ( ! is_array( $global_stats ) && ! ( $global_stats instanceof \WP_Error ) ) ) {
+			return new \WP_Error( 'unexpected_type', 'Unexpected type or null returned for global stats' );
+		}
+
 		return $global_stats;
 	}
 }
