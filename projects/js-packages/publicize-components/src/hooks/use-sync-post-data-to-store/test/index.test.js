@@ -13,7 +13,7 @@ import {
 const connections = connectionsList.map( connection => ( { ...connection, enabled: true } ) );
 
 const post = {
-	jetpack_publicize_connections: [ connections[ 0 ] ],
+	jetpack_publicize_connections: [ connections ],
 };
 
 const getMethod = options =>
