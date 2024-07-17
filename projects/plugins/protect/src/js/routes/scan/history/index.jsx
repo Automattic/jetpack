@@ -1,7 +1,7 @@
 import { AdminSectionHero, Container, Col, H3, Text, Title } from '@automattic/jetpack-components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
 import AlertSVGIcon from '../../../components/alert-icon';
 import ProtectCheck from '../../../components/protect-check-icon';
@@ -20,7 +20,7 @@ const ScanHistoryRoute = () => {
 	useAnalyticsTracks( { pageViewEventName: 'protect_scan_history' } );
 
 	const { filter = 'all' } = useParams();
-	const { numThreats, error, errorMessage, errorCode } = useProtectData( {
+	const { numThreats, error, errorMessage, errorCode, hasRequiredPlan } = useProtectData( {
 		sourceType: 'history',
 	} );
 	const { item, list, selected, setSelected } = useThreatsList( {
@@ -210,6 +210,11 @@ const ScanHistoryRoute = () => {
 				}
 		}
 	}, [ selected, list.length, filter, item?.name, item?.version ] );
+
+	// Threat history is only available for paid plans.
+	if ( ! hasRequiredPlan ) {
+		return <Navigate to="/scan" />;
+	}
 
 	return (
 		<AdminPage>
