@@ -53,7 +53,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, label, title, icon, severity, fixable },
+				props: { id, fixable, label, icon, severity },
 			} );
 		};
 	};
@@ -154,25 +154,6 @@ const PaidList = ( { list } ) => {
 	);
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-
-	const getLabel = threat => {
-		if ( threat.name && threat.version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ threat.name } (${ threat.version })`;
-		}
-
-		if ( threat.filename ) {
-			// File threat i.e. "index.php"
-			return threat.filename.split( '/' ).pop();
-		}
-
-		if ( threat.table ) {
-			// Database threat i.e. "wp_posts"
-			return threat.table;
-		}
-	};
-
-	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 
 	return (
 		<>

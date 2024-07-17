@@ -111,7 +111,7 @@ class Help_Center {
 			// Load translations directly from widgets.wp.com.
 			wp_enqueue_script(
 				'help-center-translations',
-				'https://widgets.wp.com/help-center/languages/' . self::determine_iso_639_locale() . '-v1.js',
+				'https://widgets.wp.com/help-center/languages/' . Common\determine_iso_639_locale() . '-v1.js',
 				array( 'wp-i18n' ),
 				$version,
 				true
@@ -169,7 +169,7 @@ class Help_Center {
 							'email'        => $user_email,
 						),
 						'site'        => $this->get_current_site(),
-						'locale'      => self::determine_iso_639_locale(),
+						'locale'      => Common\determine_iso_639_locale(),
 					)
 				),
 				'before'
@@ -177,16 +177,6 @@ class Help_Center {
 		}
 	}
 
-	/**
-	 * Determine the ISO 639 locale.
-	 */
-	public static function determine_iso_639_locale() {
-		$locale = get_user_locale();
-		if ( ! $locale ) {
-			$locale = Common\get_iso_639_locale( get_locale() );
-		}
-		return Common\get_iso_639_locale( $locale );
-	}
 	/**
 	 * Get current site details.
 	 */

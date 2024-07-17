@@ -1,6 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 
@@ -49,6 +48,10 @@ module.exports = [
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
+			alias: {
+				...jetpackWebpackConfig.resolve.alias,
+				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
+			},
 		},
 		node: false,
 		plugins: [
