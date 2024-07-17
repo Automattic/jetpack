@@ -9,7 +9,9 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
+if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+	return;
+}
 
 /**
  * Enqueue assets needed by the WordPress.com admin bar.
