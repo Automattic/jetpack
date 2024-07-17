@@ -30,9 +30,6 @@ class Waf_Compatibility {
 		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
 		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list_enabled', 10, 3 );
 		add_filter( 'default_option_' . Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_block_list_enabled', 10, 3 );
-		add_action( 'pre_update_option_' . Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, __CLASS__ . '::update_option_waf_ip_lists_enabled', 10, 3 );
-		add_action( 'pre_update_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::update_option_waf_ip_allow_list_enabled', 10, 3 );
-		add_action( 'pre_update_option_' . Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::update_option_waf_ip_block_list_enabled', 10, 3 );
 	}
 
 	/**
@@ -249,13 +246,13 @@ class Waf_Compatibility {
 	public static function default_option_waf_ip_allow_list_enabled( $default, $option, $passed_default ) {
 		// If the deprecated IP lists option was set to false, disable the allow list.
 		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		$deprecated_option = get_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+		$deprecated_option = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
 		if ( ! $deprecated_option ) {
 			return false;
 		}
 
 		// If the allow list is empty, disable the allow list.
-		if ( ! get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) ) {
+		if ( ! Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) ) {
 			return false;
 		}
 
@@ -286,57 +283,6 @@ class Waf_Compatibility {
 		}
 
 		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		return get_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
-	}
-
-	/**
-	 * Keep the new IP list options in sync with the old generic IP lists enabled option.
-	 *
-	 * @since $next-version$
-	 *
-	 * @param mixed $old_value The old value of the option.
-	 * @param mixed $value     The new value of the option.
-	 */
-	public static function update_option_waf_ip_lists_enabled( $old_value, $value ) {
-		$allow_list_enabled = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, false );
-		$block_list_enabled = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, false );
-
-		if ( $value && ! $allow_list_enabled ) {
-			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, true );
-		}
-		if ( $value && ! $block_list_enabled ) {
-			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, true );
-		}
-	}
-
-	/**
-	 * Keep the legacy IP lists enabled option in sync with the new allow list enabled option.
-	 *
-	 * @since $next-version$
-	 *
-	 * @param mixed $old_value The old value of the option.
-	 * @param mixed $value     The new value of the option.
-	 */
-	public static function update_option_waf_ip_allow_list_enabled( $old_value, $value ) {
-		$legacy_option_enabled = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
-
-		if ( $value && ! $legacy_option_enabled ) {
-			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
-		}
-	}
-
-	/**
-	 * Keep the legacy IP lists enabled option in sync with the new block list enabled option.
-	 *
-	 * @since $next-version$
-	 *
-	 * @param mixed $old_value The old value of the option.
-	 * @param mixed $value     The new value of the option.
-	 */
-	public static function update_option_waf_ip_block_list_enabled( $old_value, $value ) {
-		$legacy_option_enabled = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
-		if ( $value && ! $legacy_option_enabled ) {
-			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
-		}
+		return Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
 	}
 }
