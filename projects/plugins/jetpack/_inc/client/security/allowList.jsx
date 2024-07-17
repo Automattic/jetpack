@@ -207,11 +207,9 @@ const AllowList = class extends Component {
 													rna
 													compact
 													disabled={
+														! this.props.settings?.ipAllowListEnabled ||
 														this.currentIpIsSafelisted() ||
-														this.props.isSavingAnyOption( [
-															'protect',
-															'jetpack_waf_ip_allow_list',
-														] )
+														this.props.isSavingAnyOption( [ 'jetpack_waf_ip_allow_list' ] )
 													}
 													onClick={ this.addToSafelist }
 												>
