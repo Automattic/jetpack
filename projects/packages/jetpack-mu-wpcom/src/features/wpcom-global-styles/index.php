@@ -129,6 +129,7 @@ function wpcom_global_styles_is_self_hosted_site( $blog_id ) {
 	return is_jetpack_site( $blog_id ) && ! is_blog_atomic( get_blog_details( $blog_id ) );
 }
 
+// @phan-suppress-next-line PhanRedefineFunction
 /**
  * Enqueues the WP.com Global Styles scripts and styles for the block editor.
  *
@@ -346,6 +347,7 @@ function wpcom_global_styles_current_user_can_edit_wp_global_styles( $blog_id = 
 	return current_user_can( $wp_global_styles_cpt->cap->publish_posts );
 }
 
+// @phan-suppress-next-line PhanRedefineFunction
 /**
  * Checks if the current blog has custom styles in use.
  *
