@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fixed problem with is_utf8_charset missing in WP 6.6
