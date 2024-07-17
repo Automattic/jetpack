@@ -1,12 +1,19 @@
 export type BreveControls = () => React.JSX.Element;
 
+export type Anchor = {
+	target: HTMLElement;
+	virtual: {
+		getBoundingClientRect: () => DOMRect;
+		contextElement?: HTMLElement;
+	};
+};
+
 export type BreveState = {
 	popover?: {
 		isHighlightHover?: boolean;
 		isPopoverHover?: boolean;
-		anchors?: Array< HTMLElement | EventTarget >;
+		anchor?: Anchor;
 		level?: number;
-		frozenAnchor?: HTMLElement | EventTarget;
 	};
 	configuration?: {
 		enabled?: boolean;
@@ -17,7 +24,7 @@ export type BreveState = {
 export type BreveSelect = {
 	isHighlightHover: () => boolean;
 	isPopoverHover: () => boolean;
-	getPopoverAnchor: () => HTMLElement | EventTarget;
+	getPopoverAnchor: () => Anchor | null;
 	getPopoverLevel: () => number;
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
@@ -27,7 +34,7 @@ export type BreveSelect = {
 export type BreveDispatch = {
 	setHighlightHover: ( isHover: boolean ) => void;
 	setPopoverHover: ( isHover: boolean ) => void;
-	setPopoverAnchor: ( anchor: HTMLElement | EventTarget ) => void;
+	setPopoverAnchor: ( anchor: Anchor ) => void;
 	increasePopoverLevel: () => void;
 	decreasePopoverLevel: () => void;
 	toggleProofread: ( force?: boolean ) => void;
