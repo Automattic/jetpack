@@ -92,15 +92,30 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 */
 		public function fromRgbInt( $red, $green, $blue ) {
 			if ( $red < 0 || $red > 255 ) {
-				throw new RangeException( 'Red value ' . $red . ' out of valid color code range' );
+				throw new RangeException(
+					sprintf(
+						'Red value %s out of valid color code range',
+						esc_html( $red )
+					)
+				);
 			}
 
 			if ( $green < 0 || $green > 255 ) {
-				throw new RangeException( 'Green value ' . $green . ' out of valid color code range' );
+				throw new RangeException(
+					sprintf(
+						'Green value %s out of valid color code range',
+						esc_html( $green )
+					)
+				);
 			}
 
 			if ( $blue < 0 || $blue > 255 ) {
-				throw new RangeException( 'Blue value ' . $blue . ' out of valid color code range' );
+				throw new RangeException(
+					sprintf(
+						'Blue value %s out of valid color code range',
+						esc_html( $blue )
+					)
+				);
 			}
 
 			$this->color = ( intval( $red ) << 16 ) + ( intval( $green ) << 8 ) + intval( $blue );
@@ -186,7 +201,12 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 */
 		public function fromInt( $int_value ) {
 			if ( $int_value < 0 || $int_value > 16777215 ) {
-				throw new RangeException( $int_value . ' out of valid color code range' );
+				throw new RangeException(
+					sprintf(
+						'%s out of valid color code range',
+						esc_html( $int_value )
+					)
+				);
 			}
 
 			$this->color = $int_value;
