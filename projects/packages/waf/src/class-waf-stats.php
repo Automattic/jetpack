@@ -98,7 +98,7 @@ class Waf_Stats {
 	 * @return boolean
 	 */
 	public static function should_use_global_stats_cache() {
-		return defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE ? false : true;
+		return ! ( defined( 'JETPACK_PROTECT_DEV__BYPASS_CACHE' ) && JETPACK_PROTECT_DEV__BYPASS_CACHE );
 	}
 
 	/**
@@ -138,7 +138,7 @@ class Waf_Stats {
 	 * If the cache is not expired, it will return the cached data
 	 *
 	 * @param bool $refresh_from_wpcom Whether to refresh the data from the API.
-	 * @return array|WP_Error
+	 * @return array|\WP_Error
 	 */
 	public static function get_global_stats( $refresh_from_wpcom = false ) {
 		if ( self::$global_stats !== null ) {
