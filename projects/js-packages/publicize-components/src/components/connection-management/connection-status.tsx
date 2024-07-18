@@ -1,4 +1,7 @@
-import { __, _x } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import { SupportedService } from '../services/use-supported-services';
 import { Disconnect } from './disconnect';
@@ -26,7 +29,14 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 			<span className="description">
 				{ service
 					? __( 'There is an issue with this connection.', 'jetpack' )
-					: _x( 'This platform is no longer supported.', '', 'jetpack' ) }
+					: createInterpolateElement(
+							'This platform is no longer supported. Use <link>Manual Sharing</link> instead.',
+							{
+								link: (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) } />
+								),
+							}
+					  ) }
 			</span>
 			&nbsp;
 			{ service ? (
