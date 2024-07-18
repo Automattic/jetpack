@@ -1,4 +1,4 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { Chip, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
@@ -10,6 +10,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { siteHasFeature } from 'state/site';
 
 export class Composing extends React.Component {
 	/**
@@ -45,7 +46,8 @@ export class Composing extends React.Component {
 			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
-			foundBlocks = this.props.isModuleFound( 'blocks' );
+			foundBlocks = this.props.isModuleFound( 'blocks' ),
+			hasAiFeature = this.props.hasAiFeature;
 
 		if (
 			! foundCopyPost &&
@@ -203,6 +205,16 @@ export class Composing extends React.Component {
 						{ __( 'Discover Jetpack tools in the block editor', 'jetpack' ) }
 					</CompactCard>
 				</>
+			),
+			aiAssistantLink = (
+				<CompactCard
+					className="jp-settings-card__configure-link"
+					href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }
+				>
+					{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
+					{ /* TODO: remove this Chip once it's not longer "new" */ }
+					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
+				</CompactCard>
 			);
 
 		return (
@@ -217,6 +229,7 @@ export class Composing extends React.Component {
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
 				{ foundBlocks && blocksSettings }
+				{ hasAiFeature && aiAssistantLink }
 			</SettingsCard>
 		);
 	}
@@ -226,5 +239,6 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		hasAiFeature: siteHasFeature( state, 'ai-assistant' ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );
