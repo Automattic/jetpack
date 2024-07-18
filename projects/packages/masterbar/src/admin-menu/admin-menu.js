@@ -55,6 +55,34 @@ import './admin-menu.css';
 			adminbarBlogDefault.addEventListener( 'click', toggleSidebar );
 			// Detect a click outside the sidebar and close it if its open.
 			adminbarBlogDefault.addEventListener( 'click', closeSidebarWhenClickedOutside );
+
+			// We redirect to the default URL when clicking the WP logo
+			const wpLogoItem = document.querySelector( 'li#wp-admin-bar-wp-logo.menupop' );
+
+			const disableHoverListener = function ( event ) {
+				event.stopPropagation();
+			};
+			const clickHandler = function ( event ) {
+				event.preventDefault();
+				event.stopPropagation();
+				const wpLogoURL = document.querySelector( 'li#wp-admin-bar-wp-logo.menupop a' );
+				if ( wpLogoURL && typeof wpLogoURL.href !== 'undefined' ) {
+					window.location.href = wpLogoURL.href;
+				}
+			};
+
+			wpLogoItem.addEventListener( 'mouseenter', disableHoverListener, true );
+			wpLogoItem.addEventListener( 'mouseleave', disableHoverListener, true );
+
+			try {
+				delete wpLogoItem.hoverIntent_t;
+				delete wpLogoItem.hoverIntent_s;
+			} catch ( error ) {
+				// Do nothing.
+			}
+
+			wpLogoItem.addEventListener( 'click', clickHandler, true );
+			wpLogoItem.addEventListener( 'touchstart', clickHandler, true );
 		}
 
 		/**
