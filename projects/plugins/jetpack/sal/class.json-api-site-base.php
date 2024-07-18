@@ -417,6 +417,13 @@ abstract class SAL_Site {
 	abstract public function is_deleted();
 
 	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_a4a_client();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
