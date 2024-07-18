@@ -59,6 +59,8 @@ function jetpack_get_google_fonts_data() {
 		/**
 		 * Filters the Google Fonts API URL.
 		 *
+		 * @module google-fonts
+		 *
 		 * @since 12.8
 		 *
 		 * @param string $url The Google Fonts API URL.

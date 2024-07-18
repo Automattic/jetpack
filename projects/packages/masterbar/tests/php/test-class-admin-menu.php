@@ -500,6 +500,15 @@ class Test_Admin_Menu extends TestCase {
 				),
 				array( '', 'read', 'test-slug', '', Base_Admin_Menu::HIDE_CSS_CLASS ),
 			),
+			array(
+				array(
+					array( '', 'read', 'test-empty-submenu', '', '' ),
+				),
+				array(
+					'test-empty-submenu' => array(),
+				),
+				array( '', 'read', 'test-empty-submenu', '', '' ),
+			),
 		);
 	}
 

@@ -1740,7 +1740,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "f8d772f6c04b05b1fed240ab09cb9723b677db33"
+				"reference": "a41e05669aceb5dff88c10468a3b7faf0152b1e4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1756,6 +1756,7 @@
 				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
+				"automattic/jetpack-waf": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {

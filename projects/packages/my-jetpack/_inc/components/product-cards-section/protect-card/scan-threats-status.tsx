@@ -19,7 +19,11 @@ export const ScanAndThreatStatus = () => {
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
-	const { plugins, themes, scanData } = getMyJetpackWindowInitialState();
+	const {
+		plugins,
+		themes,
+		protect: { scanData },
+	} = getMyJetpackWindowInitialState();
 	const {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,

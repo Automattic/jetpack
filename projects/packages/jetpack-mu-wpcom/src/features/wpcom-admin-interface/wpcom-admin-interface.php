@@ -14,9 +14,6 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
  * The setting is displayed only if the has the wp-admin interface selected.
  */
 function wpcomsh_wpcom_admin_interface_settings_field() {
-	if ( is_agency_managed_site() ) {
-		return;
-	}
 	add_settings_field( 'wpcom_admin_interface', '', 'wpcom_admin_interface_display', 'general', 'default' );
 
 	register_setting( 'general', 'wpcom_admin_interface', array( 'sanitize_callback' => 'esc_attr' ) );
