@@ -100,7 +100,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		// First fetch the feature data so we have the most up-to-date info from the backend.
 		try {
 			const feature = await getFeature();
-			console.log( 'feature', feature );
 
 			//const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
@@ -111,7 +110,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			const hasNoNextTier = ! feature?.nextTier; // If there is no next tier, the user cannot upgrade.
 
 			// The user needs an upgrade immediately if they have no logos and not enough requests remaining for one prompt and one logo generation.
-			const needsMoreRequests =
+			const siteNeedsMoreRequests =
 				! isUnlimited &&
 				! hasNoNextTier &&
 				//! hasHistory &&
@@ -119,21 +118,21 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 			// If the site requires an upgrade, set the upgrade URL and show the upgrade screen immediately.
 			setNeedsFeature( ! feature?.hasFeature ?? true );
-			setNeedsMoreRequests( needsMoreRequests );
+			setNeedsMoreRequests( siteNeedsMoreRequests );
 
-			if ( ! feature?.hasFeature || needsMoreRequests ) {
-				const upgradeURL = new URL(
+			if ( ! feature?.hasFeature || siteNeedsMoreRequests ) {
+				const siteUpgradeURL = new URL(
 					`${ location.origin }/checkout/${ siteDetails?.domain }/${ feature?.nextTier?.slug }`
 				);
-				upgradeURL.searchParams.set( 'redirect_to', location.href );
-				setUpgradeURL( upgradeURL.toString() );
+				siteUpgradeURL.searchParams.set( 'redirect_to', location.href );
+				setUpgradeURL( siteUpgradeURL.toString() );
 				setLoadingState( null );
 				return;
 			}
 
 			// Load the logo history and clear any deleted media.
-			//await clearDeletedMedia( String( siteId ) );
-			//loadLogoHistory( siteId );
+			// await clearDeletedMedia( String( siteId ) );
+			// loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
 			/*
@@ -149,8 +148,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
 		}
-		// }, [ getFeature, siteId, loadLogoHistory, generateFirstLogo, siteDetails?.domain ] );
-	}, [ getFeature ] );
+	}, [ getFeature, generateFirstLogo ] );
 
 	const handleModalOpen = useCallback( async () => {
 		setContext( context );

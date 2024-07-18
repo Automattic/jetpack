@@ -83,53 +83,56 @@ const useLogoGenerator = () => {
 	const aiAssistantFeatureData = getAiAssistantFeature( siteId );
 	const logoGenerationCost = aiAssistantFeatureData?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo;
 
-	const generateFirstPrompt = async function (): Promise< string > {
-		setFirstLogoPromptFetchError( null );
-		increaseAiAssistantRequestsCount();
+	const generateFirstPrompt = useCallback(
+		async function (): Promise< string > {
+			setFirstLogoPromptFetchError( null );
+			increaseAiAssistantRequestsCount();
 
-		try {
-			const tokenData = await requestJwt();
+			try {
+				const tokenData = await requestJwt();
 
-			if ( ! tokenData || ! tokenData.token ) {
-				throw new Error( 'No token provided' );
-			}
+				if ( ! tokenData || ! tokenData.token ) {
+					throw new Error( 'No token provided' );
+				}
 
-			debug( 'Generating first prompt for site', siteId );
+				debug( 'Generating first prompt for site' );
 
-			const firstPromptGenerationPrompt = `Generate a simple and short prompt asking for a logo based on the site's name and description, keeping the same language.
+				const firstPromptGenerationPrompt = `Generate a simple and short prompt asking for a logo based on the site's name and description, keeping the same language.
 Example for a site named "The minimalist fashion blog", described as "Daily inspiration for all things fashion": A logo for a minimalist fashion site focused on daily sartorial inspiration with a clean and modern aesthetic that is sleek and sophisticated.
 Another example, now for a site called "El observatorio de aves", described as "Un sitio dedicado a nuestros compañeros y compañeras entusiastas de la observación de aves.": Un logo para un sitio web dedicado a la observación de aves,  capturando la esencia de la naturaleza y la pasión por la avifauna en un diseño elegante y representativo, reflejando una estética natural y apasionada por la vida silvestre.
 
 Site name: ${ name }
 Site description: ${ description }`;
 
-			const body = {
-				question: firstPromptGenerationPrompt,
-				feature: 'jetpack-ai-logo-generator',
-				stream: false,
-			};
+				const body = {
+					question: firstPromptGenerationPrompt,
+					feature: 'jetpack-ai-logo-generator',
+					stream: false,
+				};
 
-			const parameters = {
-				url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
-				method: 'POST',
-				data: body,
-				headers: {
-					Authorization: `Bearer ${ tokenData.token }`,
-					'Content-Type': 'application/json',
-				},
-			};
+				const parameters = {
+					url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
+					method: 'POST',
+					data: body,
+					headers: {
+						Authorization: `Bearer ${ tokenData.token }`,
+						'Content-Type': 'application/json',
+					},
+				};
 
-			const data = await wpcomLimitedRequest< {
-				choices: Array< { message: { content: string } } >;
-			} >( parameters );
+				const data = await wpcomLimitedRequest< {
+					choices: Array< { message: { content: string } } >;
+				} >( parameters );
 
-			return data?.choices?.[ 0 ]?.message?.content;
-		} catch ( error ) {
-			increaseAiAssistantRequestsCount( -1 );
-			setFirstLogoPromptFetchError( error );
-			throw error;
-		}
-	};
+				return data?.choices?.[ 0 ]?.message?.content;
+			} catch ( error ) {
+				increaseAiAssistantRequestsCount( -1 );
+				setFirstLogoPromptFetchError( error );
+				throw error;
+			}
+		},
+		[ setFirstLogoPromptFetchError, increaseAiAssistantRequestsCount ]
+	);
 
 	const enhancePrompt = async function ( { prompt }: { prompt: string } ): Promise< string > {
 		setEnhancePromptFetchError( null );
@@ -188,7 +191,7 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 		}
 	};
 
-	const generateImage = async function ( {
+	const generateImage = useCallback( async function ( {
 		prompt,
 	}: {
 		prompt: string;
@@ -227,7 +230,7 @@ User request:${ prompt }`;
 			setLogoFetchError( error );
 			throw error;
 		}
-	};
+	}, [] );
 
 	const saveLogo = useCallback< SaveLogo >(
 		async logo => {
@@ -302,7 +305,7 @@ User request:${ prompt }`;
 			addLogoToHistory( logo );
 			stashLogo( { ...logo, siteId: String( siteId ) } );
 		},
-		[ siteId, addLogoToHistory ]
+		[ siteId, addLogoToHistory, stashLogo ]
 	);
 
 	const generateLogo = useCallback(
