@@ -16,8 +16,55 @@ for ( const file of glob.sync( './src/sso/*.css' ) ) {
 	ssoEntries[ name ].push( path.resolve( file ) );
 }
 
+/**
+ * @type {import('webpack').Configuration[]} Webpack configuration.
+ */
+const sharedConfig = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.devtool,
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.resolve( './dist' ),
+	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: false,
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript, including node_modules.
+			jetpackWebpackConfig.TranspileRule(),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-' ],
+			} ),
+
+			// Handle CSS.
+			jetpackWebpackConfig.CssRule( {
+				extensions: [ 'css', 'sass', 'scss' ],
+				extraLoaders: [ 'sass-loader' ],
+			} ),
+		],
+	},
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'identity_crisis',
+		} ),
+	},
+};
+
+/**
+ * @type {import('webpack').Configuration[]} Webpack configuration.
+ */
 module.exports = [
 	{
+		...sharedConfig,
 		entry: {
 			'tracks-ajax': './src/js/tracks-ajax.js',
 			'tracks-callables': {
@@ -29,7 +76,17 @@ module.exports = [
 			},
 			'identity-crisis': './src/identity-crisis/_inc/admin.jsx',
 			...ssoEntries,
-			[ 'jetpack-connection' ]: {
+		},
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				MiniCssExtractPlugin: { filename: '[name].css' },
+			} ),
+		],
+	},
+	{
+		...sharedConfig,
+		entry: {
+			'jetpack-connection': {
 				import: './src/js/jetpack-connection.js',
 				library: {
 					name: 'JetpackConnection',
@@ -37,19 +94,6 @@ module.exports = [
 				},
 			},
 		},
-		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.devtool,
-		output: {
-			...jetpackWebpackConfig.output,
-			path: path.resolve( './dist' ),
-		},
-		optimization: {
-			...jetpackWebpackConfig.optimization,
-		},
-		resolve: {
-			...jetpackWebpackConfig.resolve,
-		},
-		node: false,
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name].css' },
@@ -62,31 +106,12 @@ module.exports = [
 			} ),
 		],
 		module: {
-			strictExportPresence: true,
+			...sharedConfig.module,
 			rules: [
-				// Transpile JavaScript, including node_modules.
-				jetpackWebpackConfig.TranspileRule(),
-
-				// Transpile @automattic/jetpack-* in node_modules too.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@automattic/jetpack-' ],
-				} ),
-
-				// Handle CSS.
-				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
-				} ),
-
+				...sharedConfig.module.rules,
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),
 			],
-		},
-		externals: {
-			...jetpackWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'identity_crisis',
-			} ),
 		},
 	},
 ];
