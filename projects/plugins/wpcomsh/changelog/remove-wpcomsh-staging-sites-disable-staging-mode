@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed code that disables Jetpack staging mode for WordPress.com staging sites.
