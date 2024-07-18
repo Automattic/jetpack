@@ -67,7 +67,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'  => 'https://wordpress.com/sites',
+			'href'  => 'https://wordpress.com/sites?origin_site_id=' . get_current_blog_id(),
 			'meta'  => array(
 				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
 			),
@@ -86,7 +86,7 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 		array(
 			'id'    => 'reader',
 			'title' => __( 'Reader', 'jetpack-mu-wpcom' ),
-			'href'  => 'https://wordpress.com/read',
+			'href'  => 'https://wordpress.com/read?origin_site_id=' . get_current_blog_id(),
 			'meta'  => array(
 				'class' => 'wp-admin-bar-reader',
 			),
@@ -112,7 +112,7 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => 'https://wordpress.com/me/account',
+			'href'   => 'https://wordpress.com/me/account?origin_site_id=' . get_current_blog_id(),
 		)
 	);
 
