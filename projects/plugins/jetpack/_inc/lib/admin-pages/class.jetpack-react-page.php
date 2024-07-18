@@ -289,7 +289,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 		// The script handle for the initial state.
-		$initial_state_handle = 'jetpack-publicize';
+		$initial_state_handle = 'jetpack-connection';
 
 		wp_set_script_translations( $initial_state_handle, 'jetpack' );
 
