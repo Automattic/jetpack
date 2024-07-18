@@ -1,5 +1,5 @@
 Significance: patch
-Type: other
-Comment: Updated composer.lock.
+Type: removed
+Comment: Removed loading wpcomsh phan stubs from the Masterbar, these stubs are already included globally now.
 
 
