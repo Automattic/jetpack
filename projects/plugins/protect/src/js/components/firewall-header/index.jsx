@@ -98,17 +98,19 @@ const FirewallSubheadingContent = ( { className, text = '', popover = false, chi
 };
 
 const FirewallSubheading = ( {
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
 	hasRequiredPlan,
 	automaticRulesAvailable,
-	jetpackWafIpList,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
 } ) => {
-	const allRules = wafSupported && jetpackWafAutomaticRules && jetpackWafIpList;
-	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! jetpackWafIpList;
-	const manualRules = wafSupported && ! jetpackWafAutomaticRules && jetpackWafIpList;
-	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! jetpackWafIpList;
+	const allowOrBlockListEnabled = jetpackWafIpBlockListEnabled || jetpackWafIpAllowListEnabled;
+	const allRules = wafSupported && jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const automaticRules = wafSupported && jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
+	const manualRules = wafSupported && ! jetpackWafAutomaticRules && allowOrBlockListEnabled;
+	const noRules = wafSupported && ! jetpackWafAutomaticRules && ! allowOrBlockListEnabled;
 
 	return (
 		<>
@@ -157,7 +159,8 @@ const FirewallHeader = ( {
 	hasRequiredPlan,
 	automaticRulesEnabled,
 	automaticRulesAvailable,
-	jetpackWafIpList,
+	jetpackWafIpBlockListEnabled,
+	jetpackWafIpAllowListEnabled,
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 	wafSupported,
@@ -193,7 +196,8 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 								hasRequiredPlan={ hasRequiredPlan }
@@ -217,7 +221,8 @@ const FirewallHeader = ( {
 										  ) ) }
 							</H3>
 							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
+								jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 								hasRequiredPlan={ hasRequiredPlan }
@@ -250,7 +255,8 @@ const ConnectedFirewallHeader = () => {
 	const {
 		config: {
 			jetpackWafAutomaticRules,
-			jetpackWafIpList,
+			jetpackWafIpBlockListEnabled,
+			jetpackWafIpAllowListEnabled,
 			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
@@ -269,7 +275,8 @@ const ConnectedFirewallHeader = () => {
 			hasRequiredPlan={ hasRequiredPlan }
 			automaticRulesEnabled={ jetpackWafAutomaticRules }
 			automaticRulesAvailable={ automaticRulesAvailable }
-			jetpackWafIpList={ jetpackWafIpList }
+			jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
+			jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 			bruteForceProtectionIsEnabled={ bruteForceProtection }
 			wafSupported={ wafSupported }

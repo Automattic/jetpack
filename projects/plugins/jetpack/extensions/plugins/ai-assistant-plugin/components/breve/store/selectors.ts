@@ -1,7 +1,7 @@
 /**
  * Types
  */
-import type { BreveState } from '../types';
+import type { Anchor, BreveState } from '../types';
 
 // POPOVER
 
@@ -13,15 +13,8 @@ export function isPopoverHover( state: BreveState ) {
 	return state.popover?.isPopoverHover;
 }
 
-export function getPopoverAnchor( state: BreveState ): HTMLElement | EventTarget | null {
-	if ( state.popover?.frozenAnchor ) {
-		return state.popover.frozenAnchor;
-	}
-
-	// Returns the last non-nullish anchor in the array
-	return (
-		( state.popover?.anchors ?? [] ) as Array< HTMLElement | EventTarget | null >
-	 ).reduceRight( ( acc, anchor ) => acc ?? anchor, null );
+export function getPopoverAnchor( state: BreveState ): Anchor | null {
+	return state?.popover?.anchor ?? null;
 }
 
 export function getPopoverLevel( state: BreveState ) {
@@ -40,4 +33,18 @@ export function isFeatureEnabled( state: BreveState, feature: string ) {
 
 export function getDisabledFeatures( state: BreveState ) {
 	return state.configuration?.disabled;
+}
+
+export function getSuggestionsLoading(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.[ id ]?.loading;
+}
+
+export function getSuggestions(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.[ id ]?.suggestions;
 }
