@@ -85,7 +85,7 @@ class Waf_Blocklog_Manager {
 	 * @return void
 	 */
 	private static function update_daily_summary() {
-		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) {
+		if ( ! ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) ) {
 			return;
 		}
 
