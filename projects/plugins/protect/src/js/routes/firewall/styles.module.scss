@@ -91,16 +91,7 @@
 }
 
 .manual-rules-section {
-    margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
-}
-
-.brute-force-rules-section {
-    margin-top: calc( var( --spacing-base ) * 6 ); // 32px
-    margin-bottom: calc( var( --spacing-base ) * 2 ); // 32px
-}
-
-.go-back-button {
-    margin: calc( var( --spacing-base ) * -1 ) calc( var( --spacing-base ) * -2 ); // -8px | -16px
+    margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
 }
 
 .badge {
@@ -161,7 +152,13 @@
     }
 }
 
-.current-ip-text {
-    margin-top: calc( var( --spacing-base ) * 2 );
-    margin-bottom: calc( var( --spacing-base ) * 3);
+.allow-list-button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.block-list-button-container {
+    display: flex;
+    justify-content: right;
 }

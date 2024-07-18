@@ -94,4 +94,61 @@ export function popover(
 	return state;
 }
 
-export default combineReducers( { popover, configuration } );
+export function suggestions(
+	state = {},
+	action: {
+		type: string;
+		id: string;
+		feature: string;
+		blockId: string;
+		loading: boolean;
+		suggestions?: {
+			revisedText: string;
+			suggestion: string;
+		};
+	}
+) {
+	const { id, feature, blockId } = action ?? {};
+	const current = { ...state };
+	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
+	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+
+	switch ( action.type ) {
+		case 'SET_SUGGESTIONS_LOADING': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: action.loading,
+						},
+					},
+				},
+			};
+		}
+
+		case 'SET_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: false,
+							suggestions: action.suggestions,
+						},
+					},
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions } );

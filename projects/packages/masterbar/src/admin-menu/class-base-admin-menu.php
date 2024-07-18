@@ -494,10 +494,8 @@ abstract class Base_Admin_Menu {
 		$this->sort_hidden_submenus();
 
 		foreach ( $menu as $menu_index => $menu_item ) {
-			$has_submenus = isset( $submenu[ $menu_item[2] ] );
-
 			// Skip if the menu doesn't have submenus.
-			if ( ! $has_submenus || ! is_array( $submenu[ $menu_item[2] ] ) ) {
+			if ( empty( $submenu[ $menu_item[2] ] ) || ! is_array( $submenu[ $menu_item[2] ] ) ) {
 				continue;
 			}
 

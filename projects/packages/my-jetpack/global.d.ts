@@ -171,23 +171,37 @@ interface Window {
 				};
 			};
 		};
-		scanData: {
-			core: ScanItem;
-			current_progress?: string;
-			data_source: string;
-			database: string[];
-			error: boolean;
-			error_code?: string;
-			error_message?: string;
-			files: string[];
-			has_unchecked_items: boolean;
-			last_checked: string;
-			num_plugins_threats: number;
-			num_themes_threats: number;
-			num_threats: number;
-			plugins: ScanItem[];
-			status: string;
-			themes: ScanItem[];
+		protect: {
+			scanData: {
+				core: ScanItem;
+				current_progress?: string;
+				data_source: string;
+				database: string[];
+				error: boolean;
+				error_code?: string;
+				error_message?: string;
+				files: string[];
+				has_unchecked_items: boolean;
+				last_checked: string;
+				num_plugins_threats: number;
+				num_themes_threats: number;
+				num_threats: number;
+				plugins: ScanItem[];
+				status: string;
+				themes: ScanItem[];
+			};
+			wafConfig: {
+				automatic_rules_available: boolean;
+				bootstrap_path: string;
+				brute_force_protection: boolean;
+				jetpack_waf_automatic_rules: '1' | '';
+				jetpack_waf_ip_allow_list: '1' | '';
+				jetpack_waf_ip_block_list: boolean;
+				jetpack_waf_ip_list: boolean;
+				jetpack_waf_share_data: '1' | '';
+				jetpack_waf_share_debug_data: boolean;
+				standalone_mode: boolean;
+			};
 		};
 		purchases: {
 			items: Array< {
