@@ -119,7 +119,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
 		'is_deleted',
-		'is_a4a_client'
+		'is_a4a_client',
 	);
 
 	/**
