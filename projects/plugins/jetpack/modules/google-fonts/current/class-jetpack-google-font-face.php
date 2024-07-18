@@ -122,9 +122,7 @@ class Jetpack_Google_Font_Face {
 	public function collect_block_fonts( $content, $parsed_block ) {
 		if ( ! is_admin() && isset( $parsed_block['attrs']['fontFamily'] ) ) {
 			$block_font_family = $parsed_block['attrs']['fontFamily'];
-			if ( is_string( $block_font_family ) ) {
-				$this->add_font( $block_font_family );
-			}
+			$this->add_font( $block_font_family );
 		}
 
 		return $content;
@@ -136,7 +134,9 @@ class Jetpack_Google_Font_Face {
 	 * @param string $font_slug The font slug.
 	 */
 	public function add_font( $font_slug ) {
-		$this->fonts_in_use[] = $this->format_font( $font_slug );
+		if ( is_string( $font_slug ) ) {
+			$this->fonts_in_use[] = $this->format_font( $font_slug );
+		}
 	}
 
 	/**
