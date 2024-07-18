@@ -104,7 +104,6 @@ function make_phan_config( $dir, $options = array() ) {
 			case 'wpcom':
 				$stubs[] = "$root/.phan/stubs/wpcom-stubs.php";
 				if ( $dir !== "$root/projects/plugins/wpcomsh" ) {
-					$extra_stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/nav-redesign.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/masterbar.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";

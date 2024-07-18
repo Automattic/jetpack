@@ -233,8 +233,8 @@ add_action( 'wp_enqueue_scripts', 'wpcom_global_styles_enqueue_assets' );
 /**
  * Removes the user styles from a site with limited global styles.
  *
- * @param WP_Theme_JSON_Data|WP_Theme_JSON_Data_Gutenberg $theme_json Class to access and update the underlying data.
- * @return WP_Theme_JSON_Data|WP_Theme_JSON_Data_Gutenberg Filtered data.
+ * @param WP_Theme_JSON_Data $theme_json Class to access and update the underlying data.
+ * @return WP_Theme_JSON_Data Filtered data.
  */
 function wpcom_block_global_styles_frontend( $theme_json ) {
 	if ( ! wpcom_should_limit_global_styles() || wpcom_is_previewing_global_styles() ) {

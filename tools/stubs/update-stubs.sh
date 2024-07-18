@@ -99,14 +99,6 @@ info 'Extracting AMP stubs'
 "$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/amp-stubs.php" "$BASE/tools/stubs/amp-stub-defs.php"
 
 echo
-info 'Downloading Gutenberg'
-fetch_repo wordpress/gutenberg
-
-echo
-info 'Extracting Gutenberg stubs'
-"$BASE/projects/packages/stub-generator/bin/jetpack-stub-generator" --output "$BASE/.phan/stubs/gutenberg-stubs.php" "$BASE/tools/stubs/gutenberg-stub-defs.php"
-
-echo
 info 'Downloading WordPress.com Editing Toolkit'
 fetch_plugin full-site-editing
 
