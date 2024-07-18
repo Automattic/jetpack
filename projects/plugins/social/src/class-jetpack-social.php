@@ -176,9 +176,8 @@ class Jetpack_Social {
 			'build/index.js',
 			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
 			array(
-				'in_footer'        => true,
-				'textdomain'       => 'jetpack-social',
-				'css_dependencies' => array( 'jetpack-publicize', 'jetpack-connection' ),
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-social',
 			)
 		);
 
