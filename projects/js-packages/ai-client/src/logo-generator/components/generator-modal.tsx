@@ -82,7 +82,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		try {
 			// First generate the prompt based on the site's data.
 			setLoadingState( 'analyzing' );
-			//recordTracksEvent( EVENT_GENERATE, { context, tool: 'first-prompt' } );
+			recordTracksEvent( EVENT_GENERATE, { context, tool: 'first-prompt' } );
 			const prompt = await generateFirstPrompt();
 			setInitialPrompt( prompt );
 
@@ -101,7 +101,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		try {
 			const feature = await getFeature();
 
-			//const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
+			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 			const promptCreationCost = 1;
 			const currentLimit = feature?.currentTier?.value || 0;
@@ -113,7 +113,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			const siteNeedsMoreRequests =
 				! isUnlimited &&
 				! hasNoNextTier &&
-				//! hasHistory &&
+				! hasHistory &&
 				currentLimit - currentUsage < logoCost + promptCreationCost;
 
 			// If the site requires an upgrade, set the upgrade URL and show the upgrade screen immediately.
@@ -131,16 +131,14 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			}
 
 			// Load the logo history and clear any deleted media.
-			// await clearDeletedMedia( String( siteId ) );
-			// loadLogoHistory( siteId );
+			await clearDeletedMedia( String( siteId ) );
+			loadLogoHistory( siteId );
 
 			// If there is any logo, we do not need to generate a first logo again.
-			/*
 			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
 				setLoadingState( null );
 				return;
 			}
-			*/
 
 			// If the site does not require an upgrade and has no logos stored, generate the first prompt based on the site's data.
 			generateFirstLogo();
@@ -148,11 +146,18 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
 		}
-	}, [ getFeature, generateFirstLogo ] );
+	}, [
+		getFeature,
+		generateFirstLogo,
+		loadLogoHistory,
+		clearDeletedMedia,
+		isLogoHistoryEmpty,
+		siteId,
+	] );
 
 	const handleModalOpen = useCallback( async () => {
 		setContext( context );
-		// recordTracksEvent( EVENT_MODAL_OPEN, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
 
 		initializeModal();
 	}, [ setContext, context, initializeModal ] );
