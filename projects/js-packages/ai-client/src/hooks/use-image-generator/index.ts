@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useCallback } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -154,7 +155,7 @@ const getStableDiffusionImageGenerationPrompt = async (
 };
 
 const useImageGenerator = () => {
-	const executeImageGeneration = async function (
+	const executeImageGeneration = useCallback( async function (
 		parameters: object
 	): Promise< ImageGenerationResponse > {
 		let token = '';
@@ -190,7 +191,7 @@ const useImageGenerator = () => {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
 		}
-	};
+	}, [] );
 
 	const generateImageWithStableDiffusion = async function ( {
 		feature,
