@@ -20,12 +20,21 @@ function show_iframe_retrieve_subscriptions_from_email() {
 
 	show_iframe( {
 		email,
+		nteui: getCookie( 'nteui' ),
 		blog: form.dataset.blog,
 		plan: 'newsletter',
 		source: 'jetpack_retrieve_subscriptions',
 		post_access_level: form.dataset.post_access_level,
 		display: 'alternate',
 	} );
+}
+
+function getCookie( name ) {
+	const value = `; ${ document.cookie }`;
+	const parts = value.split( `; ${ name }=` );
+	if ( parts.length === 2 ) {
+		return parts.pop().split( ';' ).shift();
+	}
 }
 
 function show_iframe( data ) {
@@ -87,6 +96,7 @@ domReady( function () {
 						email,
 						post_id,
 						tier_id,
+						nteui: getCookie( 'nteui' ),
 						blog: form.dataset.blog,
 						plan: 'newsletter',
 						source: 'jetpack_subscribe',
