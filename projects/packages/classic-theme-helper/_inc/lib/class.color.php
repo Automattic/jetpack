@@ -634,8 +634,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @param  integer $min_contrast The minimum contrast to achieve, if possible.
 		 * @return object                A Color object, an increased contrast $this compared against $bg_color
 		 */
-		public function getReadableContrastingColor( $bg_color = false, $min_contrast = 5 ) {
-			// @phan-suppress-current-line PhanTypeMismatchDefault
+		public function getReadableContrastingColor( $bg_color = null, $min_contrast = 5 ) {
 			if ( ! $bg_color || ! is_a( $bg_color, 'Jetpack_Color' ) ) {
 				return $this;
 			}

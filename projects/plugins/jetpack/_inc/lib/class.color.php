@@ -21,7 +21,6 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 	 * Color utilities
 	 */
 	class Jetpack_Color {
-		// @phan-suppress-current-line PhanRedefinedClassReference
 		/**
 		 * Color code (later array or string, depending on type)
 		 *
