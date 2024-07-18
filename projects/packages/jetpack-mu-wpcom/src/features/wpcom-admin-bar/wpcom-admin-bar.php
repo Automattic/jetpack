@@ -140,7 +140,7 @@ add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
  * @param string $wp_admin_bar_class Admin bar class to use. Default 'WP_Admin_Bar'.
  * @return string Name of the admin bar class.
  */
-function wpcom_custom_admin_bar_class( $wp_admin_bar_class ) {
+function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
 	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return $wp_admin_bar_class;
 	}
@@ -148,4 +148,4 @@ function wpcom_custom_admin_bar_class( $wp_admin_bar_class ) {
 	require_once __DIR__ . '/class-wpcom-admin-bar.php';
 	return '\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Admin_Bar';
 }
-add_filter( 'wp_admin_bar_class', 'wpcom_custom_admin_bar_class' );
+add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );
