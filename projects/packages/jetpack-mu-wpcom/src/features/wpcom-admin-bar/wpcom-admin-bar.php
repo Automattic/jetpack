@@ -15,6 +15,21 @@ if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 }
 
 /**
+ * Adds the origin_site_id query parameter to a URL.
+ *
+ * @param string $url The URL to add the query param to.
+ * @return string The URL with the origin_site_id query parameter mey be added.
+ */
+function maybe_add_origin_site_id_to_url( $url ) {
+	$site_id = Connection_Manager::get_site_id();
+	if ( is_wp_error( $site_id ) ) {
+		return $url;
+	}
+
+	return add_query_arg( 'origin_site_id', $site_id, $url );
+}
+
+/**
  * Enqueue assets needed by the WordPress.com admin bar.
  */
 function wpcom_enqueue_admin_bar_assets() {
@@ -59,13 +74,6 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 			$wp_admin_bar->remove_node( $node->id );
 		}
 	}
-
-	$site_id = Connection_Manager::get_site_id();
-	$url     = 'https://wordpress.com/sites';
-	if ( ! is_wp_error( $site_id ) ) {
-		$url = add_query_arg( 'origin_site_id', $site_id, $url );
-	}
-
 	$wp_admin_bar->remove_node( 'wp-logo' );
 	$wp_admin_bar->add_node(
 		array(
@@ -74,7 +82,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'  => $url,
+			'href'  => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
 			'meta'  => array(
 				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
 			),
@@ -89,17 +97,11 @@ add_action( 'admin_bar_menu', 'wpcom_repurpose_wp_logo_as_all_sites_menu', 11 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_reader_menu( $wp_admin_bar ) {
-	$site_id = Connection_Manager::get_site_id();
-	$url     = 'https://wordpress.com/read';
-	if ( ! is_wp_error( $site_id ) ) {
-		$url = add_query_arg( 'origin_site_id', $site_id, $url );
-	}
-
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'reader',
 			'title' => __( 'Reader', 'jetpack-mu-wpcom' ),
-			'href'  => $url,
+			'href'  => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
 			'meta'  => array(
 				'class' => 'wp-admin-bar-reader',
 			),
@@ -119,19 +121,12 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 		// Adds the 'My Account' menu item before 'Log Out'.
 		$wp_admin_bar->remove_node( 'logout' );
 	}
-
-	$site_id = Connection_Manager::get_site_id();
-	$url     = 'https://wordpress.com/me/account';
-	if ( ! is_wp_error( $site_id ) ) {
-		$url = add_query_arg( 'origin_site_id', $site_id, $url );
-	}
-
 	$wp_admin_bar->add_node(
 		array(
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => $url,
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
 		)
 	);
 
