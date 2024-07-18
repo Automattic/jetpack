@@ -89,11 +89,17 @@ add_action( 'admin_bar_menu', 'wpcom_repurpose_wp_logo_as_all_sites_menu', 11 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_reader_menu( $wp_admin_bar ) {
+	$site_id = Connection_Manager::get_site_id();
+	$url     = 'https://wordpress.com/read';
+	if ( ! is_wp_error( $site_id ) ) {
+		$url = add_query_arg( 'origin_site_id', $site_id, $url );
+	}
+
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'reader',
 			'title' => __( 'Reader', 'jetpack-mu-wpcom' ),
-			'href'  => 'https://wordpress.com/read?origin_site_id=' . get_current_blog_id(),
+			'href'  => $url,
 			'meta'  => array(
 				'class' => 'wp-admin-bar-reader',
 			),
@@ -114,12 +120,18 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 		$wp_admin_bar->remove_node( 'logout' );
 	}
 
+	$site_id = Connection_Manager::get_site_id();
+	$url     = 'https://wordpress.com/me/account';
+	if ( ! is_wp_error( $site_id ) ) {
+		$url = add_query_arg( 'origin_site_id', $site_id, $url );
+	}
+
 	$wp_admin_bar->add_node(
 		array(
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => 'https://wordpress.com/me/account?origin_site_id=' . get_current_blog_id(),
+			'href'   => $url,
 		)
 	);
 
