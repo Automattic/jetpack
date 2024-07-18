@@ -15,7 +15,7 @@ const requestTypeMap = {
 	// adjective: 'breve-adjective',
 };
 
-export const getRequestMessages = ( { feature, target, sentence, blockId } ) => {
+export const getRequestMessages = ( { feature, target, sentence, blockId, occurrence } ) => {
 	const block = select( 'core/block-editor' ).getBlock( blockId );
 	const html = getBlockContent( block );
 	const dictionary = features?.find?.( ftr => ftr.config.name === feature )?.dictionary || {};
@@ -30,6 +30,7 @@ export const getRequestMessages = ( { feature, target, sentence, blockId } ) => 
 				sentence,
 				html,
 				replacement,
+				occurrence,
 			},
 		},
 	];
