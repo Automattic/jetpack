@@ -405,6 +405,11 @@
 	.jp-dash-item {
 		.dops-card {
 			flex-grow: 1;
+			align-items: flex-start;
+
+			&.dops-section-header {
+				align-items: center
+			}
 		}
 		.dops-card.is-compact {
 			flex-grow: 0;

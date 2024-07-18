@@ -5,6 +5,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.4] - 2024-07-17
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Fixed
+- Fixed problem with is_utf8_charset missing in WP 6.6 [#38383]
+
 ## [1.12.3] - 2024-07-10
 ### Fixed
 - Don't delete the log viewer when doing garbage collection [#38276]
@@ -757,6 +764,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
+[1.12.4]: https://github.com/Automattic/wp-super-cache/compare/v1.12.3...v1.12.4
 [1.12.3]: https://github.com/Automattic/wp-super-cache/compare/v1.12.2...v1.12.3
 [1.12.2]: https://github.com/Automattic/wp-super-cache/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/Automattic/wp-super-cache/compare/v1.12.0...v1.12.1

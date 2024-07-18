@@ -2,7 +2,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import useProduct from '../../../data/products/use-product';
 import type { ReactElement } from 'react';
 
-type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip';
+type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip';
 export type TooltipContent = {
 	[ key in TooltipType ]: {
 		title: ReactElement | string;
@@ -24,10 +24,10 @@ export function useProtectTooltipCopy( {
 	themesCount = 0,
 	numThreats = 0,
 }: {
-	pluginsCount: number;
-	themesCount: number;
-	numThreats: number;
-} ): TooltipContent {
+	pluginsCount?: number;
+	themesCount?: number;
+	numThreats?: number;
+} = {} ): TooltipContent {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
@@ -82,5 +82,9 @@ export function useProtectTooltipCopy( {
 							'jetpack-my-jetpack'
 						),
 				  },
+		autoFirewallTooltip: {
+			title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
+			text: __( 'Upgrade required for activation. Manual rules available.', 'jetpack-my-jetpack' ),
+		},
 	};
 }

@@ -10,11 +10,20 @@ import useSelectSocialMediaConnections from '../use-social-media-connections';
  */
 export default function useRefreshConnections() {
 	const shouldAutoRefresh = useRef( false );
+	const isInitialRefresh = useRef( true );
+
 	const pageHasFocus = usePageVisibility();
 	const { refresh: refreshConnections } = useSelectSocialMediaConnections();
+
+	const initialRefresh = useDebounce( refreshConnections, 0 );
 	const debouncedRefresh = useDebounce( refreshConnections, 2000 );
 
 	return () => {
+		if ( isInitialRefresh.current ) {
+			initialRefresh();
+			isInitialRefresh.current = false;
+		}
+
 		if ( ! pageHasFocus ) {
 			shouldAutoRefresh.current = true;
 			debouncedRefresh.cancel();

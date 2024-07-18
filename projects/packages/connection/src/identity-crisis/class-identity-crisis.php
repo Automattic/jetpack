@@ -241,7 +241,7 @@ class Identity_Crisis {
 		$consumer_data = UI::get_consumer_data();
 		$label         = isset( $consumer_data['customContent']['adminBarSafeModeLabel'] )
 			? esc_html( $consumer_data['customContent']['adminBarSafeModeLabel'] )
-			: esc_html__( 'Jetpack Safe Mode', 'jetpack-idc' );
+			: esc_html__( 'Jetpack Safe Mode', 'jetpack-connection' );
 
 		$title = sprintf(
 			'<span class="jp-idc-admin-bar">%s %s</span>',
@@ -448,7 +448,7 @@ class Identity_Crisis {
 				'cannot_parse_url',
 				sprintf(
 				/* translators: %s: URL to parse. */
-					esc_html__( 'Cannot parse URL %s', 'jetpack-idc' ),
+					esc_html__( 'Cannot parse URL %s', 'jetpack-connection' ),
 					$url
 				)
 			);
