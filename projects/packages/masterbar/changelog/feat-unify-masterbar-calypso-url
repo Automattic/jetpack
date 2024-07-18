@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin Bar: Fix the admin bar on default atomic sites as the loading order changed
