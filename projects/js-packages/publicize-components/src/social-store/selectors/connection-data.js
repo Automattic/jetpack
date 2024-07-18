@@ -1,3 +1,5 @@
+import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
+
 /**
  * Returns the connections list from the store.
  *
@@ -159,6 +161,18 @@ export function getUpdatingConnections( state ) {
  */
 export function getReconnectingAccount( state ) {
 	return state.connectionData?.reconnectingAccount ?? '';
+}
+
+/**
+ * Get the abort controllers for a specific request type.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} requestType - The request type.
+ *
+ * @returns {Array<AbortController>} The abort controllers.
+ */
+export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT ) {
+	return state.connectionData?.abortControllers[ requestType ] ?? [];
 }
 
 /**
