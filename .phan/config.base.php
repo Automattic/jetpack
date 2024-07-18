@@ -63,6 +63,7 @@ function make_phan_config( $dir, $options = array() ) {
 	$extra_stubs    = array();
 	$global_stubs   = array();
 	$internal_stubs = array();
+
 	foreach ( array_merge( $options['stubs'], $options['+stubs'] ) as $stub ) {
 		switch ( $stub ) {
 			case 'akismet':
@@ -70,9 +71,6 @@ function make_phan_config( $dir, $options = array() ) {
 				break;
 			case 'amp':
 				$stubs[] = "$root/.phan/stubs/amp-stubs.php";
-				break;
-			case 'gutenberg':
-				$stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
 				break;
 			case 'full-site-editing':
 				$stubs[] = "$root/.phan/stubs/full-site-editing-stubs.php";
@@ -106,6 +104,7 @@ function make_phan_config( $dir, $options = array() ) {
 			case 'wpcom':
 				$stubs[] = "$root/.phan/stubs/wpcom-stubs.php";
 				if ( $dir !== "$root/projects/plugins/wpcomsh" ) {
+					$extra_stubs[] = "$root/.phan/stubs/gutenberg-stubs.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/nav-redesign.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/feature-plugins/masterbar.php";
 					$extra_stubs[] = "$root/projects/plugins/wpcomsh/footer-credit/footer-credit/customizer.php";
