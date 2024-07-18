@@ -10,19 +10,19 @@ const TestComponent = ( { ignoreContext, nonDomContext } ) => {
 
 	const toggleContext = useCallback( () => {
 		if ( context ) {
-			setContext( nonDomContext || null );
+			setContext( null );
 			setIsVisible( false );
 		} else {
 			const newContext = document.createElement( 'div' );
 			setContext( newContext );
 			setIsVisible( true );
 		}
-	}, [ context, nonDomContext ] );
+	}, [ context ] );
 
 	const handleClose = useCallback( () => {
-		setContext( nonDomContext || null );
+		setContext( null );
 		setIsVisible( false );
-	}, [ setContext, setIsVisible, nonDomContext ] );
+	}, [ setContext, setIsVisible ] );
 
 	return (
 		<div>
@@ -42,7 +42,10 @@ const TestComponent = ( { ignoreContext, nonDomContext } ) => {
 describe( 'TestComponent', () => {
 	it( 'should not show Popover when context is not a DOM element', async () => {
 		render( <TestComponent nonDomContext={ {} } /> );
-		expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByText( 'Toggle Context', { selector: 'button' } ) );
+		await waitFor( () => {
+			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	it( 'should show Popover when context is a DOM element', async () => {
