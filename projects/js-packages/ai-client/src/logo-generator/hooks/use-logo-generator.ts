@@ -315,7 +315,7 @@ User request:${ prompt }`;
 			setIsRequestingImage( true );
 
 			try {
-				if ( logoGenerationCost ) {
+				if ( ! logoGenerationCost ) {
 					throw new Error( 'Missing cost information' );
 				}
 
