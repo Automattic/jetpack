@@ -10,7 +10,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { siteHasFeature } from 'state/site';
 
 export class Composing extends React.Component {
 	/**
@@ -46,8 +45,7 @@ export class Composing extends React.Component {
 			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
-			foundBlocks = this.props.isModuleFound( 'blocks' ),
-			hasAiFeature = this.props.hasAiFeature;
+			foundBlocks = this.props.isModuleFound( 'blocks' );
 
 		if (
 			! foundCopyPost &&
@@ -229,7 +227,7 @@ export class Composing extends React.Component {
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
 				{ foundBlocks && blocksSettings }
-				{ hasAiFeature && aiAssistantLink }
+				{ aiAssistantLink }
 			</SettingsCard>
 		);
 	}
@@ -239,6 +237,5 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
-		hasAiFeature: siteHasFeature( state, 'ai-assistant' ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );
