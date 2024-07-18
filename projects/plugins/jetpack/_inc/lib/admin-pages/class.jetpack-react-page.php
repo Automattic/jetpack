@@ -1,7 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets\Logo;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
@@ -300,8 +299,5 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// This will set the default URL of the jp_redirects lib.
 		wp_add_inline_script( $initial_state_handle, 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( $initial_state_handle );
 	}
 }

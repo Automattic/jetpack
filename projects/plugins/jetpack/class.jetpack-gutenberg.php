@@ -8,7 +8,6 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -774,9 +773,6 @@ class Jetpack_Gutenberg {
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
-
-		// Adds Connection package initial state.
-		Connection_Initial_State::render_script( 'jetpack-publicize' );
 	}
 
 	/**

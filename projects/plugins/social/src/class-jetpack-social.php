@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Current_Plan;
@@ -182,8 +181,6 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social' );
-		// Initial JS state including JP Connection data.
-		Connection_Initial_State::render_script( 'jetpack-publicize' );
 		wp_add_inline_script( 'jetpack-publicize', $this->render_initial_state(), 'before' );
 	}
 
@@ -366,8 +363,6 @@ class Jetpack_Social {
 			)
 		);
 
-		// Connection initial state is expected when the connection JS package is in the bundle
-		Connection_Initial_State::render_script( 'jetpack-publicize' );
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
