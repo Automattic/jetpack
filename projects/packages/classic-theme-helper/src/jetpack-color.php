@@ -1,4 +1,4 @@
-<?php
+<?php //phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
  * Theme Tools: Jetpack Color.
  *
