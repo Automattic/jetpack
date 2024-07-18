@@ -172,7 +172,7 @@ export function getReconnectingAccount( state ) {
  * @returns {Array<AbortController>} The abort controllers.
  */
 export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT ) {
-	return state.connectionData?.abortControllers[ requestType ] ?? [];
+	return state.connectionData?.abortControllers?.[ requestType ] ?? [];
 }
 
 /**
