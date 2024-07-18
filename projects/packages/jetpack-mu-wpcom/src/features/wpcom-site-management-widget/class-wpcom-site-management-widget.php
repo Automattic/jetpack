@@ -32,6 +32,10 @@ class WPCOM_Site_Management_Widget {
 	 * Register widget with WordPress.
 	 */
 	public function __construct() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		add_action( 'admin_head', array( $this, 'admin_head' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'wp_dashboard_setup' ) );
 	}

@@ -53,10 +53,6 @@ add_action( 'admin_bar_menu', 'wpcom_enqueue_admin_bar_assets' );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
-	if ( is_agency_managed_site() ) {
-		return;
-	}
-
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -86,10 +82,6 @@ add_action( 'admin_bar_menu', 'wpcom_repurpose_wp_logo_as_all_sites_menu', 11 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_reader_menu( $wp_admin_bar ) {
-	if ( is_agency_managed_site() ) {
-		return;
-	}
-
 	$wp_admin_bar->add_node(
 		array(
 			'id'    => 'reader',
@@ -109,10 +101,6 @@ add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 15 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
-	if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
-		return;
-	}
-
 	$logout_node = $wp_admin_bar->get_node( 'logout' );
 	if ( $logout_node ) {
 		// Adds the 'My Account' menu item before 'Log Out'.
@@ -133,20 +121,3 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
-
-/**
- * Hides the Help Center menu.
- */
-function wpcom_hide_help_center_menu() {
-	if ( ! is_agency_managed_site() ) {
-		return;
-	}
-	?>
-	<style>
-		#wp-admin-bar-help-center {
-			display: none !important;
-		}
-	</style>
-	<?php
-}
-add_action( 'admin_head', 'wpcom_hide_help_center_menu' );

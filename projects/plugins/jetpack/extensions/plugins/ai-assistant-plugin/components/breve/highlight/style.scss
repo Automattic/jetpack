@@ -20,6 +20,18 @@
 		justify-content: space-between;
 		gap: 32px;
 
+		&.has-suggestions {
+			align-items: flex-start;
+			flex-direction: column;
+			padding-top: 8px;
+			gap: 8px;
+		}
+
+		.title,
+		.action {
+			padding: 8px 12px;
+		}
+
 		.title {
 			display: flex;
 			align-items: center;
@@ -27,6 +39,7 @@
 			gap: 8px;
 			font-size: 14px;
 			font-weight: 500;
+			white-space: nowrap;
 
 			.color {
 				width: 24px;
@@ -55,13 +68,22 @@
 				fill: #0277a8;
 			}
 		}
-	}
 
-	& div.components-popover__content {
-		align-items: center;
-		column-gap: 12px;
-		display: flex;
-		padding: 8px 12px;
-		white-space: nowrap;
+		.suggestion-container {
+			display: flex;
+			flex-direction: column;
+			border-top: 1px solid #dcdcde;
+
+			.helper {
+				padding: 8px;
+				background-color: #f6f7f7;
+				white-space: nowrap;
+				color: #646970;
+			}
+
+			.components-button.is-tertiary {
+				color: #000000;
+			}
+		}
 	}
 }
