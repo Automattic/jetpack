@@ -18,11 +18,6 @@ function wpcomsh_activate_masterbar_module() {
 		return;
 	}
 
-	// Masterbar was introduced in Jetpack 4.8.
-	if ( version_compare( JETPACK__VERSION, '4.8', '<' ) ) {
-		return;
-	}
-
 	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 		Jetpack::activate_module( 'masterbar', false, false );
 	}

@@ -1,6 +1,5 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { dispatch } from '@wordpress/data';
-import { store as editPostStore } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
@@ -43,11 +42,7 @@ function extendAiContentLensFeatures( settings, name ) {
 
 	// check if the removeEditorPanel function exists in the editorStore.
 	// íf not, look for it in the editPostStore.
-	// @todo: remove this once Jetpack requires WordPres 6.5,
-	// where the removeEditorPanel function will be available in the editorStore.
-	const removeEditorPanel = dispatch( editorStore )?.removeEditorPanel
-		? dispatch( editorStore )?.removeEditorPanel
-		: dispatch( editPostStore )?.removeEditorPanel;
+	const removeEditorPanel = dispatch( editorStore ).removeEditorPanel;
 
 	// Remove the excerpt panel by dispatching an action.
 	removeEditorPanel( 'post-excerpt' );
