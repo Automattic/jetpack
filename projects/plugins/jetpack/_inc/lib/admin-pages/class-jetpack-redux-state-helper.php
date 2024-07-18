@@ -244,49 +244,9 @@ class Jetpack_Redux_State_Helper {
 			'shouldInitializeBlaze'         => Blaze::should_initialize(),
 			'isBlazeDashboardEnabled'       => Blaze::is_dashboard_enabled(),
 			'socialInitialState'            => self::get_publicize_initial_state(),
-			'gutenbergInitialState'         => self::get_gutenberg_initial_state(),
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme(),
-		);
-	}
-
-	/**
-	 * Get information about the Gutenberg plugin and its Interactivity API support.
-	 *
-	 * @see https://make.wordpress.org/core/tag/interactivity-api/
-	 *
-	 * @return array
-	 */
-	private static function get_gutenberg_initial_state() {
-		// If Gutenberg is not installed,
-		// check if we run a version of WP that would include support.
-		if ( ! Constants::is_true( 'IS_GUTENBERG_PLUGIN' ) ) {
-			return array(
-				'isAvailable'         => false,
-				'hasInteractivityApi' => true,
-			);
-		}
-
-		// If we're running a dev version, assume it's the latest.
-		if ( Constants::is_true( 'GUTENBERG_DEVELOPMENT_MODE' ) ) {
-			return array(
-				'isAvailable'         => true,
-				'hasInteractivityApi' => true,
-			);
-		}
-
-		$gutenberg_version = Constants::get_constant( 'GUTENBERG_VERSION' );
-		if ( ! $gutenberg_version ) {
-			return array(
-				'isAvailable'         => false,
-				'hasInteractivityApi' => false,
-			);
-		}
-
-		return array(
-			'isAvailable'         => true,
-			'hasInteractivityApi' => version_compare( $gutenberg_version, '16.6.0', '>=' ),
 		);
 	}
 
