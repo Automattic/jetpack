@@ -3,7 +3,7 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
-import { getRequestMessages } from '../utils/getRequestMessages';
+import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
 
