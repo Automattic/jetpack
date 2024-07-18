@@ -8,6 +8,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import React from 'react';
 import { connect } from 'react-redux';
+import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
@@ -45,7 +46,8 @@ export class Composing extends React.Component {
 			foundLatex = this.props.isModuleFound( 'latex' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundShortcodes = this.props.isModuleFound( 'shortcodes' ),
-			foundBlocks = this.props.isModuleFound( 'blocks' );
+			foundBlocks = this.props.isModuleFound( 'blocks' ),
+			foundMyJetpack = this.props.isMyJetpackReachable;
 
 		if (
 			! foundCopyPost &&
@@ -227,7 +229,7 @@ export class Composing extends React.Component {
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
 				{ foundBlocks && blocksSettings }
-				{ aiAssistantLink }
+				{ foundMyJetpack && aiAssistantLink }
 			</SettingsCard>
 		);
 	}
@@ -237,5 +239,6 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		isMyJetpackReachable: showMyJetpack( state ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );
