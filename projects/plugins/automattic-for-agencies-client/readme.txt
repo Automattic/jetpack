@@ -1,7 +1,7 @@
 === Automattic For Agencies Client ===
 Contributors: automattic, jeherve, njweller, rcanepa
 Tags: agency, dashboard, management, sites, monitoring
-Requires at least: 6.4
+Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.6
 Stable tag: 0.2.1
