@@ -7,6 +7,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
@@ -59,6 +60,12 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 		}
 	}
 
+	$site_id = Connection_Manager::get_site_id();
+	$url     = 'https://wordpress.com/sites';
+	if ( ! is_wp_error( $site_id ) ) {
+		$url = add_query_arg( 'origin_site_id', $site_id, $url );
+	}
+
 	$wp_admin_bar->remove_node( 'wp-logo' );
 	$wp_admin_bar->add_node(
 		array(
@@ -67,7 +74,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'  => 'https://wordpress.com/sites?origin_site_id=' . get_current_blog_id(),
+			'href'  => $url,
 			'meta'  => array(
 				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
 			),
