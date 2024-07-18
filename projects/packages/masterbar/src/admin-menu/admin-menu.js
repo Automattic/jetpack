@@ -43,12 +43,29 @@ import './admin-menu.css';
 			document.addEventListener( 'click', closeSidebarWhenClickedOutside );
 		}
 
+		// Toggle sidebar for Default Interface
+		const adminbarBlogDefault = adminbar.querySelector( '#wp-admin-bar-menu-toggle > a' );
+
+		// Toggle sidebar when toggle is clicked.
+		if ( adminbarBlogDefault && ! document.body.classList.contains( 'wpcom-admin-interface' ) ) {
+			// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
+			$( '#wp-admin-bar-menu-toggle > a' ).off( 'click.wp-responsive' );
+			adminbarBlogDefault.removeAttribute( 'aria-haspopup' );
+			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
+			adminbarBlogDefault.addEventListener( 'click', toggleSidebar );
+			// Detect a click outside the sidebar and close it if its open.
+			adminbarBlogDefault.addEventListener( 'click', closeSidebarWhenClickedOutside );
+		}
+
 		/**
 		 *
 		 * @param event
 		 */
 		function closeSidebarWhenClickedOutside( event ) {
-			const isClickOnToggle = !! event.target.closest( '#wp-admin-bar-blog > a' );
+			const isClickOnToggle = !! (
+				event.target.closest( '#wp-admin-bar-blog > a' ) ||
+				event.target.closest( '#wp-admin-bar-menu-toggle > a' )
+			);
 			const isClickInsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
 			const sidebarIsOpen = wpwrap.classList.contains( 'wp-responsive-open' );
 			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickInsideMenu;
