@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds checks to remove wpcom items and links in wp-admin for users who are not connected to wpcom.
