@@ -54,6 +54,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 						}
 						break;
 					case 'int':
+						// @phan-suppress-next-line PhanTypeMismatchArgument
 						$this->fromInt( $color );
 						break;
 					default:
@@ -313,6 +314,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 
 			// Calculate saturation.
 			$hsv['sat'] = round( 255 * ( $rgb_max - $rgb_min ) / $hsv['val'] );
+			// @phan-suppress-next-line PhanImpossibleTypeComparison
 			if ( 0 === $hsv['sat'] ) {
 				$hsv['hue'] = 0;
 				return $hsv;
@@ -429,7 +431,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 				if ( $item > 0.04045 ) {
 					$item = pow( ( ( $item + 0.055 ) / 1.055 ), 2.4 );
 				} else {
-					$item = $item / 12.92;
+					$item /= 12.92;
 				}
 				$rgb_new[] = $item * 100;
 			}
@@ -437,8 +439,11 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 
 			// Observer. = 2°, Illuminant = D65.
 			$xyz = array(
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidLeftOperandOfNumericOp
 				'x' => ( $rgb['red'] * 0.4124 ) + ( $rgb['green'] * 0.3576 ) + ( $rgb['blue'] * 0.1805 ),
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidLeftOperandOfNumericOp
 				'y' => ( $rgb['red'] * 0.2126 ) + ( $rgb['green'] * 0.7152 ) + ( $rgb['blue'] * 0.0722 ),
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidLeftOperandOfNumericOp
 				'z' => ( $rgb['red'] * 0.0193 ) + ( $rgb['green'] * 0.1192 ) + ( $rgb['blue'] * 0.9505 ),
 			);
 
@@ -469,8 +474,11 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 			$xyz = $xyz_new;
 
 			$lab = array(
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidRightOperandOfNumericOp
 				'l' => ( 116 * $xyz['y'] ) - 16,
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidLeftOperandOfNumericOp,PhanTypeInvalidRightOperandOfNumericOp
 				'a' => 500 * ( $xyz['x'] - $xyz['y'] ),
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset,PhanTypeInvalidLeftOperandOfNumericOp,PhanTypeInvalidRightOperandOfNumericOp
 				'b' => 200 * ( $xyz['y'] - $xyz['z'] ),
 			);
 
@@ -627,6 +635,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 * @return object                A Color object, an increased contrast $this compared against $bg_color
 		 */
 		public function getReadableContrastingColor( $bg_color = false, $min_contrast = 5 ) {
+			// @phan-suppress-current-line PhanTypeMismatchDefault
 			if ( ! $bg_color || ! is_a( $bg_color, 'Jetpack_Color' ) ) {
 				return $this;
 			}
@@ -689,9 +698,10 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 			$match_dist = 10000;
 			$match_key  = null;
 			foreach ( $colors as $key => $color ) {
-				if ( false === ( $color instanceof Jetpack_Color ) ) {
+				if ( ! ( $color instanceof Jetpack_Color ) ) {
 					$c = new Jetpack_Color( $color );
 				}
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable,PhanTypeMismatchArgumentNullable
 				$dist = $this->getDistanceLabFrom( $c );
 				if ( $dist < $match_dist ) {
 					$match_dist = $dist;
@@ -736,9 +746,9 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		public function incrementLightness( $amount ) {
 			$hsl = $this->toHsl();
 
-			$h = isset( $hsl['h'] ) ? $hsl['h'] : 0;
-			$s = isset( $hsl['s'] ) ? $hsl['s'] : 0;
-			$l = isset( $hsl['l'] ) ? $hsl['l'] : 0;
+			$h = $hsl['h'] ?? 0;
+			$s = $hsl['s'] ?? 0;
+			$l = $hsl['l'] ?? 0;
 
 			$l += $amount;
 			if ( $l < 0 ) {
@@ -782,9 +792,9 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		public function incrementSaturation( $amount ) {
 			$hsl = $this->toHsl();
 
-			$h = isset( $hsl['h'] ) ? $hsl['h'] : 0;
-			$s = isset( $hsl['s'] ) ? $hsl['s'] : 0;
-			$l = isset( $hsl['l'] ) ? $hsl['l'] : 0;
+			$h = $hsl['h'] ?? 0;
+			$s = $hsl['s'] ?? 0;
+			$l = $hsl['l'] ?? 0;
 
 			$s += $amount;
 			if ( $s < 0 ) {
@@ -804,9 +814,9 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		public function toGrayscale() {
 			$hsl = $this->toHsl();
 
-			$h = isset( $hsl['h'] ) ? $hsl['h'] : 0;
+			$h = $hsl['h'] ?? 0;
 			$s = 0;
-			$l = isset( $hsl['l'] ) ? $hsl['l'] : 0;
+			$l = $hsl['l'] ?? 0;
 
 			return $this->fromHsl( $h, $s, $l );
 		}
@@ -888,9 +898,9 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		public function incrementHue( $amount ) {
 			$hsl = $this->toHsl();
 
-			$h = isset( $hsl['h'] ) ? $hsl['h'] : 0;
-			$s = isset( $hsl['s'] ) ? $hsl['s'] : 0;
-			$l = isset( $hsl['l'] ) ? $hsl['l'] : 0;
+			$h = $hsl['h'] ?? 0;
+			$s = $hsl['s'] ?? 0;
+			$l = $hsl['l'] ?? 0;
 
 			$h = ( $h + $amount ) % 360;
 			if ( $h < 0 ) {
