@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Removed loading wpcomsh phan stubs from the Masterbar, these stubs are already included globally now'
