@@ -1,4 +1,4 @@
-Significance: major
+Significance: patch
 Type: compat
 
 General: remove code for compatibility with WordPress versions before 6.5.

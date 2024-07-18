@@ -8,6 +8,8 @@ import phrases from './phrases';
  */
 import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
+export const dictionary = phrases;
+
 export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
 	title: 'Complex words',

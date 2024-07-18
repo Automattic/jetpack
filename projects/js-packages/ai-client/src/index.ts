@@ -4,6 +4,7 @@
 export { default as requestJwt } from './jwt/index.js';
 export { default as SuggestionsEventSource } from './suggestions-event-source/index.js';
 export { default as askQuestion } from './ask-question/index.js';
+export { default as askQuestionSync } from './ask-question/sync.js';
 export { default as transcribeAudio } from './audio-transcription/index.js';
 
 /*

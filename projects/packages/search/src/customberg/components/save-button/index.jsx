@@ -1,7 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useEntityRecordState from 'hooks/use-entity-record-state';
-import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { eventPrefix, recordEvent } from 'lib/analytics';
 import './styles.scss';
 
@@ -11,22 +10,13 @@ import './styles.scss';
  * @returns {Element} component instance
  */
 export default function SaveButton() {
-	const {
-		editedEntities: editedSettings,
-		isSaving,
-		hasUnsavedEdits,
-		saveRecords,
-	} = useEntityRecordState();
+	const { isSaving, hasUnsavedEdits, saveRecords } = useEntityRecordState();
 
 	const onClick = ( ...args ) => {
 		if ( isSaving ) {
 			return;
 		}
-		recordEvent( `${ eventPrefix }_save_button_click`, {
-			initialSettings: JSON.stringify( window[ SERVER_OBJECT_NAME ].overlayOptions ),
-			changedSettings: JSON.stringify( editedSettings ),
-			changedSettingNames: Object.keys( editedSettings ).join( ',' ),
-		} );
+		recordEvent( `${ eventPrefix }_save_button_click` );
 		saveRecords( ...args );
 	};
 
