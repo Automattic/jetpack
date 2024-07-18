@@ -89,9 +89,6 @@ add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_sidebar_notice_assets' );
  * @return array | null
  */
 function wpcom_get_sidebar_notice() {
-	if ( is_agency_managed_site() ) {
-		return null;
-	}
 	$message_path = 'calypso:sites:sidebar_notice';
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

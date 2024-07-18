@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Removed unnecessary check from the method that updates the WAF rule files.
+
+

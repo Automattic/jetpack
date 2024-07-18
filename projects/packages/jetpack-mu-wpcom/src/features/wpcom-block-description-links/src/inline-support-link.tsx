@@ -1,3 +1,4 @@
+import { localizeUrl } from '@automattic/i18n-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -47,7 +48,7 @@ export default function DescriptionSupportLink( {
 				<Button
 					onClick={ () => {
 						setShowHelpCenter( true );
-						setShowSupportDoc( url, postId );
+						setShowSupportDoc( localizeUrl( url ), postId );
 						tracks.recordEvent( 'jetpack_mu_wpcom_block_description_support_link_click', {
 							block: title,
 							support_link: url,

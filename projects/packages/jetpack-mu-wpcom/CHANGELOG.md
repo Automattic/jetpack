@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.45.0] - 2024-07-18
+### Added
+- MU WPCOM: Support localizeUrl [#38318]
+
+### Changed
+- Block Perplexity AI bot in robots.txt when opted out of data sharing. [#38400]
+- Hide wpcom features when site is agency-managed or user is local [#38364]
+
+### Fixed
+- Admin Bar: Hotfix the order of the admin menu items for WP 6.6 [#38347]
+
+## [5.44.0] - 2024-07-15
+### Added
+- Add Profile -> My Account menu to admin bar. [#38294]
+- Adds checks to remove wpcom items and links in wp-admin for users who are not connected to wpcom. [#38241]
+- Bring jetpack-global-styles from ETK. [#38209]
+- Classic Theme Helper: Adding in Responsive Video class initialization from the Jetpack Mu WPcom package. [#38218]
+- Load the Google Analytics package. [#37622]
+- MU WPCOM: Enable the custom-line-height feature by default. [#38317]
+- MU WPCOM: Move countdown and timeline blocks from jetpack to jetpack-mu-wpcom. [#38298]
+- MU WPCOM: Port the a8c-posts-list block from ETK. [#38279]
+- MU WPCOM: Port Whats New from ETK. [#38229]
+- Port block-inserter-modifications from ETK. [#38277]
+- Port MailerLite Widget. [#38293]
+- Port wpcom-block-description-links from ETK. [#38254]
+- Port wpcom-documentation-links feature from ETK. [#38249]
+
+### Changed
+- jetpack-mu-wpcom - Help Center: Consume translations directly from widgets.wp.com. [#38300]
+- Updates the WordPress.com admin bar as follows:
+  
+  1. Repurposes the WordPress logo as a link to /sites.
+  2. Adds Reader menu.
+  3. Hides the updates icon.
+  4. Hides the comments icon. [#38233]
+
+### Removed
+- Dashboard widgets: Remove WordPress Events and News feed widget. [#38242]
+
+### Fixed
+- Help Center: Save Last-Modified date in downloaded language files instead of the current date. [#38284]
+- Hide help-center for wc-admin home page. [#38253]
+
 ## [5.43.0] - 2024-07-08
 ### Added
 - Added Help Center (migration from ETK) [#38093]
@@ -965,6 +1008,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.45.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.44.0...v5.45.0
+[5.44.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.43.0...v5.44.0
 [5.43.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.42.1...v5.43.0
 [5.42.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.42.0...v5.42.1
 [5.42.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.41.0...v5.42.0

@@ -130,7 +130,7 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ3_28_0_alpha"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ4_0_0_alpha"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",

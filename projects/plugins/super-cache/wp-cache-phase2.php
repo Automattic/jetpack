@@ -265,7 +265,7 @@ function wp_cache_serve_cache_file() {
 			} else {
 				header( 'Cache-Control: max-age=3, must-revalidate' );
 			}
-			$size = function_exists( 'mb_strlen' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
+			$size = ( function_exists( 'mb_strlen' ) && function_exists( 'is_utf8_charset' ) ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
 			if ( $wp_cache_gzip_encoding ) {
 				if ( isset( $wpsc_served_header ) && $wpsc_served_header ) {
 					header( 'X-WP-Super-Cache: Served supercache gzip file from PHP' );
@@ -356,7 +356,7 @@ function wp_cache_serve_cache_file() {
 				6,
 				FORCE_GZIP
 			);
-			$size  = function_exists( 'mb_strlen' ) ? mb_strlen( $cache, '8bit' ) : strlen( $cache );
+			$size  = ( function_exists( 'mb_strlen' ) && function_exists( 'is_utf8_charset' ) ) ? mb_strlen( $cache, '8bit' ) : strlen( $cache );
 			wp_cache_debug( 'Sending Header: Content-Length: ' . $size );
 			header( 'Content-Length: ' . $size );
 		}
@@ -2441,7 +2441,7 @@ function wp_cache_get_ob( &$buffer ) {
 			wp_cache_debug( 'Gzipping dynamic buffer for display.', 5 );
 			wp_cache_add_to_buffer( $buffer, 'Compression = gzip' );
 			$gzdata = gzencode( $buffer, 6, FORCE_GZIP );
-			$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
+			$gzsize = ( function_exists( 'mb_strlen' ) && function_exists( 'is_utf8_charset' ) ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
 		}
 	} else {
 		if ( defined( 'WPSC_VARY_HEADER' ) ) {
@@ -2460,7 +2460,7 @@ function wp_cache_get_ob( &$buffer ) {
 			wp_cache_debug( 'Gzipping buffer.', 5 );
 			wp_cache_add_to_buffer( $buffer, 'Compression = gzip' );
 			$gzdata = gzencode( $buffer, 6, FORCE_GZIP );
-			$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
+			$gzsize = ( function_exists( 'mb_strlen' ) && function_exists( 'is_utf8_charset' ) ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
 
 			$wp_cache_meta['headers']['Content-Encoding'] = 'Content-Encoding: ' . $wp_cache_gzip_encoding;
 			// Return uncompressed data & store compressed for later use
