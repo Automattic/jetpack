@@ -18,7 +18,7 @@ import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
-import { getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl, showMyJetpack } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 
 /**
@@ -27,7 +27,7 @@ import { siteHasFeature } from 'state/site';
  * @returns {object} DashJetpackAi component
  */
 function DashJetpackAi( props ) {
-	const { hasFeature, isOffline, hasConnectedOwner } = props;
+	const { hasFeature, hasConnectedOwner, isOffline, isMyJetpackReachable } = props;
 	const cardText = __(
 		'Turn your ideas into ready-to-publish content at light speed. Generate content, images and optimize your publishing process with just a few clicks.',
 		'jetpack'
@@ -45,8 +45,9 @@ function DashJetpackAi( props ) {
 	);
 
 	const showConnectBanner = ! hasConnectedOwner && ! isOffline;
-	const showUpgradeBanner = hasConnectedOwner && ! isOffline && ! hasFeature;
-	const showTeaserBanner = hasConnectedOwner && ! isOffline && hasFeature;
+	const showUpgradeBanner =
+		hasConnectedOwner && isMyJetpackReachable && ! isOffline && ! hasFeature;
+	const showTeaserBanner = hasConnectedOwner && isMyJetpackReachable && ! isOffline && hasFeature;
 
 	return (
 		<DashItem
@@ -98,9 +99,16 @@ function DashJetpackAi( props ) {
 			}
 		>
 			{ isOffline && (
-				<p className="jp-dash-item__description">
+				<div className="jp-dash-item__description">
 					{ __( 'Unavailable in Offline Mode', 'jetpack' ) }
-				</p>
+				</div>
+			) }
+			{ ! isOffline && (
+				<div className="jp-dash-item__description">
+					{ cardText }
+					<br />
+					{ learnMoreLink }
+				</div>
 			) }
 		</DashItem>
 	);
@@ -114,6 +122,7 @@ export default connect(
 		upgradeUrl: getProductDescriptionUrl( state, 'jetpack-ai' ),
 		hasFeature: siteHasFeature( state, 'ai-assistant' ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		isMyJetpackReachable: showMyJetpack( state ),
 	} ),
 	dispatch => ( {
 		connectUser: () => {
