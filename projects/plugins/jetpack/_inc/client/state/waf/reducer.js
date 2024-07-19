@@ -20,10 +20,6 @@ export const data = ( state = {}, action ) => {
 				ipAllowListEnabled: Boolean( action.settings?.jetpack_waf_ip_allow_list_enabled ),
 				ipBlockListEnabled: Boolean( action.settings?.jetpack_waf_ip_block_list_enabled ),
 				ipAllowList: action.settings?.jetpack_waf_ip_allow_list || '',
-				allowListInputState:
-					state.allowListInputState === undefined
-						? action.settings?.jetpack_waf_ip_allow_list
-						: state.allowListInputState,
 				ipBlockList: action.settings?.jetpack_waf_ip_block_list || '',
 				shareData: Boolean( action.settings?.jetpack_waf_share_data ),
 				standaloneMode: Boolean( action.settings?.standalone_mode ),

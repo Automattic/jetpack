@@ -7,21 +7,6 @@ import SettingsGroup from 'components/settings-group';
 import React, { Component } from 'react';
 
 const ProtectComponent = class extends Component {
-	/**
-	 * Component Did Update
-	 *
-	 * @param {object} prevProps - Previous component properties.
-	 */
-	componentDidUpdate( prevProps ) {
-		// Sync the redux IP allow list input state with the component's settings state.
-		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
-			this.props.updateFormStateOptionValue(
-				'jetpack_waf_ip_allow_list',
-				this.props.allowListInputState
-			);
-		}
-	}
-
 	render() {
 		const isProtectActive = this.props.getOptionValue( 'protect' ),
 			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' );

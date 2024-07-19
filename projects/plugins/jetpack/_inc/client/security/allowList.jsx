@@ -98,7 +98,7 @@ const AllowList = class extends Component {
 	};
 
 	currentIpIsSafelisted = () => {
-		// get current IP allow list in textarea from this.props.allowListInputState;
+		// get current IP allow list in textarea from this.state.ipAllowList;
 		return !! includes( this.state.ipAllowList, this.props.currentIp );
 	};
 
