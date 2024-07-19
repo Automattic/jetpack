@@ -10,14 +10,7 @@ const NewsletterCard = ( { admin } ) => {
 		},
 	};
 
-	return (
-		<ProductCard
-			admin={ admin }
-			slug="newsletter"
-			upgradeInInterstitial={ true }
-			primaryActionOverride={ actionOverride }
-		/>
-	);
+	return <ProductCard admin={ admin } slug="newsletter" primaryActionOverride={ actionOverride } />;
 };
 
 NewsletterCard.propTypes = {
