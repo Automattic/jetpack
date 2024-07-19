@@ -264,7 +264,10 @@ class Initializer {
 				'latestBoostSpeedScores' => $latest_score,
 				'protect'                => array(
 					'scanData'  => $scan_data,
-					'wafConfig' => Waf_Runner::get_config(),
+					'wafConfig' => array_merge(
+						Waf_Runner::get_config(),
+						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
+					),
 				),
 			)
 		);
