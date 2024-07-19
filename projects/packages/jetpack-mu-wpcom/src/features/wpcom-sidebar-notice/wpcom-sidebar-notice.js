@@ -1,16 +1,16 @@
 /* global wp, wpcomSidebarNotice */
+import { wpcomTrackEvent } from '../../common/tracks';
 
 const wpcomSidebarNoticeRecordEvent = event => {
 	if ( ! event ) {
 		return;
 	}
-	window._tkq = window._tkq || [];
-	window._tkq.push( [
-		'identifyUser',
+	wpcomTrackEvent(
+		event.name,
+		event.props,
 		wpcomSidebarNotice.user.ID,
-		wpcomSidebarNotice.user.username,
-	] );
-	window._tkq.push( [ 'recordEvent', event.name, event.props ] );
+		wpcomSidebarNotice.user.username
+	);
 };
 
 const wpcomShowSidebarNotice = () => {

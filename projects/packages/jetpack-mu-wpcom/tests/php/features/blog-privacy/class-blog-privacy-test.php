@@ -61,6 +61,9 @@ Disallow: /
 User-agent: omgilibot
 Disallow: /
 
+User-agent: PerplexityBot
+Disallow: /
+
 User-agent: SentiBot
 Disallow: /
 

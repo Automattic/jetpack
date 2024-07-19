@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Form submissions table: ensure the IP address is displayed for each submission, when available.

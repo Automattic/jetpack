@@ -77,6 +77,7 @@ export type BreveDispatch = {
 		target: string;
 		sentence: string;
 		blockId: string;
+		occurrence: string;
 	} ) => void;
 };
 
