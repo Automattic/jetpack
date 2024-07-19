@@ -11,7 +11,6 @@ import {
 	unbindWindowListeners,
 	suggested as suggestPosition,
 	constrainLeft,
-	isElement as isDOMElement,
 	offset,
 } from './util';
 
@@ -79,6 +78,10 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
+	isDOMNode( obj ) {
+		return obj && obj instanceof HTMLElement;
+	}
+
 	isRef( obj ) {
 		return obj && typeof obj === 'object' && 'current' in obj;
 	}
@@ -86,7 +89,7 @@ class Popover extends Component {
 	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
 
-		if ( isDOMElement( nextProps.context ) ) {
+		if ( this.isDOMNode( nextProps.context ) ) {
 			this.domContextRef.current = nextProps.context;
 		} else if ( this.isRef( nextProps.context ) ) {
 			this.domContextRef.current = nextProps.context.current;
@@ -210,7 +213,7 @@ class Popover extends Component {
 
 		if ( this.props.ignoreContext && shouldClose ) {
 			let ignoreContext;
-			if ( isDOMElement( this.props.ignoreContext ) ) {
+			if ( this.isDOMNode( this.props.ignoreContext ) ) {
 				ignoreContext = this.props.ignoreContext;
 			} else if ( this.isRef( this.props.ignoreContext ) ) {
 				ignoreContext = this.props.ignoreContext.current;
@@ -267,7 +270,7 @@ class Popover extends Component {
 		// store DOM element referencies
 		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
-		if ( isDOMElement( this.props.context ) ) {
+		if ( this.isDOMNode( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
 		} else if ( this.isRef( this.props.context ) ) {
 			this.domContextRef.current = this.props.context.current;
