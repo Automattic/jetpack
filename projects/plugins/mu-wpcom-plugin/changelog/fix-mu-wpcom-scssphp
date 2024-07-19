@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add missing `scssphp/scssphp` dependency to the plugin zip.

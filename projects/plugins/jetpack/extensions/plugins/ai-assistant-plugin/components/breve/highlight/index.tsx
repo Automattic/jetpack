@@ -15,6 +15,9 @@ import React from 'react';
 import { AiSVG } from '../../ai-icon';
 import features from '../features';
 import registerEvents from '../features/events';
+import { getNodeTextIndex } from '../utils/get-node-text-index';
+import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
+import { numberToOrdinal } from '../utils/number-to-ordinal';
 import highlight from './highlight';
 import './style.scss';
 /**
@@ -102,7 +105,16 @@ export default function Highlight() {
 
 	const handleSuggestions = () => {
 		const target = ( anchor as HTMLElement )?.innerText;
-		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText as string;
+		const parent = getNonLinkAncestor( anchor as HTMLElement );
+		const sentence = parent?.innerText as string;
+		// Get the index of the target in the parent
+		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
+		// Get the occurrences of the target in the sentence
+		const targetRegex = new RegExp( target, 'gi' );
+		const matches = Array.from( sentence.matchAll( targetRegex ) ).map( match => match.index );
+		// Get the right occurrence of the target in the sentence
+		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
+		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
 			id,
@@ -110,6 +122,7 @@ export default function Highlight() {
 			feature,
 			sentence,
 			blockId,
+			occurrence: ordinalOccurence,
 		} );
 	};
 

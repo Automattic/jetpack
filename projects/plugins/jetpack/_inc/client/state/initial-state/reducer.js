@@ -730,16 +730,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns information about the Gutenberg plugin and its Interactivity API support.
- *
- * @param {object} state - Global state tree.
- * @returns {object} Gutenberg plugin information.
- */
-export function getGutenbergState( state ) {
-	return state.jetpack.initialState.gutenbergInitialState;
-}
-
-/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
