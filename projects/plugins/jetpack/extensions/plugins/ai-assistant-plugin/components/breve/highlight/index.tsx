@@ -130,6 +130,7 @@ export default function Highlight() {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
+			setPopoverHover( false );
 			return;
 		}
 
@@ -148,6 +149,7 @@ export default function Highlight() {
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
 		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
 	};
 
 	return (
