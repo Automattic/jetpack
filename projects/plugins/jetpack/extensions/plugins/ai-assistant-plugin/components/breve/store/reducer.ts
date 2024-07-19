@@ -2,20 +2,23 @@
  * WordPress dependencies
  */
 import { combineReducers } from '@wordpress/data';
+/**
+ * Types
+ */
+import type { BreveState } from '../types';
 
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-proofread-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
 	'jetpack-ai-proofread-disabled-features'
 );
 const initialConfiguration = {
-	// TODO: Confirm that we will start it as true
 	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
 	disabled:
 		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
 };
 
 export function configuration(
-	state = initialConfiguration,
+	state: BreveState[ 'configuration' ] = initialConfiguration,
 	action: { type: string; enabled?: boolean; feature?: string }
 ) {
 	switch ( action.type ) {
@@ -28,8 +31,9 @@ export function configuration(
 				enabled,
 			};
 		}
+
 		case 'ENABLE_FEATURE': {
-			const disabled = state.disabled.filter( feature => feature !== action.feature );
+			const disabled = ( state.disabled ?? [] ).filter( feature => feature !== action.feature );
 			window.localStorage.setItem(
 				'jetpack-ai-proofread-disabled-features',
 				JSON.stringify( disabled )
@@ -40,8 +44,9 @@ export function configuration(
 				disabled,
 			};
 		}
+
 		case 'DISABLE_FEATURE': {
-			const disabled = [ ...state.disabled, action.feature ];
+			const disabled = [ ...( state.disabled ?? [] ), action.feature ];
 			window.localStorage.setItem(
 				'jetpack-ai-proofread-disabled-features',
 				JSON.stringify( disabled )
@@ -58,8 +63,8 @@ export function configuration(
 }
 
 export function popover(
-	state = {},
-	action: { type: string; isHover?: boolean; anchor?: HTMLElement }
+	state: BreveState[ 'popover' ] = {},
+	action: { type: string; isHover?: boolean; anchor?: HTMLElement | EventTarget }
 ) {
 	switch ( action.type ) {
 		case 'SET_HIGHLIGHT_HOVER':
@@ -74,14 +79,76 @@ export function popover(
 				isPopoverHover: action.isHover,
 			};
 
-		case 'SET_POPOVER_ANCHOR':
+		case 'SET_POPOVER_ANCHOR': {
+			if ( ! action.anchor ) {
+				return state;
+			}
+
 			return {
 				...state,
 				anchor: action.anchor,
 			};
+		}
 	}
 
 	return state;
 }
 
-export default combineReducers( { popover, configuration } );
+export function suggestions(
+	state = {},
+	action: {
+		type: string;
+		id: string;
+		feature: string;
+		blockId: string;
+		loading: boolean;
+		suggestions?: {
+			revisedText: string;
+			suggestion: string;
+		};
+	}
+) {
+	const { id, feature, blockId } = action ?? {};
+	const current = { ...state };
+	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
+	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+
+	switch ( action.type ) {
+		case 'SET_SUGGESTIONS_LOADING': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: action.loading,
+						},
+					},
+				},
+			};
+		}
+
+		case 'SET_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: false,
+							suggestions: action.suggestions,
+						},
+					},
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions } );

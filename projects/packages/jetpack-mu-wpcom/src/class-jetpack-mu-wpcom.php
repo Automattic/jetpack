@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.44.0-alpha';
+	const PACKAGE_VERSION = '5.47.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -28,9 +28,13 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		require_once __DIR__ . '/utils.php';
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
+
+		// Load features that only apply to WordPress.com-connected users.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 
 		// Load ETK features that need higher priority than the ETK plugin.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ), 0 );
@@ -43,16 +47,13 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_block_theme_previews' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_command_palette' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_admin_interface' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_site_management_widget' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_replace_site_visibility' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -81,9 +82,6 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
-		// Shared features.
-		require_once __DIR__ . '/features/agency-managed/agency-managed.php';
-
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
@@ -94,26 +92,44 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
-		// To avoid potential collisions with ETK.
-		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
-			require_once __DIR__ . '/features/help-center/class-help-center.php';
-		}
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
-		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
-		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
-		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
+		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com users.
+	 */
+	public static function load_wpcom_user_features() {
+		if ( ! is_wpcom_user() ) {
+			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
+
+			return;
+		}
+
+		// To avoid potential collisions with ETK.
+		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
+			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		}
+		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
+		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
+		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
+		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 
 		// Only load the Calypsoify and Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -132,6 +148,7 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
@@ -144,6 +161,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
 		require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
 		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
+		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 	}
 
@@ -325,18 +343,6 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load WPCOM Command Palette.
-	 *
-	 * @return void
-	 */
-	public static function load_wpcom_command_palette() {
-		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() ) {
-			return;
-		}
-		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
-	}
-
-	/**
 	 * Load Odyssey Stats in Simple sites.
 	 */
 	public static function load_wpcom_simple_odyssey_stats() {
@@ -346,38 +352,17 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load WPCOM Admin Interface.
-	 *
-	 * @return void
-	 */
-	public static function load_wpcom_admin_interface() {
-		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
-	}
-
-	/**
-	 * Load WPCOM Site Management widget.
-	 */
-	public static function load_wpcom_site_management_widget() {
-		if ( is_agency_managed_site() || ! current_user_has_wpcom_account() || ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
-		}
-	}
-
-	/**
-	 * Load Replace Site Visibility feature.
-	 */
-	public static function load_replace_site_visibility() {
-		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
-	}
-
-	/**
 	 * Load the Jetpack Custom CSS feature.
 	 */
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
+	}
+
+	/**
+	 * Load the Random Redirect feature.
+	 */
+	public static function load_wpcom_random_redirect() {
+		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
 	}
 }

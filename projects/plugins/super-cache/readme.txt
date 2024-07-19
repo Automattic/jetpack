@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, dilirity, mikemayhem3030, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 6.4
+Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.6
 Stable tag: 1.12.3
@@ -268,10 +268,12 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.12.3 - 2024-07-10
+### 1.12.4 - 2024-07-17
+#### Removed
+- General: update WordPress version requirements to WordPress 6.5.
+
 #### Fixed
-- Don't delete the log viewer when doing garbage collection
-- Fix clearing the cache when scheduled posts are published
+- Fixed problem with is_utf8_charset missing in WP 6.6
 
 --------
 

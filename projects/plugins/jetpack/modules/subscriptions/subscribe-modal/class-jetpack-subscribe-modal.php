@@ -85,12 +85,22 @@ class Jetpack_Subscribe_Modal {
 			 */
 			$scroll_threshold = absint( apply_filters( 'jetpack_subscribe_modal_scroll_threshold', 50 ) );
 
+			/**
+			 * Filter to control the interval at which the subscribe modal is shown to the same user.  The default interval is 24 hours.
+			 *
+			 * @since 13.7
+			 *
+			 * @param int 24 Hours before we show the same user the Subscribe Modal to again.
+			 */
+			$modal_interval = absint( apply_filters( 'jetpack_subscribe_modal_interval', 24 ) );
+
 			wp_localize_script(
 				'subscribe-modal-js',
 				'Jetpack_Subscriptions',
 				array(
 					'modalLoadTime'        => $load_time,
 					'modalScrollThreshold' => $scroll_threshold,
+					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
 				)
 			);
 		}
@@ -179,7 +189,7 @@ class Jetpack_Subscribe_Modal {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"subscribe-modal"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>

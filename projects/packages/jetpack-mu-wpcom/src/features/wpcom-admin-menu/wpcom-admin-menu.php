@@ -41,17 +41,6 @@ function wpcom_add_hosting_menu() {
 	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
-	if ( is_agency_managed_site() ) {
-		return;
-	}
-
-	/**
-	 * Don't show `Hosting` to administrators without a WordPress.com account being attached,
-	 * as they don't have access to any of the pages.
-	 */
-	if ( ! current_user_has_wpcom_account() ) {
-		return;
-	}
 
 	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
@@ -164,14 +153,6 @@ function wpcom_add_jetpack_submenu() {
 	 * They already get a menu item under Users via nav-unification.
 	 */
 	if ( ( new Host() )->is_wpcom_platform() && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		return;
-	}
-
-	/**
-	 * Don't show to administrators without a WordPress.com account being attached,
-	 * as they don't have access to any of the pages.
-	 */
-	if ( ! current_user_has_wpcom_account() ) {
 		return;
 	}
 
@@ -289,7 +270,6 @@ function wpcom_add_plugins_menu() {
 	$is_simple_site          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 	$is_atomic_site          = ! $is_simple_site;
 	$uses_wp_admin_interface = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	$is_agency_managed_site  = is_agency_managed_site();
 
 	if ( $is_simple_site ) {
 		$has_plugins_menu = false;
@@ -329,10 +309,6 @@ function wpcom_add_plugins_menu() {
 		}
 	}
 
-	if ( $is_agency_managed_site || ! current_user_has_wpcom_account() ) {
-		return;
-	}
-
 	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
 	if ( $uses_wp_admin_interface ) {
 		add_submenu_page(
@@ -349,11 +325,6 @@ function wpcom_add_plugins_menu() {
 
 	if ( $is_atomic_site ) {
 		if (
-			/**
-			 * Don't show `Scheduled Updates` to administrators without a WordPress.com account being attached,
-			 * as they don't have access to any of the pages.
-			 */
-			current_user_has_wpcom_account() &&
 			! get_option( 'wpcom_is_staging_site' ) &&
 			function_exists( 'wpcom_site_has_feature' ) &&
 			wpcom_site_has_feature( \WPCOM_Features::SCHEDULED_UPDATES )

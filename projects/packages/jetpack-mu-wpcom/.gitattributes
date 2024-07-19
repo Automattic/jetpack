@@ -8,9 +8,6 @@ package.json         export-ignore
 # /src/js/example.min.js  production-include
 src/build/**                          production-include
 
-# We don't want langauges files in git, but we do want them rsynced.
-src/features/help-center/languages/**   production-include
-
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 .gitignore        production-exclude
