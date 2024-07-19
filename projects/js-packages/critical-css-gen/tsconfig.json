@@ -1,9 +1,15 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
+	"include": [ "src/**/*" ],
+	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/*" ],
-		"outDir": "./build/"
-	},
-	// List all sources and source-containing subdirs.
-	"include": [ "./src" ]
+		"outDir": "./lib",
+		"target": "ES2021",
+		"module": "esnext",
+		"sourceMap": true,
+		"allowJs": false,
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"typeRoots": [ "node_modules/@types" ],
+		"declaration": true
+	}
 }
