@@ -42,6 +42,7 @@ function SubscriptionsSettings( props ) {
 		isBlockTheme,
 		siteAdminUrl,
 		themeStylesheet,
+		isLinked,
 	} = props;
 
 	const subscribeModalEditorUrl =
@@ -113,7 +114,7 @@ function SubscriptionsSettings( props ) {
 		);
 	}, [ updateFormStateModuleOption ] );
 
-	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode;
+	const isDisabled = ! isSubscriptionsActive || unavailableInOfflineMode || ! isLinked;
 
 	return (
 		<SettingsCard
