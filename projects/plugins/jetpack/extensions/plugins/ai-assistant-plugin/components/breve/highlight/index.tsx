@@ -140,6 +140,7 @@ export default function Highlight() {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
+			setPopoverHover( false );
 			return;
 		}
 
