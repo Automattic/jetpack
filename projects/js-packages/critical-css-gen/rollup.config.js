@@ -12,9 +12,7 @@ const sharedPlugins = [
 		inlineSources: false,
 		declaration: false,
 	} ),
-	commonjs( {
-		transformMixedEsModules: true,
-	} ),
+	commonjs(),
 	nodePolyfills(),
 	json(),
 ];
