@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import debugFactory from 'debug';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -35,7 +35,6 @@ import './generator-modal.scss';
 /**
  * Types
  */
-import type { AiFeatureProps } from '../store/types.js';
 import type { GeneratorModalProps } from '../types.js';
 import type React from 'react';
 
@@ -54,7 +53,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		'loadingFeature' | 'analyzing' | 'generating' | null
 	>( null );
 	const [ initialPrompt, setInitialPrompt ] = useState< string | undefined >();
-	const [ isFirstCallOnOpen, setIsFirstCallOnOpen ] = useState( true );
+	const needsToHandleModalOpen = useRef< boolean >( true );
+	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
 	const [ upgradeURL, setUpgradeURL ] = useState( '' );
@@ -65,18 +65,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const siteURL = siteDetails?.URL;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 
-	const getFeature = useCallback( async () => {
-		setLoadingState( 'loadingFeature' );
-		debug( 'Fetching AI assistant feature for site', siteId );
-		await fetchAiAssistantFeature( String( siteId ) );
-
-		// Wait for store to update.
-		return new Promise< Partial< AiFeatureProps > >( resolve => {
-			setTimeout( () => {
-				resolve( getAiAssistantFeature( String( siteId ) ) );
-			}, 100 );
-		} );
-	}, [ fetchAiAssistantFeature, getAiAssistantFeature, siteId ] );
+	// First fetch the feature data so we have the most up-to-date info from the backend.
+	const feature = getAiAssistantFeature();
 
 	const generateFirstLogo = useCallback( async () => {
 		try {
@@ -96,11 +86,12 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		}
 	}, [ context, generateFirstPrompt, generateLogo ] );
 
+	/*
+	 * Called ONCE to check the feature data to make sure the site is allowed to do the generation.
+	 * Also, checks site history and trigger a new generation in case there are no logos to present.
+	 */
 	const initializeModal = useCallback( async () => {
-		// First fetch the feature data so we have the most up-to-date info from the backend.
 		try {
-			const feature = await getFeature();
-
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 			const promptCreationCost = 1;
@@ -147,7 +138,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			setLoadingState( null );
 		}
 	}, [
-		getFeature,
+		feature,
 		generateFirstLogo,
 		loadLogoHistory,
 		clearDeletedMedia,
@@ -163,6 +154,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	}, [ setContext, context, initializeModal ] );
 
 	const closeModal = () => {
+		// Reset the state when the modal is closed, so we trigger the modal initialization again when it's opened.
+		needsToHandleModalOpen.current = true;
 		onClose();
 		setLoadingState( null );
 		setNeedsFeature( false );
@@ -194,27 +187,27 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		if ( siteId ) {
 			setSiteDetails( siteDetails );
 		}
+
+		// When the site details are set, we need to fetch the feature data.
+		if ( ! requestedFeatureData.current ) {
+			requestedFeatureData.current = true;
+			fetchAiAssistantFeature();
+		}
 	}, [ siteId, siteDetails, setSiteDetails ] );
 
 	// Handles modal opening logic
 	useEffect( () => {
-		if ( ! isOpen || ! siteId ) {
+		// While the modal is not open, the siteId is not set, or the feature data is not available, do nothing.
+		if ( ! isOpen || ! siteId || ! feature?.costs ) {
 			return;
 		}
 
-		// Prevent multiple async calls
-		if ( isFirstCallOnOpen ) {
-			setIsFirstCallOnOpen( false );
+		// Prevent multiple calls of the handleModalOpen function
+		if ( needsToHandleModalOpen.current ) {
+			needsToHandleModalOpen.current = false;
 			handleModalOpen();
 		}
-	}, [ isOpen, siteId, isFirstCallOnOpen, setIsFirstCallOnOpen, handleModalOpen ] );
-
-	// Reset the modal first call flag
-	useEffect( () => {
-		if ( ! isOpen ) {
-			setIsFirstCallOnOpen( true );
-		}
-	}, [ isOpen ] );
+	}, [ isOpen, siteId, handleModalOpen, feature ] );
 
 	let body: React.ReactNode;
 
