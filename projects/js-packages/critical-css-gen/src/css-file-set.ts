@@ -34,7 +34,7 @@ export class CSSFileSet {
 	 * Add a set of CSS URLs from an HTML page to this set.
 	 *
 	 * @param {string} page        - URL of the page the CSS URLs were found on.
-	 * @param {Object} cssIncludes - Included CSS Files. Keyed by URL.
+	 * @param {object} cssIncludes - Included CSS Files. Keyed by URL.
 	 */
 	async addMultiple( page: string, cssIncludes: { [ url: string ]: { media: string } } ) {
 		await Promise.all(
@@ -51,7 +51,7 @@ export class CSSFileSet {
 	 *
 	 * @param {string} page     - URL of the page the CSS URL was found on.
 	 * @param {string} cssUrl   - The CSS file URL.
-	 * @param {Object} settings
+	 * @param {object} settings
 	 */
 	async add(
 		page: string,
@@ -85,13 +85,19 @@ export class CSSFileSet {
 
 			this.storeCss( page, cssUrl, css );
 		} catch ( err ) {
-			let wrappedError = err;
+			let wrappedError: Error =
+				err instanceof Error
+					? err
+					: new UnknownError( {
+							url: cssUrl,
+							message: String( err ),
+					  } );
 
 			// Wrap any unfamiliar fetch errors in an unknown error.
-			if ( ! ( err instanceof UrlError ) ) {
+			if ( ! ( wrappedError instanceof UrlError ) ) {
 				wrappedError = new UnknownError( {
 					url: cssUrl,
-					message: err.message,
+					message: wrappedError.message,
 				} );
 			}
 
@@ -103,10 +109,10 @@ export class CSSFileSet {
 	 * Collates an object describing the selectors found in the CSS files in this set, and which
 	 * HTML page URLs include them (via CSS files)
 	 *
-	 * @return {Object} - An object with selector text keys, each containing a Set of page URLs (strings)
+	 * @returns {object} - An object with selector text keys, each containing a Set of page URLs (strings)
 	 */
 	collateSelectorPages(): { [ selector: string ]: Set< string > } {
-		const selectors = {};
+		const selectors: { [ selector: string ]: Set< string > } = {};
 
 		for ( const file of this.cssFiles ) {
 			file.ast.forEachSelector( selector => {
@@ -230,7 +236,7 @@ export class CSSFileSet {
 	 *
 	 * @param {string} page         - URL of the page this CSS file was found on.
 	 * @param {string} cssUrl       - URL of the CSS File.
-	 * @param {Object} matchingFile - Internal CSS File object.
+	 * @param {object} matchingFile - Internal CSS File object.
 	 */
 	addExtraReference( page: string, cssUrl: string, matchingFile: CSSFile ): void {
 		this.knownUrls[ cssUrl ] = matchingFile;
@@ -255,7 +261,7 @@ export class CSSFileSet {
 	/**
 	 * Returns a list of errors that occurred while fetching or parsing these CSS files.
 	 *
-	 * @return {Error[]} - List of errors that occurred.
+	 * @returns {Error[]} - List of errors that occurred.
 	 */
 	getErrors() {
 		return this.errors;

@@ -15,10 +15,18 @@ const excludedProperties = [
 	/(.*)user-select/,
 ];
 
+/**
+ *
+ * @param node
+ */
 function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
 	return node.type === 'Declaration';
 }
 
+/**
+ *
+ * @param node
+ */
 function hasEmptyChildList( node: csstree.CssNode ): boolean {
 	if ( 'children' in node && node.children instanceof csstree.List ) {
 		return node.children.isEmpty;
@@ -42,7 +50,7 @@ export class StyleAST {
 	 * Given a base URL (where the CSS file this AST was built from), find all relative URLs and
 	 * convert them to absolute.
 	 *
-	 * @param {string} base base URL for relative URLs.
+	 * @param {string} base - base URL for relative URLs.
 	 */
 	absolutifyUrls( base: string ): void {
 		csstree.walk( this.ast, {
@@ -73,7 +81,7 @@ export class StyleAST {
 	 *
 	 * @param {Set< string >} criticalSelectors - Set of selectors to keep in the new AST.
 	 *
-	 * @return {StyleAST} - New AST with pruned contents.
+	 * @returns {StyleAST} - New AST with pruned contents.
 	 */
 	pruned( criticalSelectors: Set< string > ): StyleAST {
 		const clone = new StyleAST( this.css, csstree.clone( this.ast ), this.errors );
@@ -91,8 +99,8 @@ export class StyleAST {
 	/**
 	 * Given an AST node, returns the original text it was compiled from in the source CSS.
 	 *
-	 * @param {Object} node - Node from the AST.
-	 * @return {string} original text the node was compiled from.
+	 * @param {object} node - Node from the AST.
+	 * @returns {string} original text the node was compiled from.
 	 */
 	originalText( node: csstree.CssNode ): string {
 		if ( node.loc && node.loc.start && node.loc.end ) {
@@ -123,7 +131,7 @@ export class StyleAST {
 	/**
 	 * Applies a filter to the properties in this AST. Mutates the AST in-place.
 	 *
-	 * @param {Function} filter to apply.
+	 * @param {Function} filter - to apply.
 	 */
 	applyPropertiesFilter( filter: PropertiesFilter ): void {
 		csstree.walk( this.ast, {
@@ -139,7 +147,7 @@ export class StyleAST {
 	/**
 	 * Applies a filter to the atRules in this AST. Mutates the AST in-place.
 	 *
-	 * @param {Function} filter to apply.
+	 * @param {Function} filter - to apply.
 	 */
 	applyAtRulesFilter( filter: AtRuleFilter ): void {
 		csstree.walk( this.ast, {
@@ -157,7 +165,7 @@ export class StyleAST {
 	 * that were removed.
 	 *
 	 * @param {Set< string >} usedVariables - Set of used variables to keep.
-	 * @return {number} variables pruned.
+	 * @returns {number} variables pruned.
 	 */
 	pruneUnusedVariables( usedVariables: Set< string > ): number {
 		let pruned = 0;
@@ -278,7 +286,7 @@ export class StyleAST {
 	/**
 	 * Returns true if the given CSS rule object relates to animation keyframes.
 	 *
-	 * @param {Object} rule - CSS rule.
+	 * @param {object} rule - CSS rule.
 	 */
 	static isKeyframeRule( rule: csstree.WalkContext ): boolean {
 		return ( rule.atrule && csstree.keyword( rule.atrule.name ).basename === 'keyframes' ) || false;
@@ -460,7 +468,7 @@ export class StyleAST {
 	/**
 	 * Returns a count of the rules in this Style AST.
 	 *
-	 * @return {number} rules in this AST.
+	 * @returns {number} rules in this AST.
 	 */
 	ruleCount(): number {
 		let rules = 0;
@@ -478,7 +486,7 @@ export class StyleAST {
 	/**
 	 * Returns a list of font families that are used by any rule in this AST.
 	 *
-	 * @return {Set<string>} Set of used fonts.
+	 * @returns {Set<string>} Set of used fonts.
 	 */
 	getUsedFontFamilies(): Set< string > {
 		const fontFamilies = new Set< string >();
@@ -498,7 +506,9 @@ export class StyleAST {
 
 				// Gather family-name values.
 				const frags = lexer.findDeclarationValueFragments( node, 'Type', 'family-name' );
-				const nodes = frags.map( frag => frag.nodes.toArray() ).flat();
+				const nodes = frags
+					.map( ( frag: { nodes: { toArray: () => any[] } } ) => frag.nodes.toArray() )
+					.flat();
 				const names = nodes.map( StyleAST.readValue ) as string[];
 				names.forEach( name => fontFamilies.add( name ) );
 			},
@@ -511,7 +521,7 @@ export class StyleAST {
 	 * Given an AST node, read it as a value based on its type. Removes quote marks from
 	 * string types if present.
 	 *
-	 * @param {Object} node - AST node.
+	 * @param {object} node - AST node.
 	 */
 	static readValue( node: csstree.CssNode ): string {
 		if ( node.type === 'String' && stringPattern.test( node.value ) ) {
@@ -528,14 +538,14 @@ export class StyleAST {
 	/**
 	 * Returns true if the specified media query node is relevant to screen rendering.
 	 *
-	 * @param {Object} mediaQueryNode - Media Query AST node to examine.
+	 * @param {object} mediaQueryNode - Media Query AST node to examine.
 	 *
-	 * @return {boolean} true if the media query is relevant to screens.
+	 * @returns {boolean} true if the media query is relevant to screens.
 	 */
 	static isUsefulMediaQuery( mediaQueryNode: csstree.MediaQuery ): boolean {
 		// Find media types.
 		let lastIdentifierNot = false;
-		const mediaTypes = {};
+		const mediaTypes: Record< string, boolean > = {};
 		csstree.walk( mediaQueryNode, {
 			visit: 'Identifier',
 			enter: node => {
@@ -573,7 +583,7 @@ export class StyleAST {
 	/**
 	 * Returns this AST converted to CSS.
 	 *
-	 * @return {string} this AST represented in CSS.
+	 * @returns {string} this AST represented in CSS.
 	 */
 	toCSS(): string {
 		return csstree.generate( this.ast );
@@ -584,7 +594,7 @@ export class StyleAST {
 	 *
 	 * @param {string} css - CSS to parse.
 	 *
-	 * @return {StyleAST} new parse AST based on the CSS.
+	 * @returns {StyleAST} new parse AST based on the CSS.
 	 */
 	static parse( css: string ): StyleAST {
 		const errors: Error[] = [];

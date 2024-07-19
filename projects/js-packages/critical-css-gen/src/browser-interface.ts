@@ -1,6 +1,13 @@
 import type { Viewport } from './types';
 
-export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
+type BrowserRunnableArgs = {
+	innerWindow: Window | null;
+	args: unknown[];
+};
+
+export type BrowserRunnable< ReturnType > = (
+	args: BrowserRunnableArgs
+) => ReturnType | Promise< ReturnType >;
 
 // Wrappers around parts of fetch that we rely on, to allow multiple stand-in implementations.
 export interface FetchOptions {
@@ -56,15 +63,17 @@ export class BrowserInterface {
 		// No-op.
 	}
 
-	async getCssIncludes( pageUrl: string ): Promise< { [ url: string ]: { media: string } } > {
+	async getCssIncludes(
+		pageUrl: string
+	): Promise< { [ url: string ]: { media: string | null } } > {
 		return await this.runInPage( pageUrl, null, BrowserInterface.innerGetCssIncludes );
 	}
 
-	static innerGetCssIncludes( { innerWindow } ) {
+	static innerGetCssIncludes( { innerWindow }: { innerWindow: Window | null } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return [ ...innerWindow.document.getElementsByTagName( 'link' ) ]
 			.filter( link => link.rel === 'stylesheet' )
-			.reduce( ( set, link ) => {
+			.reduce( ( set: { [ url: string ]: { media: string | null } }, link ) => {
 				set[ link.href ] = {
 					media: link.media || null,
 				};
@@ -80,10 +89,10 @@ export class BrowserInterface {
 	/**
 	 * Get all internal styles as a combined string from the window.
 	 *
-	 * @param {Object} wrappedArgs
+	 * @param {object} wrappedArgs
 	 * @param {Window} wrappedArgs.innerWindow - Window inside the browser interface.
 	 */
-	static innerGetInternalStyles( { innerWindow } ): string {
+	static innerGetInternalStyles( { innerWindow }: { innerWindow: Window | null } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		const styleElements = Array.from( innerWindow.document.getElementsByTagName( 'style' ) );
 
@@ -98,12 +107,18 @@ export class BrowserInterface {
 	 * for easy querySelector calling (values), return an array of selectors which match
 	 * _any_ element on the page.
 	 *
-	 * @param {Object}   wrappedArgs
+	 * @param {object}   wrappedArgs
 	 * @param {Window}   wrappedArgs.innerWindow - Window inside the browser interface.
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 */
-	public static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
+	public static innerFindMatchingSelectors( {
+		innerWindow,
+		args: [ selectors ],
+	}: {
+		innerWindow: Window | null;
+		args: [ selectors: { [ selector: string ]: string } ];
+	} ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return Object.keys( selectors ).filter( selector => {
 			try {
@@ -120,7 +135,7 @@ export class BrowserInterface {
 	 * for easy querySelector calling (values), return an array of selectors which match
 	 * any above-the-fold element on the page.
 	 *
-	 * @param {Object}   wrappedArgs
+	 * @param {object}   wrappedArgs
 	 * @param {Window}   wrappedArgs.innerWindow - Window inside the browser interface.
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
@@ -129,6 +144,9 @@ export class BrowserInterface {
 	public static innerFindAboveFoldSelectors( {
 		innerWindow,
 		args: [ selectors, pageSelectors ],
+	}: {
+		innerWindow: Window | null;
+		args: [ { [ selector: string ]: string }, string[] ];
 	} ): string[] {
 		/**
 		 * Inner helper function used inside browser / iframe to check if the given
@@ -137,7 +155,7 @@ export class BrowserInterface {
 		 * @param {HTMLElement} element - Element to check.
 		 */
 		innerWindow = null === innerWindow ? window : innerWindow;
-		const isAboveFold = element => {
+		const isAboveFold = ( element: HTMLElement ) => {
 			const originalClearStyle = element.style.clear || '';
 			element.style.clear = 'none';
 
@@ -155,7 +173,7 @@ export class BrowserInterface {
 
 			const matches = innerWindow.document.querySelectorAll( selectors[ s ] );
 			for ( const match of matches ) {
-				if ( isAboveFold( match ) ) {
+				if ( isAboveFold( match as HTMLElement ) ) {
 					return true;
 				}
 			}

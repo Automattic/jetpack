@@ -1,10 +1,11 @@
-import { Viewport } from './types';
+import nodeFetch from 'node-fetch';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
+import { Viewport } from './types';
 
 interface Page {
 	setViewport( viewport: Viewport ): Promise< void >;
 	// eslint-disable-next-line @typescript-eslint/ban-types
-	evaluate( method: string | Function, arg: Record< string, unknown > );
+	evaluate( method: string | Function, arg: Record< string, unknown > ): Promise< any >;
 }
 
 export class BrowserInterfacePuppeteer extends BrowserInterface {
@@ -41,13 +42,11 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * Replacement for browser.fetch, uses node-fetch to simulate the same
 	 * interface.
 	 *
-	 * @param {string} url     URL to fetch.
-	 * @param {Object} options Fetch options.
-	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
+	 * @param {string} url     - URL to fetch.
+	 * @param {object} options - Fetch options.
+	 * @param {string} _role   - 'css' or 'html' indicating what kind of thing is being fetched.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
-		const nodeFetch = await import( 'node-fetch' );
-
-		return nodeFetch.default( url, options );
+		return nodeFetch( url, options );
 	}
 }

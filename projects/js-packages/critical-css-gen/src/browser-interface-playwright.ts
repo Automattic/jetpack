@@ -1,8 +1,9 @@
-import { Viewport } from './types';
+import nodeFetch from 'node-fetch';
+import { BrowserContext, Page } from 'playwright-core';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 import { HttpError } from './errors';
-import { BrowserContext, Page } from 'playwright-core';
 import { objectPromiseAll } from './object-promise-all';
+import { Viewport } from './types';
 
 export type Tab = { page: Page; statusCode: number | null };
 export type TabsByUrl = { [ url: string ]: Tab };
@@ -10,12 +11,12 @@ export type TabsByUrl = { [ url: string ]: Tab };
 const PAGE_GOTO_TIMEOUT_MS = 5 * 60 * 1000;
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
-	private tabs: TabsByUrl;
+	private tabs: TabsByUrl = {};
 
 	/**
 	 *
-	 * @param context The playwright browser context to work with.
-	 * @param urls    Array of urls to evaluate. The reason we are taking this as an argument is because we want to load all of them in parallel.
+	 * @param context - The playwright browser context to work with.
+	 * @param urls    - Array of urls to evaluate. The reason we are taking this as an argument is because we want to load all of them in parallel.
 	 */
 	constructor(
 		private context: BrowserContext,
@@ -39,11 +40,11 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 *
 	 * @param {BrowserContext} context - Browser context to use.
 	 * @param {string[]}       urls    - Array of urls to open.
-	 * @return {Promise< TabsByUrl >} Promise resolving to the browser context.
+	 * @returns {Promise< TabsByUrl >} Promise resolving to the browser context.
 	 */
 	private async openUrls( context: BrowserContext, urls: string[] ): Promise< void > {
 		this.tabs = await objectPromiseAll< Tab >(
-			urls.reduce( ( set, url ) => {
+			urls.reduce( ( set: { [ key: string ]: Promise< Tab > }, url ) => {
 				set[ url ] = this.newTab( context, url );
 				return set;
 			}, {} )
@@ -55,12 +56,12 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 *
 	 * @param {BrowserContext} browserContext - Browser context to use.
 	 * @param {string}         url            - Url to open.
-	 * @return {Promise<Page>} Promise resolving to the page instance.
+	 * @returns {Promise<Page>} Promise resolving to the page instance.
 	 */
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
 		const tab = {
 			page: await browserContext.newPage(),
-			statusCode: null,
+			statusCode: null as number | null,
 		};
 		tab.page.on( 'response', async response => {
 			if ( response.url() === url ) {
@@ -88,7 +89,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 		// Bail early if the page returned a non-200 status code.
 		if ( ! tab.statusCode || ! this.isOkStatus( tab.statusCode ) ) {
-			const error = new HttpError( { url: pageUrl, code: tab.statusCode } );
+			const error = new HttpError( { url: pageUrl, code: tab.statusCode as number } );
 			this.trackUrlError( pageUrl, error );
 			throw error;
 		}
@@ -100,21 +101,19 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		// The inner window in Playwright is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
 		// Call inner method within the Playwright context.
-		return tab.page.evaluate( method, { innerWindow: null, args } );
+		return tab.page.evaluate( method as any, { innerWindow: null, args } as any );
 	}
 
 	/**
 	 * Replacement for browser.fetch, uses node-fetch to simulate the same
 	 * interface.
 	 *
-	 * @param {string} url     URL to fetch.
-	 * @param {Object} options Fetch options.
-	 * @param {string} _role   'css' or 'html' indicating what kind of thing is being fetched.
+	 * @param {string} url     - URL to fetch.
+	 * @param {object} options - Fetch options.
+	 * @param {string} _role   - 'css' or 'html' indicating what kind of thing is being fetched.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
-		const nodeFetch = await import( 'node-fetch' );
-
-		return nodeFetch.default( url, options );
+		return nodeFetch( url, options );
 	}
 
 	private isOkStatus( statusCode: number ) {

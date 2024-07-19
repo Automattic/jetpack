@@ -126,7 +126,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 			}
 
 			return new HttpError( { url, code: response.status } );
-		} catch ( err ) {
+		} catch ( err: any ) {
 			return new UnknownError( { url, message: err.message } );
 		}
 	}
@@ -144,7 +144,7 @@ export class BrowserInterfaceIframe extends BrowserInterface {
 
 		return new Promise( ( resolve, rawReject ) => {
 			// Track all URL errors.
-			const reject = err => {
+			const reject = ( err: any ) => {
 				this.trackUrlError( rawUrl, err );
 				rawReject( err );
 			};

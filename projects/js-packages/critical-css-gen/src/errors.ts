@@ -132,7 +132,7 @@ export class EmptyCSSError extends UrlError {
  * XFrameDenyError - Indicates that a requested URL failed due to x-frame-options deny configuration
  */
 export class XFrameDenyError extends UrlError {
-	constructor( { url } ) {
+	constructor( { url }: { url: string } ) {
 		super(
 			'XFrameDenyError',
 			{ url },
