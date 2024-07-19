@@ -22,7 +22,6 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
-import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
@@ -106,7 +105,6 @@ export default function PublicizeForm() {
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
-					{ shouldAutoConvert && showValidationNotice && mediaId && <AutoConversionNotice /> }
 					{ showValidationNotice &&
 						( Object.values( validationErrors ).includes( NO_MEDIA_ERROR ) ? (
 							<InstagramNoMediaNotice />

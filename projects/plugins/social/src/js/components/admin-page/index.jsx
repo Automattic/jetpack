@@ -12,7 +12,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
-import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -108,9 +107,6 @@ const Admin = () => {
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
-						) }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }
