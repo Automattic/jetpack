@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Assets: Add JSX runtime polyfill here so that it applies to all relevant plugins in the monorepo, preventing site breakages when WP < 6.6 and packages are included that use React's automatic runtime to transform JSX.
