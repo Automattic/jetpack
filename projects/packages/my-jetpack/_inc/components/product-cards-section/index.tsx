@@ -7,8 +7,8 @@ import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
-import CreatorCard from './creator-card';
 import CrmCard from './crm-card';
+import NewsletterCard from './newsletter-card';
 import ProtectCard from './protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
@@ -29,7 +29,7 @@ type DisplayItemType = Record<
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const { isAtomic = false, userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
@@ -40,7 +40,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 		videopress: VideopressCard,
 		stats: StatsCard,
 		crm: CrmCard,
-		creator: ! isAtomic ? CreatorCard : null,
+		newsletter: NewsletterCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
