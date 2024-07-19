@@ -28,13 +28,14 @@ const FirewallStatCards = ( {
 		</span>
 	);
 
-	const getLabel = period =>
+	const getLabel = ( period, units ) =>
 		isSmall ? (
 			<span>
 				{ sprintf(
-					// translators: %d is the number of hours
-					__( 'Blocked requests last %d hours', 'jetpack-protect' ),
-					period
+					/* translators: Translates to Blocked requests last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
+					__( 'Blocked requests last %1$d %2$s', 'jetpack-protect' ),
+					period,
+					units
 				) }
 			</span>
 		) : (
@@ -43,9 +44,10 @@ const FirewallStatCards = ( {
 				<br />
 				<span>
 					{ sprintf(
-						// translators: %d is the number of hours
-						__( 'Last %d hours', 'jetpack-protect' ),
-						period
+						/* translators: Translates to Last %1$d: Number of units. %2$s: Unit of time (hours, days, etc) */
+						__( 'Last %1$d %2$s', 'jetpack-protect' ),
+						period,
+						units
 					) }
 				</span>
 			</span>
@@ -54,14 +56,14 @@ const FirewallStatCards = ( {
 	const oneDayArgs = {
 		...defaultArgs,
 		icon: getIcon( shield ),
-		label: getLabel( 24 ),
+		label: getLabel( 24, 'hours' ),
 		value: statCardIsDisabled ? 0 : oneDayStats,
 	};
 
 	const thirtyDayArgs = {
 		...defaultArgs,
 		icon: getIcon( chartBar ),
-		label: getLabel( 30 ),
+		label: getLabel( 30, 'days' ),
 		value: statCardIsDisabled ? 0 : thirtyDayStats,
 	};
 
