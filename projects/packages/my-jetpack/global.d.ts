@@ -104,6 +104,7 @@ interface Window {
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
+					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
 					manage_url: string;

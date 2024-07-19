@@ -2,19 +2,18 @@ import { Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo } from 'react';
-import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import styles from './style.module.scss';
+import usePricingData from './use-pricing-data';
 
-const useUpsellLinks = ( slug: string ) => {
-	const { detail } = useProduct( slug );
+const useUpsellLinks = ( slug: string, wpcomProductSlug: string ) => {
 	const { isUserConnected } = useMyJetpackConnection();
 
 	return useMemo( () => {
 		const { adminUrl, siteSuffix } = getMyJetpackWindowInitialState();
 		const purchaseUrl = getProductCheckoutUrl(
-			detail.wpcomProductSlug,
+			wpcomProductSlug,
 			siteSuffix,
 			`${ adminUrl }?page=my-jetpack`,
 			isUserConnected
@@ -22,25 +21,30 @@ const useUpsellLinks = ( slug: string ) => {
 		const interstitialUrl = `#/add-${ slug }`;
 
 		return { purchaseUrl, interstitialUrl };
-	}, [ slug, detail.wpcomProductSlug, isUserConnected ] );
+	}, [ slug, wpcomProductSlug, isUserConnected ] );
 };
 
 const RecommendationActions = ( { slug }: { slug: string } ) => {
-	const { purchaseUrl, interstitialUrl } = useUpsellLinks( slug );
+	const { wpcomProductSlug, canStartForFree, purchaseAction } = usePricingData( slug );
 
+	const { purchaseUrl, interstitialUrl } = useUpsellLinks( slug, wpcomProductSlug );
 	return (
 		<div className={ styles.actions }>
 			<div className={ clsx( styles.buttons, styles.upsell ) }>
-				<Button size="small" href={ purchaseUrl }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
-				</Button>
+				{ purchaseAction && (
+					<Button size="small" href={ purchaseUrl }>
+						{ purchaseAction }
+					</Button>
+				) }
 				<Button
 					className={ styles.recommendationLink }
 					size="small"
 					variant="link"
 					href={ interstitialUrl }
 				>
-					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
+					{ canStartForFree
+						? __( 'Start for free', 'jetpack-my-jetpack' )
+						: __( 'Learn more', 'jetpack-my-jetpack' ) }
 				</Button>
 			</div>
 		</div>
