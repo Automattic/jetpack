@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
-// import wpcomProxyRequest from 'wpcom-proxy-request';
 import apiFetch from '../../api-fetch/index.js';
 /**
  * Types
  */
-// import type { WpcomRequestParams } from 'wpcom-proxy-request';
 
 const MAX_CONCURRENT_REQUESTS = 5;
 
@@ -15,7 +13,7 @@ let lastCallTimestamp: number | null = null;
 
 /**
  * Concurrency-limited request to wpcom-proxy-request.
- * @param { WpcomRequestParams } params - The request params.
+ * @param { object } params - The request params, as expected by apiFetch.
  * @returns { Promise }                   The response.
  * @throws { Error }                      If there are too many concurrent requests.
  */
