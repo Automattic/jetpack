@@ -10,6 +10,9 @@
 		"test": "jest tests",
 		"validate": "pnpm exec validate-es build/"
 	},
+	"dependencies": {
+		"@automattic/jetpack-initial-state": "workspace:*"
+	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "6.2.0",

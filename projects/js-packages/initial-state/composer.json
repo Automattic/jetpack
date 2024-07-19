@@ -1,0 +1,34 @@
+{
+	"name": "automattic/jetpack-initial-state",
+	"description": "A library to provide initial state and the corresponding utility functions for Jetpack.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-initial-state",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-initial-state/compare/v${old}...v${new}"
+		},
+		"autotagger": true
+	}
+}

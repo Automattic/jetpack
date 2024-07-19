@@ -40,6 +40,30 @@ class Initial_State {
 	}
 
 	/**
+	 * Set the initial state.
+	 *
+	 * @param array $initial_state The initial state.
+	 *
+	 * @return array
+	 */
+	public static function set_initial_state( $initial_state ) {
+
+		$status = new Status();
+
+		$initial_state['connection'] = array(
+			'connectionStatus'   => REST_Connector::connection_status( false ),
+			'userConnectionData' => REST_Connector::get_user_connection_data( false ),
+			'connectedPlugins'   => REST_Connector::get_connection_plugins( false ),
+			'siteSuffix'         => $status->get_site_suffix(),
+			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
+			'isOfflineMode'      => $status->is_offline_mode(),
+			'calypsoEnv'         => ( new Status\Host() )->get_calypso_env(),
+		);
+
+		return $initial_state;
+	}
+
+	/**
 	 * Render the initial state into a JavaScript variable.
 	 *
 	 * @return string

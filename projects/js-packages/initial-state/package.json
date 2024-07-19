@@ -1,0 +1,23 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-initial-state",
+	"version": "0.0.1",
+	"description": "A library to provide initial state and the corresponding utility functions for Jetpack.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/initial-state/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Initial State"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/initial-state"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {},
+	"dependencies": {},
+	"devDependencies": {},
+	"exports": {
+		".": "./src/index.ts"
+	}
+}

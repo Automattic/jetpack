@@ -105,7 +105,32 @@ const DefinePlugin = defines => [
 	} ),
 ];
 
-const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
+const defaultRequestMap = {
+	'@automattic/jetpack-initial-state': {
+		external: 'JetpackInitialState',
+		handle: 'jetpack-initial-state',
+	},
+};
+
+const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
+	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+
+	const requestToExternal = request => {
+		return finalRequestMap[ request ]?.external;
+	};
+
+	const requestToHandle = request => {
+		return finalRequestMap[ request ]?.handle;
+	};
+
+	return [
+		new DependencyExtractionWebpackPlugin( {
+			requestToExternal,
+			requestToHandle,
+			...options,
+		} ),
+	];
+};
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),

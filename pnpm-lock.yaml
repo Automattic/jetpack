@@ -742,6 +742,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/js-packages/initial-state: {}
+
   projects/js-packages/licensing:
     dependencies:
       '@automattic/jetpack-analytics':
@@ -1585,6 +1587,10 @@ importers:
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
+    dependencies:
+      '@automattic/jetpack-initial-state':
+        specifier: workspace:*
+        version: link:../../js-packages/initial-state
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2348,6 +2354,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-initial-state':
+        specifier: workspace:*
+        version: link:../../js-packages/initial-state
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing

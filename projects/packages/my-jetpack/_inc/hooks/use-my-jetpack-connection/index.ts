@@ -1,7 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { getSiteData } from '@automattic/jetpack-initial-state';
 import {
 	getMyJetpackWindowInitialState,
-	getMyJetpackWindowRestState,
 	getMyJetpackWindowConnectionState,
 } from '../../data/utils/get-my-jetpack-window-state';
 /**
@@ -24,17 +24,18 @@ interface MyJetpackConnection {
 }
 
 const useMyJetpackConnection = (): MyJetpackConnection => {
-	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
+	const { rest_root, rest_nonce } = getSiteData();
+
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
-	const connectionData = useConnection( { apiRoot, apiNonce } );
+	const connectionData = useConnection( { apiRoot: rest_root, apiNonce: rest_nonce } );
 	const { registrationNonce } = getMyJetpackWindowConnectionState();
 
 	// Alias: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php/#L315
 	const isSiteConnected = connectionData.isRegistered;
 
 	return {
-		apiNonce,
-		apiRoot,
+		apiNonce: rest_nonce,
+		apiRoot: rest_root,
 		blogID,
 		registrationNonce,
 		...connectionData,
