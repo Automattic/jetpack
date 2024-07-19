@@ -7,7 +7,7 @@ import Card from '../card';
 import ActionButton from './action-button';
 import PriceComponent from './pricing-component';
 import RecommendationActions from './recommendation-actions';
-import SecondaryButton, { SecondaryButtonProps } from './secondary-button';
+import SecondaryButton, { type SecondaryButtonProps } from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
 
@@ -35,14 +35,14 @@ export type ProductCardProps = {
 	isDataLoading?: boolean;
 	isInstallingStandalone?: boolean;
 	isManageDisabled?: boolean;
-	onActivate?: MouseEventHandler< HTMLButtonElement >;
+	onActivate?: () => void;
 	slug: string;
-	additionalActions?: unknown[];
+	additionalActions?: SecondaryButtonProps[];
 	upgradeInInterstitial?: boolean;
 	primaryActionOverride?: Record< string, { href?: string; label?: string } >;
 	secondaryAction?: Record< string, SecondaryButtonProps & { positionFirst?: boolean } >;
-	onInstallStandalone?: MouseEventHandler< HTMLButtonElement >;
-	onActivateStandalone?: MouseEventHandler< HTMLButtonElement >;
+	onInstallStandalone?: () => void;
+	onActivateStandalone?: () => void;
 	status: ( typeof PRODUCT_STATUSES )[ keyof typeof PRODUCT_STATUSES ];
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
 	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
@@ -96,16 +96,12 @@ const ProductCard: FC< ProductCardProps > = props => {
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-				product: slug,
-			} );
-			onActivate( event );
-		},
-		[ slug, onActivate, recordEvent ]
-	);
+	const activateHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+			product: slug,
+		} );
+		onActivate();
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -146,16 +142,12 @@ const ProductCard: FC< ProductCardProps > = props => {
 	/**
 	 * Use a Tracks event to count a standalone plugin install request
 	 */
-	const installStandaloneHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-				product: slug,
-			} );
-			onInstallStandalone( event );
-		},
-		[ slug, onInstallStandalone, recordEvent ]
-	);
+	const installStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+			product: slug,
+		} );
+		onInstallStandalone();
+	}, [ slug, onInstallStandalone, recordEvent ] );
 
 	/**
 	 * Sends an event when the card loads

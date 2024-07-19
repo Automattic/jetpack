@@ -2,24 +2,16 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import {
-	useCallback,
-	useState,
-	useEffect,
-	useMemo,
-	useRef,
-	FC,
-	ComponentProps,
-	MouseEventHandler,
-} from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef, FC, ComponentProps } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
+import { type SecondaryButtonProps } from './secondary-button';
 import styles from './style.module.scss';
 import { ProductCardProps } from '.';
 
-type ActionButtonProps< A = MouseEventHandler< HTMLButtonElement > > = ProductCardProps & {
+type ActionButtonProps< A = () => void > = ProductCardProps & {
 	onFixConnection?: A;
 	onManage?: A;
 	onAdd?: A;
@@ -66,7 +58,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 		};
 	}, [ isBusy, className ] );
 
-	const getStatusAction = useCallback( () => {
+	const getStatusAction = useCallback( (): SecondaryButtonProps => {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
