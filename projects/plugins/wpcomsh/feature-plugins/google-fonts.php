@@ -24,11 +24,6 @@ function wpcomsh_activate_google_fonts_module() {
 		return;
 	}
 
-	// Google fonts was introduced in Jetpack 10.8.
-	if ( version_compare( JETPACK__VERSION, '10.8', '<' ) ) {
-		return;
-	}
-
 	if ( ! Jetpack::is_module_active( 'google-fonts' ) ) {
 		Jetpack::activate_module( 'google-fonts', false, false );
 	}
