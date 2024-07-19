@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds dedicated WAF allow and block list toggles

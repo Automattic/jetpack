@@ -8,6 +8,12 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
+
 /**
  * Returns ISO 639 conforming locale string.
  *
@@ -38,4 +44,22 @@ function get_iso_639_locale( $language ) {
 function determine_iso_639_locale() {
 	$locale = get_user_locale();
 	return get_iso_639_locale( $locale );
+}
+
+/**
+ * Enqueue the tracking scripts for the given script handle.
+ *
+ * @param string $handle A script handle.
+ */
+function wpcom_enqueue_tracking_scripts( string $handle ) {
+	Connection_Initial_State::render_script( $handle );
+
+	$status            = new Status();
+	$connection        = new Connection_Manager();
+	$tracking          = new Tracking( 'jetpack-mu-wpcom', $connection );
+	$can_use_analytics = $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+
+	if ( $can_use_analytics ) {
+		Tracking::register_tracks_functions_scripts( true );
+	}
 }

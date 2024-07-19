@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block Picker: fix display of the picker in the block editor following changes in WordPress 6.6.
