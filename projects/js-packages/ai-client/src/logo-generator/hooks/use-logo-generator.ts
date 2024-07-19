@@ -12,7 +12,6 @@ import useSaveToMediaLibrary from '../../hooks/use-save-to-media-library/index.j
 import requestJwt from '../../jwt/index.js';
 import { stashLogo } from '../lib/logo-storage.js';
 import { setSiteLogo } from '../lib/set-site-logo.js';
-import wpcomLimitedRequest from '../lib/wpcom-limited-request.js';
 import { STORE_NAME } from '../store/index.js';
 import useRequestErrors from './use-request-errors.js';
 /**
@@ -110,19 +109,17 @@ Site description: ${ description }`;
 					stream: false,
 				};
 
-				const parameters = {
-					url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
-					method: 'POST',
-					data: body,
-					headers: {
-						Authorization: `Bearer ${ tokenData.token }`,
-						'Content-Type': 'application/json',
-					},
+				const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
+				const headers = {
+					Authorization: `Bearer ${ tokenData.token }`,
+					'Content-Type': 'application/json',
 				};
 
-				const data = await wpcomLimitedRequest< {
-					choices: Array< { message: { content: string } } >;
-				} >( parameters );
+				const data = await fetch( URL, {
+					method: 'POST',
+					headers,
+					body: JSON.stringify( body ),
+				} ).then( response => response.json() );
 
 				return data?.choices?.[ 0 ]?.message?.content;
 			} catch ( error ) {
@@ -169,19 +166,17 @@ For example: user's prompt: A logo for an ice cream shop. Returned prompt: A log
 				stream: false,
 			};
 
-			const parameters = {
-				url: 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query',
-				method: 'POST',
-				data: body,
-				headers: {
-					Authorization: `Bearer ${ tokenData.token }`,
-					'Content-Type': 'application/json',
-				},
+			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query';
+			const headers = {
+				Authorization: `Bearer ${ tokenData.token }`,
+				'Content-Type': 'application/json',
 			};
 
-			const data = await wpcomLimitedRequest< {
-				choices: Array< { message: { content: string } } >;
-			} >( parameters );
+			const data = await fetch( URL, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify( body ),
+			} ).then( response => response.json() );
 
 			return data?.choices?.[ 0 ]?.message?.content;
 		} catch ( error ) {
