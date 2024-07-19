@@ -1,7 +1,7 @@
 /**
  * Always shows WP logo (All Sites)
  */
-#wpadminbar li#wp-admin-bar-wp-logo {
+#wpadminbar li#wp-admin-bar-wpcom-logo {
 	display: block !important;
 }
 
@@ -17,7 +17,7 @@
 /**
  * WP logo menu
  */
-#wpadminbar #wp-admin-bar-wp-logo>.ab-item .ab-icon:before {
+#wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon:before {
 	display: flex;
 	content: "";
 	width: 20px;

@@ -62,11 +62,11 @@ CSS
 add_action( 'admin_bar_menu', 'wpcom_enqueue_admin_bar_assets' );
 
 /**
- * Repurposes the WP logo as a link to /sites.
+ * Replaces the WP logo as a link to /sites.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
+function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -75,7 +75,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 	$wp_admin_bar->remove_node( 'wp-logo' );
 	$wp_admin_bar->add_node(
 		array(
-			'id'    => 'wp-logo',
+			'id'    => 'wpcom-logo',
 			'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
@@ -87,7 +87,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 		)
 	);
 }
-add_action( 'admin_bar_menu', 'wpcom_repurpose_wp_logo_as_all_sites_menu', 11 );
+add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
 
 /**
  * Adds the Reader menu.
