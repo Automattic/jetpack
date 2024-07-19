@@ -42,6 +42,7 @@ export default {
 	],
 	external: [ 'node-fetch' ],
 	plugins: sharedPlugins,
+	preserveSymlinks: true,
 	watch: {
 		clearScreen: false,
 	},
