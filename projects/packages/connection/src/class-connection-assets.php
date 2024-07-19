@@ -33,7 +33,7 @@ class Connection_Assets {
 				__FILE__,
 				array(
 					'in_footer'  => true,
-					'textdomain' => 'jetpack-idc',
+					'textdomain' => 'jetpack-connection',
 				)
 			);
 
