@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Waf\Waf_Blocklog_Manager;
 use Automattic\Jetpack\Waf\Waf_Constants;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Integration tests for the WAF blocklog manager.
@@ -20,6 +21,9 @@ final class WafBlocklogManagerIntegrationTest extends WorDBless\BaseTestCase {
 		// Set a blog token and id so the site is connected.
 		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		Jetpack_Options::update_option( 'id', 1234 );
+
+		// Set the share data option to true
+		add_option( Waf_Runner::SHARE_DATA_OPTION_NAME, true );
 
 		// Define required constants from WAF initialization
 		Waf_Constants::define_share_data();
