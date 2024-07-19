@@ -79,12 +79,20 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
+	isRef( obj ) {
+		return obj && typeof obj === 'object' && 'current' in obj;
+	}
+
 	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target) reference into a property
-		if ( ! isDOMElement( nextProps.context ) && nextProps.context !== null ) {
-			this.domContextRef.current = nextProps.context.current;
-		} else {
+
+		if ( isDOMElement( nextProps.context ) ) {
 			this.domContextRef.current = nextProps.context;
+		} else if ( this.isRef( nextProps.context ) ) {
+			this.domContextRef.current = nextProps.context.current;
+		} else if ( nextProps.context !== null ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Expected a DOM node or a React ref', nextProps.context );
 		}
 
 		if ( ! nextProps.isVisible ) {
@@ -201,12 +209,23 @@ class Popover extends Component {
 			! this.domContextRef.current.contains( event.target );
 
 		if ( this.props.ignoreContext && shouldClose ) {
-			const ignoreContext = this.props.ignoreContext.current;
-			shouldClose =
-				shouldClose &&
-				ignoreContext &&
-				ignoreContext.contains &&
-				! ignoreContext.contains( event.target );
+			let ignoreContext;
+			if ( isDOMElement( this.props.ignoreContext ) ) {
+				ignoreContext = this.props.ignoreContext;
+			} else if ( this.isRef( this.props.ignoreContext ) ) {
+				ignoreContext = this.props.ignoreContext.current;
+			} else {
+				// eslint-disable-next-line no-console
+				console.error(
+					'Expected a DOM node or a React ref for ignoreContext',
+					this.props.ignoreContext
+				);
+			}
+			if ( ignoreContext && ignoreContext.contains ) {
+				shouldClose = shouldClose && ! ignoreContext.contains( event.target );
+			} else {
+				shouldClose = false;
+			}
 		}
 
 		if ( shouldClose ) {
@@ -248,10 +267,13 @@ class Popover extends Component {
 		// store DOM element referencies
 		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
-		if ( ! isDOMElement( this.props.context ) ) {
-			this.domContextRef.current = this.props.context.current;
-		} else {
+		if ( isDOMElement( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
+		} else if ( this.isRef( this.props.context ) ) {
+			this.domContextRef.current = this.props.context.current;
+		} else if ( this.props.context !== null ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Expected a DOM node or a React ref', this.props.context );
 		}
 
 		this.domContainerRef.current.focus();
