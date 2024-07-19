@@ -79,11 +79,11 @@ class Popover extends Component {
 	}
 
 	isDOMNode( obj ) {
-		return obj && obj instanceof HTMLElement;
+		return obj instanceof HTMLElement;
 	}
 
 	isRef( obj ) {
-		return obj && typeof obj === 'object' && 'current' in obj;
+		return typeof obj === 'object' && 'current' in obj;
 	}
 
 	componentDidUpdate( prevProps ) {
