@@ -43,57 +43,12 @@ import './admin-menu.css';
 			document.addEventListener( 'click', closeSidebarWhenClickedOutside );
 		}
 
-		// Toggle sidebar for Default Interface
-		const adminbarBlogDefault = adminbar.querySelector( '#wp-admin-bar-menu-toggle > a' );
-
-		// Toggle sidebar when toggle is clicked.
-		if ( adminbarBlogDefault && ! document.body.classList.contains( 'wpcom-admin-interface' ) ) {
-			// We need to remove an event listener and attribute from the my sites button to prevent default behavior of the wp-responsive-overlay.
-			$( '#wp-admin-bar-menu-toggle > a' ).off( 'click.wp-responsive' );
-			adminbarBlogDefault.removeAttribute( 'aria-haspopup' );
-			// Toggle the sidebar when the 'My Sites' button is clicked in a mobile view.
-			adminbarBlogDefault.addEventListener( 'click', toggleSidebar );
-			// Detect a click outside the sidebar and close it if its open.
-			adminbarBlogDefault.addEventListener( 'click', closeSidebarWhenClickedOutside );
-
-			// We redirect to the default URL when clicking the WP logo
-			const wpLogoItem = document.querySelector( 'li#wp-admin-bar-wp-logo.menupop' );
-
-			const disableHoverListener = function ( event ) {
-				event.stopPropagation();
-			};
-			const clickHandler = function ( event ) {
-				event.preventDefault();
-				event.stopPropagation();
-				const wpLogoURL = document.querySelector( 'li#wp-admin-bar-wp-logo.menupop a' );
-				if ( wpLogoURL && typeof wpLogoURL.href !== 'undefined' ) {
-					window.location.href = wpLogoURL.href;
-				}
-			};
-
-			wpLogoItem.addEventListener( 'mouseenter', disableHoverListener, true );
-			wpLogoItem.addEventListener( 'mouseleave', disableHoverListener, true );
-
-			try {
-				delete wpLogoItem.hoverIntent_t;
-				delete wpLogoItem.hoverIntent_s;
-			} catch ( error ) {
-				// Do nothing.
-			}
-
-			wpLogoItem.addEventListener( 'click', clickHandler, true );
-			wpLogoItem.addEventListener( 'touchstart', clickHandler, true );
-		}
-
 		/**
 		 *
 		 * @param event
 		 */
 		function closeSidebarWhenClickedOutside( event ) {
-			const isClickOnToggle = !! (
-				event.target.closest( '#wp-admin-bar-blog > a' ) ||
-				event.target.closest( '#wp-admin-bar-menu-toggle > a' )
-			);
+			const isClickOnToggle = !! event.target.closest( '#wp-admin-bar-blog > a' );
 			const isClickInsideMenu = document.getElementById( 'adminmenu' ).contains( event.target );
 			const sidebarIsOpen = wpwrap.classList.contains( 'wp-responsive-open' );
 			const shouldCloseSidebar = sidebarIsOpen && ! isClickOnToggle && ! isClickInsideMenu;
