@@ -984,6 +984,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 		/**
 		 * Tries disabling all plugins & enabling them one by one to find the plugin causing the issue.
+		 * Outputs a list of plugins that are disabled.
 		 *
 		 * ## OPTIONS
 		 *
@@ -1017,7 +1018,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				function ( $plugin ) {
 					$plugin_name = $plugin['name'];
 					if ( in_array( $plugin_name, WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS, true ) || in_array( $plugin_name, WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS, true ) ) {
-						WP_CLI::log( 'ℹ️ Skipping ' . $plugin_name );
+						WP_CLI::log( sprintf( 'ℹ️ Skipping %s.', $plugin_name ) );
 						return false;
 					}
 
@@ -1041,9 +1042,9 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						return;
 					}
 
-					WP_CLI::log( 'ℹ️ Deactivating ' . $plugin_to_deactivate['name'] . ' to find the breaking plugin.' );
+					WP_CLI::log( sprintf( 'ℹ️ Deactivating %s to find the breaking plugin.', $plugin_to_deactivate['name'] ) );
 					WP_CLI::runcommand(
-						'--skip-themes plugin deactivate ' . $plugin_to_deactivate['name'],
+						sprintf( '--skip-themes plugin deactivate %s', $plugin_to_deactivate['name'] ),
 						array(
 							'launch' => false,
 							'return' => true,
@@ -1053,9 +1054,9 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					$healthy = $this->do_plugin_dance_health_check();
 
 					if ( ! $healthy ) {
-						WP_CLI::log( 'ℹ️ Site health check still failed after deactivating: ' . $plugin_to_deactivate['name'] . '. Reactivating.' );
+						WP_CLI::log( sprintf( 'ℹ️ Site health check still failed after deactivating: %s. Reactivating.', $plugin_to_deactivate['name'] ) );
 						$result = WP_CLI::runcommand(
-							'--skip-themes plugin activate ' . $plugin_to_deactivate['name'],
+							sprintf( '--skip-themes plugin activate %s', $plugin_to_deactivate['name'] ),
 							array(
 								'launch'     => true,  // needed for exit_eror => false.
 								'return'     => true,
@@ -1064,14 +1065,14 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						);
 
 						if ( empty( $result ) ) {
-							WP_CLI::log( '❌ Plugin did not like being activated: ' . $plugin_to_deactivate['name'] . ' (probably broken)' );
+							WP_CLI::log( sprintf( '❌ Plugin did not like being activated: %s (probably broken).', $plugin_to_deactivate['name'] ) );
 							$breaking_plugins[] = array(
 								'name'    => $plugin_to_deactivate['name'],
 								'version' => $plugin_to_deactivate['version'],
 							);
 						}
 					} else {
-						WP_CLI::log( '✔ Site health check passed after deactivating: ' . $plugin_to_deactivate['name'] );
+						WP_CLI::log( sprintf( '✔ Site health check passed after deactivating: %s.', $plugin_to_deactivate['name'] ) );
 						$breaking_plugins[] = array(
 							'name'    => $plugin_to_deactivate['name'],
 							'version' => $plugin_to_deactivate['version'],
@@ -1094,12 +1095,12 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					return;
 				}
 
-				WP_CLI::log( 'ℹ️ ' . count( $plugins_to_reactivate ) . ' plugins will be reactivated one by one to find the breaking plugin.' );
+				WP_CLI::log( sprintf( 'ℹ️ %d plugins will be reactivated one by one to find the breaking plugin.', count( $plugins_to_reactivate ) ) );
 
 				// loop through each active plugin and activate one by one.
 				foreach ( $plugins_to_reactivate as $plugin ) {
 					$result = WP_CLI::runcommand(
-						'--skip-themes plugin activate ' . $plugin['name'],
+						sprintf( '--skip-themes plugin activate %s', $plugin['name'] ),
 						array(
 							'launch'     => true, // needed for exit_eror => false.
 							'return'     => true,
@@ -1107,7 +1108,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						)
 					);
 					if ( empty( $result ) ) {
-						WP_CLI::log( '❌ Plugin did not like being activated: ' . $plugin['name'] . ' (probably broken)' );
+						WP_CLI::log( sprintf( '❌ Plugin did not like being activated: %s (probably broken).', $plugin['name'] ) );
 						$breaking_plugins[] = array(
 							'name'    => $plugin['name'],
 							'version' => $plugin['version'],
@@ -1118,20 +1119,20 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					if ( ! $this->do_plugin_dance_health_check() ) {
 						// deactivate the breaking plugin
 						WP_CLI::runcommand(
-							'--skip-themes plugin deactivate ' . $plugin['name'],
+							sprintf( '--skip-themes plugin deactivate %s', $plugin['name'] ),
 							array(
 								'launch' => false,
 								'return' => true,
 							)
 						);
-						WP_CLI::log( '❌ Plugin activated, site health check failed and deactivated: ' . $plugin['name'] );
+						WP_CLI::log( sprintf( '❌ Plugin activated, site health check failed and deactivated: %s.', $plugin['name'] ) );
 
 						$breaking_plugins[] = array(
 							'name'    => $plugin['name'],
 							'version' => $plugin['version'],
 						);
 					} else {
-						WP_CLI::log( '✔ Plugin activated and site health check passed: ' . $plugin['name'] );
+						WP_CLI::log( sprintf( '✔ Plugin activated and site health check passed: %s.', $plugin['name'] ) );
 					}
 				}
 
@@ -1141,15 +1142,11 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			if ( ! empty( $breaking_plugins ) ) {
-				WP_CLI::log( "\n" );
-				WP_CLI::log( 'Disabled plugins: ' );
-
 				$formatter = new \WP_CLI\Formatter(
 					$assoc_args,
 					array( 'name', 'version' )
 				);
 				$formatter->display_items( $breaking_plugins );
-
 			}
 		}
 
