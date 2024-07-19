@@ -96,7 +96,7 @@ class Popover extends Component {
 				this.domContextRef.current = context.current;
 			} else if ( context !== null ) {
 				// eslint-disable-next-line no-console
-				console.error( 'Expected a DOM node or a React ref', context );
+				console.error( 'Expected a DOM node or a React ref for props.context', context );
 			}
 		}
 
@@ -268,7 +268,7 @@ class Popover extends Component {
 			this.domContextRef.current = this.props.context.current;
 		} else if ( this.props.context !== null ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Expected a DOM node or a React ref', this.props.context );
+			console.error( 'Expected a DOM node or a React ref for props.context', this.props.context );
 		}
 
 		this.domContainerRef.current.focus();
