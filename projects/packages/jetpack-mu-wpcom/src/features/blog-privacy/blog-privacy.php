@@ -45,6 +45,7 @@ function robots_txt( string $output, $public ): string {
 			'GPTBot',
 			'omgili',
 			'omgilibot',
+			'PerplexityBot',
 			'SentiBot',
 			'sentibot',
 		);

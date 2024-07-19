@@ -192,6 +192,7 @@ interface Window {
 			};
 			wafConfig: {
 				automatic_rules_available: boolean;
+				blocked_logins: number;
 				bootstrap_path: string;
 				brute_force_protection: boolean;
 				jetpack_waf_automatic_rules: '1' | '';
