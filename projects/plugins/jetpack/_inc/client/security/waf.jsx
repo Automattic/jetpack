@@ -214,14 +214,6 @@ export const Waf = class extends Component {
 		const moduleHeader = (
 			<div className="waf__header">
 				<span>{ _x( 'Firewall', 'Settings header', 'jetpack' ) }</span>
-				<a
-					href={ getRedirectUrl( 'jetpack-support-waf' ) }
-					target="_blank"
-					rel="noopener noreferrer"
-					className="waf__header__badge"
-				>
-					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
-				</a>
 				{ this.props.settings?.standaloneMode && (
 					<Status
 						className="waf__standalone__mode"
