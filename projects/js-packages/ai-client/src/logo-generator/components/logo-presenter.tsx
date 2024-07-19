@@ -70,6 +70,9 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 		}
 	};
 
+	const savingLabel = __( 'Saving…', 'jetpack-ai-client' );
+	const savedLabel = __( 'Saved', 'jetpack-ai-client' );
+
 	return ! saving && ! saved ? (
 		<Button className="jetpack-ai-logo-generator-modal-presenter__action" onClick={ handleClick }>
 			<Icon icon={ <MediaIcon /> } />
@@ -78,9 +81,7 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 	) : (
 		<button className="jetpack-ai-logo-generator-modal-presenter__action">
 			<Icon icon={ saving ? <MediaIcon /> : <CheckIcon /> } />
-			<span className="action-text">
-				{ saving ? __( 'Saving…', 'jetpack-ai-client' ) : __( 'Saved', 'jetpack-ai-client' ) }
-			</span>
+			<span className="action-text">{ saving ? savingLabel : savedLabel }</span>
 		</button>
 	);
 };
