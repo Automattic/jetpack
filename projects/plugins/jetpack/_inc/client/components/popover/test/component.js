@@ -65,7 +65,7 @@ describe( 'TestComponent', () => {
 			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
 		} );
 		expect( consoleErrorSpy ).toHaveBeenCalledWith(
-			'Expected a DOM node or a React ref',
+			'Expected a DOM node or a React ref for props.context',
 			expect.anything()
 		);
 
