@@ -12,7 +12,7 @@ import { STORE_NAME } from '../store/index.js';
  */
 import type { Selectors } from '../store/types.js';
 
-const debug = debugFactory( 'jetpack-ai-calypso:use-checkout' );
+const debug = debugFactory( 'ai-client:logo-generator:use-checkout' );
 
 export const useCheckout = () => {
 	const { nextTier, siteDetails } = useSelect( select => {
