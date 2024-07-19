@@ -8,12 +8,15 @@ import { mediaExists } from './media-exists.js';
 const MAX_LOGOS = 10;
 
 /**
+ * Add an entry to the site's logo history.
  *
- * @param root0
- * @param root0.siteId
- * @param root0.url
- * @param root0.description
- * @param root0.mediaId
+ * @param {SaveToStorageProps} saveToStorageProps - The properties to save to storage
+ * @param {SaveToStorageProps.siteId} saveToStorageProps.siteId - The site ID
+ * @param {SaveToStorageProps.url} saveToStorageProps.url - The URL of the logo
+ * @param {SaveToStorageProps.description} saveToStorageProps.description - The description of the logo, based on the prompt used to generate it
+ * @param {SaveToStorageProps.mediaId} saveToStorageProps.mediaId - The media ID of the logo on the backend
+ *
+ * @returns {Logo} The logo that was saved
  */
 export function stashLogo( { siteId, url, description, mediaId }: SaveToStorageProps ) {
 	const storedContent = getSiteLogoHistory( siteId );
@@ -35,12 +38,14 @@ export function stashLogo( { siteId, url, description, mediaId }: SaveToStorageP
 }
 
 /**
+ * Update an entry in the site's logo history.
  *
- * @param root0
- * @param root0.siteId
- * @param root0.url
- * @param root0.newUrl
- * @param root0.mediaId
+ * @param {UpdateInStorageProps} updateInStorageProps - The properties to update in storage
+ * @param {UpdateInStorageProps.siteId} updateInStorageProps.siteId - The site ID
+ * @param {UpdateInStorageProps.url} updateInStorageProps.url - The URL of the logo to update
+ * @param {UpdateInStorageProps.newUrl} updateInStorageProps.newUrl - The new URL of the logo
+ * @param {UpdateInStorageProps.mediaId} updateInStorageProps.mediaId - The new media ID of the logo
+ * @returns {Logo} The logo that was updated
  */
 export function updateLogo( { siteId, url, newUrl, mediaId }: UpdateInStorageProps ) {
 	const storedContent = getSiteLogoHistory( siteId );
@@ -61,8 +66,10 @@ export function updateLogo( { siteId, url, newUrl, mediaId }: UpdateInStoragePro
 }
 
 /**
+ * Get the logo history for a site.
  *
- * @param siteId
+ * @param {string} siteId - The site ID to get the logo history for
+ * @returns {Logo[]} The logo history for the site
  */
 export function getSiteLogoHistory( siteId: string ) {
 	const storedString = localStorage.getItem( `logo-history-${ siteId }` );
@@ -95,8 +102,10 @@ export function getSiteLogoHistory( siteId: string ) {
 }
 
 /**
+ * Check if the logo history for a site is empty.
  *
- * @param siteId
+ * @param {string }siteId - The site ID to check the logo history for
+ * @returns {boolean} Whether the logo history for the site is empty
  */
 export function isLogoHistoryEmpty( siteId: string ) {
 	const storedContent = getSiteLogoHistory( siteId );
@@ -105,10 +114,12 @@ export function isLogoHistoryEmpty( siteId: string ) {
 }
 
 /**
+ * Remove an entry from the site's logo history.
  *
- * @param root0
- * @param root0.siteId
- * @param root0.mediaId
+ * @param {RemoveFromStorageProps} removeFromStorageProps - The properties to remove from storage
+ * @param {RemoveFromStorageProps.siteId} removeFromStorageProps.siteId - The site ID
+ * @param {RemoveFromStorageProps.mediaId} removeFromStorageProps.mediaId - The media ID of the logo to remove
+ * @returns {void}
  */
 export function removeLogo( { siteId, mediaId }: RemoveFromStorageProps ) {
 	const storedContent = getSiteLogoHistory( siteId );
@@ -123,8 +134,10 @@ export function removeLogo( { siteId, mediaId }: RemoveFromStorageProps ) {
 }
 
 /**
+ * Clear deleted media from the site's logo history, checking if the media still exists on the backend.
  *
- * @param siteId
+ * @param {string} siteId - The site ID to clear deleted media for
+ * @returns {Promise<void>}
  */
 export async function clearDeletedMedia( siteId: string ) {
 	const storedContent = getSiteLogoHistory( siteId );
