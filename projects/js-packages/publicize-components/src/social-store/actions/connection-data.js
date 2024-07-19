@@ -14,6 +14,9 @@ import {
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
+	REQUEST_TYPE_REFRESH_CONNECTIONS,
+	ADD_ABORT_CONTROLLER,
+	REMOVE_ABORT_CONTROLLERS,
 } from './constants';
 
 /**
@@ -108,6 +111,64 @@ export function mergeConnections( freshConnections ) {
 }
 
 /**
+ * Create an abort controller.
+ * @param {AbortController} abortController - Abort controller.
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {object} - an action object.
+ */
+export function createAbortController( abortController, requestType ) {
+	return {
+		type: ADD_ABORT_CONTROLLER,
+		requestType,
+		abortController,
+	};
+}
+
+/**
+ * Remove abort controllers.
+ *
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {object} - an action object.
+ */
+export function removeAbortControllers( requestType ) {
+	return {
+		type: REMOVE_ABORT_CONTROLLERS,
+		requestType,
+	};
+}
+
+/**
+ * Abort a request.
+ *
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {Function} - a function to abort a request.
+ */
+export function abortRequest( requestType ) {
+	return function ( { dispatch, select } ) {
+		const abortControllers = select.getAbortControllers( requestType );
+
+		for ( const controller of abortControllers ) {
+			controller.abort();
+		}
+
+		// Remove the abort controllers.
+		dispatch( removeAbortControllers( requestType ) );
+	};
+}
+
+/**
+ * Abort the refresh connections request.
+ *
+ * @returns {Function} - a function to abort a request.
+ */
+export function abortRefreshConnectionsRequest() {
+	return abortRequest( REQUEST_TYPE_REFRESH_CONNECTIONS );
+}
+
+/**
  * Effect handler which will refresh the connection test results.
  *
  * @param {boolean} syncToMeta  - Whether to sync the connection state to the post meta.
@@ -118,7 +179,20 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 		try {
 			const path = select.connectionRefreshPath() || '/wpcom/v2/publicize/connection-test-results';
 
-			const freshConnections = await apiFetch( { path } );
+			// Wait until all connections are done updating/deleting.
+			while (
+				select.getUpdatingConnections().length > 0 ||
+				select.getDeletingConnections().length > 0
+			) {
+				await new Promise( resolve => setTimeout( resolve, 100 ) );
+			}
+
+			const abortController = new AbortController();
+
+			dispatch( createAbortController( abortController, REQUEST_TYPE_REFRESH_CONNECTIONS ) );
+
+			// Pass the abort controller signal to the fetch request.
+			const freshConnections = await apiFetch( { path, signal: abortController.signal } );
 
 			dispatch( mergeConnections( freshConnections ) );
 
@@ -126,7 +200,11 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 				dispatch( syncConnectionsToPostMeta() );
 			}
 		} catch ( e ) {
-			// Do nothing.
+			// If the request was aborted.
+			if ( 'AbortError' === e.name ) {
+				// Fire it again to run after the current operation that cancelled the request.
+				dispatch( refreshConnectionTestResults( syncToMeta ) );
+			}
 		}
 	};
 }
@@ -210,6 +288,9 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
 
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
+
 			dispatch( deletingConnection( connectionId ) );
 
 			await apiFetch( { method: 'DELETE', path } );
@@ -269,6 +350,9 @@ export function createConnection( data, optimisticData = {} ) {
 					...optimisticData,
 				} )
 			);
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
+
 			// Mark the connection as updating to show the spinner.
 			dispatch( updatingConnection( tempId ) );
 
@@ -382,6 +466,9 @@ export function updateConnectionById( connectionId, data ) {
 
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
 
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
