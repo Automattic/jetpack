@@ -50,6 +50,8 @@ function wpcom_enqueue_admin_bar_assets() {
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
 					display: flex;
 					flex-direction: row-reverse;
+					position: absolute;
+    				right: 0;
 				}
 
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
