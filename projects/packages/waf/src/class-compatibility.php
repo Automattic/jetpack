@@ -244,6 +244,11 @@ class Waf_Compatibility {
 	 * @return mixed The default value to return if the option does not exist in the database.
 	 */
 	public static function default_option_waf_ip_allow_list_enabled( $default, $option, $passed_default ) {
+		// Allow get_option() to override this default value
+		if ( $passed_default ) {
+			return $default;
+		}
+
 		// If the deprecated IP lists option was set to false, disable the allow list.
 		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
 		$deprecated_option = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
@@ -254,11 +259,6 @@ class Waf_Compatibility {
 		// If the allow list is empty, disable the allow list.
 		if ( ! Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) ) {
 			return false;
-		}
-
-		// Allow get_option() to override this default value
-		if ( $passed_default ) {
-			return $default;
 		}
 
 		// Default to enabling the allow list.
