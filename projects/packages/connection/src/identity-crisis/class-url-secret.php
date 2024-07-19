@@ -89,7 +89,7 @@ class URL_Secret {
 		$result = Jetpack_Options::update_option( static::OPTION_KEY, $secret_data );
 
 		if ( ! $result ) {
-			throw new Exception( esc_html__( 'Unable to save new URL secret', 'jetpack-idc' ) );
+			throw new Exception( esc_html__( 'Unable to save new URL secret', 'jetpack-connection' ) );
 		}
 
 		$this->secret     = $secret_data['secret'];
