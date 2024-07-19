@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Masterbar: Fix undefined array key warning in Base_Admin_Menu::hide_parent_of_hidden_submenus
