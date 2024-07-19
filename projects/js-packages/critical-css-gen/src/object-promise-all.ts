@@ -2,8 +2,8 @@
  * Given an object full of promises, resolves all of them and returns an object containing resultant values.
  * Roughly equivalent of Promise.all, but applies to an object.
  *
- * @param { Object } object - containing promises to resolve
- * @return { Object } - Promise which resolves to an object containing resultant values
+ * @param {object} object - containing promises to resolve
+ * @returns {object} - Promise which resolves to an object containing resultant values
  */
 export async function objectPromiseAll< ValueType >( object: {
 	[ key: string ]: Promise< ValueType >;

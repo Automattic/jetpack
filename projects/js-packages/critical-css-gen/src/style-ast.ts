@@ -506,9 +506,7 @@ export class StyleAST {
 
 				// Gather family-name values.
 				const frags = lexer.findDeclarationValueFragments( node, 'Type', 'family-name' );
-				const nodes = frags
-					.map( ( frag: { nodes: { toArray: () => any[] } } ) => frag.nodes.toArray() )
-					.flat();
+				const nodes = frags.map( frag => frag.nodes.toArray() ).flat();
 				const names = nodes.map( StyleAST.readValue ) as string[];
 				names.forEach( name => fontFamilies.add( name ) );
 			},
@@ -545,7 +543,7 @@ export class StyleAST {
 	static isUsefulMediaQuery( mediaQueryNode: csstree.MediaQuery ): boolean {
 		// Find media types.
 		let lastIdentifierNot = false;
-		const mediaTypes: Record< string, boolean > = {};
+		const mediaTypes = {};
 		csstree.walk( mediaQueryNode, {
 			visit: 'Identifier',
 			enter: node => {

@@ -85,19 +85,13 @@ export class CSSFileSet {
 
 			this.storeCss( page, cssUrl, css );
 		} catch ( err ) {
-			let wrappedError: Error =
-				err instanceof Error
-					? err
-					: new UnknownError( {
-							url: cssUrl,
-							message: String( err ),
-					  } );
+			let wrappedError = err;
 
 			// Wrap any unfamiliar fetch errors in an unknown error.
-			if ( ! ( wrappedError instanceof UrlError ) ) {
+			if ( ! ( err instanceof UrlError ) ) {
 				wrappedError = new UnknownError( {
 					url: cssUrl,
-					message: wrappedError.message,
+					message: err.message,
 				} );
 			}
 
@@ -112,7 +106,7 @@ export class CSSFileSet {
 	 * @returns {object} - An object with selector text keys, each containing a Set of page URLs (strings)
 	 */
 	collateSelectorPages(): { [ selector: string ]: Set< string > } {
-		const selectors: { [ selector: string ]: Set< string > } = {};
+		const selectors = {};
 
 		for ( const file of this.cssFiles ) {
 			file.ast.forEachSelector( selector => {

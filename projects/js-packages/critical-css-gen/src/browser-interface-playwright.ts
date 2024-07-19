@@ -1,4 +1,3 @@
-import nodeFetch from 'node-fetch';
 import { BrowserContext, Page } from 'playwright-core';
 import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
 import { HttpError } from './errors';
@@ -11,7 +10,7 @@ export type TabsByUrl = { [ url: string ]: Tab };
 const PAGE_GOTO_TIMEOUT_MS = 5 * 60 * 1000;
 
 export class BrowserInterfacePlaywright extends BrowserInterface {
-	private tabs: TabsByUrl = {};
+	private tabs: TabsByUrl;
 
 	/**
 	 *
@@ -44,7 +43,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 */
 	private async openUrls( context: BrowserContext, urls: string[] ): Promise< void > {
 		this.tabs = await objectPromiseAll< Tab >(
-			urls.reduce( ( set: { [ key: string ]: Promise< Tab > }, url ) => {
+			urls.reduce( ( set, url ) => {
 				set[ url ] = this.newTab( context, url );
 				return set;
 			}, {} )
@@ -61,7 +60,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	private async newTab( browserContext: BrowserContext, url: string ): Promise< Tab > {
 		const tab = {
 			page: await browserContext.newPage(),
-			statusCode: null as number | null,
+			statusCode: null,
 		};
 		tab.page.on( 'response', async response => {
 			if ( response.url() === url ) {
@@ -89,7 +88,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 
 		// Bail early if the page returned a non-200 status code.
 		if ( ! tab.statusCode || ! this.isOkStatus( tab.statusCode ) ) {
-			const error = new HttpError( { url: pageUrl, code: tab.statusCode as number } );
+			const error = new HttpError( { url: pageUrl, code: tab.statusCode } );
 			this.trackUrlError( pageUrl, error );
 			throw error;
 		}
@@ -101,7 +100,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 		// The inner window in Playwright is the directly accessible main window object.
 		// The evaluating method does not need a separate window object.
 		// Call inner method within the Playwright context.
-		return tab.page.evaluate( method as any, { innerWindow: null, args } as any );
+		return tab.page.evaluate( method, { innerWindow: null, args } );
 	}
 
 	/**
@@ -113,7 +112,9 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @param {string} _role   - 'css' or 'html' indicating what kind of thing is being fetched.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
-		return nodeFetch( url, options );
+		const nodeFetch = await import( 'node-fetch' );
+
+		return nodeFetch.default( url, options );
 	}
 
 	private isOkStatus( statusCode: number ) {

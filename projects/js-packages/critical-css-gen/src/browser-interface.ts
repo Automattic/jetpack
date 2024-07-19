@@ -1,13 +1,6 @@
 import type { Viewport } from './types';
 
-type BrowserRunnableArgs = {
-	innerWindow: Window | null;
-	args: unknown[];
-};
-
-export type BrowserRunnable< ReturnType > = (
-	args: BrowserRunnableArgs
-) => ReturnType | Promise< ReturnType >;
+export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
 
 // Wrappers around parts of fetch that we rely on, to allow multiple stand-in implementations.
 export interface FetchOptions {
@@ -63,17 +56,15 @@ export class BrowserInterface {
 		// No-op.
 	}
 
-	async getCssIncludes(
-		pageUrl: string
-	): Promise< { [ url: string ]: { media: string | null } } > {
+	async getCssIncludes( pageUrl: string ): Promise< { [ url: string ]: { media: string } } > {
 		return await this.runInPage( pageUrl, null, BrowserInterface.innerGetCssIncludes );
 	}
 
-	static innerGetCssIncludes( { innerWindow }: { innerWindow: Window | null } ) {
+	static innerGetCssIncludes( { innerWindow } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return [ ...innerWindow.document.getElementsByTagName( 'link' ) ]
 			.filter( link => link.rel === 'stylesheet' )
-			.reduce( ( set: { [ url: string ]: { media: string | null } }, link ) => {
+			.reduce( ( set, link ) => {
 				set[ link.href ] = {
 					media: link.media || null,
 				};
@@ -92,7 +83,7 @@ export class BrowserInterface {
 	 * @param {object} wrappedArgs
 	 * @param {Window} wrappedArgs.innerWindow - Window inside the browser interface.
 	 */
-	static innerGetInternalStyles( { innerWindow }: { innerWindow: Window | null } ) {
+	static innerGetInternalStyles( { innerWindow } ): string {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		const styleElements = Array.from( innerWindow.document.getElementsByTagName( 'style' ) );
 
@@ -112,13 +103,7 @@ export class BrowserInterface {
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
 	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
 	 */
-	public static innerFindMatchingSelectors( {
-		innerWindow,
-		args: [ selectors ],
-	}: {
-		innerWindow: Window | null;
-		args: [ selectors: { [ selector: string ]: string } ];
-	} ) {
+	public static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
 		return Object.keys( selectors ).filter( selector => {
 			try {
@@ -144,9 +129,6 @@ export class BrowserInterface {
 	public static innerFindAboveFoldSelectors( {
 		innerWindow,
 		args: [ selectors, pageSelectors ],
-	}: {
-		innerWindow: Window | null;
-		args: [ { [ selector: string ]: string }, string[] ];
 	} ): string[] {
 		/**
 		 * Inner helper function used inside browser / iframe to check if the given
@@ -155,7 +137,7 @@ export class BrowserInterface {
 		 * @param {HTMLElement} element - Element to check.
 		 */
 		innerWindow = null === innerWindow ? window : innerWindow;
-		const isAboveFold = ( element: HTMLElement ) => {
+		const isAboveFold = element => {
 			const originalClearStyle = element.style.clear || '';
 			element.style.clear = 'none';
 
@@ -173,7 +155,7 @@ export class BrowserInterface {
 
 			const matches = innerWindow.document.querySelectorAll( selectors[ s ] );
 			for ( const match of matches ) {
-				if ( isAboveFold( match as HTMLElement ) ) {
+				if ( isAboveFold( match ) ) {
 					return true;
 				}
 			}

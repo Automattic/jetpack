@@ -1,4 +1,4 @@
-import { BrowserInterface, BrowserRunnable } from './browser-interface';
+import { BrowserInterface } from './browser-interface';
 import { CSSFileSet } from './css-file-set';
 import { SuccessTargetError, EmptyCSSError, UrlError } from './errors';
 import { removeIgnoredPseudoElements } from './ignored-pseudo-elements';
@@ -26,7 +26,7 @@ async function collateCssFiles(
 	maxPages: number
 ): Promise< [ CSSFileSet, { [ url: string ]: UrlError } ] > {
 	const cssFiles = new CSSFileSet( browserInterface );
-	const errors: { [ url: string ]: UrlError } = {};
+	const errors = {};
 	let successes = 0;
 
 	for ( const url of urls ) {
@@ -39,9 +39,7 @@ async function collateCssFiles(
 				( set, relative ) => {
 					try {
 						const absolute = new URL( relative, url ).toString();
-						set[ absolute ] = {
-							media: cssIncludes[ relative ].media || '', // Use empty string if null
-						};
+						set[ absolute ] = cssIncludes[ relative ];
 					} catch ( err ) {
 						// Ignore invalid URLs.
 						// eslint-disable-next-line no-console
@@ -50,7 +48,7 @@ async function collateCssFiles(
 
 					return set;
 				},
-				{} as { [ url: string ]: { media: string } }
+				{} as typeof cssIncludes
 			);
 
 			await cssFiles.addMultiple( url, absoluteIncludes );
@@ -64,7 +62,7 @@ async function collateCssFiles(
 				break;
 			}
 		} catch ( err ) {
-			errors[ url ] = err as UrlError;
+			errors[ url ] = err;
 		}
 	}
 
@@ -100,13 +98,10 @@ async function getAboveFoldSelectors( {
 	updateProgress: () => void;
 } ): Promise< Set< string > > {
 	// For each selector string, create a "trimmed" version with the stuff JavaScript can't handle cut out.
-	const trimmedSelectors = Object.keys( selectorPages ).reduce(
-		( set, selector ) => {
-			set[ selector ] = removeIgnoredPseudoElements( selector );
-			return set;
-		},
-		{} as { [ selector: string ]: string }
-	);
+	const trimmedSelectors = Object.keys( selectorPages ).reduce( ( set, selector ) => {
+		set[ selector ] = removeIgnoredPseudoElements( selector );
+		return set;
+	}, {} );
 
 	// Go through all the URLs looking for above-the-fold selectors, and selectors which may be "dangerous"
 	// i.e.: may match elements on pages that do not include their CSS file.
@@ -115,12 +110,9 @@ async function getAboveFoldSelectors( {
 
 	for ( const url of validUrls.slice( 0, maxPages ) ) {
 		// Work out which CSS selectors match any element on this page.
-		const pageSelectors = await browserInterface.runInPage< string[] >(
-			url,
-			null,
-			BrowserInterface.innerFindMatchingSelectors as BrowserRunnable< string[] >,
-			trimmedSelectors
-		);
+		const pageSelectors = await browserInterface.runInPage<
+			ReturnType< typeof BrowserInterface.innerFindMatchingSelectors >
+		>( url, null, BrowserInterface.innerFindMatchingSelectors, trimmedSelectors );
 
 		// Check for selectors which may match this page, but are not included in this page's CSS.
 		pageSelectors
@@ -131,13 +123,9 @@ async function getAboveFoldSelectors( {
 		for ( const size of viewports ) {
 			updateProgress();
 
-			const pageAboveFold = await browserInterface.runInPage< string[] >(
-				url,
-				size,
-				BrowserInterface.innerFindAboveFoldSelectors as BrowserRunnable< string[] >,
-				trimmedSelectors,
-				pageSelectors
-			);
+			const pageAboveFold = await browserInterface.runInPage<
+				ReturnType< typeof BrowserInterface.innerFindAboveFoldSelectors >
+			>( url, size, BrowserInterface.innerFindAboveFoldSelectors, trimmedSelectors, pageSelectors );
 
 			pageAboveFold.forEach( s => aboveFoldSelectors.add( s ) );
 		}
@@ -184,14 +172,14 @@ export async function generateCriticalCSS( {
 	const successUrlsThreshold = Math.ceil( Math.min( urls.length, maxPages ) * successRatio );
 
 	try {
-		const updateProgress = progressCallback || noop;
+		progressCallback = progressCallback || noop;
 		let progress = 0;
 		const progressSteps = 1 + urls.length * viewports.length;
-		const incrementProgress = () => updateProgress( ++progress, progressSteps );
+		const updateProgress = () => progressCallback( ++progress, progressSteps );
 
 		// Collate all CSS Files used by all valid URLs.
 		const [ cssFiles, cssFileErrors ] = await collateCssFiles( browserInterface, urls, maxPages );
-		incrementProgress();
+		updateProgress();
 
 		// Verify there are enough valid URLs to carry on with.
 		const validUrls = browserInterface.filterValidUrls( urls );
@@ -213,7 +201,7 @@ export async function generateCriticalCSS( {
 			validUrls,
 			viewports,
 			maxPages,
-			updateProgress: incrementProgress,
+			updateProgress,
 		} );
 
 		// Prune each AST for above-fold selector list. Note: this prunes a clone.
@@ -224,7 +212,7 @@ export async function generateCriticalCSS( {
 
 		// If there is no Critical CSS, it means the URLs did not have any CSS in their external style sheet(s).
 		if ( ! css ) {
-			const emptyCSSErrors: { [ url: string ]: EmptyCSSError } = {};
+			const emptyCSSErrors = {};
 			for ( const url of validUrls ) {
 				emptyCSSErrors[ url ] = new EmptyCSSError( { url } );
 			}
