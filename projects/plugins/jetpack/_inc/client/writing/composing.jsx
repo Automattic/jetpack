@@ -208,7 +208,10 @@ export class Composing extends React.Component {
 			),
 			aiAssistantLink = (
 				<CompactCard className="jp-settings-card__configure-link">
-					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
+					<a
+						className={ this.props.getOptionValue( 'jetpack_blocks_disabled' ) ? 'disabled' : '' }
+						href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }
+					>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
 					{ /* TODO: remove this Chip once it's not longer "new" */ }

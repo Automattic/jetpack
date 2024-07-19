@@ -4,6 +4,12 @@
 		color: var( --jp-black-80 );
 		text-decoration: underline;
 
+		&.disabled {
+			pointer-events: none;
+			color: var( --jp-gray-20 );
+			text-decoration: none;
+		}
+
 		&.dops-notice__action {
 			color: var( --jp-gray-20 );
 		}
@@ -78,7 +84,7 @@
 	.jp-form-settings-group + .jp-form-settings-group {
 		border-top: 1px solid var( --jp-gray );
 	}
-	
+
 	.dops-search__input[type="search"] {
 		width: 100%;
 	}
@@ -87,7 +93,7 @@
 		display: none;
 		font-size: rem( 14px );
 		line-height: 1.5;
-	
+
 		&:last-of-type {
 			display: inherit;
 		}
