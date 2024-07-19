@@ -1,8 +1,9 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { createElement, type ReactElement } from 'react';
+import { useCallback, createElement, type ReactElement } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import useAnalytics from '../../../hooks/use-analytics';
 
 type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip';
 export type TooltipContent = {
@@ -21,6 +22,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
 		themes,
@@ -35,6 +37,15 @@ export function useProtectTooltipCopy(): TooltipContent {
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+
+	const trackFirewallSettingsLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall-tooltip',
+			path: 'admin.php?page=jetpack-protect#/firewall',
+		} );
+	}, [ recordEvent ] );
 
 	return {
 		pluginsThemesTooltip: {
@@ -98,6 +109,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 							{
 								a: createElement( 'a', {
 									href: 'admin.php?page=jetpack-protect#/firewall',
+									onClick: trackFirewallSettingsLinkClick,
 								} ),
 							}
 						),
