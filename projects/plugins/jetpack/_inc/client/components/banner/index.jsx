@@ -154,17 +154,15 @@ export class Banner extends Component {
 				</div>
 				{ callToAction && (
 					<div className="dops-banner__action">
-						{ callToAction && (
-							<Button
-								rna={ rna }
-								compact
-								href={ this.getHref() }
-								onClick={ this.handleClick }
-								primary
-							>
-								{ callToAction }
-							</Button>
-						) }
+						<Button
+							rna={ rna }
+							compact
+							href={ this.getHref() }
+							onClick={ this.handleClick }
+							primary
+						>
+							{ callToAction }
+						</Button>
 					</div>
 				) }
 			</div>
