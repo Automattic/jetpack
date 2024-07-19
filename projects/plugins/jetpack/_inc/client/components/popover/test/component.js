@@ -4,20 +4,36 @@ import React from 'react';
 import { render, screen, waitFor } from 'test/test-utils';
 import Popover from '../index';
 
-const TestComponent = ( { ignoreContext, nonDomContext } ) => {
-	const [ context, setContext ] = useState( nonDomContext || null );
+const TestComponent = ( { ignoreContext, nonDomObjectContext, nonDomRefContext } ) => {
+	const [ context, setContext ] = useState( () => {
+		if ( nonDomObjectContext ) {
+			return {};
+		}
+		if ( nonDomRefContext ) {
+			return { current: '' };
+		}
+		return null;
+	} );
 	const [ isVisible, setIsVisible ] = useState( false );
 
 	const toggleContext = useCallback( () => {
 		if ( context ) {
-			setContext( null );
+			// Determine new context based on props
+			let newContext;
+			if ( nonDomObjectContext ) {
+				newContext = {};
+			} else if ( nonDomRefContext ) {
+				newContext = { current: '' };
+			} else {
+				newContext = null;
+			}
+			setContext( newContext );
 			setIsVisible( false );
 		} else {
-			const newContext = document.createElement( 'div' );
-			setContext( newContext );
+			setContext( document.createElement( 'div' ) );
 			setIsVisible( true );
 		}
-	}, [ context ] );
+	}, [ context, nonDomObjectContext, nonDomRefContext ] );
 
 	const handleClose = useCallback( () => {
 		setContext( null );
@@ -41,7 +57,22 @@ const TestComponent = ( { ignoreContext, nonDomContext } ) => {
 
 describe( 'TestComponent', () => {
 	it( 'should not show Popover when context is not a DOM element', async () => {
-		render( <TestComponent nonDomContext={ {} } /> );
+		const consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+
+		render( <TestComponent nonDomObjectContext={ true } /> );
+		await userEvent.click( screen.getByText( 'Toggle Context', { selector: 'button' } ) );
+		await waitFor( () => {
+			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
+		} );
+		expect( consoleErrorSpy ).toHaveBeenCalledWith(
+			'Expected a DOM node or a React ref',
+			expect.anything()
+		);
+
+		consoleErrorSpy.mockRestore();
+	} );
+	it( 'should not show Popover when context is not a DOM element but it is a ref', async () => {
+		render( <TestComponent nonDomRefContext={ true } /> );
 		await userEvent.click( screen.getByText( 'Toggle Context', { selector: 'button' } ) );
 		await waitFor( () => {
 			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
