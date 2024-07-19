@@ -40,11 +40,19 @@ const getPurchaseAction = ( detail: ProductCamelCase ) => {
 	return null;
 };
 
+const getLearnMoreAction = ( detail: ProductCamelCase ) => {
+	if ( detail.status !== PRODUCT_STATUSES.ACTIVE && detail.tiers.includes( 'free' ) ) {
+		return __( 'Start for free', 'jetpack-my-jetpack' );
+	}
+
+	return __( 'Learn more', 'jetpack-my-jetpack' );
+};
+
 const usePricingData = ( slug: string ) => {
 	const { detail } = useProduct( slug );
 	return {
 		wpcomProductSlug: detail.wpcomProductSlug,
-		canStartForFree: detail.status !== PRODUCT_STATUSES.ACTIVE && detail.tiers.includes( 'free' ),
+		learnMoreAction: getLearnMoreAction( detail ),
 		purchaseAction: getPurchaseAction( detail ),
 		...parsePricingData( detail.pricingForUi ),
 	};

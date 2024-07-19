@@ -1,5 +1,4 @@
 import { Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -25,7 +24,7 @@ const useUpsellLinks = ( slug: string, wpcomProductSlug: string ) => {
 };
 
 const RecommendationActions = ( { slug }: { slug: string } ) => {
-	const { wpcomProductSlug, canStartForFree, purchaseAction } = usePricingData( slug );
+	const { wpcomProductSlug, learnMoreAction, purchaseAction } = usePricingData( slug );
 
 	const { purchaseUrl, interstitialUrl } = useUpsellLinks( slug, wpcomProductSlug );
 	return (
@@ -42,9 +41,7 @@ const RecommendationActions = ( { slug }: { slug: string } ) => {
 					variant="link"
 					href={ interstitialUrl }
 				>
-					{ canStartForFree
-						? __( 'Start for free', 'jetpack-my-jetpack' )
-						: __( 'Learn more', 'jetpack-my-jetpack' ) }
+					{ learnMoreAction }
 				</Button>
 			</div>
 		</div>
