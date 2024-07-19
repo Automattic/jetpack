@@ -4,10 +4,16 @@
 import { fixes } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
-import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
+import {
+	dispatch as globalDispatch,
+	select as globalSelect,
+	useDispatch,
+	useSelect,
+} from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
+import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
  * Internal dependencies
@@ -34,7 +40,10 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { setPopoverHover, setSuggestions, invalidateSuggestions } = useDispatch(
+		'jetpack/ai-breve'
+	) as BreveDispatch;
+
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const { getBlock } = useSelect( select => {
 		const selector = select( 'core/block-editor' ) as CoreBlockEditorSelect;
@@ -147,6 +156,7 @@ export default function Highlight() {
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
+		invalidateSuggestions( blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
 	};
 
@@ -213,18 +223,21 @@ export function registerBreveHighlights() {
 			edit: () => {},
 			...configSettings,
 
-			__experimentalGetPropsForEditableTreePreparation() {
+			__experimentalGetPropsForEditableTreePreparation( { blockClientId } ) {
 				return {
 					isProofreadEnabled: (
 						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
 					 ).isProofreadEnabled(),
+					currentMd5: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
+						blockClientId
+					),
 					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
 						config.name
 					),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled },
+				{ isProofreadEnabled, isFeatureEnabled, currentMd5 },
 				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
@@ -232,8 +245,20 @@ export function registerBreveHighlights() {
 					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const highlights = featureHighlight( text );
+						const textMd5 = md5( text );
 
+						if ( currentMd5 !== textMd5 ) {
+							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).invalidateSuggestions(
+								blockClientId
+							);
+
+							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setBlockMd5(
+								blockClientId,
+								textMd5
+							);
+						}
+
+						const highlights = featureHighlight( text );
 						const applied = highlight( {
 							content: record,
 							type,

@@ -48,6 +48,21 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setBlockMd5( blockId: string, md5: string ) {
+	return {
+		type: 'SET_BLOCK_MD5',
+		blockId,
+		md5,
+	};
+}
+
+export function invalidateSuggestions( blockId: string ) {
+	return {
+		type: 'INVALIDATE_SUGGESTIONS',
+		blockId,
+	};
+}
+
 export function setSuggestions( {
 	id,
 	feature,
