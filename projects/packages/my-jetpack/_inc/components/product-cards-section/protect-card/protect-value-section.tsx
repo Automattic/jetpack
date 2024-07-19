@@ -125,7 +125,7 @@ const LoginsBlockedStatus = () => {
 	const {
 		protect: { wafConfig: wafData },
 	} = getMyJetpackWindowInitialState();
-	const { blocked_logins: blockedLoginsCount } = wafData;
+	const { blocked_logins: blockedLoginsCount = 0 } = wafData || {};
 
 	return <div className="logins_blocked__count">{ blockedLoginsCount }</div>;
 };
