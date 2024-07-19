@@ -102,6 +102,7 @@ export function suggestions(
 		feature: string;
 		blockId: string;
 		loading: boolean;
+		md5?: string;
 		suggestions?: {
 			revisedText: string;
 			suggestion: string;
@@ -143,6 +144,29 @@ export function suggestions(
 							suggestions: action.suggestions,
 						},
 					},
+				},
+			};
+		}
+
+		case 'SET_BLOCK_MD5': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						md5: action.md5,
+					},
+				},
+			};
+		}
+
+		case 'INVALIDATE_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {},
 				},
 			};
 		}
