@@ -79,28 +79,6 @@ const JetpackAndSettingsContent = ( {
 				</BaseControl>
 			</PanelRow>
 
-			{ isLogoGeneratorAvailable && (
-				<PanelRow className="jetpack-ai-logo-generator-control__header">
-					<BaseControl label={ __( 'AI Logo Generator', 'jetpack' ) }>
-						<p>
-							{ __(
-								'Experimental panel to trigger the logo generator modal. Will be dropped after the extension is ready.',
-								'jetpack'
-							) }
-						</p>
-						<Button variant="secondary" onClick={ () => setShowLogoGeneratorModal( true ) }>
-							{ __( 'Generate Logo', 'jetpack' ) }
-						</Button>
-						<GeneratorModal
-							isOpen={ showLogoGeneratorModal }
-							onClose={ () => setShowLogoGeneratorModal( false ) }
-							context="jetpack-ai-sidebar"
-							siteDetails={ siteDetails }
-						/>
-					</BaseControl>
-				</PanelRow>
-			) }
-
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-title-optimization__header">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
@@ -118,6 +96,28 @@ const JetpackAndSettingsContent = ( {
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
+				</PanelRow>
+			) }
+			{ isLogoGeneratorAvailable && (
+				<PanelRow className="jetpack-ai-logo-generator-control__header">
+					<BaseControl label={ __( 'AI Logo Generator', 'jetpack' ) }>
+						<GeneratorModal
+							isOpen={ showLogoGeneratorModal }
+							onClose={ () => setShowLogoGeneratorModal( false ) }
+							context="jetpack-ai-sidebar"
+							siteDetails={ siteDetails }
+						/>
+
+						<p>
+							{ __(
+								'Experimental panel to trigger the logo generator modal. Will be dropped after the extension is ready.',
+								'jetpack'
+							) }
+						</p>
+						<Button variant="secondary" onClick={ () => setShowLogoGeneratorModal( true ) }>
+							{ __( 'Generate Logo', 'jetpack' ) }
+						</Button>
+					</BaseControl>
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (
