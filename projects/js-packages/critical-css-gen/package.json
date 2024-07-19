@@ -26,38 +26,38 @@
 		"@automattic/jetpack-critical-css-gen": false
 	},
 	"devDependencies": {
-		"@babel/core": "7.24.7",
-		"@babel/preset-env": "^7.18.10",
-		"@babel/preset-typescript": "^7.18.6",
-		"@rollup/plugin-commonjs": "^22.0.2",
-		"@rollup/plugin-json": "^4.1.0",
+		"@babel/core": "7.18.13",
+		"@babel/preset-env": "7.18.10",
+		"@babel/preset-typescript": "7.18.6",
+		"@rollup/plugin-commonjs": "22.0.2",
+		"@rollup/plugin-json": "4.1.0",
 		"@rollup/plugin-node-resolve": "13.3.0",
-		"@rollup/plugin-typescript": "^8.4.0",
-		"@types/clean-css": "^4.2.5",
-		"@types/css-tree": "^2.0.1",
-		"@types/node": "^18.7.12",
-		"@typescript-eslint/eslint-plugin": "^5.35.1",
-		"@typescript-eslint/parser": "^5.0.0",
-		"eslint": "^8.22.0",
-		"express": "^4.18.1",
-		"https-browserify": "^1.0.0",
-		"jest-environment-puppeteer": "^6.1.1",
-		"node-fetch": "^3.2.10",
-		"nodemon": "^3.1.2",
-		"os-browserify": "^0.3.0",
-		"path-browserify": "^1.0.1",
-		"playwright-core": "^1.33.0",
+		"@rollup/plugin-typescript": "8.4.0",
+		"@types/clean-css": "4.2.5",
+		"@types/css-tree": "2.0.1",
+		"@types/node": "18.7.12",
+		"@typescript-eslint/eslint-plugin": "5.35.1",
+		"@typescript-eslint/parser": "5.35.1",
+		"eslint": "8.22.0",
+		"express": "4.18.1",
+		"https-browserify": "1.0.0",
+		"jest-environment-puppeteer": "6.1.1",
+		"node-fetch": "3.2.10",
+		"nodemon": "3.1.2",
+		"os-browserify": "0.3.0",
+		"path-browserify": "1.0.1",
+		"playwright-core": "1.33.0",
 		"prettier": "npm:wp-prettier@2.0.5",
-		"puppeteer": "^16.2.0",
-		"rollup": "^2.78.1",
-		"rollup-plugin-polyfill-node": "^0.10.2",
-		"rollup-plugin-terser": "^7.0.2",
-		"source-map": "^0.7.4",
-		"stream-http": "^3.2.0",
-		"tslib": "2.5.0",
-		"typescript": "^4.7.4",
-		"webpack": "^5.74.0",
-		"webpack-dev-middleware": "^5.3.3"
+		"puppeteer": "16.2.0",
+		"rollup": "2.78.1",
+		"rollup-plugin-polyfill-node": "0.10.2",
+		"rollup-plugin-terser": "7.0.2",
+		"source-map": "0.7.4",
+		"stream-http": "3.2.0",
+		"tslib": "2.4.0",
+		"typescript": "4.7.4",
+		"webpack": "5.74.0",
+		"webpack-dev-middleware": "5.3.3"
 	},
 	"exports": {
 		".": {
@@ -68,12 +68,12 @@
 		}
 	},
 	"dependencies": {
-		"clean-css": "^5.3.3",
-		"css-tree": "^2.3.1",
-		"install": "^0.13.0",
-		"npm": "^8.18.0"
+		"clean-css": "5.3.1",
+		"css-tree": "2.3.1",
+		"install": "0.13.0",
+		"npm": "8.18.0"
 	},
 	"overrides": {
-		"eslint-plugin-jsdoc": "^46.8.2"
+		"eslint-plugin-jsdoc": "46.8.2"
 	}
 }
