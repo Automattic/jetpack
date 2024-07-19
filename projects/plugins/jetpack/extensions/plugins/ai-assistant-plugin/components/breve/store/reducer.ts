@@ -77,7 +77,6 @@ export function popover(
 			return {
 				...state,
 				isPopoverHover: action.isHover,
-				frozenAnchor: action.isHover ? ( state.anchors ?? [] )[ ( state.level ?? 1 ) - 1 ] : null,
 			};
 
 		case 'SET_POPOVER_ANCHOR': {
@@ -85,33 +84,9 @@ export function popover(
 				return state;
 			}
 
-			const anchors = [ ...( state.anchors ?? [] ) ];
-
-			anchors[ Math.max( ( state.level ?? 1 ) - 1, 0 ) ] = action.anchor;
-
 			return {
 				...state,
-				anchors,
-			};
-		}
-
-		case 'INCREASE_POPOVER_LEVEL': {
-			const level = ( state.level ?? 0 ) + 1;
-
-			return {
-				...state,
-				level,
-			};
-		}
-
-		case 'DECREASE_POPOVER_LEVEL': {
-			const level = Math.max( ( state.level ?? 1 ) - 1, 0 );
-			const anchors = ( state.anchors ?? [] ).slice( 0, level );
-
-			return {
-				...state,
-				level,
-				anchors,
+				anchor: action.anchor,
 			};
 		}
 	}
@@ -119,4 +94,61 @@ export function popover(
 	return state;
 }
 
-export default combineReducers( { popover, configuration } );
+export function suggestions(
+	state = {},
+	action: {
+		type: string;
+		id: string;
+		feature: string;
+		blockId: string;
+		loading: boolean;
+		suggestions?: {
+			revisedText: string;
+			suggestion: string;
+		};
+	}
+) {
+	const { id, feature, blockId } = action ?? {};
+	const current = { ...state };
+	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
+	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+
+	switch ( action.type ) {
+		case 'SET_SUGGESTIONS_LOADING': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: action.loading,
+						},
+					},
+				},
+			};
+		}
+
+		case 'SET_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: false,
+							suggestions: action.suggestions,
+						},
+					},
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions } );

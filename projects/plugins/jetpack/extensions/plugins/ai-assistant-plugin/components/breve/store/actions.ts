@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
+import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
+import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
 
@@ -19,23 +21,10 @@ export function setPopoverHover( isHover: boolean ) {
 	};
 }
 
-export function setPopoverAnchor( anchor: HTMLElement | EventTarget, level: number ) {
+export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
-		level,
-	};
-}
-
-export function increasePopoverLevel() {
-	return {
-		type: 'INCREASE_POPOVER_LEVEL',
-	};
-}
-
-export function decreasePopoverLevel() {
-	return {
-		type: 'DECREASE_POPOVER_LEVEL',
 	};
 }
 
@@ -56,5 +45,73 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	return {
 		type: enabled ? 'ENABLE_FEATURE' : 'DISABLE_FEATURE',
 		feature,
+	};
+}
+
+export function setSuggestions( {
+	id,
+	feature,
+	target,
+	sentence,
+	blockId,
+	occurrence,
+}: {
+	id: string;
+	feature: string;
+	target: string;
+	sentence: string;
+	blockId: string;
+	occurrence: string;
+} ) {
+	return ( { dispatch } ) => {
+		dispatch( {
+			type: 'SET_SUGGESTIONS_LOADING',
+			id,
+			feature,
+			blockId,
+			loading: true,
+		} );
+
+		askQuestionSync(
+			getRequestMessages( {
+				feature,
+				target,
+				sentence,
+				blockId,
+				occurrence,
+			} ),
+			{
+				feature: 'jetpack-ai-breve',
+			}
+		)
+			.then( response => {
+				try {
+					const suggestions = JSON.parse( response );
+					dispatch( {
+						type: 'SET_SUGGESTIONS',
+						id,
+						feature,
+						suggestions,
+						blockId,
+					} );
+				} catch ( e ) {
+					dispatch( {
+						type: 'SET_SUGGESTIONS_LOADING',
+						id,
+						feature,
+						blockId,
+						loading: false,
+					} );
+				}
+			} )
+			.catch( () => {
+				dispatch( {
+					type: 'SET_SUGGESTIONS_LOADING',
+					id,
+					feature,
+					blockId,
+					loading: false,
+				} );
+			} );
 	};
 }

@@ -12,13 +12,7 @@ import type { PromptProp } from '../types.js';
 /**
  * The response data from the AI assistant when doing a sync, not-streamed question.
  */
-export type ResponseData = {
-	choices: Array< {
-		message: {
-			content: string;
-		};
-	} >;
-};
+export type ResponseData = string;
 
 const debug = debugFactory( 'jetpack-ai-client:ask-question-sync' );
 
@@ -41,13 +35,9 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question-sync' );
  */
 export default async function askQuestionSync(
 	question: PromptProp,
-	{ postId = null, feature, model }: AskQuestionOptionsArgProps = {}
+	options: AskQuestionOptionsArgProps = {}
 ): Promise< ResponseData > {
-	debug( 'Asking question with no streaming: %o. options: %o', question, {
-		postId,
-		feature,
-		model,
-	} );
+	debug( 'Asking question with no streaming: %o. options: %o', question, options );
 
 	/**
 	 * The URL to the AI assistant query endpoint.
@@ -63,12 +53,12 @@ export default async function askQuestionSync(
 		return Promise.reject( error );
 	}
 
+	const messages = Array.isArray( question ) ? { messages: question } : { question: question };
+
 	const body = {
-		question: question,
+		...messages,
+		...options,
 		stream: false,
-		postId,
-		feature,
-		model,
 	};
 
 	const headers = {
@@ -76,16 +66,21 @@ export default async function askQuestionSync(
 		'Content-Type': 'application/json',
 	};
 
-	const data = await fetch( URL, {
-		method: 'POST',
-		headers,
-		body: JSON.stringify( body ),
-	} ).then( response => response.json() );
+	try {
+		const data = await fetch( URL, {
+			method: 'POST',
+			headers,
+			body: JSON.stringify( body ),
+		} ).then( response => response.json() );
 
-	if ( data?.data?.status && data?.data?.status > 200 ) {
-		debug( 'Error generating prompt: %o', data );
-		return Promise.reject( data );
+		if ( data?.data?.status && data?.data?.status > 200 ) {
+			debug( 'Error generating prompt: %o', data );
+			return Promise.reject( data );
+		}
+
+		return data.choices?.[ 0 ]?.message?.content as string;
+	} catch ( error ) {
+		debug( 'Error asking question: %o', error );
+		return Promise.reject( error );
 	}
-
-	return data as ResponseData;
 }
