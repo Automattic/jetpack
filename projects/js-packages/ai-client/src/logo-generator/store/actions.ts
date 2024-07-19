@@ -77,19 +77,17 @@ const actions = {
 
 	/**
 	 * Thunk action to fetch the AI Assistant feature from the API.
-	 * @param siteId
 	 * @returns {Function} The thunk action.
 	 */
-	fetchAiAssistantFeature( siteId: string ) {
+	fetchAiAssistantFeature() {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return async ( { dispatch }: { dispatch: any } ) => {
 			// Dispatch isFetching action.
 			dispatch( { type: ACTION_REQUEST_AI_ASSISTANT_FEATURE } );
 
 			try {
 				const response: AiAssistantFeatureEndpointResponseProps = await wpcomLimitedRequest( {
-					path:
-						// '/sites/' + encodeURIComponent( String( siteId ) ) + '/jetpack-ai/ai-assistant-feature',
-						'/wpcom/v2/jetpack-ai/ai-assistant-feature',
+					path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
 					query: 'force=wpcom',
 				} );
 
@@ -111,6 +109,7 @@ const actions = {
 	 * @returns {Function}     The thunk action.
 	 */
 	increaseAiAssistantRequestsCount( count: number = 1 ) {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return ( { dispatch }: { dispatch: any } ) => {
 			dispatch( {
 				type: ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
