@@ -49,6 +49,8 @@ const sharedConfig = {
 				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [ 'sass-loader' ],
 			} ),
+			// Handle images.
+			jetpackWebpackConfig.FileRule(),
 		],
 	},
 	externals: {
@@ -105,13 +107,5 @@ module.exports = [
 				},
 			} ),
 		],
-		module: {
-			...sharedConfig.module,
-			rules: [
-				...sharedConfig.module.rules,
-				// Handle images.
-				jetpackWebpackConfig.FileRule(),
-			],
-		},
 	},
 ];
