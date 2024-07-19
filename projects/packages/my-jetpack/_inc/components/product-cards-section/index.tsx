@@ -21,11 +21,15 @@ type DisplayItemsProps = {
 	slugs: JetpackModule[];
 };
 
+type ExcludedModules = 'extras' | 'scan' | 'security' | 'creator';
+
 type DisplayItemType = Record<
 	// We don't have a card for Security or Extras, and scan is displayed as protect.
-	Exclude< JetpackModule, 'extras' | 'scan' | 'security' >,
+	Exclude< JetpackModule, ExcludedModules >,
 	FC< { admin: boolean } >
 >;
+
+const excludedModules: ExcludedModules[] = [ 'extras', 'scan', 'security', 'creator' ];
 
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
@@ -101,10 +105,7 @@ const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } 
 
 	const filterProducts = ( products: JetpackModule[] ) => {
 		return products.filter( product => {
-			if ( product === 'scan' || product === 'security' || product === 'extras' ) {
-				return false;
-			}
-			return true;
+			return ! excludedModules.includes( product );
 		} );
 	};
 

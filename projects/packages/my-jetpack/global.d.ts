@@ -14,17 +14,18 @@ type JetpackModule =
 	| 'anti-spam'
 	| 'backup'
 	| 'boost'
-	| 'crm'
 	| 'creator'
+	| 'crm'
 	| 'extras'
 	| 'jetpack-ai'
+	| 'newsletter'
+	| 'protect'
 	| 'scan'
 	| 'search'
-	| 'social'
 	| 'security'
-	| 'protect'
-	| 'videopress'
-	| 'stats';
+	| 'social'
+	| 'stats'
+	| 'videopress';
 
 type ThreatItem = {
 	// Protect API properties (free plan)
