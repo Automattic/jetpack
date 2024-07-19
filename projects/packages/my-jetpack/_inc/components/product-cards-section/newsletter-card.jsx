@@ -6,10 +6,10 @@ import ProductCard from '../connected-product-card';
 const NewsletterCard = ( { admin } ) => {
 	const actionOverride = {
 		[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: {
-			href: 'admin.php?page=jetpack#/settings?term=newsletter',
+			href: 'admin.php?page=jetpack#/newsletter',
 		},
 		[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: {
-			href: 'admin.php?page=jetpack#/settings?term=newsletter',
+			href: 'admin.php?page=jetpack#/newsletter',
 		},
 	};
 

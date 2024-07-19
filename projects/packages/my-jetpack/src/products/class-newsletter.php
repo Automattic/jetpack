@@ -45,11 +45,11 @@ class Newsletter extends Module_Product {
 	public static $plugin_filename = self::JETPACK_PLUGIN_FILENAME;
 
 	/**
-	 * Newsletter only requires site connection, not user connection
+	 * Newsletter requires user connection
 	 *
 	 * @var bool
 	 */
-	public static $requires_user_connection = false;
+	public static $requires_user_connection = true;
 
 	/**
 	 * Newsletter does not have a standalone plugin yet
