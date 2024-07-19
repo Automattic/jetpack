@@ -23,7 +23,7 @@ export default function AiToolbarButton( {
 	clickHandler?: () => void;
 } ): ReactElement {
 	const toggleFromToolbar = useCallback( () => {
-		clickHandler();
+		clickHandler?.();
 	}, [ clickHandler ] );
 
 	return (
