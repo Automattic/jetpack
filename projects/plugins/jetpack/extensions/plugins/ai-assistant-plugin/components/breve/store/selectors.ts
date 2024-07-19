@@ -37,8 +37,8 @@ export function getDisabledFeatures( state: BreveState ) {
 
 // Suggestions
 
-export function getBlockMd5( state: BreveState, blockId: string ) {
-	return state.suggestions?.[ blockId ]?.md5 ?? '';
+export function getBlockMd5( state: BreveState, feature: string, blockId: string ) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.md5 ?? '';
 }
 
 export function getSuggestionsLoading(

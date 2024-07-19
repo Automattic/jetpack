@@ -3,6 +3,7 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
+import { getBlockContent } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import {
 	dispatch as globalDispatch,
@@ -156,8 +157,9 @@ export default function Highlight() {
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
-		invalidateSuggestions( blockId );
+		invalidateSuggestions( feature, blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
 	};
 
 	return (
@@ -222,13 +224,13 @@ export function registerBreveHighlights() {
 			interactive: false,
 			edit: () => {},
 			...configSettings,
-
-			__experimentalGetPropsForEditableTreePreparation( { blockClientId } ) {
+			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
 				return {
 					isProofreadEnabled: (
 						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
 					 ).isProofreadEnabled(),
 					currentMd5: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
+						formatName,
 						blockClientId
 					),
 					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
@@ -245,14 +247,18 @@ export function registerBreveHighlights() {
 					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const textMd5 = md5( text );
+						const block = globalSelect( 'core/block-editor' ).getBlock( blockClientId );
+						const blockContent = getBlockContent( block );
+						const textMd5 = md5( blockContent ).toString();
 
 						if ( currentMd5 !== textMd5 ) {
 							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).invalidateSuggestions(
+								type,
 								blockClientId
 							);
 
 							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setBlockMd5(
+								type,
 								blockClientId,
 								textMd5
 							);
