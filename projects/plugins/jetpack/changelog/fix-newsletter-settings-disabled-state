@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack: disable the toggles in Newsletter settings when not user-connected. This change is to match the functionality with the visuals (that were already in a disabled state).
