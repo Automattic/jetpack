@@ -46,6 +46,7 @@ return [
         'src/products/class-hybrid-product.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturnNullable'],
         'src/products/class-jetpack-ai.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/products/class-module-product.php' => ['PhanTypeMismatchReturnProbablyReal'],
+        'src/products/class-newsletter.php' => ['PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/products/class-product.php' => ['PhanAbstractStaticMethodCallInStatic', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchPropertyDefault'],
         'src/products/class-protect.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/products/class-scan.php' => ['PhanTypeMismatchArgumentNullable'],
