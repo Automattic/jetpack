@@ -11,14 +11,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import Textarea from '../components/textarea';
-import { getSetting } from '../state/settings/reducer';
-import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
-import {
-	getWafSettings,
-	getWafIpAllowListInputState,
-	isFetchingWafSettings,
-	isUpdatingWafSettings,
-} from '../state/waf/reducer';
+import { updateWafSettings } from '../state/waf/actions';
+import { getWafSettings, isFetchingWafSettings, isUpdatingWafSettings } from '../state/waf/reducer';
 
 const AllowList = class extends Component {
 	/**
@@ -43,14 +37,6 @@ const AllowList = class extends Component {
 				...this.state,
 				ipAllowListEnabled: this.props.settings?.ipAllowListEnabled,
 				ipAllowList: this.props.settings?.ipAllowList,
-			} );
-		}
-
-		// Sync the allow list value with the value in redux.
-		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
-			this.setState( {
-				...this.state,
-				ipAllowList: this.props.allowListInputState,
 			} );
 		}
 	};
@@ -108,22 +94,22 @@ const AllowList = class extends Component {
 	 * @param {Event} event - = The event object.
 	 */
 	handleIpAllowListChange = event => {
-		this.props.updateWafIpAllowList( event.target.value );
+		this.setState( { ...this.state, ipAllowList: event?.target?.value } );
 	};
 
 	currentIpIsSafelisted = () => {
 		// get current IP allow list in textarea from this.props.allowListInputState;
-		return !! includes( this.props.allowListInputState, this.props.currentIp );
+		return !! includes( this.state.ipAllowList, this.props.currentIp );
 	};
 
 	addToSafelist = () => {
-		const newSafelist =
-			this.props.allowListInputState +
-			( 0 >= this.props.allowListInputState.length ? '' : '\n' ) +
+		const newAllowList =
+			this.state.ipAllowList +
+			( 0 >= this.state.ipAllowList.length ? '' : '\n' ) +
 			this.props.currentIp;
 
 		// Update the allow list
-		this.props.updateWafIpAllowList( newSafelist );
+		this.setState( { ...this.state, ipAllowList: newAllowList } );
 	};
 
 	render() {
@@ -189,7 +175,7 @@ const AllowList = class extends Component {
 									}
 									name="ipAllowList"
 									placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-									value={ this.props.allowListInputState }
+									value={ this.state.ipAllowList }
 									onChange={ this.handleIpAllowListChange }
 								/>
 								<div className="allow-list-button-container">
@@ -246,13 +232,7 @@ const AllowList = class extends Component {
 
 export default connect(
 	state => {
-		const allowListInputState = getWafIpAllowListInputState( state );
-
 		return {
-			allowListInputState:
-				allowListInputState !== null
-					? allowListInputState
-					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
@@ -260,7 +240,6 @@ export default connect(
 	},
 	dispatch => {
 		return {
-			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
 			updateWafSettings: newSettings => dispatch( updateWafSettings( newSettings ) ),
 			createNotice: ( type, message, props ) => dispatch( createNotice( type, message, props ) ),
 			removeNotice: notice => dispatch( removeNotice( notice ) ),
