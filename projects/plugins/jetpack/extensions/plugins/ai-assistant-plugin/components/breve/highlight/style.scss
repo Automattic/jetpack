@@ -83,6 +83,12 @@
 
 			.components-button.is-tertiary {
 				color: #000000;
+				white-space: break-spaces;
+				min-height: 36px;
+				height: unset;
+				min-width: 300px;
+				justify-content: center;
+				text-align: unset;
 			}
 		}
 	}
