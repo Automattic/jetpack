@@ -15,9 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build:browser": "tsc -p tsconfig.browser.json",
-		"build:node": "tsc -p tsconfig.node.json",
-		"build": "npm run build:browser && npm run build:node",
+		"build": "npm run clean && tsc",
 		"clean": "rm -rf lib/",
 		"test": "jest tests"
 	},
