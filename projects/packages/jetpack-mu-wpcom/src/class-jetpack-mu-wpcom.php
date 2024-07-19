@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.46.0';
+	const PACKAGE_VERSION = '5.47.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -53,6 +53,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -105,17 +106,6 @@ class Jetpack_Mu_Wpcom {
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
-
-		// Only load the Calypsoify and Masterbar features on WoA sites.
-		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
-			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
-			\Automattic\Jetpack\Masterbar\Main::init();
-		}
-		// Gets autoloaded from the Scheduled_Updates package.
-		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
-			Scheduled_Updates::init();
-		}
 	}
 
 	/**
@@ -140,6 +130,17 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
+
+		// Only load the Calypsoify and Masterbar features on WoA sites.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
+			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
+			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+		// Gets autoloaded from the Scheduled_Updates package.
+		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
+			Scheduled_Updates::init();
+		}
 	}
 
 	/**
@@ -356,5 +357,12 @@ class Jetpack_Mu_Wpcom {
 	public static function load_custom_css() {
 		require_once __DIR__ . '/features/custom-css/custom-css/preprocessors.php';
 		require_once __DIR__ . '/features/custom-css/custom-css.php';
+	}
+
+	/**
+	 * Load the Random Redirect feature.
+	 */
+	public static function load_wpcom_random_redirect() {
+		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
 	}
 }

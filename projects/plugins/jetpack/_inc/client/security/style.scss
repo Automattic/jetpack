@@ -6,25 +6,6 @@
     align-items: center;
     display: flex;
 
-    .waf__header__badge {
-        background-color: #D0E6B8;
-        border-radius: 3px;
-        font-size: 10px;
-        line-height: 18px;
-        margin-left: 10px;
-        padding: 0px 6px;
-
-        &,
-        &:link,
-        &:active,
-        &:focus,
-        &:hover,
-        &:visited {
-            color: #008710;
-            text-decoration: none;
-        }
-    }
-
     .waf__standalone__mode {
         margin-left: auto;
     }
