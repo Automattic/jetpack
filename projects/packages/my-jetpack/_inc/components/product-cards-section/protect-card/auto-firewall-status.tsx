@@ -39,9 +39,6 @@ export const AutoFirewallStatus = () => {
  * @returns {ReactElement} rendered component
  */
 function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
-	const slug = 'protect';
-	const { detail } = useProduct( slug );
-	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
 	const tooltipContent = useProtectTooltipCopy();
 	const { autoFirewallTooltip } = tooltipContent;
 
@@ -70,21 +67,19 @@ function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
 					/>
 				</div>
 				<div className="value-section__status-text">{ __( 'Inactive', 'jetpack-my-jetpack' ) }</div>
-				{ ! hasProtectPaidPlan && (
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
-						tracksEventProps={ {
-							location: 'auto-firewall',
-							status: 'inactive',
-							hasPaidPlan: false,
-						} }
-					>
-						<>
-							<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
-						</>
-					</InfoTooltip>
-				) }
+				<InfoTooltip
+					tracksEventName={ 'protect_card_tooltip_open' }
+					tracksEventProps={ {
+						location: 'auto-firewall',
+						status: 'inactive',
+						hasPaidPlan: false,
+					} }
+				>
+					<>
+						<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
+						<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
+					</>
+				</InfoTooltip>
 			</>
 		);
 	}

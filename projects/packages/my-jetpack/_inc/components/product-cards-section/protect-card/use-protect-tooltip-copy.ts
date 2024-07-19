@@ -1,6 +1,8 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { createElement, type ReactElement } from 'react';
 import useProduct from '../../../data/products/use-product';
-import type { ReactElement } from 'react';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 
 type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip';
 export type TooltipContent = {
@@ -13,24 +15,26 @@ export type TooltipContent = {
 /**
  * Gets the translated tooltip copy based on Protect Scan details.
  *
- * @param {object} props - React props
- * @param {number} props.pluginsCount - The number of installed plugins on the site.
- * @param {number} props.themesCount - The number of installed themes on the site.
- * @param {number} props.numThreats - The number of detected scan threats on the site.
  * @returns {TooltipContent} An object containing each tooltip's title and text content.
  */
-export function useProtectTooltipCopy( {
-	pluginsCount = 0,
-	themesCount = 0,
-	numThreats = 0,
-}: {
-	pluginsCount?: number;
-	themesCount?: number;
-	numThreats?: number;
-} = {} ): TooltipContent {
+export function useProtectTooltipCopy(): TooltipContent {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const {
+		plugins,
+		themes,
+		protect: { scanData, wafConfig: wafData },
+	} = getMyJetpackWindowInitialState();
+	const {
+		plugins: fromScanPlugins,
+		themes: fromScanThemes,
+		num_threats: numThreats = 0,
+	} = scanData;
+	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData;
+
+	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
+	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
 
 	return {
 		pluginsThemesTooltip: {
@@ -82,9 +86,28 @@ export function useProtectTooltipCopy( {
 							'jetpack-my-jetpack'
 						),
 				  },
-		autoFirewallTooltip: {
-			title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-			text: __( 'Upgrade required for activation. Manual rules available.', 'jetpack-my-jetpack' ),
-		},
+		autoFirewallTooltip:
+			hasProtectPaidPlan && ! isAutoFirewallEnabled
+				? {
+						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
+						text: createInterpolateElement(
+							__(
+								'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
+								'jetpack-my-jetpack'
+							),
+							{
+								a: createElement( 'a', {
+									href: 'admin.php?page=jetpack-protect#/firewall',
+								} ),
+							}
+						),
+				  }
+				: {
+						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
+						text: __(
+							'Upgrade required for activation. Manual rules available.',
+							'jetpack-my-jetpack'
+						),
+				  },
 	};
 }
