@@ -1,7 +1,7 @@
 import useProduct from '../../../data/products/use-product';
-import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { AutoFirewallStatus } from './auto-firewall-status';
 import { InfoTooltip } from './info-tooltip';
+import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
 import { useLastScanText } from './use-last-scan-text';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
@@ -57,12 +57,3 @@ const ProtectValueSection = () => {
 };
 
 export default ProtectValueSection;
-
-const LoginsBlockedStatus = () => {
-	const {
-		protect: { wafConfig: wafData },
-	} = getMyJetpackWindowInitialState();
-	const { blocked_logins: blockedLoginsCount } = wafData;
-
-	return <div className="logins_blocked__count">{ blockedLoginsCount }</div>;
-};
