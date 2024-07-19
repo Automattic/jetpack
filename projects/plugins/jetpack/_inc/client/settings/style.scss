@@ -4,12 +4,6 @@
 		color: var( --jp-black-80 );
 		text-decoration: underline;
 
-		&.disabled {
-			pointer-events: none;
-			color: var( --jp-gray-20 );
-			text-decoration: none;
-		}
-
 		&.dops-notice__action {
 			color: var( --jp-gray-20 );
 		}
