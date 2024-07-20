@@ -69,14 +69,14 @@ export function setSuggestions( {
 	id,
 	feature,
 	target,
-	sentence,
+	text,
 	blockId,
 	occurrence,
 }: {
 	id: string;
 	feature: string;
 	target: string;
-	sentence: string;
+	text: string;
 	blockId: string;
 	occurrence: string;
 } ) {
@@ -93,7 +93,7 @@ export function setSuggestions( {
 			getRequestMessages( {
 				feature,
 				target,
-				sentence,
+				text,
 				blockId,
 				occurrence,
 			} ),

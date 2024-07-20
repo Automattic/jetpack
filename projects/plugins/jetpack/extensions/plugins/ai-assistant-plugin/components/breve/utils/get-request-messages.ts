@@ -7,15 +7,12 @@ import features from '../features/index.js';
 
 // Map of types to the corresponding AI Assistant request type.
 const requestTypeMap = {
-	'complex-words': 'breve-phrase',
-	// TODO: Return as soon start to support these features
-	// 'ambiguous-words': 'breve-weasel',
-	// 'long-sentence': 'breve-long-sentence',
-	// adverb: 'breve-adverb',
-	// adjective: 'breve-adjective',
+	'complex-words': 'breve-complex-word',
+	'ambiguous-words': 'breve-unconfident-word',
+	'long-sentences': 'breve-long-sentence',
 };
 
-export const getRequestMessages = ( { feature, target, sentence, blockId, occurrence } ) => {
+export const getRequestMessages = ( { feature, target, text, blockId, occurrence } ) => {
 	const block = select( 'core/block-editor' ).getBlock( blockId );
 	const html = getBlockContent( block );
 	const dictionary = features?.find?.( ftr => ftr.config.name === feature )?.dictionary || {};
@@ -27,7 +24,7 @@ export const getRequestMessages = ( { feature, target, sentence, blockId, occurr
 			context: {
 				type: requestTypeMap[ feature ],
 				target,
-				sentence,
+				text,
 				html,
 				replacement,
 				occurrence,
