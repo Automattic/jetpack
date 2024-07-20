@@ -1,4 +1,4 @@
-const weaselWords = [
+const unconfidentWords = [
 	'may',
 	'might',
 	'could',
@@ -10,4 +10,4 @@ const weaselWords = [
 	'relatively',
 ];
 
-export default weaselWords;
+export default unconfidentWords;
