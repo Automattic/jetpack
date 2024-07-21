@@ -1,5 +1,21 @@
 # Changelog
 
+## 4.0.0 - 2024-07-18
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+- Removed code that disables Jetpack staging mode for WordPress.com staging sites. [#38355]
+
+### Fixed
+- Removed access to WPCom Themes to WP_CLI [#38351]
+
+## 3.28.0 - 2024-07-15
+### Added
+- Added a check to hide the plugins banner for non-wpcom connected users. [#38241]
+- WOA Post Transfer: Ensure that HPOS is enabled for WooCommerce sites. [#38119]
+
+### Changed
+- WooCommerce Calypso Bridge: Update version to 2.5.3 [#38302]
+
 ## 3.27.3 - 2024-07-08
 ### Added
 - Add post transfer woo express deactivate plugins, post process cache flush, and post clone set staging environment [#38183]

@@ -58,6 +58,7 @@ function render_block( $attr, $content ) {
 	$donations = array(
 		'one-time' => array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'One-Time', 'jetpack' ),
 				'class'      => 'donations__one-time-item',
 				'heading'    => $default_texts['oneTimeDonation']['heading'],
@@ -69,6 +70,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'Monthly', 'jetpack' ),
 				'class'      => 'donations__monthly-item',
 				'heading'    => $default_texts['monthlyDonation']['heading'],
@@ -80,6 +82,7 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
+				'planId'     => null,
 				'title'      => __( 'Yearly', 'jetpack' ),
 				'class'      => 'donations__annual-item',
 				'heading'    => $default_texts['annualDonation']['heading'],
@@ -153,14 +156,14 @@ function render_block( $attr, $content ) {
 			'<p>%s</p>',
 			wp_kses_post( $custom_amount_text )
 		);
-		$default_custom_amount = \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] * 100;
+		$default_custom_amount = ( \Jetpack_Memberships::SUPPORTED_CURRENCIES[ $currency ] ?? 1 ) * 100;
 		$custom_amount        .= sprintf(
 			'<div class="donations__amount donations__custom-amount">
 				%1$s
 				<div class="donations__amount-value" data-currency="%2$s" data-empty-text="%3$s"></div>
 			</div>',
-			esc_html( \Jetpack_Currencies::CURRENCIES[ $attr['currency'] ]['symbol'] ),
-			esc_attr( $attr['currency'] ),
+			esc_html( \Jetpack_Currencies::CURRENCIES[ $currency ]['symbol'] ?? '¤' ),
+			esc_attr( $currency ),
 			esc_attr( \Jetpack_Currencies::format_price( $default_custom_amount, $currency, false ) )
 		);
 	}

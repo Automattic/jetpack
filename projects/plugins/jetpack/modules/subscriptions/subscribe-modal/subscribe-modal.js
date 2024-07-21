@@ -1,28 +1,50 @@
 /* global Jetpack_Subscriptions */
 const { domReady } = wp;
-
-domReady( function () {
-	const modal = document.getElementsByClassName( 'jetpack-subscribe-modal' )[ 0 ];
+domReady( () => {
+	const modal = document.querySelector( '.jetpack-subscribe-modal' );
 	const modalDismissedCookie = 'jetpack_post_subscribe_modal_dismissed';
-	const hasModalDismissedCookie =
-		document.cookie && document.cookie.indexOf( modalDismissedCookie ) > -1;
 
-	if ( ! modal || hasModalDismissedCookie ) {
+	function hasEnoughTimePassed() {
+		const lastDismissed = localStorage.getItem( modalDismissedCookie );
+		return lastDismissed ? Date.now() - lastDismissed > Jetpack_Subscriptions.modalInterval : true;
+	}
+
+	if ( ! modal || ! hasEnoughTimePassed() ) {
 		return;
 	}
 
-	let hasLoaded = false;
-	let isScrolling;
+	const modalLoadTimeout = setTimeout( openModal, Jetpack_Subscriptions.modalLoadTime );
 
-	window.onscroll = function () {
-		window.clearTimeout( isScrolling );
+	const targetElement = (
+		document.querySelector( '.entry-content' ) || document.documentElement
+	).getBoundingClientRect();
 
-		isScrolling = setTimeout( function () {
-			if ( ! hasLoaded ) {
+	function hasPassedScrollThreshold() {
+		const scrollPosition = window.scrollY + window.innerHeight / 2;
+		const scrollPositionThreshold =
+			targetElement.top +
+			( targetElement.height * Jetpack_Subscriptions.modalScrollThreshold ) / 100;
+		return scrollPosition > scrollPositionThreshold;
+	}
+
+	function onScroll() {
+		requestAnimationFrame( () => {
+			if ( hasPassedScrollThreshold() ) {
 				openModal();
 			}
-		}, Jetpack_Subscriptions.modalLoadTime );
-	};
+		} );
+	}
+
+	window.addEventListener( 'scroll', onScroll, { passive: true } );
+
+	// This take care of the case where the user has multiple tabs open.
+	function onLocalStorage( event ) {
+		if ( event.key === modalDismissedCookie ) {
+			closeModal();
+			removeEventListeners();
+		}
+	}
+	window.addEventListener( 'storage', onLocalStorage );
 
 	// When the form is submitted, and next modal loads, it'll fire "subscription-modal-loaded" signalling that this form can be hidden.
 	const form = modal.querySelector( 'form' );
@@ -31,19 +53,20 @@ domReady( function () {
 	}
 
 	// User can edit modal, and could remove close link.
+	function onCloseButtonClick( event ) {
+		event.preventDefault();
+		closeModal();
+	}
 	const close = document.getElementsByClassName( 'jetpack-subscribe-modal__close' )[ 0 ];
 	if ( close ) {
-		close.onclick = function ( event ) {
-			event.preventDefault();
-			closeModal();
-		};
+		close.addEventListener( 'click', onCloseButtonClick );
 	}
 
-	window.onclick = function ( event ) {
+	function closeOnWindowClick( event ) {
 		if ( event.target === modal ) {
 			closeModal();
 		}
-	};
+	}
 
 	function closeModalOnEscapeKeydown( event ) {
 		if ( event.key === 'Escape' ) {
@@ -52,22 +75,34 @@ domReady( function () {
 	}
 
 	function openModal() {
+		// If the user is typing in a form, don't open the modal or has anything else focused.
+		if ( document.activeElement && document.activeElement.tagName !== 'BODY' ) {
+			return;
+		}
+
 		modal.classList.add( 'open' );
 		document.body.classList.add( 'jetpack-subscribe-modal-open' );
-		hasLoaded = true;
-		setModalDismissedCookie();
 		window.addEventListener( 'keydown', closeModalOnEscapeKeydown );
+		window.addEventListener( 'click', closeOnWindowClick );
+		removeEventListeners();
 	}
 
 	function closeModal() {
 		modal.classList.remove( 'open' );
 		document.body.classList.remove( 'jetpack-subscribe-modal-open' );
 		window.removeEventListener( 'keydown', closeModalOnEscapeKeydown );
+		window.removeEventListener( 'storage', onLocalStorage );
+		window.removeEventListener( 'click', closeOnWindowClick );
+		storeCloseTimestamp();
 	}
 
-	function setModalDismissedCookie() {
-		// Expires in 1 day
-		const expires = new Date( Date.now() + 86400 * 1000 ).toUTCString();
-		document.cookie = `${ modalDismissedCookie }=true; expires=${ expires };path=/;`;
+	// Remove all event listeners. That would add the modal again.
+	function removeEventListeners() {
+		window.removeEventListener( 'scroll', onScroll );
+		clearTimeout( modalLoadTimeout );
+	}
+
+	function storeCloseTimestamp() {
+		localStorage.setItem( modalDismissedCookie, Date.now() );
 	}
 } );

@@ -1,74 +1,134 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { create, getTextContent, toHTMLString } from '@wordpress/rich-text';
-import features from '../features';
-import highlight from '../highlight/highlight';
+import { askQuestionSync } from '@automattic/jetpack-ai-client';
+import { select } from '@wordpress/data';
+import { getRequestMessages } from '../utils/get-request-messages';
 
-export function setPopoverState( isOpen ) {
+// ACTIONS
+
+export function setHighlightHover( isHover: boolean ) {
 	return {
-		type: 'SET_POPOVER_STATE',
-		isOpen,
+		type: 'SET_HIGHLIGHT_HOVER',
+		isHover,
 	};
 }
 
-export function setBlockText( block ) {
+export function setPopoverHover( isHover: boolean ) {
 	return {
-		type: 'SET_BLOCK_TEXT',
-		clientId: block.clientId,
-		text: block.text,
-		index: block.index,
+		type: 'SET_POPOVER_HOVER',
+		isHover,
 	};
 }
 
-export function setBlockContent( clientId ) {
-	return ( { registry: { select, dispatch: dispatchFromRegistry }, dispatch } ) => {
-		const block = select( 'core/block-editor' ).getBlock( clientId );
-		const blocks = select( 'jetpack/ai-breve' ).getBlocksContent();
-		const blockIndex = blocks.findIndex( b => b.clientId === clientId );
-		const savedText = blocks[ blockIndex ]?.text ?? '';
+export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
+	return {
+		type: 'SET_POPOVER_ANCHOR',
+		anchor,
+	};
+}
 
-		const currentContent =
-			typeof block.attributes.content === 'string'
-				? create( { html: block.attributes.content } )
-				: create( block.attributes.content );
+export function toggleProofread( force?: boolean ) {
+	const current = select( 'jetpack/ai-breve' ).isProofreadEnabled();
+	const enabled = force === undefined ? ! current : force;
 
-		const currentText = getTextContent( currentContent );
-		const changed = currentText !== savedText;
+	return {
+		type: 'SET_PROOFREAD_ENABLED',
+		enabled,
+	};
+}
 
-		if ( changed && currentText ) {
-			const newContent = features.reduce(
-				( acc, feature ) => {
-					return highlight( {
-						content: acc,
-						indexes: feature.highlight( getTextContent( acc ) ),
-						type: `jetpack/ai-proofread-${ feature.config.name }`,
-						attributes: { 'data-type': feature.config.name },
-					} );
-				},
-				// We started with a fresh text
-				create( { text: currentText } )
-			);
+export function toggleFeature( feature: string, force?: boolean ) {
+	const current = select( 'jetpack/ai-breve' ).isFeatureEnabled( feature );
+	const enabled = force === undefined ? ! current : force;
 
-			if ( newContent ) {
-				const updateBlockAttributes =
-					dispatchFromRegistry( 'core/block-editor' ).updateBlockAttributes;
+	return {
+		type: enabled ? 'ENABLE_FEATURE' : 'DISABLE_FEATURE',
+		feature,
+	};
+}
 
-				updateBlockAttributes( clientId, { content: toHTMLString( { value: newContent } ) } );
-				features.forEach( feature => {
-					// We need to wait for the highlights to be applied before we can attach events
-					setTimeout( () => {
-						feature.events();
-					}, 2000 );
-				} );
+export function setBlockMd5( feature: string, blockId: string, md5: string ) {
+	return {
+		type: 'SET_BLOCK_MD5',
+		feature,
+		blockId,
+		md5,
+	};
+}
 
-				dispatch( {
-					type: 'SET_BLOCK_TEXT',
-					clientId: block.clientId,
-					text: currentText,
-					index: blockIndex === -1 ? undefined : blockIndex,
-				} );
+export function invalidateSuggestions( feature: string, blockId: string ) {
+	return {
+		type: 'INVALIDATE_SUGGESTIONS',
+		feature,
+		blockId,
+	};
+}
+
+export function setSuggestions( {
+	id,
+	feature,
+	target,
+	sentence,
+	blockId,
+	occurrence,
+}: {
+	id: string;
+	feature: string;
+	target: string;
+	sentence: string;
+	blockId: string;
+	occurrence: string;
+} ) {
+	return ( { dispatch } ) => {
+		dispatch( {
+			type: 'SET_SUGGESTIONS_LOADING',
+			id,
+			feature,
+			blockId,
+			loading: true,
+		} );
+
+		askQuestionSync(
+			getRequestMessages( {
+				feature,
+				target,
+				sentence,
+				blockId,
+				occurrence,
+			} ),
+			{
+				feature: 'jetpack-ai-breve',
 			}
-		}
+		)
+			.then( response => {
+				try {
+					const suggestions = JSON.parse( response );
+					dispatch( {
+						type: 'SET_SUGGESTIONS',
+						id,
+						feature,
+						suggestions,
+						blockId,
+					} );
+				} catch ( e ) {
+					dispatch( {
+						type: 'SET_SUGGESTIONS_LOADING',
+						id,
+						feature,
+						blockId,
+						loading: false,
+					} );
+				}
+			} )
+			.catch( () => {
+				dispatch( {
+					type: 'SET_SUGGESTIONS_LOADING',
+					id,
+					feature,
+					blockId,
+					loading: false,
+				} );
+			} );
 	};
 }

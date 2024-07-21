@@ -116,14 +116,12 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_navigation_placement() {
-		global $wp_version;
-
 		$is_enabled = get_option( 'jetpack_subscriptions_subscribe_navigation_enabled', false );
 		if ( ! $is_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // TODO Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // TODO Fallback for classic themes.
 			return;
 		}
 
@@ -155,6 +153,7 @@ class Jetpack_Subscription_Site {
 						: 'is-style-button';
 
 					$hooked_block['attrs']['className'] = $class_name;
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-navigation';
 				}
 
 				return $hooked_block;
@@ -170,14 +169,12 @@ class Jetpack_Subscription_Site {
 	 * @return void
 	 */
 	protected function handle_subscribe_block_post_end_placement() {
-		global $wp_version;
-
 		$subscribe_post_end_enabled = get_option( 'jetpack_subscriptions_subscribe_post_end_enabled', false );
 		if ( ! $subscribe_post_end_enabled ) {
 			return;
 		}
 
-		if ( ! wp_is_block_theme() || version_compare( $wp_version, '6.5-beta2', '<' ) ) { // Fallback for classic themes and wp core < 6.5-beta2.
+		if ( ! wp_is_block_theme() ) { // Fallback for classic themes.
 			add_filter(
 				'the_content',
 				function ( $content ) {

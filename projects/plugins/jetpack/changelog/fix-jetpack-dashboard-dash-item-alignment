@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack Dashboard: use flex-start alignment for dash item cards for more consistent header-content spacing

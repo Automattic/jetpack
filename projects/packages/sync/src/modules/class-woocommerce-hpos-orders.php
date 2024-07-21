@@ -303,22 +303,48 @@ class WooCommerce_HPOS_Orders extends Module {
 		if ( '' === $filtered_order_data['status'] ) {
 			$filtered_order_data['status'] = 'pending';
 		}
+		$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 
 		return $filtered_order_data;
 	}
 
 	/**
-	 * Returns all possible order status keys using 'wc_get_order_statuses', if possible..
+	 * Returns all possible order status keys, including 'auto-draft' and 'trash'.
 	 *
 	 * @access protected
 	 *
-	 * @return array Filtered order metadata.
+	 * @return array An array of all possible status keys, including 'auto-draft' and 'trash'.
 	 */
 	protected function get_all_possible_order_status_keys() {
-		$order_statuses    = array( 'checkout-draft', 'auto-draft', 'trash' );
+		$order_statuses    = array( 'auto-draft', 'trash' );
+		$wc_order_statuses = $this->wc_get_order_status_keys();
+
+		return array_unique( array_merge( $wc_order_statuses, $order_statuses ) );
+	}
+
+	/**
+	 * Add the 'wc-' order status to WC related order statuses.
+	 *
+	 * @param string $status The WC order status without the 'wc-' prefix.
+	 *
+	 * @return string The WC order status with the 'wc-' prefix if it's a valid order status, initial $status otherwise.
+	 */
+	protected function get_wc_order_status_with_prefix( string $status ) {
+		return in_array( 'wc-' . $status, $this->wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
+	}
+
+	/**
+	 * Returns order status keys using 'wc_get_order_statuses', if possible.
+	 *
+	 * @see wc_get_order_statuses
+	 *
+	 * @return array Filtered order metadata.
+	 */
+	private function wc_get_order_status_keys() {
 		$wc_order_statuses = array();
 		if ( function_exists( 'wc_get_order_statuses' ) ) {
-			$wc_order_statuses = array_keys( wc_get_order_statuses() );
+			$wc_order_statuses   = array_keys( wc_get_order_statuses() );
+			$wc_order_statuses[] = 'wc-checkout-draft'; // Temp till Woo fixes a bug where this order status is missing.
 		} else {
 			$wc_order_statuses = array(
 				'wc-pending',
@@ -332,7 +358,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			);
 		}
 
-		return array_unique( array_merge( $wc_order_statuses, $order_statuses ) );
+		return array_unique( $wc_order_statuses );
 	}
 
 	/**

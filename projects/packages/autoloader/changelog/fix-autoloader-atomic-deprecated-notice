@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid a deprecation notice in `Autoloader_Locator::find_latest_autoloader()`.

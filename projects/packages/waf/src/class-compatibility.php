@@ -28,6 +28,8 @@ class Waf_Compatibility {
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
 		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list', 10, 3 );
 		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
+		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list_enabled', 10, 3 );
+		add_filter( 'default_option_' . Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_block_list_enabled', 10, 3 );
 	}
 
 	/**
@@ -228,5 +230,59 @@ class Waf_Compatibility {
 	 */
 	public static function is_brute_force_running_in_jetpack() {
 		return defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' );
+	}
+
+	/**
+	 * Default the allow list enabled option to the value of the generic IP lists enabled option it replaced.
+	 *
+	 * @since $next-version$
+	 *
+	 * @param mixed  $default         The default value to return if the option does not exist in the database.
+	 * @param string $option          Option name.
+	 * @param bool   $passed_default  Was get_option() passed a default value.
+	 *
+	 * @return mixed The default value to return if the option does not exist in the database.
+	 */
+	public static function default_option_waf_ip_allow_list_enabled( $default, $option, $passed_default ) {
+		// Allow get_option() to override this default value
+		if ( $passed_default ) {
+			return $default;
+		}
+
+		// If the deprecated IP lists option was set to false, disable the allow list.
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		$deprecated_option = Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+		if ( ! $deprecated_option ) {
+			return false;
+		}
+
+		// If the allow list is empty, disable the allow list.
+		if ( ! Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ) ) {
+			return false;
+		}
+
+		// Default to enabling the allow list.
+		return true;
+	}
+
+	/**
+	 * Default the block list enabled option to the value of the generic IP lists enabled option it replaced.
+	 *
+	 * @since $next-version$
+	 *
+	 * @param mixed  $default         The default value to return if the option does not exist in the database.
+	 * @param string $option          Option name.
+	 * @param bool   $passed_default  Was get_option() passed a default value.
+	 *
+	 * @return mixed The default value to return if the option does not exist in the database.
+	 */
+	public static function default_option_waf_ip_block_list_enabled( $default, $option, $passed_default ) {
+		// Allow get_option() to override this default value
+		if ( $passed_default ) {
+			return $default;
+		}
+
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		return Jetpack_Options::get_raw_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
 	}
 }

@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
+import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -51,36 +52,33 @@ const isAITitleOptimizationAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
 	false;
 
+const siteDetails = {
+	ID: parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ),
+	URL: window?.Jetpack_Editor_Initial_State?.siteFragment,
+	domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
+	name: '',
+	description: '',
+};
+
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const { checkoutUrl } = useAICheckout();
 	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-	const [ isHighlighting, setIsHighlighting ] = useState( true );
-
-	const handleAiFeedbackToggle = () => {
-		setIsHighlighting( current => ! current );
-	};
-
-	const aiFeedbackLabel = (
-		<div className="jetpack-ai-feedback__label">
-			{ __( 'AI feedback', 'jetpack' ) }
-			{ isBreveAvailable && (
-				<ToggleControl checked={ isHighlighting } onChange={ handleAiFeedbackToggle } />
-			) }
-		</div>
-	);
+	const isLogoGeneratorAvailable = getFeatureAvailability( 'ai-assistant-site-logo-support' );
+	const { checkoutUrl } = useAICheckout();
+	const [ showLogoGeneratorModal, setShowLogoGeneratorModal ] = useState( false );
 
 	return (
 		<>
 			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ aiFeedbackLabel }>
-					{ isBreveAvailable && <Breve active={ isHighlighting } /> }
+				<BaseControl label={ __( 'AI Proofread', 'jetpack' ) }>
+					{ isBreveAvailable && <Breve /> }
 					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
+
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-title-optimization__header">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
@@ -98,6 +96,28 @@ const JetpackAndSettingsContent = ( {
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
+				</PanelRow>
+			) }
+			{ isLogoGeneratorAvailable && (
+				<PanelRow className="jetpack-ai-logo-generator-control__header">
+					<BaseControl label={ __( 'AI Logo Generator', 'jetpack' ) }>
+						<GeneratorModal
+							isOpen={ showLogoGeneratorModal }
+							onClose={ () => setShowLogoGeneratorModal( false ) }
+							context="jetpack-ai-sidebar"
+							siteDetails={ siteDetails }
+						/>
+
+						<p>
+							{ __(
+								'Experimental panel to trigger the logo generator modal. Will be dropped after the extension is ready.',
+								'jetpack'
+							) }
+						</p>
+						<Button variant="secondary" onClick={ () => setShowLogoGeneratorModal( true ) }>
+							{ __( 'Generate Logo', 'jetpack' ) }
+						</Button>
+					</BaseControl>
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (

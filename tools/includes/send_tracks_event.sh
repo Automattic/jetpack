@@ -12,7 +12,10 @@ function send_tracks_event {
 	local TRACKS_URL TRACKS_RESPONSE USER_AGENT PAYLOAD
 	TRACKS_URL='https://public-api.wordpress.com/rest/v1.1/tracks/record?http_envelope=1'
 	USER_AGENT='jetpack-monorepo-cli'
-	PAYLOAD=$(jq -nr --arg email "$(git config --get user.email)" '.commonProps._ul = $email')
+	PAYLOAD=$(jq -nr \
+		--arg email "$(git config --get user.email)" \
+		'.commonProps = {"_ul": $email, "_ut": "anon", "_rt": ( now * 1000 | round ) }'
+	)
 
 	# Add event name to payload.
 	PAYLOAD=$(jq -r --arg eventName "$1" '.events = [{_en: $eventName}]' <<< "$PAYLOAD")

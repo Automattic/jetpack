@@ -1,3 +1,4 @@
+.jetpack-ai-logo-generator-control__header,
 .jetpack-ai-proofread-control__header,
 .jetpack-ai-featured-image-control__header,
 .jetpack-ai-title-optimization__header {
@@ -7,4 +8,7 @@
 .jetpack-ai-feedback__label {
 	display: flex;
 	gap: 16px;
+	.components-toggle-control {
+		margin-bottom: 8px;
+	}
 }

@@ -1,65 +1,40 @@
 /**
- * External dependencies
- */
-import { dispatch } from '@wordpress/data';
-/**
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
-import getContainer from '../container';
 import phrases from './phrases';
+/**
+ * Types
+ */
+import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
-export const COMPLEX_WORDS = {
+export const dictionary = phrases;
+
+export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
-	title: 'Jetpack AI Proofread Complex Words',
+	title: 'Complex words',
 	tagName: 'span',
-	className: 'has-proofread-highlight',
+	className: 'has-proofread-highlight--complex-words',
 };
 
-function handleMouseEnter( e ) {
-	e.stopPropagation();
-	e.target.setAttribute( 'data-ai-breve-anchor', true );
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	( dispatch( 'jetpack/ai-breve' ) as any ).setPopoverState( true );
-}
+const list = new RegExp(
+	`\\b(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
+	'gi'
+);
 
-function handleMouseLeave( e ) {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	( dispatch( 'jetpack/ai-breve' ) as any ).setPopoverState( false );
-	e.stopPropagation();
-	e.target.removeAttribute( 'data-ai-breve-anchor' );
-}
-
-export function registerComplexWordsEvents() {
-	const { foundContainer: container } = getContainer();
-	const items = container?.querySelectorAll?.( "[data-type='complex-words']" );
-
-	items.forEach( highlightEl => {
-		highlightEl?.removeEventListener?.( 'mouseenter', handleMouseEnter );
-		highlightEl?.addEventListener?.( 'mouseenter', handleMouseEnter );
-		highlightEl?.removeEventListener?.( 'mouseleave', handleMouseLeave );
-		highlightEl?.addEventListener?.( 'mouseleave', handleMouseLeave );
-	} );
-}
-
-export default function complexWords( text ) {
-	const list = new RegExp(
-		`(${ Object.keys( phrases ).map( escapeRegExp ).join( '|' ) })\\b`,
-		'gi'
-	);
-
-	const matches = text.matchAll( list );
-	const words = [];
+export default function complexWords( blockText: string ): Array< HighlightedText > {
+	const matches = blockText.matchAll( list );
+	const highlightedTexts: Array< HighlightedText > = [];
 
 	for ( const match of matches ) {
-		const word = match[ 0 ].trim();
-		words.push( {
-			word,
-			suggestion: phrases[ word ],
+		const text = match[ 0 ].trim();
+		highlightedTexts.push( {
+			text,
+			suggestion: phrases[ text ],
 			startIndex: match.index,
-			endIndex: match.index + word.length,
+			endIndex: match.index + text.length,
 		} );
 	}
 
-	return words;
+	return highlightedTexts;
 }

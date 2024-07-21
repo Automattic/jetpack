@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2024-07-15
+### Added
+- Jetpack Sync: Add support for HPOS checksums [#38320]
+
+### Changed
+- Jetpack Sync: Ensure HPOS order status is prefixed with 'wc-' before sending it to WPCOM [#38258]
+
+## [3.2.1] - 2024-07-10
+### Fixed
+- Jetpack Sync HPOS: Ensure get_objects_by_id will return all relevant orders [#38251]
+
 ## [3.2.0] - 2024-07-08
 ### Changed
 - Jetpack Sync: Ensure we always sync heartbeat data and active plugins no matter the consumer config [#38135]
@@ -1200,6 +1211,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.3.0]: https://github.com/Automattic/jetpack-sync/compare/v3.2.1...v3.3.0
+[3.2.1]: https://github.com/Automattic/jetpack-sync/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/Automattic/jetpack-sync/compare/v3.1.4...v3.2.0
 [3.1.4]: https://github.com/Automattic/jetpack-sync/compare/v3.1.3...v3.1.4
 [3.1.3]: https://github.com/Automattic/jetpack-sync/compare/v3.1.2...v3.1.3

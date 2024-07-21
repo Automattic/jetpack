@@ -168,9 +168,6 @@ class Jetpack {
 		'latex'               => array(
 			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 		),
-		'random-redirect'     => array(
-			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		),
 		'sharedaddy'          => array(
 			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
@@ -259,9 +256,6 @@ class Jetpack {
 			'Wordfence Security'                => 'wordfence/wordfence.php',
 			'All In One WP Security & Firewall' => 'all-in-one-wp-security-and-firewall/wp-security.php',
 			'iThemes Security'                  => 'better-wp-security/better-wp-security.php',
-		),
-		'random-redirect'    => array(
-			'Random Redirect 2' => 'random-redirect-2/random-redirect.php',
 		),
 		'related-posts'      => array(
 			'YARPP'                       => 'yet-another-related-posts-plugin/yarpp.php',
@@ -624,7 +618,6 @@ class Jetpack {
 
 		if (
 			class_exists( 'Jetpack_Sitemap_Manager' )
-			&& version_compare( JETPACK__VERSION, '5.3', '>=' )
 		) {
 			do_action( 'jetpack_sitemaps_purge_data' );
 		}
