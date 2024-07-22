@@ -787,7 +787,7 @@ class AssetsTest extends TestCase {
 					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
 				)
 			);
-		//
+
 		// @phan-suppress-next-line PhanTypeMismatchArgument -- We don't have a WP_Scripts definition to create a mock from. 🤷
 		Assets::wp_default_scripts_hook( $mock );
 	}
