@@ -24,11 +24,11 @@ final class WafBlocklogManagerTest extends PHPUnit\Framework\TestCase {
 		define( 'JETPACK_WAF_WPCONFIG', $tmp_dir . '/wp-config.php' );
 		define( 'JETPACK_WAF_SHARE_DATA', true );
 
-		Waf_Blocklog_Manager::write_blocklog( 1337, 'test block' );
+		Waf_Blocklog_Manager::write_blocklog( '1337', 'test block' );
 		$file_content = file_get_contents( $waf_log_path );
 
 		$this->assertTrue( file_exists( $waf_log_path ) );
-		$this->assertTrue( strpos( $file_content, '{"rule_id":1337,"reason":"test block"' ) !== true );
+		$this->assertStringContainsString( '{"rule_id":"1337","reason":"test block"', $file_content );
 
 		unlink( $waf_log_path );
 	}

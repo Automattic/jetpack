@@ -44,6 +44,7 @@ class Waf_Blocklog_Manager {
 		}
 
 		require_once JETPACK_WAF_WPCONFIG;
+		// @phan-suppress-next-line PhanUndeclaredConstant - These constants are defined in the wp-config file.
 		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
 
 		if ( $conn->connect_error ) {
@@ -179,7 +180,7 @@ class Waf_Blocklog_Manager {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$today = gmdate( 'Y-m-d' );
 
-		return isset( $stats[ $today ] ) ? $stats[ $today ] : 0;
+		return $stats[ $today ] ?? 0;
 	}
 
 	/**
@@ -204,7 +205,7 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Get the headers for logging purposes.
 	 */
-	public function get_request_headers() {
+	public static function get_request_headers() {
 		$all_headers     = getallheaders();
 		$exclude_headers = array( 'Authorization', 'Cookie', 'Proxy-Authorization', 'Set-Cookie' );
 
@@ -216,9 +217,9 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
-	 * Write a blocklog entry
+	 * Write block logs. We won't write to the file if it exceeds 100 mb.
 	 *
-	 * @param int    $rule_id The rule ID that triggered the block.
+	 * @param string $rule_id The rule ID that triggered the block.
 	 * @param string $reason  The reason for the block.
 	 *
 	 * @return void
