@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { ButtonEdit } from '../edit';
 
 const defaultAttributes = {

@@ -2,8 +2,8 @@ import {
 	InspectorControls,
 	ContrastChecker,
 	withColors,
-	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalColorGradientSettingsDropdown as ColorGradientSettingsDropdown, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { PanelBody, MenuItemsChoice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
