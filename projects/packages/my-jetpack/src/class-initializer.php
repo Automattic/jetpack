@@ -712,7 +712,13 @@ class Initializer {
 		global $menu;
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
-		$red_bubble_alerts = self::get_red_bubble_alerts();
+		$red_bubble_alerts = array_filter(
+			self::get_red_bubble_alerts(),
+			function ( $alert ) {
+				// We don't want to show silent alerts
+				return ! $alert['is_silent'];
+			}
+		);
 
 		// The Jetpack menu item should be on index 3
 		if (
@@ -811,10 +817,12 @@ class Initializer {
 		if ( wp_doing_ajax() ) {
 			return array();
 		}
-
+		$connection               = new Connection_Manager();
 		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
 		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
-			$red_bubble_slugs['welcome-banner-active'] = null;
+			$red_bubble_slugs['welcome-banner-active'] = array(
+				'is_silent' => $connection->is_connected(), // we don't display the red bubble if the user is connected
+			);
 			return $red_bubble_slugs;
 		} else {
 			return self::alert_if_missing_connection( $red_bubble_slugs );
