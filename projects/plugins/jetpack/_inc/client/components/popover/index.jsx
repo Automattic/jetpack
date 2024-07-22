@@ -84,25 +84,18 @@ class Popover extends Component {
 		return obj instanceof HTMLElement;
 	}
 
-	UNSAFE_componentWillReceiveProps( nextProps ) {
-		// update context (target - expecting a DOM node not a ref) reference into a property
-
-		if ( ! nextProps.context || this.isDOMNode( nextProps.context ) ) {
-			this.domContextRef.current = nextProps.context;
-		} else {
-			// eslint-disable-next-line no-console
-			this.debug( 'Expected a DOM node for props.context', nextProps.context );
-		}
-
-		if ( ! nextProps.isVisible ) {
-			return null;
-		}
-
-		this.setPosition();
-	}
-
 	componentDidUpdate( prevProps ) {
-		const { isVisible } = this.props;
+		const { context, isVisible } = this.props;
+
+		// update context (target - expecting a DOM node not a ref) reference into a property.
+		if ( context !== prevProps.context ) {
+			if ( ! context || this.isDOMNode( context ) ) {
+				this.domContextRef.current = context;
+			} else if ( context !== null ) {
+				// eslint-disable-next-line no-console
+				this.debug( 'Expected a DOM node for props.context', context );
+			}
+		}
 
 		if ( isVisible !== prevProps.isVisible ) {
 			if ( isVisible ) {
