@@ -44,7 +44,6 @@ function LoginButtonEdit( props ) {
 
 	return (
 		<>
-			{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 			<div { ...blockProps }>
 				<RichText
 					placeholder={ __( 'Add text…', 'jetpack' ) }

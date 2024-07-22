@@ -1,6 +1,6 @@
 import {
 	getColorClassName,
-	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalGetGradientClass as getGradientClass, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	RichText,
 } from '@wordpress/block-editor';
 import clsx from 'clsx';

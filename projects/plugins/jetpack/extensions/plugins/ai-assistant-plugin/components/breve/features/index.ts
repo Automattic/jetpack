@@ -1,9 +1,9 @@
 /**
  * Features
  */
-import ambiguousWords, { AMBIGUOUS_WORDS } from './ambiguous-words';
 import complexWords, { COMPLEX_WORDS, dictionary as dicComplex } from './complex-words';
 import longSentences, { LONG_SENTENCES } from './long-sentences';
+import unconfidentWords, { UNCONFIDENT_WORDS } from './unconfident-words';
 /**
  * Types
  */
@@ -21,8 +21,8 @@ const features: Array< BreveFeature > = [
 		highlight: longSentences,
 	},
 	{
-		config: AMBIGUOUS_WORDS,
-		highlight: ambiguousWords,
+		config: UNCONFIDENT_WORDS,
+		highlight: unconfidentWords,
 	},
 ];
 

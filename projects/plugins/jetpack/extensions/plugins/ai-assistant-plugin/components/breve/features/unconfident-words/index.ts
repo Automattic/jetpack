@@ -2,22 +2,22 @@
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
-import weaselWords from './words';
+import words from './words';
 /**
  * Types
  */
 import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
-export const AMBIGUOUS_WORDS: BreveFeatureConfig = {
-	name: 'ambiguous-words',
-	title: 'Ambiguous words',
+export const UNCONFIDENT_WORDS: BreveFeatureConfig = {
+	name: 'unconfident-words',
+	title: 'Unconfident words',
 	tagName: 'span',
-	className: 'has-proofread-highlight--ambiguous-words',
+	className: 'has-proofread-highlight--unconfident-words',
 };
 
-const list = new RegExp( `\\b(${ weaselWords.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
+const list = new RegExp( `\\b(${ words.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
 
-export default function ambiguousWords( blockText: string ): Array< HighlightedText > {
+export default function unconfidentWords( blockText: string ): Array< HighlightedText > {
 	const matches = blockText.matchAll( list );
 	const highlightedTexts: Array< HighlightedText > = [];
 

@@ -2,8 +2,7 @@ import { Button, useGlobalNotices } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
