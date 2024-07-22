@@ -89,7 +89,7 @@ class Popover extends Component {
 
 		if ( ! nextProps.context || this.isDOMNode( nextProps.context ) ) {
 			this.domContextRef.current = nextProps.context;
-		} else if ( nextProps.context !== null ) {
+		} else {
 			// eslint-disable-next-line no-console
 			this.debug( 'Expected a DOM node for props.context', nextProps.context );
 		}
@@ -263,7 +263,7 @@ class Popover extends Component {
 		// store context (target) reference into a property
 		if ( ! this.props.context || this.isDOMNode( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
-		} else if ( this.props.context !== null ) {
+		} else {
 			// eslint-disable-next-line no-console
 			this.debug( 'Expected a DOM node for props.context', this.props.context );
 		}
