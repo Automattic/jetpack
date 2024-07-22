@@ -100,7 +100,7 @@
 		float: none;
 		position: absolute;
 		right: 0;
-	
+
 		@media (max-width: 782px) {
 			#wp-admin-bar-help-center {
 				display: block !important;
@@ -115,18 +115,18 @@
 					}
 				}
 			}
-	
+
 			#wp-admin-bar-notes {
 				display: block !important;
 				width: 52px !important;
 				.ab-item {
 					justify-content: center;
-	
+
 					.noticon-bell {
 						width: 36px;
 						height: 46px;
 						top: 0;
-	
+
 						&:before {
 							background-position-y: bottom;
 							background-position-x: center;
@@ -137,11 +137,18 @@
 						}
 					}
 				}
-	
+
 				#wpnt-notes-panel2 {
 					top: 46px;
 				}
 			}
 		}
 	}
+}
+
+/**
+ * Always show the House icon by the site name.
+ */
+#wpadminbar #wp-admin-bar-site-name>.ab-item:before {
+  content: "\f102" !important;
 }
