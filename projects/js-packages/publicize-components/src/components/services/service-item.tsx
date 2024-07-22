@@ -1,7 +1,7 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useReducer } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
@@ -23,6 +23,23 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 	const [ isPanelOpen, togglePanel ] = useReducer( state => ! state, false );
 
 	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
+
+	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
+
+	const hasBrokenConnections = brokenConnections.length > 0;
+
+	const hideInitialConnectForm =
+		// For Mastodon, the initial connect form opens the panel,
+		// so we don't want to show it if the panel is already open
+		isMastodonPanelOpen ||
+		// For services with broken connections, we want to show the "Fix connections" button
+		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
+		( hasBrokenConnections && isPanelOpen );
+
+	const buttonLabel =
+		brokenConnections.length > 1
+			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack' )
+			: _x( 'Fix connection', 'Fix social media connection', 'jetpack' );
 
 	return (
 		<div className={ styles[ 'service-item' ] }>
@@ -46,19 +63,18 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
 					) : null }
-					<ServiceStatus
-						serviceConnections={ serviceConnections }
-						// If the panel is already open, we don't need the click handler
-						onClickBroken={ isPanelOpen ? undefined : togglePanel }
-					/>
+					<ServiceStatus serviceConnections={ serviceConnections } />
 				</div>
 				<div className={ styles.actions }>
-					{ ! isMastodonPanelOpen ? (
+					{ ! hideInitialConnectForm ? (
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
-							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
+							onSubmit={
+								hasBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
+							}
 							hasConnections={ serviceConnections.length > 0 }
+							buttonLabel={ hasBrokenConnections ? buttonLabel : undefined }
 						/>
 					) : null }
 					<Button
@@ -77,7 +93,8 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 
-					{ service.ID === 'mastodon' ? (
+					{ /* Only show the connect form for Mastodon if there are no broken connections */ }
+					{ service.ID === 'mastodon' && ! hasBrokenConnections ? (
 						<div className={ styles[ 'connect-form-wrapper' ] }>
 							<ConnectForm
 								service={ service }
