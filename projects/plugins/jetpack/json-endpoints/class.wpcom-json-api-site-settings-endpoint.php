@@ -126,6 +126,13 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'jetpack_subscriptions_subscribe_navigation_enabled' => '(Bool) Whether the Subscribe block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'jetpack_waf_automatic_rules'             => '(bool) Whether the WAF should enforce automatic firewall rules',
+			'jetpack_waf_ip_allow_list'               => '(string) List of IP addresses to always allow',
+			'jetpack_waf_ip_allow_list_enabled'       => '(bool) Whether the IP allow list is enabled',
+			'jetpack_waf_ip_block_list'               => '(string) List of IP addresses the WAF should always block',
+			'jetpack_waf_ip_block_list_enabled'       => '(bool) Whether the IP block list is enabled',
+			'jetpack_waf_share_data'                  => '(bool) Whether the WAF should share basic data with Jetpack',
+			'jetpack_waf_share_debug_data'            => '(bool) Whether the WAF should share debug data with Jetpack',
 		),
 
 		'response_format'     => array(
@@ -480,6 +487,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
+						'jetpack_waf_automatic_rules'      => (bool) get_option( 'jetpack_waf_automatic_rules' ),
+						'jetpack_waf_ip_allow_list'        => (string) get_option( 'jetpack_waf_ip_allow_list' ),
+						'jetpack_waf_ip_allow_list_enabled' => (bool) get_option( 'jetpack_waf_ip_allow_list_enabled' ),
+						'jetpack_waf_ip_block_list'        => (string) get_option( 'jetpack_waf_ip_block_list' ),
+						'jetpack_waf_ip_block_list_enabled' => (bool) get_option( 'jetpack_waf_ip_block_list_enabled' ),
+						'jetpack_waf_share_data'           => (bool) get_option( 'jetpack_waf_share_data' ),
+						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -266,6 +266,13 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'jetpack_waf_automatic_rules'                  => false,
+			'jetpack_waf_ip_allow_list'                    => 'pineapple',
+			'jetpack_waf_ip_allow_list_enabled'            => true,
+			'jetpack_waf_ip_block_list'                    => 'pineapple',
+			'jetpack_waf_ip_block_list_enabled'            => false,
+			'jetpack_waf_share_data'                       => true,
+			'jetpack_waf_share_debug_data'                 => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
