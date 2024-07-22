@@ -1,12 +1,13 @@
 import { Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
-import { _n } from '@wordpress/i18n';
+import { createInterpolateElement, Fragment } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import Notice from '../notice';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import styles from './styles.module.scss';
 import { checkConnectionCode } from './utils';
 
@@ -38,14 +39,69 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		<ExternalLink href={ connectionsAdminUrl } />
 	);
 
+	const supportedServices = useSupportedServices();
+
+	if ( ! brokenConnections.length ) {
+		return null;
+	}
+
+	const servicesMap = supportedServices.reduce< Record< string, SupportedService > >(
+		( acc, service ) => {
+			acc[ service.ID ] = service;
+			return acc;
+		},
+		{}
+	);
+
+	// Group broken connections by service
+	const brokenConnectionsList = Object.groupBy(
+		brokenConnections,
+		connection => connection.service_name
+	);
+
 	return (
 		brokenConnections.length > 0 && (
 			<Notice type={ 'error' }>
+				{ __( 'Your following connections are broken:', 'jetpack' ) }
+				<ul>
+					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
+						const service = servicesMap[ service_name ];
+
+						if ( ! service ) {
+							return null;
+						}
+
+						return (
+							<li key={ service.ID }>
+								<div className={ styles[ 'broken-connection-service' ] }>
+									<span>
+										{ service.label }
+										{ _x( ':', 'Colon to display before the list of connections', 'jetpack' ) }
+										&nbsp;
+									</span>
+									{
+										// Since Intl.ListFormat is not allowed in Jetpack yet,
+										// we join the connections with a comma and space
+										connectionsList.map( ( { display_name, external_display, id }, i ) => (
+											<Fragment key={ id }>
+												<span className={ styles[ 'broken-connection' ] }>
+													{ display_name || external_display }
+												</span>
+												{ i < connectionsList.length - 1 &&
+													_x( ',', 'Comma to separate list of social media accounts', 'jetpack' ) +
+														' ' }
+											</Fragment>
+										) )
+									}
+								</div>
+							</li>
+						);
+					} ) }
+				</ul>
 				{ createInterpolateElement(
-					_n(
-						'One of your social connections is broken. Reconnect them in the <fixLink>connections management</fixLink> section.',
-						'Some of your social connections are broken. Reconnect them in the <fixLink>connections management</fixLink> section.',
-						brokenConnections.length,
+					_x(
+						'Please reconnect them in the <fixLink>connections management</fixLink> section.',
+						'"them" refers to the broken connections.',
 						'jetpack'
 					),
 					{
