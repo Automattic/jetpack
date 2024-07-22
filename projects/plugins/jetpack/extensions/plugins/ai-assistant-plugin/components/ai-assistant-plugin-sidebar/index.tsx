@@ -73,7 +73,7 @@ const JetpackAndSettingsContent = ( {
 	return (
 		<>
 			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ __( 'AI Proofread', 'jetpack' ) }>
+				<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
 					{ isBreveAvailable && <Breve /> }
 					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
