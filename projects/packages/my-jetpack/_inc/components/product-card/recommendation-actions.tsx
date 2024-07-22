@@ -14,7 +14,7 @@ const useUpsellLinks = ( slug: string, wpcomProductSlug: string ) => {
 		const purchaseUrl = getProductCheckoutUrl(
 			wpcomProductSlug,
 			siteSuffix,
-			`${ adminUrl }?page=my-jetpack`,
+			`${ adminUrl }admin.php?page=my-jetpack`,
 			isUserConnected
 		);
 		const interstitialUrl = `#/add-${ slug }`;
