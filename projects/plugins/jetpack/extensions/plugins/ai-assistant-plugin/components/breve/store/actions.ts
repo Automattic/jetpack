@@ -3,7 +3,7 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
-import { getRequestMessages } from '../utils/getRequestMessages';
+import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
 
@@ -48,18 +48,37 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setBlockMd5( feature: string, blockId: string, md5: string ) {
+	return {
+		type: 'SET_BLOCK_MD5',
+		feature,
+		blockId,
+		md5,
+	};
+}
+
+export function invalidateSuggestions( feature: string, blockId: string ) {
+	return {
+		type: 'INVALIDATE_SUGGESTIONS',
+		feature,
+		blockId,
+	};
+}
+
 export function setSuggestions( {
 	id,
 	feature,
 	target,
 	sentence,
 	blockId,
+	occurrence,
 }: {
 	id: string;
 	feature: string;
 	target: string;
 	sentence: string;
 	blockId: string;
+	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
 		dispatch( {
@@ -76,6 +95,7 @@ export function setSuggestions( {
 				target,
 				sentence,
 				blockId,
+				occurrence,
 			} ),
 			{
 				feature: 'jetpack-ai-breve',

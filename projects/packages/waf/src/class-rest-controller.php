@@ -103,14 +103,17 @@ class REST_Controller {
 	public static function update_waf( $request ) {
 		// Automatic Rules Enabled
 		if ( isset( $request[ Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, $request->get_param( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ? '1' : '' );
 		}
 
-		// IP Lists Enabled
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		if ( isset( $request[ Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
-			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ) );
+		/**
+		 * IP Lists Enabled
+		 *
+		 * @deprecated $next-version$ This is a legacy option maintained here for backwards compatibility.
+		 */
+		if ( isset( $request['jetpack_waf_ip_list'] ) ) {
+			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request['jetpack_waf_ip_list'] ? '1' : '' );
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request['jetpack_waf_ip_list'] ? '1' : '' );
 		}
 
 		// IP Block List
@@ -118,7 +121,7 @@ class REST_Controller {
 			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] );
 		}
 		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] );
+			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// IP Allow List
@@ -126,27 +129,27 @@ class REST_Controller {
 			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] );
 		}
 		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] );
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Share Data
 		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
 			// If a user disabled the regular share we should disable the debug share data option.
-			if ( false === $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) {
-				update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, false );
+			if ( ! $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) {
+				update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, '' );
 			}
 
-			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Share Debug Data
 		if ( isset( $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) ) {
 			// If a user toggles the debug share we should enable the regular share data option.
-			if ( true === $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) {
-				update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, true );
+			if ( $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ) {
+				update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, 1 );
 			}
 
-			update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] );
+			update_option( Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME, $request[ Waf_Runner::SHARE_DEBUG_DATA_OPTION_NAME ] ? '1' : '' );
 		}
 
 		// Brute Force Protection

@@ -99,6 +99,7 @@ interface Window {
 			userid: string;
 			username: string;
 		};
+		siteFragment?: string;
 	};
 	myJetpackInitialState?: {
 		adminUrl?: string;

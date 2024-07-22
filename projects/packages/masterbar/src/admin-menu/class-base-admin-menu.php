@@ -768,6 +768,9 @@ abstract class Base_Admin_Menu {
 	 * @return void
 	 */
 	public function inject_core_mobile_toggle() {
+		if ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) {
+			return;
+		}
 		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
 	}
 

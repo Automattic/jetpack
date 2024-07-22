@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-30 09:54:04+0000\n"
+"PO-Revision-Date: 2024-07-15 14:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,200 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: zh_CN\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
+msgid "Comment"
+msgstr "评论"
+
+#. translators: Name of the Plugins submenu that links to the Plugins
+#. Marketplace
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:574
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:576
+msgid "Marketplace"
+msgstr "市场"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:553
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:554
+msgid "Add New Plugin"
+msgstr "添加新插件"
+
+#. translators: Hidden accessibility text.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:249
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:253
+msgid "About WordPress"
+msgstr "关于WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:213
+msgid "Server Settings"
+msgstr "服务器设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:209
+msgid "Staging Site"
+msgstr "暂存站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:205
+msgid "Logs"
+msgstr "日志"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:197
+msgid "Deployments"
+msgstr "部署"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:191
+msgid "DEV TOOLS:"
+msgstr "开发者工具："
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:189
+msgid "Get a quick overview of your plans, storage, and domains, or easily access your development tools using the links provided below:"
+msgstr "使用下方提供的链接快速预览您的套餐、储存空间和域名，或轻松访问您的开发工具："
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:172
+msgid "Your Site management widget requires JavaScript to function properly."
+msgstr "您的站点管理小工具需要 JavaScript 才能正常运行。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:155
+msgid "Site Management Panel"
+msgstr "站点管理面板"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:357
+msgid "Underline"
+msgstr "下划线"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:356
+msgid "Justify"
+msgstr "两端对齐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:200
+msgid "Logging In..."
+msgstr "正在登录…"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php:185
+msgid "Before we continue, please log in to your Jetpack site."
+msgstr "您必须先登录 Jetpack 站点才能继续。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:269
+msgid "Admin interface style changed."
+msgstr "管理员界面风格已更改。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:232
+msgid "Click here to access your sites, domains, Reader, account settings, and more."
+msgstr "点击此处即可访问您的站点、域名、阅读器、账户设置等。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:231
+msgid "All your sites"
+msgstr "您的所有站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:225
+msgid "Access the new site management panel and all developer tools such as hosting configuration, GitHub deployments, metrics, PHP logs, and server logs."
+msgstr "访问新的站点管理面板和所有开发者工具，例如托管服务配置、Github 部署、指标、PHP 日志、服务器日志等。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:224
+msgid "Hosting overview"
+msgstr "托管服务概述"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:218
+msgid "The Hosting menu contains the My Home page and all items from the Upgrades menu, including Plans, Domains, Emails, Purchases, and more."
+msgstr "“托管服务”菜单包含“我的主页”页面和“升级”菜单中的所有项，包括套餐、域名、电子邮件、购买等。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:217
+msgid "Upgrades is now Hosting"
+msgstr "升级现在属于托管服务"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:175
+msgid "Got it!"
+msgstr "知道了！"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:174
+msgid "Next"
+msgstr "下一步"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:173
+msgid "Previous"
+msgstr "以前"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:172
+msgid "Step {{currentStep}} of {{totalSteps}}"
+msgstr "第 {{currentStep}} 步，共 {{totalSteps}} 步"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
+msgid "Leave a Reply"
+msgstr "发表回复"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:37
+msgid "Manage your privacy settings"
+msgstr "管理您的隐私设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1200
+msgid "Switch"
+msgstr "切换"
+
+#. translators: how long ago the stylesheet was modified.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1181
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1193
+msgid "(modified %s ago)"
+msgstr "（修改于 %s 前）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1171
+msgid "Select a theme&hellip;"
+msgstr "选择主题…"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:1169
+msgid "Select another theme to view its custom CSS."
+msgstr "选择其他主题以查看其自定义 CSS。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:768
+msgid "Don't use the theme's original CSS."
+msgstr "请勿使用主题的原始 CSS。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:758
+msgid "Media Width"
+msgstr "媒介宽度"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:359
+msgctxt "Toolbar button to get help with custom CSS"
+msgid "Help"
+msgstr "帮助"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:358
+msgctxt "Toolbar button to see full CSS revision history"
+msgid "See full history"
+msgstr "查看全部历史记录"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:356
+msgid "On Mobile"
+msgstr "在手机上"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:355
+msgid "Start Fresh"
+msgstr "使用全新设置"
+
+#. translators: the theme name and then the default width.
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:338
+msgid " The default media width for the <strong>%1$s</strong> theme is %2$d pixel."
+msgid_plural " The default media width for the <strong>%1$s</strong> theme is %2$d pixels."
+msgstr[0] " <strong>%1$s</strong> 主题的默认媒体宽度为 %2$d 像素。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:334
+msgid "Set a different media width for full size images."
+msgstr "为完整尺寸图像设置不同的媒体宽度。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:241
+msgid "Custom CSS is now managed in the Customizer."
+msgstr "目前在定制器中管理自定义 CSS。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:236
+msgid "Manage with Live Preview"
+msgstr "使用实时预览管理"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:230
+msgid "Custom CSS"
+msgstr "自定义CSS"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:247
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:801
+msgid "Preprocessor"
+msgstr "预处理程序"
 
 #. translators: comments widget: 1: comment author, 2: comment link, 3: comment
 #. title
@@ -26,25 +220,420 @@ msgstr "%1$s 于 <a href=\"%2$s\">%3$s</a>"
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "您可以通过自己的<a href=\"%s\">个人资料页面</a>修改 Gravatar。"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:146
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:147
+msgid "Marketing"
+msgstr "营销"
+
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "抱歉，您不能访问此页面。"
 
-#: wpcom-plugins/plugins.php:42
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:540
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:541
+msgid "Plugins"
+msgstr "插件"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Use WordPress.com’s legacy dashboard to manage your site."
+msgstr "使用WordPress.com的旧仪表盘来管理您的站点。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:34
+msgid "Default style"
+msgstr "默认样式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:33
+msgid "Use WP-Admin to manage your site."
+msgstr "使用WP-Admin来管理您的站点。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:33
+msgid "Classic style"
+msgstr "经典风格"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:31
+msgid "Admin Interface Style"
+msgstr "管理员界面样式"
+
+#: wpcom-plugins/plugins.php:47
 msgid "Explore plugins"
 msgstr "探索插件"
 
-#: wpcom-plugins/plugins.php:40
+#: wpcom-plugins/plugins.php:45
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
 msgstr "使用可增强站点功能的各种免费和付费插件。"
 
-#: wpcom-plugins/plugins.php:39
+#: wpcom-plugins/plugins.php:44
 msgid "Flex your site's features with plugins"
 msgstr "使用插件灵活调整站点功能"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:69
+msgid "Theme Showcase"
+msgstr "主题陈列窗"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:41
+msgid "Explore themes"
+msgstr "探索主题"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:39
+msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
+msgstr "深入探索 WordPress.com 主题的世界。 发现令人惊叹的响应式设计，为您的站点注入活力。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
+msgid "Find the perfect theme for your site"
+msgstr "为您的站点找到恰到好处的主题"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:230
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "能鼓励您的读者发表评论的几个抢眼词语"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:192
+msgid "Enable blocks in comments"
+msgstr "在评论中启用区块"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:181
+msgid "Let visitors use a WordPress.com or Facebook account to comment"
+msgstr "让访客使用 WordPress.com 或 Facebook 账户添加评论"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:170
+msgid "Adjust your Comments form with a clever greeting and color-scheme."
+msgstr "使用巧妙的问候文本和配色方案调整您的评论表单。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:149
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:262
+msgid "Color Scheme"
+msgstr "配色方案"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:132
+msgid "Greeting Text"
+msgstr "问候文本"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:116
+msgid "Allow Blocks"
+msgstr "允许使用区块"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:103
+msgid "Verbum"
+msgstr "Verbum"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
+msgid "Dark"
+msgstr "深色"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
+msgid "Light"
+msgstr "浅色"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
+msgid "Transparent"
+msgstr "透明"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:801
+msgid "Launch your store"
+msgstr "推出您的商店"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:791
+msgid "Add a domain"
+msgstr "添加域"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:781
+msgid "Grow your business"
+msgstr "拓展业务"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:771
+msgid "Collect sales tax"
+msgstr "收取销售税"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:761
+msgid "Get paid with WooPayments"
+msgstr "通过 WooPayments 收款"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:751
+msgid "Add your products"
+msgstr "添加产品"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:741
+msgid "Customize your store"
+msgstr "自定义您的商店"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:184
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:92
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:93
+msgid "Overview"
+msgstr "概述"
+
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:194
+msgid "Share &#8220;%s&#8221; via Jetpack Social"
+msgstr "通过 Jetpack Social 共享“%s”"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:155
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:156
+msgid "Settings"
+msgstr "设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:421
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:422
+msgid "Monetize"
+msgstr "货币化"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php:201
+msgid "Monitoring"
+msgstr "监测"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:137
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:138
+msgid "Purchases"
+msgstr "购买"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:128
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:129
+msgid "Emails"
+msgstr "电邮"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:120
+msgid "Domains"
+msgstr "域"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:110
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:111
+msgid "Add-ons"
+msgstr "加载项"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:101
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:102
+msgid "Plans"
+msgstr "套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:72
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:73
+msgid "Hosting"
+msgstr "主机"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:201
+msgid "All Sites"
+msgstr "所有站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
+msgid "Error: please try commenting again."
+msgstr "错误：请再次尝试评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
+msgid "Error: your Facebook login has expired."
+msgstr "错误：您的 Facebook 登录信息已过期。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
+msgid "Cancel reply"
+msgstr "取消回复"
+
+#. translators: % is the original posters name
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
+msgid "Leave a reply to %s"
+msgstr "为 %s 发表评论"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
+msgid "Leave a comment"
+msgstr "留下评论"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
+msgid "Save my name, email, and website in this browser for the next time I comment."
+msgstr "在此浏览器中保存我的显示名称、邮箱地址和网站地址，以便下次评论时使用。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
+msgid "Comment sent successfully"
+msgstr "评论发送成功"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
+msgid "Subscribe"
+msgstr "订阅"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
+msgid "Enter your email address"
+msgstr "输入您的电子邮箱地址"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
+msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
+msgstr "想要接收博文更新动态？ 点击下方按钮即可保持关注！"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
+msgid "Never miss a beat!"
+msgstr "避免错过任何内容！"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
+msgid "Continue reading"
+msgstr "繼續閱讀"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
+msgid "Subscribe now to keep reading and get access to the full archive."
+msgstr "立即订阅以继续阅读并访问完整档案。"
+
+#. translators: %s is the name of the site
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
+msgid "Discover more from %s"
+msgstr "了解 %s 的更多信息"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
+msgid "Loading your comment..."
+msgstr "正在加载您的评论..."
+
+#. translators: Success message of a modal when user subscribes
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
+msgid "We'll keep you in the loop!"
+msgstr "我们将及时为您提供最新消息！"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
+msgid "Optional"
+msgstr "可选"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
+msgid "Website"
+msgstr "网站地址"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
+msgid "Write a reply..."
+msgstr "写回复…"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
+msgid "Cancel"
+msgstr "取消"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
+msgid "Email me new comments"
+msgstr "针对新评论的电子邮件"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
+msgid "Email me new posts"
+msgstr "通过电子邮件向我发送新文章"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
+msgid "Notify me of new posts"
+msgstr "有新文章时通知我"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
+msgid "Weekly"
+msgstr "每周"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
+msgid "WordPress"
+msgstr "WordPress"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:96
+msgid "Comments"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
+msgid "Reply"
+msgstr "回复"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
+msgid "Daily"
+msgstr "每日"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
+msgid "Instantly"
+msgstr "立即"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
+msgid "(Address never made public)"
+msgstr "（地址永远不会公开）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
+msgid "Log out"
+msgstr "注销"
+
+#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
+msgid "Logged in via %s"
+msgstr "已通过 %s 登录"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
+msgid "Log in to leave a comment."
+msgstr "登录以发表评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
+msgid "Log in to leave a reply."
+msgstr "登录以发表评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
+msgid "Leave a comment. (log in optional)"
+msgstr "发表评论。（可选择登录）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
+msgid "Leave a reply. (log in optional)"
+msgstr "发表评论。（可选择登录）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
+msgid "Website (optional)"
+msgstr "网站（可选）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
+msgid "Email (address never made public)"
+msgstr "电子邮件（地址永远不会公开）"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
+msgid "Receive web and mobile notifications for posts on this site."
+msgstr "接收有关此站点上发布的文章的 Web 版和手机版通知。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
+msgid "Log in or provide your name and email to leave a comment."
+msgstr "登录或提供您的名称及电子邮件地址，以发表评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
+msgid "Log in or provide your name and email to leave a reply."
+msgstr "登录或提供名称及电子邮件，以发表评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
+msgid "Write a comment..."
+msgstr "撰写评论..."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
+msgid "Get started"
+msgstr "从这里开始"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
+msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
+msgstr "使用 WordPress.com 的引导式导入程序，导入来自 Medium、Substack、Squarespace 和 Wix 等的文章与评论。"
 
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "访问“%1$sJetpack 设置%2$s”，了解更多 Jetpack 支持的写作设置。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:595
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:596
+msgid "Scheduled Updates"
+msgstr "已排程的更新"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:729
+msgid "Verify the email address for your domains"
+msgstr "验证域的电子邮件地址"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:291
+msgid "Site setup"
+msgstr "站点设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:719
+msgid "Finish Sensei setup"
+msgstr "完成 Sensei 设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:709
+msgid "Finish store setup"
+msgstr "完成商店设置"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:692
+msgid "Update your site's design"
+msgstr "更新您的站点设计"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:683
+msgid "Enable post sharing"
+msgstr "启用文章共享"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:674
+msgid "Install the mobile app"
+msgstr "安装移动版应用程序"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -119,6 +708,135 @@ msgstr "导入已在进行中。"
 msgid "The backup import has been cancelled."
 msgstr "备份导入已取消。"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
+msgid "Next steps for your site"
+msgstr "您站点的下一步工作"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:664
+msgid "Add the Subscribe Block to your site"
+msgstr "添加“订阅区块”到您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:650
+msgid "Import existing subscribers"
+msgstr "导入现有订阅者"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:641
+msgid "View site metrics"
+msgstr "查看站点指标"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+msgid "Set up ssh"
+msgstr "设置 SSH"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:620
+msgid "Install a custom plugin"
+msgstr "安装自定义插件"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:608
+msgid "Choose a theme"
+msgstr "选择主题"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:593
+msgid "Set up an offer for your supporters"
+msgstr "为您的支持者设置一个优惠"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:573
+msgid "Connect a Stripe account to collect payments"
+msgstr "关联 Stripe 账户以收款"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:558
+msgid "Add your About page"
+msgstr "添加“关于”页面"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:548
+msgid "Manage your paid Newsletter plan"
+msgstr "管理您的付费时事通讯套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:540
+msgid "Connect your social media accounts"
+msgstr "连接社交媒体帐户"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:526
+msgid "Manage your subscribers"
+msgstr "管理您的订阅者"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:513
+msgid "Write 3 posts"
+msgstr "撰写 3 篇文章"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:498
+msgid "Get your first 10 subscribers"
+msgstr "获得您的前 10 名订阅者"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:486
+msgid "Enable subscribers modal"
+msgstr "启用订阅者模式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:474
+msgid "Customize welcome message"
+msgstr "自定义欢迎消息"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
+msgid "Earn money with your newsletter"
+msgstr "通过您的新闻稿赚取收益"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:407
+msgid "Update your About page"
+msgstr "更新您的“关于”页"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:245
+msgid "Migrate content"
+msgstr "迁移内容"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
+msgid "Verify email address"
+msgstr "验证电子邮件地址"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
+msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
+msgstr "阻止创建新文章和页面，阻止编辑现有文章和页面，并全站关闭评论。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
+msgid "Enable Locked Mode"
+msgstr "启用锁定模式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
+msgid "Locked Mode"
+msgstr "锁定模式"
+
+#. translators: link to the help page: https://wordpress.com/help
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
+msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
+msgstr "如需获得站点的所有权，您指定的人需要通过 %s 与我们联系，并提供已故联系人的死亡证明复印件。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
+msgid "Choose someone to look after your site when you pass away."
+msgstr "选择某人在您去世后照顾您的站点。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
+msgid "Legacy Contact"
+msgstr "已故联系人"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
+#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
+msgid "Enhanced Ownership"
+msgstr "增强所有权"
+
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "<a href=\"%2$s\">“任何人都可以注册”选项</a>当前处于激活状态。 当前默认角色为 %1$s。 %4$s <strong>如果不需要开放注册，请考虑禁用此选项。<strong>"
@@ -148,37 +866,149 @@ msgstr "文件不存在"
 msgid "Could not determine importer type."
 msgstr "无法确定导入程序的类型"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:456
+msgid "Share your site"
+msgstr "共享您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:426
+msgid "Edit a page"
+msgstr "编辑页面"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1716
+msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
+msgstr "您的站点包含高级样式。 立即升级以发布并解锁大量其他功能。"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:441
+msgid "Customize your domain"
+msgstr "自定义您的域名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:394
+msgid "Add a new page"
+msgstr "添加新页面"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:384
+msgid "Drive traffic to your site"
+msgstr "提高您站点的流量"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:145
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:370
+msgid "Give your site a name"
+msgstr "为您的站点命名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:76
+msgid "Claim your free one-year domain"
+msgstr "认领您的免费一年期域名"
+
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr " 送礼"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:211
 msgid "Thumbnail"
 msgstr "缩略图"
 
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
-msgid "Share &#8220;%s&#8221; via Publicize"
-msgstr "通过 Publicize 共享“%s”"
-
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "共享"
 
-#: vendor/automattic/jetpack-config/src/class-config.php:135
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1160
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1731
+msgid "Upgrade plan"
+msgstr "升级套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:193
+msgid "Create paid Newsletter"
+msgstr "创建付费新闻稿"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:215
+msgid "Set up payment method"
+msgstr "设置付款方式"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:87
+msgid "Choose a domain"
+msgstr "选择域"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:327
+msgid "Launch your blog"
+msgstr "发布博客"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:43
+msgid "Edit site design"
+msgstr "编辑站点设计"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:361
+msgid "Set up your site"
+msgstr "设置您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:335
+msgid "Name your blog"
+msgstr "为您的博客取名"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
+msgid "Personalize your site"
+msgstr "站点个人化"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
+msgid "Upload your first video"
+msgstr "上传您的第一个视频"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:299
+msgid "Set up your video site"
+msgstr "设置您的视频站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:158
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+msgid "Launch your site"
+msgstr "启动您的站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
+msgid "Add links"
+msgstr "添加链接"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:280
+msgid "Personalize Link in Bio"
+msgstr "个人化自介链接"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:56
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:66
+msgid "Select a design"
+msgstr "选择设计"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
+msgid "Start writing"
+msgstr "开始撰写"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:102
+msgid "Write your first post"
+msgstr "撰写您的第一篇文章"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:232
+msgid "Add subscribers"
+msgstr "新增订户"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:134
+msgid "Choose a plan"
+msgstr "选择套餐"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:203
+msgid "Personalize newsletter"
+msgstr "个人化电子报"
+
+#: vendor/automattic/jetpack-config/src/class-config.php:189
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "无法加载类 %1$s。请使用创建器添加包含该类的包，并确保您需要使用 Jetpack 自动加载器"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:553
+#: vendor/automattic/jetpack-assets/src/class-assets.php:572
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "应先注册 textdomain 别名，然后再使用 %1$s 钩子。此通知由 %2$s 域触发。"
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:388
+#: vendor/automattic/jetpack-assets/src/class-assets.php:406
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "脚本“%s”取决于 wp-i18n，但不指定“textdomain”"
 
@@ -379,27 +1209,27 @@ msgstr "您真幸运！您的主题设计师会为您选择特殊字体，而您
 msgid "Uncheck to disable"
 msgstr "取消选中以禁用"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
 msgid "Spotify Feed ID"
 msgstr "Spotify Feed ID"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
 msgid "Apple Podcasts Feed ID"
 msgstr "Apple Podcasts Feed ID"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
 msgid "Title"
 msgstr "标题:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
 msgid "Podcast RSS Feed"
 msgstr "播客 RSS Feed"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Spotify"
 msgstr "使用 Spotify 收听"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
 msgid "Listen on Apple Podcasts"
 msgstr "收听 Apple Podcasts"
 
@@ -411,113 +1241,97 @@ msgstr "显示关于您播客的信息，并允许访客通过 iTunes 关注"
 msgid "Podcast"
 msgstr "博客"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
 msgid "Select iTunes category:"
 msgstr "选择 iTunes 分类："
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
 msgid "Set podcast category"
 msgstr "设置播客分类"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
-msgid "Set podcast keywords"
-msgstr "设置播客关键字"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
 msgid "Set podcast image"
 msgstr "设置播客图像"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
 msgid "Clean"
 msgstr "不含成人内容"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
 msgid "Yes"
 msgstr "是"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
 msgid "No"
 msgstr "不"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
 msgid "Set podcast as explicit"
 msgstr "将播客设置为含成人内容"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
 msgid "Set podcast copyright"
 msgstr "设置播客版权"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
 msgid "Set podcast summary"
 msgstr "设置播客摘要"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
 msgid "Set podcast author"
 msgstr "设置播客作者"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
-msgid "Set podcast subtitle"
-msgstr "设置播客副标题"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
 msgid "Set podcast title"
 msgstr "设置播客标题"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "这是您提交给 iTunes 或播客服务的 URL。"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
 msgid "Your podcast feed: %1$s"
 msgstr "您的播客 Feed：%1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
 msgid "Select podcast category:"
 msgstr "选择播客分类："
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
 msgid "Blog category for podcasts"
 msgstr "播客的博客分类"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 3"
 msgstr "播客分类 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
 msgid "Podcast category 2"
 msgstr "播客分类 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
 msgid "Podcast category 1"
 msgstr "播客分类 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
-msgid "Podcast keywords"
-msgstr "播客关键字"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Podcast image"
 msgstr "“播客”图像"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Mark as explicit"
 msgstr "标记为含成人内容"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast copyright"
 msgstr "播客版权"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast summary"
 msgstr "播客摘要"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
 msgid "Podcast talent name"
 msgstr "播客主持人名称"
-
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
-msgid "Podcast subtitle"
-msgstr "播客副标题"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -536,7 +1350,7 @@ msgstr "播客"
 msgid "Tweets by %s"
 msgstr "由 %s 发表推文"
 
-#: private-site/logged-in-banner.php:163
+#: private-site/logged-in-banner.php:168
 msgid "Next steps"
 msgstr "下一步"
 
@@ -609,35 +1423,37 @@ msgstr "<strong>%3$s</strong> 的 Creator 套餐将于 %2$s 到期。 <a href=\"
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "您已经用尽了您的空间配额，请在上传前删除一些文件。"
 
-#: private-site/logged-in-banner.php:127
+#: private-site/logged-in-banner.php:132
 msgid "Change theme"
 msgstr "更改主题"
 
-#: private-site/logged-in-banner.php:126
+#: private-site/logged-in-banner.php:131
 msgid "Change"
 msgstr "更改"
 
-#: private-site/logged-in-banner.php:113
+#: private-site/logged-in-banner.php:118
 msgid "Edit page"
 msgstr "编辑页面"
 
-#: private-site/logged-in-banner.php:113
+#: private-site/logged-in-banner.php:118
 msgid "Edit post"
 msgstr "编辑文章"
 
-#: private-site/logged-in-banner.php:112
+#: private-site/logged-in-banner.php:117
 msgid "Edit"
 msgstr "编辑"
 
-#: private-site/logged-in-banner.php:163
+#: private-site/logged-in-banner.php:168
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:83
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:84
 msgid "My Home"
 msgstr "我的主页"
 
-#: private-site/logged-in-banner.php:86
+#: private-site/logged-in-banner.php:91
 msgid "Launch"
 msgstr "启动"
 
-#: private-site/logged-in-banner.php:82
+#: private-site/logged-in-banner.php:87
 msgid "Update"
 msgstr "更新"
 
@@ -666,12 +1482,12 @@ msgid "Enjoy this site?"
 msgstr "喜欢这个站点？"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
-#: feature-plugins/full-site-editing.php:130
+#: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr "注意！ 目前我们不建议搜索引擎为您的站点编制索引。 如果您希望搜索引擎在搜索结果中显示此站点，则必须先发布站点。 %1$s点击此处%2$s更改您站点的隐私设置。"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
-#: feature-plugins/full-site-editing.php:127
+#: feature-plugins/full-site-editing.php:124
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
 msgstr "注意！ 您的站点当前处于“即将推出”模式。 如果您希望搜索引擎在搜索结果中显示此站点，则必须先发布站点。 %1$s点击此处%2$s更改您站点的隐私设置。"
 
@@ -700,6 +1516,8 @@ msgid "Additional CSS"
 msgstr "额外CSS"
 
 #: feature-plugins/additional-css.php:45 feature-plugins/additional-css.php:48
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:244
 msgid "CSS"
 msgstr "CSS"
 
@@ -707,6 +1525,7 @@ msgstr "CSS"
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
 msgstr "WordPress.com 在所有 Atomic 站点上均提供已进行预安装并激活的功能和工具 "
 
+#. translators: Message about how a managed plugin is updated.
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
 #. debugging purposes.
@@ -715,6 +1534,7 @@ msgstr "WordPress.com 在所有 Atomic 站点上均提供已进行预安装并�
 #: feature-plugins/managed-plugins.php:506
 #: feature-plugins/managed-plugins.php:517
 #: feature-plugins/managed-plugins.php:528
+#: feature-plugins/managed-plugins.php:539
 msgid "Updates managed by WordPress.com"
 msgstr "更新由 WordPress.com 进行管理"
 
@@ -799,13 +1619,23 @@ msgstr "您最常用的云格式类别。"
 msgid "Category Cloud"
 msgstr "分类"
 
-#: private-site/logged-in-banner.php:81
+#: vendor/automattic/jetpack-mu-wpcom/src/features/replace-site-visibility/replace-site-visibility.php:32
+msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
+msgstr "已断开与 Jetpack 的连接，且站点为私人站点。重新连接 Jetpack 以管理站点可见性设置。"
+
+#: private-site/logged-in-banner.php:86
 msgid "Update visibility"
 msgstr "更新可见性"
 
-#: private-site/logged-in-banner.php:85
+#: private-site/logged-in-banner.php:90
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:292
 msgid "Launch site"
 msgstr "发布站点"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:168
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:309
+msgid "Dismiss"
+msgstr "不再显示"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1000,6 +1830,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "以缩略图形式显示您的 about.me 个人资料"
 
 #: safeguard/utils.php:68
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1381
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1392
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1446
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1457
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1465
 msgid "Unable to fetch the requested data."
 msgstr "无法提取所请求的数据。"
 
@@ -1208,6 +2043,7 @@ msgstr "电话"
 msgid "Email"
 msgstr "电子邮箱"
 
+#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
 #: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
@@ -1364,8 +2200,9 @@ msgstr "右"
 msgid "Left"
 msgstr "左"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/custom-css/custom-css.php:789
 #: widgets/class-gravatar-widget.php:153
 #: widgets/class-widget-top-clicks.php:163
 msgid "None"

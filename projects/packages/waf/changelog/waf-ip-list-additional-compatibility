@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Improved backwards/cross compatibility of option deprecation related to IP block/allow lists.
+
+
