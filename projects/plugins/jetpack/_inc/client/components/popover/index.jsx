@@ -52,6 +52,8 @@ class Popover extends Component {
 	constructor( props ) {
 		super( props );
 
+		this.props;
+
 		this.setPopoverId( props.id );
 
 		// bound methods
@@ -82,23 +84,25 @@ class Popover extends Component {
 		return obj instanceof HTMLElement;
 	}
 
-	isRef( obj ) {
-		return typeof obj === 'object' && 'current' in obj;
+	UNSAFE_componentWillReceiveProps( nextProps ) {
+		// update context (target - expecting a DOM node not a ref) reference into a property
+
+		if ( this.isDOMNode( nextProps.context ) ) {
+			this.domContextRef.current = nextProps.context;
+		} else if ( nextProps.context !== null ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Expected a DOM node for props.context', nextProps.context );
+		}
+
+		if ( ! nextProps.isVisible ) {
+			return null;
+		}
+
+		this.setPosition();
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { context, isVisible } = this.props;
-
-		if ( context !== prevProps.context ) {
-			if ( this.isDOMNode( context ) ) {
-				this.domContextRef.current = context;
-			} else if ( this.isRef( context ) ) {
-				this.domContextRef.current = context.current;
-			} else if ( context !== null ) {
-				// eslint-disable-next-line no-console
-				console.error( 'Expected a DOM node or a React ref for props.context', context );
-			}
-		}
+		const { isVisible } = this.props;
 
 		if ( isVisible !== prevProps.isVisible ) {
 			if ( isVisible ) {
@@ -207,14 +211,9 @@ class Popover extends Component {
 			let ignoreContext;
 			if ( this.isDOMNode( this.props.ignoreContext ) ) {
 				ignoreContext = this.props.ignoreContext;
-			} else if ( this.isRef( this.props.ignoreContext ) ) {
-				ignoreContext = this.props.ignoreContext.current;
 			} else {
 				// eslint-disable-next-line no-console
-				console.error(
-					'Expected a DOM node or a React ref for ignoreContext',
-					this.props.ignoreContext
-				);
+				console.error( 'Expected a DOM node for ignoreContext', this.props.ignoreContext );
 			}
 			if ( ignoreContext && ignoreContext.contains ) {
 				shouldClose = shouldClose && ! ignoreContext.contains( event.target );
@@ -259,16 +258,14 @@ class Popover extends Component {
 
 		this.bindClickoutHandler( domContainer );
 
-		// store DOM element referencies
+		// store DOM element referencies - note we expect DOM nodes not refs.
 		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
 		if ( this.isDOMNode( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
-		} else if ( this.isRef( this.props.context ) ) {
-			this.domContextRef.current = this.props.context.current;
 		} else if ( this.props.context !== null ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Expected a DOM node or a React ref for props.context', this.props.context );
+			console.error( 'Expected a DOM node for props.context', this.props.context );
 		}
 
 		this.domContainerRef.current.focus();

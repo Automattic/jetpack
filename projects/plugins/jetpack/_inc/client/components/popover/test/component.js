@@ -4,13 +4,10 @@ import React from 'react';
 import { render, screen, waitFor } from 'test/test-utils';
 import Popover from '../index';
 
-const TestComponent = ( { ignoreContext, nonDomObjectContext, nonDomRefContext } ) => {
+const TestComponent = ( { ignoreContext, nonDomObjectContext } ) => {
 	const [ context, setContext ] = useState( () => {
 		if ( nonDomObjectContext ) {
 			return {};
-		}
-		if ( nonDomRefContext ) {
-			return { current: '' };
 		}
 		return null;
 	} );
@@ -22,8 +19,6 @@ const TestComponent = ( { ignoreContext, nonDomObjectContext, nonDomRefContext }
 			let newContext;
 			if ( nonDomObjectContext ) {
 				newContext = {};
-			} else if ( nonDomRefContext ) {
-				newContext = { current: '' };
 			} else {
 				newContext = null;
 			}
@@ -33,7 +28,7 @@ const TestComponent = ( { ignoreContext, nonDomObjectContext, nonDomRefContext }
 			setContext( document.createElement( 'div' ) );
 			setIsVisible( true );
 		}
-	}, [ context, nonDomObjectContext, nonDomRefContext ] );
+	}, [ context, nonDomObjectContext ] );
 
 	const handleClose = useCallback( () => {
 		setContext( null );
@@ -65,20 +60,12 @@ describe( 'TestComponent', () => {
 			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
 		} );
 		expect( consoleErrorSpy ).toHaveBeenCalledWith(
-			'Expected a DOM node or a React ref for props.context',
+			'Expected a DOM node for props.context',
 			expect.anything()
 		);
 
 		consoleErrorSpy.mockRestore();
 	} );
-	it( 'should not show Popover when context is not a DOM element but it is a ref', async () => {
-		render( <TestComponent nonDomRefContext={ true } /> );
-		await userEvent.click( screen.getByText( 'Toggle Context', { selector: 'button' } ) );
-		await waitFor( () => {
-			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
-		} );
-	} );
-
 	it( 'should show Popover when context is a DOM element', async () => {
 		render( <TestComponent /> );
 
@@ -98,7 +85,8 @@ describe( 'TestComponent', () => {
 			expect( screen.getByText( 'Popover Content' ) ).toBeInTheDocument();
 		} );
 
-		await userEvent.click( ignoreContextRef.current );
+		// Simulate a click outside the ignoreContextRef
+		await userEvent.click( document.createElement( 'div' ) );
 
 		await waitFor( () => {
 			expect( screen.getByText( 'Popover Content' ) ).toBeInTheDocument();
