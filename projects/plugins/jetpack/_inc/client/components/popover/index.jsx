@@ -258,7 +258,7 @@ class Popover extends Component {
 
 		this.bindClickoutHandler( domContainer );
 
-		// store DOM element referencies - note we expect DOM nodes not refs.
+		// store DOM element references - note we expect DOM nodes not refs.
 		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
 		if ( ! this.props.context || this.isDOMNode( this.props.context ) ) {
@@ -269,7 +269,6 @@ class Popover extends Component {
 		}
 
 		this.domContainerRef.current.focus();
-		//this.domComtainer.focus();
 		this.setPosition();
 	}
 
