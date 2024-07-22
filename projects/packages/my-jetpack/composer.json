@@ -9,6 +9,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
