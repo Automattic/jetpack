@@ -1,11 +1,10 @@
-import { Button } from '@automattic/jetpack-components';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { Alert } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
 export type ServiceStatusProps = {
 	serviceConnections: Array< Connection >;
-	onClickBroken?: VoidFunction;
 };
 
 /**
@@ -15,24 +14,16 @@ export type ServiceStatusProps = {
  *
  * @returns {import('react').ReactNode} Service status component
  */
-export function ServiceStatus( { serviceConnections, onClickBroken }: ServiceStatusProps ) {
+export function ServiceStatus( { serviceConnections }: ServiceStatusProps ) {
 	if ( ! serviceConnections.length ) {
 		return null;
 	}
 
 	if ( serviceConnections.some( ( { status } ) => status === 'broken' ) ) {
 		return (
-			<span>
-				<Button
-					variant="link"
-					className={ styles[ 'broken-connection' ] }
-					onClick={ onClickBroken }
-				>
-					{ serviceConnections.length > 1
-						? __( 'Broken connections', 'jetpack' )
-						: _x( 'Broken connection', '', 'jetpack' ) }
-				</Button>
-			</span>
+			<Alert level="error" showIcon={ false } className={ styles[ 'broken-connection-alert' ] }>
+				{ __( 'Please fix the broken connections.', 'jetpack' ) }
+			</Alert>
 		);
 	}
 
