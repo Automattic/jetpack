@@ -80,7 +80,7 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		}
 	} else if ( plugin === 'wpcomsh' ) {
 		releaseDate = 'on demand (usually Mondays if not sooner)';
-	} else if ( plugin === 'mu-wpcom-plugin' ) {
+	} else if ( plugin === 'mu-wpcom' ) {
 		releaseDate = 'WordPress.com Simple releases happen daily';
 	}
 
