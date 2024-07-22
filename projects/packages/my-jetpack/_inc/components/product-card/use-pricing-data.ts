@@ -29,11 +29,7 @@ const getPurchaseAction = ( detail: ProductCamelCase ) => {
 	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE ) {
 		return __( 'Upgrade', 'jetpack-my-jetpack' );
 	}
-	if (
-		[ PRODUCT_STATUSES.NEEDS_PURCHASE, PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ].includes(
-			detail.status
-		)
-	) {
+	if ( ! [ PRODUCT_STATUSES.ACTIVE ].includes( detail.status ) ) {
 		return __( 'Purchase', 'jetpack-my-jetpack' );
 	}
 

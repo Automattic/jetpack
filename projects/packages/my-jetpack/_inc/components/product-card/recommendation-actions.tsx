@@ -10,11 +10,11 @@ const useUpsellLinks = ( slug: string, wpcomProductSlug: string ) => {
 	const { isUserConnected } = useMyJetpackConnection();
 
 	return useMemo( () => {
-		const { adminUrl, siteSuffix } = getMyJetpackWindowInitialState();
+		const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
 		const purchaseUrl = getProductCheckoutUrl(
 			wpcomProductSlug,
 			siteSuffix,
-			`${ adminUrl }admin.php?page=my-jetpack`,
+			myJetpackUrl,
 			isUserConnected
 		);
 		const interstitialUrl = `#/add-${ slug }`;
