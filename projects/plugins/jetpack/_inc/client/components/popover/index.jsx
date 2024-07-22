@@ -204,7 +204,7 @@ class Popover extends Component {
 	onClickout( event ) {
 		let shouldClose =
 			this.domContextRef.current &&
-			this.domContextRef.current.contains &&
+			this.domContextRef.current?.contains &&
 			! this.domContextRef.current.contains( event.target );
 
 		if ( this.props.ignoreContext && shouldClose ) {
