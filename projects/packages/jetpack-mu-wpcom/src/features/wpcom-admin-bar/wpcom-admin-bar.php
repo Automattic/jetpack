@@ -142,6 +142,11 @@ add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
  * @return string Name of the admin bar class.
  */
 function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
+	// Honor the user's preference to hide the admin bar on the front end.
+	if ( ! is_admin() && get_user_option( 'show_admin_bar_front' ) !== 'true' ) {
+		return '';
+	}
+
 	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 		return $wp_admin_bar_class;
 	}
