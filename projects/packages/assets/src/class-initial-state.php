@@ -41,6 +41,7 @@ class Initial_State {
 				'../build/jetpack-initial-state.js',
 				__FILE__,
 				array(
+					'in_footer'  => true,
 					'textdomain' => 'jetpack-assets',
 				)
 			);
