@@ -3,11 +3,18 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { rawHandler } from '@wordpress/blocks';
+import { getBlockContent } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
-import { select as globalSelect, useDispatch, useSelect } from '@wordpress/data';
+import {
+	dispatch as globalDispatch,
+	select as globalSelect,
+	useDispatch,
+	useSelect,
+} from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
+import md5 from 'crypto-js/md5';
 import React from 'react';
 /**
  * Internal dependencies
@@ -15,6 +22,9 @@ import React from 'react';
 import { AiSVG } from '../../ai-icon';
 import features from '../features';
 import registerEvents from '../features/events';
+import { getNodeTextIndex } from '../utils/get-node-text-index';
+import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
+import { numberToOrdinal } from '../utils/number-to-ordinal';
 import highlight from './highlight';
 import './style.scss';
 /**
@@ -31,7 +41,10 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions } = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+	const { setPopoverHover, setSuggestions, invalidateSuggestions } = useDispatch(
+		'jetpack/ai-breve'
+	) as BreveDispatch;
+
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const { getBlock } = useSelect( select => {
 		const selector = select( 'core/block-editor' ) as CoreBlockEditorSelect;
@@ -102,7 +115,16 @@ export default function Highlight() {
 
 	const handleSuggestions = () => {
 		const target = ( anchor as HTMLElement )?.innerText;
-		const sentence = ( anchor as HTMLElement )?.parentElement?.innerText as string;
+		const parent = getNonLinkAncestor( anchor as HTMLElement );
+		const sentence = parent?.innerText as string;
+		// Get the index of the target in the parent
+		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
+		// Get the occurrences of the target in the sentence
+		const targetRegex = new RegExp( target, 'gi' );
+		const matches = Array.from( sentence.matchAll( targetRegex ) ).map( match => match.index );
+		// Get the right occurrence of the target in the sentence
+		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
+		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
 			id,
@@ -110,6 +132,7 @@ export default function Highlight() {
 			feature,
 			sentence,
 			blockId,
+			occurrence: ordinalOccurence,
 		} );
 	};
 
@@ -117,6 +140,7 @@ export default function Highlight() {
 		const block = getBlock( blockId );
 
 		if ( ! block ) {
+			setPopoverHover( false );
 			return;
 		}
 
@@ -134,7 +158,9 @@ export default function Highlight() {
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
+		invalidateSuggestions( feature, blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
 	};
 
 	return (
@@ -199,19 +225,22 @@ export function registerBreveHighlights() {
 			interactive: false,
 			edit: () => {},
 			...configSettings,
-
-			__experimentalGetPropsForEditableTreePreparation() {
+			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
 				return {
 					isProofreadEnabled: (
 						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
 					 ).isProofreadEnabled(),
+					currentMd5: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
+						formatName,
+						blockClientId
+					),
 					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
 						config.name
 					),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled },
+				{ isProofreadEnabled, isFeatureEnabled, currentMd5 },
 				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
@@ -219,8 +248,24 @@ export function registerBreveHighlights() {
 					const type = formatName;
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const highlights = featureHighlight( text );
+						const block = globalSelect( 'core/block-editor' ).getBlock( blockClientId );
+						const blockContent = getBlockContent( block );
+						const textMd5 = md5( blockContent ).toString();
 
+						if ( currentMd5 !== textMd5 ) {
+							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).invalidateSuggestions(
+								type,
+								blockClientId
+							);
+
+							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setBlockMd5(
+								type,
+								blockClientId,
+								textMd5
+							);
+						}
+
+						const highlights = featureHighlight( text );
 						const applied = highlight( {
 							content: record,
 							type,

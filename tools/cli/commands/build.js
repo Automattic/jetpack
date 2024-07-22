@@ -566,20 +566,7 @@ async function copyFileAtomic( src, dest ) {
  * @returns {string[]} Colliding file names.
  */
 async function checkCollisions( basedir ) {
-	// @todo Once we require Node 20.1+, use the new `recursive` option to `fs.readdir` instead of manually recursing here.
-	// Doing `const files = await fs.readdir( basedir, { recursive: true } );` should suffice.
-	const files = [];
-	const ls = async dir => {
-		for ( const file of await fs.readdir( dir, { withFileTypes: true } ) ) {
-			const path = npath.join( dir, file.name );
-			files.push( npath.relative( basedir, path ) );
-			if ( file.isDirectory() ) {
-				await ls( path );
-			}
-		}
-	};
-	await ls( basedir );
-
+	const files = await fs.readdir( basedir, { recursive: true } );
 	const collisions = new Set();
 	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
 	let prev = null;
