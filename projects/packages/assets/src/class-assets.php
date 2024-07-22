@@ -498,16 +498,14 @@ class Assets {
 
 		// Can't use self::register_script(), this action is called too early.
 		if ( file_exists( __DIR__ . '/../build/i18n-loader.asset.php' ) ) {
-			$path     = '../build/i18n-loader.js';
-			$asset    = require __DIR__ . '/../build/i18n-loader.asset.php';
-			$jsx_path = '../build/react-jsx-runtime.js';
+			$path  = '../build/i18n-loader.js';
+			$asset = require __DIR__ . '/../build/i18n-loader.asset.php';
 		} else {
-			$path     = 'js/i18n-loader.js';
-			$asset    = array(
+			$path  = 'js/i18n-loader.js';
+			$asset = array(
 				'dependencies' => array( 'wp-i18n' ),
 				'version'      => filemtime( __DIR__ . "/$path" ),
 			);
-			$jsx_path = 'js/react-jsx-runtime.js';
 		}
 		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
 		$url = add_query_arg( 'minify', 'true', $url );
@@ -534,7 +532,7 @@ class Assets {
 
 		// Register the React JSX runtime script - used as a polyfill until we can update JSX transforms. See https://github.com/Automattic/jetpack/issues/38424.
 		// @todo Remove this when we drop support for WordPress 6.5, as well as the script inclusion in test_wp_default_scripts_hook.
-		$jsx_url = self::normalize_path( plugins_url( $jsx_path, __FILE__ ) );
+		$jsx_url = self::normalize_path( plugins_url( '../build/react-jsx-runtime.js', __FILE__ ) );
 		$wp_scripts->add( 'react-jsx-runtime', $jsx_url, array( 'react' ), '18.3.1', true );
 	}
 

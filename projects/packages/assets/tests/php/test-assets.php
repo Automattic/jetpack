@@ -772,10 +772,7 @@ class AssetsTest extends TestCase {
 					array( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) ),
 					array(
 						'react-jsx-runtime',
-						$this->logicalOr(
-							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/react-jsx-runtime.js',
-							'http://www.example.com/wp-content/plugins/jetpack/packages/assets/src/js/react-jsx-runtime.js'
-						),
+						'http://www.example.com/wp-content/plugins/jetpack/packages/assets/build/react-jsx-runtime.js',
 						array( 'react' ),
 					)
 				)
