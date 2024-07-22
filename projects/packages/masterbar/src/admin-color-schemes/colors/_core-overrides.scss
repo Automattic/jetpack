@@ -15,6 +15,10 @@
 		box-shadow: inset 0 -1px 0 $menu-submenu-background;
 	}
 
+	#wpadminbar #wp-admin-bar-top-secondary {
+		background-color: $masterbar-background;
+	}
+
 	#wpadminbar .ab-top-menu > #wp-admin-bar-blog > .ab-item {
 		background: $menu-submenu-background;
 		color: $text-color !important;
