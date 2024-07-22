@@ -1053,7 +1053,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						$result = WP_CLI::runcommand(
 							sprintf( '--skip-themes plugin activate %s', $plugin_to_deactivate['name'] ),
 							array(
-								'launch'     => true,  // needed for exit_erorr => false.
+								'launch'     => true,  // needed for exit_error => false.
 								'return'     => true,
 								'exit_error' => false,
 							)
@@ -1089,12 +1089,8 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					WP_CLI::log( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue. Trying to reactivate all plugins.' );
 
 					WP_CLI::runcommand(
-						'--skip-themes reactivate-user-plugins',
-						array(
-							'launch'     => true, // needed for exit_error => false.
-							'return'     => true,
-							'exit_error' => false,
-						)
+						'--skip-themes --skip-plugins wpcomsh reactivate-user-plugins',
+						array()
 					);
 					return;
 				}
