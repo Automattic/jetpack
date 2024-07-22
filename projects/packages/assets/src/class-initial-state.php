@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Jetpack_Options;
-
 /**
  * Class Initial State
  */
@@ -17,49 +15,24 @@ class Initial_State {
 	const SCRIPT_HANDLE = 'jetpack-initial-state';
 
 	/**
-	 * The singleton instance of this class.
-	 *
-	 * @var Initial_State
-	 */
-	protected static $instance;
-
-	/**
-	 * Constructor.
-	 *
-	 * Static-only class, so nothing here.
-	 */
-	private function __construct() {}
-
-	/**
-	 * Get the singleton instance of the class.
-	 *
-	 * @return Initial_State
-	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Initial_State();
-		}
-
-		return self::$instance;
-	}
-
-	/**
 	 * Configure.
 	 */
-	public function configure() {
+	public static function configure() {
 		// Ensure that assets are registered on wp load,
 		// so that when dependent scripts are enqueued, the scripts here are already registered.
-		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
+		add_action( 'wp_loaded', array( self::class, 'register_assets' ) );
 
 		// We want to render the initial state as late as possible,
 		// so that it can be filtered when plugins want to decide whether they need to enqueue their scripts or not.
-		add_action( 'admin_enqueue_scripts', array( $this, 'render_initial_state' ), 999999 );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'render_initial_state' ), 999999 );
 	}
 
 	/**
 	 * Register assets.
+	 *
+	 * @access private
 	 */
-	public function register_assets() {
+	public static function register_assets() {
 
 		if ( ! wp_script_is( self::SCRIPT_HANDLE, 'registered' ) ) {
 
@@ -77,9 +50,11 @@ class Initial_State {
 	/**
 	 * Render the initial state using an inline script.
 	 *
+	 * @access private
+	 *
 	 * @return void
 	 */
-	public function render_initial_state() {
+	public static function render_initial_state() {
 
 		// If the initial state has already been added, don't add it again.
 		// This can happen if this methd is called explicitly.
@@ -106,14 +81,13 @@ class Initial_State {
 	 *
 	 * @return array
 	 */
-	public static function get_initial_state() {
+	protected static function get_initial_state() {
 
 		global $wp_version;
 
 		$state = array(
 			'site' => array(
 				'admin_url'  => esc_url_raw( admin_url() ),
-				'blog_id'    => Jetpack_Options::get_option( 'id', 0 ),
 				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 				'rest_root'  => esc_url_raw( rest_url() ),
 				'title'      => self::get_site_title(),
@@ -127,10 +101,9 @@ class Initial_State {
 		/**
 		 * Filter the initial state.
 		 *
-		 * @param array         $state    The initial state.
-		 * @param Initial_State $instance The Initial_State instance.
+		 * @param array $state The initial state.
 		 */
-		return apply_filters( 'jetpack_js_initial_state', $state, self::instance() );
+		return apply_filters( 'jetpack_js_initial_state', $state );
 	}
 
 	/**
@@ -138,7 +111,7 @@ class Initial_State {
 	 *
 	 * @return string
 	 */
-	public static function get_site_title() {
+	protected static function get_site_title() {
 		$title = get_bloginfo( 'name' );
 
 		return $title ? $title : esc_url_raw( ( get_site_url() ) );
@@ -149,7 +122,7 @@ class Initial_State {
 	 *
 	 * @return array
 	 */
-	public static function get_current_user_data() {
+	protected static function get_current_user_data() {
 		$current_user = wp_get_current_user();
 
 		return array(
