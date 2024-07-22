@@ -1036,7 +1036,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					$plugin_to_deactivate = array_pop( $plugins_to_reactivate );
 					if ( empty( $plugin_to_deactivate ) ) {
 						WP_CLI::error( '❌ Site health check failed after testing all plugins one by one.' );
-						return;
 					}
 
 					WP_CLI::runcommand(
@@ -1054,7 +1053,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						$result = WP_CLI::runcommand(
 							sprintf( '--skip-themes plugin activate %s', $plugin_to_deactivate['name'] ),
 							array(
-								'launch'     => true,  // needed for exit_eror => false.
+								'launch'     => true,  // needed for exit_erorr => false.
 								'return'     => true,
 								'exit_error' => false,
 							)
@@ -1087,20 +1086,16 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				);
 
 				if ( ! $this->do_plugin_dance_health_check() ) {
-					WP_CLI::error( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue. Trying to reactivate all plugins.' );
+					WP_CLI::log( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue. Trying to reactivate all plugins.' );
 
-					// Reactivate all plugins.
-					foreach ( $plugins_to_reactivate as $plugin ) {
-						WP_CLI::runcommand(
-							sprintf( '--skip-themes plugin activate %s', $plugin['name'] ),
-							array(
-								'launch'     => true, // needed for exit_eror => false.
-								'return'     => true,
-								'exit_error' => false,
-							)
-						);
-					}
-
+					WP_CLI::runcommand(
+						'--skip-themes reactivate-user-plugins',
+						array(
+							'launch'     => true, // needed for exit_error => false.
+							'return'     => true,
+							'exit_error' => false,
+						)
+					);
 					return;
 				}
 
@@ -1111,7 +1106,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					$result = WP_CLI::runcommand(
 						sprintf( '--skip-themes plugin activate %s', $plugin['name'] ),
 						array(
-							'launch'     => true, // needed for exit_eror => false.
+							'launch'     => true, // needed for exit_error => false.
 							'return'     => true,
 							'exit_error' => false,
 						)
