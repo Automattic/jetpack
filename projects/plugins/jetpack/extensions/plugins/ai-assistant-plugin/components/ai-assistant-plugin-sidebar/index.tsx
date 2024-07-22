@@ -72,11 +72,13 @@ const JetpackAndSettingsContent = ( {
 
 	return (
 		<>
-			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
-					{ isBreveAvailable && <Breve /> }
-				</BaseControl>
-			</PanelRow>
+			{ isBreveAvailable && (
+				<PanelRow className="jetpack-ai-proofread-control__header">
+					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
+						<Breve />
+					</BaseControl>
+				</PanelRow>
+			) }
 
 			<PanelRow className="jetpack-ai-feedback__header">
 				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
