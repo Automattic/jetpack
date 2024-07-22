@@ -533,7 +533,7 @@ class Assets {
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 
 		// Register the React JSX runtime script - used as a polyfill until we can update JSX transforms. See https://github.com/Automattic/jetpack/issues/38424.
-		// Note: when removing this, also remove the inclusion of `react-jsx-runtime` from test_wp_default_scripts_hook where it is expected to be returned when the $mock calls the 'add' method.
+		// @todo Remove this when we drop support for WordPress 6.5, as well as the script inclusion in test_wp_default_scripts_hook.
 		$jsx_url = self::normalize_path( plugins_url( $jsx_path, __FILE__ ) );
 		$wp_scripts->add( 'react-jsx-runtime', $jsx_url, array( 'react' ), '18.3.1', true );
 	}

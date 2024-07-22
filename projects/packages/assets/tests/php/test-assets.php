@@ -757,6 +757,7 @@ class AssetsTest extends TestCase {
 			return $funcs;
 		};
 
+		// @todo: Remove `react-jsx-runtime` from the list of dependencies once we drop support for WordPress 6.5 and remove the dependency from wp_default_scripts_hook.
 		$mock->expects( $this->exactly( 3 ) )->method( 'add' )
 			->with(
 				...$with_consecutive(
