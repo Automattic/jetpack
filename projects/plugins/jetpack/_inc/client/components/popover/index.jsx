@@ -91,7 +91,7 @@ class Popover extends Component {
 		if ( context !== prevProps.context ) {
 			if ( ! context || this.isDOMNode( context ) ) {
 				this.domContextRef.current = context;
-			} else if ( context !== null ) {
+			} else {
 				// eslint-disable-next-line no-console
 				this.debug( 'Expected a DOM node for props.context', context );
 			}
