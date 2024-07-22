@@ -89,14 +89,18 @@
  * Profile section of the admin bar
  */
 #wpadminbar {
+	// Add background color to the right side of the admin bar for the mobile view
 	.quicklinks {
 		background-color: inherit;
+		#wp-admin-bar-top-secondary {
+			background-color: inherit;
+		}
 	}
+
 	#wp-admin-bar-top-secondary {
 		float: none;
 		position: absolute;
 		right: 0;
-		background-color: inherit;
 	
 		@media (max-width: 782px) {
 			#wp-admin-bar-help-center {
