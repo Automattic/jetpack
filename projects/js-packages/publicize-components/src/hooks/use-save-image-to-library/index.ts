@@ -17,7 +17,7 @@ export type SaveImageToLibrary = {
  *
  * @param {SaveImageToLibraryOptions} options - Options for the hook.
  *
- * @returns {SaveImageToLibrary} The object.
+ * @return {SaveImageToLibrary} The object.
  */
 export function useSaveImageToLibrary( { onError, onSuccess }: SaveImageToLibraryOptions ) {
 	const [ isSaving, setIsSaving ] = useState( false );

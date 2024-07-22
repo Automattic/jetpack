@@ -26,7 +26,7 @@ function handleObservedResize( galleries ) {
 /**
  * Get all the galleries on the document
  *
- * @returns {Array} List of gallery nodes
+ * @return {Array} List of gallery nodes
  */
 function getGalleries() {
 	return Array.from(

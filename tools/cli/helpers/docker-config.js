@@ -12,7 +12,7 @@ const defaultConfigFile = `${ dockerFolder }/jetpack-docker-config-default.yml`;
  *
  * @param {object} a - First object
  * @param {object} b - Second object
- * @returns {object} Merged object
+ * @return {object} Merged object
  */
 function mergeJson( a, b ) {
 	if ( a instanceof Object && b instanceof Object && Array.isArray( a ) === Array.isArray( b ) ) {
@@ -33,9 +33,9 @@ function mergeJson( a, b ) {
 /**
  * Merges two arrays of volume mappings, comparing only local paths of the mapping.
  *
- * @param {Array} mainMapping - array of default volume mappings
+ * @param {Array} mainMapping     - array of default volume mappings
  * @param {Array} overrideMapping - array of override volume mappings
- * @returns {Array} merged array.
+ * @return {Array} merged array.
  */
 function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
 	const map = {};
@@ -48,7 +48,7 @@ function mergeDockerVolumeMappings( mainMapping, overrideMapping ) {
  * Parses deprecated compose-volumes.yml and adds its contents into docker config.
  *
  * @param {object} config - Docker configuration
- * @returns {object} config
+ * @return {object} config
  */
 const getDeprecatedVolumesMapping = config => {
 	const volumesFile = `${ dockerFolder }/compose-volumes.yml`;
@@ -81,7 +81,7 @@ const getDeprecatedVolumesMapping = config => {
  * Parses deprecated compose-extras.yml and adds its contents into docker config.
  *
  * @param {object} config - Docker configuration
- * @returns {object} config
+ * @return {object} config
  */
 const getDeprecatedExtras = config => {
 	const extrasFile = `${ dockerFolder }/compose-extras.yml`;
@@ -109,7 +109,7 @@ const getDeprecatedExtras = config => {
  * - compose-extras.yml - (Deprecated) User-defined docker-compose overrides
  * - jetpack-docker-config.yml - User-defined Docker configuration
  *
- * @returns {object} config
+ * @return {object} config
  */
 const getConfig = () => {
 	let json = yaml.load( readFileSync( defaultConfigFile, 'utf8' ) );
@@ -148,7 +148,7 @@ const getConfig = () => {
 /**
  * Generates docker-compose file with pre-configured volume mappings
  *
- * @param {object} argv - Yargs
+ * @param {object} argv   - Yargs
  * @param {object} config - Configuration object
  */
 const setMappings = ( argv, config ) => {
@@ -185,7 +185,7 @@ const setMappings = ( argv, config ) => {
 /**
  * Generates Extras compose file based on jetpack-docker-config.yml config files
  *
- * @param {object} argv - Yargs
+ * @param {object} argv   - Yargs
  * @param {object} config - Configuration object
  */
 const setExtrasConfig = ( argv, config ) => {

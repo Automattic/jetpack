@@ -6,8 +6,8 @@ export type VideoPressChapter = {
 /**
  * Extracts chapter information from a single text line
  *
- * @param {string} line         - The line to be processed
- * @returns {VideoPressChapter} - Title and start time of the chapter
+ * @param {string} line - The line to be processed
+ * @return {VideoPressChapter} - Title and start time of the chapter
  */
 function extractSingleChapter( line: string ): VideoPressChapter | null {
 	const regex = /(?<timeBlock>\(?(?<time>\d{1,2}:\d{2}:\d{2}|\d{1,2}:\d{2})\)?)/;
@@ -47,8 +47,8 @@ function extractSingleChapter( line: string ): VideoPressChapter | null {
 /**
  * Extracts chapter information from a single text line
  *
- * @param {string} text                - The text to be processed
- * @returns {Array<VideoPressChapter>} - Title and start time of all chapters, sorted by start time
+ * @param {string} text - The text to be processed
+ * @return {Array<VideoPressChapter>} - Title and start time of all chapters, sorted by start time
  */
 export default function extractVideoChapters( text: string ): Array< VideoPressChapter > {
 	const lines = text.split( '\n' );

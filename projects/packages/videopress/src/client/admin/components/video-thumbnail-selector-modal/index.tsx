@@ -18,7 +18,7 @@ import { VideoThumbnailSelectorModalProps } from './types';
  * Video Thumbnail Selector component
  *
  * @param {VideoThumbnailSelectorModalProps} props - Component props.
- * @returns {ReactNode} - VideoThumbnailSelector react component.
+ * @return {ReactNode} - VideoThumbnailSelector react component.
  */
 const VideoThumbnailSelectorModal = ( {
 	url,

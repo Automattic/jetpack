@@ -71,7 +71,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 /**
  * The My Jetpack App Main Screen.
  *
- * @returns {object} The MyJetpackScreen component.
+ * @return {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
 	useExperiment( 'explat_test_jetpack_implementation_aa_test' );

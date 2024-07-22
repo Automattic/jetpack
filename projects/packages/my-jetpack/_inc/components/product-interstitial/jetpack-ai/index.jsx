@@ -16,7 +16,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
 /**
  * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAiInterstitial react component.
+ * @return {object} JetpackAiInterstitial react component.
  */
 export default function JetpackAiInterstitial() {
 	const slug = 'jetpack-ai';

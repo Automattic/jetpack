@@ -22,7 +22,7 @@ import './style.scss';
  * The "Reconnect" modal component.
  *
  * @param {object} props - The properties.
- * @returns {React.ReactElement} The modal.
+ * @return {React.ReactElement} The modal.
  */
 export function ReconnectModal( props ) {
 	const {

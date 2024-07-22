@@ -12,7 +12,7 @@ import { SOCIAL_STORE_ID, CONNECTION_SERVICE_INSTAGRAM_BUSINESS } from '../../so
  * The Instagram tab component.
  *
  * @param {object} props - The props.
- * @returns {React.ReactNode} The Instagram tab component.
+ * @return {React.ReactNode} The Instagram tab component.
  */
 export function Instagram( props ) {
 	const { title, image, media, description } = props;

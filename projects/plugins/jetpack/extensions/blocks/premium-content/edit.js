@@ -47,13 +47,13 @@ const BLOCK_NAME = 'premium-content';
  *
  * @typedef { import('./').Attributes } Attributes
  * @typedef {object} OwnProps
- * @property { boolean } isSelected
- * @property { string } className
- * @property { string } clientId
- * @property { Attributes } attributes
+ * @property { boolean }                                isSelected
+ * @property { string }                                 className
+ * @property { string }                                 clientId
+ * @property { Attributes }                             attributes
  * @property {(attributes: Object<Attributes>) => void} setAttributes
  * @typedef { OwnProps } Props
- * @param { Props } props
+ * @param    { Props }                                  props
  */
 
 function Edit( { clientId, isSelected, attributes, setAttributes } ) {

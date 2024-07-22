@@ -19,8 +19,8 @@ window.ga.l = +new Date();
  * Build a query string
  *
  * @param {string} group - the group
- * @param {string} name - the name
- * @returns {string} - the uricomponent
+ * @param {string} name  - the name
+ * @return {string} - the uricomponent
  */
 function buildQuerystring( group, name ) {
 	let uriComponent = '';
@@ -42,8 +42,8 @@ function buildQuerystring( group, name ) {
  * Build a query string with no prefix
  *
  * @param {string} group - the group
- * @param {string} name - the name
- * @returns {string} - the uricomponent
+ * @param {string} name  - the name
+ * @return {string} - the uricomponent
  */
 function buildQuerystringNoPrefix( group, name ) {
 	let uriComponent = '';

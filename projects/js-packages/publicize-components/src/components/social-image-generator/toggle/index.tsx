@@ -21,7 +21,7 @@ type SocialImageGeneratorToggleProps = {
  * A button toggle wrapper for enabling/disabling the Social Image Generator feature.
  *
  * @param {SocialImageGeneratorToggleProps} props - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @return {React.ReactElement} - JSX.Element
  */
 const SocialImageGeneratorToggle: React.FC< SocialImageGeneratorToggleProps > = ( {
 	toggleClass,

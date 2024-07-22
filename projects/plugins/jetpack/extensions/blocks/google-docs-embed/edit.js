@@ -39,7 +39,7 @@ const GOOGLE_SLIDE = {
  * @param {string}   props.attributes.title - Custom title to be displayed.
  * @param {string}   props.className        - Class name for the block.
  * @param {Function} props.setAttributes    - Sets the value for block attributes.
- * @returns {Function} Render the edit screen
+ * @return {Function} Render the edit screen
  */
 const GsuiteBlockEdit = props => {
 	const {
@@ -58,7 +58,7 @@ const GsuiteBlockEdit = props => {
 		/**
 		 * Parse the URL to detect the variation type.
 		 *
-		 * @returns {string} The variation.
+		 * @return {string} The variation.
 		 */
 		const detectVariation = () => {
 			const regex = /^(http|https):\/\/(docs\.google\.com)\/(.*)\/d\//;
@@ -109,7 +109,7 @@ const GsuiteBlockEdit = props => {
 	/**
 	 * Convert GSuite URL to a preview URL.
 	 *
-	 * @returns {string} The URL pattern.
+	 * @return {string} The URL pattern.
 	 */
 	const mapGSuiteURL = () => {
 		/**

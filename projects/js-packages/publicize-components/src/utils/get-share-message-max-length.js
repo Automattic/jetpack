@@ -7,7 +7,7 @@ const MAXIMUM_MESSAGE_LENGTH = 280 - ATTACHMENT_MESSAGE_PADDING - 1;
 /**
  * Get the maximum length that a share message can be.
  *
- * @returns {number} The maximum length of a share message.
+ * @return {number} The maximum length of a share message.
  */
 export function getShareMessageMaxLength() {
 	return MAXIMUM_MESSAGE_LENGTH;

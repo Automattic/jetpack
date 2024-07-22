@@ -63,7 +63,7 @@ export type RecordMeterBarProps = {
  * Generate Record Meter bar
  *
  * @param {RecordMeterBarProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const RecordMeterBar: React.FC< RecordMeterBarProps > = ( {
 	totalCount,

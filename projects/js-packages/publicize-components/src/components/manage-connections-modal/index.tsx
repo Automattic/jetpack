@@ -69,7 +69,7 @@ export const ManageConnectionsModal = () => {
  *
  * This component can be used to avoid dealing with modal state management.
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ThemedConnectionsModal() {
 	const shouldModalBeOpen = useSelect( select => {

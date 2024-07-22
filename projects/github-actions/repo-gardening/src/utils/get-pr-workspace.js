@@ -1,7 +1,7 @@
 /**
  * Get the path to the PR workspace.
  *
- * @returns {string} Path.
+ * @return {string} Path.
  */
 function getPrWorkspace() {
 	if ( 'undefined' !== typeof process.env.PR_WORKSPACE ) {

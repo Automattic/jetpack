@@ -17,7 +17,7 @@ process.chdir( rootDir );
 /**
  * Transforms kebab case names to camel case.
  * @param {string} name - e.g.: foo-bar-baz
- * @returns {string} e.g.: fooBarBaz
+ * @return {string} e.g.: fooBarBaz
  */
 function kebabToCamelCase( name ) {
 	const KEBAB_REGEX = /-(\w)/g;

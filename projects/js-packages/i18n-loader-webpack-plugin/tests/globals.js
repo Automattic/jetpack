@@ -11,9 +11,9 @@ class I18nLoader {
 	 * Actually just returns a promise from `this.expect`, if any,
 	 * or throws an error.
 	 *
-	 * @param {string} path - Path being "downloaded".
+	 * @param {string} path   - Path being "downloaded".
 	 * @param {string} domain - Text domain.
-	 * @returns {Promise} Promise.
+	 * @return {Promise} Promise.
 	 */
 	downloadI18n( path, domain ) {
 		const ret = this.expect[ path ];
@@ -46,7 +46,7 @@ class I18nLoader {
 	 * Mock an error.
 	 *
 	 * @param {string} path - Path.
-	 * @param {Error}  err - Error.
+	 * @param {Error}  err  - Error.
 	 */
 	expectError = ( path, err ) => {
 		this.expect[ path ] = () => {

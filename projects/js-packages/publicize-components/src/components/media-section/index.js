@@ -12,11 +12,11 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
 /**
  * Wrapper that handles media-related functionality.
  *
- * @param {object} props - The properties passed to the component.
- * @param {boolean} [props.disabled=false] - Indicates whether the MediaSection is disabled or not.
- * @param {string} [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
- * @param {import('react').ReactNode} [props.CustomNotice=null] - An optional custom notice that's displayed.
- * @returns {object} The media section.
+ * @param {object}                    props                            - The properties passed to the component.
+ * @param {boolean}                   [props.disabled=false]           - Indicates whether the MediaSection is disabled or not.
+ * @param {string}                    [props.disabledNoticeMessage=''] - An optional notice that's displayed when the section is disabled.
+ * @param {import('react').ReactNode} [props.CustomNotice=null]        - An optional custom notice that's displayed.
+ * @return {object} The media section.
  */
 export default function MediaSection( {
 	disabled = false,

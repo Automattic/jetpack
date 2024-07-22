@@ -14,7 +14,7 @@ class RelatedPostsComponent extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
+	 * @return {{show_headline: boolean, show_thumbnails: boolean}} Initial state object.
 	 */
 	state = {
 		show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),

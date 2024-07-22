@@ -18,7 +18,7 @@ const AllowList = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	state = {
 		ipAllowListEnabled: this.props.settings?.ipAllowListEnabled,
@@ -44,7 +44,7 @@ const AllowList = class extends Component {
 	/**
 	 * Handle settings updates.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	onSubmit = () => {
 		this.props.removeNotice( 'module-setting-update' );

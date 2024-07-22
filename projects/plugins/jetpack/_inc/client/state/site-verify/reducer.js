@@ -65,7 +65,7 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting settings lists or false
  * otherwise.
  *
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}       Whether settings are being requested
  */
 export function isFetchingGoogleSiteVerify( state ) {
@@ -76,7 +76,7 @@ export function isFetchingGoogleSiteVerify( state ) {
  * Returns true if currently verifying a site or false
  * otherwise.
  *
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}       Whether settings is being verified
  */
 export function isVerifyingGoogleSite( state ) {

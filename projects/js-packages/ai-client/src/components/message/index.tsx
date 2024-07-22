@@ -67,7 +67,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement }    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
@@ -99,7 +99,7 @@ export default function Message( {
 /**
  * React component to render a guideline message.
  *
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function GuidelineMessage(): React.ReactElement {
 	return (
@@ -118,7 +118,7 @@ export function GuidelineMessage(): React.ReactElement {
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
@@ -157,7 +157,7 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function ErrorMessage( {
 	error,

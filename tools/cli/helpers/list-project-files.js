@@ -4,9 +4,9 @@ import FilterStream from './filter-stream.js';
 /**
  * List project files to be mirrored.
  *
- * @param {string} src - Source directory.
+ * @param {string}   src   - Source directory.
  * @param {Function} spawn - `execa` spawn function.
- * @yields {string} File name.
+ * @yield {string} File name.
  */
 export async function* listProjectFiles( src, spawn ) {
 	// Lots of process plumbing going on here.

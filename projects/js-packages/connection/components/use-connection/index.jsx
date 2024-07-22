@@ -40,7 +40,7 @@ export default ( {
 	/**
 	 * User register process handler.
 	 *
-	 * @returns {Promise} - Promise which resolves when the product status is activated.
+	 * @return {Promise} - Promise which resolves when the product status is activated.
 	 */
 	const handleConnectUser = () => {
 		if ( ! skipUserConnection ) {
@@ -63,7 +63,7 @@ export default ( {
 	 * the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
-	 * @returns {Promise}   Promise when running the registration process. Otherwise, nothing.
+	 * @return {Promise}   Promise when running the registration process. Otherwise, nothing.
 	 */
 	const handleRegisterSite = e => {
 		e && e.preventDefault();

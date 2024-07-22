@@ -129,7 +129,7 @@ export class DashStats extends Component {
 	/**
 	 * Checks that the stats fetching didn't return errors.
 	 *
-	 * @returns {object|boolean} Returns statsData.general.errors or false if it is not an object
+	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );

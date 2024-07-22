@@ -22,10 +22,10 @@ const blockEditorDirectories = [ 'plugins', 'blocks' ];
 /**
  * Filters block editor scripts
  *
- * @param {string} type - script type
- * @param {string} inputDir - input directory
- * @param {Array} presetBlocks - preset blocks
- * @returns {Array} list of block scripts
+ * @param {string} type         - script type
+ * @param {string} inputDir     - input directory
+ * @param {Array}  presetBlocks - preset blocks
+ * @return {Array} list of block scripts
  */
 function presetProductionExtensions( type, inputDir, presetBlocks ) {
 	return presetBlocks

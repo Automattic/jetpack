@@ -25,13 +25,13 @@ const debug = debugFactory( 'videopress:lib:fetch-video-item' );
 /**
  * Fetches the video item from the v1.1/videos endpoint.
  *
- * @param {object} parameters                    - The function parameters.
- * @param {VideoGUID} parameters.guid            - The video GUID.
- * @param {boolean} parameters.isPrivate         - Whether the video is private.
- * @param {string} parameters.token              - The token to use in the request.
- * @param {boolean} parameters.skipRatingControl - Whether to skip the rating control.
- * @param {number} parameters.retries            - The number of retries.
- * @returns {WPCOMRestAPIVideosGetEndpointResponseProps} Props
+ * @param {object}    parameters                   - The function parameters.
+ * @param {VideoGUID} parameters.guid              - The video GUID.
+ * @param {boolean}   parameters.isPrivate         - Whether the video is private.
+ * @param {string}    parameters.token             - The token to use in the request.
+ * @param {boolean}   parameters.skipRatingControl - Whether to skip the rating control.
+ * @param {number}    parameters.retries           - The number of retries.
+ * @return {WPCOMRestAPIVideosGetEndpointResponseProps} Props
  */
 export async function fetchVideoItem( {
 	guid,

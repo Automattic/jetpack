@@ -30,7 +30,7 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
  * Displays a card for Search based on the props given.
  *
  * @param {object} props - Settings to render the card
- * @returns {object}       Search card
+ * @return {object}       Search card
  */
 const renderCard = props => (
 	<DashItem

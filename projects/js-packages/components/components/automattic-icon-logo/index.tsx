@@ -4,10 +4,10 @@ import React from 'react';
 /**
  * Automattic Icon Logo component
  *
- * @param {object} props             - Component props
- * @param {string} props.innerColor  - Color code for the line in the middle of the logo.
- * @param {string} props.outerColor  - Color code for the logo's outer
- * @returns {React.ReactElement} Component template
+ * @param {object} props            - Component props
+ * @param {string} props.innerColor - Color code for the line in the middle of the logo.
+ * @param {string} props.outerColor - Color code for the logo's outer
+ * @return {React.ReactElement} Component template
  */
 export default function AutomatticIconLogo( {
 	innerColor = '#00A3E0',

@@ -12,13 +12,13 @@ import Preview from './preview';
 /**
  * Render children if there are any, otherwise show the default preview (iframe)
  *
- * @param {Element}     children
- * @param {Function}    children.mapUrl
- * @param {string}      children.url
- * @param {string}      children.className
- * @param {boolean}     children.interactive
- * @param {Function}    children.toggleInteractive
- * @returns {Element} preview element
+ * @param {Element}  children
+ * @param {Function} children.mapUrl
+ * @param {string}   children.url
+ * @param {string}   children.className
+ * @param {boolean}  children.interactive
+ * @param {Function} children.toggleInteractive
+ * @return {Element} preview element
  */
 const RenderPreview = ( {
 	children,

@@ -204,7 +204,7 @@ const updateVideoPrivacy =
  * used as a primary hint for the UI to update.
  *
  * @param {string|number} id - Video post ID
- * @returns {object} Action object
+ * @return {object} Action object
  */
 const removeVideo = id => {
 	return { type: REMOVE_VIDEO, id };
@@ -214,7 +214,7 @@ const removeVideo = id => {
  * Thunk action to remove a video from the state,
  *
  * @param {string|number} id - Video post ID
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const deleteVideo =
 	id =>
@@ -258,7 +258,7 @@ const deleteVideo =
  * Thunk action to upload videos for VideoPress.
  *
  * @param {File} file - File to upload
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const uploadVideo =
 	file =>
@@ -296,7 +296,7 @@ const uploadVideo =
  * Thunk action to upload local videos for VideoPress.
  *
  * @param {object} file - File data
- * @returns {Function} Thunk action
+ * @return {Function} Thunk action
  */
 const uploadVideoFromLibrary =
 	file =>
@@ -435,7 +435,7 @@ const setVideoPressSettings = videoPressSettings => {
  * Thunk action to remove a video from the state,
  *
  * @param {object} settings - VideoPress settings
- * @returns {Function}        Thunk action
+ * @return {Function}        Thunk action
  */
 const updateVideoPressSettings =
 	settings =>

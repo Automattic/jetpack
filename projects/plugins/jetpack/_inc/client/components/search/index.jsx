@@ -19,7 +19,7 @@ const SEARCH_DEBOUNCE_MS = 300;
  * Listener for key events
  *
  * @param {Function} methodToCall - Method to call
- * @param {Event} event	- Event
+ * @param {Event}    event        - Event
  */
 function keyListener( methodToCall, event ) {
 	switch ( event.key ) {

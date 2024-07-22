@@ -18,9 +18,9 @@ const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 /**
  * Interstitial Page
  *
- * @param {object} props                 - Component props
- * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @returns {React.Component}              Interstitial react component.
+ * @param {object}   props           - Component props
+ * @param {Function} props.onScanAdd - Callback when adding paid protect product successfully
+ * @return {React.Component}              Interstitial react component.
  */
 const InterstitialPage = ( { onScanAdd } ) => {
 	// Track view for Protect WAF page.

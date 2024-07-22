@@ -7,7 +7,7 @@
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {object} Object containing the slack message and its formatting.
+ * @return {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue } = payload;

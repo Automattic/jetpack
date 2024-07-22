@@ -12,7 +12,7 @@ interface Props {
  * Migration error screen
  *
  * @param {object} props - Props
- * @returns {React.ReactElement} JSX Element
+ * @return {React.ReactElement} JSX Element
  */
 export function MigrationError( props: Props ) {
 	const { message } = props;

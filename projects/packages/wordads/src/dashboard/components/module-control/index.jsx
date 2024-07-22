@@ -16,12 +16,12 @@ const SEARCH_DESCRIPTION = __(
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param {object} props - Component properties.
- * @param {Function} props.updateOptions - function to update settings.
- * @param {boolean} props.isSavingOptions - true if Saving options.
- * @param {boolean} props.isModuleEnabled - true if WordAds module is enabled.
- * @param {boolean} props.isTogglingModule - true if toggling WordAds module.
- * @returns {React.Component}	Search settings component.
+ * @param {object}   props                  - Component properties.
+ * @param {Function} props.updateOptions    - function to update settings.
+ * @param {boolean}  props.isSavingOptions  - true if Saving options.
+ * @param {boolean}  props.isModuleEnabled  - true if WordAds module is enabled.
+ * @param {boolean}  props.isTogglingModule - true if toggling WordAds module.
+ * @return {React.Component} Search settings component.
  */
 export default function WordAdsModuleControl( {
 	updateOptions,

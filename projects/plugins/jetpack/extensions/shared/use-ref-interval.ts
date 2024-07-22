@@ -37,9 +37,9 @@ const clearRafInterval = ( handle?: RafHandle | null ) => {
  * Invoke a function on an interval that uses requestAnimationFrame.
  *
  * @param {Function} callback - Function to invoke
- * @param {number} timeout - Interval timout in MS.
+ * @param {number}   timeout  - Interval timout in MS.
  *
- * @returns {Function} Function to clear the interval.
+ * @return {Function} Function to clear the interval.
  */
 const useRafInterval = ( callback: () => void, timeout = 0 ) => {
 	const timerRef = useRef< RafHandle >();

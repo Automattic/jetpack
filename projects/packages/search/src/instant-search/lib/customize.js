@@ -15,7 +15,7 @@ const SETTINGS_TO_STATE_MAP = new Map( [
 /**
  * Detects if the current environment is within WP's Customizer.
  *
- * @returns {boolean} is in customizer.
+ * @return {boolean} is in customizer.
  */
 export function isInCustomizer() {
 	return typeof window?.wp?.customize === 'function';

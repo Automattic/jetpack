@@ -17,7 +17,7 @@ type LearnHowModalProps = {
  * React component that renders the Learn How modal
  *
  * @param {LearnHowModalProps} props - Component properties.
- * @returns {object} Notice component
+ * @return {object} Notice component
  */
 export default function LearnHowModal( { isOpen, onClose }: LearnHowModalProps ) {
 	if ( ! isOpen ) {

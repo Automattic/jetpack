@@ -17,15 +17,15 @@ const {
  * Custom hook that performs the needed steps
  * to concrete the checkout workflow.
  *
- * @param {object} props              - The props passed to the hook.
- * @param {string} props.productSlug  - The WordPress product slug.
- * @param {string} props.redirectUri  - The URI to redirect to after checkout.
- * @param {string} [props.siteSuffix] - The site suffix.
- * @param {string} [props.blogID]     - The blog ID.
+ * @param {object}   props                                - The props passed to the hook.
+ * @param {string}   props.productSlug                    - The WordPress product slug.
+ * @param {string}   props.redirectUri                    - The URI to redirect to after checkout.
+ * @param {string}   [props.siteSuffix]                   - The site suffix.
+ * @param {string}   [props.blogID]                       - The blog ID.
  * @param {Function} props.siteProductAvailabilityHandler - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
- * @param {Function} props.from       - The plugin slug initiated the flow.
- * @param {Function} props.isWpcom    - Whether it's WPCOM site.
- * @returns {Function}				  - The useEffect hook.
+ * @param {Function} props.from                           - The plugin slug initiated the flow.
+ * @param {Function} props.isWpcom                        - Whether it's WPCOM site.
+ * @return {Function} - The useEffect hook.
  */
 export default function useProductCheckoutWorkflow( {
 	productSlug,
@@ -78,7 +78,7 @@ export default function useProductCheckoutWorkflow( {
 	 * Handler to run the checkout workflow.
 	 *
 	 * @param {Event} [event] - Event that dispatched run
-	 * @returns {void}          Nothing.
+	 * @return {void}          Nothing.
 	 */
 	const run = event => {
 		event && event.preventDefault();

@@ -13,7 +13,7 @@ export type ServiceStatusProps = {
  *
  * @param {ServiceStatusProps} props - Component props
  *
- * @returns {import('react').ReactNode} Service status component
+ * @return {import('react').ReactNode} Service status component
  */
 export function ServiceStatus( { serviceConnections, onClickBroken }: ServiceStatusProps ) {
 	if ( ! serviceConnections.length ) {

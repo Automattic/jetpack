@@ -2,7 +2,7 @@
  * Check if coupon is valid.
  *
  * @param {object} data - Coupon information.
- * @returns {boolean} Whether coupon is valid.
+ * @return {boolean} Whether coupon is valid.
  */
 export const isCouponValid = data => {
 	if ( 'object' !== typeof data ) {

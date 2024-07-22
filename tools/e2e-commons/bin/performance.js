@@ -47,7 +47,7 @@ async function envSetup( type ) {
 
 /**
  * Run tests.
- * @param {string} type - Test suite to run.
+ * @param {string} type  - Test suite to run.
  * @param {number} round - Run number.
  */
 async function runTests( type, round ) {
@@ -64,7 +64,7 @@ async function runTests( type, round ) {
 
 /**
  * Setup environment and run tests.
- * @param {string} type - Test suite to run.
+ * @param {string} type  - Test suite to run.
  * @param {number} round - Run number.
  */
 async function testRun( type, round ) {
@@ -118,9 +118,9 @@ function mergeResults( type ) {
 
 /**
  * Exec a shell command.
- * @param {string} command - command
- * @param {string[]} args - args
- * @param {options} options - Options, see child_process.spawn
+ * @param {string}   command - command
+ * @param {string[]} args    - args
+ * @param {options}  options - Options, see child_process.spawn
  */
 function execShellCommand( command, args, options ) {
 	return new Promise( ( resolve, reject ) => {

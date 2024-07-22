@@ -21,9 +21,9 @@ type videoBlockSaveProps = {
 /**
  * VideoPress block save function
  *
- * @param {object} props             - Component props.
- * @param {object} props.attributes  - Block attributes.
- * @returns {object}                 - React component.
+ * @param {object} props            - Component props.
+ * @param {object} props.attributes - Block attributes.
+ * @return {object}                 - React component.
  */
 function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
 	const {

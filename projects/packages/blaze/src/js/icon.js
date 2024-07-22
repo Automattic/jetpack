@@ -3,7 +3,7 @@ import { SVG, Path, G } from '@wordpress/components';
 /**
  * Blaze Fire Icon.
  *
- * @returns {Element} Icon component.
+ * @return {Element} Icon component.
  */
 export default function BlazeIcon() {
 	return (

@@ -53,7 +53,7 @@ const debug = debugFactory( 'jetpack-ai-client:suggestions-event-source' );
  * when the stream is closed.
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
- * @returns {EventSource} The event source
+ * @return {EventSource} The event source
  * @fires SuggestionsEventSource#suggestion                - The full suggestion has been received so far
  * @fires SuggestionsEventSource#message                   - A message has been received
  * @fires SuggestionsEventSource#chunk                     - A chunk of data has been received

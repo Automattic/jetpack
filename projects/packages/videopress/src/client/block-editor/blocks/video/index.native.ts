@@ -18,7 +18,7 @@ export const { name, title, description, attributes } = metadata;
 /**
  * Registers the VideoPress block if the availability requirements are met.
  *
- * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
+ * @return {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
 export default function registerVideoPressBlock() {
 	const { available } = getJetpackExtensionAvailability( name );

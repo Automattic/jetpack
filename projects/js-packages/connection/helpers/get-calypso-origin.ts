@@ -1,7 +1,7 @@
 /**
  * Get the Calypso origin based on the development environment.
  *
- * @returns {string} The Calypso url origin.
+ * @return {string} The Calypso url origin.
  */
 export default function getCalypsoOrigin() {
 	const calypsoEnv =

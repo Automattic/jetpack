@@ -44,8 +44,8 @@ export const InlineExtensionsContext = createContext( {} );
  * Gets the block handler based on the block type.
  * The block handler is used to handle the request suggestions.
  * @param {ExtendedInlineBlockProp} blockType - The block type.
- * @param {string} clientId                   - The block client ID.
- * @returns {IBlockHandler}                     The block handler.
+ * @param {string}                  clientId  - The block client ID.
+ * @return {IBlockHandler}                     The block handler.
  */
 export function getBlockHandler(
 	blockType: ExtendedInlineBlockProp,

@@ -24,8 +24,8 @@ const SEARCH_SUPPORT = __( 'Search supports many customizations. ', 'jetpack' );
 /**
  * Search settings component to be used within the Performance section.
  *
- * @param  {object} props - Component properties.
- * @returns {React.Component}	Search settings component.
+ * @param {object} props - Component properties.
+ * @return {React.Component} Search settings component.
  */
 function Search( props ) {
 	const { failedToEnableSearch, hasInstantSearch, updateOptions } = props;

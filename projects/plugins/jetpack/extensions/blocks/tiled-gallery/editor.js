@@ -68,7 +68,7 @@ const exampleAttributes = {
  * Filter valid images
  *
  * @param {Array} images - Array of image objects
- * @returns {Array} Array of image objects which have id and url
+ * @return {Array} Array of image objects which have id and url
  */
 function getValidImages( images ) {
 	return filter( images, ( { id, url } ) => id && url );

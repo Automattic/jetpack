@@ -19,7 +19,7 @@ import styles from './style.module.scss';
  *
  * @param {object} props          - Component props.
  * @param {object} props.purchase - Purchase object.
- * @returns {object} PlanSection react component.
+ * @return {object} PlanSection react component.
  */
 function PlanSection( { purchase = {} } ) {
 	const { product_name } = purchase;
@@ -34,12 +34,12 @@ function PlanSection( { purchase = {} } ) {
 /**
  * Plan expiry component.
  *
- * @param {object} purchase - WPCOM purchase object.
- * @param {string} purchase.product_name - A product name.
+ * @param {object} purchase                 - WPCOM purchase object.
+ * @param {string} purchase.product_name    - A product name.
  * @param {string} purchase.subscribed_date - A subscribed date.
- * @param {string} purchase.expiry_message - An expiry message.
- * @param {string} purchase.partner_slug - A partner that issued the purchase.
- * @returns {object} - A plan expiry component.
+ * @param {string} purchase.expiry_message  - An expiry message.
+ * @param {string} purchase.partner_slug    - A partner that issued the purchase.
+ * @return {object} - A plan expiry component.
  */
 function PlanExpiry( purchase ) {
 	const { expiry_message, product_name, subscribed_date } = purchase;
@@ -67,7 +67,7 @@ function PlanExpiry( purchase ) {
  *
  * @param {object} props                   - Component props.
  * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @returns {object} PlanSectionHeader react component.
+ * @return {object} PlanSectionHeader react component.
  */
 function PlanSectionHeader( { numberOfPurchases = 0 } ) {
 	return (
@@ -85,7 +85,7 @@ function PlanSectionHeader( { numberOfPurchases = 0 } ) {
  *
  * @param {object} props                   - Component props.
  * @param {number} props.numberOfPurchases - Count of purchases in purchases array.
- * @returns {object} PlanSectionFooter react component.
+ * @return {object} PlanSectionFooter react component.
  */
 function PlanSectionFooter( { numberOfPurchases } ) {
 	const { recordEvent } = useAnalytics();
@@ -160,7 +160,7 @@ function PlanSectionFooter( { numberOfPurchases } ) {
 /**
  * Plan section component.
  *
- * @returns {object} PlansSection React component.
+ * @return {object} PlansSection React component.
  */
 export default function PlansSection() {
 	const userIsAdmin = !! getMyJetpackWindowInitialState( 'userIsAdmin' );

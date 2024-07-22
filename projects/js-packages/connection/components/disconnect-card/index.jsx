@@ -8,7 +8,7 @@ import './style.scss';
  * Used in the disconnection flow.
  *
  * @param {object} props - The Properties.
- * @returns {React.Component} DisconnectCard - The disconnect card component.
+ * @return {React.Component} DisconnectCard - The disconnect card component.
  */
 const DisconnectCard = props => {
 	const { title, value, description } = props;

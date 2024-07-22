@@ -37,7 +37,7 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000; // 2 minutes
  * Request a token from the Jetpack site.
  *
  * @param {RequestTokenOptions} options - Options
- * @returns {Promise<TokenDataProps>}     The token and the blogId
+ * @return {Promise<TokenDataProps>}     The token and the blogId
  */
 export default async function requestJwt( {
 	apiNonce,

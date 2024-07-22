@@ -7,7 +7,7 @@ import './mocked-instant-search.scss';
 /**
  * Generate mocked instant search dialog
  *
- * @returns {React.Component}	Mocked Search instant dialog component.
+ * @return {React.Component} Mocked Search instant dialog component.
  */
 export default function MockedInstantSearch() {
 	return (

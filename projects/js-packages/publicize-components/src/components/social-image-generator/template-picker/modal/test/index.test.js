@@ -7,7 +7,7 @@ import TemplatePickerModal from '..';
  * Helper method to set up the user event.
  *
  * @param {ReactElement} jsx - The element to render.
- * @returns {object} An object with the user method and everything from the render method.
+ * @return {object} An object with the user method and everything from the render method.
  */
 const setup = async jsx => ( {
 	user: await userEvent.setup(),

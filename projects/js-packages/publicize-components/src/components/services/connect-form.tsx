@@ -23,7 +23,7 @@ type ConnectFormProps = {
  *
  * @param {ConnectFormProps} props - Component props
  *
- * @returns {import('react').ReactNode} Connect form component
+ * @return {import('react').ReactNode} Connect form component
  */
 export function ConnectForm( {
 	service,

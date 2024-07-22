@@ -415,7 +415,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
  * Checks if a plan slug represents a monthly plan.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if it's monthly plan
+ * @return {boolean} True if it's monthly plan
  */
 export function isMonthly( plan ) {
 	return includes( JETPACK_MONTHLY_PLANS, plan );
@@ -424,7 +424,7 @@ export function isMonthly( plan ) {
  * Checks if a plan slug is in the group of popular plans.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if it's popular plan
+ * @return {boolean} True if it's popular plan
  */
 export function isPopular( plan ) {
 	return includes( POPULAR_PLANS, plan );
@@ -433,7 +433,7 @@ export function isPopular( plan ) {
  * Checks if a plan slug is a new plan.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if it's new plan
+ * @return {boolean} True if it's new plan
  */
 export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
@@ -443,7 +443,7 @@ export function isNew( plan ) {
  * Determines if a plan includes Jetpack Anti-Spam.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if the plan includes Jetpack Anti-Spam
+ * @return {boolean} True if the plan includes Jetpack Anti-Spam
  */
 export function isJetpackPlanWithAntiSpam( plan ) {
 	return includes( JETPACK_PLANS_WITH_ANTI_SPAM, plan );
@@ -453,7 +453,7 @@ export function isJetpackPlanWithAntiSpam( plan ) {
  * Determines if a plan includes backup features.
  *
  * @param {string} plan - The plan slug
- * @returns {boolean} True if the plan contains backup features
+ * @return {boolean} True if the plan contains backup features
  */
 export function isJetpackPlanWithBackup( plan ) {
 	return includes( JETPACK_PLANS_WITH_BACKUP, plan );
@@ -463,7 +463,7 @@ export function isJetpackPlanWithBackup( plan ) {
  * Determines if a product is Jetpack Backup.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack Backup
+ * @return {boolean} True if the product is Jetpack Backup
  */
 export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
@@ -473,7 +473,7 @@ export function isJetpackBackup( product ) {
  * Checks if a product slug is Jetpack Search.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack Search
+ * @return {boolean} True if the product is Jetpack Search
  */
 export function isJetpackSearch( product ) {
 	return includes( JETPACK_SEARCH_PRODUCTS, product );
@@ -483,7 +483,7 @@ export function isJetpackSearch( product ) {
  * Checks if a product slug is Jetpack Scan.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack Scan
+ * @return {boolean} True if the product is Jetpack Scan
  */
 export function isJetpackScan( product ) {
 	return JETPACK_SCAN_PRODUCTS.includes( product );
@@ -493,7 +493,7 @@ export function isJetpackScan( product ) {
  * Checks if a product slug is Jetpack Anti-Spam.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack Anti-Spam
+ * @return {boolean} True if the product is Jetpack Anti-Spam
  */
 export function isJetpackAntiSpam( product ) {
 	return JETPACK_ANTI_SPAM_PRODUCTS.includes( product );
@@ -503,7 +503,7 @@ export function isJetpackAntiSpam( product ) {
  * Determines if a product is Jetpack VideoPress.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack VideoPress, false otherwise.
+ * @return {boolean} True if the product is Jetpack VideoPress, false otherwise.
  */
 export function isJetpackVideoPress( product ) {
 	return JETPACK_VIDEOPRESS_PRODUCTS.includes( product );
@@ -513,7 +513,7 @@ export function isJetpackVideoPress( product ) {
  * Determines if a product is Jetpack Social.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack Social, false otherwise.
+ * @return {boolean} True if the product is Jetpack Social, false otherwise.
  */
 export function isJetpackSocial( product ) {
 	return JETPACK_SOCIAL_PRODUCTS.includes( product );
@@ -523,7 +523,7 @@ export function isJetpackSocial( product ) {
  * Determines if a product is Jetpack Boost.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack Social, false otherwise.
+ * @return {boolean} True if the product is Jetpack Social, false otherwise.
  */
 export function isJetpackBoost( product ) {
 	return JETPACK_BOOST_PRODUCTS.includes( product );
@@ -533,7 +533,7 @@ export function isJetpackBoost( product ) {
  * Determines if a product is Jetpack AI.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack AI, false otherwise.
+ * @return {boolean} True if the product is Jetpack AI, false otherwise.
  */
 export function isJetpackAI( product ) {
 	return JETPACK_AI_PRODUCTS.includes( product );
@@ -543,7 +543,7 @@ export function isJetpackAI( product ) {
  * Determines if a product is Jetpack Stats.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack Stats, false otherwise.
+ * @return {boolean} True if the product is Jetpack Stats, false otherwise.
  */
 export function isJetpackStats( product ) {
 	return JETPACK_STATS_PRODUCTS.includes( product );
@@ -553,7 +553,7 @@ export function isJetpackStats( product ) {
  * Determines if a product is Jetpack Creator.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack Creator, false otherwise.
+ * @return {boolean} True if the product is Jetpack Creator, false otherwise.
  */
 export function isJetpackCreator( product ) {
 	return JETPACK_CREATOR_PRODUCTS.includes( product );
@@ -563,7 +563,7 @@ export function isJetpackCreator( product ) {
  * Checks if a product slug is a Jetpack product.
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is Jetpack product.
+ * @return {boolean} True if the product is Jetpack product.
  */
 export function isJetpackProduct( product ) {
 	return (
@@ -584,7 +584,7 @@ export function isJetpackProduct( product ) {
  * Checks if the product slug is a Jetpack bundle.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack bundle
+ * @return {boolean} True if the product is Jetpack bundle
  */
 export function isJetpackBundle( product ) {
 	return JETPACK_BUNDLES.includes( product );
@@ -594,7 +594,7 @@ export function isJetpackBundle( product ) {
  * Checks if the product slug is a Jetpack Starter bundle.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is Jetpack Starter bundle
+ * @return {boolean} True if the product is Jetpack Starter bundle
  */
 export function isJetpackStarterBundle( product ) {
 	return JETPACK_STARTER_BUNDLES.includes( product );
@@ -604,7 +604,7 @@ export function isJetpackStarterBundle( product ) {
  * Determine if the given product is a Security Bundle.
  *
  * @param {number} product - productId to check
- * @returns {boolean} if the given product is a Security Bundle
+ * @return {boolean} if the given product is a Security Bundle
  */
 export function isJetpackSecurityBundle( product ) {
 	return JETPACK_SECURITY_BUNDLES.includes( product );
@@ -614,7 +614,7 @@ export function isJetpackSecurityBundle( product ) {
  * Checks if the product slug is a legacy Jetpack plan.
  *
  * @param {string} product - The product slug
- * @returns {boolean} True if the product is a legacy Jetpack plan
+ * @return {boolean} True if the product is a legacy Jetpack plan
  */
 export function isJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS.includes( product );
@@ -624,7 +624,7 @@ export function isJetpackLegacyPlan( product ) {
  * Identify legacy plans that contain features comparable to a security bundle
  *
  * @param {string} product - The product id.
- * @returns {boolean} True if the product is a legacy Jetpack plan with security features, false otherwise.
+ * @return {boolean} True if the product is a legacy Jetpack plan with security features, false otherwise.
  */
 export function isSecurityComparableJetpackLegacyPlan( product ) {
 	return JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES.includes( product );
@@ -634,7 +634,7 @@ export function isSecurityComparableJetpackLegacyPlan( product ) {
  * Retrieves the upsell for a feature.
  *
  * @param {string} feature - The feature slug.
- * @returns {string} The product slug required for the feature.
+ * @return {string} The product slug required for the feature.
  */
 export function getJetpackProductUpsellByFeature( feature ) {
 	return JETPACK_FEATURE_PRODUCT_UPSELL_MAP[ feature ];
@@ -644,7 +644,7 @@ export function getJetpackProductUpsellByFeature( feature ) {
  * Gets the CSS class to use for the plans section, given the plan slug.
  *
  * @param {string} plan - The plan slug.
- * @returns {string} The CSS class to use.
+ * @return {string} The CSS class to use.
  */
 export function getPlanClass( plan ) {
 	switch ( plan ) {
@@ -789,7 +789,7 @@ export function getPlanClass( plan ) {
  * Retrieve the monthly equivalent of a yearly plan.
  *
  * @param {string} plan - The plan slug of the yearly plan.
- * @returns {string} The monthly plan if it exists, otherwise, an empty string.
+ * @return {string} The monthly plan if it exists, otherwise, an empty string.
  */
 export function getMonthlyPlanByYearly( plan ) {
 	switch ( plan ) {
@@ -825,7 +825,7 @@ export function getMonthlyPlanByYearly( plan ) {
  * Determines if the plan or product is a special gifted offering.
  *
  * @param {string} planOrProductSlug - A plan or product slug.
- * @returns {boolean} True if the plan or product is a special gifted offering, false otherwise.
+ * @return {boolean} True if the plan or product is a special gifted offering, false otherwise.
  */
 export function containsGiftedPlanOrProduct( planOrProductSlug ) {
 	return [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ].includes( planOrProductSlug );
@@ -835,7 +835,7 @@ export function containsGiftedPlanOrProduct( planOrProductSlug ) {
  * Determines if the plan class contains backup daily.
  *
  * @param {string} planClass - A plan class.
- * @returns {boolean} True if the plan class contains backup daily, false otherwise.
+ * @return {boolean} True if the plan class contains backup daily, false otherwise.
  */
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
@@ -852,7 +852,7 @@ export function containsBackupDaily( planClass ) {
  * Determines if the plan class contains backup realtime.
  *
  * @param {string} planClass - A plan class.
- * @returns {boolean} True if the plan class contains backup realtime, false otherwise.
+ * @return {boolean} True if the plan class contains backup realtime, false otherwise.
  */
 export function containsBackupRealtime( planClass ) {
 	return [

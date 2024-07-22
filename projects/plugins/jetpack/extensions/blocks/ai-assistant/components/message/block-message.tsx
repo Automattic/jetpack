@@ -35,7 +35,7 @@ export type BlockMessageProps = MessageProps & {
  * React component to render a block message.
  *
  * @param {BlockMessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement }    Banner component.
  */
 export default function BlockMessage( props: BlockMessageProps ): React.ReactElement {
 	const { state } = props;

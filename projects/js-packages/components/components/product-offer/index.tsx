@@ -16,7 +16,7 @@ import type React from 'react';
  * Product Detail component.
  *
  * @param {ProductOfferProps} props - Component props.
- * @returns {React.ReactNode} - ProductOffer react component.
+ * @return {React.ReactNode} - ProductOffer react component.
  */
 const ProductOffer: React.FC< ProductOfferProps > = ( {
 	addProductUrl,

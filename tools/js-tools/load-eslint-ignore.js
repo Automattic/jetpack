@@ -11,7 +11,7 @@ const rootdir = path.resolve( __dirname, '../..' ) + '/';
  * Load `.gitignore` and `.eslintignore` recursively.
  *
  * @param {string} basedir - Base directory to start from.
- * @returns {string[]} Ignore patterns.
+ * @return {string[]} Ignore patterns.
  */
 function loadIgnorePatterns( basedir ) {
 	const ignore = makeIgnore();

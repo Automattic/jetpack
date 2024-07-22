@@ -6,7 +6,7 @@ import { Workflow } from 'crm/state/automations-admin/types';
  * Gets the Automation Workflows.
  *
  * @param {Function} hydrate - A function which takes an array of workflows and hydrates the store with them.
- * @returns {UseQueryResult} - The result of the query.
+ * @return {UseQueryResult} - The result of the query.
  */
 export const useGetAutomationWorkflows = ( hydrate: ( workflows: Workflow[] ) => void ) =>
 	useQuery( {

@@ -29,7 +29,7 @@ const CHARACTERS_PER_LINE = 31;
  * React component that renders a Video details control
  *
  * @param {DetailsPanelProps} props - Component properties.
- * @returns {React.ReactElement}      Details panel component.
+ * @return {React.ReactElement}      Details panel component.
  */
 export default function DetailsPanel( {
 	filename,

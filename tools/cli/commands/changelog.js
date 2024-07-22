@@ -18,7 +18,7 @@ let changeloggerPath = null;
  * Comand definition for changelog subcommand.
  *
  * @param {yargs} yargs - The Yargs dependency.
- * @returns {object} Yargs with the changelog commands defined.
+ * @return {object} Yargs with the changelog commands defined.
  */
 export function changelogDefine( yargs ) {
 	// Main Changelog command
@@ -269,7 +269,7 @@ async function changelogCommand( argv ) {
  * Checks if any projects have special changelog type configurations.
  *
  * @param {Array} needChangelog - files that need a changelog.
- * @returns {object} - Object containing types associated with each project.
+ * @return {object} - Object containing types associated with each project.
  */
 async function getProjectChangeTypes( needChangelog ) {
 	const types = {};
@@ -383,10 +383,10 @@ async function changelogAdd( argv ) {
 /**
  * If we're auto-adding to multiple projects, format argv the way changelogger likes.
  *
- * @param {string} proj - project we're running changelog for.
- * @param {object} argv - argv values.
+ * @param {string} proj     - project we're running changelog for.
+ * @param {object} argv     - argv values.
  * @param {object} response - changelog command response.
- * @returns {object} argv - returns argv.
+ * @return {object} argv - returns argv.
  */
 async function formatAutoArgs( proj, argv, response ) {
 	argv.pass = [];
@@ -486,9 +486,9 @@ async function changeloggerSquash( argv, file ) {
 /**
  * Remove project from arguments list we pass to the changelogger.
  *
- * @param {object} argv - arguments passed as cli.
- * @param {Array} removeArg - the array of projects we want to remove.
- * @returns {argv} - the arguemnts.
+ * @param {object} argv      - arguments passed as cli.
+ * @param {Array}  removeArg - the array of projects we want to remove.
+ * @return {argv} - the arguemnts.
  */
 async function removeArgs( argv, removeArg ) {
 	for ( const proj of removeArg ) {
@@ -565,7 +565,7 @@ async function gitAdd( argv ) {
 /**
  * Checks if changelog files are required.
  *
- * @returns {Array} matchedProjects - projects that need a changelog.
+ * @return {Array} matchedProjects - projects that need a changelog.
  */
 async function checkChangelogFiles() {
 	console.log( chalk.green( 'Checking if changelog files are needed. Just a sec...' ) );
@@ -615,9 +615,9 @@ async function checkChangelogFiles() {
 /**
  * Checks if any projects already have a changelog file by that name.
  *
- * @param {string} fileName - what we want to name the file.
- * @param {Array} needChangelog - projects that need changelog.
- * @returns {argv}.
+ * @param {string} fileName      - what we want to name the file.
+ * @param {Array}  needChangelog - projects that need changelog.
+ * @return {argv}.
  */
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;
@@ -646,7 +646,7 @@ function doesFilenameExist( fileName, needChangelog ) {
  * prompt for one if we're not.
  *
  * @param {object} argv - arguments passed as cli.
- * @returns {object} argv - arguments with project added.
+ * @return {object} argv - arguments with project added.
  */
 export async function validateProject( argv ) {
 	argv = normalizeProject( argv );
@@ -660,7 +660,7 @@ export async function validateProject( argv ) {
  * Validate that the project exists
  *
  * @param {object} argv - arguments passed to the wizard.
- * @param {string} dir - path to file we're adding changlog too.
+ * @param {string} dir  - path to file we're adding changlog too.
  */
 function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
@@ -672,7 +672,7 @@ function validatePath( argv, dir ) {
  * Prompts for changelog command if not passed one.
  *
  * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptCommand( argv ) {
 	const response = await enquirer.prompt( {
@@ -688,7 +688,7 @@ async function promptCommand( argv ) {
 /**
  * Prompts for the file to squash.
  *
- * @returns {string} 'readme' or 'changelog'.
+ * @return {string} 'readme' or 'changelog'.
  */
 async function promptForFile() {
 	const response = await enquirer.prompt( {
@@ -704,7 +704,7 @@ async function promptForFile() {
  * Prompts for which version to return.
  *
  * @param {argv} argv - the arguments passed.
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptVersion( argv ) {
 	const response = await enquirer.prompt( {
@@ -720,11 +720,11 @@ async function promptVersion( argv ) {
 /**
  * Prompts for changelog options.
  *
- * @param {object} argv - the arguments passed.
- * @param {Array} needChangelog - projects that need changelog.
- * @param {object} types - the changelog types for the projects.
+ * @param {object} argv          - the arguments passed.
+ * @param {Array}  needChangelog - projects that need changelog.
+ * @param {object} types         - the changelog types for the projects.
  *
- * @returns {argv}.
+ * @return {argv}.
  */
 async function promptChangelog( argv, needChangelog, types ) {
 	const gitBranch = child_process
@@ -863,10 +863,10 @@ async function promptChangelog( argv, needChangelog, types ) {
 /**
  * Prompts you for how you want changelogger to run (add to all projects or not, etc).
  *
- * @param {object} argv - the arguments passed.
- * @param {Array} defaultProjects - projects that use the default changelog types.
- * @param {Array} uniqueProjects - projects with unique changelog types.
- * @returns {argv}.
+ * @param {object} argv            - the arguments passed.
+ * @param {Array}  defaultProjects - projects that use the default changelog types.
+ * @param {Array}  uniqueProjects  - projects with unique changelog types.
+ * @return {argv}.
  */
 async function changelogAddPrompt( argv, defaultProjects, uniqueProjects ) {
 	const totalProjects = [ ...defaultProjects, ...uniqueProjects ];

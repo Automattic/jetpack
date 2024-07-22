@@ -27,7 +27,7 @@ export interface SupportedService extends ConnectionService {
 /**
  * Get the list of supported services.
  *
- * @returns {Array< SupportedService >} The list of supported services
+ * @return {Array< SupportedService >} The list of supported services
  */
 export function useSupportedServices(): Array< SupportedService > {
 	const availableServices = useSelect( select => {

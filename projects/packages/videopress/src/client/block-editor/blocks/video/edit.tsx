@@ -96,12 +96,12 @@ export const PlaceholderWrapper = withNotices( function ( {
 /**
  * VideoPress block Edit react components
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {string} props.clientId        - Block client ID.
- * @returns {React.ReactNode}            - React component.
+ * @param {boolean}  props.isSelected    - Whether the block is selected.
+ * @param {string}   props.clientId      - Block client ID.
+ * @return {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
 	attributes,

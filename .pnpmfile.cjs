@@ -4,7 +4,7 @@
  * We could generally do the same with pnpm.overrides in packages.json, but this allows for comments.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
@@ -120,7 +120,7 @@ function fixDeps( pkg ) {
  * This can't be done with pnpm.overrides.
  *
  * @param {object} pkg - Dependency package.json contents.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function fixPeerDeps( pkg ) {
 	// Indirect deps that still depend on React <18.
@@ -165,9 +165,9 @@ function fixPeerDeps( pkg ) {
  * Pnpm package hook.
  *
  * @see https://pnpm.io/pnpmfile#hooksreadpackagepkg-context-pkg--promisepkg
- * @param {object} pkg - Dependency package.json contents.
+ * @param {object} pkg     - Dependency package.json contents.
  * @param {object} context - Pnpm object of some sort.
- * @returns {object} Modified pkg.
+ * @return {object} Modified pkg.
  */
 function readPackage( pkg, context ) {
 	if ( pkg.name ) {
@@ -182,7 +182,7 @@ function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
- * @returns {object} Modified lockfile.
+ * @return {object} Modified lockfile.
  */
 function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.

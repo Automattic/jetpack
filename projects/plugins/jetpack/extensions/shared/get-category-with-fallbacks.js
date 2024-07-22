@@ -15,7 +15,7 @@ import { getCategories } from '@wordpress/blocks';
  * getCategoryWithFallbacks( 'new', 'old', 'older' );
  * // => 'new'
  * @param {string[]} requestedCategories - an array of categories.
- * @returns {string} the first category name found.
+ * @return {string} the first category name found.
  * @throws {Error} if the no categories could be found.
  */
 export default function getCategoryWithFallbacks( ...requestedCategories ) {

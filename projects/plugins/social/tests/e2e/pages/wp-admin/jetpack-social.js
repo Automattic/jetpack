@@ -26,7 +26,7 @@ export default class JetpackSocialPage extends WpPage {
 
 	/**
 	 * Checks it connection to WordPress.com is made
-	 * @returns {boolean} If connected.
+	 * @return {boolean} If connected.
 	 */
 	async isConnected() {
 		logger.step( 'Check if Jetpack Social is connected' );

@@ -89,7 +89,7 @@ const InputWrapper = ( {
  * Input component
  *
  * @param {InputProps} props - Component props.
- * @returns {React.ReactNode} - Input react component.
+ * @return {React.ReactNode} - Input react component.
  */
 export const Input = ( {
 	name,
@@ -120,7 +120,7 @@ export const Input = ( {
  * Search Input component
  *
  * @param {InputProps} props - Component props.
- * @returns {React.ReactNode} - Input react component.
+ * @return {React.ReactNode} - Input react component.
  */
 export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),

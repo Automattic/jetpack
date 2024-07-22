@@ -3,7 +3,7 @@
  * From https://gist.github.com/loilo/f873a88631e660c59a1d5ab757ca9b1e
  *
  * @param {HTMLElement} target - Contenteditable element of which to get the caret position
- * @returns {number} The caret position
+ * @return {number} The caret position
  */
 export const getCaretPosition = target => {
 	const sel = target.ownerDocument.defaultView.getSelection();

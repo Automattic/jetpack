@@ -37,8 +37,8 @@ export const customSeoTitleFormats = {
  * for storage into the `advanced_seo_title_formats` option.
  *
  * @param {string} inputValue - The value of an input for one of the custom SEO title inputs/pageTypes.
- * @param {string} pageType - Type of page the title is being customized for (e.g front_page, archives)
- * @returns {Array} An array of token/string objects and their values.
+ * @param {string} pageType   - Type of page the title is being customized for (e.g front_page, archives)
+ * @return {Array} An array of token/string objects and their values.
  */
 export const stringToTokenizedArray = ( inputValue, pageType ) => {
 	const inputArray = inputValue.split(
@@ -81,7 +81,7 @@ export const stringToTokenizedArray = ( inputValue, pageType ) => {
  * Objects with type of 'token' have their values enclosed by '[]'
  *
  * @param {Array} arr - An array of token/string objects and their values.
- * @returns {string} A concatenated string of values from the token/string objects supplied.
+ * @return {string} A concatenated string of values from the token/string objects supplied.
  */
 export const tokenizedArrayToString = arr => {
 	if ( Array.isArray( arr ) ) {
@@ -222,7 +222,7 @@ const CustomSeoTitleInput = ( {
  * Renders the `advanced_seo_title_formats` inputs.
  *
  * @param {object} props - Parent props.
- * @returns {object} React component.
+ * @return {object} React component.
  */
 const CustomSeoTitles = props => {
 	const [ customSeoTitleInputRefs ] = useState( {

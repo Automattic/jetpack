@@ -5,7 +5,7 @@ const { WError } = require( 'error' );
 /**
  * Fetch the reviewers approving the current PR.
  *
- * @returns {string[]} Reviewers.
+ * @return {string[]} Reviewers.
  */
 async function fetchReviewers() {
 	const octokit = github.getOctokit( core.getInput( 'token', { required: true } ) );

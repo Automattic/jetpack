@@ -18,7 +18,7 @@ export const describe = 'Run Phan on a monorepo project';
 /**
  * Load list of monorepo pseudo-projects.
  *
- * @returns {object} Map of key to dir.
+ * @return {object} Map of key to dir.
  */
 async function monorepoPseudoProjects() {
 	const contents = await fs.readFile(
@@ -32,7 +32,7 @@ async function monorepoPseudoProjects() {
  * Options definition for the phan subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the phan commands defined.
+ * @return {object} Yargs with the phan commands defined.
  */
 export async function builder( yargs ) {
 	return yargs

@@ -11,12 +11,12 @@ import type { APIFetchOptions } from '@wordpress/api-fetch';
  * an error notice if the mutation encounters an error.
  *
  * @template T The type of data expected to be returned by the mutation.
- * @param {object} params - The parameters for executing the mutation.
- * @param {string} params.name - A unique name for the mutation, used as part of the mutation key.
- * @param {APIFetchOptions} params.query - The options to be passed to the API fetch function for the mutation.
- * @param {Pick<UseMutationOptions, 'onSuccess'>} [params.options] - Optional. Mutation options from react-query, currently supports only the 'onSuccess' option.
- * @param {string} [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
- * @returns {UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
+ * @param {object}                                params                - The parameters for executing the mutation.
+ * @param {string}                                params.name           - A unique name for the mutation, used as part of the mutation key.
+ * @param {APIFetchOptions}                       params.query          - The options to be passed to the API fetch function for the mutation.
+ * @param {Pick<UseMutationOptions, 'onSuccess'>} [params.options]      - Optional. Mutation options from react-query, currently supports only the 'onSuccess' option.
+ * @param {string}                                [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
+ * @return {UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
  */
 type QueryParams = {
 	name: string;

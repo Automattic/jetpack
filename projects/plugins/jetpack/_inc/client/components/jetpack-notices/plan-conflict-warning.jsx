@@ -8,7 +8,7 @@ import { getActiveSitePurchases } from 'state/site';
 /**
  * PlanConflictWarning component
  *
- * @returns {object} component
+ * @return {object} component
  */
 export function PlanConflictWarning( { activeSitePurchases, location: { pathname } } ) {
 	// Only show on plans page.

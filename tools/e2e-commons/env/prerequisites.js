@@ -14,7 +14,7 @@ import logger from '../logger.js';
 /**
  * Create a prerequisites builder.
  * @param {page} page - Playwright page instance.
- * @returns {object} Builder
+ * @return {object} Builder
  */
 export function prerequisitesBuilder( page ) {
 	const state = {
@@ -72,12 +72,12 @@ export function prerequisitesBuilder( page ) {
 
 /**
  * Build prerequisites.
- * @param {object} state - State
- * @param {boolean} state.clean - Whether to reset the environment.
+ * @param {object}  state           - State
+ * @param {boolean} state.clean     - Whether to reset the environment.
  * @param {boolean} state.connected - Whether the site should be connected.
- * @param {object} state.plugins - Plugins state, see ensurePluginsState()
- * @param {object} state.modules - Modules state, see ensureModulesState()
- * @param {page} page - Playwright page instance.
+ * @param {object}  state.plugins   - Plugins state, see ensurePluginsState()
+ * @param {object}  state.modules   - Modules state, see ensureModulesState()
+ * @param {page}    page            - Playwright page instance.
  */
 async function buildPrerequisites( state, page ) {
 	const functions = {
@@ -185,7 +185,7 @@ async function ensureCleanState( shouldReset ) {
 /**
  * Ensure plan.
  * @param {string} plan - Plan slug.
- * @param {page} page - Playwright page instance.
+ * @param {page}   page - Playwright page instance.
  */
 export async function ensurePlan( plan = undefined, page ) {
 	if ( ! isLocalSite() ) {
@@ -220,8 +220,8 @@ export async function ensureWpComUserIsLoggedIn( page ) {
 
 /**
  * Ensure modules are active/inactive
- * @param {object} modules - State
- * @param {string[]} modules.active - Modules to activate.
+ * @param {object}   modules          - State
+ * @param {string[]} modules.active   - Modules to activate.
  * @param {string[]} modules.inactive - Modules to deactivate.
  */
 export async function ensureModulesState( modules ) {
@@ -272,7 +272,7 @@ export async function deactivateModules( modulesList ) {
 /**
  * Check if a module is active.
  * @param {string} module - Module
- * @returns {boolean} If active
+ * @return {boolean} If active
  */
 export async function isModuleActive( module ) {
 	logger.prerequisites( `Checking if ${ module } module is active` );
@@ -282,8 +282,8 @@ export async function isModuleActive( module ) {
 
 /**
  * Ensure plugins are active/inactive
- * @param {object} plugins - State
- * @param {string[]} plugins.active - Plugins to activate.
+ * @param {object}   plugins          - State
+ * @param {string[]} plugins.active   - Plugins to activate.
  * @param {string[]} plugins.inactive - Plugins to deactivate.
  */
 export async function ensurePluginsState( plugins ) {
@@ -347,7 +347,7 @@ async function deactivatePlugins( pluginsList ) {
 
 /**
  * Check if blog token is set.
- * @returns {boolean} If set.
+ * @return {boolean} If set.
  */
 export async function isBlogTokenSet() {
 	const cliCmd = 'jetpack options get blog_token';

@@ -1,9 +1,9 @@
 /**
  * Adds token via the query param `metadata_token` into VideoPress iframe's source.
  *
- * @param {string} html - VideoPress iframe HTML.
+ * @param {string} html  - VideoPress iframe HTML.
  * @param {string} token - Token.
- * @returns {string} - VideoPres iframe HTML with source updated with token.
+ * @return {string} - VideoPres iframe HTML with source updated with token.
  */
 export default function addTokenIntoIframeSource( html, token ) {
 	if ( ! html || ! token ) {

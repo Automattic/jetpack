@@ -1,7 +1,7 @@
 /**
  * Build the Redux initial state.
  *
- * @returns {object} - State.
+ * @return {object} - State.
  */
 export function buildInitialState() {
 	return {

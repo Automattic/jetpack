@@ -145,7 +145,7 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function requestExcerpt(): void {
 		// Enable Generate button

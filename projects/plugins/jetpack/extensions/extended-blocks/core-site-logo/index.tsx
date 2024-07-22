@@ -57,8 +57,8 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * Will create a HOC to use as the edit implementation.
  *
  * @param {object} settings - The block settings.
- * @param {string} name - The block name.
- * @returns {object} The new block settings.
+ * @param {string} name     - The block name.
+ * @return {object} The new block settings.
  */
 function jetpackSiteLogoWithAiSupport( settings, name: string ) {
 	// Only extend the core Site Logo block.

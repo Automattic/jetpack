@@ -69,7 +69,7 @@ export const connections = [
  *
  * @param {object} postAttributes - Post attributes.
  *
- * @returns {WPDataRegistry} Registry.
+ * @return {WPDataRegistry} Registry.
  */
 export function createRegistryWithStores( postAttributes = {} ) {
 	// Create a registry.
@@ -104,7 +104,7 @@ export function createRegistryWithStores( postAttributes = {} ) {
  *
  * @param {number} count - Number of active connections to create.
  *
- * @returns {Array} Array of active connections.
+ * @return {Array} Array of active connections.
  */
 export function createActiveConnections( count ) {
 	return [

@@ -17,7 +17,7 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Translate Infinite Scroll module and option status into our three values for the options.
 	 *
-	 * @returns {string} Check the Infinite Scroll and its mode and translate into a string.
+	 * @return {string} Check the Infinite Scroll and its mode and translate into a string.
 	 */
 	getInfiniteMode = () => {
 		if ( ! this.props.getOptionValue( 'infinite-scroll' ) ) {
@@ -64,7 +64,7 @@ class ThemeEnhancements extends React.Component {
 	 * Update state so toggles are updated.
 	 *
 	 * @param {string} optionName - option slug
-	 * @param {string} module - module slug
+	 * @param {string} module     - module slug
 	 */
 	updateOptions = ( optionName, module ) => {
 		this.setState(
@@ -86,7 +86,7 @@ class ThemeEnhancements extends React.Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object} {{
+	 * @return {object} {{
 	 * infinite_scroll: *
 	 * }}
 	 */

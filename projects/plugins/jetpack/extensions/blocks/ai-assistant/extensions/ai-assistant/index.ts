@@ -106,7 +106,7 @@ type BlockSettingsProps = {
 /**
  * Check if it is possible to extend the block.
  *
- * @returns {boolean} True if it is possible to extend the block.
+ * @return {boolean} True if it is possible to extend the block.
  */
 export function isPossibleToExtendBlock(): boolean {
 	const isBlockRegistered = getBlockType( metadata.name );
@@ -149,8 +149,8 @@ export function isPossibleToExtendBlock(): boolean {
  * Add jetpack/ai support to the extended blocks.
  *
  * @param {BlockSettingsProps} settings - Block settings.
- * @param {ExtendedBlockProp} name          - Block name.
- * @returns {BlockSettingsProps}          Block settings.
+ * @param {ExtendedBlockProp}  name     - Block name.
+ * @return {BlockSettingsProps}          Block settings.
  */
 function addJetpackAISupport(
 	settings: BlockSettingsProps,

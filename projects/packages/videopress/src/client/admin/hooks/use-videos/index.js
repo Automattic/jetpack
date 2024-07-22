@@ -10,7 +10,7 @@ import { STORE_ID } from '../../../state/constants';
 /**
  * React custom hook to get the videos.
  *
- * @returns {object} videos
+ * @return {object} videos
  */
 export default function useVideos() {
 	// Data
@@ -84,7 +84,7 @@ export const useLocalVideos = () => {
 /**
  * React custom hook to get the videos query.
  *
- * @returns {object} search query information
+ * @return {object} search query information
  */
 export const useVideosQuery = () => {
 	// Data

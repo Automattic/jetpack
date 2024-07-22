@@ -13,8 +13,8 @@ import {
 /**
  * Yield actions to refresh all of the Jetpack Social registered settings.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* refreshJetpackSocialSettings() {
 	try {

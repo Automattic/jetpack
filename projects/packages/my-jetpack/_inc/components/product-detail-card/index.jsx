@@ -28,7 +28,7 @@ import styles from './style.module.scss';
  * @param {string} props.value    - Product price
  * @param {string} props.currency - Product current code
  * @param {string} props.isOld    - True when the product price is old
- * @returns {object}                Price react component.
+ * @return {object}                Price react component.
  */
 function Price( { value, currency, isOld } ) {
 	if ( ! value || ! currency ) {
@@ -57,19 +57,19 @@ function Price( { value, currency, isOld } ) {
 /**
  * Product Detail component.
  *
- * @param {object} props                         - Component props.
- * @param {string} props.slug                    - Product slug
- * @param {Function} props.onClick               - Callback for Call To Action button click
- * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
- * @param {string} props.className               - A className to be concat with default ones
- * @param {boolean} props.preferProductName      - Use product name instead of title
- * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
- * @param {string} [props.ctaButtonLabel]        - The label for the Call To Action button
- * @param {boolean} [props.hideTOS]              - Whether to hide the Terms of Service text
- * @param {number} [props.quantity]              - The quantity of the product to purchase
- * @param {boolean} [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
- * @param {boolean} [props.isFetching]           - Whether the product is being fetched
- * @returns {object}                               ProductDetailCard react component.
+ * @param {object}          props                        - Component props.
+ * @param {string}          props.slug                   - Product slug
+ * @param {Function}        props.onClick                - Callback for Call To Action button click
+ * @param {Function}        props.trackButtonClick       - Function to call for tracking clicks on Call To Action button
+ * @param {string}          props.className              - A className to be concat with default ones
+ * @param {boolean}         props.preferProductName      - Use product name instead of title
+ * @param {React.ReactNode} props.supportingInfo         - Complementary links or support/legal text
+ * @param {string}          [props.ctaButtonLabel]       - The label for the Call To Action button
+ * @param {boolean}         [props.hideTOS]              - Whether to hide the Terms of Service text
+ * @param {number}          [props.quantity]             - The quantity of the product to purchase
+ * @param {boolean}         [props.highlightLastFeature] - Whether to highlight the last feature of the list of features
+ * @param {boolean}         [props.isFetching]           - Whether the product is being fetched
+ * @return {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
 	slug,
@@ -237,7 +237,7 @@ const ProductDetailCard = ( {
 	 *
 	 * @param {object} props      - Component props.
 	 * @param {string} props.slug - Product icon slug
-	 * @returns {object}            Icon Product component.
+	 * @return {object}            Icon Product component.
 	 */
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );

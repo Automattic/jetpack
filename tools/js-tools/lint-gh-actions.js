@@ -53,9 +53,9 @@ const error = ( file, line, msg, hint ) => {
 /**
  * Get the line number of a node.
  *
- * @param {YAML.Node} node - Node being checked.
- * @param {string}         fileContents - Contents of the file.
- * @returns {number} Line number.
+ * @param {YAML.Node} node         - Node being checked.
+ * @param {string}    fileContents - Contents of the file.
+ * @return {number} Line number.
  */
 function yamlLine( node, fileContents ) {
 	return fileContents.slice( 0, node.range[ 0 ] ).split( /\n/ ).length;
@@ -64,10 +64,10 @@ function yamlLine( node, fileContents ) {
 /**
  * Check GitHub Action data for context substitution inside a run step.
  *
- * @param {string}         file - Filename being checked.
- * @param {string}         fileContents - Contents of the file.
- * @param {string}         path - Path to the node.
- * @param {YAML.Node} node - Node being checked.
+ * @param {string}    file         - Filename being checked.
+ * @param {string}    fileContents - Contents of the file.
+ * @param {string}    path         - Path to the node.
+ * @param {YAML.Node} node         - Node being checked.
  */
 function checkRunStepsForExpressions( file, fileContents, path, node ) {
 	if ( node instanceof YAML.YAMLMap ) {
@@ -95,9 +95,9 @@ function checkRunStepsForExpressions( file, fileContents, path, node ) {
 /**
  * Check GitHub Action workflows for standard format concurrency groups.
  *
- * @param {string} file - Filename being checked.
+ * @param {string} file         - Filename being checked.
  * @param {string} fileContents - Contents of the file.
- * @param {*}      node - Node being checked.
+ * @param {*}      node         - Node being checked.
  */
 function checkConcurrencyGroup( file, fileContents, node ) {
 	const m = file.match( /^\.github\/workflows\/([^/]+)\.ya?ml$/ );

@@ -25,7 +25,7 @@ const isUserConnected = getIsUserConnected();
  * React hook to fetch the video data from the media library.
  *
  * @param {UseVideoDataArgumentsProps} args - Hook arguments object
- * @returns {UseVideoDataProps}               Hook API object.
+ * @return {UseVideoDataProps}               Hook API object.
  */
 export default function useVideoData( {
 	id,

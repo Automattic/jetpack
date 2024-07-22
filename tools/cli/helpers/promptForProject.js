@@ -7,7 +7,7 @@ import { dirs, projectTypes, allProjects } from './projectHelpers.js';
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 export default async function promptForProject( options ) {
 	const questions = [];
@@ -45,7 +45,7 @@ export default async function promptForProject( options ) {
  * If no type is passed via `options`, then it will prompt for the type of project.
  *
  * @param {object} options - Passthrough of an object, meant to accept argv.
- * @returns {object} object with the type property appended.
+ * @return {object} object with the type property appended.
  */
 export async function promptForType( options = { type: '' } ) {
 	let typeAnswer;
@@ -72,7 +72,7 @@ export async function promptForType( options = { type: '' } ) {
  * If no name is passed via `options`, then it will prompt for the name of project.
  *
  * @param {object} options - Passthrough of an object, meant to accept argv.
- * @returns {object} object with the name property appended.
+ * @return {object} object with the name property appended.
  */
 export async function promptForName( options = { name: '' } ) {
 	let nameAnswer;

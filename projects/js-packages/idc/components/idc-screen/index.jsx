@@ -14,7 +14,7 @@ import IDCScreenVisual from './visual';
  * The IDC screen component.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const IDCScreen = props => {
 	const {

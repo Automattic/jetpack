@@ -23,9 +23,9 @@ import './dashboard-page.scss';
 /**
  * SearchDashboard component definition.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} Search dashboard component.
+ * @return {React.Component} Search dashboard component.
  */
 export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );

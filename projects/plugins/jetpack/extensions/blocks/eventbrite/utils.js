@@ -16,8 +16,8 @@ export function convertToLink( url, onReplace ) {
 /**
  * Extracts an event id from an Eventbrite URL.
  *
- * @param   {string}  url - Eventbrite URL.
- * @returns {?number}     - Event id.
+ * @param {string} url - Eventbrite URL.
+ * @return {?number}     - Event id.
  */
 export function eventIdFromUrl( url ) {
 	if ( ! url ) {
@@ -31,8 +31,8 @@ export function eventIdFromUrl( url ) {
 /**
  * Returns a normalized URL string from raw input. For now we're just trimming to avoid broken URLs.
  *
- * @param   {string}  url - Eventbrite URL string.
- * @returns {?string}     - Normalized string.
+ * @param {string} url - Eventbrite URL string.
+ * @return {?string}     - Normalized string.
  */
 export function normalizeUrlInput( url = '' ) {
 	if ( ! url || typeof url !== 'string' ) {

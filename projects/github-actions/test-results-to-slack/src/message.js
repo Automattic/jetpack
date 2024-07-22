@@ -17,7 +17,7 @@ const { refType, refName, runAttempt, triggeringActor, repository } = extras;
  * that can be used later on to find this message and update it or send replies.
  *
  * @param {boolean} isFailure - whether the workflow is failed or not
- * @returns {object} Notificaton data as described
+ * @return {object} Notificaton data as described
  */
 async function createMessage( isFailure ) {
 	let target = `for ${ sha }`;
@@ -143,7 +143,7 @@ async function createMessage( isFailure ) {
  * Returns a Slack context block element with a given text.
  *
  * @param {string} text - the text of the element
- * @returns {object} - the block element
+ * @return {object} - the block element
  */
 function getTextContextElement( text ) {
 	return {
@@ -157,8 +157,8 @@ function getTextContextElement( text ) {
  * Returns a Slack button element with a given text and url.
  *
  * @param {string} text - the text of the button
- * @param {string} url - the url of the button
- * @returns {object} - the button element
+ * @param {string} url  - the url of the button
+ * @return {object} - the button element
  */
 function getButton( text, url ) {
 	return {
@@ -175,9 +175,9 @@ function getButton( text, url ) {
  * Creates the message and sends it if the rules are met.
  *
  * @param {string} slackToken - the Slack token
- * @param {string} ghToken - the GitHub token
- * @param {string} channel - the id of the channel to send the message to
- * @param {string} username - the username to use when sending the message
+ * @param {string} ghToken    - the GitHub token
+ * @param {string} channel    - the id of the channel to send the message to
+ * @param {string} username   - the username to use when sending the message
  */
 async function sendMessage( slackToken, ghToken, channel, username ) {
 	const client = new WebClient( slackToken );

@@ -32,9 +32,9 @@ type IsPossibleToExtendJetpackFormBlockProps = {
 /**
  * Check if it is possible to extend the block.
  *
- * @param {string} blockName            - The block name.
+ * @param {string}  blockName           - The block name.
  * @param {boolean} checkChildrenBlocks - Check if the block is a child of a Jetpack Form block.
- * @returns {boolean}                     True if it is possible to extend the block.
+ * @return {boolean}                     True if it is possible to extend the block.
  */
 export function useIsPossibleToExtendJetpackFormBlock(
 	blockName: string | undefined,
@@ -193,7 +193,7 @@ const jetpackFormEditWithAiComponents = createHigherOrderComponent( BlockEdit =>
  *
  * @param {object} settings - The block settings.
  * @param {string} name     - The block name.
- * @returns {object}          The block settings.
+ * @return {object}          The block settings.
  */
 function jetpackFormWithAiSupport( settings, name: string ) {
 	// Only extend Jetpack Form block type.

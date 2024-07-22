@@ -14,7 +14,7 @@ import './style.scss';
 /**
  * Block sidebar Pannel
  *
- * @returns {ReactElement} The component's elements.
+ * @return {ReactElement} The component's elements.
  */
 export default function AiAssistantPanel(): ReactElement {
 	return (

@@ -8,8 +8,8 @@ import { useEffect } from '@wordpress/element';
  * running the callback when it happens.
  * Additionally, it accepts a dependency array which is passed to useEffect hook.
  *
- * @param {Function} fn - Callback function to run when the post is just saved.
- * @param {Array} deps  - Depencency array.
+ * @param {Function} fn   - Callback function to run when the post is just saved.
+ * @param {Array}    deps - Depencency array.
  */
 export function usePostJustSaved( fn, deps ) {
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
@@ -29,8 +29,8 @@ export function usePostJustSaved( fn, deps ) {
  * running the callback when it happens.
  * Additionally, it accepts a dependency array which is passed to useEffect hook.
  *
- * @param {Function} fn - Callback function to run when the post is just published.
- * @param {Array} [deps]  - Depencency array.
+ * @param {Function} fn     - Callback function to run when the post is just published.
+ * @param {Array}    [deps] - Depencency array.
  */
 export function usePostJustPublished( fn, deps ) {
 	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );
@@ -50,8 +50,8 @@ export function usePostJustPublished( fn, deps ) {
  * running the callback when it happens.
  * Additionally, it accepts a dependency array which is passed to useEffect hook.
  *
- * @param {Function} fn - Callback function to run when the post starts publishing.
- * @param {Array} deps  - Dependency array.
+ * @param {Function} fn   - Callback function to run when the post starts publishing.
+ * @param {Array}    deps - Dependency array.
  */
 export function usePostStartedPublishing( fn, deps ) {
 	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );

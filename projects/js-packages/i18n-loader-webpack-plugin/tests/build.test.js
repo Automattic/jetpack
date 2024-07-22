@@ -8,9 +8,9 @@ require( './globals' );
  * Extract a section from a string.
  *
  * @param {string} content - String to extract from.
- * @param {string} start - Starting line.
- * @param {string} end - Line to end before.
- * @returns {string|null} Section.
+ * @param {string} start   - Starting line.
+ * @param {string} end     - Line to end before.
+ * @return {string|null} Section.
  */
 function extractSection( content, start, end ) {
 	const s = content.indexOf( '\n' + start );
@@ -25,7 +25,7 @@ function extractSection( content, start, end ) {
  * Find all files in a path.
  *
  * @param {string} dir - Path.
- * @returns {string[]} Promise resolving to a list of files.
+ * @return {string[]} Promise resolving to a list of files.
  */
 function lsFiles( dir ) {
 	const ret = [];

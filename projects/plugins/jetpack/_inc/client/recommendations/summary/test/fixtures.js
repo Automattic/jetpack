@@ -2,7 +2,7 @@
  * Build the Rewind fixture object.
  *
  * @param {object} rewindStatus - – rewind status of the site
- * @returns {object} Status.
+ * @return {object} Status.
  */
 function rewindFixture( rewindStatus ) {
 	return {
@@ -15,10 +15,10 @@ function rewindFixture( rewindStatus ) {
 /**
  * Build the site data fixture object.
  *
- * @param {object} options - Options
- * @param {string} options.productSlug - – product slug of the site's plan
- * @param {Array} options.sitePurchases - mocked site purchases
- * @returns {object} Fixture.
+ * @param {object} options               - Options
+ * @param {string} options.productSlug   - – product slug of the site's plan
+ * @param {Array}  options.sitePurchases - mocked site purchases
+ * @return {object} Fixture.
  */
 function siteDataFixture( { productSlug, sitePurchases } ) {
 	return {
@@ -41,7 +41,7 @@ function siteDataFixture( { productSlug, sitePurchases } ) {
 /**
  * Build the intro offers fixture object.
  *
- * @returns {object} Fixture.
+ * @return {object} Fixture.
  */
 function introOffersFixture() {
 	return {
@@ -76,9 +76,9 @@ function introOffersFixture() {
 /**
  * Build the upsell fixture object.
  *
- * @param {object} options - Options.
+ * @param {object}  options            - Options.
  * @param {boolean} options.hideUpsell - Whether to hide the upsell.
- * @returns {object} Fixture.
+ * @return {object} Fixture.
  */
 function upsellFixture( { hideUpsell } ) {
 	return {
@@ -105,16 +105,16 @@ function upsellFixture( { hideUpsell } ) {
 /**
  * Build an object that can be use as a Redux store initial state.
  *
- * @param {object} options - Options.
- * @param {boolean} options.hideUpsell - – whether to show the upsell product card
- * @param {string} options.productSlug - – product slug of the site's plan
- * @param {object} options.rewindStatus - – rewind status of the site
- * @param {object} options.enabledRecommendations - Enabled recommendations.
- * @param {object} options.skippedRecommendations - Skipped recommendations.
- * @param {string} options.onboardingActive - Active onboarding name.
- * @param {Array} options.onboardingViewed - Viewed onboarding names.
- * @param {Array} options.sitePurchases - Mocked Site Purchases.
- * @returns {object} – initial Redux state
+ * @param {object}  options                        - Options.
+ * @param {boolean} options.hideUpsell             - – whether to show the upsell product card
+ * @param {string}  options.productSlug            - – product slug of the site's plan
+ * @param {object}  options.rewindStatus           - – rewind status of the site
+ * @param {object}  options.enabledRecommendations - Enabled recommendations.
+ * @param {object}  options.skippedRecommendations - Skipped recommendations.
+ * @param {string}  options.onboardingActive       - Active onboarding name.
+ * @param {Array}   options.onboardingViewed       - Viewed onboarding names.
+ * @param {Array}   options.sitePurchases          - Mocked Site Purchases.
+ * @return {object} – initial Redux state
  */
 export function buildInitialState( {
 	enabledRecommendations = {},

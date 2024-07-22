@@ -7,7 +7,7 @@ import DisconnectCard from '../disconnect-card';
  * Render a list of connected plugins.
  *
  * @param {object} props - The properties
- * @returns {React.Component} - The ConnectedPlugins React component
+ * @return {React.Component} - The ConnectedPlugins React component
  */
 
 const ConnectedPlugins = props => {

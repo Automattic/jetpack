@@ -38,12 +38,12 @@ export const percentCalculator = ( part, whole ) => {
 /**
  * CountComparisonCard component.
  *
- * @param {object} props                   - Component props.
- * @param {number} props.count             - Current count.
- * @param {number} props.previousCount     - Previous count.
- * @param {React.ReactNode} props.icon     - Icon to display.
- * @param {React.ReactNode} props.heading  - Card heading.
- * @returns {object} CountComparisonCard React component.
+ * @param {object}          props               - Component props.
+ * @param {number}          props.count         - Current count.
+ * @param {number}          props.previousCount - Previous count.
+ * @param {React.ReactNode} props.icon          - Icon to display.
+ * @param {React.ReactNode} props.heading       - Card heading.
+ * @return {object} CountComparisonCard React component.
  */
 const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) => {
 	const difference = subtract( count, previousCount );

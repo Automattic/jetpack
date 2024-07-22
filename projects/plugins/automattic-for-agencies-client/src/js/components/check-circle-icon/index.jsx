@@ -4,9 +4,9 @@ import React from 'react';
 /**
  * Checkmark Circle icon component
  *
- * @param {object} props        - Component props
- * @param {string} props.color  - Color code for the checkmark
- * @returns {React.ReactElement} Component template
+ * @param {object} props       - Component props
+ * @param {string} props.color - Color code for the checkmark
+ * @return {React.ReactElement} Component template
  */
 export default function CheckCircleIcon( { color = '#008A20' } ) {
 	return (

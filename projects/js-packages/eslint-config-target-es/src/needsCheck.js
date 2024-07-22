@@ -9,11 +9,11 @@ const debuglog = debug( '@automattic/eslint-config-target-es:debug' );
 /**
  * Test if a rule needs to be checked.
  *
- * @param {string} rule - Rule.
- * @param {object} browsers - Browsers targeted.
- * @param {object} options - Options.
+ * @param {string}       rule             - Rule.
+ * @param {object}       browsers         - Browsers targeted.
+ * @param {object}       options          - Options.
  * @param {boolean|null} options.builtins - If true, only rules with "javascript.builtins" paths are checked. If false, such rules are not checked. If null/undefined, all may be checked.
- * @returns {boolean} Whether the rule needs to be checked.
+ * @return {boolean} Whether the rule needs to be checked.
  */
 function needsCheck( rule, browsers, options = {} ) {
 	let paths = rulesMap[ rule ];

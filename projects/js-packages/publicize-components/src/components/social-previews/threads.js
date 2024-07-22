@@ -8,14 +8,14 @@ import { CONNECTION_SERVICE_THREADS, store } from '../../social-store';
 /**
  * The threads tab component.
  *
- * @param {object} props - The props.
- * @param {string} props.excerpt - The post excerpt
- * @param {string} props.title - The post title
- * @param {string} props.description - The post description/excerpt
- * @param {object} props.image - The post featured image
- * @param {string} props.url - The URL of the post
- * @param {object[]} props.media - Array of attached media
- * @returns {React.ReactNode} The threads tab component.
+ * @param {object}   props             - The props.
+ * @param {string}   props.excerpt     - The post excerpt
+ * @param {string}   props.title       - The post title
+ * @param {string}   props.description - The post description/excerpt
+ * @param {object}   props.image       - The post featured image
+ * @param {string}   props.url         - The URL of the post
+ * @param {object[]} props.media       - Array of attached media
+ * @return {React.ReactNode} The threads tab component.
  */
 export function Threads( { excerpt, title, description, image, url, media } ) {
 	const { shareMessage } = usePostMeta();

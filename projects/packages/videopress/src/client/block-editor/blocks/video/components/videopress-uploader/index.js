@@ -100,7 +100,7 @@ const VideoPressUploader = ( {
 	 * Handler to add a video via an URL.
 	 *
 	 * @param {string} videoSource - URL of the video to attach
-	 * @param {string} id - Attachment ID if available
+	 * @param {string} id          - Attachment ID if available
 	 */
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
@@ -159,7 +159,7 @@ const VideoPressUploader = ( {
 	 * Uploading file handler.
 	 *
 	 * @param {File} media - media file to upload
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function onSelectVideo( media ) {
 		/*

@@ -10,7 +10,7 @@ const JETPACK_GREEN_40 = '#069e08';
  *
  * Green in the Jetpack context, otherwise black for Simple sites or Atomic sites.
  *
- * @returns {string} HEX color for block editor icons
+ * @return {string} HEX color for block editor icons
  */
 export default function getIconColor() {
 	if ( isAtomicSite() || isSimpleSite() ) {

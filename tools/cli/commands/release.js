@@ -10,7 +10,7 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
  * Command definition for the release subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function releaseDefine( yargs ) {
 	yargs.command(
@@ -217,7 +217,7 @@ export async function checkBranchValid( argv ) {
  * Checks the project we're releasing.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function parseProj( argv ) {
 	// If we're passing a specific project
@@ -238,7 +238,7 @@ export async function parseProj( argv ) {
  * Get a potential version that we might need when creating a release branch or bumping versions.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function getReleaseVersion( argv ) {
 	let potentialVersion = child_process
@@ -281,9 +281,9 @@ export async function getReleaseVersion( argv ) {
 /**
  * Bumps the correct number.
  *
- * @param {Array} version - the arguments passed
+ * @param {Array}  version - the arguments passed
  * @param {string} project - the project we're working with.
- * @returns {Array} the bumped version.
+ * @return {Array} the bumped version.
  */
 export async function getVersionBump( version, project ) {
 	version = version.split( '.' );
@@ -323,7 +323,7 @@ export async function getVersionBump( version, project ) {
  * Prompts for what version we're releasing
  *
  * @param {object} argv - the arguments passed.
- * @returns {string} version
+ * @return {string} version
  */
 export async function promptForVersion( argv ) {
 	const response = await enquirer.prompt( [
@@ -342,7 +342,7 @@ export async function promptForVersion( argv ) {
  * Prompt if we're releasing a beta.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function promptDevBeta( argv ) {
 	const response = await enquirer.prompt( [
@@ -374,7 +374,7 @@ export async function promptDevBeta( argv ) {
  * Asks for what part of the release process we want to run.
  *
  * @param {object} argv - the arguments passed
- * @returns {object} argv
+ * @return {object} argv
  */
 export async function promptForScript( argv ) {
 	const response = await enquirer.prompt( [

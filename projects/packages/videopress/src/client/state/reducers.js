@@ -49,7 +49,7 @@ import {
 /**
  * Retunr default query values
  *
- * @returns {object}       Full query object.
+ * @return {object}       Full query object.
  */
 export function getDefaultQuery() {
 	return {

@@ -9,12 +9,12 @@ const getCheckComments = require( './get-check-comments.js' );
  * meaning that Jetpack is being built. Or `packages/jetpack-mu-wpcom`,
  * for the jetpack-mu-wpcom-plugin used on WordPress.com is being built.
  *
- * @param {GitHub} github  - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
- * @param {Core}   core    - A reference to the @actions/core package
- * @returns {Promise} Promise resolving to an array of project strings needing testing.
+ * @param {GitHub} github - Initialized Octokit REST client.
+ * @param {string} owner  - Repository owner.
+ * @param {string} repo   - Repository name.
+ * @param {string} number - PR number.
+ * @param {Core}   core   - A reference to the @actions/core package
+ * @return {Promise} Promise resolving to an array of project strings needing testing.
  */
 async function touchedProjectsNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
@@ -46,7 +46,7 @@ async function touchedProjectsNeedingTesting( github, owner, repo, number, core 
  * @param {github} github  - Pre-authenticated octokit/rest.js client with pagination plugins
  * @param {object} context - Context of the workflow run
  * @param {core}   core    - A reference to the @actions/core package
- * @returns {Promise} Promise resolving to an object with the following properties:
+ * @return {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
  * - {projects} - an array of project strings needing testing.
  */

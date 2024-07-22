@@ -4,7 +4,7 @@ export const isVideoFramePosterEnabled = () =>
 /**
  * Sidebar Control component.
  *
- * @returns {import('react').ReactElement}    Component template
+ * @return {import('react').ReactElement}    Component template
  */
 export default function PosterPanel() {
 	return null;

@@ -9,7 +9,7 @@ import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 /**
  * The RedeemToken component of the My Jetpack app.
  *
- * @returns {object} The RedeemTokenScreen component.
+ * @return {object} The RedeemTokenScreen component.
  */
 export default function RedeemTokenScreen() {
 	const { userConnectionData } = useConnection();

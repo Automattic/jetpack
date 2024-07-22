@@ -4,7 +4,7 @@ import analytics from '@automattic/jetpack-analytics';
  * Initialize the analytics object.
  *
  * @param {object} tracksEventData - Tracks data.
- * @param {object} tracksUserData - User data.
+ * @param {object} tracksUserData  - User data.
  */
 export function initializeAnalytics( tracksEventData, tracksUserData ) {
 	if (
@@ -35,7 +35,7 @@ export function initializeAnalytics( tracksEventData, tracksUserData ) {
  * Tracks Will be prefixed by 'jetpack_idc_' and use underscores.
  * MC Will not be prefixed, and will use dashes.
  *
- * @param {string} eventName - name.
+ * @param {string} eventName  - name.
  * @param {object} extraProps - extra props.
  */
 export default function trackAndBumpMCStats( eventName, extraProps = {} ) {

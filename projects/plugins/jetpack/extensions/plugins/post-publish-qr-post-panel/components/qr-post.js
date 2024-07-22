@@ -11,7 +11,7 @@ import useSiteLogo from '../hooks/use-site-logo.js';
  * React component that renders a QR code for the post,
  * pulling the post data from the editor store.
  *
- * @returns {Component} The react component.
+ * @return {Component} The react component.
  */
 export function QRPost() {
 	const wrapperElementRef = useRef();

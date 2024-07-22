@@ -30,7 +30,7 @@ type AccountInfoProps = {
  *
  * @param {AccountInfoProps} props - Component props
  *
- * @returns {import('react').ReactNode} Account info component
+ * @return {import('react').ReactNode} Account info component
  */
 function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 	return (
@@ -48,7 +48,7 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  *
  * @param {ConfirmationFormProps} props - Component props
  *
- * @returns {import('react').ReactNode} Connection confirmation component
+ * @return {import('react').ReactNode} Connection confirmation component
  */
 export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();

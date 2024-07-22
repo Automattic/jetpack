@@ -5,7 +5,7 @@ import { STORE_ID } from '../../state/store';
 /**
  * Get parsed data from the initial state
  *
- * @returns {object} The information available in Protect's initial state.
+ * @return {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
 	const { statusIsFetching, status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {

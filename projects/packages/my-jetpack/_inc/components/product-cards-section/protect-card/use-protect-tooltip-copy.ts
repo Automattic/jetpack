@@ -13,11 +13,11 @@ export type TooltipContent = {
 /**
  * Gets the translated tooltip copy based on Protect Scan details.
  *
- * @param {object} props - React props
+ * @param {object} props              - React props
  * @param {number} props.pluginsCount - The number of installed plugins on the site.
- * @param {number} props.themesCount - The number of installed themes on the site.
- * @param {number} props.numThreats - The number of detected scan threats on the site.
- * @returns {TooltipContent} An object containing each tooltip's title and text content.
+ * @param {number} props.themesCount  - The number of installed themes on the site.
+ * @param {number} props.numThreats   - The number of detected scan threats on the site.
+ * @return {TooltipContent} An object containing each tooltip's title and text content.
  */
 export function useProtectTooltipCopy( {
 	pluginsCount = 0,

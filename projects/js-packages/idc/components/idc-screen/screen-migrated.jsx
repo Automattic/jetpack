@@ -11,7 +11,7 @@ import extractHostname from '../../tools/extract-hostname';
  * Retrieve the migrated screen body.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The ScreenMigrated component.
+ * @return {React.Component} The ScreenMigrated component.
  */
 const ScreenMigrated = props => {
 	const { finishCallback = () => {}, isFinishing = false, customContent = {} } = props;

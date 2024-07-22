@@ -6,7 +6,7 @@ import { SOCIAL_STORE_ID } from '../../social-store';
 /**
  * Hook that provides a function to refresh the auto conversion settings, when the page regains focus.
  *
- * @returns { object } The refreshAutoConversionSettings function.
+ * @return { object } The refreshAutoConversionSettings function.
  */
 export default function useRefreshAutoConversionSettings() {
 	const pageHasFocus = usePageVisibility();

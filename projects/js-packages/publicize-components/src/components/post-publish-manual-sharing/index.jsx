@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 /**
  * Post Publish Manual Sharing component.
  *
- * @returns {import('react').ReactNode} Post Publish Manual Sharing component.
+ * @return {import('react').ReactNode} Post Publish Manual Sharing component.
  */
 export default function PostPublishManualSharing() {
 	const { isCurrentPostPublished } = useSelect( select => select( editorStore ), [] );

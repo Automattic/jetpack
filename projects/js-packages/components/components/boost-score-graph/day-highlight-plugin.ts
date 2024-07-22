@@ -3,7 +3,7 @@ import uPlot from 'uplot';
 /**
  * Definition of the column highlight plugin.
  *
- * @returns {object} The uPlot plugin object with hooks.
+ * @return {object} The uPlot plugin object with hooks.
  */
 export function dayHighlightPlugin() {
 	let overEl, highlightEl;

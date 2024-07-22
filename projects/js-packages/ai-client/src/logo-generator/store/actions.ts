@@ -41,7 +41,7 @@ import type { SiteDetails } from '../types.js';
  * Map the response from the `sites/$site/ai-assistant-feature`
  * endpoint to the AI Assistant feature props.
  * @param { AiAssistantFeatureEndpointResponseProps } response - The response from the endpoint.
- * @returns { AiFeatureProps }                                       The AI Assistant feature props.
+ * @return { AiFeatureProps }                                       The AI Assistant feature props.
  */
 export function mapAiFeatureResponseToAiFeatureProps(
 	response: AiAssistantFeatureEndpointResponseProps
@@ -77,7 +77,7 @@ const actions = {
 
 	/**
 	 * Thunk action to fetch the AI Assistant feature from the API.
-	 * @returns {Function} The thunk action.
+	 * @return {Function} The thunk action.
 	 */
 	fetchAiAssistantFeature() {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +106,7 @@ const actions = {
 	 * This thunk action is used to increase
 	 * the requests count for the current usage period.
 	 * @param {number} count - The number of requests to increase. Default is 1.
-	 * @returns {Function}     The thunk action.
+	 * @return {Function}     The thunk action.
 	 */
 	increaseAiAssistantRequestsCount( count: number = 1 ) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any

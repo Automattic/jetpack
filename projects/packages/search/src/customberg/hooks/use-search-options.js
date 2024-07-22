@@ -8,7 +8,7 @@ const VALID_POST_TYPES = global.JetpackInstantSearchOptions.postTypes;
 /**
  * Fetches values and setters for various search configuration values.
  *
- * @returns {object} values and setters
+ * @return {object} values and setters
  */
 export default function useSearchOptions() {
 	const [ theme, setTheme ] = useEntityProp( 'root', 'site', 'jetpack_search_color_theme' );

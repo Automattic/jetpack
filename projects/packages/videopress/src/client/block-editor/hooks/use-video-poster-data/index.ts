@@ -23,7 +23,7 @@ const debug = debugFactory( 'videopress:video:use-sync-media' );
  * React hook to handle video poster generation based on block attributes changes and post save events.
  *
  * @param {VideoBlockAttributes} attributes - Block attributes.
- * @returns {boolean} isGeneratingPoster    - Whether the poster image is being generated.
+ * @return {boolean} isGeneratingPoster    - Whether the poster image is being generated.
  */
 export function useVideoPosterData( attributes: VideoBlockAttributes ) {
 	// Detect when the post has been just saved.

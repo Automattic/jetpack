@@ -18,7 +18,7 @@ export type RequestAccessOptions = {
  * Hook to request access to a service.
  *
  * @param {RequestAccessOptions} options - Options
- * @returns {(formData: FormData) => void} - Function to request access
+ * @return {(formData: FormData) => void} - Function to request access
  */
 export function useRequestAccess( { service, onConfirm }: RequestAccessOptions ) {
 	const { createErrorNotice } = useGlobalNotices();

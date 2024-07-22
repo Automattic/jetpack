@@ -8,7 +8,7 @@ import { accessOptions } from './constants';
  *
  * @see https://codex.wordpress.org/Shortcode_API#Attributes
  * @param {string} value - Value to encode.
- * @returns {string} Encoded value.
+ * @return {string} Encoded value.
  */
 export const encodeValueForShortcodeAttribute = value => {
 	return value

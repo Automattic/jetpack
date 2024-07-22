@@ -55,7 +55,7 @@ beforeEach( () => {
  * Render the button.
  *
  * @param {object} props - Props.
- * @returns {HTMLElement} Button.
+ * @return {HTMLElement} Button.
  */
 function renderButton( props ) {
 	const { container } = render( <ButtonEdit { ...props } /> );

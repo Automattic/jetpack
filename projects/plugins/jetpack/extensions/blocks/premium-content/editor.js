@@ -44,7 +44,7 @@ const disallowFromTransformations = [
  * We also filter the blocks that don't bring any value in transforming them to Premium Content block.
  *
  * @param {Array} blocks - The blocks that could be transformed
- * @returns {boolean} Whether the blocks should be allowed to be transformed to a premium content block
+ * @return {boolean} Whether the blocks should be allowed to be transformed to a premium content block
  */
 const blocksCanBeTransformed = blocks => {
 	// Avoid transforming any premium-content block.

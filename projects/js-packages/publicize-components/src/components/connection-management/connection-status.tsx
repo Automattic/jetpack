@@ -14,7 +14,7 @@ export type ConnectionStatusProps = {
  *
  * @param {ConnectionStatusProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
 	if ( connection.status !== 'broken' ) {

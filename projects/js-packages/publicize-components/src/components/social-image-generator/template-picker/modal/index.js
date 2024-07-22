@@ -10,11 +10,11 @@ import styles from './styles.module.scss';
 /**
  * Wraps the template picker component in a modal, and saves the selected template on modal save.
  *
- * @param {object} props - The component props.
- * @param {Function} props.onSelect - A function that will be called when a template is selected. Receives the name of the selected template as an argument.
- * @param {Function} props.render - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
+ * @param {object}      props              - The component props.
+ * @param {Function}    props.onSelect     - A function that will be called when a template is selected. Receives the name of the selected template as an argument.
+ * @param {Function}    props.render       - A function that will be called with an object containing an "open" function, which can be called to open the template picker.
  * @param {string|null} [props.value=null] - The name of the currently selected template.
- * @returns {JSXElement} - The component's rendered output.
+ * @return {JSXElement} - The component's rendered output.
  */
 const TemplatePickerModal = ( { onSelect, render, value = null } ) => {
 	const [ isOpen, setIsOpen ] = useState( false );

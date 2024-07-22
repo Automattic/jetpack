@@ -8,7 +8,7 @@ import ConnectionStatusCard from '../connection-status-card';
 /**
  * Plan section component.
  *
- * @returns {object} ConnectionsSection React component.
+ * @return {object} ConnectionsSection React component.
  */
 export default function ConnectionsSection() {
 	const { apiRoot, apiNonce, topJetpackMenuItemUrl, connectedPlugins } = useMyJetpackConnection();

@@ -32,11 +32,11 @@ const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
 /**
  * Alert component
  *
- * @param {object} props                   - The component properties.
- * @param {string} props.level             - The alert level: error, warning, info, success.
- * @param {boolean} props.showIcon         - Whether to show the alert icon.
+ * @param {object}          props          - The component properties.
+ * @param {string}          props.level    - The alert level: error, warning, info, success.
+ * @param {boolean}         props.showIcon - Whether to show the alert icon.
  * @param {React.Component} props.children - The alert content.
- * @returns {React.ReactElement}             The `Alert` component.
+ * @return {React.ReactElement}             The `Alert` component.
  */
 const Alert: React.FC< AlertProps > = ( { level = 'warning', children, showIcon = true } ) => {
 	const classes = clsx( styles.container, styles[ `is-${ level }` ] );

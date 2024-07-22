@@ -23,7 +23,7 @@ const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
  * as nested objects.
  *
  * @param { string } key - String of the destination key.
- * @returns { string } - Returns the key with escaped periods.
+ * @return { string } - Returns the key with escaped periods.
  */
 function escapeKey( key ) {
 	return key.replace( /\./g, '\\.' );
@@ -33,8 +33,8 @@ function escapeKey( key ) {
  * Stores the destination in the configstore.
  * Takes an optional alias arg.
  *
- * @param { string } pluginDestPath - Destination path to plugins.
- * @param { string|false } alias - Alias key, if set.
+ * @param { string }       pluginDestPath - Destination path to plugins.
+ * @param { string|false } alias          - Alias key, if set.
  */
 function setRsyncDest( pluginDestPath, alias = false ) {
 	const key = alias || pluginDestPath;
@@ -239,7 +239,7 @@ async function promptToManageConfig() {
  * Fetch the list of files to rsync.
  *
  * @param {string} source - Source path.
- * @returns {Promise<Set>} List of paths.
+ * @return {Promise<Set>} List of paths.
  */
 async function collectPaths( source ) {
 	const paths = new Set();
@@ -253,9 +253,9 @@ async function collectPaths( source ) {
 /**
  * Add a file, and all directories containing it, to the set of paths.
  *
- * @param {string} file - File to add.
- * @param {Set} paths - Set of paths to add to.
- * @returns {void}
+ * @param {string} file  - File to add.
+ * @param {Set}    paths - Set of paths to add to.
+ * @return {void}
  */
 async function addFileToPathSet( file, paths ) {
 	// Rsync requires we also list all the directories containing the file.
@@ -272,8 +272,8 @@ async function addFileToPathSet( file, paths ) {
  *
  * @param {string} source - Source path.
  * @param {string} prefix - Source path prefix.
- * @param {Set} paths - Set to add paths into.
- * @returns {Promise<void>}
+ * @param {Set}    paths  - Set to add paths into.
+ * @return {Promise<void>}
  */
 async function addFilesToPathSet( source, prefix, paths ) {
 	// Include just the files that are published to the mirror.
@@ -313,8 +313,8 @@ async function addFilesToPathSet( source, prefix, paths ) {
  * Necessary when rsyncing development builds.
  *
  * @param {string} source - Source path.
- * @param {Set} paths - Set to add paths into.
- * @returns {void}
+ * @param {Set}    paths  - Set to add paths into.
+ * @return {void}
  */
 async function addVendorFilesToPathSet( source, paths ) {
 	const dirents = await fs.readdir( source, { withFileTypes: true } );
@@ -349,7 +349,7 @@ async function addVendorFilesToPathSet( source, paths ) {
  * Create a temporary rsync filter file.
  *
  * @param {Set} paths - Paths to rsync.
- * @returns {object} As from `tmp.fileSync()`.
+ * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
 	const tmpFile = tmp.fileSync();
@@ -391,8 +391,8 @@ async function createFilterFile( paths ) {
  * Function that does the actual work of rsync.
  *
  * @param {string} source - Source path.
- * @param {string} dest - Final destination path, including plugin slug.
- * @returns {Promise<Set>} Synced path set.
+ * @param {string} dest   - Final destination path, including plugin slug.
+ * @return {Promise<Set>} Synced path set.
  */
 async function rsyncToDest( source, dest ) {
 	const paths = await collectPaths( source );
@@ -476,7 +476,7 @@ async function promptForSetAlias( pluginDestPath ) {
  * Maybe prompts for the destination path if not already set or found a saved alias.
  *
  * @param {object} argv - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 async function maybePromptForDest( argv ) {
 	if ( rsyncConfigStore.has( argv.dest ) ) {
@@ -510,7 +510,7 @@ async function maybePromptForDest( argv ) {
 /**
  * Prompts for the destination.
  *
- * @returns {Promise<*|string>} - Destination path
+ * @return {Promise<*|string>} - Destination path
  */
 async function promptNewDest() {
 	const response = await enquirer.prompt( {
@@ -528,7 +528,7 @@ async function promptNewDest() {
  * If no type is passed via `options`, then it will prompt for the plugin.
  *
  * @param {object} argv - Passthrough of an object, meant to accept argv.
- * @returns {object} object with the type property appended.
+ * @return {object} object with the type property appended.
  */
 export async function maybePromptForPlugin( argv ) {
 	let whichPlugin = argv.plugin;
@@ -553,7 +553,7 @@ export async function maybePromptForPlugin( argv ) {
  * Make sure the plugin is actually here.
  *
  * @param {string} plugin - The plugin dirname in project/plugins/.
- * @returns {boolean} Whether it's found.
+ * @return {boolean} Whether it's found.
  */
 function validatePlugin( plugin ) {
 	if ( false === allProjectsByType( 'plugins' ).includes( `plugins/${ plugin }` ) ) {
@@ -568,7 +568,7 @@ function validatePlugin( plugin ) {
  * Command definition for the rsync subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the rsync commands defined.
+ * @return {object} Yargs with the rsync commands defined.
  */
 export function rsyncDefine( yargs ) {
 	yargs.command(

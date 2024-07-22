@@ -12,7 +12,7 @@ let monorepoVersions = null;
 /**
  * Get a list of monorepo tooling version requirements to check which versions we need.
  *
- * @returns {object} - a list of monorepo version requirements.
+ * @return {object} - a list of monorepo version requirements.
  */
 export function getVersions() {
 	if ( monorepoVersions === null ) {
@@ -25,7 +25,7 @@ export function getVersions() {
 /**
  * Returns the current dev environment's node version.
  *
- * @returns {string} - the node version of the current dev environment.
+ * @return {string} - the node version of the current dev environment.
  */
 export async function getNodeVersion() {
 	return process.versions.node;
@@ -34,7 +34,7 @@ export async function getNodeVersion() {
 /**
  * Compares node versions.
  *
- * @returns {boolean} Whether the version matched.
+ * @return {boolean} Whether the version matched.
  */
 export async function compareNodeVersion() {
 	const currentNodeVersion = await getNodeVersion();
@@ -57,7 +57,7 @@ export async function compareNodeVersion() {
 /**
  * Returns the current dev environment's pnpm version.
  *
- * @returns {string} - the pnpm version of the current dev environment.
+ * @return {string} - the pnpm version of the current dev environment.
  */
 export async function getPnpmVersion() {
 	const res = await child_process.spawnSync( 'pnpm', [ '--version' ] );
@@ -74,7 +74,7 @@ export async function getPnpmVersion() {
 /**
  * Compares pnpm versions.
  *
- * @returns {boolean} Whether the version matched.
+ * @return {boolean} Whether the version matched.
  */
 export async function comparePnpmVersion() {
 	const currentPnpmVersion = await getPnpmVersion();
@@ -97,7 +97,7 @@ export async function comparePnpmVersion() {
 /**
  * Returns the current dev environment's php version.
  *
- * @returns {string} - the php version of the current dev environment.
+ * @return {string} - the php version of the current dev environment.
  */
 export async function getPhpVersion() {
 	const res = await child_process.spawnSync( 'php', [ '-r', 'echo PHP_VERSION;' ] );
@@ -115,7 +115,7 @@ export async function getPhpVersion() {
 /**
  * Compares php versions.
  *
- * @returns {boolean} Whether the version matched.
+ * @return {boolean} Whether the version matched.
  */
 export async function comparePhpVersion() {
 	const currentPhpVersion = await getPhpVersion();
@@ -138,7 +138,7 @@ export async function comparePhpVersion() {
 /**
  * Returns the current dev environment's composer version.
  *
- * @returns {string} - the composer version of the current dev environment.
+ * @return {string} - the composer version of the current dev environment.
  */
 export async function getComposerVersion() {
 	const res = await child_process.spawnSync( 'composer', [ '--version' ] );
@@ -159,7 +159,7 @@ export async function getComposerVersion() {
 /**
  * Compares composer versions.
  *
- * @returns {boolean} Whether the version matched.
+ * @return {boolean} Whether the version matched.
  */
 export async function compareComposerVersion() {
 	const currentComposerVersion = await getComposerVersion();
@@ -186,7 +186,7 @@ export async function compareComposerVersion() {
 /**
  * Compares versions of various tools.
  *
- * @returns {boolean} Whether all tools matched.
+ * @return {boolean} Whether all tools matched.
  */
 export async function compareToolVersions() {
 	let ok = true;

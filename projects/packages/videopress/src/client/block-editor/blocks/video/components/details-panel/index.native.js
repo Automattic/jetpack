@@ -11,11 +11,11 @@ import VideoNotOwnedWarning from '../video-not-owned-warning';
 /**
  * React component that renders the details settings panel.
  *
- * @param {object} props - Component properties.
- * @param {object} props.attributes - Block attributes.
- * @param {Function} props.setAttributes - Function to set attributes.
+ * @param {object}   props                   - Component properties.
+ * @param {object}   props.attributes        - Block attributes.
+ * @param {Function} props.setAttributes     - Function to set attributes.
  * @param {Function} props.videoBelongToSite - Determines if the video belongs to the current site.
- * @returns {import('react').ReactElement} - Details panel component.
+ * @return {import('react').ReactElement} - Details panel component.
  */
 export default function DetailsPanel( { attributes, setAttributes, videoBelongToSite } ) {
 	const { title, description } = attributes;

@@ -22,9 +22,9 @@ export default {
 /**
  * Helper component to create a the story.
  *
- * @param {object} props                   - Component props.
+ * @param {object}          props          - Component props.
  * @param {React.Component} props.children - Icon component children.
- * @returns {React.Component}                Text component instance.
+ * @return {React.Component}                Text component instance.
  */
 function Instance( { children } ) {
 	return (

@@ -9,7 +9,7 @@ import customContentShape from '../../tools/custom-content-shape';
  * Retrieve the main screen body.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The ScreenMain component.
+ * @return {React.Component} The ScreenMain component.
  */
 const ScreenNonAdmin = props => {
 	const { customContent = {} } = props;

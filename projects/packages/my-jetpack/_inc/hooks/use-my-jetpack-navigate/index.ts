@@ -7,7 +7,7 @@ import type { NavigateOptions } from 'react-router-dom';
  * Custom My Jetpack navigator hook
  *
  * @param {string} route - route to navigate to
- * @returns {Function} - navigate function
+ * @return {Function} - navigate function
  */
 export default function useMyJetpackNavigate(
 	route: ( typeof MyJetpackRoutes )[ keyof typeof MyJetpackRoutes ]

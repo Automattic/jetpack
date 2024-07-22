@@ -48,11 +48,11 @@ const getDescription = ( {
  * A component that renders a contextual description for
  * the Publicize publishing panel.
  *
- * @param {object} props                        - The component properties.
+ * @param {object}  props                       - The component properties.
  * @param {boolean} props.hidePublicizeFeature  - Whether the publicize feature is available or not.
  * @param {boolean} props.isPublicizeEnabled    - Whether the main publicize toggle is enabled.
  * @param {boolean} props.hasConnections        - Whether we have any Publicize connections.
  * @param {boolean} props.hasEnabledConnections - Whether any connections are enabled.
- * @returns {object} The description component.
+ * @return {object} The description component.
  */
 export default props => <div className={ styles.description }>{ getDescription( props ) }</div>;

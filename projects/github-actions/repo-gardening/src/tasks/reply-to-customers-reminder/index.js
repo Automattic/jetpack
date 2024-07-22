@@ -14,7 +14,7 @@ const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - Issue number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasHighPriorityLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -28,7 +28,7 @@ async function hasHighPriorityLabel( octokit, owner, repo, number ) {
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {object} Object containing the slack message and its formatting.
+ * @return {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;

@@ -40,7 +40,7 @@ const debug = debugFactory( 'videopress:tracks:track-form' );
  * Track From component
  *
  * @param {TrackFormProps} props - Component props.
- * @returns {React.ReactElement}   Track form react component.
+ * @return {React.ReactElement}   Track form react component.
  */
 export default function TrackForm( {
 	onCancel,

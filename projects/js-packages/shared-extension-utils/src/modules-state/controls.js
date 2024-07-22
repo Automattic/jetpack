@@ -6,7 +6,7 @@ export const UPDATE_JETPACK_MODULE_STATUS = 'UPDATE_JETPACK_MODULE_STATUS';
 /**
  * fetchJetpackModules action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchJetpackModules = () => {
 	return {
@@ -17,8 +17,8 @@ export const fetchJetpackModules = () => {
 /**
  * Updating single module status action
  *
- * @param settings - Jetpack module settings.
- * @param {string} settings.name - Jetpack module name.
+ * @param           settings        - Jetpack module settings.
+ * @param {string}  settings.name   - Jetpack module name.
  * @param {boolean} settings.active - If the module is active or not.
  */
 

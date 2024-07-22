@@ -26,7 +26,7 @@ const ProtectCheck = () => (
  * Time Since
  *
  * @param {string} date - The past date to compare to the current date.
- * @returns {string} - A description of the amount of time between a date and now, i.e. "5 minutes ago".
+ * @return {string} - A description of the amount of time between a date and now, i.e. "5 minutes ago".
  */
 const timeSince = date => {
 	const now = new Date();

@@ -33,10 +33,10 @@ export const AutoFirewallStatus = () => {
 /**
  * WafStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}              props        - The component props
  * @param {'success' | 'inactive' | 'off'} props.status - The number of threats
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
 	const slug = 'protect';

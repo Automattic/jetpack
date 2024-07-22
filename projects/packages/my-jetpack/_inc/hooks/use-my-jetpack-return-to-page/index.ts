@@ -7,7 +7,7 @@ import { useSearchParams } from 'react-router-dom';
  * it's easier on people to be sent back to a different page
  * (e.g., the license activation form).
  *
- * @returns {string} the URL of a My Jetpack page that should be displayed after connection.
+ * @return {string} the URL of a My Jetpack page that should be displayed after connection.
  */
 const useMyJetpackReturnToPage = () => {
 	const [ searchParams ] = useSearchParams();

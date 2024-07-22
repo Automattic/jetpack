@@ -291,7 +291,7 @@ function offset( pos, el, target ) {
  * TextRectangle instead of getting another version.
  *
  * @param {TextRectangle} box - result from a `getBoundingClientRect()` call
- * @param {Document} doc - Document instance to use
+ * @param {Document}      doc - Document instance to use
  * @return {Object} an object with `top` and `left` Number properties
  * @api private
  */

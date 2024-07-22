@@ -7,7 +7,7 @@ import {
 /**
  * React custom hook to get the site purchases data.
  *
- * @returns {object} site purchases data
+ * @return {object} site purchases data
  */
 
 interface MyJetpackConnection {

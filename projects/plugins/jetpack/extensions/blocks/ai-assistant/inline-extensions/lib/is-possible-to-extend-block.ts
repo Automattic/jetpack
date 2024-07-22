@@ -11,7 +11,7 @@ import { EXTENDED_INLINE_BLOCKS, isAiAssistantSupportEnabled } from '../../exten
 /**
  * Check if it is possible to extend the block as an inline extension.
  * @param {string} blockName - The block name.
- * @returns {boolean}          Whether it is possible to extend the block.
+ * @return {boolean}          Whether it is possible to extend the block.
  */
 export function isPossibleToExtendBlock( blockName: string ): boolean {
 	// Check if the AI Assistant block is registered. If not, we understand that Jetpack AI is not active.

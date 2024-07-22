@@ -77,11 +77,6 @@ module.exports = {
 				'Object.<>': 'Object<>',
 				'object<>': 'Object<>',
 			},
-			// Temporarily override plugin:@wordpress/esnext so we can clean up the jsdocs in a separate PR.
-			tagNamePreference: {
-				returns: 'returns',
-				yields: 'yields',
-			},
 		},
 	},
 	overrides: [
@@ -124,7 +119,6 @@ module.exports = {
 			},
 		],
 
-		'jsdoc/check-indentation': 'warn',
 		'jsdoc/check-syntax': 'warn',
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'jest-environment' ] } ],
 		'jsdoc/check-values': 'warn',
@@ -205,7 +199,6 @@ module.exports = {
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
 		'array-callback-return': 'off',
 		eqeqeq: [ 'error', 'allow-null' ],
-		'jsdoc/check-line-alignment': 'off',
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'no-alert': 'off',
 		'no-bitwise': 'off',

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
  * Get meta data from a VideoPress video.
  *
  * @param {object} video - VideoPress media object.
- * @returns {Promise} A promise containing {mime: string, fileSize: number, length: number}}
+ * @return {Promise} A promise containing {mime: string, fileSize: number, length: number}}
  */
 const getVideoPressMetadata = async video => {
 	if (
@@ -34,7 +34,7 @@ const getVideoPressMetadata = async video => {
  * Get relevant details from a WordPress media object.
  *
  * @param {object} media - WordPress media object.
- * @returns {Promise} An object containing mediaData and metaData.
+ * @return {Promise} An object containing mediaData and metaData.
  */
 const getMediaDetails = async media => {
 	if ( ! media ) {
@@ -87,7 +87,7 @@ const getMediaDetails = async media => {
  * Hook to handle storing the attached media.
  *
  * @param {number} mediaId - ID of the current media in the Media Lib.
- * @returns {[ mediaDetails: {metaData: {mime: string, fileSize: number, length: number}, mediaData: {width: number, height: number, sourceUrl: string}} ]} - The media details
+ * @return {[ mediaDetails: {metaData: {mime: string, fileSize: number, length: number}, mediaData: {width: number, height: number, sourceUrl: string}} ]} - The media details
  */
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );

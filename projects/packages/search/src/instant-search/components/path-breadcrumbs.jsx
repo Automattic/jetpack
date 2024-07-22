@@ -6,7 +6,7 @@ import './path-breadcrumbs.scss';
  * Splits URL by slashes for rendering breadcrumbs.
  *
  * @param {string} path - String URL.
- * @returns {string[]} - Array of strings.
+ * @return {string[]} - Array of strings.
  */
 function splitDomainPath( path ) {
 	const splits = path.split( '/' ).filter( piece => piece.length > 0 );

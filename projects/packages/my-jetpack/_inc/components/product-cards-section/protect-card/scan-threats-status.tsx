@@ -82,11 +82,11 @@ export const ScanAndThreatStatus = () => {
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren} props - The component props
- * @param {number} props.numThreats - The number of threats
- * @param {number} props.criticalThreatCount - The number of critical threats
- * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent - The number of critical threats
- * @returns {ReactElement} rendered component
+ * @param {PropsWithChildren}                      props                     - The component props
+ * @param {number}                                 props.numThreats          - The number of threats
+ * @param {number}                                 props.criticalThreatCount - The number of critical threats
+ * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent      - The number of critical threats
+ * @return {ReactElement} rendered component
  */
 function ThreatStatus( {
 	numThreats,
@@ -177,10 +177,10 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren} props - The component props
- * @param {'success' | 'partial' | 'off'} props.status - The number of threats
+ * @param {PropsWithChildren}                      props                - The component props
+ * @param {'success' | 'partial' | 'off'}          props.status         - The number of threats
  * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent - The number of critical threats
- * @returns { ReactElement} rendered component
+ * @return { ReactElement} rendered component
  */
 function ScanStatus( {
 	status,

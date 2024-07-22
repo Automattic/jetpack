@@ -172,7 +172,7 @@ export const SimplePaymentsEdit = ( {
 	 * This method does not include validation UI. Currency selection should not allow for invalid
 	 * values. It is primarily to ensure that the currency is valid to save.
 	 *
-	 * @returns  {boolean} True if currency is valid
+	 * @return  {boolean} True if currency is valid
 	 */
 	const validateCurrency = () => SUPPORTED_CURRENCY_LIST.includes( currency );
 
@@ -181,7 +181,7 @@ export const SimplePaymentsEdit = ( {
 	 *
 	 * Stores error message in state.fieldPriceError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	const validatePrice = () => {
 		const { precision } = getCurrencyDefaults( currency );
@@ -246,7 +246,7 @@ export const SimplePaymentsEdit = ( {
 	 *
 	 * Stores error message in state.fieldEmailError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	const validateEmail = () => {
 		if ( ! email ) {
@@ -279,7 +279,7 @@ export const SimplePaymentsEdit = ( {
 	 *
 	 * Stores error message in state.fieldTitleError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	const validateTitle = () => {
 		if ( ! title ) {

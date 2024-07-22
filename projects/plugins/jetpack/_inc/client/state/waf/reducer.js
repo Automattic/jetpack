@@ -69,7 +69,7 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting the firewall settings. Otherwise false.
  *
  * @param {object} state - Global state tree
- * @returns {boolean} Whether the firewall settings are being requested
+ * @return {boolean} Whether the firewall settings are being requested
  */
 export function isFetchingWafSettings( state ) {
 	return !! state.jetpack.waf.requests.isFetchingWafSettings;
@@ -78,8 +78,8 @@ export function isFetchingWafSettings( state ) {
 /**
  * Returns true if currently updating the firewall settings. Otherwise false.
  *
- * @param {object}  state - Global state tree
- * @returns {boolean} Whether the firewall settings are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether the firewall settings are being requested
  */
 export function isUpdatingWafSettings( state ) {
 	return !! state.jetpack.waf.requests.isUpdatingWafSettings;
@@ -89,7 +89,7 @@ export function isUpdatingWafSettings( state ) {
  * Returns the firewall's settings.
  *
  * @param {object} state - Global state tree
- * @returns {string}  File path to bootstrap.php
+ * @return {string}  File path to bootstrap.php
  */
 export function getWafSettings( state ) {
 	return get( state.jetpack.waf, [ 'data' ], {} );
@@ -99,7 +99,7 @@ export function getWafSettings( state ) {
  * Returns true if the firewall has automatic rules available.
  *
  * @param {object} state - Global state tree
- * @returns {boolean} Whether the firewall has automatic rules available
+ * @return {boolean} Whether the firewall has automatic rules available
  */
 export function getAutomaticRulesAvailable( state ) {
 	return get( state.jetpack.waf, [ 'data', 'automaticRulesAvailable' ], false );

@@ -41,7 +41,7 @@ export const fetchWafSettings = () => {
  * @param {string}  newSettings.ipBlockList        - The IP block list.
  * @param {boolean} newSettings.shareData          - Whether to share data.
  * @param {boolean} newSettings.shareDebugData     - Whether to share detailed data.
- * @returns {Function} - The action.
+ * @return {Function} - The action.
  */
 export const updateWafSettings = newSettings => {
 	return dispatch => {

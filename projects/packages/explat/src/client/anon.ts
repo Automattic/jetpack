@@ -10,7 +10,7 @@ const anonIdPollingIntervalMaxAttempts = 100; // 50 * 100 = 5000 = 5 seconds
 /**
  * Gather w.js anonymous cookie, tk_ai
  *
- * @returns {?string} The anonymous cookie value, or null if it doesn't exist
+ * @return {?string} The anonymous cookie value, or null if it doesn't exist
  */
 export const readAnonCookie = (): string | null => {
 	return cookie.parse( document.cookie ).tk_ai || null;
@@ -31,7 +31,7 @@ export const readAnonCookie = (): string | null => {
  *
  * Throws on error.
  *
- * @returns {Promise<string | null>} The anonymous cookie value, or null if it doesn't exist
+ * @return {Promise<string | null>} The anonymous cookie value, or null if it doesn't exist
  */
 export const initializeAnonId = async (): Promise< string | null > => {
 	let attempt = 0;

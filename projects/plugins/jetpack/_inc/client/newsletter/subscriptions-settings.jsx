@@ -22,7 +22,7 @@ import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
  * Subscription settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Subscription settings component.
+ * @return {React.Component} Subscription settings component.
  */
 function SubscriptionsSettings( props ) {
 	const {

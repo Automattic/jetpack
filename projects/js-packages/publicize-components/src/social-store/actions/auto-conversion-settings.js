@@ -11,8 +11,8 @@ export const SET_AUTO_CONVERSION_SETTINGS = 'SET_AUTO_CONVERSION_SETTINGS';
  * Yield actions to update settings
  *
  * @param {object} settings - settings to apply.
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* updateAutoConversionSettings( settings ) {
 	try {
@@ -34,8 +34,8 @@ export function* updateAutoConversionSettings( settings ) {
 /**
  * Yield actions to refresh settings
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* refreshAutoConversionSettings() {
 	try {
@@ -53,7 +53,7 @@ export function* refreshAutoConversionSettings() {
 /**
  * Set state updating action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingAutoConversionSettings() {
 	return setAutoConversionSettings( { isUpdating: true } );
@@ -62,7 +62,7 @@ export function setUpdatingAutoConversionSettings() {
 /**
  * Set state updating finished
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingAutoConversionSettingsDone() {
 	return setAutoConversionSettings( { isUpdating: false } );
@@ -72,7 +72,7 @@ export function setUpdatingAutoConversionSettingsDone() {
  * Set Social Image Generator settings action
  *
  * @param {object} options - Social Image Generator settings.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setAutoConversionSettings( options ) {
 	return { type: SET_AUTO_CONVERSION_SETTINGS, options };

@@ -18,7 +18,7 @@ export const DIMENSION_ERROR = 'DIMENSION_ERROR';
  * Checks whether a media is a video.
  *
  * @param {string} mime - The MIME tye of the media
- * @returns {boolean} Whether it is a video.
+ * @return {boolean} Whether it is a video.
  */
 export function isVideo( mime ) {
 	return mime.split( '/' )[ 0 ] === 'video';
@@ -28,7 +28,7 @@ export function isVideo( mime ) {
  * Checks whether a media is convertible so we can convert it if needed.
  *
  * @param {object} metaData - Media metadata, mime, fileSize and length.
- * @returns {boolean} Whether it is convertible.
+ * @return {boolean} Whether it is convertible.
  */
 const isMediaConvertible = metaData => {
 	if ( ! metaData?.mime || ! metaData?.fileSize ) {
@@ -56,11 +56,11 @@ const isMediaConvertible = metaData => {
 /**
  * This function is used to check if the provided image is valid based on it's size and type.
  *
- * @param {number} sizeInMb - The fileSize in bytes.
- * @param {number} width - Width of the image.
- * @param {number} height - Height of the image.
+ * @param {number} sizeInMb    - The fileSize in bytes.
+ * @param {number} width       - Width of the image.
+ * @param {number} height      - Height of the image.
  * @param {object} imageLimits - Has the properties to check against
- * @returns {FILE_SIZE_ERROR} Returns validation error.
+ * @return {FILE_SIZE_ERROR} Returns validation error.
  */
 const getImageValidationError = ( sizeInMb, width, height, imageLimits ) => {
 	const {
@@ -86,12 +86,12 @@ const getImageValidationError = ( sizeInMb, width, height, imageLimits ) => {
 /**
  * This function is used to check if the provided video is valid based on it's size and type and length.
  *
- * @param {number} sizeInMb - The fileSize in bytes.
- * @param {number} length - Video length in seconds and.
- * @param {number} width - Width of the video.
- * @param {number} height - Height of the video.
+ * @param {number} sizeInMb    - The fileSize in bytes.
+ * @param {number} length      - Video length in seconds and.
+ * @param {number} width       - Width of the video.
+ * @param {number} height      - Height of the video.
  * @param {object} videoLimits - Has the properties to check against
- * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
+ * @return {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
  */
 const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits ) => {
 	const {
@@ -126,11 +126,11 @@ const getVideoValidationError = ( sizeInMb, length, width, height, videoLimits )
 /**
  * Checks whether the media with the provided metaData is valid. It can validate images or videos.
  *
- * @param {object} metaData - Media metadata, mime, fileSize and length.
- * @param {object} mediaData - Data for media, width, height, source_url etc.
- * @param {string} serviceName - The name of the social media service we want to validate against. facebook, tumblr etc.
+ * @param {object}  metaData         - Media metadata, mime, fileSize and length.
+ * @param {object}  mediaData        - Data for media, width, height, source_url etc.
+ * @param {string}  serviceName      - The name of the social media service we want to validate against. facebook, tumblr etc.
  * @param {boolean} hasAttachedMedia - Whether the media is attached.
- * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
+ * @return {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
  */
 const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia ) => {
 	const restrictions = RESTRICTIONS[ serviceName ] ?? DEFAULT_RESTRICTIONS;
@@ -170,10 +170,10 @@ const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia 
 /**
  * Hooks to deal with the media restrictions
  *
- * @param {object} connections - Currently enabled connections.
- * @param {object} media - Currently enabled connections.
- * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
- * @returns {object} Social media connection handler.
+ * @param {object}                                              connections - Currently enabled connections.
+ * @param {object}                                              media       - Currently enabled connections.
+ * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options     - Flags for the current state. If SIG is enabled, then we assume it's valid.
+ * @return {object} Social media connection handler.
  */
 const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
 	const { attachedMedia } = useAttachedMedia();

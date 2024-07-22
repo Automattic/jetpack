@@ -41,7 +41,7 @@ interface Props {
  * Migration screen - Get start migration
  *
  * @param {object} props - Props
- * @returns {React.ReactElement} - JSX Element
+ * @return {React.ReactElement} - JSX Element
  */
 export function Migration( props: Props ) {
 	const pluginName = 'wpcom-migration';

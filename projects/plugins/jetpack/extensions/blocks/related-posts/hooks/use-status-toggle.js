@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from '@wordpress/element';
 /**
  * Fetch Related Posts option status.
  *
- * @returns {Promise<boolean>} Whether Related Posts is enabled.
+ * @return {Promise<boolean>} Whether Related Posts is enabled.
  */
 async function fetchRelatedPostsStatus() {
 	try {
@@ -20,7 +20,7 @@ async function fetchRelatedPostsStatus() {
 /**
  * Enable Related Posts option.
  *
- * @returns {Promise<boolean>} Whether Related Posts is enabled.
+ * @return {Promise<boolean>} Whether Related Posts is enabled.
  */
 async function enableRelatedPosts() {
 	try {

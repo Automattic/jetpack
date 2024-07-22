@@ -26,7 +26,7 @@ const Stats = ( { label, value = 0 }: { label: string; value: number } ) => {
  * Video Stats Group component
  *
  * @param {VideoStatsGroupProps} props - Component props.
- * @returns {React.ReactNode} - VideoStatsGroup react component.
+ * @return {React.ReactNode} - VideoStatsGroup react component.
  */
 const VideoStatsGroup = ( {
 	className,

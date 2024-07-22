@@ -8,7 +8,7 @@ import { useSupportedServices } from './use-supported-services';
 /**
  * Services list component
  *
- * @returns {import('react').ReactNode} Services list component
+ * @return {import('react').ReactNode} Services list component
  */
 export function ServicesList() {
 	const supportedServices = useSupportedServices();

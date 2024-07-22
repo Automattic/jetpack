@@ -60,7 +60,7 @@ apiFetch.use( ( options, next ) => {
  * isBetaExtension( 'ai-content-lens' ); // true
  * ```
  * @param {string} name - Extension name
- * @returns {boolean}     Whether the extension is a beta extension
+ * @return {boolean}     Whether the extension is a beta extension
  */
 export function isBetaExtension( name ) {
 	if ( ! extensionList ) {

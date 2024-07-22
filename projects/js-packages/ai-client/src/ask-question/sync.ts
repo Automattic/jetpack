@@ -19,9 +19,9 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question-sync' );
 /**
  * A function that asks a question without streaming.
  *
- * @param {PromptProp} question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
- * @param {AskQuestionOptionsArgProps} options - An optional object for additional configuration: postId, feature, model.
- * @returns {Promise<ResponseData>} - A promise that resolves to an instance of the ResponseData
+ * @param {PromptProp}                 question - The question to ask. It can be a simple string or an array of PromptMessageItemProps objects.
+ * @param {AskQuestionOptionsArgProps} options  - An optional object for additional configuration: postId, feature, model.
+ * @return {Promise<ResponseData>} - A promise that resolves to an instance of the ResponseData
  * @example
  * const question = "What is the meaning of life?";
  * const options = {

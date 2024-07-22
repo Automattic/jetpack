@@ -19,7 +19,7 @@ const getLabels = require( '../../utils/labels/get-labels' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasStatusLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -34,7 +34,7 @@ async function hasStatusLabels( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -49,7 +49,7 @@ async function hasNeedsReviewLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasProgressLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -62,7 +62,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  *
  * @param {string} plugin        - Plugin name.
  * @param {object} nextMilestone - Information about next milestone as returnde by GitHub.
- * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
+ * @return {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate;
@@ -128,7 +128,7 @@ If you have any questions about the release process, please ask in the #jetpack-
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<string>} Promise resolving to info about the next release for that plugin.
+ * @return {Promise<string>} Promise resolving to info about the next release for that plugin.
  */
 async function buildMilestoneInfo( octokit, owner, repo, number ) {
 	const plugins = await getPluginNames( octokit, owner, repo, number );
@@ -158,7 +158,7 @@ async function buildMilestoneInfo( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<number>} Promise resolving to boolean.
+ * @return {Promise<number>} Promise resolving to boolean.
  */
 async function getCheckComment( octokit, owner, repo, number ) {
 	let commentID = 0;
@@ -181,10 +181,10 @@ async function getCheckComment( octokit, owner, repo, number ) {
 /**
  * Compose a list item with appropriate status check and passed message
  *
- * @param {boolean} isFailure - Boolean condition to determine if check failed.
- * @param {string} checkMessage - Sentence describing successful check.
- * @param {string} severity - Optional. Check severity. Could be one of `error`, `warning`, `notice`
- * @returns {string} - List item with status emoji and a sentence describing check.
+ * @param {boolean} isFailure    - Boolean condition to determine if check failed.
+ * @param {string}  checkMessage - Sentence describing successful check.
+ * @param {string}  severity     - Optional. Check severity. Could be one of `error`, `warning`, `notice`
+ * @return {string} - List item with status emoji and a sentence describing check.
  */
 function statusEntry( isFailure, checkMessage, severity = 'error' ) {
 	const severityMap = {
@@ -205,7 +205,7 @@ function statusEntry( isFailure, checkMessage, severity = 'error' ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Array} - list of affected projects without changelog entry
+ * @return {Array} - list of affected projects without changelog entry
  */
 async function getChangelogEntries( octokit, owner, repo, number ) {
 	const baseDir = getPrWorkspace();
@@ -256,7 +256,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
  * @param {GitHub}                    octokit - Initialized Octokit REST client.
- * @returns {string} List of checks with appropriate status emojis.
+ * @return {string} List of checks with appropriate status emojis.
  */
 async function getStatusChecks( payload, octokit ) {
 	const { body, number, head, base } = payload.pull_request;
@@ -285,7 +285,7 @@ async function getStatusChecks( payload, octokit ) {
  * Compose a list of checks for the PR
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- * @returns {string} part of the comment with list of checks
+ * @return {string} part of the comment with list of checks
  */
 function renderStatusChecks( statusChecks ) {
 	// No PR is too small to include a description of why you made a change
@@ -330,7 +330,7 @@ function renderStatusChecks( statusChecks ) {
  * Compose a list of recommendations based on failed checks
  *
  * @param {object} statusChecks - Map of all checks with boolean as a value
- * @returns {string} part of the comment with recommendations
+ * @return {string} part of the comment with recommendations
  */
 function renderRecommendations( statusChecks ) {
 	const recommendations = {
@@ -375,8 +375,8 @@ Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automat
  * Creates or updates a comment on PR.
  *
  * @param {WebhookPayloadPullRequest} payload - Pull request event payload.
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} comment - Comment string
+ * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param {string}                    comment - Comment string
  */
 async function postComment( payload, octokit, comment ) {
 	const { number } = payload.pull_request;

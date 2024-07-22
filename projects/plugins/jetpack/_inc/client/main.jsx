@@ -274,7 +274,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
@@ -731,7 +731,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is the main connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the main connection screen page.
+	 * @return {boolean} Whether this is the main connection screen page.
 	 */
 	isMainConnectScreen() {
 		return false === this.props.siteConnectionStatus && this.props.userCanConnectSite;
@@ -740,7 +740,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is the user connection screen page.
 	 *
-	 * @returns {boolean} Whether this is the user connection screen page.
+	 * @return {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
 		return (
@@ -752,7 +752,7 @@ class Main extends React.Component {
 	/**
 	 * Checks whether we should show the Woo Connection screen page.
 	 *
-	 * @returns {boolean} Whether we should show the Woo connection screen page.
+	 * @return {boolean} Whether we should show the Woo connection screen page.
 	 */
 	shouldShowWooConnectionScreen() {
 		return '/woo-setup' === this.props.location.pathname;
@@ -761,7 +761,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the user connection has been triggered.
 	 *
-	 * @returns {boolean} Whether the user connection has been triggered.
+	 * @return {boolean} Whether the user connection has been triggered.
 	 */
 	shouldConnectUser() {
 		return this.props.isConnectingUser;
@@ -778,7 +778,7 @@ class Main extends React.Component {
 	/**
 	 * Checks if this is a licensing screen page.
 	 *
-	 * @returns {boolean} Whether this is a licensing screen page.
+	 * @return {boolean} Whether this is a licensing screen page.
 	 */
 	isLicensingScreen() {
 		return this.props.location.pathname.startsWith( '/license' );
@@ -787,7 +787,7 @@ class Main extends React.Component {
 	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
-	 * @returns {boolean} Whether to trigger the connection flow automatically.
+	 * @return {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
 		return (

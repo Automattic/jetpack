@@ -15,7 +15,7 @@ initStore();
 /**
  * Component to scroll window to top on route change.
  *
- * @returns {null} Null.
+ * @return {null} Null.
  */
 function ScrollToTop() {
 	const location = useLocation();

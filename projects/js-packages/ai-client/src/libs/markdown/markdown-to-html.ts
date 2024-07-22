@@ -96,11 +96,11 @@ export default class MarkdownToHTML {
 
 	/**
 	 * Renders HTML from Markdown content with specified processing rules.
-	 * @param {object} options            - The options to use when rendering the HTML content
-	 * @param {string} options.content    - The Markdown content to render
-	 * @param {string} options.rules      - The rules to apply to the rendered content
+	 * @param {object}  options           - The options to use when rendering the HTML content
+	 * @param {string}  options.content   - The Markdown content to render
+	 * @param {string}  options.rules     - The rules to apply to the rendered content
 	 * @param {boolean} options.extension - Whether to apply the extension-specific rules
-	 * @returns {string}                    The rendered HTML content
+	 * @return {string}                    The rendered HTML content
 	 */
 	render( {
 		content,

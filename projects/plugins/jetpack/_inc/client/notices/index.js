@@ -14,9 +14,9 @@ const notices = {
 	/**
 	 * Creates a new notice
 	 * @private
-	 * @param {String} text     the text to show
-	 * @param {Object} options  options for the notice
-	 * @param {String} status   the classname to affect the notice color.
+	 * @param {String} text    the text to show
+	 * @param {Object} options options for the notice
+	 * @param {String} status  the classname to affect the notice color.
 	 * @return {object} notice
 	 */
 	new: function ( text, options, status ) {
@@ -65,8 +65,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Success" notice
 	 * @public
-	 * @param {String} text     the text to show
-	 * @param {Object} options  options for the notice
+	 * @param {String} text    the text to show
+	 * @param {Object} options options for the notice
 	 * @return {object} notice
 	 */
 	success: function ( text, options ) {
@@ -77,8 +77,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Error" notice
 	 * @public
-	 * @param {String} text     the text to show
-	 * @param {Object} options  options for the notice
+	 * @param {String} text    the text to show
+	 * @param {Object} options options for the notice
 	 * @return {object} notice
 	 */
 	error: function ( text, options ) {
@@ -89,8 +89,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 * @param {String} text     the text to show
-	 * @param {Object} options  options for the notice
+	 * @param {String} text    the text to show
+	 * @param {Object} options options for the notice
 	 * @return {object} notice
 	 */
 	info: function ( text, options ) {
@@ -101,8 +101,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 * @param {String} text     the text to show
-	 * @param {Object} options  options for the notice
+	 * @param {String} text    the text to show
+	 * @param {Object} options options for the notice
 	 * @return {object} notice
 	 */
 	warning: function ( text, options ) {
@@ -117,7 +117,7 @@ const notices = {
 
 	/**
 	 * Removes a specific notice when you click its `X` button
-	 * @param  {object} notice The data that was originally used to create the notice
+	 * @param {object} notice The data that was originally used to create the notice
 	 */
 	removeNotice: function ( notice ) {
 		if ( ! notice.container ) {
@@ -136,8 +136,8 @@ const notices = {
 	/**
 	 * Callback handler to clear notices when a user leaves current page
 	 * @public
-	 * @param {*}        context  Not used ?
-	 * @param {Function} next     next callback to execute
+	 * @param {*}        context Not used ?
+	 * @param {Function} next    next callback to execute
 	 */
 	clearNoticesOnNavigation: function ( context, next ) {
 		debug( 'clearNoticesOnNavigation' );
@@ -175,7 +175,7 @@ const notices = {
 	 * Clear all notices at once for a given container
 	 * @public
 	 *
-	 * @param  {string} container DOM ID of notices container to clear
+	 * @param {string} container DOM ID of notices container to clear
 	 */
 	clearNotices: function ( container ) {
 		list[ container ] = [];

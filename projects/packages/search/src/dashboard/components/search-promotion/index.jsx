@@ -6,7 +6,7 @@ import './style.scss';
 /**
  * SearchPromotion component definition.
  *
- * @returns {React.Component} SearchPromotion component.
+ * @return {React.Component} SearchPromotion component.
  */
 export default function SearchPromotion() {
 	return (

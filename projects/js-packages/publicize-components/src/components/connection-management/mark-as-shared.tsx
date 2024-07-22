@@ -14,7 +14,7 @@ type MarkAsSharedProps = {
  *
  * @param {MarkAsSharedProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function MarkAsShared( { connection }: MarkAsSharedProps ) {
 	const { updateConnectionById } = useDispatch( socialStore );

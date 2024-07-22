@@ -21,7 +21,7 @@ type AutoConversionToggleProps = {
  * A button toggle wrapper for enabling/disabling the Social Image Generator feature.
  *
  * @param {AutoConversionToggleProps} props - Component props.
- * @returns {React.ReactElement} - JSX.Element
+ * @return {React.ReactElement} - JSX.Element
  */
 const AutoConversionToggle: React.FC< AutoConversionToggleProps > = ( {
 	toggleClass,

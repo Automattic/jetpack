@@ -22,7 +22,7 @@ export async function persistPlanData( planType = 'jetpack_complete' ) {
 
 /**
  * Activate e2e-plan-data-interceptor plugin
- * @returns {string} output
+ * @return {string} output
  */
 export async function activatePlanDataInterceptor() {
 	return await execWpCommand( 'plugin activate e2e-plan-data-interceptor' );
@@ -31,7 +31,7 @@ export async function activatePlanDataInterceptor() {
 /**
  * Get site ID
  *
- * @returns {string} ID
+ * @return {string} ID
  */
 async function getSiteId() {
 	const output = await execWpCommand( 'jetpack options get id' );
@@ -41,12 +41,12 @@ async function getSiteId() {
 /**
  * Get plan data.
  *
- * @param {*} id - ID.
- * @param {string} siteUrl - Site URL.
- * @param {string} planType - Jetpack plan slug.
- * @param {string} siteName - Site name.
+ * @param {*}      id          - ID.
+ * @param {string} siteUrl     - Site URL.
+ * @param {string} planType    - Jetpack plan slug.
+ * @param {string} siteName    - Site name.
  * @param {string} description - Description
- * @returns {object} data
+ * @return {object} data
  */
 function getPlanData(
 	id,
@@ -258,7 +258,7 @@ function getPlanData(
  * Returns a JSON representation of Jetpack plan data.
  *
  * @param {string} type - Jetpack plan slug.
- * @returns {JSON} JSON Jetpack plan object.
+ * @return {JSON} JSON Jetpack plan object.
  */
 function getPlan( type ) {
 	switch ( type ) {
