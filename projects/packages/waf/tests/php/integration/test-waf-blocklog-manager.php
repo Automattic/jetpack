@@ -29,7 +29,7 @@ final class WafBlocklogManagerIntegrationTest extends WorDBless\BaseTestCase {
 		Waf_Constants::define_share_data();
 
 		// Simulate a blocklog entry to trigger option update
-		$test_rule_id = 1;
+		$test_rule_id = '1';
 		$test_reason  = 'Test block reason for file';
 		Waf_Blocklog_Manager::write_blocklog( $test_rule_id, $test_reason );
 	}
