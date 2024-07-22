@@ -999,8 +999,11 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		 * @subcommand plugin-dance
 		 */
 		public function plugin_dance( $args, $assoc_args ) {
-		 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			$strategy = $assoc_args['strategy'] ?? 'one-by-one';
+			$healthy = $this->do_plugin_dance_health_check();
+			if ( $healthy ) {
+				WP_CLI::success( '✔ Site health check passed before doing anything.' );
+				return;
+			}
 
 			$plugins = WP_CLI::runcommand(
 				'--skip-plugins --skip-themes plugin list --status=active --format=json',
@@ -1027,12 +1030,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			);
 
 			$breaking_plugins = array();
-			$healthy          = $this->do_plugin_dance_health_check();
-
-			if ( $healthy ) {
-				WP_CLI::success( '✔ Site health check passed before doing anything.' );
-				return;
-			}
 
 			if ( 'one-by-one' === $assoc_args['strategy'] ) {
 				while ( ! $healthy ) {
@@ -1042,7 +1039,6 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						return;
 					}
 
-					WP_CLI::log( sprintf( 'ℹ️ Deactivating %s to find the breaking plugin.', $plugin_to_deactivate['name'] ) );
 					WP_CLI::runcommand(
 						sprintf( '--skip-themes plugin deactivate %s', $plugin_to_deactivate['name'] ),
 						array(
@@ -1091,7 +1087,20 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				);
 
 				if ( ! $this->do_plugin_dance_health_check() ) {
-					WP_CLI::error( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue.' );
+					WP_CLI::error( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue. Trying to reactivate all plugins.' );
+
+					// Reactivate all plugins.
+					foreach ( $plugins_to_reactivate as $plugin ) {
+						WP_CLI::runcommand(
+							sprintf( '--skip-themes plugin activate %s', $plugin['name'] ),
+							array(
+								'launch'     => true, // needed for exit_eror => false.
+								'return'     => true,
+								'exit_error' => false,
+							)
+						);
+					}
+
 					return;
 				}
 
