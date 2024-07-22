@@ -7,6 +7,8 @@
 
 namespace A8C\FSE;
 
+define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
+
 /**
  * Class WPCOM_Block_Editor_NUX
  */
