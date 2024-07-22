@@ -1,5 +1,5 @@
 import { InnerBlocks } from '@wordpress/block-editor';
-import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { TextControl, __experimentalUnitControl as UnitControl } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import './editor.scss';
 
 const units = [
