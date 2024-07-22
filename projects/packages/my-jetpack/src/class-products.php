@@ -24,7 +24,7 @@ class Products {
 	const STATUS_MODULE_DISABLED             = 'module_disabled';
 	const STATUS_PLUGIN_ABSENT               = 'plugin_absent';
 	const STATUS_PLUGIN_ABSENT_WITH_PLAN     = 'plugin_absent_with_plan';
-	const STATUS_NEEDS_PURCHASE              = 'needs_purchase';
+	const STATUS_NEEDS_PLAN                  = 'needs_plan';
 	const STATUS_NEEDS_ACTIVATION            = 'needs_activation';
 	const STATUS_NEEDS_FIRST_SITE_CONNECTION = 'needs_first_site_connection';
 
@@ -63,7 +63,7 @@ class Products {
 		self::STATUS_SITE_CONNECTION_ERROR,
 		self::STATUS_USER_CONNECTION_ERROR,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
-		self::STATUS_NEEDS_PURCHASE,
+		self::STATUS_NEEDS_PLAN,
 	);
 
 	/**
@@ -90,7 +90,7 @@ class Products {
 		self::STATUS_MODULE_DISABLED,
 		self::STATUS_PLUGIN_ABSENT,
 		self::STATUS_PLUGIN_ABSENT_WITH_PLAN,
-		self::STATUS_NEEDS_PURCHASE,
+		self::STATUS_NEEDS_PLAN,
 		self::STATUS_NEEDS_ACTIVATION,
 		self::STATUS_NEEDS_FIRST_SITE_CONNECTION,
 	);

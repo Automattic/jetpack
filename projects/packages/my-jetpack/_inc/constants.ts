@@ -31,7 +31,7 @@ export const PRODUCT_STATUSES = {
 	SITE_CONNECTION_ERROR: 'site_connection_error',
 	ABSENT: 'plugin_absent',
 	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
-	NEEDS_PURCHASE: 'needs_purchase',
+	NEEDS_PLAN: 'needs_plan',
 	NEEDS_ACTIVATION: 'needs_activation',
 	NEEDS_FIRST_SITE_CONNECTION: 'needs_first_site_connection',
 	USER_CONNECTION_ERROR: 'user_connection_error',

@@ -81,7 +81,7 @@ const ProductCard = inprops => {
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
-	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
+	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PLAN;
 
 	const containerClassName = clsx( {
 		[ styles.plugin_absent ]: isAbsent,
@@ -236,7 +236,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
 		PRODUCT_STATUSES.ABSENT,
 		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
-		PRODUCT_STATUSES.NEEDS_PURCHASE,
+		PRODUCT_STATUSES.NEEDS_PLAN,
 		PRODUCT_STATUSES.NEEDS_ACTIVATION,
 		PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
 		PRODUCT_STATUSES.USER_CONNECTION_ERROR,

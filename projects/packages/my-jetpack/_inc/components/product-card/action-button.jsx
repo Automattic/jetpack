@@ -90,7 +90,7 @@ const ActionButton = ( {
 						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
 				};
-			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+			case PRODUCT_STATUSES.NEEDS_PLAN: {
 				const getPlanText = __( 'Get plan', 'jetpack-my-jetpack' );
 				const learnMoreText = __( 'Learn more', 'jetpack-my-jetpack' );
 				const buttonText = isOwned ? getPlanText : learnMoreText;
@@ -102,8 +102,8 @@ const ActionButton = ( {
 					label: buttonText,
 					onClick: onAdd,
 					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PURCHASE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE ] ),
+						PRODUCT_STATUSES.NEEDS_PLAN in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PLAN ] ),
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {

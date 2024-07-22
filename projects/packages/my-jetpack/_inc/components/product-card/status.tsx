@@ -31,7 +31,7 @@ const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 			return __( 'Needs user account', 'jetpack-my-jetpack' );
 		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 			return __( 'Needs connection', 'jetpack-my-jetpack' );
-		case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+		case PRODUCT_STATUSES.NEEDS_PLAN: {
 			const needsPlanText = __( 'Needs plan', 'jetpack-my-jetpack' );
 			const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
 			return isOwned ? needsPlanText : inactiveText;
@@ -54,7 +54,7 @@ const getStatusClassName: StatusStateFunction = ( status, isOwned ) => {
 		case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
 		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
 			return styles.inactive;
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
+		case PRODUCT_STATUSES.NEEDS_PLAN:
 			return isOwned ? styles.warning : styles.inactive;
 		default:
 			return styles.inactive;
