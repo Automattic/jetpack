@@ -4,8 +4,8 @@
 module.exports = {
 	extends: [
 		'./preload.js',
-		'plugin:wpcalypso/react',
-		// Re-extend our base to re-override wpcalypso.
+		'plugin:@wordpress/react',
+		// Some configs currently don't load this otherwise. Sigh.
 		'./base.js',
 	],
 	parserOptions: {
@@ -17,17 +17,20 @@ module.exports = {
 		},
 	},
 	rules: {
-		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': [ 2, { ignoreRefs: true } ],
-		// 'react/jsx-space-before-closing': 2,
-		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
-		'react/no-danger': 2,
-		'react/no-did-mount-set-state': 2,
-		'react/no-did-update-set-state': 2,
-		'react/no-is-mounted': 2,
-		'react/prefer-es6-class': 1,
-		'react/no-string-refs': 0,
-		// suppress errors for missing 'import React' in files
-		'react/react-in-jsx-scope': 'off',
+		'react/jsx-curly-spacing': [ 'error', 'always' ],
+		'react/jsx-no-bind': [ 'error', { ignoreRefs: true } ],
+		'react/jsx-tag-spacing': [ 'error', { beforeSelfClosing: 'always' } ],
+		'react/no-danger': 'error',
+		'react/no-did-mount-set-state': 'error',
+		'react/no-did-update-set-state': 'error',
+		'react/prefer-es6-class': 'warn',
+
+		// Temporarily override plugin:@wordpress/react so we can clean up failing stuff in separate PRs.
+		'react-hooks/exhaustive-deps': [ 'warn', { additionalHooks: '' } ],
+		'react/jsx-key': 'off',
+		'react/no-direct-mutation-state': 'off',
+		'react/no-find-dom-node': 'off',
+		'react/no-unescaped-entities': 'off',
+		'react/no-unknown-property': 'off',
 	},
 };
