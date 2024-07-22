@@ -87,8 +87,63 @@
 /**
  * Profile section of the admin bar
  */
-#wpadminbar #wp-admin-bar-top-secondary {
-	float: none;
-	position: absolute;
-	right: 0;
+#wpadminbar {
+	// Add background color to the right side of the admin bar for the mobile view
+	.quicklinks {
+		background-color: inherit;
+		#wp-admin-bar-top-secondary {
+			background-color: inherit;
+		}
+	}
+
+	#wp-admin-bar-top-secondary {
+		float: none;
+		position: absolute;
+		right: 0;
+	
+		@media (max-width: 782px) {
+			#wp-admin-bar-help-center {
+				display: block !important;
+				width: 52px !important;
+				margin-right: 0 !important;
+				.ab-item {
+					width: 52px;
+					svg {
+						width: 36px;
+						height: 36px;
+						padding: 4px 8px;
+					}
+				}
+			}
+	
+			#wp-admin-bar-notes {
+				display: block !important;
+				width: 52px !important;
+				.ab-item {
+					justify-content: center;
+	
+					.noticon-bell {
+						width: 36px;
+						height: 46px;
+						top: 0;
+	
+						&:before {
+							background-position-y: bottom;
+							background-position-x: center;
+							right: 0;
+							width: 36px !important;
+							height: 40px !important;
+									background-size: contain;
+						}
+					}
+				}
+	
+				#wpnt-notes-panel2 {
+					top: 46px;
+				}
+			}
+		}
+	}
 }
+
+
