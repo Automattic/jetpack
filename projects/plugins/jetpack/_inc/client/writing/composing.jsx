@@ -228,7 +228,9 @@ export class Composing extends React.Component {
 				{ foundLatex && latexSettings }
 				{ foundShortcodes && shortcodeSettings }
 				{ foundBlocks && blocksSettings }
-				{ foundMyJetpack && aiAssistantLink }
+				{ foundMyJetpack &&
+					! this.props.getOptionValue( 'jetpack_blocks_disabled' ) &&
+					aiAssistantLink }
 			</SettingsCard>
 		);
 	}
