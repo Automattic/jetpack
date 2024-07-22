@@ -1,4 +1,4 @@
-# Jetpack VideoPress
+# Jetpack VideoPress!
 
 Jetpack VideoPress plugin
 

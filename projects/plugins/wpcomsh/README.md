@@ -1,4 +1,4 @@
-# wpcomsh
+# wpcomsh!
 
 A helper for connecting WordPress.com sites to external host infrastructure.
 

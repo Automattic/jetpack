@@ -1,4 +1,4 @@
-=== WP.com Site Helper ===
+=== WP.com Site Helper! ===
 Contributors: lamosty, obenland, automattic
 Tags: WP.com
 Requires at least: 6.5

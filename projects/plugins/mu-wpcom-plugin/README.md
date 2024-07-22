@@ -1,4 +1,4 @@
-# jetpack-mu-wpcom-plugin
+# jetpack-mu-wpcom-plugin!
 
 Note: This plugin is intended for internal use by WordPress.com only.
 

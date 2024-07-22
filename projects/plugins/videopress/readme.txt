@@ -1,4 +1,4 @@
-=== Jetpack VideoPress  ===
+=== Jetpack VideoPress!  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
 
