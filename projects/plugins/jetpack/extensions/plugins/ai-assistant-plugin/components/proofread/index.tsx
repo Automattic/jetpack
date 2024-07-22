@@ -10,10 +10,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import './style.scss';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import usePostContent from '../../hooks/use-post-content';
+import isBreveAvailable from '../breve/utils/get-availability';
 import AiAssistantModal from '../modal';
+import './style.scss';
 /**
  * Types
  */
@@ -28,7 +28,6 @@ export default function Proofread( {
 	disabled?: boolean;
 	busy?: boolean;
 } ) {
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
 	const [ suggestion, setSuggestion ] = useState( null );
 	const { tracks } = useAnalytics();
