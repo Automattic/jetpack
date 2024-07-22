@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds dedicated WAF allow and block list toggles
