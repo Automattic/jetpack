@@ -34,18 +34,15 @@ class Initial_State {
 	 */
 	public static function register_assets() {
 
-		if ( ! wp_script_is( self::SCRIPT_HANDLE, 'registered' ) ) {
-
-			Assets::register_script(
-				self::SCRIPT_HANDLE,
-				'../build/jetpack-initial-state.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-assets',
-				)
-			);
-		}
+		Assets::register_script(
+			self::SCRIPT_HANDLE,
+			'../build/jetpack-initial-state.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-assets',
+			)
+		);
 	}
 
 	/**
@@ -57,12 +54,6 @@ class Initial_State {
 	 */
 	public static function render_initial_state() {
 
-		// If the initial state has already been added, don't add it again.
-		// This can happen if this methd is called explicitly.
-		if ( wp_scripts()->get_data( self::SCRIPT_HANDLE, 'Jetpack::InitialState::added' ) ) {
-			return;
-		}
-
 		$initial_state = wp_json_encode(
 			self::get_initial_state(),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
@@ -73,8 +64,6 @@ class Initial_State {
 			sprintf( 'var JETPACK_INITIAL_STATE = %s;', $initial_state ),
 			'before'
 		);
-
-		wp_script_add_data( self::SCRIPT_HANDLE, 'Jetpack::InitialState::added', true );
 	}
 
 	/**
