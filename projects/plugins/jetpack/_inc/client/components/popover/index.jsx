@@ -91,7 +91,7 @@ class Popover extends Component {
 			this.domContextRef.current = nextProps.context;
 		} else if ( nextProps.context !== null ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Expected a DOM node for props.context', nextProps.context );
+			this.debug( 'Expected a DOM node for props.context', nextProps.context );
 		}
 
 		if ( ! nextProps.isVisible ) {
@@ -213,7 +213,7 @@ class Popover extends Component {
 				ignoreContext = this.props.ignoreContext;
 			} else {
 				// eslint-disable-next-line no-console
-				console.error( 'Expected a DOM node for ignoreContext', this.props.ignoreContext );
+				this.debug( 'Expected a DOM node for props.context', this.props.ignoreContext );
 			}
 			if ( ignoreContext && ignoreContext.contains ) {
 				shouldClose = shouldClose && ! ignoreContext.contains( event.target );
@@ -265,11 +265,11 @@ class Popover extends Component {
 			this.domContextRef.current = this.props.context;
 		} else if ( this.props.context !== null ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Expected a DOM node for props.context', this.props.context );
+			this.debug( 'Expected a DOM node for props.context', this.props.context );
 		}
 
 		this.domContainerRef.current.focus();
-		//this.domContainer.focus();
+		//this.domComtainer.focus();
 		this.setPosition();
 	}
 

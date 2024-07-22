@@ -1,8 +1,14 @@
 import userEvent from '@testing-library/user-event';
 import { useState, useCallback } from '@wordpress/element';
+import debugFactory from 'debug';
 import React from 'react';
 import { render, screen, waitFor } from 'test/test-utils';
 import Popover from '../index';
+
+jest.mock( 'debug', () => {
+	const debug = jest.fn();
+	return jest.fn( () => debug );
+} );
 
 const TestComponent = ( { ignoreContext, nonDomObjectContext } ) => {
 	const [ context, setContext ] = useState( () => {
@@ -51,20 +57,29 @@ const TestComponent = ( { ignoreContext, nonDomObjectContext } ) => {
 };
 
 describe( 'TestComponent', () => {
-	it( 'should not show Popover when context is not a DOM element', async () => {
-		const consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	let debug;
 
+	beforeEach( () => {
+		debug = debugFactory( 'calypso:popover' );
+	} );
+
+	afterEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it( 'should not show Popover when context is not a DOM element', async () => {
 		render( <TestComponent nonDomObjectContext={ true } /> );
 		await userEvent.click( screen.getByText( 'Toggle Context', { selector: 'button' } ) );
 		await waitFor( () => {
 			expect( screen.queryByText( 'Popover Content' ) ).not.toBeInTheDocument();
 		} );
-		expect( consoleErrorSpy ).toHaveBeenCalledWith(
-			'Expected a DOM node for props.context',
-			expect.anything()
-		);
 
-		consoleErrorSpy.mockRestore();
+		const debugCalls = debug.mock.calls.flat();
+		const containsSpecificString = debugCalls.some(
+			message =>
+				typeof message === 'string' && message.includes( 'Expected a DOM node for props.context' )
+		);
+		expect( containsSpecificString ).toBe( true );
 	} );
 	it( 'should show Popover when context is a DOM element', async () => {
 		render( <TestComponent /> );
