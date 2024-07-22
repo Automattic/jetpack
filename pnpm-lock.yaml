@@ -2354,9 +2354,6 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-initial-state':
-        specifier: workspace:*
-        version: link:../../js-packages/initial-state
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
