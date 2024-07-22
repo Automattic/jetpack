@@ -478,8 +478,8 @@ abstract class Product {
 			// We only consider missing site & user connection an error when the Product is active.
 			if ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before
-				if ( ! Jetpack_Options::get_option( 'id' ) ) {
-					$status = static::is_owned() ? Products::STATUS_SITE_CONNECTION_ERROR : Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+				if ( ! Jetpack_Options::get_option( 'id' ) && ! static::is_owned() ) {
+					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
 					$status = Products::STATUS_SITE_CONNECTION_ERROR;
 				}
@@ -498,9 +498,9 @@ abstract class Product {
 			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
 				$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
-				// Site has never been connected before
-				if ( ! Jetpack_Options::get_option( 'id' ) ) {
-					$status = static::is_owned() ? Products::STATUS_SITE_CONNECTION_ERROR : Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
+				// Site has never been connected before and product is not owned
+				if ( ! Jetpack_Options::get_option( 'id' ) && ! static::is_owned() ) {
+					$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 				} else {
 					$status = Products::STATUS_SITE_CONNECTION_ERROR;
 				}
