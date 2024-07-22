@@ -1,0 +1,57 @@
+@use '../../shared/sass/variables';
+@use '../../shared/sass/placeholder';
+@use '../../shared/sass/colors';
+
+.wpnbha {
+	article {
+		.entry-title {
+			margin: 0 0 0.25em;
+		}
+	}
+
+	.editor-rich-text {
+		width: 100%;
+	}
+
+	/* Article meta */
+	.cat-links {
+		font-size: variables.$font__size-xs;
+	}
+
+	span.avatar {
+		display: inline-block;
+		margin-right: 0.5em;
+		div {
+			display: inline;
+		}
+	}
+
+	/* Article excerpt */
+	.excerpt-contain p {
+		margin: 0.5em 0;
+	}
+}
+
+.editor-styles-wrapper.wpnbha__wp-block-button__wrapper {
+	background-color: transparent;
+}
+
+.newspack-block {
+	&--error.components-placeholder {
+		color: colors.$color__error;
+	}
+	&--disabled {
+		position: relative;
+		&::after {
+			content: '';
+			position: absolute;
+			z-index: 2;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			background-color: #fff;
+			opacity: 0.6;
+		}
+	}
+}
