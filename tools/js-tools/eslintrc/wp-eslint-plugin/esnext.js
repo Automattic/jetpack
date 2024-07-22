@@ -1,3 +1,3 @@
 module.exports = {
-	extends: [ '../preload', 'plugin:@wordpress/eslint-plugin/esnext' ],
+	extends: [ '../preload', 'plugin:@wordpress/esnext' ],
 };

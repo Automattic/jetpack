@@ -59,14 +59,15 @@ CSS
 		);
 	}
 }
-add_action( 'admin_bar_menu', 'wpcom_enqueue_admin_bar_assets' );
+add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 
 /**
- * Repurposes the WP logo as a link to /sites.
+ * Replaces the WP logo as a link to /sites.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
-function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
+function wpcom_replace_wp_logo_with_wpcom_all_sites_menu( $wp_admin_bar ) {
 	foreach ( $wp_admin_bar->get_nodes() as $node ) {
 		if ( $node->parent === 'wp-logo' || $node->parent === 'wp-logo-external' ) {
 			$wp_admin_bar->remove_node( $node->id );
@@ -75,7 +76,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 	$wp_admin_bar->remove_node( 'wp-logo' );
 	$wp_admin_bar->add_node(
 		array(
-			'id'    => 'wp-logo',
+			'id'    => 'wpcom-logo',
 			'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
@@ -87,7 +88,7 @@ function wpcom_repurpose_wp_logo_as_all_sites_menu( $wp_admin_bar ) {
 		)
 	);
 }
-add_action( 'admin_bar_menu', 'wpcom_repurpose_wp_logo_as_all_sites_menu', 11 );
+add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu', 11 );
 
 /**
  * Adds the Reader menu.
@@ -133,3 +134,19 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_my_account_item_to_profile_menu' );
+
+/**
+ * Replaces the default admin bar class with our own.
+ *
+ * @param string $wp_admin_bar_class Admin bar class to use. Default 'WP_Admin_Bar'.
+ * @return string Name of the admin bar class.
+ */
+function wpcom_custom_wpcom_admin_bar_class( $wp_admin_bar_class ) {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+		return $wp_admin_bar_class;
+	}
+
+	require_once __DIR__ . '/class-wpcom-admin-bar.php';
+	return '\Automattic\Jetpack\Jetpack_Mu_Wpcom\WPCOM_Admin_Bar';
+}
+add_filter( 'wp_admin_bar_class', 'wpcom_custom_wpcom_admin_bar_class' );

@@ -12,6 +12,7 @@ import { isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
 import { siteHasFeature } from 'state/site';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
+import AllowList from './allowList';
 import Antispam from './antispam';
 import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
@@ -111,6 +112,7 @@ export class Security extends Component {
 				) }
 				{ foundWaf && <Waf { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }
+				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
 			</div>
 		);

@@ -6,9 +6,10 @@ package.json      export-ignore
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
-vendor/autoload.php  production-include
-vendor/composer/**   production-include
-vendor/automattic/** production-include
+vendor/autoload.php        production-include
+vendor/composer/**         production-include
+vendor/automattic/**       production-include
+vendor/scssphp/scssphp/**  production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
