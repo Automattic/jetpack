@@ -65,7 +65,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
  * @returns {Promise<string>} Promise resolving to info about the release (code freeze, release date).
  */
 async function getMilestoneDates( plugin, nextMilestone ) {
-	let releaseDate;
+	let releaseDate = 'none scheduled';
 	let codeFreezeDate;
 	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
@@ -77,19 +77,11 @@ async function getMilestoneDates( plugin, nextMilestone ) {
 		// If we have a date and it is valid, use it, otherwise set code freeze to a week before the release.
 		if ( freezeDateDescription && moment( freezeDateDescription[ 1 ] ).isValid() ) {
 			codeFreezeDate = moment( freezeDateDescription[ 1 ] ).format( 'LL' );
-		} else {
-			codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
 		}
-	} else {
-		// Fallback to raw math calculation
-		// Calculate next release date
-		const firstTuesdayOfMonth = moment().add( 1, 'months' ).startOf( 'month' );
-		while ( firstTuesdayOfMonth.day() !== 2 ) {
-			firstTuesdayOfMonth.add( 1, 'day' );
-		}
-		releaseDate = firstTuesdayOfMonth.format( 'LL' );
-		// Calculate next code freeze date
-		codeFreezeDate = firstTuesdayOfMonth.subtract( 8, 'd' ).format( 'LL' );
+	} else if ( plugin === 'wpcomsh' ) {
+		releaseDate = 'on demand (usually Mondays if not sooner)';
+	} else if ( plugin === 'mu-wpcom-plugin' ) {
+		releaseDate = 'WordPress.com Simple releases happen daily';
 	}
 
 	const capitalizedName = plugin
@@ -113,8 +105,7 @@ ${
 - Releases to self-hosted sites happen monthly. The next release is scheduled for _${ releaseDate }_ (scheduled code freeze on _${ codeFreezeDate }_).`
 		: `
 - Next scheduled release: _${ releaseDate }_.
-- Scheduled code freeze: _${ codeFreezeDate }_.
-`
+${ codeFreezeDate ? `- Scheduled code freeze: _${ codeFreezeDate }_.\n` : '' }`
 }
 
 If you have any questions about the release process, please ask in the #jetpack-releases channel on Slack.
