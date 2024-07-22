@@ -6,6 +6,7 @@ import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
+import { Connection } from '../../social-store/types';
 import Notice from '../notice';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import styles from './styles.module.scss';
@@ -54,9 +55,16 @@ export const BrokenConnectionsNotice: React.FC = () => {
 	);
 
 	// Group broken connections by service
-	const brokenConnectionsList = Object.groupBy(
-		brokenConnections,
-		connection => connection.service_name
+	// Since Object.groupBy is not supported widely yet, we use a manual grouping
+	const brokenConnectionsList = brokenConnections.reduce< Record< string, Array< Connection > > >(
+		( acc, connection ) => {
+			if ( ! acc[ connection.service_name ] ) {
+				acc[ connection.service_name ] = [];
+			}
+			acc[ connection.service_name ].push( connection );
+			return acc;
+		},
+		{}
 	);
 
 	return (
