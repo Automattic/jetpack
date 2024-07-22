@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Google_Analytics\GA_Manager;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -593,38 +592,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get GA tracking code.
-	 *
-	 * @deprecated 13.6
-	 */
-	protected function get_google_analytics() {
-		if ( class_exists( GA_Manager::class ) ) {
-			$option_name = GA_Manager::get_instance()->get_google_analytics_option_name();
-		} else {
-			$option_name = $this->get_google_analytics_option_name();
-		}
-
-		return get_option( $option_name );
-	}
-
-	/**
-	 * Get GA tracking code option name.
-	 *
-	 * @deprecated 13.6
-	 */
-	protected function get_google_analytics_option_name() {
-		if ( class_exists( GA_Manager::class ) ) {
-			return GA_Manager::get_instance()->get_google_analytics_option_name();
-		}
-
-		/** This filter is documented in class.json-api-endpoints.php */
-		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
-
-		return $option_name;
 	}
 
 	/**
