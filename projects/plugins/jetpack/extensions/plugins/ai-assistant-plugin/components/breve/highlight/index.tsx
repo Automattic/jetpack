@@ -116,12 +116,13 @@ export default function Highlight() {
 	const handleSuggestions = () => {
 		const target = ( anchor as HTMLElement )?.innerText;
 		const parent = getNonLinkAncestor( anchor as HTMLElement );
-		const sentence = parent?.innerText as string;
+		// The text containing the target
+		const text = parent?.innerText as string;
 		// Get the index of the target in the parent
 		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
 		// Get the occurrences of the target in the sentence
 		const targetRegex = new RegExp( target, 'gi' );
-		const matches = Array.from( sentence.matchAll( targetRegex ) ).map( match => match.index );
+		const matches = Array.from( text.matchAll( targetRegex ) ).map( match => match.index );
 		// Get the right occurrence of the target in the sentence
 		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
 		const ordinalOccurence = numberToOrdinal( occurrence );
@@ -130,7 +131,7 @@ export default function Highlight() {
 			id,
 			target,
 			feature,
-			sentence,
+			text,
 			blockId,
 			occurrence: ordinalOccurence,
 		} );
