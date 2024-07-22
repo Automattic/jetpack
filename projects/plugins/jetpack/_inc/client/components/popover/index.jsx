@@ -87,7 +87,7 @@ class Popover extends Component {
 	UNSAFE_componentWillReceiveProps( nextProps ) {
 		// update context (target - expecting a DOM node not a ref) reference into a property
 
-		if ( this.isDOMNode( nextProps.context ) ) {
+		if ( ! nextProps.context || this.isDOMNode( nextProps.context ) ) {
 			this.domContextRef.current = nextProps.context;
 		} else if ( nextProps.context !== null ) {
 			// eslint-disable-next-line no-console
@@ -209,7 +209,7 @@ class Popover extends Component {
 
 		if ( this.props.ignoreContext && shouldClose ) {
 			let ignoreContext;
-			if ( this.isDOMNode( this.props.ignoreContext ) ) {
+			if ( ! this.props.ignoreContext || this.isDOMNode( this.props.ignoreContext ) ) {
 				ignoreContext = this.props.ignoreContext;
 			} else {
 				// eslint-disable-next-line no-console
@@ -261,7 +261,7 @@ class Popover extends Component {
 		// store DOM element referencies - note we expect DOM nodes not refs.
 		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
-		if ( this.isDOMNode( this.props.context ) ) {
+		if ( ! this.props.context || this.isDOMNode( this.props.context ) ) {
 			this.domContextRef.current = this.props.context;
 		} else if ( this.props.context !== null ) {
 			// eslint-disable-next-line no-console
