@@ -1036,6 +1036,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 					$plugin_to_deactivate = array_pop( $plugins_to_reactivate );
 					if ( empty( $plugin_to_deactivate ) ) {
 						WP_CLI::error( '❌ Site health check failed after testing all plugins one by one.' );
+						return;
 					}
 
 					WP_CLI::runcommand(
