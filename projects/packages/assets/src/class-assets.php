@@ -507,7 +507,7 @@ class Assets {
 				'dependencies' => array( 'wp-i18n' ),
 				'version'      => filemtime( __DIR__ . "/$path" ),
 			);
-			$jsx_path = '.js/react-jsx-runtime.js';
+			$jsx_path = 'js/react-jsx-runtime.js';
 		}
 		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
 		$url = add_query_arg( 'minify', 'true', $url );
