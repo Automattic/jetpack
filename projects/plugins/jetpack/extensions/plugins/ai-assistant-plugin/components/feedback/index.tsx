@@ -7,11 +7,11 @@ import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 /**
  * Internal dependencies
  */
 import './style.scss';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
 /**
@@ -19,7 +19,7 @@ import AiAssistantModal from '../modal';
  */
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
-export default function Proofread( {
+export default function Feedback( {
 	disabled = false,
 	busy = false,
 	placement,
@@ -28,9 +28,8 @@ export default function Proofread( {
 	disabled?: boolean;
 	busy?: boolean;
 } ) {
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-	const [ isProofreadModalVisible, setIsProofreadModalVisible ] = useState( false );
-	const [ suggestion, setSuggestion ] = useState( null );
+	const [ isFeedbackModalVisible, setIsFeedbackModalVisible ] = useState( false );
+	const [ suggestion, setSuggestion ] = useState< Array< React.JSX.Element | null > >( [ null ] );
 	const { tracks } = useAnalytics();
 
 	const postId = useSelect(
@@ -39,8 +38,8 @@ export default function Proofread( {
 	);
 	const postContent = usePostContent();
 
-	const toggleProofreadModal = () => {
-		setIsProofreadModalVisible( ! isProofreadModalVisible );
+	const toggleFeedbackModal = () => {
+		setIsFeedbackModalVisible( ! isFeedbackModalVisible );
 	};
 
 	const { increaseAiAssistantRequestsCount, dequeueAiAssistantFeatureAsyncRequest } =
@@ -77,7 +76,7 @@ export default function Proofread( {
 			{
 				role: 'jetpack-ai' as const,
 				context: {
-					type: 'proofread-plugin',
+					type: 'proofread-plugin', // Legacy name, do not change
 					content: postContent,
 				},
 			},
@@ -90,29 +89,22 @@ export default function Proofread( {
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
 
-		request( messages, { feature: 'jetpack-ai-proofread-plugin' } );
-		toggleProofreadModal();
+		request( messages, { feature: 'jetpack-ai-proofread-plugin' } ); // Legacy name, do not change
+		toggleFeedbackModal();
 		tracks.recordEvent( 'jetpack_ai_get_feedback', {
-			feature: 'jetpack-ai-proofread-plugin',
+			feature: 'jetpack-ai-proofread-plugin', // Legacy name, do not change
 			placement,
 		} );
 	};
 
-	const defaultCopy = __(
-		'Get suggestions on how to enhance your post to better engage your audience.',
-		'jetpack'
-	);
-
-	const withBreveCopy = __( 'Get feedback on content structure.', 'jetpack' );
-
 	return (
 		<div>
-			{ isProofreadModalVisible && (
-				<AiAssistantModal requestingState={ requestingState } handleClose={ toggleProofreadModal }>
+			{ isFeedbackModalVisible && (
+				<AiAssistantModal requestingState={ requestingState } handleClose={ toggleFeedbackModal }>
 					<div className="ai-assistant-post-feedback__suggestion">{ suggestion }</div>
 				</AiAssistantModal>
 			) }
-			<p>{ isBreveAvailable ? withBreveCopy : defaultCopy }</p>
+			<p>{ __( 'Get feedback on content structure.', 'jetpack' ) }</p>
 			<Button
 				onClick={ handleRequest }
 				variant="secondary"

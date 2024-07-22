@@ -22,7 +22,7 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import Proofread from '../proofread';
+import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -75,7 +75,12 @@ const JetpackAndSettingsContent = ( {
 			<PanelRow className="jetpack-ai-proofread-control__header">
 				<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
 					{ isBreveAvailable && <Breve /> }
-					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
+				</BaseControl>
+			</PanelRow>
+
+			<PanelRow className="jetpack-ai-feedback__header">
+				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 
@@ -202,7 +207,7 @@ export default function AiAssistantPluginSidebar() {
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread
+					<Feedback
 						placement={ PLACEMENT_PRE_PUBLISH }
 						busy={ false }
 						disabled={ requireUpgrade }
