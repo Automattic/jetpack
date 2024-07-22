@@ -1,10 +1,11 @@
 import { Alert } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
 export type ServiceStatusProps = {
 	serviceConnections: Array< Connection >;
+	brokenConnections: Array< Connection >;
 };
 
 /**
@@ -14,15 +15,23 @@ export type ServiceStatusProps = {
  *
  * @returns {import('react').ReactNode} Service status component
  */
-export function ServiceStatus( { serviceConnections }: ServiceStatusProps ) {
+export function ServiceStatus( { serviceConnections, brokenConnections }: ServiceStatusProps ) {
 	if ( ! serviceConnections.length ) {
 		return null;
 	}
 
-	if ( serviceConnections.some( ( { status } ) => status === 'broken' ) ) {
+	if ( brokenConnections.length > 0 ) {
+		const canFix = brokenConnections.some( ( { can_disconnect } ) => can_disconnect );
+
 		return (
-			<Alert level="error" showIcon={ false } className={ styles[ 'broken-connection-alert' ] }>
-				{ __( 'Please fix the broken connections.', 'jetpack' ) }
+			<Alert
+				level={ canFix ? 'error' : 'warning' }
+				showIcon={ false }
+				className={ styles[ 'broken-connection-alert' ] }
+			>
+				{ canFix
+					? __( 'Please fix the broken connections.', 'jetpack' )
+					: _n( 'Broken connection', 'Broken connections', brokenConnections.length, 'jetpack' ) }
 			</Alert>
 		);
 	}

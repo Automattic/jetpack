@@ -26,7 +26,9 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 
 	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
 
-	const hasBrokenConnections = brokenConnections.length > 0;
+	const hasOwnBrokenConnections = brokenConnections.some(
+		( { can_disconnect } ) => can_disconnect
+	);
 
 	const hideInitialConnectForm =
 		// For Mastodon, the initial connect form opens the panel,
@@ -34,7 +36,7 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 		isMastodonPanelOpen ||
 		// For services with broken connections, we want to show the "Fix connections" button
 		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
-		( hasBrokenConnections && isPanelOpen );
+		( hasOwnBrokenConnections && isPanelOpen );
 
 	const buttonLabel =
 		brokenConnections.length > 1
@@ -63,7 +65,10 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
 					) : null }
-					<ServiceStatus serviceConnections={ serviceConnections } />
+					<ServiceStatus
+						serviceConnections={ serviceConnections }
+						brokenConnections={ brokenConnections }
+					/>
 				</div>
 				<div className={ styles.actions }>
 					{ ! hideInitialConnectForm ? (
@@ -71,10 +76,10 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 							service={ service }
 							isSmall={ isSmall }
 							onSubmit={
-								hasBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
+								hasOwnBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
 							}
 							hasConnections={ serviceConnections.length > 0 }
-							buttonLabel={ hasBrokenConnections ? buttonLabel : undefined }
+							buttonLabel={ hasOwnBrokenConnections ? buttonLabel : undefined }
 						/>
 					) : null }
 					<Button
@@ -94,7 +99,7 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 
 					{ /* Only show the connect form for Mastodon if there are no broken connections */ }
-					{ service.ID === 'mastodon' && ! hasBrokenConnections ? (
+					{ service.ID === 'mastodon' && ! hasOwnBrokenConnections ? (
 						<div className={ styles[ 'connect-form-wrapper' ] }>
 							<ConnectForm
 								service={ service }
