@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove checks for Jetpack versions over a year old.
