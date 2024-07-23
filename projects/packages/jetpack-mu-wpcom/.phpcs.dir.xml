@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <ruleset>
-	<exclude-pattern>./src/features/newspack-blocks/synced-newspack-blocks/*</exclude-pattern>
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
