@@ -666,7 +666,7 @@ HTML;
 			return;
 		}
 
-		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! verify_comment_nonce( $post_array['jetpack_comments_nonce'], $post_array['comment_post_ID'] ) ) {
+		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! $this->verify_comment_nonce( $post_array['jetpack_comments_nonce'], $post_array['comment_post_ID'] ) ) {
 				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
