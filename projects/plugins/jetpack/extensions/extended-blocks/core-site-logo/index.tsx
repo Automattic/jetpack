@@ -4,6 +4,7 @@
 import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -12,6 +13,34 @@ import { addFilter } from '@wordpress/hooks';
 import { getFeatureAvailability } from '../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import AiToolbarButton from './components/ai-toolbar-button.js';
 import { SITE_LOGO_BLOCK_AI_EXTENSION } from './constants.js';
+
+/**
+ * Mininal type definition for the core select function.
+ */
+type CoreSelect = {
+	getEntityRecord: (
+		kind: string,
+		name: string
+	) => {
+		url: string;
+		title: string;
+		description: string;
+	};
+};
+
+const useSiteDetails = () => {
+	const siteSettings = useSelect( select => {
+		return ( select( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
+	}, [] );
+
+	return {
+		ID: parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ),
+		URL: siteSettings?.url,
+		domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
+		name: siteSettings?.title,
+		description: siteSettings?.description,
+	};
+};
 
 /**
  * HOC to add the AI button on the Site Logo toolbar.
@@ -35,13 +64,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ closeModal ] );
 
-		const siteDetails = {
-			ID: parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ),
-			URL: window?.Jetpack_Editor_Initial_State?.siteFragment,
-			domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
-			name: '',
-			description: '',
-		};
+		const siteDetails = useSiteDetails();
 
 		return (
 			<>
