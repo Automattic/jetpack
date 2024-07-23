@@ -39,6 +39,9 @@ export const AutoFirewallStatus = () => {
  * @returns {ReactElement} rendered component
  */
 function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+	const slug = 'protect';
+	const { detail } = useProduct( slug );
+	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
 	const { autoFirewallTooltip } = tooltipContent;
 
@@ -72,7 +75,7 @@ function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
 					tracksEventProps={ {
 						location: 'auto-firewall',
 						status: 'inactive',
-						hasPaidPlan: false,
+						has_paid_plan: hasPaidPlanForProduct,
 					} }
 				>
 					<>

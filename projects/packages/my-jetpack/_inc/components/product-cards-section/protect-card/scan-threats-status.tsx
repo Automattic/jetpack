@@ -97,7 +97,7 @@ function ThreatStatus( {
 						feature: 'jetpack-protect',
 						location: 'scan',
 						status: 'alert',
-						hasPaidPlan: true,
+						has_paid_plan: true,
 						threats: numThreats,
 					} );
 				}
