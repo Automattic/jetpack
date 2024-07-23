@@ -7,18 +7,25 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 	const { tiers } = pricingForUi;
 
 	if ( pricingForUi.tiers ) {
-		const { discountPrice, fullPrice, currencyCode } = tiers.upgraded;
+		const { discountPrice, fullPrice, currencyCode, wpcomProductSlug } = tiers.upgraded;
 		const hasDiscount = discountPrice && discountPrice !== fullPrice;
 		return {
+			wpcomProductSlug,
 			discountPrice: hasDiscount ? discountPrice / 12 : null,
 			fullPrice: fullPrice / 12,
 			currencyCode,
 		};
 	}
 
-	const { discountPricePerMonth, fullPricePerMonth, currencyCode, isIntroductoryOffer } =
-		pricingForUi;
+	const {
+		discountPricePerMonth,
+		fullPricePerMonth,
+		currencyCode,
+		isIntroductoryOffer,
+		wpcomProductSlug,
+	} = pricingForUi;
 	return {
+		wpcomProductSlug,
 		discountPrice: isIntroductoryOffer ? discountPricePerMonth : null,
 		fullPrice: fullPricePerMonth,
 		currencyCode,
@@ -47,7 +54,6 @@ const getLearnMoreAction = ( detail: ProductCamelCase ) => {
 const usePricingData = ( slug: string ) => {
 	const { detail } = useProduct( slug );
 	return {
-		wpcomProductSlug: detail.wpcomProductSlug,
 		learnMoreAction: getLearnMoreAction( detail ),
 		purchaseAction: getPurchaseAction( detail ),
 		...parsePricingData( detail.pricingForUi ),
