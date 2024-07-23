@@ -26,7 +26,6 @@
 	},
 	"autoload": {
 		"classmap": [
-			"block-theme-footer-credits",
 			"customizer-fixes",
 			"custom-colors",
 			"endpoints",
