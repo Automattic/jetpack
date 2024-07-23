@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix nonce verification for commenting module
