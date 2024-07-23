@@ -155,6 +155,8 @@ class Masterbar {
 	 * Initialize our masterbar.
 	 */
 	public function init() {
+		echo 'init masterbar';
+		error_log( 'init masterbar' );
 		$this->locale = $this->get_locale();
 
 		// Don't show the masterbar on WordPress mobile apps.
