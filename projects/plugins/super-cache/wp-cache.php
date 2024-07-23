@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.13.0-alpha
+ * Version: 1.12.3
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -29,7 +29,7 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define( 'WPSC_VERSION', '1.9.1-alpha' );
+define( 'WPSC_VERSION_ID', '1.12.1' );
 
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
@@ -260,9 +260,9 @@ function wpsupercache_activate() {
 	wpsc_init();
 
 	if (
+		! wp_cache_verify_cache_dir() ||
 		! wpsc_check_advanced_cache() ||
-		! wp_cache_verify_config_file() ||
-		! wp_cache_verify_cache_dir()
+		! wp_cache_verify_config_file()
 	) {
 		$text = ob_get_contents();
 		ob_end_clean();
@@ -311,7 +311,7 @@ function wp_super_cache_admin_enqueue_scripts( $hook ) {
 		'wp-super-cache-admin',
 		trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/admin.js',
 		array( 'jquery' ),
-		WPSC_VERSION,
+		WPSC_VERSION_ID,
 		false
 	);
 
@@ -2318,19 +2318,45 @@ function wp_cache_create_advanced_cache() {
 	return $ret;
 }
 
+/**
+ * Identify the advanced cache plugin used
+ *
+ * @return string The name of the advanced cache plugin, BOOST, WPSC or OTHER.
+ */
+function wpsc_identify_advanced_cache() {
+	global $wpsc_advanced_cache_filename;
+	if ( ! file_exists( $wpsc_advanced_cache_filename ) ) {
+		return 'NONE';
+	}
+	$contents = file_get_contents( $wpsc_advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+	if ( false !== str_contains( $contents, 'Boost Cache Plugin' ) ) {
+		return 'BOOST';
+	}
+
+	if ( str_contains( $contents, 'WP SUPER CACHE 0.8.9.1' ) || str_contains( $contents, 'WP SUPER CACHE 1.2' ) ) {
+		return 'WPSC';
+	}
+
+	return 'OTHER';
+}
+
 function wpsc_check_advanced_cache() {
 	global $wpsc_advanced_cache_filename;
 
 	$ret                  = false;
 	$other_advanced_cache = false;
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
-		$file = file_get_contents( $wpsc_advanced_cache_filename );
-		if ( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
-			return true;
-		} elseif ( strpos( $file, 'Boost Cache Plugin' ) !== false ) {
-			$other_advanced_cache = 'BOOST';
-		} else {
-			$other_advanced_cache = true;
+		$cache_type = wpsc_identify_advanced_cache();
+		switch ( $cache_type ) {
+			case 'WPSC':
+				return true;
+			case 'BOOST':
+				$other_advanced_cache = 'BOOST';
+				break;
+			default:
+				$other_advanced_cache = true;
+				break;
 		}
 	} else {
 		$ret = wp_cache_create_advanced_cache();
@@ -2353,6 +2379,7 @@ function wpsc_check_advanced_cache() {
 			echo '<p><strong>' .
 				__( 'If you need support for this problem contact your hosting provider.', 'wp-super-cache' ),
 				'</strong></p>';
+			echo '</div>';
 		} elseif ( ! is_writeable_ACLSafe( $wpsc_advanced_cache_filename ) ) {
 			echo '<div class="notice notice-error"><h2>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( '%s/advanced-cache.php</em> cannot be updated.', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</h2>";
 			echo '<ol>';
@@ -2365,8 +2392,8 @@ function wpsc_check_advanced_cache() {
 			echo "<li>" . sprintf( __( 'Refresh this page to update <em>%s/advanced-cache.php</em>', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li></ol>";
 			echo sprintf( __( 'If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</em> doesn&#8217;t exist:', 'wp-super-cache' ), WP_CONTENT_DIR ) . "<ol>";
 			echo "</ol>";
+			echo '</div>';
 		}
-		echo "</div>";
 		return false;
 	}
 	return true;
@@ -2383,6 +2410,19 @@ function wp_cache_check_global_config() {
 		$global_config_file = ABSPATH . 'wp-config.php';
 	} else {
 		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
+	}
+
+	if ( preg_match( '#^\s*(define\s*\(\s*[\'"]WP_CACHE[\'"]|const\s+WP_CACHE\s*=)#m', file_get_contents( $global_config_file ) ) === 1 ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( defined( 'WP_CACHE' ) && ! constant( 'WP_CACHE' ) ) {
+			?>
+			<div class="notice notice-error"><h4><?php esc_html_e( 'WP_CACHE constant set to false', 'wp-super-cache' ); ?></h4>
+			<p><?php esc_html_e( 'The WP_CACHE constant is used by WordPress to load the code that serves cached pages. Unfortunately, it is set to false. Please edit your wp-config.php and add or edit the following line above the final require_once command:', 'wp-super-cache' ); ?></p>
+			<p><code>define('WP_CACHE', true);</code></p></div>
+			<?php
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	$line = 'define(\'WP_CACHE\', true);';

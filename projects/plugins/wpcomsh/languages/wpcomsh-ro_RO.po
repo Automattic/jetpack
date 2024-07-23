@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-05-27 16:50:22+0000\n"
+"PO-Revision-Date: 2024-06-11 14:22:44+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,43 +22,13 @@ msgid "%1$s on <a href=\"%2$s\">%3$s</a>"
 msgstr "%1$s pe <a href=\"%2$s\">%3$s</a>"
 
 #. translators: %s is a link to the WordPress user profile.
-#: widgets/class-gravatar-widget.php:206
+#: widgets/class-gravatar-widget.php:205
 msgid "You can modify your Gravatar from your <a href=\"%s\">profile page</a>."
 msgstr "Poți să-ți modifici Gravatarul în <a href=\"%s\">pagina de profil</a>. "
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:152
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:153
-msgid "Marketing"
-msgstr "Marketing"
 
 #: support-session.php:224 support-session.php:236
 msgid "Sorry, you are not allowed to access this page."
 msgstr "Regret, nu ai voie să accesezi această pagină."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:622
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:623
-msgid "Plugins"
-msgstr "Module"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Use WordPress.com’s legacy dashboard to manage your site."
-msgstr "Folosește panoul de control vechi al WordPress.com ca să-ți administrezi site-ul."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:29
-msgid "Default style"
-msgstr "Stil implicit"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Use WP-Admin to manage your site."
-msgstr "Folosește WP-Admin ca să-ți administrezi site-ul."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:28
-msgid "Classic style"
-msgstr "Stil clasic"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-interface/wpcom-admin-interface.php:26
-msgid "Admin Interface Style"
-msgstr "Stil interfață de administrare"
 
 #: wpcom-plugins/plugins.php:42
 msgid "Explore plugins"
@@ -72,423 +42,9 @@ msgstr "Ai acces la o varietate de module gratuite și plătite care îți pot �
 msgid "Flex your site's features with plugins"
 msgstr "Flexibilizezi funcționalitățile site-ului cu module"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
-msgid "Theme Showcase"
-msgstr "Prezentare teme"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:38
-msgid "Explore themes"
-msgstr "Explorează temele"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:36
-msgid "Dive deep into the world of WordPress.com themes. Discover the responsive and stunning designs waiting to bring your site to life."
-msgstr "Pătrunzi în lumea temelor WordPress.com. Descoperi designuri responsive și minunate care așteaptă să-ți aducă site-ul la viață."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:35
-msgid "Find the perfect theme for your site"
-msgstr "Găsești tema perfectă pentru site-ul tău"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:220
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Câteva cuvinte bine alese pentru a motiva cititorii să comenteze."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:182
-msgid "Enable blocks in comments"
-msgstr "Activează blocurile în comentarii"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:171
-msgid "Let visitors use a WordPress.com or Facebook account to comment"
-msgstr "Permite vizitatorilor să-și folosească conturile WordPress.com sau Facebook pentru a comenta"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:160
-msgid "Adjust your Comments form with a clever greeting and color-scheme."
-msgstr "Adaptează-ți formularul de comentarii cu un mesaj de întâmpinare ingenios și o schemă de culori."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:140
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:252
-msgid "Color Scheme"
-msgstr "Schemă de culori"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:124
-msgid "Greeting Text"
-msgstr "Text de întâmpinare"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:108
-msgid "Allow Blocks"
-msgstr "Permite blocuri"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:95
-msgid "Verbum"
-msgstr "Verbum"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:82
-msgid "Dark"
-msgstr "Întunecată"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:81
-msgid "Light"
-msgstr "Luminoasă"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:80
-msgid "Transparent"
-msgstr "Transparent"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:802
-msgid "Launch your store"
-msgstr "Lansează-ți magazinul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:792
-msgid "Add a domain"
-msgstr "Adaugă un domeniu"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:782
-msgid "Grow your business"
-msgstr "Dezvoltă-ți afacerea"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:772
-msgid "Collect sales tax"
-msgstr "Colectezi impozitele pe vânzări"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:762
-msgid "Get paid with WooPayments"
-msgstr "Cu WooPayments, primești plăți"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:752
-msgid "Add your products"
-msgstr "Adaugă produsele tale"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:742
-msgid "Customize your store"
-msgstr "Personalizează-ți magazinul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:126
-msgid "Sunset"
-msgstr "Apus de soare"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:114
-msgid "Sakura"
-msgstr "Sakura"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:102
-msgid "Powder Snow"
-msgstr "Pulbere de zăpadă"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:90
-msgid "Nightfall"
-msgstr "Amurg"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:78
-msgid "Contrast"
-msgstr "Contrast"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:66
-msgid "Classic Dark"
-msgstr "Întunecat clasic"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:54
-msgid "Classic Bright"
-msgstr "Luminos clasic"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:42
-msgid "Classic Blue"
-msgstr "Albastru clasic"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/admin-color-schemes/admin-color-schemes.php:30
-msgid "Aquatic"
-msgstr "Acvatic"
-
-#: feature-plugins/nav-redesign.php:43 feature-plugins/nav-redesign.php:44
-msgid "Overview"
-msgstr "Prezentare generală"
-
-#. translators: post title
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:174
-msgid "Share &#8220;%s&#8221; via Jetpack Social"
-msgstr "Partajează &#8222;%s&#8221; prin Jetpack Social"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:469
-msgid "To access settings for plans, domains, emails, etc., click \"Hosting\" in the sidebar."
-msgstr "Pentru a accesa setările pentru planuri, domenii, emailuri etc., dă clic pe „Găzduire” în bara laterală."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:467
-msgid "WordPress.com"
-msgstr "WordPress.com"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:162
-msgid "Settings"
-msgstr "Setări"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:370
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:371
-msgid "Monetize"
-msgstr "Câștigi bani"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:143
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:144
-msgid "Monitoring"
-msgstr "Monitorizare"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:134
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:135
-msgid "Configuration"
-msgstr "Configurație"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:125
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:126
-msgid "Purchases"
-msgstr "Cumpărături"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:116
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:117
-msgid "Emails"
-msgstr "Emailuri"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:108
-msgid "Domains"
-msgstr "Domenii"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:98
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:99
-msgid "Add-ons"
-msgstr "Suplimente"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:89
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:90
-msgid "Plans"
-msgstr "Planuri"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:69
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:70
-msgid "Hosting"
-msgstr "Găzduire"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:204
-msgid "All Sites"
-msgstr "Toate site-urile"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:465
-msgid "Error: please try commenting again."
-msgstr "Eroare: te rog încearcă să comentezi din nou."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:390
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:396
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:403
-msgid "Error: your Facebook login has expired."
-msgstr "Eroare: autentificarea Facebook a expirat."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:301
-msgid "Cancel reply"
-msgstr "Anulează răspunsul"
-
-#. translators: % is the original posters name
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:300
-msgid "Leave a reply to %s"
-msgstr "Lasă un răspuns către %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-admin.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:283
-msgid "Leave a comment"
-msgstr "Lasă un comentariu"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:233
-msgid "Save my name, email, and website in this browser for the next time I comment."
-msgstr "Salvează-mi numele, emailul și site-ul web în acest navigator pentru data viitoare când o să comentez."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:232
-msgid "Comment sent successfully"
-msgstr "Am trimis cu succes comentariul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:231
-msgid "Subscribe"
-msgstr "Abonare"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:230
-msgid "Enter your email address"
-msgstr "Introdu adresa ta de email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:229
-msgid "Interested in getting blog post updates? Simply click the button below to stay in the loop!"
-msgstr "Vrei să primești actualizări pentru articolele de pe blog? Simplu, dă clic pe butonul de mai jos ca să fii la curent!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:228
-msgid "Never miss a beat!"
-msgstr "Ești mereu la curent!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:227
-msgid "Continue reading"
-msgstr "Continuă lectura"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:226
-msgid "Subscribe now to keep reading and get access to the full archive."
-msgstr "Abonează-te acum ca să citești în continuare și să ai acces la întreaga arhivă."
-
-#. translators: %s is the name of the site
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:225
-msgid "Discover more from %s"
-msgstr "Descoperă mai multe la %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:223
-msgid "Loading your comment..."
-msgstr "Încarc comentariul tău..."
-
-#. translators: Success message of a modal when user subscribes
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:222
-msgid "We'll keep you in the loop!"
-msgstr "Te vom ține la curent!"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:220
-msgid "Optional"
-msgstr "Opțional"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:219
-msgid "Website"
-msgstr "Site web"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:218
-msgid "Write a reply..."
-msgstr "Scrie un răspuns..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:216
-msgid "Cancel"
-msgstr "Anulează"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:215
-msgid "Email me new comments"
-msgstr "Trimite-mi emailuri la comentarii noi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:214
-msgid "Email me new posts"
-msgstr "Trimite-mi emailuri la articole noi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:213
-msgid "Notify me of new posts"
-msgstr "Notifică-mă când sunt publicate articole noi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:212
-msgid "Weekly"
-msgstr "Săptămânal"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:211
-msgid "WordPress"
-msgstr "WordPress"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:210
-msgid "Comment"
-msgstr "Comentariu"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:209
-msgid "Reply"
-msgstr "Răspunde"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:208
-msgid "Daily"
-msgstr "Zilnic"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:207
-msgid "Instantly"
-msgstr "Imediat"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:206
-msgid "(Address never made public)"
-msgstr "(Adresa de email nu va fi publicată.)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:204
-msgid "Log out"
-msgstr "Dezautentificare"
-
-#. translators: %s is the name of the provider (WordPress, Facebook, Twitter)
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:203
-msgid "Logged in via %s"
-msgstr "Autentificat prin %s"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:201
-msgid "Log in to leave a comment."
-msgstr "Autentifică-te pentru a lăsa un comentariu."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:200
-msgid "Log in to leave a reply."
-msgstr "Autentifică-te ca să scrii un răspuns."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:199
-msgid "Leave a comment. (log in optional)"
-msgstr "Lasă un comentariu (autentificarea este opțională)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:198
-msgid "Leave a reply. (log in optional)"
-msgstr "Lasă un răspuns (autentificarea este opțională)."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:197
-msgid "Website (optional)"
-msgstr "Site web (opțional)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:196
-msgid "Email (address never made public)"
-msgstr "Email (adresa nu va fi publicată niciodată)"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:194
-msgid "Receive web and mobile notifications for posts on this site."
-msgstr "Primești notificări pe web și pe mobil când apar articole noi pe acest site."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:193
-msgid "Log in or provide your name and email to leave a comment."
-msgstr "Pentru a lăsa un comentariu, autentifică-te sau furnizează numele și adresa de email."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:192
-msgid "Log in or provide your name and email to leave a reply."
-msgstr "Pentru a lăsa un răspuns, autentifică-te sau furnizează numele și adresa de email."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/assets/class-verbum-gutenberg-editor.php:30
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:217
-msgid "Write a comment..."
-msgstr "Scrieți un comentariu..."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:39
-msgid "Get started"
-msgstr "Începe"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/import-customizations/import-customizations.php:37
-msgid "Use WordPress.com’s guided importer to import posts and comments from Medium, Substack, Squarespace, Wix, and more."
-msgstr "Folosește importatorul ghidat de la WordPress.com ca să imporți articole și comentarii de pe Medium, Substack, Squarespace, Wix și alte platforme."
-
 #: notices/feature-moved-to-jetpack-notices.php:21
 msgid "Visit %1$sJetpack Settings%2$s for more writing settings powered by Jetpack."
 msgstr "Pentru mai multe setări pentru scriere oferite de Jetpack, mergi la %1$sSetări Jetpack%2$s."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:599
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:600
-msgid "Scheduled Updates"
-msgstr "Actualizări programate"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:730
-msgid "Verify the email address for your domains"
-msgstr "Confirmă-ți adresa de email pentru domenii deținute"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
-msgid "Site setup"
-msgstr "Inițializare site"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:720
-msgid "Finish Sensei setup"
-msgstr "Finalizează inițializarea Sensei"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:710
-msgid "Finish store setup"
-msgstr "Finalizează inițializarea magazinului"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:693
-msgid "Update your site's design"
-msgstr "Actualizează designul site-ului"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:684
-msgid "Enable post sharing"
-msgstr "Activează partajarea articolelor"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:675
-msgid "Install the mobile app"
-msgstr "Instalează aplicația pentru mobil"
 
 #: imports/utils/class-filerestorer.php:167
 msgid "No files are restored."
@@ -563,134 +119,6 @@ msgstr "Rulează deja un import."
 msgid "The backup import has been cancelled."
 msgstr "Importul copiei de siguranță a fost anulat."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:36
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:50
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:65
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:78
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:91
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:107
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:119
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:132
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:176
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:190
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-msgid "Next steps for your site"
-msgstr "Pașii următori pentru site-ul tău"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:665
-msgid "Add the Subscribe Block to your site"
-msgstr "Adaugă blocul Abonare pe site-ul tău"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:651
-msgid "Import existing subscribers"
-msgstr "Importă abonații existenți"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:642
-msgid "View site metrics"
-msgstr "Vezi valorile metrice pentru site"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:633
-msgid "Set up ssh"
-msgstr "Configurează SSH"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:621
-msgid "Install a custom plugin"
-msgstr "Instalează un modul personalizat"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:609
-msgid "Choose a theme"
-msgstr "Alege o temă"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:594
-msgid "Set up an offer for your supporters"
-msgstr "Configurează o ofertă pentru susținătorii tăi"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:574
-msgid "Connect a Stripe account to collect payments"
-msgstr "Conectează un cont Stripe pentru a colecta plăți"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:559
-msgid "Add your About page"
-msgstr "Adaugă pagina ta Despre"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
-msgid "Manage your paid Newsletter plan"
-msgstr "Administrează planul plătit Buletin de știri"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:541
-msgid "Connect your social media accounts"
-msgstr "Conectează-ți conturile media socială"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:527
-msgid "Manage your subscribers"
-msgstr "Administrează-ți abonații"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:514
-msgid "Write 3 posts"
-msgstr "Scrie 3 articole"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:499
-msgid "Get your first 10 subscribers"
-msgstr "Ai primii 10 abonați"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:487
-msgid "Enable subscribers modal"
-msgstr "Activează fereastra modală pentru abonați"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:475
-msgid "Customize welcome message"
-msgstr "Personalizează mesajul de bun venit"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
-msgid "Earn money with your newsletter"
-msgstr "Câștigi bani cu buletinul tău de știri"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:408
-msgid "Update your About page"
-msgstr "Actualizează pagina Despre"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:246
-msgid "Migrate content"
-msgstr "Migrează conținutul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
-msgid "Verify email address"
-msgstr "Confirmă adresa de email"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:120
-msgid "Prevents new post and page from being created as well as existing posts and pages from being edited, and closes comments site wide."
-msgstr "Împiedică crearea de articole și pagini noi, precum și editarea articolelor și paginilor existente și închide comentariile pe întregul site."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:119
-msgid "Enable Locked Mode"
-msgstr "Activează modul blocat"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:102
-msgid "Locked Mode"
-msgstr "Mod blocat"
-
-#. translators: link to the help page: https://wordpress.com/help
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:102
-msgid "To take ownership of the site, we ask that the person you designate contacts us at %s with a copy of the death certificate."
-msgstr "Pentru a deveni proprietarul site-ului, te rugăm să ne contactezi la adresa %s și să ne trimiți o copie a certificatului de deces."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:97
-msgid "Choose someone to look after your site when you pass away."
-msgstr "Alege pe cineva care să aibă grijă de site-ul tău dacă vei deceda."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:80
-msgid "Legacy Contact"
-msgstr "Contact de moștenire"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/enhanced-ownership.php:73
-#: vendor/automattic/jetpack-mu-wpcom/src/features/100-year-plan/locked-mode.php:95
-msgid "Enhanced Ownership"
-msgstr "Drept de proprietate îmbunătățit"
-
 #: notices/anyone-can-register-notice.php:79
 msgid "The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. The current default role is %1$s. %4$s <strong>Please consider disabling this option if open registration is not needed.<strong>"
 msgstr "În prezent, <a href=\"%2$s\">opțiunea „Oricine se poate înregistra”</a> este activă. Rolul actual implicit este %1$s. %4$s <strong>Te rog să iei în considerare dezactivarea acestei opțiuni dacă înregistrarea deschisă nu este necesară.</strong>"
@@ -720,149 +148,37 @@ msgstr "Fișierul nu există"
 msgid "Could not determine importer type."
 msgstr "Nu am putut să determin tipul de importator"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:457
-msgid "Share your site"
-msgstr "Partajează-ți site-ul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:427
-msgid "Edit a page"
-msgstr "Editează o pagină"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1717
-msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
-msgstr "Site-ul tău are stiluri premium. Actualizează acum ca să le publici și să deblochezi și alte funcționalități."
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:442
-msgid "Customize your domain"
-msgstr "Personalizează-ți domeniul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:395
-msgid "Add a new page"
-msgstr "Adaugă o pagină nouă"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:385
-msgid "Drive traffic to your site"
-msgstr "Aduci trafic pe site-ul tău"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:146
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:371
-msgid "Give your site a name"
-msgstr "Dă-i site-ului un nume"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:77
-msgid "Claim your free one-year domain"
-msgstr "Beneficiezi de un domeniu gratuit în primul an"
-
 #: frontend-notices/gifting-banner/gifting-banner.php:138
 #: frontend-notices/gifting-banner/gifting-banner.php:160
 msgctxt "verb"
 msgid "Gift"
 msgstr "Fă cadouri"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:191
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:190
 msgid "Thumbnail"
 msgstr "Miniatură"
 
-#: vendor/automattic/jetpack-post-list/src/class-post-list.php:171
+#. translators: post title
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:173
+msgid "Share &#8220;%s&#8221; via Publicize"
+msgstr "Partajează „%s” prin Publicitate"
+
+#: vendor/automattic/jetpack-post-list/src/class-post-list.php:170
 msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "Partajează"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1161
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1732
-msgid "Upgrade plan"
-msgstr "Actualizează plan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:194
-msgid "Create paid Newsletter"
-msgstr "Creează un buletin de știri cu plată"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:216
-msgid "Set up payment method"
-msgstr "Configurează metoda de plată"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:88
-msgid "Choose a domain"
-msgstr "Alege un domeniu"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:328
-msgid "Launch your blog"
-msgstr "Lansează-ți blogul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:44
-msgid "Edit site design"
-msgstr "Editează designul site-ului"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:362
-msgid "Set up your site"
-msgstr "Inițializează-ți site-ul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
-msgid "Name your blog"
-msgstr "Numește-ți blogul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:348
-msgid "Personalize your site"
-msgstr "Personalizează-ți site-ul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:307
-msgid "Upload your first video"
-msgstr "Încarcă primul tău video"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:300
-msgid "Set up your video site"
-msgstr "Inițializează-ți site-ul Video"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:159
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:261
-msgid "Launch your site"
-msgstr "Lansează-ți site-ul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
-msgid "Add links"
-msgstr "Adaugă legături"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:281
-msgid "Personalize Link in Bio"
-msgstr "Personalizează Link in Bio"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:57
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:67
-msgid "Select a design"
-msgstr "Selectează un design"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:180
-msgid "Start writing"
-msgstr "Începe să scrii"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:103
-msgid "Write your first post"
-msgstr "Scrie primul tău articol"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:233
-msgid "Add subscribers"
-msgstr "Adaugă abonați"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:123
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:135
-msgid "Choose a plan"
-msgstr "Alege un plan"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:204
-msgid "Personalize newsletter"
-msgstr "Personalizează buletinul de știri"
-
-#: vendor/automattic/jetpack-config/src/class-config.php:189
+#: vendor/automattic/jetpack-config/src/class-config.php:135
 msgid "Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader"
 msgstr "Nu pot încărca clasa %1$s. Te rog adaugă pachetul care o conține folosind compozitorul și asigură-te că ceri încărcătorul automat Jetpack"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:571
+#: vendor/automattic/jetpack-assets/src/class-assets.php:553
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "Un alias pentru domeniu-text trebuie înregistrat înainte de cârligul %1$s. Această notificare a fost declanșată de domeniul %2$s."
 
 #. translators: %s is the script handle.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:405
+#: vendor/automattic/jetpack-assets/src/class-assets.php:388
 msgid "Script \"%s\" depends on wp-i18n but does not specify \"textdomain\""
 msgstr "Scriptul „%s” depinde de wp-i18n dar nu specifică „textdomain”"
 
@@ -1063,27 +379,27 @@ msgstr "Ești norocos! Proiectanții temei tale aleg anumite fonturi pentru tine
 msgid "Uncheck to disable"
 msgstr "Debifează pentru a dezactiva"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:109
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:114
 msgid "Spotify Feed ID"
 msgstr "ID flux Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:103
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:108
 msgid "Apple Podcasts Feed ID"
 msgstr "ID flux Apple Podcasts"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:102
 msgid "Title"
 msgstr "Titlu"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:81
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:86
 msgid "Podcast RSS Feed"
 msgstr "Flux RSS podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:83
 msgid "Listen on Spotify"
 msgstr "Ascultă pe Spotify"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:73
+#: vendor/automattic/at-pressable-podcasting/podcasting/widget.php:78
 msgid "Listen on Apple Podcasts"
 msgstr "Ascultă Apple Podcasts"
 
@@ -1095,97 +411,113 @@ msgstr "Afișează informații despre podcast și permite vizitatorilor să urm�
 msgid "Podcast"
 msgstr "Podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:290
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:319
 msgid "Select iTunes category:"
 msgstr "Selectează categorie iTunes:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:287
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:316
 msgid "Set podcast category"
 msgstr "Setează categoria podcast-ului"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:189
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:224
+msgid "Set podcast keywords"
+msgstr "Setează cuvintele cheie pentru podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:208
 msgid "Set podcast image"
 msgstr "Setează imaginea podcast-ului"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:178
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:197
 msgid "Clean"
 msgstr "Curăță"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:177
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:196
 msgid "Yes"
 msgstr "Da"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:176
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:195
 msgid "No"
 msgstr "Nu"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:173
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:192
 msgid "Set podcast as explicit"
 msgstr "Setează podcast-ul ca explicit"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:163
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:182
 msgid "Set podcast copyright"
 msgstr "Setează drepturi de autor pentru podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:148
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:167
 msgid "Set podcast summary"
 msgstr "Setează rezumatul podcast-ului"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:130
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:149
 msgid "Set podcast author"
 msgstr "Setează autor podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:116
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:135
+msgid "Set podcast subtitle"
+msgstr "Setează subtitrarea pentru podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:122
 msgid "Set podcast title"
 msgstr "Setează titlul podcast-ului"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:98
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:104
 msgid "This is the URL you submit to iTunes or podcasting service."
 msgstr "Acesta este URL-ul pe care-l trimiți la iTunes sau la serviciul de podcasting."
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:97
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:103
 msgid "Your podcast feed: %1$s"
 msgstr "Fluxul tău podcast: %1$s"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:79
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:85
 msgid "Select podcast category:"
 msgstr "Selectează categoria podcast-ului:"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:76
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:82
 msgid "Blog category for podcasts"
 msgstr "Categorie blog pentru podcast-uri"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:53
 msgid "Podcast category 3"
 msgstr "Categorie podcast 3"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:50
 msgid "Podcast category 2"
 msgstr "Categorie podcast 2"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:41
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:47
 msgid "Podcast category 1"
 msgstr "Categorie podcast 1"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:44
+msgid "Podcast keywords"
+msgstr "Cuvinte cheie podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:40
 msgid "Podcast image"
 msgstr "Imagine podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:37
 msgid "Mark as explicit"
 msgstr "Marchează ca explicit"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:34
 msgid "Podcast copyright"
 msgstr "Drepturi de autor podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:31
 msgid "Podcast summary"
 msgstr "Rezumat podcast"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:28
 msgid "Podcast talent name"
 msgstr "Nume talent podcast"
+
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:25
+msgid "Podcast subtitle"
+msgstr "Subtitrare podcast"
 
 #: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:22
 msgid "Podcast title"
@@ -1269,11 +601,11 @@ msgstr "Planul Pro pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\
 
 #: notices/plan-notices.php:104
 msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "Planul Entrepreneur  pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește-l</a> pentru a-ți păstra funcționalitățile planului Entrepreneur , cum ar fi modulele și temele personalizate, SFTP și acces la phpMyAdmin."
+msgstr "Planul Entrepreneur  pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește-l</a> ca să păstrezi funcționalitățile planului Creator, cum ar fi module și teme personalizate și acces la SFTP și phpMyAdmin."
 
 #: notices/plan-notices.php:99
 msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "Planul Creator pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește-l</a> pentru a-ți păstra funcționalitățile planului Creator, cum ar fi modulele și temele personalizate, SFTP și acces la phpMyAdmin."
+msgstr "Planul Creator pentru <strong>%3$s</strong> expiră pe %2$s. <a href=\"%1$s\">Reînnoiește-l</a> ca să păstrezi funcționalitățile planului Creator, cum ar fi module și teme personalizate și acces la SFTP și phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -1300,8 +632,6 @@ msgid "Edit"
 msgstr "Editează"
 
 #: private-site/logged-in-banner.php:163
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:80
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:81
 msgid "My Home"
 msgstr "Pagina mea de pornire"
 
@@ -1392,7 +722,7 @@ msgstr "Actualizările sunt administrate de WordPress.com"
 
 #: notices/plan-notices.php:130
 msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "Planul Creator pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează-l</a> ca să păstrezi funcționalitățile planului Creator, cum ar fi modulele și temele personalizate, SFTP și acces la phpMyAdmin."
+msgstr "Planul Creator pentru <strong>%3$s</strong> a expirat pe %2$s. <a href=\"%1$s\">Reactivează-l</a> ca să păstrezi funcționalitățile planului Creator, cum ar fi module și teme personalizate și acces la SFTP și phpMyAdmin."
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -1429,31 +759,31 @@ msgstr "Cotă spațiu pe disc"
 msgid "Disk space used"
 msgstr "Spațiu utilizat pe disc"
 
-#: widgets/class-wpcom-category-cloud-widget.php:210
+#: widgets/class-wpcom-category-cloud-widget.php:211
 msgid "Click for more information"
 msgstr "Dă clic pentru mai multe informații"
 
-#: widgets/class-wpcom-category-cloud-widget.php:208
+#: widgets/class-wpcom-category-cloud-widget.php:209
 msgid "Count items in sub-categories toward parent total."
 msgstr "Număr de elemente în sub-categorii pentru total părinte."
 
-#: widgets/class-wpcom-category-cloud-widget.php:200
+#: widgets/class-wpcom-category-cloud-widget.php:201
 msgid "Maximum font percentage:"
 msgstr "Procent maxim font:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:194
+#: widgets/class-wpcom-category-cloud-widget.php:195
 msgid "Minimum font percentage:"
 msgstr "Procent minim font:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:189
+#: widgets/class-wpcom-category-cloud-widget.php:190
 msgid "Category IDs, separated by commas"
 msgstr "ID-uri categorie, separate cu virgulă"
 
-#: widgets/class-wpcom-category-cloud-widget.php:187
+#: widgets/class-wpcom-category-cloud-widget.php:188
 msgid "Exclude:"
 msgstr "Exclude:"
 
-#: widgets/class-wpcom-category-cloud-widget.php:181
+#: widgets/class-wpcom-category-cloud-widget.php:182
 msgid "Maximum number of categories to show:"
 msgstr "Numărul maxim de categorii de arătat:"
 
@@ -1471,23 +801,13 @@ msgstr "Cele mai folosite categorii în format nor de categorii."
 msgid "Category Cloud"
 msgstr "Nor de categorii"
 
-#: private-site/private-site.php:171
-msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr "Jetpack este deconectat și site-ul este privat. Reconectează Jetpack pentru a administra setările de vizibilitate pe site."
-
 #: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr "Actualizează vizibilitatea"
 
 #: private-site/logged-in-banner.php:85
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:293
 msgid "Launch site"
 msgstr "Lansează site-ul"
-
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-site-menu/wpcom-site-menu.php:472
-msgid "Dismiss"
-msgstr "Respinge"
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
@@ -1603,7 +923,7 @@ msgstr "Număr de afișat:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
-msgstr "Fotografii"
+msgstr "Imagini"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
@@ -1625,47 +945,47 @@ msgstr "Afișează ultimele tale poze Instagram."
 msgid "Instagram"
 msgstr "Instagram"
 
-#: widgets/class-aboutme-widget.php:148
+#: widgets/class-aboutme-widget.php:149
 msgid "Biography"
 msgstr "Biografie"
 
-#: widgets/class-aboutme-widget.php:141
+#: widgets/class-aboutme-widget.php:142
 msgid "Headline"
 msgstr "Rubrică"
 
-#: widgets/class-aboutme-widget.php:134
+#: widgets/class-aboutme-widget.php:135
 msgid "Photo"
 msgstr "Fotografie"
 
-#: widgets/class-aboutme-widget.php:130
+#: widgets/class-aboutme-widget.php:131
 msgid "Don't Display Name"
 msgstr "Nu afișa numele"
 
-#: widgets/class-aboutme-widget.php:128
+#: widgets/class-aboutme-widget.php:129
 msgid "Display Small"
 msgstr "Afișează mic"
 
-#: widgets/class-aboutme-widget.php:126
+#: widgets/class-aboutme-widget.php:127
 msgid "Display Medium"
 msgstr "Afișează mediu"
 
-#: widgets/class-aboutme-widget.php:124
+#: widgets/class-aboutme-widget.php:125
 msgid "Display Large"
 msgstr "Afișează mare"
 
-#: widgets/class-aboutme-widget.php:122
+#: widgets/class-aboutme-widget.php:123
 msgid "Display X-Large"
 msgstr "Afișează foarte mare"
 
-#: widgets/class-aboutme-widget.php:111
+#: widgets/class-aboutme-widget.php:112
 msgid "Your about.me URL"
 msgstr "URL-ul tău about.me"
 
-#: widgets/class-aboutme-widget.php:104
+#: widgets/class-aboutme-widget.php:105
 msgid "Widget title"
 msgstr "Titlu piesă"
 
-#: widgets/class-aboutme-widget.php:97
+#: widgets/class-aboutme-widget.php:98
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr "Piesa about.me nu va mai fi disponibilă după 1 iulie 2016. După această dată, piesa va afișa o legătură text simplu la profilul tău about.me. Te rog înlătură această piesă."
 
@@ -1682,19 +1002,14 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "Afișează-ți profilul about.me cu miniatură"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1382
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1393
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1447
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1458
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
 msgid "Unable to fetch the requested data."
 msgstr "Nu am putut aduce datele cerute."
 
-#: footer-credit/theme-optimizations.php:59
+#: footer-credit/theme-optimizations.php:62
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Creează gratuit un site web sau un blog la WordPress.com"
 
-#: footer-credit/theme-optimizations.php:54
+#: footer-credit/theme-optimizations.php:57
 msgid "Create a free website at WordPress.com"
 msgstr "Creează gratuit un site web la WordPress.com"
 
@@ -1704,8 +1019,8 @@ msgstr "Propulsat de WordPress.com"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
-#: footer-credit/theme-optimizations.php:52
-#: footer-credit/theme-optimizations.php:57
+#: footer-credit/theme-optimizations.php:55
+#: footer-credit/theme-optimizations.php:60
 msgid "Blog at WordPress.com"
 msgstr "Blog la WordPress.com"
 
@@ -1781,10 +1096,6 @@ msgstr "Salvează"
 #: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr "Activează și salvează"
-
-#: private-site/private-site.php:178
-msgid "Manage your site visibility settings"
-msgstr "Administrează setările pentru vizibilitate site."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -1899,8 +1210,7 @@ msgstr "Telefon"
 msgid "Email"
 msgstr "Email"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/verbum-comments/class-verbum-comments.php:195
-#: widgets/class-aboutme-widget.php:118
+#: widgets/class-aboutme-widget.php:119
 #: widgets/class-wpcom-widget-reservations.php:39
 msgid "Name"
 msgstr "Nume"
@@ -1914,27 +1224,27 @@ msgstr "Cerere de rezervare"
 msgid "Reservations"
 msgstr "Rezervări"
 
-#: widgets/class-wpcom-widget-recent-comments.php:476
+#: widgets/class-wpcom-widget-recent-comments.php:477
 msgid "Show comments from:"
 msgstr "Arată comentariile de la:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:471
+#: widgets/class-wpcom-widget-recent-comments.php:472
 msgid "Text background color:"
 msgstr "Culoare fundal text:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:465
+#: widgets/class-wpcom-widget-recent-comments.php:466
 msgid "Avatar background color:"
 msgstr "Culoare fundal avatar:"
 
-#: widgets/class-wpcom-widget-recent-comments.php:454
+#: widgets/class-wpcom-widget-recent-comments.php:455
 msgid "No Avatars"
 msgstr "Niciun avatar"
 
-#: widgets/class-wpcom-widget-recent-comments.php:447
+#: widgets/class-wpcom-widget-recent-comments.php:448
 msgid "(at most 15)"
 msgstr "(cel mult 15)"
 
-#: widgets/class-wpcom-widget-recent-comments.php:441
+#: widgets/class-wpcom-widget-recent-comments.php:442
 msgid "Number of comments to show:"
 msgstr "Număr de comentarii de arătat:"
 
@@ -1956,37 +1266,37 @@ msgid "Recent Comments"
 msgstr "Comentarii recente"
 
 #. translators: %s is a URL to the widgets settings page.
-#: widgets/class-jetpack-posts-i-like-widget.php:277
+#: widgets/class-jetpack-posts-i-like-widget.php:278
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr "Nu ai apreciat de curând niciun articol. Odată ce faci asta, această piesă <a href=\"%s\">Articole apreciate</a> le va afișa."
 
-#: widgets/class-jetpack-posts-i-like-widget.php:265
+#: widgets/class-jetpack-posts-i-like-widget.php:266
 msgid "on"
 msgstr "pe"
 
 #. translators: %1$s is the post title, %1$s is the blog name.
-#: widgets/class-jetpack-posts-i-like-widget.php:242
+#: widgets/class-jetpack-posts-i-like-widget.php:243
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr "%1$s pe %2$s"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:117
+#: widgets/class-jetpack-posts-i-like-widget.php:118
 msgid "Author's likes to display:"
 msgstr "Aprecieri autor de afișat:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:99
+#: widgets/class-jetpack-posts-i-like-widget.php:100
 msgid "Grid"
 msgstr "Grilă"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:99
 msgid "List"
 msgstr "Listă"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:96
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "Display as:"
 msgstr "Afișează ca:"
 
-#: widgets/class-jetpack-posts-i-like-widget.php:91
+#: widgets/class-jetpack-posts-i-like-widget.php:92
 msgid "Number of posts to show (1 to 15):"
 msgstr "Număr de articole de arătat (de la 1 la 15):"
 
@@ -2020,62 +1330,62 @@ msgstr "Am votat"
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr "Arată-le cititorilor că ai votat cu un autocolant „Am votat”."
 
-#: widgets/class-gravatar-widget.php:200
+#: widgets/class-gravatar-widget.php:199
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr "Text afișat sub Gravatar. Este opțional și poate fi folosit pentru a te descrie sau a spune ceva despre blogul tău."
 
-#: widgets/class-gravatar-widget.php:199
+#: widgets/class-gravatar-widget.php:198
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr "Legătură Gravatar. Acesta este un URL opțional care va fi folosit când cineva dă clic pe Gravatarul tău:"
 
-#: widgets/class-gravatar-widget.php:189
+#: widgets/class-gravatar-widget.php:188
 msgid "Gravatar alignment:"
 msgstr "Aliniere Gravatar:"
 
-#: widgets/class-gravatar-widget.php:178
+#: widgets/class-gravatar-widget.php:177
 msgid "Size:"
 msgstr "Dimensiune:"
 
-#: widgets/class-gravatar-widget.php:175
+#: widgets/class-gravatar-widget.php:174
 msgid "Custom Email Address:"
 msgstr "Adresă email personalizată:"
 
-#: widgets/class-gravatar-widget.php:162
+#: widgets/class-gravatar-widget.php:161
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr "Selectează un utilizator sau alege „personalizat” și introdu o adresă de email personalizată."
 
-#: widgets/class-gravatar-widget.php:157
+#: widgets/class-gravatar-widget.php:156
 msgid "Center"
 msgstr "Centru"
 
-#: widgets/class-gravatar-widget.php:156
+#: widgets/class-gravatar-widget.php:155
 msgid "Right"
 msgstr "Dreapta"
 
-#: widgets/class-gravatar-widget.php:155
+#: widgets/class-gravatar-widget.php:154
 msgid "Left"
 msgstr "Stânga"
 
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:81
-#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:292
-#: widgets/class-gravatar-widget.php:154
-#: widgets/class-widget-top-clicks.php:162
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:87
+#: vendor/automattic/at-pressable-podcasting/podcasting/settings.php:321
+#: widgets/class-gravatar-widget.php:153
+#: widgets/class-widget-top-clicks.php:163
 msgid "None"
 msgstr "Niciunul"
 
-#: widgets/class-gravatar-widget.php:151
+#: widgets/class-gravatar-widget.php:150
 msgid "Extra Large (256 pixels)"
 msgstr "Foarte mare (256 de pixeli)"
 
-#: widgets/class-gravatar-widget.php:150
+#: widgets/class-gravatar-widget.php:149
 msgid "Large (128 pixels)"
 msgstr "Mare (128 de pixeli)"
 
-#: widgets/class-gravatar-widget.php:149
+#: widgets/class-gravatar-widget.php:148
 msgid "Medium (96 pixels)"
 msgstr "Medie (96 de pixeli)"
 
-#: widgets/class-gravatar-widget.php:148
+#: widgets/class-gravatar-widget.php:147
 msgid "Small (64 pixels)"
 msgstr "Mic (64 pixeli)"
 
@@ -2092,7 +1402,7 @@ msgstr "Gravatar"
 msgid "Insert a Gravatar image"
 msgstr "Inserează o imagine Gravatar"
 
-#: widgets/class-wpcom-freshly-pressed-widget.php:83
+#: widgets/class-wpcom-freshly-pressed-widget.php:84
 msgid "Choose an image to display in your sidebar:"
 msgstr "Alege o imagine ca s-o afișezi în bara laterală:"
 
@@ -2104,28 +1414,28 @@ msgstr "Proaspăt publicate"
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr "Afișează o insignă Proaspăt publicate în bara ta laterală"
 
-#: widgets/class-widget-authors-grid.php:142
-#: widgets/class-wpcom-widget-recent-comments.php:452
+#: widgets/class-widget-authors-grid.php:143
+#: widgets/class-wpcom-widget-recent-comments.php:453
 msgid "Avatar Size (px):"
 msgstr "Dimensiune avatar (px):"
 
-#: widgets/class-widget-authors-grid.php:137
+#: widgets/class-widget-authors-grid.php:138
 msgid "Display all authors (including those who have not written any posts)"
 msgstr "Afișează toți autorii (inclusiv pe cei care nu au scris niciun articol)"
 
-#: widgets/class-gravatar-widget.php:160
-#: widgets/class-jetpack-i-voted-widget.php:81
-#: widgets/class-jetpack-posts-i-like-widget.php:86
-#: widgets/class-jetpack-widget-twitter.php:138
+#: widgets/class-gravatar-widget.php:159
+#: widgets/class-jetpack-i-voted-widget.php:82
+#: widgets/class-jetpack-posts-i-like-widget.php:87
+#: widgets/class-jetpack-widget-twitter.php:139
 #: widgets/class-music-player-widget.php:87 widgets/class-pd-top-rated.php:152
-#: widgets/class-widget-authors-grid.php:131
-#: widgets/class-widget-top-clicks.php:72
-#: widgets/class-wpcom-category-cloud-widget.php:175
-#: widgets/class-wpcom-freshly-pressed-widget.php:79
-#: widgets/class-wpcom-tag-cloud-widget.php:123
-#: widgets/class-wpcom-widget-recent-comments.php:435
-#: widgets/class-wpcom-widget-reservations.php:60
-#: widgets/tlkio/class-tlkio-widget.php:75
+#: widgets/class-widget-authors-grid.php:132
+#: widgets/class-widget-top-clicks.php:73
+#: widgets/class-wpcom-category-cloud-widget.php:176
+#: widgets/class-wpcom-freshly-pressed-widget.php:80
+#: widgets/class-wpcom-tag-cloud-widget.php:124
+#: widgets/class-wpcom-widget-recent-comments.php:436
+#: widgets/class-wpcom-widget-reservations.php:61
+#: widgets/tlkio/class-tlkio-widget.php:76
 msgid "Title:"
 msgstr "Titlu:"
 
@@ -2141,12 +1451,12 @@ msgstr "Arată o grilă cu imaginile avatar ale autorului."
 msgid "Author Grid"
 msgstr "Grilă autor"
 
-#: private-site/private-site.php:650
+#: private-site/private-site.php:616
 msgid "Private Site"
 msgstr "Site privat"
 
-#: private-site/private-site.php:460 private-site/private-site.php:577
-#: private-site/private-site.php:809
+#: private-site/private-site.php:426 private-site/private-site.php:543
+#: private-site/private-site.php:775
 msgid "This site is private."
 msgstr "Acest site este privat."
 

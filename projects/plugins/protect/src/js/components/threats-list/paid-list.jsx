@@ -1,5 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
@@ -30,9 +30,11 @@ const ThreatAccordionItem = ( {
 	severity,
 	status,
 } ) => {
-	const { viewingScanHistory } = useScanHistory();
+	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 	const { setModal } = useDispatch( STORE_ID );
 	const { recordEvent } = useAnalyticsTracks();
+
+	const fixerInProgress = threatsAreFixing.indexOf( id ) >= 0;
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -55,7 +57,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, label, title, icon, severity, fixable },
+				props: { id, fixable, label, icon, severity },
 			} );
 		};
 	};
@@ -81,7 +83,13 @@ const ThreatAccordionItem = ( {
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
-						{ __( 'What is the problem?', 'jetpack-protect' ) }
+						{ status !== 'fixed'
+							? __( 'What is the problem?', 'jetpack-protect' )
+							: __(
+									'What was the problem?',
+									'jetpack-protect',
+									/** dummy arg to avoid bad minification */ 0
+							  ) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }
@@ -105,7 +113,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ context && <MarkedLines context={ context } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
-			{ fixedIn && (
+			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
 						{ __( 'How to fix it?', 'jetpack-protect' ) }
@@ -120,7 +128,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				{ viewingScanHistory && 'ignored' === status && (
+				{ 'ignored' === status && (
 					<Button
 						isDestructive={ true }
 						variant="secondary"
@@ -129,17 +137,13 @@ const ThreatAccordionItem = ( {
 						{ __( 'Unignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
-				{ ! viewingScanHistory && (
-					<Button
-						isDestructive={ true }
-						variant="secondary"
-						onClick={ handleIgnoreOrUnignoreThreatClick() }
-					>
+				{ status !== 'ignored' && status !== 'fixed' && (
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
-				{ fixable && (
-					<Button onClick={ handleFixThreatClick() }>
+				{ fixable && status !== 'fixed' && (
+					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
 						{ __( 'Fix threat', 'jetpack-protect' ) }
 					</Button>
 				) }
@@ -170,25 +174,6 @@ const PaidList = ( { list } ) => {
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const getLabel = threat => {
-		if ( threat.name && threat.version ) {
-			// Extension threat i.e. "Woocommerce (3.0.0)"
-			return `${ threat.name } (${ threat.version })`;
-		}
-
-		if ( threat.filename ) {
-			// File threat i.e. "index.php"
-			return threat.filename.split( '/' ).pop();
-		}
-
-		if ( threat.table ) {
-			// Database threat i.e. "wp_posts"
-			return threat.table;
-		}
-	};
-
-	list = list.map( threat => ( { label: getLabel( threat ), ...threat } ) );
-
 	return (
 		<>
 			{ ! isSmall && (
@@ -206,10 +191,8 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
-						firstDetected, // todo: still needs a proper fix
-						first_detected,
+						firstDetected,
 						fixedIn,
-						fixed_in,
 						fixedOn,
 						fixed_on,
 						icon,
@@ -230,8 +213,8 @@ const PaidList = ( { list } ) => {
 							description={ description }
 							diff={ diff }
 							filename={ filename }
-							firstDetected={ firstDetected ?? first_detected }
-							fixedIn={ fixedIn ?? fixed_in }
+							firstDetected={ firstDetected }
+							fixedIn={ fixedIn }
 							fixedOn={ fixedOn ?? fixed_on }
 							icon={ icon }
 							fixable={ fixable }

@@ -24,21 +24,23 @@ type SettingsButtonProps = {
  * @returns {import('react').ReactNode} The button/link component.
  */
 export function SettingsButton( { label, variant = 'primary' }: SettingsButtonProps ) {
-	const { useAdminUiV1 } = useSelect( select => {
+	const { useAdminUiV1, connections } = useSelect( select => {
 		return {
 			useAdminUiV1: select( store ).useAdminUiV1(),
+			connections: select( store ).getConnections(),
 		};
 	}, [] );
 	const { openConnectionsModal } = useDispatch( store );
 	const { connectionsAdminUrl } = usePublicizeConfig();
 
 	const text = label || __( 'Manage connections', 'jetpack' );
+	const hasConnections = connections.length > 0;
 
 	return useAdminUiV1 ? (
 		<Button
 			onClick={ openConnectionsModal }
-			variant={ variant }
-			size="small"
+			variant={ hasConnections ? 'link' : variant }
+			size={ hasConnections ? 'default' : 'small' }
 			className={ styles[ 'settings-button' ] }
 		>
 			{ text }

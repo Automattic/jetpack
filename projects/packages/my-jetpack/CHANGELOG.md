@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.28.0] - 2024-07-15
+### Added
+- Add scan/threat info to the Protect card in My Jetpack. [#38165]
+
+### Changed
+- Protect card: Add the Last scan time (with tooltip) based on product state. [#38091]
+- Updated package dependencies. [#38091]
+
+### Fixed
+- Fix Learn More link destination when the site was never connected. [#38225]
+
+## [4.27.2] - 2024-07-10
+### Fixed
+- Social: Fixed plan slug [#38222]
+
+## [4.27.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [4.27.0] - 2024-07-01
+### Added
+- Add the Google Analytics deprecation notice. [#38078]
+
+### Changed
+- Reduce amount of historically active modules updates by only triggering on activation of plugin is a jetpack plugin [#38065]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+
+## [4.26.0] - 2024-06-27
+### Changed
+- Jetpack AI: Add Title Optimization section on the product page. [#38072]
+
+## [4.25.4] - 2024-06-26
+### Fixed
+- Move historically active modules sync to admin_init [#38041]
+
 ## [4.25.3] - 2024-06-24
 ### Added
 - Add more default args for tracks events [#37974]
@@ -1534,6 +1571,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
+[4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2
+[4.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.0...4.27.1
+[4.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.26.0...4.27.0
+[4.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.4...4.26.0
+[4.25.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.3...4.25.4
 [4.25.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.2...4.25.3
 [4.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.1...4.25.2
 [4.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.25.0...4.25.1

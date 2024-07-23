@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Jetpack_Options;
 use WP_Error;
 

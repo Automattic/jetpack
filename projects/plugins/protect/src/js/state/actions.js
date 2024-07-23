@@ -1,10 +1,10 @@
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
+import API from '../api';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
-const SET_VIEWING_SCAN_HISTORY = 'SET_VIEWING_SCAN_HISTORY';
 const SET_SCAN_HISTORY = 'SET_SCAN_HISTORY';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
@@ -32,10 +32,6 @@ const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
 const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 const SET_WAF_STATS = 'SET_WAF_STATS';
-
-const setViewingScanHistory = viewingScanHistory => {
-	return { type: SET_VIEWING_SCAN_HISTORY, viewingScanHistory };
-};
 
 const setScanHistory = scanHistory => {
 	return { type: SET_SCAN_HISTORY, scanHistory };
@@ -100,6 +96,20 @@ const refreshStatus =
 				} );
 		} );
 	};
+
+/**
+ * Refresh Scan History
+ * @returns {Promise} - Promise which resolves with the scan history once it has been fetched.
+ */
+const refreshScanHistory = () => {
+	return async ( { dispatch } ) => {
+		return API.fetchScanHistory()
+			.then( scanHistory => camelize( scanHistory ) )
+			.then( scanHistory => {
+				dispatch( setScanHistory( scanHistory ) );
+			} );
+	};
+};
 
 /**
  * Check Status
@@ -210,6 +220,9 @@ const ignoreThreat =
 					return dispatch( refreshStatus() );
 				} )
 				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
 					return dispatch(
 						setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
 					);
@@ -296,6 +309,7 @@ const getFixThreatsStatus =
 			.then( () => {
 				// threats fixed - refresh the status
 				dispatch( refreshStatus() );
+				dispatch( refreshScanHistory() );
 				dispatch(
 					setNotice( {
 						type: 'success',
@@ -460,12 +474,12 @@ const actions = {
 	checkCredentials,
 	setCredentials,
 	setCredentialsIsFetching,
-	setViewingScanHistory,
 	setScanHistory,
 	setStatus,
 	setStatusProgress,
 	startScanOptimistically,
 	refreshStatus,
+	refreshScanHistory,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
 	setInstalledPlugins,
@@ -496,7 +510,6 @@ const actions = {
 export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
-	SET_VIEWING_SCAN_HISTORY,
 	SET_SCAN_HISTORY,
 	SET_STATUS,
 	SET_STATUS_PROGRESS,

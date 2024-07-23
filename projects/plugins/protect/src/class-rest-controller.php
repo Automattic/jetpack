@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack_Protect;
 use WP_Error;
@@ -40,65 +41,7 @@ class REST_Controller {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
-		register_rest_route(
-			'jetpack-protect/v1',
-			'check-plan',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_check_plan',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'scan-history',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_get_scan_history',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'clear-scan-history-cache',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_clear_scan_history_cache',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'status',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::api_get_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'clear-scan-cache',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_clear_scan_cache',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
+		Protect_Status_REST_Controller::register_rest_endpoints();
 
 		register_rest_route(
 			'jetpack-protect/v1',
@@ -267,71 +210,18 @@ class REST_Controller {
 				},
 			)
 		);
-	}
 
-	/**
-	 * Return site plan data for the API endpoint
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_check_plan() {
-		$has_required_plan = Plan::has_required_plan();
-
-		return rest_ensure_response( $has_required_plan, 200 );
-	}
-
-	/**
-	 * Return Scan History for the API endpoint
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_get_scan_history( $request ) {
-		$scan_history = Scan_History::get_scan_history( false, $request['filter'] );
-		return rest_ensure_response( $scan_history, 200 );
-	}
-
-	/**
-	 * Clear the Scan_History cache for the API endpoint
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_clear_scan_history_cache() {
-		$cache_cleared = Scan_History::delete_option();
-
-		if ( ! $cache_cleared ) {
-			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan history cache.', 500 );
-		}
-
-		return new WP_REST_Response( 'Jetpack Scan history cache cleared.' );
-	}
-
-	/**
-	 * Return Protect Status for the API endpoint
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_get_status( $request ) {
-		$status = Status::get_status( $request['hard_refresh'] );
-		return rest_ensure_response( $status, 200 );
-	}
-
-	/**
-	 * Clear the Scan_Status cache for the API endpoint
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_clear_scan_cache() {
-		$cache_cleared = Scan_Status::delete_option();
-
-		if ( ! $cache_cleared ) {
-			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan cache.', 500 );
-		}
-
-		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );
+		register_rest_route(
+			'jetpack-protect/v1',
+			'scan-history',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_scan_history',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -563,5 +453,30 @@ class REST_Controller {
 		}
 
 		return new WP_REST_Response( 'Onboarding step(s) completed.' );
+	}
+
+	/**
+	 * Return Scan History for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_scan_history() {
+		$scan_history = Scan_History::get_scan_history( false );
+		return rest_ensure_response( $scan_history, 200 );
+	}
+
+	/**
+	 * Clear the Scan_History cache for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_clear_scan_history_cache() {
+		$cache_cleared = Scan_History::delete_option();
+
+		if ( ! $cache_cleared ) {
+			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan history cache.', 500 );
+		}
+
+		return new WP_REST_Response( 'Jetpack Scan history cache cleared.' );
 	}
 }

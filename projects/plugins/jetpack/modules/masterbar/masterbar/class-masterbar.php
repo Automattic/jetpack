@@ -2,263 +2,67 @@
 /**
  * Masterbar file.
  *
+ * @deprecated 13.7 Use Automattic\Jetpack\Masterbar\Masterbar instead.
+ *
  * @package automattic/jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Scan\Admin_Bar_Notice;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
-use GP_Locale;
-use GP_Locales;
-use Jetpack;
-use Jetpack_AMP_Support;
+use Automattic\Jetpack\Masterbar\Masterbar as Jetpack_Masterbar;
 use WP_Admin_Bar;
 
 /**
  * Provides custom admin bar instead of the default WordPress admin bar.
  */
 class Masterbar {
-	/**
-	 * Use for testing changes made to remotely enqueued scripts and styles on your sandbox.
-	 * If not set it will default to loading the ones from WordPress.com.
-	 *
-	 * @var string $sandbox_url
-	 */
-	private $sandbox_url = '';
 
 	/**
-	 * Current locale.
+	 * Instance of \Automattic\Jetpack\Masterbar\Masterbar
+	 * Used for deprecation purposes.
 	 *
-	 * @var string
+	 * @var \Automattic\Jetpack\Masterbar\Masterbar
 	 */
-	private $locale;
-
-	/**
-	 * WordPress.com user locale of the connected user.
-	 *
-	 * @var string
-	 */
-	private $user_locale;
-
-	/**
-	 * Current User ID.
-	 *
-	 * @var int
-	 */
-	private $user_id;
-	/**
-	 * WordPress.com user data of the connected user.
-	 *
-	 * @var array
-	 */
-	private $user_data;
-	/**
-	 * WordPress.com username for the connected user.
-	 *
-	 * @var string
-	 */
-	private $user_login;
-	/**
-	 * WordPress.com email address for the connected user.
-	 *
-	 * @var string
-	 */
-	private $user_email;
-	/**
-	 * WordPress.com display name for the connected user.
-	 *
-	 * @var string
-	 */
-	private $display_name;
-	/**
-	 * Site URL sanitized for usage in WordPress.com slugs.
-	 *
-	 * @var string
-	 */
-	private $primary_site_slug;
-	/**
-	 * Site URL displayed in the UI.
-	 *
-	 * @var string
-	 */
-	private $primary_site_url;
-	/**
-	 * Whether the text direction is RTL (based on connected WordPress.com user's interface settings).
-	 *
-	 * @var boolean
-	 */
-	private $is_rtl;
-	/**
-	 * Number of sites owned by connected WordPress.com user.
-	 *
-	 * @var int
-	 */
-	private $user_site_count;
-	/**
-	 * If the site is hosted on WordPress.com on Atomic
-	 *
-	 * @var bool
-	 */
-	private $site_woa;
+	private $masterbar_wrapper;
 
 	/**
 	 * Constructor
+	 *
+	 * @deprecated 13.7
 	 */
 	public function __construct() {
-		$this->user_id      = get_current_user_id();
-		$connection_manager = new Connection_Manager( 'jetpack' );
-
-		if ( ! $connection_manager->is_user_connected( $this->user_id ) ) {
-			return;
-		}
-
-		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
-		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
-		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
-		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
-		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
-		$this->site_woa        = ( new Host() )->is_woa_site();
-
-		// Store part of the connected user data as user options so it can be used
-		// by other files of the masterbar module without making another XMLRPC
-		// request. Although `get_connected_user_data` tries to save the data for
-		// future uses on a transient, the data is not guaranteed to be cached.
-		update_user_option( $this->user_id, 'jetpack_wpcom_is_rtl', $this->is_rtl ? '1' : '0' );
-		if ( isset( $this->user_data['use_wp_admin_links'] ) ) {
-			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
-		}
-		// If Atomic, store and install user locale.
-		if ( $this->site_woa && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
-			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
-			$this->install_locale( $this->user_locale );
-			$this->unload_non_default_textdomains_on_wpcom_user_locale_switch( $this->user_locale );
-			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
-		}
-
-		add_action( 'admin_bar_init', array( $this, 'init' ) );
-
-		if ( ! empty( $this->user_data['ID'] ) ) {
-			// Post logout on the site, also log the user out of WordPress.com.
-			add_filter( 'logout_redirect', array( $this, 'maybe_logout_user_from_wpcom' ) );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::__construct' );
+		$this->masterbar_wrapper = new Jetpack_Masterbar();
 	}
 
 	/**
 	 * Initialize our masterbar.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function init() {
-		$this->locale = $this->get_locale();
-
-		// Don't show the masterbar on WordPress mobile apps.
-		if ( User_Agent_Info::is_mobile_app() ) {
-			add_filter( 'show_admin_bar', '__return_false' );
-			return;
-		}
-
-		// Disable the Masterbar on AMP views.
-		if (
-			class_exists( 'Jetpack_AMP_Support' )
-			&& Jetpack_AMP_Support::is_amp_available()
-			&& Jetpack_AMP_Support::is_amp_request()
-		) {
-			return;
-		}
-
-		Assets::add_resource_hint(
-			array(
-				'//s0.wp.com',
-				'//0.gravatar.com',
-				'//1.gravatar.com',
-				'//2.gravatar.com',
-			),
-			'dns-prefetch'
-		);
-
-		// WordPress.com on Atomic only.
-		if ( $this->site_woa ) {
-			/*
-			 * override user setting that hides masterbar from site's front.
-			 * https://github.com/Automattic/jetpack/issues/7667
-			 */
-			add_filter( 'show_admin_bar', '__return_true' );
-		}
-
-		// Used to build menu links that point directly to Calypso.
-		$this->primary_site_slug = ( new Status() )->get_site_suffix();
-
-		// Used for display purposes and for building WP Admin links.
-		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
-
-		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
-
-		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
-
-		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
-
-		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl ) {
-			// Override Notification module to include RTL styles.
-			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
-		}
-
-		// Hides and replaces the language dropdown for the current user, on WoA.
-		if ( $this->site_woa &&
-			'wp-admin' !== get_option( 'wpcom_admin_interface' ) &&
-			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
-			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
-			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ), 9 );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::init' );
+		$this->masterbar_wrapper->init();
 	}
 
 	/**
 	 * Log out from WordPress.com when logging out of the local site.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $redirect_to The redirect destination URL.
 	 */
 	public function maybe_logout_user_from_wpcom( $redirect_to ) {
-		/**
-		 * Whether we should sign out from wpcom too when signing out from the masterbar.
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool $masterbar_should_logout_from_wpcom True by default.
-		 */
-		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', true );
-		if (
-			// No need to check for a nonce here, it happens further up.
-			isset( $_GET['context'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			&& $masterbar_should_logout_from_wpcom
-		) {
-			/**
-			 * Hook into the log out event happening from the Masterbar.
-			 *
-			 * @since 5.1.0
-			 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
-			 *
-			 * @module masterbar
-			 *
-			 * @param int $wpcom_user_id WordPress.com User ID.
-			 */
-			do_action( 'wp_masterbar_logout', $this->user_data['ID'] );
-		}
-
-		return $redirect_to;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::maybe_logout_user_from_wpcom' );
+		return $this->masterbar_wrapper->maybe_logout_user_from_wpcom( $redirect_to );
 	}
 
 	/**
 	 * Adds CSS classes to admin body tag.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @since 5.1
 	 *
@@ -267,118 +71,38 @@ class Masterbar {
 	 * @return string
 	 */
 	public function admin_body_class( $admin_body_classes ) {
-
-		$classes = array( 'jetpack-masterbar', trim( $admin_body_classes ) );
-
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			$classes[] = 'wpcom-admin-interface';
-		}
-
-		return implode( ' ', $classes );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::admin_body_class' );
+		return $this->masterbar_wrapper->admin_body_class( $admin_body_classes );
 	}
 
 	/**
 	 * Remove the default Admin Bar CSS.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function remove_core_styles() {
-		/*
-		 * Notifications need the admin bar styles,
-		 * so let's not remove them when the module is active.
-		 * Also, don't remove the styles if the user has opted to use wp-admin.
-		 */
-		if ( ! Jetpack::is_module_active( 'notes' ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-			wp_dequeue_style( 'admin-bar' );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::remove_core_styles' );
+		$this->masterbar_wrapper->remove_core_styles();
 	}
 
 	/**
 	 * Enqueue our own CSS and JS to display our custom admin bar.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function add_styles_and_scripts() {
-		// WoA sites: If wpcom_admin_interface is set to wp-admin, load the wp-admin styles.
-		// These include only styles to enable the "My Sites" and "Reader" links that will be added.
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			$css_file = $this->is_rtl ? 'masterbar-wp-admin-rtl.css' : 'masterbar-wp-admin.css';
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/' . $css_file ), array(), JETPACK__VERSION );
-			return;
-		}
-
-		if ( $this->is_rtl ) {
-			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), JETPACK__VERSION );
-		} else {
-			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ), array(), JETPACK__VERSION );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ), array(), JETPACK__VERSION );
-		}
-
-		// Local overrides.
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), JETPACK__VERSION );
-
-		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
-			// Masterbar is relying on some icons from noticons.css.
-			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
-		}
-
-		wp_enqueue_script(
-			'jetpack-accessible-focus',
-			Assets::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
-		wp_enqueue_script(
-			'a8c_wpcom_masterbar_tracks_events',
-			Assets::get_file_url_for_environment(
-				'_inc/build/masterbar/masterbar/tracks-events.min.js',
-				'modules/masterbar/masterbar/tracks-events.js'
-			),
-			array(),
-			JETPACK__VERSION,
-			false
-		);
-
-		wp_enqueue_script(
-			'a8c_wpcom_masterbar_overrides',
-			$this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			false
-		);
-	}
-
-	/**
-	 * Get base URL where our CSS and JS will come from.
-	 *
-	 * @param string $file File path for a static resource.
-	 */
-	private function wpcom_static_url( $file ) {
-		if ( ! empty( $this->sandbox_url ) ) {
-			// For testing undeployed changes to remotely enqueued scripts and styles.
-			return set_url_scheme( $this->sandbox_url . $file, 'https' );
-		}
-
-		$url = 'https://s0.wp.com' . $file;
-
-		return set_url_scheme( $url, 'https' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_styles_and_scripts' );
+		$this->masterbar_wrapper->add_styles_and_scripts();
 	}
 
 	/**
 	 * Remove the default admin bar items and replace it with our own admin bar.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function replace_core_masterbar() {
-		global $wp_admin_bar;
-
-		if ( ! is_object( $wp_admin_bar ) ) {
-			return false;
-		}
-
-		if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
-			$this->build_wp_admin_interface_bar( $wp_admin_bar );
-			return;
-		}
-
-		$this->clear_core_masterbar( $wp_admin_bar );
-		$this->build_wpcom_masterbar( $wp_admin_bar );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::replace_core_masterbar' );
+		$this->masterbar_wrapper->replace_core_masterbar();
 	}
 
 	/**
@@ -389,12 +113,14 @@ class Masterbar {
 	 * to NOT use the wpcom master bar. We do need to adjust a couple of things
 	 * though.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $bar The admin bar object.
 	 *
 	 * @return void
 	 */
 	protected function build_wp_admin_interface_bar( $bar ) {
-
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::build_wp_admin_interface_bar' );
 		$nodes = array();
 
 		// First, lets gather all nodes and remove them.
@@ -437,11 +163,14 @@ class Masterbar {
 	/**
 	 * Add a link to the user` profile on WordPress.com
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $bar The admin bar object.
 	 *
 	 * @return void
 	 */
 	protected function add_wpcom_profile_link( $bar ) {
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_wpcom_profile_link' );
 		$custom_node = array(
 			'parent' => 'user-actions',
 			'id'     => 'wpcom-profile-link',
@@ -458,115 +187,60 @@ class Masterbar {
 	/**
 	 * Remove all existing toolbar entries from core Masterbar
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function clear_core_masterbar( $wp_admin_bar ) {
-		foreach ( $wp_admin_bar->get_nodes() as $node ) {
-			$wp_admin_bar->remove_node( $node->id );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::clear_core_masterbar' );
+		$this->masterbar_wrapper->clear_core_masterbar( $wp_admin_bar );
 	}
 
 	/**
 	 * Add entries corresponding to WordPress.com Masterbar
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function build_wpcom_masterbar( $wp_admin_bar ) {
-		// Menu groups.
-		$this->wpcom_adminbar_add_secondary_groups( $wp_admin_bar );
-
-		// Left part.
-		$this->add_my_sites_submenu( $wp_admin_bar );
-		$this->add_reader_submenu( $wp_admin_bar );
-
-		// Right part.
-		if ( Jetpack::is_module_active( 'notes' ) && ! \Jetpack_Notifications::is_block_editor() ) {
-			$this->add_notifications( $wp_admin_bar );
-		}
-
-		$this->add_me_submenu( $wp_admin_bar );
-		$this->add_write_button( $wp_admin_bar );
-
-		// Recovery mode exit.
-		wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
-
-		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
-			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
-			$scan_admin_bar_notice->add_threats_to_toolbar( $wp_admin_bar );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::build_wpcom_masterbar' );
+		$this->masterbar_wrapper->build_wpcom_masterbar( $wp_admin_bar );
 	}
 
 	/**
 	 * Get WordPress.com current locale name.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function get_locale() {
-		$wpcom_locale = get_locale();
-
-		if ( ! class_exists( 'GP_Locales' ) ) {
-			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				require JETPACK__GLOTPRESS_LOCALES_PATH;
-			}
-		}
-
-		if ( class_exists( 'GP_Locales' ) ) {
-			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', get_locale() );
-			if ( $wpcom_locale_object instanceof GP_Locale ) {
-				$wpcom_locale = $wpcom_locale_object->slug;
-			}
-		}
-
-		return $wpcom_locale;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::get_locale' );
+		return $this->masterbar_wrapper->get_locale();
 	}
 
 	/**
 	 * Get Jetpack locale name.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param  string $slug Locale slug.
 	 * @return string Jetpack locale.
 	 */
 	public function get_jetpack_locale( $slug = '' ) {
-		if ( ! class_exists( 'GP_Locales' ) ) {
-			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				require JETPACK__GLOTPRESS_LOCALES_PATH;
-			}
-		}
-
-		if ( class_exists( 'GP_Locales' ) ) {
-			$jetpack_locale_object = GP_Locales::by_field( 'slug', $slug );
-			if ( $jetpack_locale_object instanceof GP_Locale ) {
-				$jetpack_locale = $jetpack_locale_object->wp_locale ? $jetpack_locale_object->wp_locale : 'en_US';
-			}
-		}
-
-		if ( isset( $jetpack_locale ) ) {
-			return $jetpack_locale;
-		}
-
-		return 'en_US';
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::get_jetpack_locale' );
+		return $this->masterbar_wrapper->get_jetpack_locale( $slug );
 	}
 
 	/**
 	 * Install locale if not yet available.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $locale The new locale slug.
 	 */
 	public function install_locale( $locale = '' ) {
-		if ( ! in_array( $locale, get_available_languages(), true )
-			&& ! empty( $locale ) && current_user_can( 'install_languages' ) ) {
-
-			if ( ! function_exists( 'wp_download_language_pack' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/translation-install.php';
-			}
-
-			if ( ! function_exists( 'request_filesystem_credentials' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-			}
-
-			if ( wp_can_install_language_pack() ) {
-				wp_download_language_pack( $locale );
-				load_default_textdomain( $locale );
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::install_locale' );
+		return $this->masterbar_wrapper->install_locale( $locale );
 	}
 
 	/**
@@ -582,117 +256,76 @@ class Masterbar {
 	 * The default textdomain is not affected by this because it's always reloaded
 	 * after all plugins have been loaded, in wp-settings.php.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param string $wpcom_locale The user's detected WordPress.com locale.
 	 */
 	public function unload_non_default_textdomains_on_wpcom_user_locale_switch( $wpcom_locale ) {
-		$user_switched_locale = get_user_locale() !== $wpcom_locale;
-		if ( ! $user_switched_locale ) {
-			return;
-		}
-
-		global $l10n;
-		$loaded_textdomains      = array_keys( $l10n );
-		$non_default_textdomains = array_diff( $loaded_textdomains, array( 'default' ) );
-		foreach ( $non_default_textdomains as $textdomain ) {
-			// Using $reloadable = true makes sure the correct locale's
-			// translations are loaded just-in-time.
-			unload_textdomain( $textdomain, true );
-		}
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::unload_non_default_textdomains_on_wpcom_user_locale_switch' );
+		return $this->masterbar_wrapper->unload_non_default_textdomains_on_wpcom_user_locale_switch( $wpcom_locale );
 	}
 
 	/**
 	 * Hide language dropdown on user edit form.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '__return_empty_array' );
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::hide_language_dropdown' );
+		$this->masterbar_wrapper->hide_language_dropdown();
 	}
 
 	/**
 	 * Replace language dropdown with link to WordPress.com.
+	 *
+	 * @deprecated 13.7
 	 */
 	public function replace_language_dropdown() {
-		$language_row  = printf( '<tr class="user-language-wrap"><th scope="row">' );
-		$language_row .= printf(
-			'<label for="locale">%1$s<span class="dashicons dashicons-translation" aria-hidden="true"></span></label>',
-			esc_html__( 'Language', 'jetpack' )
-		);
-		$language_row .= printf( '</th><td>' );
-		$language_row .= printf(
-			'<a target="_blank" href="%1$s">%2$s</a>',
-			esc_url( 'https://wordpress.com/me/account' ),
-			esc_html__( 'Set your profile language on WordPress.com.', 'jetpack' )
-		);
-		$language_row .= printf( '</td></tr>' );
-		return $language_row;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::replace_language_dropdown' );
+		return $this->masterbar_wrapper->replace_language_dropdown();
 	}
 
 	/**
 	 * Add the Notifications menu item.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_notifications( $wp_admin_bar ) {
-		$wp_admin_bar->add_node(
-			array(
-				'id'     => 'notes',
-				'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
-						 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>
-						 <span class="noticon noticon-bell"></span>',
-				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="' . esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl ? 'rtl' : 'ltr' ) . '">' .
-								'<div class="wpnt-notes-panel-header">' .
-								'<span class="wpnt-notes-header">' .
-								esc_html__( 'Notifications', 'jetpack' ) .
-								'</span>' .
-								'<span class="wpnt-notes-panel-link">' .
-								'</span>' .
-								'</div>' .
-								'</div>',
-					'class' => 'menupop mb-trackable',
-				),
-				'parent' => 'top-secondary',
-				'href'   => 'https://wordpress.com/notifications',
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_notifications' );
+		$this->masterbar_wrapper->add_notifications( $wp_admin_bar );
 	}
 
 	/**
 	 * Add the "Reader" menu item in the root default group.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_reader_submenu( $wp_admin_bar ) {
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'root-default',
-				'id'     => 'newdash',
-				'title'  => esc_html__( 'Reader', 'jetpack' ),
-				'href'   => 'https://wordpress.com/read',
-				'meta'   => array(
-					'class' => 'mb-trackable',
-				),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_reader_submenu' );
+		$this->masterbar_wrapper->add_reader_submenu( $wp_admin_bar );
 	}
 
 	/**
 	 * Merge 2 menu items together into 2 link tags.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param array $primary   Array of menu information.
 	 * @param array $secondary Array of menu information.
 	 */
 	public function create_menu_item_pair( $primary, $secondary ) {
-		$primary_class   = 'ab-item ab-primary mb-icon';
-		$secondary_class = 'ab-secondary';
-
-		$primary_anchor   = $this->create_menu_item_anchor( $primary_class, $primary['url'], $primary['label'], $primary['id'] );
-		$secondary_anchor = $this->create_menu_item_anchor( $secondary_class, $secondary['url'], $secondary['label'], $secondary['id'] );
-
-		return $primary_anchor . $secondary_anchor;
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::create_menu_item_pair' );
+		return $this->masterbar_wrapper->create_menu_item_pair( $primary, $secondary );
 	}
 
 	/**
 	 * Create a link tag based on information about a menu item.
+	 *
+	 * @deprecated 13.7
 	 *
 	 * @param string $class Menu item CSS class.
 	 * @param string $url   URL you go to when clicking on the menu item.
@@ -700,245 +333,55 @@ class Masterbar {
 	 * @param string $id    Menu item slug.
 	 */
 	public function create_menu_item_anchor( $class, $url, $label, $id ) {
-		return '<a href="' . $url . '" class="' . $class . '" id="' . $id . '">' . $label . '</a>';
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::create_menu_item_anchor' );
+		return $this->masterbar_wrapper->create_menu_item_anchor( $class, $url, $label, $id );
 	}
 
 	/**
 	 * Add Secondary groups for submenu items.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function wpcom_adminbar_add_secondary_groups( $wp_admin_bar ) {
-		$wp_admin_bar->add_group(
-			array(
-				'id'   => 'root-default',
-				'meta' => array(
-					'class' => 'ab-top-menu',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_group(
-			array(
-				'parent' => 'blog',
-				'id'     => 'blog-secondary',
-				'meta'   => array(
-					'class' => 'ab-sub-secondary',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_group(
-			array(
-				'id'   => 'top-secondary',
-				'meta' => array(
-					'class' => 'ab-top-secondary',
-				),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::wpcom_adminbar_add_secondary_groups' );
+		$this->masterbar_wrapper->wpcom_adminbar_add_secondary_groups( $wp_admin_bar );
 	}
 
 	/**
 	 * Add User info menu item.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_me_submenu( $wp_admin_bar ) {
-		$user_id = get_current_user_id();
-		if ( empty( $user_id ) ) {
-			return;
-		}
-
-		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
-		$class  = empty( $avatar ) ? 'mb-trackable' : 'with-avatar mb-trackable';
-
-		// Add the 'Me' menu.
-		$wp_admin_bar->add_menu(
-			array(
-				'id'     => 'my-account',
-				'parent' => 'top-secondary',
-				'title'  => $avatar . '<span class="ab-text">' . esc_html__( 'Me', 'jetpack' ) . '</span>',
-				'href'   => 'https://wordpress.com/me',
-				'meta'   => array(
-					'class' => $class,
-				),
-			)
-		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		$id = 'user-actions';
-		$wp_admin_bar->add_group(
-			array(
-				'parent' => 'my-account',
-				'id'     => $id,
-			)
-		);
-
-		$logout_url = wp_logout_url();
-		$logout_url = add_query_arg( 'context', 'masterbar', $logout_url );
-
-		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
-		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
-		$user_info .= '<span class="username">' . $this->user_login . '</span>';
-
-		$blog_id = Connection_Manager::get_site_id( true );
-
-		$args = array();
-		if ( $blog_id ) {
-			$args['site'] = $blog_id;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'user-info',
-				'title'  => $user_info,
-				'meta'   => array(
-					'class'    => 'user-info user-info-item',
-					'tabindex' => -1,
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'profile',
-				'title'  => esc_html__( 'Profile', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-me', $args ),
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => $id,
-				'id'     => 'logout',
-				'title'  => esc_html__( 'Log Out', 'jetpack' ),
-				'href'   => $logout_url,
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_me_submenu' );
+		$this->masterbar_wrapper->add_me_submenu( $wp_admin_bar );
 	}
 
 	/**
 	 * Add Write Menu item.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_write_button( $wp_admin_bar ) {
-		$current_user = wp_get_current_user();
-
-		$posting_blog_id = get_current_blog_id();
-		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
-			$posting_blog_id = $current_user->primary_blog;
-		}
-
-		$user_can_post = current_user_can_for_blog( $posting_blog_id, 'publish_posts' );
-
-		if ( ! $posting_blog_id || ! $user_can_post ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'top-secondary',
-				'id'     => 'ab-new-post',
-				'href'   => admin_url( 'post-new.php' ),
-				'title'  => '<span>' . esc_html__( 'Write', 'jetpack' ) . '</span>',
-				'meta'   => array(
-					'class' => 'mb-trackable',
-				),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_write_button' );
+		$this->masterbar_wrapper->add_write_button( $wp_admin_bar );
 	}
 
 	/**
 	 * Add the "My Site" menu item in the root default group.
 	 *
+	 * @deprecated 13.7
+	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_my_sites_submenu( $wp_admin_bar ) {
-		$blog_name = get_bloginfo( 'name' );
-		if ( empty( $blog_name ) ) {
-			$blog_name = $this->primary_site_slug;
-		}
-
-		if ( mb_strlen( $blog_name ) > 20 ) {
-			$blog_name = mb_substr( html_entity_decode( $blog_name, ENT_QUOTES ), 0, 20 ) . '&hellip;';
-		}
-
-		$my_site_url = 'https://wordpress.com/sites/' . $this->primary_site_url;
-		if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-			$my_site_url = 'https://wordpress.com/sites';
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'root-default',
-				'id'     => 'blog',
-				'href'   => $my_site_url,
-				'meta'   => array(
-					'class' => 'my-sites mb-trackable',
-				),
-			)
-		);
-
-		/** This filter is documented in modules/masterbar.php */
-		if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-			return;
-		}
-
-		if ( current_user_can( 'manage_options' ) ) {
-			// Restore dashboard menu toggle that is needed on mobile views.
-			if ( is_admin() ) {
-				$wp_admin_bar->add_menu(
-					array(
-						'id'    => 'menu-toggle',
-						'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . esc_html__( 'Menu', 'jetpack' ) . '</span>',
-						'href'  => '#',
-					)
-				);
-			}
-
-			/**
-			 * Fires when menu items are added to the masterbar "My Sites" menu.
-			 *
-			 * @since jetpack-5.4.0
-			 */
-			do_action( 'jetpack_masterbar' );
-		}
-	}
-
-	/**
-	 * Adds "My Home" submenu item to sites that are eligible.
-	 *
-	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
-	 * @return void
-	 */
-	private function add_my_home_submenu_item( &$wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || ! $this->site_woa ) {
-			return;
-		}
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'blog',
-				'id'     => 'my-home',
-				'title'  => __( 'My Home', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-home' ),
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			)
-		);
+		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\Masterbar::add_my_sites_submenu' );
+		$this->masterbar_wrapper->add_my_sites_submenu( $wp_admin_bar );
 	}
 }

@@ -1,11 +1,12 @@
 import { Container, Col, Title, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
+import ScanButton from '../scan-button';
 import EmptyList from './empty';
 import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
@@ -20,14 +21,13 @@ const ThreatsList = () => {
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const { setModal } = useDispatch( STORE_ID );
-	const { scan } = useDispatch( STORE_ID );
-	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
-
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
-	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
+
+	const { setModal } = useDispatch( STORE_ID );
+
+	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
 
@@ -38,13 +38,6 @@ const ThreatsList = () => {
 				type: 'FIX_ALL_THREATS',
 				props: { threatList },
 			} );
-		};
-	};
-
-	const handleScanClick = () => {
-		return event => {
-			event.preventDefault();
-			scan();
 		};
 	};
 
@@ -109,14 +102,13 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && ! viewingScanHistory && (
-								<>
+							{ hasRequiredPlan && (
+								<div className={ styles[ 'list-header__controls' ] }>
 									{ fixableList.length > 0 && (
 										<>
 											<Button
 												ref={ setFixAllThreatsPopoverAnchor }
 												variant="primary"
-												className={ styles[ 'list-header-button' ] }
 												onClick={ handleFixAllThreatsClick( fixableList ) }
 											>
 												{ sprintf(
@@ -132,29 +124,15 @@ const ThreatsList = () => {
 											/>
 										</>
 									) }
-									<Button
-										ref={ setDailyAndManualScansPopoverAnchor }
-										variant="secondary"
-										className={ styles[ 'list-header-button' ] }
-										isLoading={ scanIsEnqueuing }
-										onClick={ handleScanClick() }
-									>
-										{ __( 'Scan now', 'jetpack-protect' ) }
-									</Button>
-									<OnboardingPopover
-										id="paid-daily-and-manual-scans"
-										position={ isSm ? 'bottom left' : 'middle left' }
-										anchor={ dailyAndManualScansPopoverAnchor }
-									/>
-									<Button
-										variant="secondary"
-										className={ styles[ 'list-header-button' ] }
-										onClick={ handleHistoryClick }
-										isLoading={ allScanHistoryIsLoading }
-									>
-										{ __( 'History', 'jetpack-protect' ) }
-									</Button>
-								</>
+									<div>
+										<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
+										<OnboardingPopover
+											id="paid-daily-and-manual-scans"
+											position={ isSm ? 'bottom left' : 'middle left' }
+											anchor={ dailyAndManualScansPopoverAnchor }
+										/>
+									</div>
+								</div>
 							) }
 						</div>
 						{ hasRequiredPlan ? (

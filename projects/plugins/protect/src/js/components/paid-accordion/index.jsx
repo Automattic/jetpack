@@ -12,6 +12,45 @@ import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
+const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
+	return (
+		<>
+			{ detectedAt && (
+				<Text className={ styles[ 'accordion-header-status' ] }>
+					{ sprintf(
+						/* translators: %s: First detected date */
+						__( 'Threat found %s', 'jetpack-protect' ),
+						dateI18n( 'M j, Y', detectedAt )
+					) }
+					{ 'fixed' === status && (
+						<>
+							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+							<span className={ styles[ 'is-fixed' ] }>
+								{ sprintf(
+									/* translators: %s: Fixed on date */
+									__( 'Threat fixed %s', 'jetpack-protect' ),
+									dateI18n( 'M j, Y', fixedOn )
+								) }
+							</span>
+						</>
+					) }
+				</Text>
+			) }
+			{ ( 'fixed' === status || 'ignored' === status ) && (
+				<StatusBadge status={ 'fixed' === status ? 'fixed' : 'ignored' } />
+			) }
+		</>
+	);
+};
+
+const StatusBadge = ( { status } ) => (
+	<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
+		{ 'fixed' === status
+			? __( 'Fixed', 'jetpack-protect' )
+			: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
+	</div>
+);
+
 export const PaidAccordionItem = ( {
 	id,
 	title,
@@ -23,6 +62,7 @@ export const PaidAccordionItem = ( {
 	firstDetected,
 	fixedOn,
 	onOpen,
+	status,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
@@ -103,11 +143,21 @@ export const PaidAccordionItem = ( {
 					>
 						{ title }
 					</Text>
+<<<<<<< HEAD
 					<ScanHistoryDetails
 						viewingHistory={ viewingScanHistory }
 						detectedAt={ firstDetected }
 						fixedAt={ fixedOn }
 					/>
+=======
+					{ ( 'fixed' === status || 'ignored' === status ) && (
+						<ScanHistoryDetails
+							detectedAt={ firstDetected }
+							status={ status }
+							fixedAt={ fixedOn }
+						/>
+					) }
+>>>>>>> add/protect-threat-history-routes
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />

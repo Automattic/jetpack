@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.3] - 2024-07-15
+### Added
+- Mastodon: display a Fediverse Creator tag when the post author has connected their account to a Mastodon account. [#38198]
+
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+
+## [0.47.2] - 2024-07-08
+### Fixed
+- Social | Fixed the permissions for update and disconnection connections endpoints [#38187]
+
+## [0.47.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.47.0] - 2024-07-01
+### Removed
+- Removed share as a social post toggle [#37964]
+
+### Fixed
+- Ensured that connections are only fetched once per request [#38080]
+
+## [0.46.3] - 2024-06-26
+### Added
+- Added social preview for Threads [#38003]
+
 ## [0.46.2] - 2024-06-24
 ### Added
 - Added Social resharing for classic editor [#37810]
@@ -599,6 +625,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.47.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.2...v0.47.3
+[0.47.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.1...v0.47.2
+[0.47.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.3...v0.47.0
+[0.46.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.2...v0.46.3
 [0.46.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.1...v0.46.2
 [0.46.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.0...v0.46.1
 [0.46.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.2...v0.46.0

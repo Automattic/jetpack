@@ -68,7 +68,8 @@
 		"voice-to-content",
 		"ai-featured-image-generator",
 		"ai-title-optimization",
-		"ai-assistant-experimental-image-generation-support"
+		"ai-assistant-experimental-image-generation-support",
+		"ai-general-purpose-image-generator"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -78,8 +79,8 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-assistant-extensions-support",
-		"ai-general-purpose-image-generator",
-		"ai-proofread-breve"
+		"ai-proofread-breve",
+		"ai-assistant-site-logo-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

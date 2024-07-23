@@ -64,17 +64,45 @@ class Jetpack_Subscribe_Modal {
 			wp_enqueue_script( 'subscribe-modal-js', plugins_url( 'subscribe-modal.js', __FILE__ ), array( 'wp-dom-ready' ), JETPACK__VERSION, true );
 
 			/**
-			 * Filter how many milliseconds a user must scroll for until the Subscribe Modal appears.
+			 * Filter how many milliseconds until the Subscribe Modal appears.
 			 *
 			 * @module subscriptions
 			 *
 			 * @since 13.4
 			 *
-			 * @param int 300 Time in milliseconds for the Subscribe Modal to appear upon scrolling.
+			 * @param int 60000 Time in milliseconds for the Subscribe Modal to appear.
 			 */
-			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 300 ) );
+			$load_time = absint( apply_filters( 'jetpack_subscribe_modal_load_time', 60000 ) );
 
-			wp_localize_script( 'subscribe-modal-js', 'Jetpack_Subscriptions', array( 'modalLoadTime' => $load_time ) );
+			/**
+			 * Filter how many percentage of the page should be scrolled before the Subscribe Modal appears.
+			 *
+			 * @module subscriptions
+			 *
+			 * @since 13.6
+			 *
+			 * @param int Percentage of the page scrolled before the Subscribe Modal appears.
+			 */
+			$scroll_threshold = absint( apply_filters( 'jetpack_subscribe_modal_scroll_threshold', 50 ) );
+
+			/**
+			 * Filter to control the interval at which the subscribe modal is shown to the same user.  The default interval is 24 hours.
+			 *
+			 * @since 13.7
+			 *
+			 * @param int 24 Hours before we show the same user the Subscribe Modal to again.
+			 */
+			$modal_interval = absint( apply_filters( 'jetpack_subscribe_modal_interval', 24 ) );
+
+			wp_localize_script(
+				'subscribe-modal-js',
+				'Jetpack_Subscriptions',
+				array(
+					'modalLoadTime'        => $load_time,
+					'modalScrollThreshold' => $scroll_threshold,
+					'modalInterval'        => ( $modal_interval * HOUR_IN_SECONDS * 1000 ),
+				)
+			);
 		}
 	}
 
@@ -161,7 +189,7 @@ class Jetpack_Subscribe_Modal {
 		<p class='has-text-align-center' style='margin-top:4px;margin-bottom:0px;font-size:15px'>$subscribe_text</p>
 		<!-- /wp:paragraph -->
 
-		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact"} /-->
+		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"subscribe-modal"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
 		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px"><a href="#">$continue_reading</a></p>

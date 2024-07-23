@@ -20,8 +20,10 @@ use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect_Status\Status as Protect_Status;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host as Status_Host;
+use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
@@ -37,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.25.3';
+	const PACKAGE_VERSION = '4.29.0-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -91,8 +93,6 @@ class Initializer {
 		// Initialize Boost Speed Score
 		new Speed_Score( array(), 'jetpack-my-jetpack' );
 
-		self::setup_historically_active_jetpack_modules_sync();
-
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
@@ -106,6 +106,7 @@ class Initializer {
 		);
 
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
+		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
 
@@ -210,6 +211,7 @@ class Initializer {
 			$previous_score = $speed_score_history->latest( 1 );
 		}
 		$latest_score['previousScores'] = $previous_score['scores'] ?? array();
+		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
 		wp_localize_script(
@@ -223,6 +225,7 @@ class Initializer {
 					'items' => array(),
 				),
 				'plugins'                => Plugins_Installer::get_plugins(),
+				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
 				'myJetpackCheckoutUri'   => admin_url( 'admin.php?page=my-jetpack' ),
 				'topJetpackMenuItemUrl'  => Admin_Menu::get_top_level_menu_item_url(),
@@ -240,6 +243,8 @@ class Initializer {
 				'lifecycleStats'         => array(
 					'jetpackPlugins'            => self::get_installed_jetpack_plugins(),
 					'historicallyActiveModules' => \Jetpack_Options::get_option( 'historically_active_modules', array() ),
+					'ownedProducts'             => Products::get_products_by_ownership( 'owned' ),
+					'unownedProducts'           => Products::get_products_by_ownership( 'unowned' ),
 					'brokenModules'             => self::check_for_broken_modules(),
 					'isSiteConnected'           => $connection->is_connected(),
 					'isUserConnected'           => $connection->is_user_connected(),
@@ -256,6 +261,7 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
+				'scanData'               => $scan_data,
 			)
 		);
 
@@ -496,10 +502,16 @@ class Initializer {
 	/**
 	 * Set transient to queue an update to the historically active Jetpack modules on the next wp-admin load
 	 *
+	 * @param string $plugin The plugin that triggered the update. This will be present if the function was queued by a plugin activation.
+	 *
 	 * @return void
 	 */
-	public static function queue_historically_active_jetpack_modules_update() {
-		set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+	public static function queue_historically_active_jetpack_modules_update( $plugin = null ) {
+		$plugin_filenames = Products::get_all_plugin_filenames();
+
+		if ( ! $plugin || in_array( $plugin, $plugin_filenames, true ) ) {
+			set_transient( self::UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY, true );
+		}
 	}
 
 	/**

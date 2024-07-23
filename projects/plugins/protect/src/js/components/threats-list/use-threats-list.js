@@ -5,7 +5,7 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 const sortThreats = ( a, b ) => b.severity - a.severity;
@@ -41,6 +41,10 @@ const flattenThreats = ( data, newData ) => {
 /**
  * Threats List Hook
  *
+ * @param {object} args        - Arguments for the hook.
+ * @param {string} args.source - "scan" or "history".
+ * @param {string} args.status - "all", "fixed", or "ignored".
+ * ---
  * @typedef {object} UseThreatsList
  * @property {object}   item        - The selected threat category.
  * @property {object[]} list        - The list of threats to display.
@@ -49,9 +53,12 @@ const flattenThreats = ( data, newData ) => {
  * ---
  * @returns {UseThreatsList} useThreatsList hook.
  */
-const useThreatsList = () => {
+const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } ) => {
 	const [ selected, setSelected ] = useState( 'all' );
-	const { plugins, themes, core, files, database } = useProtectData();
+	const { plugins, themes, core, files, database } = useProtectData( {
+		sourceType: source,
+		statusFilter: status,
+	} );
 
 	const { unsortedList, item } = useMemo( () => {
 		// If a specific threat category is selected, filter for and flatten the category's threats.
@@ -109,9 +116,34 @@ const useThreatsList = () => {
 		};
 	}, [ core, database, files, plugins, selected, themes ] );
 
+	const getLabel = threat => {
+		if ( threat.name && threat.version ) {
+			// Extension threat i.e. "Woocommerce (3.0.0)"
+			return `${ threat.name } (${ threat.version })`;
+		}
+
+		if ( threat.filename ) {
+			// File threat i.e. "index.php"
+			return threat.filename.split( '/' ).pop();
+		}
+
+		if ( threat.table ) {
+			// Database threat i.e. "wp_posts"
+			return threat.table;
+		}
+	};
+
 	const list = useMemo( () => {
-		return [ ...unsortedList ].sort( sortThreats );
+		return unsortedList
+			.sort( sortThreats )
+			.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 	}, [ unsortedList ] );
+
+	useEffect( () => {
+		if ( selected !== 'all' && status !== 'all' && list.length === 0 ) {
+			setSelected( 'all' );
+		}
+	}, [ selected, status, item, list ] );
 
 	return {
 		item,

@@ -16,7 +16,6 @@ export type AttachedMedia = {
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
 	image_generator_settings?: SIGSettings;
-	should_upload_attached_media?: boolean;
 };
 
 export type JetpackSocialPostMeta = {
@@ -33,7 +32,6 @@ export type UsePostMeta = {
 	isPublicizeEnabled: boolean;
 	jetpackSocialOptions: JetpackSocialOptions;
 	shareMessage: string;
-	shouldUploadAttachedMedia: boolean;
 	togglePublicizeFeature: VoidFunction;
 	updateMeta: < K extends keyof JetpackSocialPostMeta >(
 		metaKey: K,

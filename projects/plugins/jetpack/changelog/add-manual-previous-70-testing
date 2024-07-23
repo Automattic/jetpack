@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Run Legacy Full Sync tests with PHP 7.2, now that 7.0 is on its way out.
+
+

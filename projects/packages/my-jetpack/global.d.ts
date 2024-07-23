@@ -7,7 +7,6 @@ declare module '*.scss';
 // These libraries don't have types, this suppresses the TypeScript errors
 declare module '@wordpress/components';
 declare module '@wordpress/compose';
-declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
 
@@ -25,8 +24,33 @@ type JetpackModule =
 	| 'security'
 	| 'protect'
 	| 'videopress'
-	| 'stats'
-	| 'ai';
+	| 'stats';
+
+type ThreatItem = {
+	// Protect API properties (free plan)
+	id: string;
+	title: string;
+	fixed_in: string;
+	description: string | null;
+	source: string | null;
+	// Scan API properties (paid plan)
+	context: string | null;
+	filename: string | null;
+	first_detected: string | null;
+	fixable: boolean | null;
+	severity: number | null;
+	signature: string | null;
+	status: number | null;
+};
+
+type ScanItem = {
+	checked: boolean;
+	name: string;
+	slug: string;
+	threats: ThreatItem[];
+	type: string;
+	version: string;
+};
 
 interface Window {
 	myJetpackInitialState?: {
@@ -69,6 +93,8 @@ interface Window {
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
+			ownedProducts: JetpackModule[];
+			unownedProducts: JetpackModule[];
 			modules: Array< string >;
 			purchases: Array< string >;
 		};
@@ -144,6 +170,24 @@ interface Window {
 					wpcom_product_slug: string;
 				};
 			};
+		};
+		scanData: {
+			core: ScanItem;
+			current_progress?: string;
+			data_source: string;
+			database: string[];
+			error: boolean;
+			error_code?: string;
+			error_message?: string;
+			files: string[];
+			has_unchecked_items: boolean;
+			last_checked: string;
+			num_plugins_threats: number;
+			num_themes_threats: number;
+			num_threats: number;
+			plugins: ScanItem[];
+			status: string;
+			themes: ScanItem[];
 		};
 		purchases: {
 			items: Array< {
@@ -229,7 +273,23 @@ interface Window {
 				};
 			};
 		};
+		themes: {
+			[ key: string ]: {
+				Author: string;
+				Name: string;
+				RequiresPHP: string;
+				RequiresWP: string;
+				Status: string;
+				Template: string;
+				TextDomain: string;
+				ThemeURI: string;
+				Version: string;
+				active: boolean;
+				is_block_theme: boolean;
+			};
+		};
 		topJetpackMenuItemUrl: string;
+		isAtomic: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

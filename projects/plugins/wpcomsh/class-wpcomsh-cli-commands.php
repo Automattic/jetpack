@@ -920,6 +920,133 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::success( 'Success' );
 		}
+
+		/**
+		 * Enable or disable fatal error emails.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <command>
+		 * : The subcommand
+		 * ---
+		 * options:
+		 *  - get
+		 *  - set
+		 * ---
+		 *
+		 * [--value=<value>]
+		 * : The value (when setting)
+		 * ---
+		 * default: 1
+		 * options:
+		 *  - 0
+		 *  - 1
+		 * ---
+		 *
+		 * @subcommand disable-fatal-error-emails
+		 */
+		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$command = $args[0];
+			$value   = (bool) $assoc_args['value'];
+
+			switch ( $command ) {
+				case 'get':
+					$option = get_option( 'wpcomsh_disable_fatal_error_emails', false );
+					WP_CLI::log( $option ? 'true' : 'false' );
+					break;
+				case 'set':
+					update_option( 'wpcomsh_disable_fatal_error_emails', $value );
+					WP_CLI::success( 'Success' );
+					break;
+				default:
+					WP_CLI::error( 'Invalid command' );
+			}
+		}
+
+		/**
+		 * Tries disabling all plugins & enabling them one by one to find the plugin causing the issue.
+		 *
+		 * @subcommand plugin-dance
+		 */
+		public function plugin_dance( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$plugins = WP_CLI::runcommand(
+				'--skip-plugins --skip-themes plugin list --status=active --format=json',
+				array(
+					'launch' => false,
+					'return' => true,
+				)
+			);
+
+			$plugins = json_decode( $plugins, true );
+
+			// deactivate all active plugins.
+			WP_CLI::runcommand(
+				'--skip-plugins --skip-themes wpcomsh deactivate-user-plugins',
+				array(
+					'launch' => false,
+				)
+			);
+
+			$breaking_plugins = array();
+
+			// loop through each active plugin and activate one by one.
+			foreach ( $plugins as $plugin ) {
+				WP_CLI::runcommand(
+					'--skip-themes plugin activate ' . $plugin['name'],
+					array(
+						'launch' => false,
+						'return' => true,
+					)
+				);
+
+				$result = WP_CLI::runcommand(
+					'--skip-themes= --skip-plugins= wpcomsh plugin-dance-health-check', // pass empty values to skip-themes and skip-plugins.
+					array(
+						'return'     => true,
+						'launch'     => true, // must run in a new process to avoid false positives.
+						'exit_error' => false,
+					)
+				);
+
+				if ( ! strpos( $result, 'Healthy' ) ) {
+					// deactivate the breaking plugin
+					WP_CLI::runcommand(
+						'--skip-themes plugin deactivate ' . $plugin['name'],
+						array(
+							'launch' => false,
+							'return' => true,
+						)
+					);
+					WP_CLI::log( '❌ Plugin activated, site health check failed and deactivated: ' . $plugin['name'] );
+
+					$breaking_plugins[] = array(
+						'name'    => $plugin['name'],
+						'version' => $plugin['version'],
+					);
+				} else {
+					WP_CLI::log( '✔ Plugin activated and site health check passed: ' . $plugin['name'] );
+				}
+			}
+
+			if ( ! empty( $breaking_plugins ) ) {
+				$formatter = new \WP_CLI\Formatter(
+					$assoc_args,
+					array( 'name', 'version' )
+				);
+				$formatter->display_items( $breaking_plugins );
+			} else {
+				WP_CLI::success( 'All plugins passed the site health check.' );
+			}
+		}
+
+		/**
+		 * This just outputs healthy. If there are errors this doesn't get outputted at all
+		 *
+		 * @subcommand plugin-dance-health-check
+		 */
+		public function plugin_dance_health_check( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			WP_CLI::success( 'Healthy' );
+		}
 	}
 }
 
@@ -1176,7 +1303,9 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

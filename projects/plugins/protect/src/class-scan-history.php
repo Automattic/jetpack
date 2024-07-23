@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Protect_Models\Extension_Model;
+use Automattic\Jetpack\Protect_Models\History_Model;
+use Automattic\Jetpack\Protect_Models\Threat_Model;
+use Automattic\Jetpack\Protect_Status\Plan;
 use Jetpack_Options;
 use WP_Error;
 
@@ -111,11 +115,10 @@ class Scan_History {
 	/**
 	 * Gets the current history of the Jetpack Protect checks
 	 *
-	 * @param bool  $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
-	 * @param array $filter The filter to apply to the data.
+	 * @param bool $refresh_from_wpcom Refresh the local plan and history cache from wpcom.
 	 * @return History_Model|bool
 	 */
-	public static function get_scan_history( $refresh_from_wpcom = false, $filter = null ) {
+	public static function get_scan_history( $refresh_from_wpcom = false ) {
 		$has_required_plan = Plan::has_required_plan();
 		if ( ! $has_required_plan ) {
 			return false;
@@ -140,7 +143,7 @@ class Scan_History {
 				)
 			);
 		} else {
-			$history = self::normalize_api_data( $history, $filter );
+			$history = self::normalize_api_data( $history );
 		}
 
 		self::$history = $history;
@@ -202,19 +205,14 @@ class Scan_History {
 	 * Formats the payload from the Scan API into an instance of History_Model.
 	 *
 	 * @param object $scan_data The data returned by the scan API.
-	 * @param array  $filter    The filter to apply to the data.
 	 * @return History_Model
 	 */
-	private static function normalize_api_data( $scan_data, $filter ) {
+	private static function normalize_api_data( $scan_data ) {
 		$history                      = new History_Model();
 		$history->num_threats         = 0;
 		$history->num_core_threats    = 0;
 		$history->num_plugins_threats = 0;
 		$history->num_themes_threats  = 0;
-
-		if ( $filter ) {
-			$history->filter = $filter;
-		}
 
 		$history->last_checked = $scan_data->last_checked;
 
@@ -223,10 +221,6 @@ class Scan_History {
 		}
 
 		foreach ( $scan_data->threats as $threat ) {
-			if ( ! in_array( $threat->status, $history->filter, true ) ) {
-				continue;
-			}
-
 			if ( isset( $threat->extension->type ) ) {
 				if ( 'plugin' === $threat->extension->type ) {
 					self::handle_extension_threats( $threat, $history, 'plugin' );

@@ -17,9 +17,9 @@ import AiImageModal from './components/ai-image-modal';
 import useAiImage from './hooks/use-ai-image';
 import useSiteType from './hooks/use-site-type';
 import {
-	FEATURED_IMAGE_FEATURE_NAME,
 	IMAGE_GENERATION_MODEL_STABLE_DIFFUSION,
 	IMAGE_GENERATION_MODEL_DALL_E_3,
+	GENERAL_IMAGE_FEATURE_NAME,
 } from './types';
 
 /**
@@ -49,14 +49,14 @@ export default function GeneralPurposeImage( {
 	// Get feature data
 	const { requireUpgrade, requestsCount, requestsLimit, currentTier, costs } = useAiFeature();
 	const planType = usePlanType( currentTier );
-	const featuredImageCost = costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.activeModel ?? 10;
-	const featuredImageActiveModel =
-		featuredImageCost === costs?.[ FEATURED_IMAGE_FEATURE_NAME ]?.stableDiffusion
+	const generalImageCost = costs?.[ GENERAL_IMAGE_FEATURE_NAME ]?.activeModel ?? 10;
+	const generalImageActiveModel =
+		generalImageCost === costs?.[ GENERAL_IMAGE_FEATURE_NAME ]?.stableDiffusion
 			? IMAGE_GENERATION_MODEL_STABLE_DIFFUSION
 			: IMAGE_GENERATION_MODEL_DALL_E_3;
 	const isUnlimited = planType === PLAN_TYPE_UNLIMITED;
 	const requestsBalance = requestsLimit - requestsCount;
-	const notEnoughRequests = requestsBalance < featuredImageCost;
+	const notEnoughRequests = requestsBalance < generalImageCost;
 
 	const {
 		current,
@@ -68,7 +68,12 @@ export default function GeneralPurposeImage( {
 		currentPointer,
 		images,
 		pointer,
-	} = useAiImage( { cost: featuredImageCost, autoStart: false } );
+	} = useAiImage( {
+		cost: generalImageCost,
+		autoStart: false,
+		type: 'general-image-generation',
+		feature: GENERAL_IMAGE_FEATURE_NAME,
+	} );
 
 	const handleModalClose = useCallback( () => {
 		setIsFeaturedImageModalVisible( false );
@@ -80,7 +85,7 @@ export default function GeneralPurposeImage( {
 			// track the generate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_image', {
 				placement,
-				model: featuredImageActiveModel,
+				model: generalImageActiveModel,
 				site_type: siteType,
 			} );
 
@@ -88,7 +93,7 @@ export default function GeneralPurposeImage( {
 				recordEvent( 'jetpack_ai_general_image_generation_error', {
 					placement,
 					error: error?.message,
-					model: featuredImageActiveModel,
+					model: generalImageActiveModel,
 					site_type: siteType,
 				} );
 			} );
@@ -96,7 +101,7 @@ export default function GeneralPurposeImage( {
 		[
 			recordEvent,
 			placement,
-			featuredImageActiveModel,
+			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
 			postContent,
@@ -109,7 +114,7 @@ export default function GeneralPurposeImage( {
 			// track the regenerate image event
 			recordEvent( 'jetpack_ai_general_image_generation_generate_another_image', {
 				placement,
-				model: featuredImageActiveModel,
+				model: generalImageActiveModel,
 				site_type: siteType,
 			} );
 
@@ -118,7 +123,7 @@ export default function GeneralPurposeImage( {
 				recordEvent( 'jetpack_ai_general_image_generation_error', {
 					placement,
 					error: error?.message,
-					model: featuredImageActiveModel,
+					model: generalImageActiveModel,
 					site_type: siteType,
 				} );
 			} );
@@ -126,7 +131,7 @@ export default function GeneralPurposeImage( {
 		[
 			recordEvent,
 			placement,
-			featuredImageActiveModel,
+			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
 			postContent,
@@ -140,7 +145,7 @@ export default function GeneralPurposeImage( {
 			// track the try again event
 			recordEvent( 'jetpack_ai_general_image_generation_try_again', {
 				placement,
-				model: featuredImageActiveModel,
+				model: generalImageActiveModel,
 				site_type: siteType,
 			} );
 
@@ -148,7 +153,7 @@ export default function GeneralPurposeImage( {
 				recordEvent( 'jetpack_ai_general_image_generation_error', {
 					placement,
 					error: error?.message,
-					model: featuredImageActiveModel,
+					model: generalImageActiveModel,
 					site_type: siteType,
 				} );
 			} );
@@ -156,7 +161,7 @@ export default function GeneralPurposeImage( {
 		[
 			recordEvent,
 			placement,
-			featuredImageActiveModel,
+			generalImageActiveModel,
 			siteType,
 			processImageGeneration,
 			postContent,
@@ -168,7 +173,7 @@ export default function GeneralPurposeImage( {
 		// track the accept/use image event
 		recordEvent( 'jetpack_ai_general_image_generation_use_image', {
 			placement,
-			model: featuredImageActiveModel,
+			model: generalImageActiveModel,
 			site_type: siteType,
 		} );
 
@@ -192,7 +197,7 @@ export default function GeneralPurposeImage( {
 	}, [
 		recordEvent,
 		placement,
-		featuredImageActiveModel,
+		generalImageActiveModel,
 		siteType,
 		currentImage?.libraryId,
 		currentImage?.libraryUrl,
@@ -212,7 +217,7 @@ export default function GeneralPurposeImage( {
 					"Image generation costs %d requests per image. You don't have enough requests to generate another image.",
 					'jetpack'
 				),
-				featuredImageCost
+				generalImageCost
 		  )
 		: null;
 
@@ -220,8 +225,7 @@ export default function GeneralPurposeImage( {
 		<Button
 			onClick={ handleAccept }
 			variant="primary"
-			isBusy={ currentImage?.generating }
-			disabled={ ! currentImage?.image }
+			disabled={ ! currentImage?.image || currentImage?.generating }
 		>
 			{ __( 'Insert image', 'jetpack' ) }
 		</Button>
@@ -229,11 +233,10 @@ export default function GeneralPurposeImage( {
 
 	return (
 		<AiImageModal
-			autoStart={ false }
 			images={ images }
 			currentIndex={ current }
-			title={ __( 'Generate a image with AI', 'jetpack' ) }
-			cost={ featuredImageCost }
+			title={ __( 'Generate an image with AI', 'jetpack' ) }
+			cost={ generalImageCost }
 			open={ isFeaturedImageModalVisible }
 			placement={ placement }
 			onClose={ handleModalClose }

@@ -2,4 +2,13 @@
 	* {
 		box-sizing: border-box;
 	}
+
+	#jetpack-protect-root {
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
+		// 1.51px to avoid subpixel rendering issues on Firefox/Linux
+		--wp-admin-border-width-focus: 1.51px;
+		--actions-size: 28px;
+	}
 }

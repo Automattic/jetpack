@@ -26,7 +26,6 @@ import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { AutoConversionNotice } from './auto-conversion-notice';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
-import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { InstagramNoMediaNotice } from './instagram-no-media-notice';
 import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
@@ -67,7 +66,7 @@ export default function PublicizeForm() {
 		[]
 	);
 
-	const { attachedMedia, shouldUploadAttachedMedia } = useAttachedMedia();
+	const { attachedMedia } = useAttachedMedia();
 	const featuredImageId = useFeaturedImage();
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
 
@@ -76,7 +75,6 @@ export default function PublicizeForm() {
 		useMediaDetails( mediaId )[ 0 ],
 		{
 			isSocialImageGeneratorEnabledForPost,
-			shouldUploadAttachedMedia,
 		}
 	);
 	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
@@ -109,7 +107,6 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					<EnabledConnectionsNotice />
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />

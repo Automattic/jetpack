@@ -155,6 +155,7 @@ class Jetpack_Subscription_Site {
 						: 'is-style-button';
 
 					$hooked_block['attrs']['className'] = $class_name;
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-navigation';
 				}
 
 				return $hooked_block;
@@ -190,7 +191,7 @@ class Jetpack_Subscription_Site {
 					) {
 						// translators: %s is the name of the site.
 						$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-						$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+						$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 
 						return $content . do_blocks(
 							<<<HTML
@@ -210,7 +211,7 @@ class Jetpack_Subscription_Site {
 
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
 	<div class="wp-block-group">
-		<!-- wp:jetpack/subscriptions /-->
+		<!-- wp:jetpack/subscriptions {"appSource":"subscribe-block-post-end"} /-->
 	</div>
 	<!-- /wp:group -->
 </div>
@@ -270,7 +271,7 @@ HTML
 
 					// translators: %s is the name of the site.
 					$discover_more_from_text = sprintf( __( 'Discover more from %s', 'jetpack' ), get_bloginfo( 'name' ) );
-					$subscribe_text          = __( 'Subscribe to get the latest posts to your email.', 'jetpack' );
+					$subscribe_text          = __( 'Subscribe to get the latest posts sent to your email.', 'jetpack' );
 					$inner_content_begin     = <<<HTML
 <div class="wp-block-group" style="margin-top:48px;margin-bottom:48px;padding-top:5px;padding-bottom:5px">
 	<!-- wp:separator {"style":{"spacing":{"margin":{"bottom":"36px"}}},"className":"is-style-wide"} -->
@@ -293,6 +294,8 @@ HTML;
 	<!-- /wp:group -->
 </div>
 HTML;
+
+					$hooked_block['attrs']['appSource'] = 'subscribe-block-post-end';
 
 					return array(
 						'blockName'    => 'core/group',
