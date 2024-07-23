@@ -335,6 +335,48 @@ HTML;
 	}
 
 	/**
+	 * Create nonce for commenting without any user/session info.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function create_comment_nonce() {
+		$i       = wp_nonce_tick();
+		$post_id = get_the_ID();
+		$action  = "jetpack_comments_nonce-{$post_id}";
+
+		return substr( wp_hash( $i . '|' . $action, 'nonce' ), -12, 10 );
+	}
+
+	/**
+	 * Verify nonce for commenting without any user/session info.
+	 *
+	 * @module comments
+	 *
+	 * @since $$next-version$$
+
+	 * @param string $nonce The nonce posted.
+	 * @param string $post_id The post id.
+	 */
+	private function verify_comment_nonce( $nonce, $post_id ) {
+		$i      = wp_nonce_tick();
+		$action = "jetpack_comments_nonce-{$post_id}";
+
+		// Current nonce.
+		$expected = substr( wp_hash( $i . '|' . $action, 'nonce' ), -12, 10 );
+		if ( hash_equals( $expected, $nonce ) ) {
+			return 1;
+		}
+
+		// Nonce generated 12-24 hours ago.
+		$expected = substr( wp_hash( ( $i - 1 ) . '|' . $action, 'nonce' ), -12, 10 );
+		if ( hash_equals( $expected, $nonce ) ) {
+			return 2;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Noop the default comment form output, get some options, and output our
 	 * tricked out totally radical comment form.
 	 *
@@ -376,7 +418,7 @@ HTML;
 			'show_avatars'           => ( get_option( 'show_avatars' ) ? '1' : '0' ),
 			'avatar_default'         => get_option( 'avatar_default' ),
 			'greeting'               => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
-			'jetpack_comments_nonce' => wp_create_nonce( 'jetpack_comments_nonce-' . get_the_ID() ),
+			'jetpack_comments_nonce' => $this->create_comment_nonce(),
 			/**
 			 * Changes the comment form prompt.
 			 *
@@ -615,7 +657,7 @@ HTML;
 	 * @since 1.4
 	 */
 	public function pre_comment_on_post() {
-		$post_array = stripslashes_deep( $_POST );
+		$post_array = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
@@ -624,7 +666,7 @@ HTML;
 			return;
 		}
 
-		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
+		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! verify_comment_nonce( $post_array['jetpack_comments_nonce'], $post_array['comment_post_ID'] ) ) {
 				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
