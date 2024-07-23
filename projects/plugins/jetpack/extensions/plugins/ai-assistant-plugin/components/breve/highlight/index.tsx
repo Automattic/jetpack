@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fixes } from '@automattic/jetpack-ai-client';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { rawHandler } from '@wordpress/blocks';
 import { getBlockContent } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
@@ -20,6 +21,7 @@ import React from 'react';
  * Internal dependencies
  */
 import { AiSVG } from '../../ai-icon';
+import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import registerEvents from '../features/events';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
@@ -45,6 +47,7 @@ export default function Highlight() {
 		'jetpack/ai-breve'
 	) as BreveDispatch;
 
+	const { tracks } = useAnalytics();
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 	const { getBlock } = useSelect( select => {
 		const selector = select( 'core/block-editor' ) as CoreBlockEditorSelect;
@@ -114,6 +117,19 @@ export default function Highlight() {
 	};
 
 	const handleSuggestions = () => {
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			setPopoverHover( false );
+			return;
+		}
+
+		tracks.recordEvent( 'jetpack_ai_breve_ask', {
+			feature: BREVE_FEATURE_NAME,
+			block: block.name,
+			type: feature,
+		} );
+
 		const target = ( anchor as HTMLElement )?.innerText;
 		const parent = getNonLinkAncestor( anchor as HTMLElement );
 		// The text containing the target
@@ -162,6 +178,12 @@ export default function Highlight() {
 		invalidateSuggestions( feature, blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
 		setPopoverHover( false );
+
+		tracks.recordEvent( 'jetpack_ai_breve_apply', {
+			feature: BREVE_FEATURE_NAME,
+			block: block.name,
+			type: feature,
+		} );
 	};
 
 	return (
