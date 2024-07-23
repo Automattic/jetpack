@@ -1,4 +1,4 @@
-import { BrowserInterface, BrowserRunnable } from './browser-interface';
+import { BrowserInterface, BrowserRunnable } from './browser-interface.js';
 import {
 	CrossDomainError,
 	HttpError,
@@ -8,8 +8,8 @@ import {
 	UnknownError,
 	XFrameDenyError,
 	UrlError,
-} from './errors';
-import { Viewport, NullableViewport } from './types';
+} from './errors.js';
+import { Viewport, NullableViewport } from './types.js';
 
 const defaultLoadTimeout = 60 * 1000;
 

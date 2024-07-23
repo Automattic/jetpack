@@ -18,13 +18,11 @@
 	"scripts": {
 		"build:browser": "rollup -c",
 		"build:node": "tsc --moduleResolution node",
-		"build": "npm run clean && npm run build:browser && npm run build:node",
+		"build": "npm run clean && npm run build:browser",
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"test": "jest tests"
 	},
-	"browser": {
-		"@automattic/jetpack-critical-css-gen": false
-	},
+	"main": "./dist/bundle.full.js",
 	"devDependencies": {
 		"@babel/core": "7.18.13",
 		"@babel/preset-env": "7.18.10",
@@ -56,7 +54,7 @@
 		"source-map-js": "1.0.2",
 		"stream-http": "3.2.0",
 		"tslib": "2.4.0",
-		"typescript": "4.7.4",
+		"typescript": "^5.0.4",
 		"webpack": "5.74.0",
 		"webpack-dev-middleware": "5.3.3"
 	},
@@ -64,8 +62,9 @@
 		".": {
 			"jetpack:src": "./src/index.ts",
 			"types": "./lib/index.d.ts",
-			"import": "./dist/index.js",
-			"require": "./lib/index.js"
+			"browser": "./dist/bundle.full.js",
+			"import": "./dist/bundle.full.js",
+			"require": "./dist/bundle.full.js"
 		}
 	},
 	"dependencies": {

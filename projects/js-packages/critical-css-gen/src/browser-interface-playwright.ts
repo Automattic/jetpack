@@ -1,8 +1,8 @@
 import { BrowserContext, Page } from 'playwright-core';
-import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
-import { HttpError } from './errors';
-import { objectPromiseAll } from './object-promise-all';
-import { Viewport } from './types';
+import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.js';
+import { HttpError } from './errors.js';
+import { objectPromiseAll } from './object-promise-all.js';
+import { Viewport } from './types.js';
 
 export type Tab = { page: Page; statusCode: number | null };
 export type TabsByUrl = { [ url: string ]: Tab };

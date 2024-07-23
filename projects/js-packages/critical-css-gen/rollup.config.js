@@ -6,7 +6,11 @@ import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { terser } from 'rollup-plugin-terser';
 
 const sharedPlugins = [
-	resolve( { browser: true, preferBuiltins: false } ),
+	resolve( {
+		browser: true,
+		preferBuiltins: false,
+		modulesOnly: false,
+	} ),
 	typescript( {
 		sourceMap: true,
 		inlineSources: false,
@@ -18,7 +22,7 @@ const sharedPlugins = [
 ];
 
 export default {
-	input: 'src/index.ts',
+	input: 'src/front-end.ts',
 	output: [
 		{
 			sourcemap: true,

@@ -1,9 +1,9 @@
-import { BrowserInterface } from './browser-interface';
-import { CSSFileSet } from './css-file-set';
-import { SuccessTargetError, EmptyCSSError, UrlError } from './errors';
-import { removeIgnoredPseudoElements } from './ignored-pseudo-elements';
-import { minifyCss } from './minify-css';
-import { FilterSpec, Viewport } from './types';
+import { BrowserInterface } from './browser-interface.js';
+import { CSSFileSet } from './css-file-set.js';
+import { SuccessTargetError, EmptyCSSError, UrlError } from './errors.js';
+import { removeIgnoredPseudoElements } from './ignored-pseudo-elements.js';
+import { minifyCss } from './minify-css.js';
+import { FilterSpec, Viewport } from './types.js';
 
 const noop = () => {
 	// No op.

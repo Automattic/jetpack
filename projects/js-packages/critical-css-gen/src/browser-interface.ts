@@ -1,4 +1,4 @@
-import type { Viewport } from './types';
+import type { Viewport } from './types.js';
 
 export type BrowserRunnable< ReturnType > = ( arg: unknown ) => ReturnType;
 

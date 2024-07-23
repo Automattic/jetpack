@@ -1,5 +1,6 @@
 {
-	"include": [ "src/**/*" ],
+	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
+	"include": [ "src/front-end.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
 		"outDir": "./lib",

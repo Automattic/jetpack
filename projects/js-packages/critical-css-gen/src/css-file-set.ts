@@ -1,7 +1,7 @@
-import { BrowserInterface } from './browser-interface';
-import { HttpError, UnknownError, UrlError } from './errors';
-import { StyleAST } from './style-ast';
-import { FilterSpec } from './types';
+import { BrowserInterface } from './browser-interface.js';
+import { HttpError, UnknownError, UrlError } from './errors.js';
+import { StyleAST } from './style-ast.js';
+import { FilterSpec } from './types.js';
 
 // Maximum number of iterations when pruning unused variables.
 const maxVarPruneIterations = 10;

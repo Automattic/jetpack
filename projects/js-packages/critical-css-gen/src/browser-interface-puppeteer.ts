@@ -1,5 +1,5 @@
-import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface';
-import { Viewport } from './types';
+import { BrowserInterface, BrowserRunnable, FetchOptions } from './browser-interface.js';
+import { Viewport } from './types.js';
 
 interface Page {
 	setViewport( viewport: Viewport ): Promise< void >;
