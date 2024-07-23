@@ -153,6 +153,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_maybe_update_core() {
+		$this->markTestSkipped( 'Skipped due to core bug. See p1721736489043329-slack-C034JEXD1RD' );
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
