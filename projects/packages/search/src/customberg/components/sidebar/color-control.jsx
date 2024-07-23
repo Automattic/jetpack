@@ -1,5 +1,5 @@
 // NOTE: Expect this import to break when the exported value is renamed!
-import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { __experimentalColorGradientControl as ColorGradientControl } from '@wordpress/block-editor'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 

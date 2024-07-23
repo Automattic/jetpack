@@ -3,7 +3,7 @@ import {
 	Button,
 	ButtonGroup,
 	PanelBody,
-	__experimentalUnitControl as UnitControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
