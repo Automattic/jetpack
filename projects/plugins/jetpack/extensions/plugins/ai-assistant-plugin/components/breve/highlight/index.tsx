@@ -104,7 +104,7 @@ export default function Highlight() {
 	const isPopoverOpen = popoverOpen && virtual;
 	const hasSuggestions = Boolean( suggestions?.suggestion );
 
-	const handleMouseEnter = async () => {
+	const handleMouseEnter = () => {
 		setPopoverHover( true );
 	};
 
