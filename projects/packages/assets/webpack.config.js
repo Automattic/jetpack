@@ -1,7 +1,7 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
-const sharedCOnfig = {
+const sharedConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	output: {
@@ -27,7 +27,7 @@ const sharedCOnfig = {
 
 module.exports = [
 	{
-		...sharedCOnfig,
+		...sharedConfig,
 		entry: {
 			'i18n-loader': {
 				import: './src/js/i18n-loader.js',
@@ -39,7 +39,7 @@ module.exports = [
 		},
 	},
 	{
-		...sharedCOnfig,
+		...sharedConfig,
 		entry: {
 			'jetpack-initial-state': {
 				import: './src/js/initial-state.js',
