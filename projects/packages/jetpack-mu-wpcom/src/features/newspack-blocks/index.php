@@ -75,8 +75,6 @@ function enqueue_newspack_blocks_data( $handle ) {
 
 /**
  * Can be used to disable the Blog Posts Block.
- *
- * @param bool $disabled Whether the Blog Posts Block should be disabled. Default false.
  */
 $disable_blog_posts_block = apply_filters( 'a8c_disable_blog_posts_block', false );
 if ( ! $disable_blog_posts_block ) {
@@ -103,8 +101,6 @@ if ( ! $disable_blog_posts_block ) {
 
 /**
  * Can be used to disable the Post Carousel Block.
- *
- * @param bool $disabled Whether the Post Carousel Block should be disabled. Default false.
  */
 $disable_posts_carousel_block = apply_filters( 'a8c_disable_posts_carousel_block', false ) || apply_filters( 'a8c_disable_post_carousel_block', false );
 if ( ! $disable_posts_carousel_block ) {
