@@ -56,6 +56,16 @@ ENTRY=./src/features/newspack-blocks/index.php
 
 if [[ ( "$MODE" != "path" ) && ( "$MODE" != "npm" ) ]];
 then
+	# return early if the version is the same
+	if [ -f $TARGET/package.json ]; then
+		CURRENT_VERSION=v`jq -r .version $TARGET/package.json`
+
+		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
+			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
+			exit 0
+		fi
+	fi
+
 	# make a temp directory
 	TEMP_DIR=`mktemp -d`
 	CODE=$TEMP_DIR/code
@@ -118,6 +128,7 @@ mkdir -p $TARGET/shared
 mkdir -p $TARGET/types
 
 # copy files and directories
+cp $CODE/package.json $TARGET/
 cp $CODE/includes/class-newspack-blocks-api.php $TARGET/
 cp $CODE/includes/class-newspack-blocks.php $TARGET/
 cp -R $CODE/src/blocks/homepage-articles $TARGET/blocks/
