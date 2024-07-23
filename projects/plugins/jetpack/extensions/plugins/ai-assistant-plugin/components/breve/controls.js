@@ -22,8 +22,8 @@ import React, { useState, useEffect, useCallback } from 'react';
  */
 import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
-import './breve.scss';
 import { getPostText } from './utils/getPostText';
+import './breve.scss';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
