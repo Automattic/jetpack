@@ -17,7 +17,7 @@ export const AutoFirewallStatus = () => {
 	const {
 		protect: { wafConfig: wafData },
 	} = getMyJetpackWindowInitialState();
-	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData;
+	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData || {};
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled ) {

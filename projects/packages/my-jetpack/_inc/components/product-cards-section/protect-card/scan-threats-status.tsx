@@ -22,10 +22,10 @@ export const ScanAndThreatStatus = () => {
 	const {
 		protect: { scanData },
 	} = getMyJetpackWindowInitialState();
-	const { plugins, themes, num_threats: numThreats = 0 } = scanData;
+	const { plugins, themes, num_threats: numThreats = 0 } = scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
-		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData;
+		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData || {};
 		const pluginsThreats = num_plugins_threats
 			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
 			: [];

@@ -17,7 +17,7 @@ export const useLastScanText = () => {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		last_checked: lastScanTime = null,
-	} = scanData;
+	} = scanData || {};
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;

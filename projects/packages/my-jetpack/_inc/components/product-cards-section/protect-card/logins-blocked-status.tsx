@@ -19,7 +19,7 @@ export const LoginsBlockedStatus = () => {
 		plugins,
 	} = getMyJetpackWindowInitialState();
 	const { blocked_logins: blockedLoginsCount, brute_force_protection: hasBruteForceProtection } =
-		wafData;
+		wafData || {};
 
 	const isJetpackPluginActive = useMemo( () => {
 		const jetpackPlugin = Object.values( plugins ).find( plugin => plugin?.Name === 'Jetpack' );
