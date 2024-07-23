@@ -41,12 +41,22 @@ const ThreatAccordionItem = ( {
 		</Button>
 	) : null;
 
-	const handleIgnoreOrUnignoreThreatClick = () => {
+	const handleIgnoreThreatClick = () => {
 		return event => {
 			event.preventDefault();
 			setModal( {
-				type: 'IGNORE_OR_UNIGNORE_THREAT',
-				props: { status, id, label, title, icon, severity },
+				type: 'IGNORE_THREAT',
+				props: { id, label, title, icon, severity },
+			} );
+		};
+	};
+
+	const handleUnignoreThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'UNIGNORE_THREAT',
+				props: { id, label, title, icon, severity },
 			} );
 		};
 	};
@@ -131,17 +141,13 @@ const ThreatAccordionItem = ( {
 					<Button
 						isDestructive={ true }
 						variant="secondary"
-						onClick={ handleIgnoreOrUnignoreThreatClick() }
+						onClick={ handleUnignoreThreatClick() }
 					>
 						{ __( 'Unignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
 				{ status !== 'ignored' && status !== 'fixed' && (
-					<Button
-						isDestructive={ true }
-						variant="secondary"
-						onClick={ handleIgnoreOrUnignoreThreatClick() }
-					>
+					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }

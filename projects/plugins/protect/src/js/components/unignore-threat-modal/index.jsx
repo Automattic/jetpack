@@ -1,15 +1,15 @@
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const IgnoreOrUnignoreThreatModal = ( { status, id, title, label, icon, severity } ) => {
-	const { setModal, ignoreThreat, unignoreThreat } = useDispatch( STORE_ID );
+const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
+	const { setModal, unignoreThreat } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
 
@@ -20,40 +20,21 @@ const IgnoreOrUnignoreThreatModal = ( { status, id, title, label, icon, severity
 		};
 	};
 
-	const handleIgnoreOrUnigoreClick = () => {
+	const handleUnignoreClick = () => {
 		return async event => {
 			event.preventDefault();
-			if ( 'ignored' === status ) {
-				unignoreThreat( id, () => {
-					setModal( { type: null } );
-				} );
-			} else {
-				ignoreThreat( id, () => {
-					setModal( { type: null } );
-				} );
-			}
+			unignoreThreat( id, () => {
+				setModal( { type: null } );
+			} );
 		};
 	};
-
-	const context =
-		'ignored' === status ? __( 'unignore', 'jetpack-protect' ) : __( 'ignore', 'jetpack-protect' );
 
 	return (
 		<UserConnectionGate>
 			<Text variant="title-medium" mb={ 2 }>
-				{ sprintf(
-					// translators: %s is the threat context, like "ignore" or "unignore"
-					__( 'Do you really want to %s this threat?', 'jetpack-protect' ),
-					context
-				) }
+				{ __( 'Do you really want to unignore this threat?', 'jetpack-protect' ) }
 			</Text>
-			<Text mb={ 3 }>
-				{ sprintf(
-					// translators: %s is the threat context, like "ignore" or "unignore"
-					__( 'Jetpack will %s the threat:', 'jetpack-protect' ),
-					context
-				) }
-			</Text>
+			<Text mb={ 3 }>{ __( 'Jetpack will unignore the threat:', 'jetpack-protect' ) }</Text>
 
 			<div className={ styles.threat }>
 				<Icon icon={ icon } className={ styles.threat__icon } />
@@ -70,13 +51,9 @@ const IgnoreOrUnignoreThreatModal = ( { status, id, title, label, icon, severity
 
 			<Text mb={ 4 }>
 				{ createInterpolateElement(
-					sprintf(
-						// translators: %s is the threat context, like "ignore" or "unignore"
-						__(
-							'By choosing to %s this threat, you acknowledgge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure please request an estimate with <codeableLink>Codeable</codeableLink>.',
-							'jetpack-protect'
-						),
-						context
+					__(
+						'By choosing to unignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
+						'jetpack-protect'
 					),
 					{
 						codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
@@ -90,19 +67,13 @@ const IgnoreOrUnignoreThreatModal = ( { status, id, title, label, icon, severity
 				<Button
 					isDestructive={ true }
 					isLoading={ Boolean( threatsUpdating && threatsUpdating[ id ] ) }
-					onClick={ handleIgnoreOrUnigoreClick() }
+					onClick={ handleUnignoreClick() }
 				>
-					{ sprintf(
-						// translators: %s is the threat context, like "ignore" or "unignore"
-						__( '%s threat', 'jetpack-protect' ),
-						'ignored' === status
-							? __( 'Unignore', 'jetpack-protect' )
-							: __( 'Ignore', 'jetpack-protect' )
-					) }
+					{ __( 'Unignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>
 		</UserConnectionGate>
 	);
 };
 
-export default IgnoreOrUnignoreThreatModal;
+export default UnignoreThreatModal;

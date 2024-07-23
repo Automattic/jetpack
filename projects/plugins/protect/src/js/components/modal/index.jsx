@@ -5,12 +5,14 @@ import { STORE_ID } from '../../state/store';
 import CredentialsNeededModal from '../credentials-needed-modal';
 import FixAllThreatsModal from '../fix-all-threats-modal';
 import FixThreatModal from '../fix-threat-modal';
-import IgnoreOrUnignoreThreatModal from '../ignore-or-unignore-threat-modal';
+import IgnoreThreatModal from '../ignore-threat-modal';
 import StandaloneModeModal from '../standalone-mode-modal';
+import UnignoreThreatModal from '../unignore-threat-modal';
 import styles from './styles.module.scss';
 
 const MODAL_COMPONENTS = {
-	IGNORE_OR_UNIGNORE_THREAT: IgnoreOrUnignoreThreatModal,
+	IGNORE_THREAT: IgnoreThreatModal,
+	UNIGNORE_THREAT: UnignoreThreatModal,
 	FIX_THREAT: FixThreatModal,
 	FIX_ALL_THREATS: FixAllThreatsModal,
 	CREDENTIALS_NEEDED: CredentialsNeededModal,
