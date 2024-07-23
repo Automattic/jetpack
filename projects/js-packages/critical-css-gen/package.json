@@ -22,7 +22,7 @@
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"test": "jest tests"
 	},
-	"main": "./dist/bundle.full.js",
+	"main": "./dist/bundle.js",
 	"devDependencies": {
 		"@babel/core": "7.18.13",
 		"@babel/preset-env": "7.18.10",
@@ -62,9 +62,9 @@
 		".": {
 			"jetpack:src": "./src/index.ts",
 			"types": "./lib/index.d.ts",
-			"browser": "./dist/bundle.full.js",
-			"import": "./dist/bundle.full.js",
-			"require": "./dist/bundle.full.js"
+			"browser": "./dist/bundle.js",
+			"import": "./dist/bundle.js",
+			"require": "./dist/bundle.js"
 		}
 	},
 	"dependencies": {
