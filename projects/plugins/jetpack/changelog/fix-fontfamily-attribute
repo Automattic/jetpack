@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Check if the fontFamily block attribute is a string before trying to format.
