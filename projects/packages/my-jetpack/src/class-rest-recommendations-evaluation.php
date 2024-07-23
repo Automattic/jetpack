@@ -143,6 +143,6 @@ class REST_Recommendations_Evaluation {
 			\Jetpack_Options::delete_option( 'dismissed_welcome_banner' );
 		}
 
-		return rest_ensure_response( array(), 200 );
+		return rest_ensure_response( array() );
 	}
 }

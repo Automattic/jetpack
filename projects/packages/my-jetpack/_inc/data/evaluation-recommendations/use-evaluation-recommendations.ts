@@ -89,7 +89,7 @@ const useEvaluationRecommendations = () => {
 		);
 	}, [ handleRemoveEvaluationResult, setRecommendedModules ] );
 
-	const redoEvaluation = useCallback( async () => {
+	const redoEvaluation = useCallback( () => {
 		handleRemoveEvaluationResult(
 			{ queryParams: { showWelcomeBanner: 'true' } },
 			{
