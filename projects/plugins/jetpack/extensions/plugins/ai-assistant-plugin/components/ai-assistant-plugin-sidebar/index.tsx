@@ -175,6 +175,7 @@ export default function AiAssistantPluginSidebar() {
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
+					className="jetpack-ai-assistant-panel"
 				>
 					<JetpackAndSettingsContent
 						placement={ PLACEMENT_JETPACK_SIDEBAR }
