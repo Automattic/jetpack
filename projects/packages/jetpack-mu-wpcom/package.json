@@ -45,6 +45,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
+		"@automattic/color-studio": "2.6.0",
 		"@automattic/i18n-utils": "1.2.3",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
