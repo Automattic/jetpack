@@ -9,6 +9,7 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-explat": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-licensing": "@dev",
 		"automattic/jetpack-plugins-installer": "@dev",
@@ -82,7 +83,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "4.29.x-dev"
+			"dev-trunk": "4.30.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

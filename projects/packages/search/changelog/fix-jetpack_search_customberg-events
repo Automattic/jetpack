@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: This commit fixes the property of a Tracks event that was being sent as a JSON, which is not a valid Tracks value.
-
-

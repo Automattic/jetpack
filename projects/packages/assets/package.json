@@ -11,7 +11,8 @@
 		"validate": "pnpm exec validate-es build/"
 	},
 	"dependencies": {
-		"@automattic/jetpack-initial-state": "workspace:*"
+		"@automattic/jetpack-initial-state": "workspace:*",
+		"react": "18.3.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
