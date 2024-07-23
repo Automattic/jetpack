@@ -10,20 +10,17 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
-    // PhanUndeclaredClassMethod : 5 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences
-    // PhanNonClassMethodCall : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
-    // PhanTypeMismatchPropertyProbablyReal : 1 occurrence
     // PhanTypePossiblyInvalidDimOffset : 1 occurrence
     // PhanUndeclaredFunction : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        '_inc/lib/tonesque.php' => ['PhanNonClassMethodCall', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyProbablyReal', 'PhanUndeclaredClassMethod'],
+        '_inc/lib/tonesque.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal'],
         'src/class-featured-content.php' => ['PhanTypeComparisonToArray', 'PhanTypeInvalidDimOffset', 'PhanTypeMismatchArgument', 'PhanTypeMismatchProperty', 'PhanTypePossiblyInvalidDimOffset'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

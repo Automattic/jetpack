@@ -2,8 +2,7 @@
  * External dependencies
  */
 import {
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalNumberControl,
+	__experimentalNumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	TextControl,
 	RangeControl,
 	BaseControl,

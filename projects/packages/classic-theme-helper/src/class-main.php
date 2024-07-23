@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.5.0-alpha';
+	const PACKAGE_VERSION = '0.4.2-alpha';
 
 	/**
 	 * Modules to include.
@@ -24,6 +24,7 @@ class Main {
 	public $modules = array(
 		'responsive-videos.php',
 		'social-menu.php',
+		'jetpack-color.php',
 	);
 
 	/** Holds the singleton instance of the Loader
@@ -40,7 +41,8 @@ class Main {
 			self::$instance = new Main();
 			self::$instance->load_modules();
 			// TODO Commenting below since we still load them from theme-tools module
-			// add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
 		}
 
@@ -66,7 +68,7 @@ class Main {
 	 */
 	public static function jetpack_load_theme_tools() {
 		if ( current_theme_supports( 'tonesque' ) ) {
-			require_once __DIR__ . '../_inc/lib/tonesque.php';
+			require_once __DIR__ . '/../_inc/lib/tonesque.php';
 		}
 	}
 

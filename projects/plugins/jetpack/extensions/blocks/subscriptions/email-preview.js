@@ -3,10 +3,8 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalVStack as VStack,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
 	TextControl,
 	Icon,

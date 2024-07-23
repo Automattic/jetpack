@@ -179,7 +179,7 @@ class Waf_Runner {
 			 * @deprecated $next-version$
 			 */
 			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ),
+			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) || get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ),
 		);
 	}
 
