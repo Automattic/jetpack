@@ -69,8 +69,6 @@
 	"projects/plugins/jetpack/modules/infinite-scroll/infinity.js",
 	"projects/plugins/jetpack/modules/plugin-search/plugin-search.js",
 	"projects/plugins/jetpack/modules/scan/admin-bar-notice.js",
-	"projects/plugins/jetpack/modules/shortcodes/js/jmpress.js",
-	"projects/plugins/jetpack/modules/shortcodes/js/recipes-printthis.js",
 	"projects/plugins/jetpack/modules/shortcodes/js/slideshow-shortcode.js",
 	"projects/plugins/jetpack/modules/videopress/js/gutenberg-video-upload.js",
 	"projects/plugins/jetpack/modules/videopress/js/videopress-plupload.js",
