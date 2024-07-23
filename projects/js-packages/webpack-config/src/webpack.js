@@ -136,13 +136,16 @@ const I18nCheckPlugin = options => {
 
 	// Default Babel options for extractor.
 	if ( typeof opts.extractorOptions?.babelOptions === 'undefined' ) {
-		opts.extractorOptions ??= {};
+		const babelOptions = { babelrc: false };
 		const configFile = path.resolve( 'babel.config.js' );
 		if ( fs.existsSync( configFile ) ) {
-			opts.extractorOptions.babelOptions = { configFile };
+			babelOptions.configFile = configFile;
 		} else {
-			opts.extractorOptions.babelOptions = { presets: [ require.resolve( './babel-preset.js' ) ] };
+			babelOptions.presets = [ require.resolve( './babel-preset.js' ) ];
 		}
+
+		opts.extractorOptions ??= {};
+		opts.extractorOptions.babelOptions = babelOptions;
 	}
 
 	return [ new I18nCheckWebpackPlugin( opts ) ];
