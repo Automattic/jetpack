@@ -76,7 +76,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 				return {
 					title: __( 'Brute Force Protection: Active', 'jetpack-my-jetpack' ),
 					text: __(
-						'Brute Force Protection is actively blocking malicious login attempts. Data will display here soon!',
+						'Brute Force Protection is actively blocking malicious login attempts. The number of blocked login attempts will display here soon!',
 						'jetpack-my-jetpack'
 					),
 				};
