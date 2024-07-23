@@ -2,7 +2,7 @@ import { Container, Col, Text } from '@automattic/jetpack-components';
 import { DropdownMenu } from '@wordpress/components';
 import { Flex } from '@wordpress/components';
 import { FlexItem } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
@@ -22,11 +22,16 @@ const EvaluationRecommendations: React.FC = () => {
 				<Flex>
 					<FlexItem>
 						<Text variant="headline-small" className={ styles.title }>
-							{ __( 'Our recommendations for you', 'jetpack-my-jetpack' ) }
+							{ _n(
+								'Our recommendation for you',
+								'Our recommendations for you',
+								recommendedModules.length,
+								'jetpack-my-jetpack'
+							) }
 						</Text>
 						<Text>
 							{ __(
-								'Here are the features that will best help you protect your site:',
+								'Here are the features that will best help you with your site:',
 								'jetpack-my-jetpack'
 							) }
 						</Text>
@@ -36,13 +41,16 @@ const EvaluationRecommendations: React.FC = () => {
 							menuProps={ { className: styles.dropdownMenu } }
 							popoverProps={ { position: 'bottom left' } }
 							icon={ moreHorizontalMobile }
-							label="Recommendations menu"
+							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
 							controls={ [
 								{
-									title: 'Redo',
+									title: __( 'Redo', 'jetpack-my-jetpack' ),
 									onClick: redoEvaluation,
 								},
-								{ title: 'Hide', onClick: removeEvaluationResult },
+								{
+									title: __( 'Dismiss', 'jetpack-my-jetpack' ),
+									onClick: removeEvaluationResult,
+								},
 							] }
 						/>
 					</FlexItem>
@@ -55,7 +63,7 @@ const EvaluationRecommendations: React.FC = () => {
 						return (
 							Card && (
 								<Col key={ module } lg={ 4 }>
-									<Card recommendation={ true } />
+									<Card recommendation />
 								</Col>
 							)
 						);

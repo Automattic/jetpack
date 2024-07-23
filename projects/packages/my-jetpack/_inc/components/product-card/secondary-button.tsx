@@ -1,6 +1,6 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 export type SecondaryButtonProps = {
 	href?: string;
