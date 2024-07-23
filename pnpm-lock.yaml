@@ -1576,15 +1576,6 @@ importers:
         specifier: 3.22.3
         version: 3.22.3
 
-  projects/js-packages/test:
-    devDependencies:
-      jest:
-        specifier: 29.7.0
-        version: 29.7.0
-      typescript:
-        specifier: 5.0.4
-        version: 5.0.4
-
   projects/js-packages/videopress-core:
     devDependencies:
       '@automattic/jetpack-webpack-config':
