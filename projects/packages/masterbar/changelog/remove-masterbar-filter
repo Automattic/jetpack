@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove show_admin_bar always true filter
