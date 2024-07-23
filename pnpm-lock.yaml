@@ -605,6 +605,9 @@ importers:
       source-map:
         specifier: 0.7.4
         version: 0.7.4
+      source-map-js:
+        specifier: 1.0.2
+        version: 1.0.2
       stream-http:
         specifier: 3.2.0
         version: 3.2.0
@@ -14006,6 +14009,10 @@ packages:
   source-list-map@2.0.1:
     resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}
 
+  source-map-js@1.0.2:
+    resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
+    engines: {node: '>=0.10.0'}
+
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
     engines: {node: '>=0.10.0'}
@@ -23074,7 +23081,7 @@ snapshots:
   css-tree@2.3.1:
     dependencies:
       mdn-data: 2.0.30
-      source-map-js: 1.2.0
+      source-map-js: 1.0.2
 
   css-what@6.1.0: {}
 
@@ -28514,6 +28521,8 @@ snapshots:
       sort-object-keys: 1.1.3
 
   source-list-map@2.0.1: {}
+
+  source-map-js@1.0.2: {}
 
   source-map-js@1.2.0: {}
 
