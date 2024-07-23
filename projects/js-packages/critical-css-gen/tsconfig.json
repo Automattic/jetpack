@@ -7,7 +7,6 @@
 		"module": "esnext",
 		"sourceMap": true,
 		"allowJs": false,
-		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
 		"typeRoots": [ "node_modules/@types" ],
 		"declaration": true
