@@ -1,7 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import { STORE_ID } from '../../state/store';
-import useScanHistory from '../use-scan-history';
 
 /**
  * Get parsed data from the initial state
