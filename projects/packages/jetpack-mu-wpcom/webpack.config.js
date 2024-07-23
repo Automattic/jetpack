@@ -38,6 +38,7 @@ module.exports = [
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
+			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
