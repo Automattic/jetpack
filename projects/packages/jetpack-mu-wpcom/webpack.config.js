@@ -51,10 +51,6 @@ module.exports = [
 		},
 		resolve: {
 			...jetpackWebpackConfig.resolve,
-			alias: {
-				...jetpackWebpackConfig.resolve.alias,
-				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
-			},
 		},
 		node: false,
 		plugins: [

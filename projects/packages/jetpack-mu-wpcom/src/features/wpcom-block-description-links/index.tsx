@@ -1,4 +1,3 @@
-import { localizeUrl } from '@automattic/i18n-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { JSXElementConstructor, ReactElement } from 'react';
@@ -15,10 +14,9 @@ const createLocalizedDescriptionWithLearnMore = (
 	url: string,
 	postId: number
 ) => {
-	const localizedUrl = localizeUrl( url );
 	return createInterpolateElement( '<InlineSupportLink />', {
 		InlineSupportLink: (
-			<DescriptionSupportLink title={ String( title ) } url={ localizedUrl } postId={ postId }>
+			<DescriptionSupportLink title={ String( title ) } url={ url } postId={ postId }>
 				{ description }
 			</DescriptionSupportLink>
 		),
