@@ -73,17 +73,18 @@ export const BrokenConnectionsNotice: React.FC = () => {
 				{ __( 'Your following connections are broken:', 'jetpack' ) }
 				<ul>
 					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
-						const service = servicesMap[ service_name ];
-
-						if ( ! service ) {
-							return null;
-						}
+						const serviceLabel =
+							// For Jetpack sites, we should have the service in the map
+							// But for WPCOM sites, we might not have the service in the map yet
+							servicesMap[ service_name ]?.label ||
+							// So we capitalize the service name
+							service_name[ 0 ].toUpperCase() + service_name.substring( 1 );
 
 						return (
-							<li key={ service.ID }>
+							<li key={ service_name }>
 								<div className={ styles[ 'broken-connection-service' ] }>
 									<span>
-										{ service.label }
+										{ serviceLabel }
 										{ _x( ':', 'Colon to display before the list of connections', 'jetpack' ) }
 										&nbsp;
 									</span>
