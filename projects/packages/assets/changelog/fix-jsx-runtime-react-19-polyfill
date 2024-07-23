@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Assets: Add JSX runtime polyfill `react-jsx-runtime` for WordPress < 6.6.

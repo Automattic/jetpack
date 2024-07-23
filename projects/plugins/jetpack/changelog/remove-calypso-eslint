@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace eslint disable of `wpcalypso/no-unsafe-wp-apis` with `@wordpress/no-unsafe-wp-apis`. No change to functionality.
+
+

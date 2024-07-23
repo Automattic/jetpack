@@ -53,15 +53,13 @@ class Waf_Rules_Manager {
 		// Re-activate the WAF any time an option is added or updated.
 		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'add_option_' . self::IP_ALLOW_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'add_option_' . self::IP_BLOCK_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		// Register the cron job.
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
