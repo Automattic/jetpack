@@ -52,8 +52,6 @@ class Popover extends Component {
 	constructor( props ) {
 		super( props );
 
-		this.props;
-
 		this.setPopoverId( props.id );
 
 		// bound methods
