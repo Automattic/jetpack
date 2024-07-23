@@ -15,7 +15,7 @@ import { __ } from '@wordpress/i18n';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
-import React from 'react';
+import React, { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -25,6 +25,7 @@ import registerEvents from '../features/events';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
+import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import highlight from './highlight';
 import './style.scss';
 /**
@@ -51,6 +52,10 @@ export default function Highlight() {
 
 		return { getBlock: selector.getBlock };
 	}, [] );
+
+	const [ isFirstHover, setIsFirstHover ] = useState(
+		! localStorage.getItem( 'jetpack-ai-breve-first-hover' )
+	);
 
 	const { anchor, virtual, popoverOpen, id, feature, blockId, title, loading, suggestions } =
 		useSelect( select => {
@@ -104,7 +109,14 @@ export default function Highlight() {
 	const isPopoverOpen = popoverOpen && virtual;
 	const hasSuggestions = Boolean( suggestions?.suggestion );
 
-	const handleMouseEnter = () => {
+	const handleMouseEnter = async () => {
+		if ( isFirstHover ) {
+			await showAiAssistantSection();
+
+			setIsFirstHover( false );
+			localStorage.setItem( 'jetpack-ai-breve-first-hover', 'false' );
+		}
+
 		setPopoverHover( true );
 	};
 
