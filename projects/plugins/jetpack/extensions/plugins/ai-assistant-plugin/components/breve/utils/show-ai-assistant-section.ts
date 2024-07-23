@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { dispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
 
 export const showAiAssistantSection = async () => {
 	const { clearSelectedBlock } = dispatch( 'core/block-editor' );
@@ -12,18 +11,18 @@ export const showAiAssistantSection = async () => {
 
 	// Clear any block selection, because selected blocks have precedence on settings sidebar
 	clearSelectedBlock();
-	await enableComplementaryArea( 'core/edit-post', 'edit-post/document' );
+	await enableComplementaryArea( 'core/edit-post', 'jetpack-sidebar/jetpack' );
 
-	const sections: Array< HTMLElement > = Array.from(
-		document.querySelectorAll( '.components-panel__body' )
-	);
+	const panel = document.querySelector( '.jetpack-ai-assistant-panel' );
+	const isAlreadyOpen = panel?.classList.contains( 'is-opened' );
+	const button: HTMLElement | null | undefined = panel?.querySelector( 'h2 button' );
 
-	const aISection = sections.find(
-		section => section?.innerText === __( 'AI Assistant', 'jetpack' )
-	);
-
-	if ( aISection ) {
-		const button = aISection.querySelector( 'button' );
+	if ( isAlreadyOpen ) {
+		// Close it before opening it to ensure the content is scrolled to view
 		button?.click();
 	}
+
+	setTimeout( () => {
+		button?.click();
+	}, 50 );
 };
