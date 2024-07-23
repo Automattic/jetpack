@@ -1,12 +1,11 @@
 /*
  * External dependencies
  */
+import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
-import { Modal } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
 /*
  * Internal dependencies
  */
@@ -36,17 +35,26 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			};
 		}, [ closeModal ] );
 
+		const siteDetails = {
+			ID: parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ),
+			URL: window?.Jetpack_Editor_Initial_State?.siteFragment,
+			domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
+			name: '',
+			description: '',
+		};
+
 		return (
 			<>
 				<BlockEdit { ...props } />
 				<BlockControls group="block">
 					<AiToolbarButton clickHandler={ showModal } />
 				</BlockControls>
-				{ isLogoGeneratorModalVisible && (
-					<Modal title={ __( 'Coming soon', 'jetpack' ) } onRequestClose={ closeModal }>
-						<p>{ __( 'Coming soon', 'jetpack' ) }</p>
-					</Modal>
-				) }
+				<GeneratorModal
+					isOpen={ isLogoGeneratorModalVisible }
+					onClose={ closeModal }
+					context="block-editor"
+					siteDetails={ siteDetails }
+				/>
 			</>
 		);
 	};
