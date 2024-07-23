@@ -248,27 +248,30 @@ export function registerBreveHighlights() {
 			interactive: false,
 			edit: () => {},
 			...configSettings,
-			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
+			__experimentalGetPropsForEditableTreePreparation() {
 				return {
 					isProofreadEnabled: (
 						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
 					 ).isProofreadEnabled(),
-					currentMd5: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
-						formatName,
-						blockClientId
-					),
 					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
 						config.name
 					),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled, currentMd5 },
+				{ isProofreadEnabled, isFeatureEnabled },
 				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
 					const record = { formats, text } as RichTextValue;
 					const type = formatName;
+
+					// Has to be defined here, as adding it to __experimentalGetPropsForEditableTreePreparation
+					// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
+					const currentMd5 = ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
+						formatName,
+						blockClientId
+					);
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
 						const block = globalSelect( 'core/block-editor' ).getBlock( blockClientId );
