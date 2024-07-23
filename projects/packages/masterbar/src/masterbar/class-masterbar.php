@@ -188,7 +188,8 @@ class Masterbar {
 			 * override user setting that hides masterbar from site's front.
 			 * https://github.com/Automattic/jetpack/issues/7667
 			 */
-			add_filter( 'show_admin_bar', '__return_true' );
+			echo 'test';
+			// add_filter( 'show_admin_bar', '__return_true' );
 		}
 
 		// Used to build menu links that point directly to Calypso.
