@@ -16,10 +16,10 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
+import isBreveAvailable from '../breve/utils/get-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -55,7 +55,6 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 	const { checkoutUrl } = useAICheckout();
 
 	return (
@@ -105,8 +104,6 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
@@ -196,4 +193,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-getFeatureAvailability( 'ai-proofread-breve' ) && registerBreveHighlights();
+isBreveAvailable && registerBreveHighlights();
