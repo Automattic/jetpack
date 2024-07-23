@@ -4,7 +4,6 @@
 	"compilerOptions": {
 		"outDir": "./lib",
 		"target": "ES2021",
-		"module": "esnext",
 		"sourceMap": true,
 		"allowJs": false,
 		"allowSyntheticDefaultImports": true,
