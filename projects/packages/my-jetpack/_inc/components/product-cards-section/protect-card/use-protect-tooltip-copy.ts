@@ -52,14 +52,21 @@ export function useProtectTooltipCopy(): TooltipContent {
 		return jetpackPlugin && jetpackPlugin.active;
 	}, [ plugins ] );
 
+	const settingsLink = useMemo( () => {
+		if ( isProtectPluginActive ) {
+			return 'admin.php?page=jetpack-protect#/firewall';
+		}
+		return isJetpackPluginActive ? 'admin.php?page=jetpack#/settings' : null;
+	}, [ isJetpackPluginActive, isProtectPluginActive ] );
+
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
 			page: 'my-jetpack',
 			feature: 'jetpack-protect',
 			location: 'auto-firewall-tooltip',
-			path: 'admin.php?page=jetpack-protect#/firewall',
+			path: settingsLink,
 		} );
-	}, [ recordEvent ] );
+	}, [ recordEvent, settingsLink ] );
 
 	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive;
 
@@ -76,10 +83,27 @@ export function useProtectTooltipCopy(): TooltipContent {
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: __(
-					'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
-					'jetpack-my-jetpack'
-				),
+				text: settingsLink
+					? createInterpolateElement(
+							sprintf(
+								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								__(
+									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'jetpack-my-jetpack'
+								),
+								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+							),
+							{
+								a: createElement( 'a', {
+									href: settingsLink,
+									onClick: trackFirewallSettingsLinkClick,
+								} ),
+							}
+					  )
+					: __(
+							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'jetpack-my-jetpack'
+					  ),
 			};
 		}
 		// blockedLoginsCount is greator than 0 here.
@@ -88,20 +112,44 @@ export function useProtectTooltipCopy(): TooltipContent {
 				return {
 					title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
 					text: __(
-						'For Brute Force Protection, activate the Jetpack or Protect plugin and enable it in settings',
+						'For Brute Force Protection, activate the Jetpack or Protect plugin and enable it in settings.',
 						'jetpack-my-jetpack'
 					),
 				};
 			}
 			return {
 				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
-				text: __(
-					'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
-					'jetpack-my-jetpack'
-				),
+				text: settingsLink
+					? createInterpolateElement(
+							sprintf(
+								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								__(
+									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'jetpack-my-jetpack'
+								),
+								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+							),
+							{
+								a: createElement( 'a', {
+									href: settingsLink,
+									onClick: trackFirewallSettingsLinkClick,
+								} ),
+							}
+					  )
+					: __(
+							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'jetpack-my-jetpack'
+					  ),
 			};
 		}
-	}, [ blockedLoginsCount, hasBruteForceProtection, isBruteForcePluginsActive ] );
+	}, [
+		blockedLoginsCount,
+		hasBruteForceProtection,
+		isBruteForcePluginsActive,
+		isProtectPluginActive,
+		settingsLink,
+		trackFirewallSettingsLinkClick,
+	] );
 
 	return {
 		pluginsThemesTooltip: {
