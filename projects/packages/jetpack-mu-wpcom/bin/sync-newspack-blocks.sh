@@ -133,11 +133,11 @@ cp $CODE/src/types/index.d.ts $TARGET/types/
 sed "${sedi[@]}" -e "s| function| Function|g" "$TARGET/types/index.d.ts"
 
 # Note: I would have used eslint-nibble, but it doesn't support autofixing via the CLI.
-#echo "Changing JS textdomain to match jetpack-mu-wpcom:"
-#pnpm dlx eslint-filtered-fix --package eslint --rule "@wordpress/i18n-text-domain" $TARGET
+echo "Changing JS textdomain to match jetpack-mu-wpcom..."
+pnpm --package=eslint@8.57.0 dlx eslint --no-ignore --rule '"@wordpress/i18n-text-domain":["error",{"allowedTextDomain":"jetpack-mu-wpcom"}]' --fix $TARGET > /dev/null
 
-#echo "Changing PHP textdomain to match jetpack-mu-wpcom:"
-#(cd ../../../ && vendor/bin/phpcbf -p -s '--standard=./.phpcs.config.xml,PHPCompatibilityWP' '--runtime-set' 'jetpack-filter-perdir-file' '.phpcs.dir.phpcompatibility.xml' "projects/packages/jetpack-mu-wpcom/$TARGET/")
+echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
+../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
 
 if [ "$MODE" = "npm" ] ; then
 	# Finds and prints the version of newspack from package.json
