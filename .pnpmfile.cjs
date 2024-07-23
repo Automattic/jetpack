@@ -190,6 +190,19 @@ function afterAllResolved( lockfile ) {
 		return lockfile;
 	}
 
+	// eslint-disable-next-line no-unused-vars -- Don't care.
+	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
+		// Forbid `@wordpress/dependency-extraction-webpack-plugin` v6 until WP 6.5 support is dropped.
+		// https://github.com/WordPress/gutenberg/issues/62202
+		if (
+			k.startsWith( '@wordpress/dependency-extraction-webpack-plugin@' ) &&
+			! k.startsWith( '@wordpress/dependency-extraction-webpack-plugin@5.' )
+		) {
+			throw new Error(
+				'@wordpress/dependency-extraction-webpack-plugin >= 6.0.0 is not allowed until we drop WordPress 6.5 support.\nSee https://github.com/WordPress/gutenberg/issues/62202 for details.'
+			);
+		}
+	}
 	return lockfile;
 }
 
