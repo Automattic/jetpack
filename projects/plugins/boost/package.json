@@ -70,9 +70,7 @@
 		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
 		"test-e2e:run": "pnpm --prefix tests/e2e run test:run",
 		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
-		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt",
-		"postinstall": "pnpm run postyalc.jetpack-boost-critical-css-gen",
-		"postyalc.jetpack-boost-critical-css-gen": "symlink='./node_modules/jetpack-boost-critical-css-gen'; new_target='../.yalc/jetpack-boost-critical-css-gen'; [ -d ./.yalc ] && rm -f \"$symlink\" && ln -s \"$new_target\" \"$symlink\" && pnpm run build-concurrently || echo 'Proceeding without yalc'"
+		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
 	},
 	"private": true,
 	"repository": {
