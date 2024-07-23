@@ -51,7 +51,7 @@ export class CSSFileSet {
 	 *
 	 * @param {string} page     - URL of the page the CSS URL was found on.
 	 * @param {string} cssUrl   - The CSS file URL.
-	 * @param {object} settings
+	 * @param {object} settings - Additional settings for the CSS file.
 	 */
 	async add(
 		page: string,
@@ -125,7 +125,7 @@ export class CSSFileSet {
 	 * Applies filters to the properties or atRules in each AST in this set of CSS files.
 	 * Mutates each AST in-place.
 	 *
-	 * @param {{properties: Function, atRules: Function}} filters
+	 * @param {FilterSpec} filters - Object containing property and atRule filter functions.
 	 */
 	applyFilters( filters: FilterSpec ): void {
 		for ( const file of this.cssFiles ) {
@@ -138,6 +138,7 @@ export class CSSFileSet {
 	 * set of selectors that are worth keeping. (i.e.: appear above the fold).
 	 *
 	 * @param {Set<string>} usefulSelectors - Set of selectors to keep.
+	 * @returns {StyleAST[]} Array of pruned StyleAST objects.
 	 */
 	prunedAsts( usefulSelectors: Set< string > ): StyleAST[] {
 		// Perform basic pruning.

@@ -13,9 +13,10 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	private tabs: TabsByUrl;
 
 	/**
+	 * Creates a new BrowserInterfacePlaywright instance.
 	 *
-	 * @param context - The playwright browser context to work with.
-	 * @param urls    - Array of urls to evaluate. The reason we are taking this as an argument is because we want to load all of them in parallel.
+	 * @param {BrowserContext} context - The playwright browser context to work with.
+	 * @param {string[]} urls - Array of urls to evaluate. The reason we are taking this as an argument is because we want to load all of them in parallel.
 	 */
 	constructor(
 		private context: BrowserContext,
@@ -110,6 +111,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @param {string} url     - URL to fetch.
 	 * @param {object} options - Fetch options.
 	 * @param {string} _role   - 'css' or 'html' indicating what kind of thing is being fetched.
+	 * @returns {Promise<Response>} A promise that resolves to the fetch response.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
 		const nodeFetch = await import( 'node-fetch' );

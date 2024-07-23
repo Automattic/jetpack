@@ -44,6 +44,7 @@ export class BrowserInterfacePuppeteer extends BrowserInterface {
 	 * @param {string} url     - URL to fetch.
 	 * @param {object} options - Fetch options.
 	 * @param {string} _role   - 'css' or 'html' indicating what kind of thing is being fetched.
+	 * @returns {Promise<Response>} A promise that resolves to the fetch response.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
 		const nodeFetch = await import( 'node-fetch' );

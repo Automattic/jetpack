@@ -140,15 +140,17 @@ async function getAboveFoldSelectors( {
 }
 
 /**
+ * Generates critical CSS for the given URLs and viewports.
  *
- * @param root0
- * @param root0.browserInterface
- * @param root0.progressCallback
- * @param root0.urls
- * @param root0.viewports
- * @param root0.filters
- * @param root0.successRatio
- * @param root0.maxPages
+ * @param {object} root0 - The options object
+ * @param {BrowserInterface} root0.browserInterface - Interface to interact with the browser
+ * @param {Function} root0.progressCallback - Optional callback function to report progress
+ * @param {string[]} root0.urls - Array of URLs to generate critical CSS for
+ * @param {Viewport[]} root0.viewports - Array of viewport sizes to consider
+ * @param {FilterSpec} root0.filters - Optional filters to apply to the CSS
+ * @param {number} root0.successRatio - Ratio of successful URLs required (default: 1)
+ * @param {number} root0.maxPages - Maximum number of pages to process (default: 10)
+ * @returns {Promise<[string, Error[]]>} A promise that resolves to an array containing the critical CSS string and an array of errors.
  */
 export async function generateCriticalCSS( {
 	browserInterface,

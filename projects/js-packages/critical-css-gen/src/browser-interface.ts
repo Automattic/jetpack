@@ -40,9 +40,9 @@ export class BrowserInterface {
 	 * Context-specific wrapper for fetch; uses window.fetch in browsers, or a
 	 * node library when using Puppeteer.
 	 *
-	 * @param _url
-	 * @param _options
-	 * @param _role
+	 * @param {string} _url - The URL to fetch
+	 * @param {FetchOptions} _options - Fetch options
+	 * @param {'css' | 'html'} _role - Role of the fetch operation
 	 */
 	async fetch(
 		_url: string,
@@ -80,8 +80,9 @@ export class BrowserInterface {
 	/**
 	 * Get all internal styles as a combined string from the window.
 	 *
-	 * @param {object} wrappedArgs
+	 * @param {object} wrappedArgs - Object containing the inner window.
 	 * @param {Window} wrappedArgs.innerWindow - Window inside the browser interface.
+	 * @returns {string} Combined internal styles as a string.
 	 */
 	static innerGetInternalStyles( { innerWindow } ): string {
 		innerWindow = null === innerWindow ? window : innerWindow;
@@ -98,10 +99,11 @@ export class BrowserInterface {
 	 * for easy querySelector calling (values), return an array of selectors which match
 	 * _any_ element on the page.
 	 *
-	 * @param {object}   wrappedArgs
+	 * @param {object}   wrappedArgs - Object containing the inner window and arguments.
 	 * @param {Window}   wrappedArgs.innerWindow - Window inside the browser interface.
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
-	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
+	 * {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
+	 * @returns {string[]} Array of selectors matching above-the-fold elements.
 	 */
 	public static innerFindMatchingSelectors( { innerWindow, args: [ selectors ] } ) {
 		innerWindow = null === innerWindow ? window : innerWindow;
@@ -120,11 +122,12 @@ export class BrowserInterface {
 	 * for easy querySelector calling (values), return an array of selectors which match
 	 * any above-the-fold element on the page.
 	 *
-	 * @param {object}   wrappedArgs
+	 * @param {object}   wrappedArgs - Object containing the inner window and arguments.
 	 * @param {Window}   wrappedArgs.innerWindow - Window inside the browser interface.
 	 * @param {Object[]} wrappedArgs.args        - Array of arguments.
-	 *                                           {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
-	 *                                           {string[]} wrappedArgs.args[pageSelectors] - String array containing selectors that appear anywhere on this page (as returned by innerFindMatchingSelectors) - should be a subset of keys in selectors.
+	 * {Object} wrappedArgs.args[selectors] - Map containing selectors (object keys), and simplified versions for easy matching (values).
+	 * {string[]} wrappedArgs.args[pageSelectors] - String array containing selectors that appear anywhere on this page (as returned by innerFindMatchingSelectors) - should be a subset of keys in selectors.
+	 * @returns {string[]} Array of selectors matching above-the-fold elements.
 	 */
 	public static innerFindAboveFoldSelectors( {
 		innerWindow,

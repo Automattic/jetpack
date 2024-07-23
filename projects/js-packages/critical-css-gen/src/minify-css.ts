@@ -8,7 +8,7 @@ import CleanCSS from 'clean-css';
  *
  * @param {string} css - CSS to minify.
  *
- *                     return {[ string, string[] ]} - Minified CSS and a list of errors returned.
+ * @returns {[ string, string[] ]} - Minified CSS and a list of errors returned.
  */
 export function minifyCss( css: string ): [ string, string[] ] {
 	const result = new CleanCSS().minify( css );

@@ -16,16 +16,18 @@ const excludedProperties = [
 ];
 
 /**
- *
- * @param node
+ * Checks if the given node is a CSS declaration.
+ * @param {csstree.CssNode} node - The CSS node to check.
+ * @returns {boolean} True if the node is a CSS declaration, false otherwise.
  */
 function isDeclaration( node: csstree.CssNode ): node is csstree.Declaration {
 	return node.type === 'Declaration';
 }
 
 /**
- *
- * @param node
+ * Checks if the given node has an empty child list.
+ * @param {csstree.CssNode} node - The CSS node to check.
+ * @returns {boolean} True if the node has an empty child list, false otherwise.
  */
 function hasEmptyChildList( node: csstree.CssNode ): boolean {
 	if ( 'children' in node && node.children instanceof csstree.List ) {
@@ -112,7 +114,7 @@ export class StyleAST {
 	/**
 	 * Applies filters to the properties or atRules in this AST. Mutates the AST in-place.
 	 *
-	 * @param {{properties: Function, atRules: Function}} filters
+	 * @param {FilterSpec} filters - Object containing property and atRule filter functions.
 	 */
 	applyFilters( filters: FilterSpec ): void {
 		if ( ! filters ) {
@@ -194,6 +196,7 @@ export class StyleAST {
 
 	/**
 	 * Find all variables that are used and return them as a Set.
+	 * @returns {Set< string >} Set of used variables.
 	 */
 	getUsedVariables(): Set< string > {
 		const usedVariables = new Set< string >();
@@ -286,7 +289,8 @@ export class StyleAST {
 	/**
 	 * Returns true if the given CSS rule object relates to animation keyframes.
 	 *
-	 * @param {object} rule - CSS rule.
+	 * @param {csstree.WalkContext} rule - CSS rule.
+	 * @returns {boolean} True if the rule is a keyframe rule, false otherwise.
 	 */
 	static isKeyframeRule( rule: csstree.WalkContext ): boolean {
 		return ( rule.atrule && csstree.keyword( rule.atrule.name ).basename === 'keyframes' ) || false;
@@ -328,7 +332,7 @@ export class StyleAST {
 	 * Remove any selectors not listed in the criticalSelectors set, deleting any
 	 * rules that no longer have any selectors in their prelude.
 	 *
-	 * @param criticalSelector
+	 * @param {Set< string >} criticalSelector - Set of critical selectors.
 	 */
 	pruneNonCriticalSelectors( criticalSelector: Set< string > ): void {
 		csstree.walk( this.ast, {
@@ -519,7 +523,8 @@ export class StyleAST {
 	 * Given an AST node, read it as a value based on its type. Removes quote marks from
 	 * string types if present.
 	 *
-	 * @param {object} node - AST node.
+	 * @param {csstree.CssNode} node - AST node.
+	 * @returns {string} The value of the node as a string.
 	 */
 	static readValue( node: csstree.CssNode ): string {
 		if ( node.type === 'String' && stringPattern.test( node.value ) ) {
