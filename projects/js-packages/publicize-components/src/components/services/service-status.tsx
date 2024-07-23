@@ -30,7 +30,10 @@ export function ServiceStatus( { serviceConnections, brokenConnections }: Servic
 				className={ styles[ 'broken-connection-alert' ] }
 			>
 				{ canFix
-					? __( 'Please fix the broken connections.', 'jetpack' )
+					? __(
+							'Please fix the broken connections or disconnect them to create more connections.',
+							'jetpack'
+					  )
 					: _n( 'Broken connection', 'Broken connections', brokenConnections.length, 'jetpack' ) }
 			</Alert>
 		);
