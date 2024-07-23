@@ -17,8 +17,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"build:browser": "rollup -c",
-		"build:node": "tsc --moduleResolution node",
-		"build": "npm run clean && npm run build:browser",
+		"build:node": "tsc --project tsconfig.node.json",
+		"build": "npm run clean && npm run build:browser && npm run build:node",
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"test": "jest tests"
 	},
