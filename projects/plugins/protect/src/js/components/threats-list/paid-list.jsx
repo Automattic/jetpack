@@ -46,7 +46,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'IGNORE_OR_UNIGNORE_THREAT',
-				props: { id, label, title, icon, severity },
+				props: { status, id, label, title, icon, severity },
 			} );
 		};
 	};
@@ -127,7 +127,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				{ 'ignored' === status && ( // todo: use status context here?
+				{ 'ignored' === status && (
 					<Button
 						isDestructive={ true }
 						variant="secondary"
@@ -137,7 +137,11 @@ const ThreatAccordionItem = ( {
 					</Button>
 				) }
 				{ status !== 'ignored' && status !== 'fixed' && (
-					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
+					<Button
+						isDestructive={ true }
+						variant="secondary"
+						onClick={ handleIgnoreOrUnignoreThreatClick() }
+					>
 						{ __( 'Ignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }

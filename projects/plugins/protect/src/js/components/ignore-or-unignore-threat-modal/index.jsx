@@ -8,7 +8,7 @@ import ThreatSeverityBadge from '../severity';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
-const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
+const IgnoreOrUnignoreThreatModal = ( { status, id, title, label, icon, severity } ) => {
 	const { setModal, ignoreThreat, unignoreThreat } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
@@ -20,12 +20,10 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 		};
 	};
 
-	const test = true;
 	const handleIgnoreOrUnigoreClick = () => {
 		return async event => {
 			event.preventDefault();
-			if ( test ) {
-				// todo: use status context here?
+			if ( 'ignored' === status ) {
 				unignoreThreat( id, () => {
 					setModal( { type: null } );
 				} );
@@ -37,9 +35,8 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 		};
 	};
 
-	const context = test // todo: use status context here?
-		? __( 'unignore', 'jetpack-protect' )
-		: __( 'ignore', 'jetpack-protect' );
+	const context =
+		'ignored' === status ? __( 'unignore', 'jetpack-protect' ) : __( 'ignore', 'jetpack-protect' );
 
 	return (
 		<UserConnectionGate>
@@ -98,7 +95,7 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 					{ sprintf(
 						// translators: %s is the threat context, like "ignore" or "unignore"
 						__( '%s threat', 'jetpack-protect' ),
-						test // todo: use status context here?
+						'ignored' === status
 							? __( 'Unignore', 'jetpack-protect' )
 							: __( 'Ignore', 'jetpack-protect' )
 					) }
