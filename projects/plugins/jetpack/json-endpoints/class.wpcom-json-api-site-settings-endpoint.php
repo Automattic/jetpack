@@ -133,6 +133,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_ip_block_list_enabled'       => '(bool) Whether the IP block list is enabled',
 			'jetpack_waf_share_data'                  => '(bool) Whether the WAF should share basic data with Jetpack',
 			'jetpack_waf_share_debug_data'            => '(bool) Whether the WAF should share debug data with Jetpack',
+			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
 		),
 
 		'response_format'     => array(
@@ -494,6 +495,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_ip_block_list_enabled' => (bool) get_option( 'jetpack_waf_ip_block_list_enabled' ),
 						'jetpack_waf_share_data'           => (bool) get_option( 'jetpack_waf_share_data' ),
 						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
+						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
