@@ -119,6 +119,20 @@ module.exports = {
 			},
 		],
 
+		'jsdoc/check-indentation': [
+			'warn',
+			{
+				excludeTags: [
+					'example',
+					// Tags aligned by jsdoc/check-line-alignment from @wordpress/eslint-plugin.
+					'param',
+					'arg',
+					'argument',
+					'property',
+					'prop',
+				],
+			},
+		],
 		'jsdoc/check-syntax': 'warn',
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'jest-environment' ] } ],
 		'jsdoc/check-values': 'warn',
