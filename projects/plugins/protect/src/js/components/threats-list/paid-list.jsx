@@ -127,7 +127,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				{ 'ignored' === status && (
+				{ 'ignored' === status && ( // todo: use status context here?
 					<Button
 						isDestructive={ true }
 						variant="secondary"
