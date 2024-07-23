@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: bjkzupj7mgxhpr4jv54264ts6e
+pnpmfileChecksum: hogs2xjgnkyiea7znn3abfx4o4
 
 importers:
 
@@ -1585,6 +1585,10 @@ importers:
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
+    dependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2348,6 +2352,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-explat':
+        specifier: workspace:*
+        version: link:../explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
