@@ -5,7 +5,7 @@ import { STORE_ID } from '../../state/store';
 import CredentialsNeededModal from '../credentials-needed-modal';
 import FixAllThreatsModal from '../fix-all-threats-modal';
 import FixThreatModal from '../fix-threat-modal';
-import IgnoreOrUnignoreThreatModal from '../ignore-threat-modal';
+import IgnoreOrUnignoreThreatModal from '../ignore-or-unignore-threat-modal';
 import StandaloneModeModal from '../standalone-mode-modal';
 import styles from './styles.module.scss';
 

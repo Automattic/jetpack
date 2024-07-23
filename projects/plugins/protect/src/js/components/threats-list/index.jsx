@@ -3,7 +3,6 @@ import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
@@ -16,7 +15,6 @@ import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
 	const { hasRequiredPlan } = useProtectData();
-	const { viewingScanHistory, handleHistoryClick, allScanHistoryIsLoading } = useScanHistory();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );

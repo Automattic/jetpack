@@ -3,14 +3,12 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
-	const { viewingScanHistory } = useScanHistory();
 	const { setModal, ignoreThreat, unignoreThreat } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
@@ -22,10 +20,12 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 		};
 	};
 
+	const test = true;
 	const handleIgnoreOrUnigoreClick = () => {
 		return async event => {
 			event.preventDefault();
-			if ( viewingScanHistory ) {
+			if ( test ) {
+				// todo: use status context here?
 				unignoreThreat( id, () => {
 					setModal( { type: null } );
 				} );

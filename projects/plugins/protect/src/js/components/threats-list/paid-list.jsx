@@ -4,7 +4,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import DiffViewer from '../diff-viewer';
 import MarkedLines from '../marked-lines';
