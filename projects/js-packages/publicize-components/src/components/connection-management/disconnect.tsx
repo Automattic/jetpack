@@ -1,6 +1,5 @@
 import { Button } from '@automattic/jetpack-components';
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
+import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useReducer } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';

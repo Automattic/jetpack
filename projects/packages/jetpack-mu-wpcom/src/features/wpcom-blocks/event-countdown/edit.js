@@ -1,8 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { Button, DateTimePicker, Dropdown, Placeholder } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
+import { dateI18n, __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import moment from 'moment';

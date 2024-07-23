@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Set `#wp-admin-bar-top-secondary` absolutely positioned to the right. This prevents it from floating ut of place when the window shrinks.
