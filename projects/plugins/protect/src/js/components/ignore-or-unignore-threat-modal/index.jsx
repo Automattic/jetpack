@@ -37,7 +37,7 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 		};
 	};
 
-	const context = viewingScanHistory
+	const context = test // todo: use status context here?
 		? __( 'unignore', 'jetpack-protect' )
 		: __( 'ignore', 'jetpack-protect' );
 
@@ -98,7 +98,7 @@ const IgnoreOrUnignoreThreatModal = ( { id, title, label, icon, severity } ) => 
 					{ sprintf(
 						// translators: %s is the threat context, like "ignore" or "unignore"
 						__( '%s threat', 'jetpack-protect' ),
-						viewingScanHistory
+						test // todo: use status context here?
 							? __( 'Unignore', 'jetpack-protect' )
 							: __( 'Ignore', 'jetpack-protect' )
 					) }
