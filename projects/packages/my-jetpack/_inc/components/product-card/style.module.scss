@@ -138,11 +138,6 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	color: var(--jp-gray-30);
 }
 
-.recommendationLink {
-	padding: calc(var(--spacing-base) * 0.5) var(--spacing-base) !important;
-}
-
-
 .status {
 	white-space: nowrap;
 	height: $actions-size;

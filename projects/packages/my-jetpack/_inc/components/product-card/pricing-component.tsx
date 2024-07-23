@@ -1,4 +1,5 @@
 import formatCurrency from '@automattic/format-currency';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';
@@ -16,7 +17,7 @@ const PriceComponent = ( { slug }: { slug: string } ) => {
 			<span className={ clsx( styles.price, discountPrice && styles.discounted ) }>
 				{ formatCurrency( fullPrice, currencyCode ) }
 			</span>
-			<span className={ styles.term }>/month, billed yearly</span>
+			<span className={ styles.term }>{ __( '/month, billed yearly', 'jetpack-my-jetpack' ) }</span>
 		</div>
 	);
 };
