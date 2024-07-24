@@ -7,9 +7,9 @@ import { combineReducers } from '@wordpress/data';
  */
 import type { BreveState } from '../types';
 
-const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-proofread-enabled' );
+const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
-	'jetpack-ai-proofread-disabled-features'
+	'jetpack-ai-breve-disabled-features'
 );
 const initialConfiguration = {
 	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
@@ -24,7 +24,7 @@ export function configuration(
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
 			const enabled = action?.enabled !== undefined ? action?.enabled : ! state?.enabled;
-			window.localStorage.setItem( 'jetpack-ai-proofread-enabled', String( enabled ) );
+			window.localStorage.setItem( 'jetpack-ai-breve-enabled', String( enabled ) );
 
 			return {
 				...state,
@@ -35,7 +35,7 @@ export function configuration(
 		case 'ENABLE_FEATURE': {
 			const disabled = ( state.disabled ?? [] ).filter( feature => feature !== action.feature );
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 
@@ -48,7 +48,7 @@ export function configuration(
 		case 'DISABLE_FEATURE': {
 			const disabled = [ ...( state.disabled ?? [] ), action.feature ];
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 

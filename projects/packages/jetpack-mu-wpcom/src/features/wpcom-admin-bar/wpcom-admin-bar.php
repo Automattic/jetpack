@@ -24,6 +24,11 @@ function maybe_add_origin_site_id_to_url( $url ) {
 		return $url;
 	}
 
+	// Add query param to URL only for users who can access wp-admin.
+	if ( ! current_user_can( 'read' ) ) {
+		return $url;
+	}
+
 	return add_query_arg( 'origin_site_id', $site_id, $url );
 }
 
