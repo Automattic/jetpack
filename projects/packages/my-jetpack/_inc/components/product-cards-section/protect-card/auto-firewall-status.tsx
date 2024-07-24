@@ -21,7 +21,7 @@ export const AutoFirewallStatus = () => {
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled ) {
-			return <WafStatus status="success" />;
+			return <WafStatus status="active" />;
 		}
 
 		return <WafStatus status="inactive" />;
@@ -34,18 +34,18 @@ export const AutoFirewallStatus = () => {
  * WafStatus component
  *
  * @param {PropsWithChildren} props - The component props
- * @param {'success' | 'inactive' | 'off'} props.status - The status of the WAF
+ * @param {'active' | 'inactive' | 'off'} props.status - The status of the WAF
  *
  * @returns {ReactElement} rendered component
  */
-function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
 	const { autoFirewallTooltip } = tooltipContent;
 
-	if ( status === 'success' ) {
+	if ( status === 'active' ) {
 		return (
 			<>
 				<div>

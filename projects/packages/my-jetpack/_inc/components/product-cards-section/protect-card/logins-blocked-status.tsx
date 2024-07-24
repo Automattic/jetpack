@@ -25,7 +25,7 @@ export const LoginsBlockedStatus = () => {
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasBruteForceProtection ) {
-			return <BlockedStatus status="success" />;
+			return <BlockedStatus status="active" />;
 		}
 
 		return <BlockedStatus status="inactive" />;
@@ -41,11 +41,11 @@ export const LoginsBlockedStatus = () => {
  * BlockedStatus component
  *
  * @param {PropsWithChildren} props - The component props
- * @param {'success' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
+ * @param {'active' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
  *
  * @returns {ReactElement} rendered component
  */
-function BlockedStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const {
 		protect: { wafConfig: wafData },
 	} = getMyJetpackWindowInitialState();
@@ -54,7 +54,7 @@ function BlockedStatus( { status }: { status: 'success' | 'inactive' | 'off' } )
 	const tooltipContent = useProtectTooltipCopy();
 	const { blockedLoginsTooltip } = tooltipContent;
 
-	if ( status === 'success' ) {
+	if ( status === 'active' ) {
 		return blockedLoginsCount > 0 ? (
 			<div className="logins_blocked__count">{ blockedLoginsCount }</div>
 		) : (
@@ -73,7 +73,7 @@ function BlockedStatus( { status }: { status: 'success' | 'inactive' | 'off' } )
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'blocked-logins',
-						status: 'success',
+						status: 'active',
 						message: 'no data yet',
 					} }
 				>
