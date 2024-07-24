@@ -32,7 +32,7 @@ function maybe_show_wpcom_toolbar_proxy_notice() {
 					// Create a new div for the notice.
 					var newDiv = document.createElement('div');
 					newDiv.className = 'toolbar-autoproxxy-notice';
-					newDiv.textContent = '<?php echo esc_js( __( 'The toolbar is always visible on Atomic sites while connected to the Automattic proxy.', 'jetpack-mu-wpcom' ) ); ?>'
+					newDiv.textContent = '<?php echo esc_js( __( 'The Toolbar is always visible on Atomic sites while connected to the Automattic proxy.', 'jetpack-mu-wpcom' ) ); ?>'
 
 					// Insert the new div after the checkbox and label.
 					toolbarCheckboxLabel.appendChild(newDiv);
