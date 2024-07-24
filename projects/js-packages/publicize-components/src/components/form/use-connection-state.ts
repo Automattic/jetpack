@@ -6,7 +6,8 @@ import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
-import useMediaRestrictions, { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
+import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
@@ -33,12 +34,6 @@ export const useConnectionState = () => {
 		}
 	);
 
-	const isAutoConversionEnabled = useSelect(
-		select => select( socialStore ).isAutoConversionEnabled(),
-		[]
-	);
-	const shouldAutoConvert = isAutoConversionEnabled && isConvertible;
-
 	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
 
 	/**
@@ -58,15 +53,14 @@ export const useConnectionState = () => {
 			const isHealthy = false !== is_healthy && status !== 'broken';
 
 			// 2. Have no validation errors
-			const hasValidationErrors =
-				validationErrors[ currentId ] !== undefined && ! shouldAutoConvert;
+			const hasValidationErrors = validationErrors[ currentId ] !== undefined && ! isConvertible;
 
 			// 3. Not have a NO_MEDIA_ERROR when media is required
 			const hasNoMediaError = validationErrors[ currentId ] === NO_MEDIA_ERROR;
 
 			return isHealthy && ! hasValidationErrors && ! hasNoMediaError;
 		},
-		[ shouldAutoConvert, validationErrors ]
+		[ isConvertible, validationErrors ]
 	);
 
 	/**
