@@ -60,6 +60,11 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 	 * }
 	 */
 	public function add_node( $args ) {
+		// Ensure $args is an array.
+		if ( is_object( $args ) ) {
+			$args = (array) $args;
+		}
+
 		if ( empty( $args['href'] ) ) {
 			parent::add_node( $args );
 			return;
