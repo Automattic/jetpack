@@ -13,6 +13,7 @@ export const UNCONFIDENT_WORDS: BreveFeatureConfig = {
 	title: 'Unconfident words',
 	tagName: 'span',
 	className: 'has-proofread-highlight--unconfident-words',
+	defaultEnabled: true,
 };
 
 const list = new RegExp( `\\b(${ words.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );
