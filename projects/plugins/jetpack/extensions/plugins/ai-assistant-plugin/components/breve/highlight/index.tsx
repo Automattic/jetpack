@@ -13,6 +13,7 @@ import {
 	useSelect,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
@@ -225,9 +226,16 @@ export default function Highlight() {
 										<Spinner />
 									</div>
 								) : (
-									<Button icon={ AiSVG } onClick={ handleSuggestions }>
-										{ __( 'Suggest', 'jetpack' ) }
-									</Button>
+									<>
+										<Button
+											icon={ trash }
+											label={ __( 'Ignore suggestion', 'jetpack' ) }
+											onClick={ null }
+										/>
+										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
+											{ __( 'Suggest', 'jetpack' ) }
+										</Button>
+									</>
 								) }
 							</div>
 						) }

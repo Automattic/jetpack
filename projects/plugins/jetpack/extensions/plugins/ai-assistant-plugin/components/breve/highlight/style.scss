@@ -59,16 +59,16 @@
 			justify-content: flex-end;
 			gap: 4px;
 
-			.components-button {
+			.suggest.components-button {
 				padding-top: 0px;
 				padding-bottom: 0px;
 				padding-right: 0px;
 				height: unset;
-			}
 
-			& > svg,
-			path {
-				fill: #0277a8;
+				& > svg,
+				path {
+					fill: #0277a8;
+				}
 			}
 		}
 
