@@ -147,6 +147,9 @@ sed "${sedi[@]}" -e "s| function| Function|g" "$TARGET/types/index.d.ts"
 echo "Changing JS textdomain to match jetpack-mu-wpcom..."
 pnpm --package=eslint@8.57.0 dlx eslint --no-ignore --rule '"@wordpress/i18n-text-domain":["error",{"allowedTextDomain":"jetpack-mu-wpcom"}]' --fix $TARGET > /dev/null
 
+echo "Changing JS translation function call to avoid bad minification..."
+pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatter.js --extensions=js $TARGET
+
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 ../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
 
