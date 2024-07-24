@@ -64,5 +64,6 @@
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true
 		}
-	}
+	},
+	"abandoned": true
 }

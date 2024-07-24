@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Change one `@return` comment to `@returns`, which we'll probably change back soon while doing the same across the monorepo but it's not worth the effort of avoiding now.
-
-

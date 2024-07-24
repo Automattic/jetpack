@@ -101,6 +101,10 @@ jobs:
           echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
           echo "any-plugins=${ANY_PLUGINS}" >> "$GITHUB_OUTPUT"
 
+      - name: Select WordPress version
+        if: steps.changed.outputs.any-plugins != 'true' && matrix.wp != 'none'
+        run: .github/files/select-wordpress-tag.sh
+
       - name: Setup WordPress environment for plugin tests
         env:
           API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}

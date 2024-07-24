@@ -15,6 +15,7 @@ export const COMPLEX_WORDS: BreveFeatureConfig = {
 	title: 'Complex words',
 	tagName: 'span',
 	className: 'has-proofread-highlight--complex-words',
+	defaultEnabled: true,
 };
 
 const list = new RegExp(

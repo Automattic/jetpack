@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove `wpcalypso/jsx-classname-namespace` from eslint config, eslint-plugin-wpcalypso is being removed.
-
-

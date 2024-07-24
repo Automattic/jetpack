@@ -4,7 +4,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import Gridicon from 'gridicons';
 import PropTypes from 'prop-types';
-import { useEffect, useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import {
 	REST_API_REWINDABLE_BACKUP_EVENTS_ENDPOINT,
@@ -196,7 +196,6 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 };
 
 const NoBackupsValueSection = ( { admin, slug } ) => {
-	const [ itemsToShow, setItemsToShow ] = useState( 3 );
 	const { data: backupStats, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_STATS_KEY,
 		query: {
@@ -227,22 +226,6 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 		return data;
 	}, [ backupStats ] );
 
-	// Only show 2 data points on certain screen widths where the cards are squished
-	useEffect( () => {
-		window.onresize = () => {
-			if ( ( window.innerWidth >= 961 && window.innerWidth <= 1070 ) || window.innerWidth < 290 ) {
-				setItemsToShow( 2 );
-			} else {
-				setItemsToShow( 3 );
-			}
-		};
-
-		return () => {
-			window.onresize = null;
-		};
-	}, [] );
-
-	const moreValue = sortedStats.length > itemsToShow ? sortedStats.length - itemsToShow : 0;
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
@@ -261,27 +244,16 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 								key={ i + itemSlug }
 							>
 								<>
-									{ i < itemsToShow && (
-										<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
-											{ getIcon( itemSlug ) }
-											<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
-										</span>
-									) }
+									<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
+										{ getIcon( itemSlug ) }
+										<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
+									</span>
 									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
 								</>
 							</li>
 						);
 					} ) }
 				</ul>
-
-				{ moreValue > 0 && (
-					<span className={ styles[ 'more-stats' ] } aria-hidden="true">
-						{
-							// translators: %s is the number of items that are not shown
-							sprintf( __( '+%s more', 'jetpack-my-jetpack' ), moreValue )
-						}
-					</span>
-				) }
 			</div>
 		</ProductCard>
 	);
