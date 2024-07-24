@@ -61,6 +61,9 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+				DefinePlugin: {
+					__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
+				},
 			} ),
 		],
 		module: {
