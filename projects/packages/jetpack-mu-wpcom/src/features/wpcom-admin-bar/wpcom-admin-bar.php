@@ -24,6 +24,12 @@ function maybe_add_origin_site_id_to_url( $url ) {
 		return $url;
 	}
 
+	// Add query param to URL only for users with manage_options permission
+	switch_to_blog( $site_id );
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return $url;
+	}
+
 	return add_query_arg( 'origin_site_id', $site_id, $url );
 }
 
