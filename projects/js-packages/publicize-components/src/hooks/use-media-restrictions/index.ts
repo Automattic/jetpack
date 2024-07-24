@@ -1,18 +1,22 @@
 import { useRef, useMemo } from '@wordpress/element';
+import { Connection } from '../../social-store/types';
 import useAttachedMedia from '../use-attached-media';
+import { MediaDetails } from '../use-media-details/types';
+import {
+	NO_MEDIA_ERROR,
+	FILE_TYPE_ERROR,
+	FILE_SIZE_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
+	DIMENSION_ERROR,
+} from './constants';
 import {
 	DEFAULT_RESTRICTIONS,
 	GLOBAL_MAX_SIZE,
 	PHOTON_CONVERTIBLE_TYPES,
 	RESTRICTIONS,
 } from './restrictions';
-
-export const NO_MEDIA_ERROR = 'NO_MEDIA_ERROR';
-export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
-export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
-export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
-export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
-export const DIMENSION_ERROR = 'DIMENSION_ERROR';
+import { MediaRestrictions, MediaRestrictionsOptions } from './types';
 
 /**
  * Checks whether a media is a video.
@@ -170,12 +174,16 @@ const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia 
 /**
  * Hooks to deal with the media restrictions
  *
- * @param {object} connections - Currently enabled connections.
- * @param {object} media - Currently enabled connections.
- * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
- * @returns {object} Social media connection handler.
+ * @param {Array< Connection >} connections - Currently enabled connections.
+ * @param {MediaDetails} media - Currently enabled connections.
+ * @param { MediaRestrictionsOptions } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
+ * @returns {MediaRestrictions} Social media connection handler.
  */
-const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
+const useMediaRestrictions = (
+	connections: Array< Connection >,
+	media: MediaDetails,
+	{ isSocialImageGeneratorEnabledForPost }: MediaRestrictionsOptions
+): MediaRestrictions => {
 	const { attachedMedia } = useAttachedMedia();
 	const hasAttachedMedia = attachedMedia.length > 0;
 	const errors = useRef( {} );
