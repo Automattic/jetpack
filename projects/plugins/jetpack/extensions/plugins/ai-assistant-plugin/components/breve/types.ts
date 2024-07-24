@@ -64,6 +64,13 @@ export type BreveSelect = {
 		html: string;
 		suggestion: string;
 	};
+	getIgnoredSuggestions: ( {
+		feature,
+		blockId,
+	}: {
+		feature: string;
+		blockId: string;
+	} ) => Array< string >;
 };
 
 export type BreveDispatch = {

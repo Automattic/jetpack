@@ -265,51 +265,53 @@ export function registerBreveHighlights() {
 			interactive: false,
 			edit: () => {},
 			...configSettings,
-			__experimentalGetPropsForEditableTreePreparation() {
+			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
+				const { getIgnoredSuggestions, isFeatureEnabled, isProofreadEnabled } = globalSelect(
+					'jetpack/ai-breve'
+				) as BreveSelect;
+
 				return {
-					isProofreadEnabled: (
-						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
-					 ).isProofreadEnabled(),
-					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
-						config.name
-					),
+					isProofreadEnabled: isProofreadEnabled(),
+					isFeatureEnabled: isFeatureEnabled( config.name ),
+					ignored: getIgnoredSuggestions( { feature: config.name, blockId: blockClientId } ),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled },
+				{ isProofreadEnabled, isFeatureEnabled, ignored },
 				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
+					const { getBlock } = globalSelect( 'core/block-editor' ) as CoreBlockEditorSelect;
+					const { getBlockMd5 } = globalSelect( 'jetpack/ai-breve' ) as BreveSelect;
+					const { invalidateSuggestions, setBlockMd5 } = globalDispatch(
+						'jetpack/ai-breve'
+					) as BreveDispatch;
+
 					const record = { formats, text } as RichTextValue;
 					const type = formatName;
 
+					// Ignored suggestions
+					let ignoredList = ignored;
+
 					// Has to be defined here, as adding it to __experimentalGetPropsForEditableTreePreparation
 					// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
-					const currentMd5 = ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
-						formatName,
-						blockClientId
-					);
+					const currentMd5 = getBlockMd5( formatName, blockClientId );
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const block = globalSelect( 'core/block-editor' ).getBlock( blockClientId );
-						const blockContent = getBlockContent( block );
+						const block = getBlock( blockClientId );
+						// Only use block content for complex blocks like tables
+						const blockContent = richTextIdentifier === 'content' ? text : getBlockContent( block );
 						const textMd5 = md5( blockContent ).toString();
 
 						if ( currentMd5 !== textMd5 ) {
-							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).invalidateSuggestions(
-								type,
-								blockClientId
-							);
-
-							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setBlockMd5(
-								type,
-								blockClientId,
-								textMd5
-							);
+							ignoredList = [];
+							invalidateSuggestions( type, blockClientId );
+							setBlockMd5( type, blockClientId, textMd5 );
 						}
 
 						const highlights = featureHighlight( text );
 						const applied = highlight( {
+							ignored: ignoredList,
 							content: record,
 							type,
 							indexes: highlights,
