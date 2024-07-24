@@ -25168,7 +25168,7 @@ snapshots:
       jest-config: 29.7.0(@types/node@18.7.12)
       jest-util: 29.7.0
       jest-validate: 29.7.0
-      yargs: 17.7.2
+      yargs: 17.6.2
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -25196,10 +25196,10 @@ snapshots:
 
   jest-config@29.7.0:
     dependencies:
-      '@babel/core': 7.24.7
+      '@babel/core': 7.18.13
       '@jest/test-sequencer': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.7)
+      babel-jest: 29.7.0(@babel/core@7.18.13)
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
@@ -25254,10 +25254,10 @@ snapshots:
 
   jest-config@29.7.0(@types/node@20.14.10):
     dependencies:
-      '@babel/core': 7.24.7
+      '@babel/core': 7.18.13
       '@jest/test-sequencer': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.7)
+      babel-jest: 29.7.0(@babel/core@7.18.13)
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
