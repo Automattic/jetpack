@@ -1,11 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import useAttachedMedia from '../../use-attached-media';
-import useMediaRestrictions, {
+import {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	VIDEO_LENGTH_TOO_LONG_ERROR,
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
-} from '../index';
+} from '../constants';
+import useMediaRestrictions from '../index';
 
 jest.mock( '../../use-attached-media', () => jest.fn() );
 
