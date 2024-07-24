@@ -52,9 +52,11 @@ const getPurchaseAction = ( detail: ProductCamelCase ) => {
 const getLearnMoreAction = ( detail: ProductCamelCase ) => {
 	const isNotActiveOrNeedsExplicitFreePlan =
 		! detail.isPluginActive || detail.status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
-	const hasFreeTierOrFreeOffering = detail.tiers.includes( 'free' ) || detail.hasFreeOffering;
 
-	if ( isNotActiveOrNeedsExplicitFreePlan && hasFreeTierOrFreeOffering ) {
+	if (
+		isNotActiveOrNeedsExplicitFreePlan &&
+		( detail.tiers.includes( 'free' ) || detail.hasFreeOffering )
+	) {
 		return __( 'Start for free', 'jetpack-my-jetpack' );
 	}
 
