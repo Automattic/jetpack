@@ -11,9 +11,9 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
+import './style.scss';
 /**
  * Types
  */

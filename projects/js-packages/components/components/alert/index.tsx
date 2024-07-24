@@ -12,6 +12,9 @@ type AlertProps = {
 
 	/** Children to be rendered inside the alert. */
 	children: React.ReactNode;
+
+	/** Wrapper class name */
+	className?: string;
 };
 
 const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
@@ -35,11 +38,17 @@ const getIconByLevel = ( level: AlertProps[ 'level' ] ) => {
  * @param {object} props                   - The component properties.
  * @param {string} props.level             - The alert level: error, warning, info, success.
  * @param {boolean} props.showIcon         - Whether to show the alert icon.
+ * @param {string} props.className         - The wrapper class name.
  * @param {React.Component} props.children - The alert content.
  * @returns {React.ReactElement}             The `Alert` component.
  */
-const Alert: React.FC< AlertProps > = ( { level = 'warning', children, showIcon = true } ) => {
-	const classes = clsx( styles.container, styles[ `is-${ level }` ] );
+const Alert: React.FC< AlertProps > = ( {
+	level = 'warning',
+	children,
+	showIcon = true,
+	className,
+} ) => {
+	const classes = clsx( styles.container, styles[ `is-${ level }` ], className );
 
 	return (
 		<div className={ classes }>

@@ -1,6 +1,8 @@
 /* global wp, wpcomSidebarNotice */
 import { wpcomTrackEvent } from '../../common/tracks';
 
+import './wpcom-sidebar-notice.scss';
+
 const wpcomSidebarNoticeRecordEvent = event => {
 	if ( ! event ) {
 		return;
