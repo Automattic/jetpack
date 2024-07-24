@@ -73,6 +73,7 @@ export type BreveDispatch = {
 	toggleProofread: ( force?: boolean ) => void;
 	toggleFeature: ( feature: string, force?: boolean ) => void;
 	invalidateSuggestions: ( feature: string, blockId: string ) => void;
+	ignoreSuggestion: ( feature: string, blockId: string, id: string ) => void;
 	setBlockMd5: ( feature: string, blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
 		anchor: Anchor[ 'target' ];

@@ -44,7 +44,7 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions, invalidateSuggestions } = useDispatch(
+	const { setPopoverHover, setSuggestions, invalidateSuggestions, ignoreSuggestion } = useDispatch(
 		'jetpack/ai-breve'
 	) as BreveDispatch;
 
@@ -188,6 +188,14 @@ export default function Highlight() {
 		} );
 	};
 
+	const handleIgnoreSuggestion = () => {
+		ignoreSuggestion( feature, blockId, id );
+		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+		} );
+	};
+
 	return (
 		<>
 			{ isPopoverOpen && (
@@ -230,7 +238,7 @@ export default function Highlight() {
 										<Button
 											icon={ trash }
 											label={ __( 'Ignore suggestion', 'jetpack' ) }
-											onClick={ null }
+											onClick={ handleIgnoreSuggestion }
 										/>
 										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
 											{ __( 'Suggest', 'jetpack' ) }
