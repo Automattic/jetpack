@@ -13,7 +13,6 @@ import {
 	useSelect,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { trash } from '@wordpress/icons';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
