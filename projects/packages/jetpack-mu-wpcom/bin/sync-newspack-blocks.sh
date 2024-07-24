@@ -153,25 +153,4 @@ pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatt
 echo "Changing PHP textdomain to match jetpack-mu-wpcom..."
 ../../../vendor/bin/phpcbf --standard=./.phpcs.dir.xml --filter=../../../vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php --runtime-set jetpack-filter-no-ignore -q $TARGET
 
-if [ "$MODE" = "npm" ] ; then
-	# Finds and prints the version of newspack from package.json
-	NEW_VERSION=v`sed -En 's|.*"@automattic/newspack-blocks": "\^#?(.*)".*|\1|p' package.json`
-	# Avoids replacing the version if there is no value.
-	if [[ "${#NEW_VERSION}" -ge 2 ]] ; then
-		# Replaces the line containing the version definition with the new version.
-		sed "${sedi[@]}" -e "s|define( 'NEWSPACK_BLOCKS__VERSION', '\(.*\)' );|define( 'NEWSPACK_BLOCKS__VERSION', '$NEW_VERSION' );|" $ENTRY
-		echo "Updated Newspack version '$NEW_VERSION'";
-	fi
-fi
-
 echo Sync done.
-
-if [ "$MODE" = "release" ]
-then
-	if ! grep -q "$NAME" "$ENTRY"; then
-		echo
-		echo Warning: $NAME could not be found in $ENTRY
-		echo Make sure to update the NEWSPACK_BLOCKS__VERSION constant to the current version.
-		echo
-	fi
-fi
