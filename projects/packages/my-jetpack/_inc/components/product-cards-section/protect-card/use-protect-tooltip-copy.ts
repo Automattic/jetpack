@@ -208,7 +208,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 							),
 							{
 								a: createElement( 'a', {
-									href: 'admin.php?page=jetpack-protect#/firewall',
+									href: settingsLink,
 									onClick: trackFirewallSettingsLinkClick,
 								} ),
 							}
