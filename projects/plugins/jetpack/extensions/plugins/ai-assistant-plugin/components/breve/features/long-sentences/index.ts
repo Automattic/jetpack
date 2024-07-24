@@ -12,6 +12,7 @@ export const LONG_SENTENCES: BreveFeatureConfig = {
 	title: 'Long sentences',
 	tagName: 'span',
 	className: 'has-proofread-highlight--long-sentences',
+	defaultEnabled: false,
 };
 
 const sentenceRegex = /[^\s][^.!?]+[.!?]+/g;
