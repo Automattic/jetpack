@@ -73,7 +73,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'blocked-logins',
-						status: 'active',
+						status: status,
 						message: 'no data yet',
 					} }
 				>
@@ -118,7 +118,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'blocked-logins',
-						status: 'inactive',
+						status: status,
 					} }
 				>
 					<>

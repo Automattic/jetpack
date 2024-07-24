@@ -96,7 +96,6 @@ function ThreatStatus( {
 						page: 'my-jetpack',
 						feature: 'jetpack-protect',
 						location: 'scan',
-						status: 'alert',
 						has_paid_plan: true,
 						threats: numThreats,
 					} );
@@ -208,7 +207,7 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 						tracksEventName={ 'protect_card_tooltip_open' }
 						tracksEventProps={ {
 							location: 'scan',
-							status: 'partial',
+							status: status,
 							hasPaidPlan: false,
 							threats: 0,
 						} }

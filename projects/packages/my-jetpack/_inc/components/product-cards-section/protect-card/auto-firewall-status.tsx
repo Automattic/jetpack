@@ -74,7 +74,7 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'auto-firewall',
-						status: 'inactive',
+						status: status,
 						has_paid_plan: hasPaidPlanForProduct,
 					} }
 				>
