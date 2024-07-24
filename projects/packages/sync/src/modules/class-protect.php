@@ -39,6 +39,20 @@ class Protect extends Module {
 	}
 
 	/**
+	 * Provide a fallback value for has_login_ability.
+	 *
+	 * @access private
+	 */
+	private function has_login_ability_fallback() {
+		if ( class_exists( 'Brute_Force_Protection' ) ) {
+			$brute_force_protection = Brute_Force_Protection::instance();
+			return $brute_force_protection->has_login_ability();
+		}
+
+		return false;
+	}
+
+	/**
 	 * Maybe log a failed login attempt.
 	 *
 	 * @access public
@@ -46,8 +60,9 @@ class Protect extends Module {
 	 * @param array $failed_attempt Failed attempt data.
 	 */
 	public function maybe_log_failed_login_attempt( $failed_attempt ) {
-		$brute_force_protection = Brute_Force_Protection::instance();
-		if ( $brute_force_protection->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
+		$has_login_ability = apply_filters( 'jpp_has_login_ability', $this->has_login_ability_fallback() );
+
+		if ( $has_login_ability && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
 	}

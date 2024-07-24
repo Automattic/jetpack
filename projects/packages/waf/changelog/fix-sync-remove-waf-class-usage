@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Brute Force Protection: Add `jpp_has_login_ability` hook.
