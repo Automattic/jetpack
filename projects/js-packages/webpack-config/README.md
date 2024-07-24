@@ -184,6 +184,8 @@ This provides an instance of [@wordpress/i18n-check-webpack-plugin](https://www.
 
 The default configuration sets a filter that excludes `node_modules` other than `@automattic/*`. This may be accessed as `I18nCheckPlugin.defaultFilter`.
 
+The default configuration also sets `extractorOptions.babelOptions`: If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
+
 ##### `I18nLoaderPlugin( options )`
 
 This provides an instance of [@automattic/i18n-loader-webpack-plugin](https://www.npmjs.com/package/@automattic/i18n-loader-webpack-plugin). The `options` are passed to the plugin.

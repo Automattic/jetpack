@@ -78,6 +78,14 @@ p.auto-share-title {
 	}
 }
 
+.broken-connection-service {
+	.broken-connection {
+		font-weight: bold;
+		font-style: italic;
+		word-wrap: break-word;
+	}
+}
+
 .settings-button.settings-button {
 	display: block;
 	margin-bottom: 0.5rem;

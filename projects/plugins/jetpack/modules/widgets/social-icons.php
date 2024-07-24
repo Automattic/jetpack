@@ -116,10 +116,10 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 	public function include_svg_icons() {
 		// Define SVG sprite file in Jetpack.
 		$svg_icons = dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
-
+		$svg_icons = class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ? JETPACK__PLUGIN_DIR . 'jetpack-vendor/automattic/jetpack-classic-theme-helper/src/social-menu/social-menu.svg' : dirname( __DIR__ ) . '/theme-tools/social-menu/social-menu.svg';
 		// Define SVG sprite file in WPCOM.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$svg_icons = dirname( __DIR__ ) . '/social-menu/social-menu.svg';
+			$svg_icons = class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ? JETPACK__PLUGIN_DIR . 'jetpack-vendor/automattic/jetpack-classic-theme-helper/src/social-menu/social-menu.svg' : dirname( __DIR__ ) . '/social-menu/social-menu.svg';
 		}
 
 		// If it exists, include it.

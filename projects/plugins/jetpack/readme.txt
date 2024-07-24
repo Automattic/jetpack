@@ -326,19 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.7-a.3 - 2024-07-15
+### 13.7-a.5 - 2024-07-22
 #### Enhancements
-- Blocks: Add the EventCoutdown block.
-- Blocks: Add the Timeline block.
-- Newsletter: Improve the modal overlay.
-- Social: Added recommendation steps for the Social plan.
-- Subscriptions: Implemented a more dynamic approach to displaying the modal.
+- Dashboard: Add a dashboard card for AI Assistant.
+- Security: Add separate IP allow and block list toggles in Web Application Firewall settings.
+- Settings: Add a link to the AI assistant product page.
 
 #### Improved compatibility
-- Blocks: Changed the use of default parameters in the Map block for React 19 compatibility.
+- Contact Form: Ensure checkboxes are properly displayed when using the Twenty Twenty or the Twenty Twenty One theme.
+- General: Remove code for compatibility with WordPress versions before 6.5.
+- General: Update WordPress version requirements to WordPress 6.5.
 
 #### Bug fixes
-- Donations Block: Fix undefined array key warnings with old/malformed blocks.
+- Blocks: Check if the fontFamily block attribute is a string before trying to format.
 
 --------
 
