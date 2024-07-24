@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Social | Fixed parallel social connection requests messing up the UI state
