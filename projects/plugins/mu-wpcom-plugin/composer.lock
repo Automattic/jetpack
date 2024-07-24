@@ -1005,7 +1005,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a7f5a8b0a0412e24617a256c5d30fbe1f2f5fc65"
+                "reference": "ec392c1041a500bb3899148909bb2654efa86321"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1039,7 +1039,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.48.x-dev"
+                    "dev-trunk": "5.49.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
