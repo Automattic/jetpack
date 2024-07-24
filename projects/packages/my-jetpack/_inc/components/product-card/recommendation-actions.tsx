@@ -1,46 +1,42 @@
-import { Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import styles from './style.module.scss';
 import usePricingData from './use-pricing-data';
 
-const useUpsellLinks = ( slug: string, wpcomProductSlug: string ) => {
-	const { isUserConnected } = useMyJetpackConnection();
-
-	return useMemo( () => {
-		const { adminUrl, siteSuffix } = getMyJetpackWindowInitialState();
-		const purchaseUrl = getProductCheckoutUrl(
-			wpcomProductSlug,
-			siteSuffix,
-			`${ adminUrl }?page=my-jetpack`,
-			isUserConnected
-		);
-		const interstitialUrl = `#/add-${ slug }`;
-
-		return { purchaseUrl, interstitialUrl };
-	}, [ slug, wpcomProductSlug, isUserConnected ] );
-};
-
 const RecommendationActions = ( { slug }: { slug: string } ) => {
+	const { isUserConnected } = useMyJetpackConnection();
 	const { wpcomProductSlug, learnMoreAction, purchaseAction } = usePricingData( slug );
 
-	const { purchaseUrl, interstitialUrl } = useUpsellLinks( slug, wpcomProductSlug );
+	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
+	const { run: runCheckout } = useProductCheckoutWorkflow( {
+		from: 'my-jetpack',
+		productSlug: wpcomProductSlug,
+		redirectUrl: myJetpackUrl,
+		connectAfterCheckout: ! isUserConnected,
+		siteSuffix,
+	} );
+
+	const handleCheckout = useCallback( () => {
+		if ( slug === 'crm' ) {
+			window.open( 'https://jetpackcrm.com/pricing/', '_blank' );
+			return;
+		}
+		runCheckout();
+	}, [ runCheckout, slug ] );
+
 	return (
 		<div className={ styles.actions }>
 			<div className={ clsx( styles.buttons, styles.upsell ) }>
 				{ purchaseAction && (
-					<Button size="small" href={ purchaseUrl }>
+					<Button size="small" onClick={ handleCheckout }>
 						{ purchaseAction }
 					</Button>
 				) }
-				<Button
-					className={ styles.recommendationLink }
-					size="small"
-					variant="link"
-					href={ interstitialUrl }
-				>
+				<Button size="small" variant="secondary" href={ `#/add-${ slug }` }>
 					{ learnMoreAction }
 				</Button>
 			</div>

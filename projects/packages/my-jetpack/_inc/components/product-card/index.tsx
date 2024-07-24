@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { FC, MouseEventHandler, ReactNode, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
@@ -10,6 +10,7 @@ import RecommendationActions from './recommendation-actions';
 import SecondaryButton, { type SecondaryButtonProps } from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
+import type { FC, MouseEventHandler, ReactNode } from 'react';
 
 export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
@@ -176,8 +177,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 				children
 			) }
 
-			{ recommendation && <RecommendationActions slug={ slug } /> }
-			{ ! recommendation && (
+			{ recommendation ? (
+				<RecommendationActions slug={ slug } />
+			) : (
 				<div className={ styles.actions }>
 					<div className={ styles.buttons }>
 						{ secondaryAction && secondaryAction?.positionFirst && (

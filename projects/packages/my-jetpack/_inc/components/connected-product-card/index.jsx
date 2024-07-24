@@ -95,7 +95,7 @@ const ConnectedProductCard = ( {
 
 ConnectedProductCard.propTypes = {
 	children: PropTypes.node,
-	admin: PropTypes.bool.isRequired,
+	admin: PropTypes.bool,
 	recommendation: PropTypes.bool,
 	slug: PropTypes.string.isRequired,
 	isDataLoading: PropTypes.bool,
