@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-React compatibility: Ensuring createRoot is imported from react-dom/client.
