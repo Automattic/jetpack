@@ -100,6 +100,7 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_free_offering: boolean;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
@@ -146,6 +147,7 @@ interface Window {
 								isIntroductoryOffer: boolean;
 								productTerm: string;
 								wpcomProductSlug: string;
+								quantity: number;
 							};
 						};
 					};

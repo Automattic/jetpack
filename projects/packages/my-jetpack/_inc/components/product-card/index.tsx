@@ -177,8 +177,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 				children
 			) }
 
-			{ recommendation && <RecommendationActions slug={ slug } /> }
-			{ ! recommendation && (
+			{ recommendation ? (
+				<RecommendationActions slug={ slug } />
+			) : (
 				<div className={ styles.actions }>
 					<div className={ styles.buttons }>
 						{ secondaryAction && secondaryAction?.positionFirst && (

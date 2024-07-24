@@ -7,9 +7,9 @@ import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
-import { type SecondaryButtonProps } from './secondary-button';
 import styles from './style.module.scss';
 import { ProductCardProps } from '.';
+import type { SecondaryButtonProps } from './secondary-button';
 import type { FC, ComponentProps } from 'react';
 
 type ActionButtonProps< A = () => void > = ProductCardProps & {

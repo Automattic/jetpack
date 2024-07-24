@@ -10,9 +10,7 @@ const PriceComponent = ( { slug }: { slug: string } ) => {
 	return (
 		<div className={ styles.priceContainer }>
 			{ discountPrice && (
-				<span className={ clsx( styles.price ) }>
-					{ formatCurrency( discountPrice, currencyCode ) }
-				</span>
+				<span className={ styles.price }>{ formatCurrency( discountPrice, currencyCode ) }</span>
 			) }
 			<span className={ clsx( styles.price, discountPrice && styles.discounted ) }>
 				{ formatCurrency( fullPrice, currencyCode ) }
