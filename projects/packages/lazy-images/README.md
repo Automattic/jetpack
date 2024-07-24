@@ -2,6 +2,9 @@
 
 Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.
 
+> [!CAUTION]
+> This package is abandoned. WordPress Core now uses browsers' native lazy loading, and the code in here conflicts with the Interactivity API added in Gutenberg 16.6.
+
 ## Usage
 
 ```php
