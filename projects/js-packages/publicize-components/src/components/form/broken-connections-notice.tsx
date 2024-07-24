@@ -70,7 +70,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 	return (
 		brokenConnections.length > 0 && (
 			<Notice type={ 'error' }>
-				{ __( 'Your following connections are broken:', 'jetpack' ) }
+				{ __( 'Your following connections need to be reconnected:', 'jetpack' ) }
 				<ul>
 					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
 						const serviceLabel =
