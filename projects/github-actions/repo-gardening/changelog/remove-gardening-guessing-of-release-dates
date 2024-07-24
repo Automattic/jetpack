@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Check description task: Remove general guessing of release dates and code freezes. Add special casing for wpcomsh and mu-wpcom-plugin.

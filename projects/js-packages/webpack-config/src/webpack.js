@@ -128,9 +128,26 @@ const ForkTSCheckerPlugin = options => [
 
 const I18nCheckPlugin = options => {
 	const opts = { filter: i18nFilterFunction, ...options };
+
+	// Default text domain.
 	if ( typeof opts.expectDomain === 'undefined' ) {
 		opts.expectDomain = loadTextDomainFromComposerJson();
 	}
+
+	// Default Babel options for extractor.
+	if ( typeof opts.extractorOptions?.babelOptions === 'undefined' ) {
+		const babelOptions = { babelrc: false };
+		const configFile = path.resolve( 'babel.config.js' );
+		if ( fs.existsSync( configFile ) ) {
+			babelOptions.configFile = configFile;
+		} else {
+			babelOptions.presets = [ require.resolve( './babel-preset.js' ) ];
+		}
+
+		opts.extractorOptions ??= {};
+		opts.extractorOptions.babelOptions = babelOptions;
+	}
+
 	return [ new I18nCheckWebpackPlugin( opts ) ];
 };
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;
