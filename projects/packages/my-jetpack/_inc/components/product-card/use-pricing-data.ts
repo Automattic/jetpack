@@ -7,10 +7,10 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 	const { tiers } = pricingForUi;
 
 	if ( pricingForUi.tiers ) {
-		const { discountPrice, fullPrice, currencyCode, wpcomProductSlug } = tiers.upgraded;
+		const { discountPrice, fullPrice, currencyCode, wpcomProductSlug, quantity } = tiers.upgraded;
 		const hasDiscount = discountPrice && discountPrice !== fullPrice;
 		return {
-			wpcomProductSlug,
+			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
 			discountPrice: hasDiscount ? discountPrice / 12 : null,
 			fullPrice: fullPrice / 12,
 			currencyCode,
@@ -33,18 +33,28 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 };
 
 const getPurchaseAction = ( detail: ProductCamelCase ) => {
-	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE ) {
-		return __( 'Upgrade', 'jetpack-my-jetpack' );
-	}
-	if ( ! [ PRODUCT_STATUSES.ACTIVE ].includes( detail.status ) ) {
-		return __( 'Purchase', 'jetpack-my-jetpack' );
+	const isUpgradable =
+		detail.status === PRODUCT_STATUSES.ACTIVE &&
+		( detail.isUpgradableByBundle.length || detail.isUpgradable );
+	const upgradeHasPrice =
+		detail.pricingForUi.fullPrice || detail.pricingForUi.tiers?.upgraded?.fullPrice;
+
+	if ( detail.status === PRODUCT_STATUSES.CAN_UPGRADE || isUpgradable ) {
+		if ( upgradeHasPrice ) {
+			return __( 'Upgrade', 'jetpack-my-jetpack' );
+		}
+		return null;
 	}
 
-	return null;
+	return __( 'Purchase', 'jetpack-my-jetpack' );
 };
 
 const getLearnMoreAction = ( detail: ProductCamelCase ) => {
-	if ( detail.status !== PRODUCT_STATUSES.ACTIVE && detail.tiers.includes( 'free' ) ) {
+	const isNotActiveOrNeedsExplicitFreePlan =
+		! detail.isPluginActive || detail.status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
+	const hasFreeTierOrFreeOffering = detail.tiers.includes( 'free' ) || detail.hasFreeOffering;
+
+	if ( isNotActiveOrNeedsExplicitFreePlan && hasFreeTierOrFreeOffering ) {
 		return __( 'Start for free', 'jetpack-my-jetpack' );
 	}
 
