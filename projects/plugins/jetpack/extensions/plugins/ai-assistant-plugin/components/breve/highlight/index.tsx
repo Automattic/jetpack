@@ -13,6 +13,7 @@ import {
 	useSelect,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { trash } from '@wordpress/icons';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
@@ -186,7 +187,7 @@ export default function Highlight() {
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
-		invalidateSuggestions( feature, blockId );
+		invalidateSuggestions( blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
 		setPopoverHover( false );
 
@@ -198,7 +199,7 @@ export default function Highlight() {
 	};
 
 	const handleIgnoreSuggestion = () => {
-		ignoreSuggestion( feature, blockId, id );
+		ignoreSuggestion( blockId, id );
 		setPopoverHover( false );
 		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
 			feature: BREVE_FEATURE_NAME,
@@ -288,7 +289,7 @@ export function registerBreveHighlights() {
 				return {
 					isProofreadEnabled: isProofreadEnabled(),
 					isFeatureEnabled: isFeatureEnabled( config.name ),
-					ignored: getIgnoredSuggestions( { feature: config.name, blockId: blockClientId } ),
+					ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
@@ -310,7 +311,7 @@ export function registerBreveHighlights() {
 
 					// Has to be defined here, as adding it to __experimentalGetPropsForEditableTreePreparation
 					// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
-					const currentMd5 = getBlockMd5( formatName, blockClientId );
+					const currentMd5 = getBlockMd5( blockClientId );
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
 						const block = getBlock( blockClientId );
@@ -320,8 +321,8 @@ export function registerBreveHighlights() {
 
 						if ( currentMd5 !== textMd5 ) {
 							ignoredList = [];
-							invalidateSuggestions( type, blockClientId );
-							setBlockMd5( type, blockClientId, textMd5 );
+							invalidateSuggestions( blockClientId );
+							setBlockMd5( blockClientId, textMd5 );
 						}
 
 						const highlights = featureHighlight( text );
