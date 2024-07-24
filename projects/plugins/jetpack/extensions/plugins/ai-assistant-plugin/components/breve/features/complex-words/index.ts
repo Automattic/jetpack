@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
@@ -12,7 +16,7 @@ export const dictionary = phrases;
 
 export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
-	title: 'Complex words',
+	title: __( 'Complex words', 'jetpack' ),
 	tagName: 'span',
 	className: 'has-proofread-highlight--complex-words',
 	defaultEnabled: true,

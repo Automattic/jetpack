@@ -83,7 +83,9 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 					<div className="grade-level-container">
 						<p>
 							{ gradeLevel === null ? (
-								<em className="breve-help-text">Write some words to see your grade&nbsp;level.</em>
+								<em className="breve-help-text">
+									{ __( 'Write some words to see your grade level.', 'jetpack' ) }
+								</em>
 							) : (
 								<>
 									{ gradeLevel }
