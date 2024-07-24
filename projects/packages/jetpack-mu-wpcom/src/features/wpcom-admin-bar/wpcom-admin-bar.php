@@ -59,7 +59,8 @@ CSS
 		);
 	}
 }
-add_action( 'admin_bar_menu', 'wpcom_enqueue_admin_bar_assets' );
+add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 
 /**
  * Replaces the WP logo as a link to /sites.

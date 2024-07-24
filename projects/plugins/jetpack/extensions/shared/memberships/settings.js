@@ -7,10 +7,8 @@ import {
 	RadioControl,
 	Spinner,
 	VisuallyHidden,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';

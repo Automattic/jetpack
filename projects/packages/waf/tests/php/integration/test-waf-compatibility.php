@@ -194,6 +194,27 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 	 * Test the default options for the IP allow and block lists.
 	 */
 	public function testIpListsDefaultOptions() {
+		$filter_option = function ( $option, $value ) {
+			return function ( $result, $query ) use ( $option, $value ) {
+				global $wpdb;
+
+				if ( $query === "SELECT option_value FROM $wpdb->options WHERE option_name = '$option' LIMIT 1" ) {
+					return array(
+						(object) array(
+							'option_value' => serialize( $value ),
+						),
+					);
+				}
+
+				return $result;
+			};
+		};
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		$filter_ip_list_option_true = $filter_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+		$filter_ip_list_option_false  = $filter_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
+		$filter_ip_allow_list_content = $filter_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '1.2.3.4' );
+
 		// Enable the WAF module.
 		Waf_Runner::enable();
 
@@ -202,24 +223,20 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
 
 		// Add content to the allow list.
-		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, '1.2.3.4' );
+		add_filter( 'wordbless_wpdb_query_results', $filter_ip_allow_list_content, 10, 2 );
 
 		$this->assertTrue( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
 
-		// Toggle the old generic option from true to false.
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, false );
+		add_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_false, 10, 2 );
 
 		// Options default to false when the old generic option is set to false.
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );
 		$this->assertFalse( get_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) );
 
 		// Set the old generic option to true.
-		// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
-		update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, true );
+		remove_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_false, 10, 2 );
+		add_filter( 'wordbless_wpdb_query_results', $filter_ip_list_option_true, 10, 2 );
 
 		// Options default to true when the old generic option is set to true.
 		$this->assertTrue( get_option( Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) );

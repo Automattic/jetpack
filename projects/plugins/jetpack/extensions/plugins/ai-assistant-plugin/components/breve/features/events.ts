@@ -5,6 +5,7 @@ import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import getContainer from './container';
 import features from './index';
 /**
@@ -15,7 +16,16 @@ import type { BreveDispatch, Anchor, BreveSelect } from '../types';
 let highlightTimeout: number;
 let anchorTimeout: number;
 
-function handleMouseEnter( e: MouseEvent ) {
+let isFirstHover = ! localStorage.getItem( 'jetpack-ai-breve-first-hover' );
+
+async function handleMouseEnter( e: MouseEvent ) {
+	if ( isFirstHover ) {
+		await showAiAssistantSection();
+
+		isFirstHover = false;
+		localStorage.setItem( 'jetpack-ai-breve-first-hover', 'false' );
+	}
+
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 

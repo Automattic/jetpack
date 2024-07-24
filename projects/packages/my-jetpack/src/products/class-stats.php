@@ -173,7 +173,7 @@ class Stats extends Module_Product {
 		if ( Products::STATUS_MODULE_DISABLED === $status && ! Initializer::is_registered() ) {
 			// If the site has never been connected before, show the "Learn more" CTA,
 			// that points to the add Stats product interstitial.
-			$status = Products::STATUS_NEEDS_PURCHASE_OR_FREE;
+			$status = Products::STATUS_NEEDS_FIRST_SITE_CONNECTION;
 		}
 		return $status;
 	}
