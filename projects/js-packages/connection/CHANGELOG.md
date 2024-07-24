@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.34.1] - 2024-07-22
+### Added
+- Display the proper error message for suspended sites on site registration. [#38359]
+
 ## [0.34.0] - 2024-07-18
 ### Changed
 - Connection Screen: remove mention of Stats from the list of available free features. [#38328]
@@ -801,6 +805,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.34.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.19...v0.34.0
 [0.33.19]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.18...v0.33.19
 [0.33.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.17...v0.33.18

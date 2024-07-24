@@ -22,7 +22,8 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import Proofread from '../proofread';
+import isBreveAvailable from '../breve/utils/get-availability';
+import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -65,17 +66,23 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
 	const isLogoGeneratorAvailable = getFeatureAvailability( 'ai-assistant-site-logo-support' );
 	const { checkoutUrl } = useAICheckout();
 	const [ showLogoGeneratorModal, setShowLogoGeneratorModal ] = useState( false );
 
 	return (
 		<>
-			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ __( 'AI Proofread', 'jetpack' ) }>
-					{ isBreveAvailable && <Breve /> }
-					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
+			{ isBreveAvailable && (
+				<PanelRow className="jetpack-ai-proofread-control__header">
+					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
+						<Breve />
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			<PanelRow className="jetpack-ai-feedback__header">
+				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 
@@ -132,8 +139,6 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
@@ -168,6 +173,7 @@ export default function AiAssistantPluginSidebar() {
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
+					className="jetpack-ai-assistant-panel"
 				>
 					<JetpackAndSettingsContent
 						placement={ PLACEMENT_JETPACK_SIDEBAR }
@@ -202,7 +208,7 @@ export default function AiAssistantPluginSidebar() {
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread
+					<Feedback
 						placement={ PLACEMENT_PRE_PUBLISH }
 						busy={ false }
 						disabled={ requireUpgrade }
@@ -222,4 +228,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-getFeatureAvailability( 'ai-proofread-breve' ) && registerBreveHighlights();
+isBreveAvailable && registerBreveHighlights();

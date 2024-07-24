@@ -3,6 +3,7 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
+import { BREVE_FEATURE_NAME } from '../constants';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -69,14 +70,14 @@ export function setSuggestions( {
 	id,
 	feature,
 	target,
-	sentence,
+	text,
 	blockId,
 	occurrence,
 }: {
 	id: string;
 	feature: string;
 	target: string;
-	sentence: string;
+	text: string;
 	blockId: string;
 	occurrence: string;
 } ) {
@@ -93,12 +94,12 @@ export function setSuggestions( {
 			getRequestMessages( {
 				feature,
 				target,
-				sentence,
+				text,
 				blockId,
 				occurrence,
 			} ),
 			{
-				feature: 'jetpack-ai-breve',
+				feature: BREVE_FEATURE_NAME,
 			}
 		)
 			.then( response => {
