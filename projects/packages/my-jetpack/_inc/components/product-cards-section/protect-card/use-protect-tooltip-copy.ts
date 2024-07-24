@@ -4,6 +4,7 @@ import { useCallback, useMemo, createElement, type ReactElement } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
+import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 
 type TooltipType =
 	| 'pluginsThemesTooltip'
@@ -26,7 +27,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
 	const { isPluginActive: isProtectPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } =
-		detail;
+		detail || {};
 	const { recordEvent } = useAnalytics();
 	const {
 		plugins,
@@ -37,27 +38,22 @@ export function useProtectTooltipCopy(): TooltipContent {
 		plugins: fromScanPlugins,
 		themes: fromScanThemes,
 		num_threats: numThreats = 0,
-	} = scanData;
+	} = scanData || {};
 	const {
 		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
 		blocked_logins: blockedLoginsCount,
 		brute_force_protection: hasBruteForceProtection,
-	} = wafData;
+	} = wafData || {};
 
 	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
 	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
-
-	const isJetpackPluginActive = useMemo( () => {
-		const jetpackPlugin = Object.values( plugins ).find( plugin => plugin?.Name === 'Jetpack' );
-		return jetpackPlugin && jetpackPlugin.active;
-	}, [ plugins ] );
 
 	const settingsLink = useMemo( () => {
 		if ( isProtectPluginActive ) {
 			return 'admin.php?page=jetpack-protect#/firewall';
 		}
-		return isJetpackPluginActive ? 'admin.php?page=jetpack#/settings' : null;
-	}, [ isJetpackPluginActive, isProtectPluginActive ] );
+		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
+	}, [ isProtectPluginActive ] );
 
 	const trackFirewallSettingsLinkClick = useCallback( () => {
 		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
@@ -68,7 +64,7 @@ export function useProtectTooltipCopy(): TooltipContent {
 		} );
 	}, [ recordEvent, settingsLink ] );
 
-	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive;
+	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive();
 
 	const blockedLoginsTooltip = useMemo( () => {
 		if ( blockedLoginsCount === 0 ) {

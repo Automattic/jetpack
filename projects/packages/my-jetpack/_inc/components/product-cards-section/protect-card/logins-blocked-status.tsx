@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import { InfoTooltip } from './info-tooltip';
@@ -16,18 +16,12 @@ export const LoginsBlockedStatus = () => {
 	const { isSiteConnected } = useMyJetpackConnection();
 	const {
 		protect: { wafConfig: wafData },
-		plugins,
 	} = getMyJetpackWindowInitialState();
 	const { blocked_logins: blockedLoginsCount, brute_force_protection: hasBruteForceProtection } =
 		wafData || {};
 
-	const isJetpackPluginActive = useMemo( () => {
-		const jetpackPlugin = Object.values( plugins ).find( plugin => plugin?.Name === 'Jetpack' );
-		return jetpackPlugin && jetpackPlugin.active;
-	}, [ plugins ] );
-
 	// The Brute Force Protection module is available when either the Jetpack plugin Or the Protect plugin is active.
-	const isPluginActive = isProtectPluginActive || isJetpackPluginActive;
+	const isPluginActive = isProtectPluginActive || isJetpackPluginActive();
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasBruteForceProtection ) {
