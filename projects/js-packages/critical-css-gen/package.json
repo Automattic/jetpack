@@ -22,7 +22,8 @@
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"test": "jest tests"
 	},
-	"main": "./dist/bundle.js",
+	"main": "./lib/back-end.js",
+	"browser": "./dist/bundle.js",
 	"devDependencies": {
 		"@babel/core": "7.18.13",
 		"@babel/preset-env": "7.18.10",
@@ -61,10 +62,11 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/index.ts",
-			"types": "./lib/index.d.ts",
+			"types": "./lib/back-end.d.ts",
 			"browser": "./dist/bundle.js",
-			"import": "./dist/bundle.js",
-			"require": "./dist/bundle.js"
+			"import": "./lib/back-end.js",
+			"require": "./lib/back-end.js",
+			"default": "./lib/back-end.js"
 		}
 	},
 	"dependencies": {
