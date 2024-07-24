@@ -989,6 +989,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 						$updated = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
 					break;
+				case 'jetpack_subscriptions_from_name':
+					// If option value was the same, consider it done.
+					$sub_value = sanitize_text_field( $value );
+					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
+					break;
 
 				case 'stb_enabled':
 				case 'stc_enabled':
@@ -996,9 +1001,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'jetpack_subscribe_overlay_enabled':
 				case 'wpcom_newsletter_categories_enabled':
 				case 'wpcom_featured_image_in_email':
+				case 'jetpack_gravatar_in_email':
+				case 'jetpack_author_in_email':
+				case 'jetpack_post_date_in_email':
 				case 'wpcom_subscription_emails_use_excerpt':
 				case 'jetpack_subscriptions_subscribe_post_end_enabled':
 				case 'jetpack_subscriptions_login_navigation_enabled':
+				case 'jetpack_subscriptions_subscribe_navigation_enabled':
 					// Convert the false value to 0. This allows the option to be updated if it doesn't exist yet.
 					$sub_value = $value ? $value : 0;
 					$updated   = (string) get_option( $option ) !== (string) $sub_value ? update_option( $option, $sub_value ) : true;
@@ -1045,9 +1054,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$old_subscription_options = array();
 					}
 					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+					$updated                  = true;
 
-					if ( update_option( $option, $new_subscription_options ) ) {
-						$updated[ $option ] = true;
+					if ( serialize( $old_subscription_options ) === serialize( $new_subscription_options ) ) { // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
+						break; // This prevents the option update to fail when the values are the same.
+					}
+
+					if ( ! update_option( $option, $new_subscription_options ) ) {
+						$updated = false;
+						$error   = esc_html__( 'Subscription Options failed to process.', 'jetpack' );
 					}
 					break;
 

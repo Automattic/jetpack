@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Support eslint flat configs (`eslint.config.js`).

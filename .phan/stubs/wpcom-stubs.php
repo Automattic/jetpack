@@ -4,11 +4,19 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit d14f975fc8b120a790a897b70ea26e01b02feccf.
+ * Stubs automatically generated from WordPress.com commit e4bff119a0ef34bd626cc234b0f63e0ad9de74a6.
  */
 
 namespace {
+    \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
+    /**
+     * @param object $blog
+     * @return bool
+     */
+    function is_blog_wpcom($blog)
+    {
+    }
     /**
      * @param object $blog
      * @return bool
@@ -29,6 +37,20 @@ namespace {
      */
     function is_wpforteams_site($blog_id)
     {
+    }
+    /**
+     * @param  string $url
+     * @param  string $_locale
+     * @return string
+     */
+    function localized_wpcom_url($url, $the_locale = \null)
+    {
+    }
+    class WPCom_Languages
+    {
+        public static function localize_url($url, $the_locale = \null)
+        {
+        }
     }
     /**
      * @return bool
@@ -62,17 +84,6 @@ namespace {
         public static function find_featured_worthy_media($post)
         {
         }
-    }
-    /**
-     * @param string $id
-     * @param string $title
-     * @param string $callback
-     * @param string $page
-     * @param string $section
-     * @param array $args
-     */
-    function add_settings_field($id, $title, $callback, $page, $section = 'default', $args = array())
-    {
     }
     class Domain_Management
     {
@@ -114,6 +125,12 @@ namespace {
     function videopress_log($feature, $message, $docker_image_tag, $guid, $format, $job = \null, $additional_params = array())
     {
     }
+    class WPCOM_Billingdaddy
+    {
+        public static function store_product_slug_to_product_id(string $slug): ?int
+        {
+        }
+    }
     class WPCOM_Store_API
     {
         /**
@@ -146,6 +163,12 @@ namespace {
     class Store_Product_List
     {
         /**
+         * @return array
+         */
+        public static function get_from_cache()
+        {
+        }
+        /**
          * @param int $blog_id
          * @return array
          */
@@ -157,6 +180,17 @@ namespace {
         }
     }
     /**
+    * @return Store_Product|null
+    */
+    function get_store_product($product_id, $meta = \null, $currency = \null, $blog_id = \null, ?int $usage_quantity = \null, ?string $plan_id = \null)
+    {
+    }
+    class Store_Product
+    {
+        public $product_id;
+        public string $product_name;
+    }
+    /**
      * @property Store_Transaction $transaction
      * @property Store_Product $product
      * @property float $cost
@@ -164,9 +198,24 @@ namespace {
     class Store_Subscription
     {
         /**
+         * @var int|string
+         */
+        public $product_id = 0;
+        /**
+         * @var string
+         */
+        public $expiry = '0000-00-00 00:00:00';
+        /**
+         * @var string
+         */
+        public $subscribed_date = '0000-00-00 00:00:00';
+        /**
          * @var string|bool
          */
         public $meta = '';
+    }
+    function wpcom_plugins_display_marketplace()
+    {
     }
     function vary_cache_on_function($function)
     {
@@ -175,13 +224,6 @@ namespace {
     {
     }
     function global_css()
-    {
-    }
-    /**
-     * @param string $str
-     * @return string
-     */
-    function widont($str = '')
     {
     }
     class WPCOM_Google_Sheets_Helper
@@ -362,13 +404,6 @@ namespace {
     function get_memberships_settings_for_site($_blog_id, $type = \null, ?bool $is_editable = \null, $request_source = \null)
     {
     }
-    /**
-     * @param int|null $blog_id
-     * @return bool
-     */
-    function wpcom_is_nav_redesign_enabled($blog_id = \null)
-    {
-    }
     class OpenAI implements \A8C\Vectorize\Text_Embedding_Provider
     {
         public function __construct(string $feature, array $logstash_defaults = [])
@@ -377,7 +412,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text')
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null)
         {
         }
         /**
@@ -442,12 +477,6 @@ namespace {
     function wpcom_getimagesize($uri)
     {
     }
-    /**
-     * @param string $slug
-     */
-    function require_lib($slug)
-    {
-    }
     class WPCOM_Masterbar
     {
         static function get_calypso_site_slug($site_id)
@@ -480,6 +509,14 @@ namespace {
     function wpcom_is_vip($blog_id = \null)
     {
     }
+    /**
+     * @param string $stylesheet
+     * @param bool $ignore_partner_themes
+     * @return false
+     */
+    function wpcom_is_vip_theme($stylesheet = '', $ignore_partner_themes = \false)
+    {
+    }
     function wpcom_actionbar_enqueue_scripts()
     {
     }
@@ -495,6 +532,20 @@ namespace {
      * @return bool
      */
     function wpcom_is_automattic_p2_site($blog_id = \null)
+    {
+    }
+    /**
+     * @param string $stylesheet
+     * @return bool
+     */
+    function wpcom_is_a8c_theme($stylesheet = '')
+    {
+    }
+    /**
+     * @param $blog_id
+     * @return bool
+     */
+    function wpcom_is_wporg_jp_index($blog_id)
     {
     }
     /**
@@ -568,6 +619,13 @@ namespace {
         }
     }
     /**
+     * @param int $blog_id
+     * @return bool
+     */
+    function is_wpcom_public_coming_soon_enabled($blog_id)
+    {
+    }
+    /**
      * @param string $comment_content
      * @param WP_Comment|null $comment_object
      * @return string
@@ -604,6 +662,15 @@ namespace {
         {
         }
     }
+    class CustomDesign
+    {
+        /**
+         * @return bool
+         */
+        public static function is_upgrade_active(): bool
+        {
+        }
+    }
     class domains
     {
         static function get_domain_products()
@@ -621,7 +688,7 @@ namespace {
     {
     }
     /**
-     * @param int $blog_id
+     * @param null|string|int $blog_id
      * @return bool
      */
     function is_simple_site_redirect($blog_id = 0)
@@ -704,9 +771,6 @@ namespace {
     function wpcom_enhanced_excerpt_extract_excerpt($args)
     {
     }
-    function footercredits_register($wp_customize)
-    {
-    }
     class Jetpack_Sync_WPCOM_Shadow_Replicastore extends \Automattic\Jetpack\Sync\Replicastore
     {
     }
@@ -784,12 +848,6 @@ namespace {
      * @return string
      */
     function wpcom_logmein_redirect_url($url, $is_logged_in_wpcom = \false, $redirect_to = \null, $login_variation = \null, $blog_id = \null)
-    {
-    }
-    /**
-     * @param WP_Customize_Manager $wp_customize
-     */
-    function add_logotool_button($wp_customize)
     {
     }
     /**
@@ -1130,9 +1188,15 @@ namespace {
     function wpcom_get_blog_owner($blog_id = \null)
     {
     }
+    function add_blog_sticker($sticker, $notes = \NULL, $who = \NULL, $_blog_id = \NULL)
+    {
+    }
+    function remove_blog_sticker($sticker, $notes = \NULL, $who = \null, $_blog_id = \NULL)
+    {
+    }
     /**
      * @param string $sticker
-     * @param int|null $_blog_id
+     * @param null|string|int $_blog_id
      * @param bool $bust_the_cache
      * @return bool
      */
@@ -1141,53 +1205,11 @@ namespace {
     }
     /**
      * @param string[] $stickers
-     * @param int|null $_blog_id
+     * @param null|string|int $_blog_id
      * @param bool $bust_the_cache
      * @return bool
      */
     function has_any_blog_stickers(array $stickers, $_blog_id = \NULL, $bust_the_cache = \false)
-    {
-    }
-    class WPCOM_Features
-    {
-        public const ATOMIC = 'atomic';
-        public const EMAIL_SUBSCRIPTION = 'email-subscription';
-        public const INSTALL_PLUGINS = 'install-plugins';
-        public const LEGACY_CONTACT = 'legacy-contact';
-        public const LOCKED_MODE = 'locked-mode';
-        public const MANAGE_PLUGINS = 'manage-plugins';
-        public const SCHEDULED_UPDATES = 'scheduled-updates';
-        public const SUBSCRIPTION_GIFTING = 'subscription-gifting';
-    }
-    /**
-     * @param string $feature
-     * @param int $blog_id
-     * @return bool
-     */
-    function wpcom_site_has_feature($feature, $blog_id = 0)
-    {
-    }
-    /**
-     * @throws Error
-     * @param int $blog_id
-     * @return array
-     */
-    function wpcom_get_site_purchases($blog_id = 0)
-    {
-    }
-    /**
-     * @param Store_Subscription|object $purchase
-     * @param string $feature
-     * @return bool
-     */
-    function wpcom_purchase_has_feature($purchase, $feature)
-    {
-    }
-    /**
-     * @param string $feature
-     * @return bool
-     */
-    function wpcom_feature_exists($feature)
     {
     }
     /**
@@ -1208,6 +1230,20 @@ namespace {
     {
     }
     function wpcom_load_theme_compat_file()
+    {
+    }
+    /**
+     * @param string $stylesheet
+     * @return bool
+     */
+    function wpcom_is_pub_theme($stylesheet = '')
+    {
+    }
+    /**
+     * @param string $stylesheet
+     * @return bool
+     */
+    function wpcom_is_premium_theme($stylesheet = '')
     {
     }
     class Jetpack_Fonts_Typekit
@@ -1248,14 +1284,6 @@ namespace {
         }
     }
     function wp_kses_reject($content, $rejected_item = \false, $is_attribute = \false)
-    {
-    }
-    /**
-     * @param string $option_group
-     * @param string $option_name
-     * @param array $args
-     */
-    function register_setting($option_group, $option_name, $args = array())
     {
     }
     /**
@@ -1449,6 +1477,9 @@ namespace WPCOM\Jetpack_AI\Usage {
         {
         }
         public static function get_costs()
+        {
+        }
+        public static function get_upgrade_url($blog_id)
         {
         }
     }

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -10,6 +9,13 @@ import askQuestionSync from '../../ask-question/sync.js';
 import requestJwt from '../../jwt/index.js';
 
 const debug = debugFactory( 'ai-client:use-image-generator' );
+
+/**
+ * The type of the response from the image generation API.
+ */
+type ImageGenerationResponse = {
+	data: Array< { [ key: string ]: string } >;
+};
 
 /**
  * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
@@ -144,10 +150,48 @@ const getStableDiffusionImageGenerationPrompt = async (
 	 */
 	const data = await askQuestionSync( prompt, { feature } );
 
-	return data.choices?.[ 0 ]?.message?.content;
+	return data;
 };
 
 const useImageGenerator = () => {
+	const executeImageGeneration = async function (
+		parameters: object
+	): Promise< ImageGenerationResponse > {
+		let token = '';
+
+		try {
+			token = ( await requestJwt() ).token;
+		} catch ( error ) {
+			debug( 'Error getting token: %o', error );
+			return Promise.reject( error );
+		}
+
+		try {
+			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
+
+			const headers = {
+				Authorization: `Bearer ${ token }`,
+				'Content-Type': 'application/json',
+			};
+
+			const data = await fetch( URL, {
+				method: 'POST',
+				headers,
+				body: JSON.stringify( parameters ),
+			} ).then( response => response.json() );
+
+			if ( data?.data?.status && data?.data?.status > 200 ) {
+				debug( 'Error generating image: %o', data );
+				return Promise.reject( data );
+			}
+
+			return data as ImageGenerationResponse;
+		} catch ( error ) {
+			debug( 'Error generating image: %o', error );
+			return Promise.reject( error );
+		}
+	};
+
 	const generateImageWithStableDiffusion = async function ( {
 		feature,
 		postContent,
@@ -156,16 +200,7 @@ const useImageGenerator = () => {
 		feature: string;
 		postContent: string;
 		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = null;
-
-		try {
-			token = await requestJwt();
-		} catch ( error ) {
-			debug( 'Error getting token: %o', error );
-			return Promise.reject( error );
-		}
-
+	} ): Promise< ImageGenerationResponse > {
 		try {
 			debug( 'Generating image with Stable Diffusion' );
 
@@ -175,59 +210,15 @@ const useImageGenerator = () => {
 				feature
 			);
 
-			const data = {
+			const parameters = {
 				prompt,
+				feature,
+				model: 'stable-diffusion',
 				style: 'photographic',
-				token: token.token,
-				width: 1024,
-				height: 768,
 			};
 
-			const response = await fetch(
-				`https://public-api.wordpress.com/wpcom/v2/sites/${ token.blogId }/ai-image`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( data ),
-				}
-			);
-
-			if ( ! response?.ok ) {
-				debug( 'Error generating image: %o', response );
-				return Promise.reject( {
-					data: {
-						status: response.status,
-					},
-					message: __( 'Error generating image. Please try again later.', 'jetpack-ai-client' ),
-				} );
-			}
-
-			const blob = await response.blob();
-
-			/**
-			 * Convert the blob to base64 to keep the same format as the Dalle API.
-			 */
-			const base64 = await new Promise( ( resolve, reject ) => {
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					const base64data = reader.result as string;
-					return resolve( base64data.replace( /^data:image\/(png|jpg);base64,/, '' ) );
-				};
-				reader.onerror = reject;
-				reader.readAsDataURL( blob );
-			} );
-
-			// Return the Dalle API format
-			return {
-				data: [
-					{
-						b64_json: base64 as string,
-						revised_prompt: prompt,
-					},
-				],
-			};
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
@@ -244,47 +235,21 @@ const useImageGenerator = () => {
 		postContent: string;
 		responseFormat?: 'url' | 'b64_json';
 		userPrompt?: string;
-	} ): Promise< { data: Array< { [ key: string ]: string } > } > {
-		let token = '';
-
-		try {
-			token = ( await requestJwt() ).token;
-		} catch ( error ) {
-			debug( 'Error getting token: %o', error );
-			return Promise.reject( error );
-		}
-
+	} ): Promise< ImageGenerationResponse > {
 		try {
 			debug( 'Generating image' );
 
 			const imageGenerationPrompt = getDalleImageGenerationPrompt( postContent, userPrompt );
 
-			const URL = 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-image';
-
-			const body = {
+			const parameters = {
 				prompt: imageGenerationPrompt,
 				response_format: responseFormat,
 				feature,
 				size: '1792x1024',
 			};
 
-			const headers = {
-				Authorization: `Bearer ${ token }`,
-				'Content-Type': 'application/json',
-			};
-
-			const data = await fetch( URL, {
-				method: 'POST',
-				headers,
-				body: JSON.stringify( body ),
-			} ).then( response => response.json() );
-
-			if ( data?.data?.status && data?.data?.status > 200 ) {
-				debug( 'Error generating image: %o', data );
-				return Promise.reject( data );
-			}
-
-			return data as { data: { [ key: string ]: string }[] };
+			const data: ImageGenerationResponse = await executeImageGeneration( parameters );
+			return data;
 		} catch ( error ) {
 			debug( 'Error generating image: %o', error );
 			return Promise.reject( error );
@@ -294,6 +259,7 @@ const useImageGenerator = () => {
 	return {
 		generateImage,
 		generateImageWithStableDiffusion,
+		generateImageWithParameters: executeImageGeneration,
 	};
 };
 

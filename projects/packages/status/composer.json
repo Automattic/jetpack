@@ -12,7 +12,6 @@
 		"yoast/phpunit-polyfills": "1.1.0",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
-		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-plans": "@dev",
 		"automattic/jetpack-ip": "@dev"
 	},
@@ -50,12 +49,11 @@
 			"link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.1.x-dev"
+			"dev-trunk": "3.3.x-dev"
 		},
 		"dependencies": {
 			"test-only": [
 				"packages/connection",
-				"packages/identity-crisis",
 				"packages/plans"
 			]
 		}

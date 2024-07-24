@@ -11,7 +11,7 @@ import {
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { useState } from 'react';
 import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
@@ -40,7 +40,7 @@ const QuickActions = ( {
 	const { canPerformAction } = usePermission();
 
 	return (
-		<div className={ classnames( styles[ 'video-card__quick-actions-section' ], className ) }>
+		<div className={ clsx( styles[ 'video-card__quick-actions-section' ], className ) }>
 			<Button
 				variant="primary"
 				size="small"
@@ -95,7 +95,7 @@ export const VideoCard = ( {
 	return (
 		<>
 			<div
-				className={ classnames( styles[ 'video-card__wrapper' ], {
+				className={ clsx( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
 					[ styles.disabled ]: isSm || disabled,
 				} ) }
@@ -156,7 +156,7 @@ export const VideoCard = ( {
 					<QuickActions
 						id={ id }
 						onVideoDetailsClick={ onVideoDetailsClick }
-						className={ classnames( {
+						className={ clsx( {
 							[ styles[ 'is-blank' ] ]: loading,
 						} ) }
 					/>

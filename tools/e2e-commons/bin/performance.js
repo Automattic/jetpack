@@ -1,8 +1,8 @@
+import { spawn } from 'child_process';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { URL } from 'url';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { spawn } from 'child_process';
-import _ from 'lodash';
+import { mergeWith, isArray } from 'lodash';
 import { prerequisitesBuilder } from '../env/prerequisites.js';
 import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
 
@@ -19,12 +19,19 @@ if ( ! existsSync( resultsPath ) ) {
 	throw new Error( `Could not find results directory at ${ resultsPath }` );
 }
 
+/**
+ * Reset environment.
+ */
 function envReset() {
 	console.log( execSyncShellCommand( 'pwd' ) );
 	execSyncShellCommand( 'pnpm env:reset' );
 	execSyncShellCommand( 'pnpm tunnel:reset' );
 }
 
+/**
+ * Setup environment.
+ * @param {string} type - Test suite being run.
+ */
 async function envSetup( type ) {
 	if ( type === 'base' ) {
 		await execWpCommand( 'plugin deactivate jetpack' );
@@ -38,6 +45,11 @@ async function envSetup( type ) {
 	);
 }
 
+/**
+ * Run tests.
+ * @param {string} type - Test suite to run.
+ * @param {number} round - Run number.
+ */
 async function runTests( type, round ) {
 	await execShellCommand( 'npm', [ 'run', 'test:performance', '--', 'post-editor.spec.js' ], {
 		cwd: gutenbergPath,
@@ -50,6 +62,11 @@ async function runTests( type, round ) {
 	} );
 }
 
+/**
+ * Setup environment and run tests.
+ * @param {string} type - Test suite to run.
+ * @param {number} round - Run number.
+ */
 async function testRun( type, round ) {
 	console.log( `Starting test run #${ round } for ${ type }` );
 	envReset();
@@ -58,6 +75,9 @@ async function testRun( type, round ) {
 	console.log( `Finished test run #${ round } for ${ type }` );
 }
 
+/**
+ * Main.
+ */
 async function main() {
 	for ( let i = 0; i < testRounds; i++ ) {
 		await testRun( 'base', i );
@@ -65,6 +85,14 @@ async function main() {
 	}
 }
 
+/**
+ * Merge performance results for all test runs.
+ *
+ * Merges the `${ type }.${ i }.performance-results.json` files into
+ * `${ type }.performance-results.json`.
+ *
+ * @param {string} type - Test suite name.
+ */
 function mergeResults( type ) {
 	const objs = [];
 	for ( let i = 0; i < testRounds; i++ ) {
@@ -76,8 +104,8 @@ function mergeResults( type ) {
 		objs.push( JSON.parse( readFileSync( file ) ) );
 	}
 
-	const out = _.mergeWith( {}, ...objs, ( objValue, srcValue ) => {
-		if ( _.isArray( objValue ) ) {
+	const out = mergeWith( {}, ...objs, ( objValue, srcValue ) => {
+		if ( isArray( objValue ) ) {
 			return objValue.concat( srcValue );
 		}
 	} );
@@ -88,6 +116,12 @@ function mergeResults( type ) {
 	);
 }
 
+/**
+ * Exec a shell command.
+ * @param {string} command - command
+ * @param {string[]} args - args
+ * @param {options} options - Options, see child_process.spawn
+ */
 function execShellCommand( command, args, options ) {
 	return new Promise( ( resolve, reject ) => {
 		const childProcess = spawn( command, args, options );

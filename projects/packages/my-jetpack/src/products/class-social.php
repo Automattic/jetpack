@@ -1,6 +1,6 @@
 <?php
 /**
- * Search product
+ * Jetpack Social product
  *
  * @package my-jetpack
  */
@@ -141,7 +141,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_wpcom_product_slug() {
-		return 'jetpack_social_basic_yearly';
+		return 'jetpack_social_v1_yearly';
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Social extends Hybrid_Product {
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
 		if ( ( new Host() )->is_woa_site() ) {

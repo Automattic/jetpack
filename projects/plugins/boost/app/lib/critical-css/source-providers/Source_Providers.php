@@ -116,6 +116,12 @@ class Source_Providers {
 	public function get_provider_sources() {
 		$sources = array();
 
+		$wp_core_provider_urls = WP_Core_Provider::get_critical_source_urls();
+		$flat_wp_core_urls     = array();
+		foreach ( $wp_core_provider_urls as $urls ) {
+			$flat_wp_core_urls = array_merge( $flat_wp_core_urls, $urls );
+		}
+
 		foreach ( $this->get_providers() as $provider ) {
 			$provider_name = $provider::get_provider_name();
 
@@ -125,6 +131,17 @@ class Source_Providers {
 				if ( empty( $urls ) ) {
 					continue;
 				}
+
+				// This removes the home and blog pages from the list of pages,
+				// so they don't belong to two separate groups.
+				if ( $provider !== WP_Core_Provider::class ) {
+					$urls = array_values( array_diff( $urls, $flat_wp_core_urls ) );
+				}
+
+				if ( empty( $urls ) ) {
+					continue;
+				}
+
 				$key = $provider_name . '_' . $group;
 
 				// For each URL
@@ -132,6 +149,13 @@ class Source_Providers {
 				$sources[] = array(
 					'key'           => $key,
 					'label'         => $provider::describe_key( $key ),
+					/**
+					 * Filters the URLs used by Critical CSS
+					 *
+					 * @param array $urls The list of URLs to be used to generate critical CSS
+					 *
+					 * @since   1.0.0
+					 */
 					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);

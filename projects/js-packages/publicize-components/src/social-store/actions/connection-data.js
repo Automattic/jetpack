@@ -5,13 +5,18 @@ import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	ADD_CONNECTION,
-	CREATING_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
+	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
+	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
+	REQUEST_TYPE_REFRESH_CONNECTIONS,
+	ADD_ABORT_CONTROLLER,
+	REMOVE_ABORT_CONTROLLERS,
 } from './constants';
 
 /**
@@ -23,6 +28,20 @@ export function setConnections( connections ) {
 	return {
 		type: SET_CONNECTIONS,
 		connections,
+	};
+}
+
+/**
+ * Set keyring result
+ *
+ * @param {import('../types').KeyringResult} [keyringResult] - keyring result
+ *
+ * @returns {object} - an action object.
+ */
+export function setKeyringResult( keyringResult ) {
+	return {
+		type: SET_KEYRING_RESULT,
+		keyringResult,
 	};
 }
 
@@ -82,12 +101,71 @@ export function mergeConnections( freshConnections ) {
 				...defaults,
 				...prevConnection,
 				...freshConnection,
+				shared: prevConnection?.shared,
 				is_healthy: freshConnection.test_success,
 			};
 			connections.push( connection );
 		}
 		dispatch( setConnections( connections ) );
 	};
+}
+
+/**
+ * Create an abort controller.
+ * @param {AbortController} abortController - Abort controller.
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {object} - an action object.
+ */
+export function createAbortController( abortController, requestType ) {
+	return {
+		type: ADD_ABORT_CONTROLLER,
+		requestType,
+		abortController,
+	};
+}
+
+/**
+ * Remove abort controllers.
+ *
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {object} - an action object.
+ */
+export function removeAbortControllers( requestType ) {
+	return {
+		type: REMOVE_ABORT_CONTROLLERS,
+		requestType,
+	};
+}
+
+/**
+ * Abort a request.
+ *
+ * @param {string} requestType - Type of abort request.
+ *
+ * @returns {Function} - a function to abort a request.
+ */
+export function abortRequest( requestType ) {
+	return function ( { dispatch, select } ) {
+		const abortControllers = select.getAbortControllers( requestType );
+
+		for ( const controller of abortControllers ) {
+			controller.abort();
+		}
+
+		// Remove the abort controllers.
+		dispatch( removeAbortControllers( requestType ) );
+	};
+}
+
+/**
+ * Abort the refresh connections request.
+ *
+ * @returns {Function} - a function to abort a request.
+ */
+export function abortRefreshConnectionsRequest() {
+	return abortRequest( REQUEST_TYPE_REFRESH_CONNECTIONS );
 }
 
 /**
@@ -101,7 +179,20 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 		try {
 			const path = select.connectionRefreshPath() || '/wpcom/v2/publicize/connection-test-results';
 
-			const freshConnections = await apiFetch( { path } );
+			// Wait until all connections are done updating/deleting.
+			while (
+				select.getUpdatingConnections().length > 0 ||
+				select.getDeletingConnections().length > 0
+			) {
+				await new Promise( resolve => setTimeout( resolve, 100 ) );
+			}
+
+			const abortController = new AbortController();
+
+			dispatch( createAbortController( abortController, REQUEST_TYPE_REFRESH_CONNECTIONS ) );
+
+			// Pass the abort controller signal to the fetch request.
+			const freshConnections = await apiFetch( { path, signal: abortController.signal } );
 
 			dispatch( mergeConnections( freshConnections ) );
 
@@ -109,7 +200,11 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 				dispatch( syncConnectionsToPostMeta() );
 			}
 		} catch ( e ) {
-			// Do nothing.
+			// If the request was aborted.
+			if ( 'AbortError' === e.name ) {
+				// Fire it again to run after the current operation that cancelled the request.
+				dispatch( refreshConnectionTestResults( syncToMeta ) );
+			}
 		}
 	};
 }
@@ -178,33 +273,23 @@ export function deletingConnection( connectionId, deleting = true ) {
 }
 
 /**
- * Whether a connection is being created.
- *
- * @param {boolean} creating - Whether the connection is being creating.
- * @returns {object} Creating connection action.
- */
-export function creatingConnection( creating = true ) {
-	return {
-		type: CREATING_CONNECTION,
-		creating,
-	};
-}
-
-/**
  * Deletes a connection by disconnecting it.
  *
  * @param {object} args - Arguments.
  * @param {string | number} args.connectionId - Connection ID to delete.
  * @param {boolean} [args.showSuccessNotice] - Whether to show a success notice.
  *
- * @returns {void}
+ * @returns {boolean} Whether the connection was deleted.
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
-	return async function ( { dispatch } ) {
+	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
 
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
 
 			dispatch( deletingConnection( connectionId ) );
 
@@ -218,6 +303,13 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 					isDismissible: true,
 				} );
 			}
+
+			// If we are on post editor, sync the connections to the post meta.
+			if ( registry.select( editorStore ).getCurrentPostId() ) {
+				dispatch( syncConnectionsToPostMeta() );
+			}
+
+			return true;
 		} catch ( error ) {
 			let message = __( 'Error disconnecting account.', 'jetpack' );
 
@@ -229,38 +321,54 @@ export function deleteConnectionById( { connectionId, showSuccessNotice = true }
 		} finally {
 			dispatch( deletingConnection( connectionId, false ) );
 		}
+
+		return false;
 	};
 }
+
+let uniqueId = 1;
 
 /**
  * Creates a connection.
  *
  * @param {Record<string, any>} data - The data for API call.
+ * @param {Record<string, any>} optimisticData - Optimistic data for the connection.
  * @returns {void}
  */
-export function createConnection( data ) {
-	return async function ( { dispatch } ) {
+export function createConnection( data, optimisticData = {} ) {
+	return async function ( { registry, dispatch } ) {
 		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+
+		const tempId = `new-${ ++uniqueId }`;
 
 		try {
 			const path = `/jetpack/v4/social/connections/`;
 
-			dispatch( creatingConnection() );
+			dispatch(
+				addConnection( {
+					connection_id: tempId,
+					...optimisticData,
+				} )
+			);
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
 
+			// Mark the connection as updating to show the spinner.
+			dispatch( updatingConnection( tempId ) );
+
+			/**
+			 * @type {import('../types').Connection}
+			 */
 			const connection = await apiFetch( { method: 'POST', path, data } );
 
 			if ( connection ) {
 				dispatch(
-					addConnection( {
+					// Updating the connection will also override the connection_id.
+					updateConnection( tempId, {
 						...connection,
-						// TODO fix this messy data structure
-						connection_id: connection.ID.toString(),
-						display_name: connection.external_display,
-						service_name: connection.service,
-						external_id: connection.external_ID,
-						profile_link: connection.external_profile_URL,
-						profile_picture: connection.external_profile_picture,
 						can_disconnect: true,
+						// For editor, we always enable the connection by default.
+						enabled: true,
 					} )
 				);
 
@@ -275,6 +383,11 @@ export function createConnection( data ) {
 						isDismissible: true,
 					}
 				);
+
+				// If we are on post editor, sync the connections to the post meta.
+				if ( registry.select( editorStore ).getCurrentPostId() ) {
+					dispatch( syncConnectionsToPostMeta() );
+				}
 			}
 		} catch ( error ) {
 			let message = __( 'Error connecting account.', 'jetpack' );
@@ -285,7 +398,9 @@ export function createConnection( data ) {
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
-			dispatch( creatingConnection( false ) );
+			dispatch( updatingConnection( tempId, false ) );
+			// If the connection was not created, delete it.
+			dispatch( deleteConnection( tempId ) );
 		}
 	};
 }
@@ -323,6 +438,20 @@ export function updatingConnection( connectionId, updating = true ) {
 }
 
 /**
+ * Sets the reconnecting account.
+ *
+ * @param {string} reconnectingAccount - Account being reconnected.
+ *
+ * @returns {object} Reconnecting account action.
+ */
+export function setReconnectingAccount( reconnectingAccount ) {
+	return {
+		type: SET_RECONNECTING_ACCOUNT,
+		reconnectingAccount,
+	};
+}
+
+/**
  * Updates a connection.
  *
  * @param {string} connectionId - Connection ID to update.
@@ -337,6 +466,9 @@ export function updateConnectionById( connectionId, data ) {
 
 		try {
 			const path = `/jetpack/v4/social/connections/${ connectionId }`;
+
+			// Abort the refresh connections request.
+			dispatch( abortRefreshConnectionsRequest() );
 
 			// Optimistically update the connection.
 			dispatch( updateConnection( connectionId, data ) );
@@ -366,4 +498,35 @@ export function updateConnectionById( connectionId, data ) {
 			dispatch( updatingConnection( connectionId, false ) );
 		}
 	};
+}
+
+/**
+ * Toggles the connections modal.
+ *
+ * @param {boolean} isOpen - Whether the modal is open.
+ *
+ * @returns {object} - An action object.
+ */
+export function toggleConnectionsModal( isOpen ) {
+	return {
+		type: TOGGLE_CONNECTIONS_MODAL,
+		isOpen,
+	};
+}
+
+/**
+ * Opens the connections modal.
+ *
+ * @returns {object} - An action object.
+ */
+export function openConnectionsModal() {
+	return toggleConnectionsModal( true );
+}
+
+/**
+ * Closes the connections modal.
+ * @returns {object} - An action object.
+ */
+export function closeConnectionsModal() {
+	return toggleConnectionsModal( false );
 }

@@ -1,5 +1,5 @@
 import { Icon } from '@wordpress/icons';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
@@ -154,17 +154,15 @@ export class Banner extends Component {
 				</div>
 				{ callToAction && (
 					<div className="dops-banner__action">
-						{ callToAction && (
-							<Button
-								rna={ rna }
-								compact
-								href={ this.getHref() }
-								onClick={ this.handleClick }
-								primary
-							>
-								{ callToAction }
-							</Button>
-						) }
+						<Button
+							rna={ rna }
+							compact
+							href={ this.getHref() }
+							onClick={ this.handleClick }
+							primary
+						>
+							{ callToAction }
+						</Button>
 					</div>
 				) }
 			</div>
@@ -177,7 +175,7 @@ export class Banner extends Component {
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
 
-		const classes = classNames(
+		const classes = clsx(
 			'dops-banner',
 			className,
 			{ 'has-call-to-action': callToAction },

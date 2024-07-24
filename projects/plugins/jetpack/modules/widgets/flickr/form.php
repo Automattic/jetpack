@@ -2,12 +2,11 @@
 /**
  * Jetpack_Flickr_Widget settings form output.
  *
+ * @html-template Jetpack_Flickr_Widget::form
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Flickr_Widget $this';
-'@phan-var-force array $instance';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 <p>

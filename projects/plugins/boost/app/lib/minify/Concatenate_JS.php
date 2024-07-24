@@ -34,6 +34,13 @@ class Concatenate_JS extends WP_Scripts {
 		}
 
 		$this->dependency_path_mapping = new Dependency_Path_Mapping(
+			/**
+			 * Filter the URL of the site the plugin will be concatenating CSS or JS on
+			 *
+			 * @param bool $url URL of the page with CSS or JS to concatonate.
+			 *
+			 * @since   1.0.0
+			 */
 			apply_filters( 'page_optimize_site_url', $this->base_url )
 		);
 	}
@@ -64,7 +71,14 @@ class Concatenate_JS extends WP_Scripts {
 	public function do_items( $handles = false, $group = false ) {
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$javascripts = array();
-		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
+		/**
+		 * Filter the URL of the site the plugin will be concatenating CSS or JS on
+		 *
+		 * @param bool $url URL of the page with CSS or JS to concatonate.
+		 *
+		 * @since   1.0.0
+		 */
+		$siteurl = apply_filters( 'page_optimize_site_url', $this->base_url );
 		$this->all_deps( $handles );
 		$level = 0;
 
@@ -174,12 +188,27 @@ class Concatenate_JS extends WP_Scripts {
 				}
 			}
 
-			// Allow plugins to disable concatenation of certain scripts.
+			/**
+			 * Filter that allows plugins to disable concatenation of certain scripts.
+			 *
+			 * @param bool $do_concat if true, then perform concatenation
+			 * @param string $handle handle to JS file
+			 *
+			 * @since   1.0.0
+			 */
 			if ( $do_concat && ! apply_filters( 'js_do_concat', $do_concat, $handle ) ) {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					printf( "\n<!-- No Concat JS %s => Filtered `false` -->\n", esc_html( $handle ) );
 				}
 			}
+			/**
+			 * Filter that allows plugins to disable concatenation of certain scripts.
+			 *
+			 * @param bool $do_concat if true, then perform concatenation
+			 * @param string $handle handle to JS file
+			 *
+			 * @since   1.0.0
+			 */
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
 
 			if ( true === $do_concat ) {
@@ -271,10 +300,20 @@ class Concatenate_JS extends WP_Scripts {
 					}
 
 					if ( is_array( $js_array['handles'] ) && count( $js_array['handles'] ) === 1 ) {
-						// Because we have a single script, let's apply the `script_loader_tag` filter as core does in `do_item()`.
-						// That way, we interfere less with plugin and theme script filtering. For example, without this filter,
-						// there is a case where we block the TwentyTwenty theme from adding async/defer attributes.
-						// https://github.com/Automattic/page-optimize/pull/44
+						/**
+						 * Filters the HTML script tag of an enqueued script
+						 * A copy of the core filter of the same name. https://developer.wordpress.org/reference/hooks/script_loader_tag/
+						 * Because we have a single script, let's apply the `script_loader_tag` filter as core does in `do_item()`.
+						 * That way, we interfere less with plugin and theme script filtering. For example, without this filter,
+						 * there is a case where we block the TwentyTwenty theme from adding async/defer attributes.
+						 * https://github.com/Automattic/page-optimize/pull/44
+						 *
+						 * @param string $tag Script tag for the enqueued script.
+						 * @param string $handle The script's registered handle.
+						 * @param string $href URL of the script.
+						 *
+						 * @since   1.0.0
+						 */
 						$tag = apply_filters( 'script_loader_tag', $tag, $js_array['handles'][0], $href );
 					}
 

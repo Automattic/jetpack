@@ -1,5 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import chalk from 'chalk';
 import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
@@ -59,6 +60,11 @@ function cliLink( options ) {
 
 	linker.run().catch( err => {
 		console.error( err );
+		if ( ! options.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }
@@ -94,6 +100,11 @@ function cliUnlink( options ) {
 
 	unlinker.run().catch( err => {
 		console.error( err );
+		if ( ! options.v ) {
+			console.error(
+				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
+			);
+		}
 		process.exit( err.exitCode || 1 );
 	} );
 }

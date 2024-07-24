@@ -119,7 +119,11 @@ class Media extends React.Component {
 								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
 								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
 								onChange={ this.togglePrivacySetting }
-								label={ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+									</span>
+								}
 							/>
 						</FormFieldset>
 					</>

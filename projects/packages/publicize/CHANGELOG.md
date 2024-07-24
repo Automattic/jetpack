@@ -5,6 +5,73 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.47.3] - 2024-07-15
+### Added
+- Mastodon: display a Fediverse Creator tag when the post author has connected their account to a Mastodon account. [#38198]
+
+### Changed
+- Social: Removed unnecessary feature checks for social connections [#38216]
+
+## [0.47.2] - 2024-07-08
+### Fixed
+- Social | Fixed the permissions for update and disconnection connections endpoints [#38187]
+
+## [0.47.1] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.47.0] - 2024-07-01
+### Removed
+- Removed share as a social post toggle [#37964]
+
+### Fixed
+- Ensured that connections are only fetched once per request [#38080]
+
+## [0.46.3] - 2024-06-26
+### Added
+- Added social preview for Threads [#38003]
+
+## [0.46.2] - 2024-06-24
+### Added
+- Added Social resharing for classic editor [#37810]
+
+### Changed
+- Removed unneeded check for connection management wpcom [#37899]
+
+### Fixed
+- Added support for Threads for Social connections [#37977]
+
+## [0.46.1] - 2024-06-17
+### Fixed
+- Fixed connections management links for classic editor [#37681]
+
+## [0.46.0] - 2024-06-13
+### Changed
+- Changed the social-product-info endpoint to return v1 plan [#36846]
+
+## [0.45.2] - 2024-06-05
+### Added
+- Publicize: Package version update [#37683]
+
+### Changed
+- Updated package dependencies. [#37669]
+
+## [0.45.1] - 2024-06-03
+### Changed
+- Social: Update upgrade nudges to use the new plan. [#37638]
+
+## [0.45.0] - 2024-05-27
+### Changed
+- Added external_id to connections field. [#37405]
+- Changed how social connections are cached by moving to using transients. [#37500]
+- Moved "can_manage_connection" method to Publicize_Base class. [#37532]
+- Fixed no connections UI for editor. [#37571]
+- Updated the connection test results endpoint for front-end. [#37531]
+- Standardized the rest endpoint structure for Jetpack social connections. [#37510]
+
+### Fixed
+- Disconnect button was not showing for connections in the editor. [#37501]
+
 ## [0.44.1] - 2024-05-20
 ### Changed
 - Changed the connections management feature flag check to include the WP.com plan feature. [#37425]
@@ -558,6 +625,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.47.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.2...v0.47.3
+[0.47.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.1...v0.47.2
+[0.47.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.3...v0.47.0
+[0.46.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.2...v0.46.3
+[0.46.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.1...v0.46.2
+[0.46.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.46.0...v0.46.1
+[0.46.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.2...v0.46.0
+[0.45.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.1...v0.45.2
+[0.45.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.1...v0.45.0
 [0.44.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.0...v0.44.1
 [0.44.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.13...v0.43.0

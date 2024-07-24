@@ -7,8 +7,50 @@ declare module '*.scss';
 // These libraries don't have types, this suppresses the TypeScript errors
 declare module '@wordpress/components';
 declare module '@wordpress/compose';
-declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
+declare module '@automattic/jetpack-connection';
+
+type JetpackModule =
+	| 'anti-spam'
+	| 'backup'
+	| 'boost'
+	| 'crm'
+	| 'creator'
+	| 'extras'
+	| 'jetpack-ai'
+	| 'scan'
+	| 'search'
+	| 'social'
+	| 'security'
+	| 'protect'
+	| 'videopress'
+	| 'stats';
+
+type ThreatItem = {
+	// Protect API properties (free plan)
+	id: string;
+	title: string;
+	fixed_in: string;
+	description: string | null;
+	source: string | null;
+	// Scan API properties (paid plan)
+	context: string | null;
+	filename: string | null;
+	first_detected: string | null;
+	fixable: boolean | null;
+	severity: number | null;
+	signature: string | null;
+	status: number | null;
+};
+
+type ScanItem = {
+	checked: boolean;
+	name: string;
+	slug: string;
+	threats: ThreatItem[];
+	type: string;
+	version: string;
+};
 
 interface Window {
 	myJetpackInitialState?: {
@@ -43,9 +85,16 @@ interface Window {
 			videoPressStats: boolean;
 		};
 		lifecycleStats: {
+			historicallyActiveModules: JetpackModule[];
+			brokenModules: {
+				needs_site_connection: JetpackModule[];
+				needs_user_connection: JetpackModule[];
+			};
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
+			ownedProducts: JetpackModule[];
+			unownedProducts: JetpackModule[];
 			modules: Array< string >;
 			purchases: Array< string >;
 		};
@@ -79,8 +128,6 @@ interface Window {
 					features: string[];
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
-					has_required_plan: boolean;
-					has_required_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
 					is_upgradable_by_bundle: string[];
@@ -122,6 +169,39 @@ interface Window {
 					title: string;
 					wpcom_product_slug: string;
 				};
+			};
+		};
+		protect: {
+			scanData: {
+				core: ScanItem;
+				current_progress?: string;
+				data_source: string;
+				database: string[];
+				error: boolean;
+				error_code?: string;
+				error_message?: string;
+				files: string[];
+				has_unchecked_items: boolean;
+				last_checked: string;
+				num_plugins_threats: number;
+				num_themes_threats: number;
+				num_threats: number;
+				plugins: ScanItem[];
+				status: string;
+				themes: ScanItem[];
+			};
+			wafConfig: {
+				automatic_rules_available: boolean;
+				blocked_logins: number;
+				bootstrap_path: string;
+				brute_force_protection: boolean;
+				jetpack_waf_automatic_rules: '1' | '';
+				jetpack_waf_ip_allow_list: '1' | '';
+				jetpack_waf_ip_block_list: boolean;
+				jetpack_waf_ip_list: boolean;
+				jetpack_waf_share_data: '1' | '';
+				jetpack_waf_share_debug_data: boolean;
+				standalone_mode: boolean;
 			};
 		};
 		purchases: {
@@ -197,7 +277,10 @@ interface Window {
 			} >;
 		};
 		redBubbleAlerts: {
-			'missing-site-connection'?: null;
+			'missing-connection'?: {
+				type: string;
+				is_error: boolean;
+			};
 			'welcome-banner-active'?: null;
 			[ key: `${ string }-bad-installation` ]: {
 				data: {
@@ -205,7 +288,23 @@ interface Window {
 				};
 			};
 		};
+		themes: {
+			[ key: string ]: {
+				Author: string;
+				Name: string;
+				RequiresPHP: string;
+				RequiresWP: string;
+				Status: string;
+				Template: string;
+				TextDomain: string;
+				ThemeURI: string;
+				Version: string;
+				active: boolean;
+				is_block_theme: boolean;
+			};
+		};
 		topJetpackMenuItemUrl: string;
+		isAtomic: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

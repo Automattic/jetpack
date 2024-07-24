@@ -1,7 +1,3 @@
-// Note if you change something here, you'll have to make a package.json mismatch pnpm-lock.yaml to
-// get it re-run. An easy way to do that is to just edit pnpm-lock.yaml to change the version number
-// of husky near the top.
-
 /**
  * Fix package dependencies.
  *
@@ -11,19 +7,21 @@
  * @returns {object} Modified pkg.
  */
 function fixDeps( pkg ) {
-	// Outdated dep. Already fixed upstream, just waiting on a release.
-	// https://github.com/Automattic/wp-calypso/pull/87350
-	if (
-		pkg.name === '@automattic/social-previews' &&
-		pkg.dependencies?.[ '@wordpress/components' ] === '^26.0.1'
-	) {
-		pkg.dependencies[ '@wordpress/components' ] = '>=26.0.1';
+	// Deps tend to get outdated due to a slow release cycle.
+	// So change `^` to `>=` and hope any breaking changes will not really break.
+	if ( pkg.name === '@automattic/social-previews' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) && ver.startsWith( '^' ) ) {
+				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+			}
+		}
 	}
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
+	// https://github.com/WordPress/gutenberg/issues/62250
 	if (
-		pkg.name === '@wordpress/icons' &&
+		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/primitives' ) &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -76,6 +74,12 @@ function fixDeps( pkg ) {
 	// No upstream bug link yet.
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	}
+
+	// Outdated dependency. And it doesn't really use it in our configuration anyway.
+	// No upstream bug link yet.
+	if ( pkg.name === 'rollup-plugin-svelte-svg' && pkg.dependencies.svgo === '^2.3.1' ) {
+		pkg.dependencies.svgo = '*';
 	}
 
 	// Missing dep or peer dep on @babel/runtime
@@ -145,6 +149,15 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
+	// It assumes hoisting to find its plugins. Sigh. Add peer deps for the plugins we use.
+	// https://github.com/ai/size-limit/issues/366
+	if ( pkg.name === 'size-limit' ) {
+		pkg.peerDependencies ??= {};
+		pkg.peerDependencies[ '@size-limit/preset-app' ] = '*';
+		pkg.peerDependenciesMeta ??= {};
+		pkg.peerDependenciesMeta[ '@size-limit/preset-app' ] = { optional: true };
+	}
+
 	return pkg;
 }
 
@@ -177,15 +190,6 @@ function afterAllResolved( lockfile ) {
 		return lockfile;
 	}
 
-	for ( const [ k, v ] of Object.entries( lockfile.packages ) ) {
-		// Forbid installing webpack without webpack-cli. It results in lots of spurious lockfile changes.
-		// https://github.com/pnpm/pnpm/issues/3935
-		if ( k.startsWith( '/webpack/' ) && ! v.dependencies[ 'webpack-cli' ] ) {
-			throw new Error(
-				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report."
-			);
-		}
-	}
 	return lockfile;
 }
 

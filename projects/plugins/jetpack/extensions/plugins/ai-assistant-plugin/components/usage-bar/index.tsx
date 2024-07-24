@@ -5,7 +5,7 @@ import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { BaseControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import React from 'react';
 /**
  * Internal dependencies
@@ -43,7 +43,7 @@ export const UsageBar = ( { usage }: UsageBarProps ): React.JSX.Element => {
 	return (
 		<div className="ai-assistant-usage-bar-wrapper">
 			<div
-				className={ classNames( 'ai-assistant-usage-bar-usage', {
+				className={ clsx( 'ai-assistant-usage-bar-usage', {
 					warning: missing < 60 && missing > 20,
 					danger: missing <= 20,
 				} ) }

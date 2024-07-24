@@ -71,7 +71,7 @@ class PHP_Autoloader {
 	public static function load_class( $class_name ) {
 		global $jetpack_autoloader_loader;
 		if ( ! isset( $jetpack_autoloader_loader ) ) {
-			return;
+			return false;
 		}
 
 		$file = $jetpack_autoloader_loader->find_class_file( $class_name );

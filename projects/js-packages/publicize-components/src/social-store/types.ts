@@ -7,7 +7,7 @@ export type SharesData = {
 	shared_posts_count: number;
 };
 
-export type ConnectionStatus = 'ok' | 'must_reauth' | 'invalid' | 'broken' | 'refresh-failed';
+export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
 	id: string;
@@ -43,7 +43,8 @@ export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
 	updatingConnections?: Array< number | string >;
-	creatingConnection?: boolean;
+	reconnectingAccount?: string;
+	keyringResult?: KeyringResult;
 };
 
 export type JetpackSettings = {

@@ -1,10 +1,15 @@
-import { __ } from '@wordpress/i18n';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
+import { SupportedService } from '../services/use-supported-services';
 import { Disconnect } from './disconnect';
+import { Reconnect } from './reconnect';
 
 export type ConnectionStatusProps = {
 	connection: Connection;
-	onReconnect?: VoidFunction;
+	service: SupportedService;
 };
 
 /**
@@ -14,30 +19,35 @@ export type ConnectionStatusProps = {
  *
  * @returns {import('react').ReactNode} - React element
  */
-export function ConnectionStatus( { connection, onReconnect }: ConnectionStatusProps ) {
-	if ( connection.status === undefined || connection.status === 'ok' ) {
+export function ConnectionStatus( { connection, service }: ConnectionStatusProps ) {
+	if ( connection.status !== 'broken' ) {
 		return null;
-	}
-
-	let notice = __( 'There is an issue with this connection.', 'jetpack' );
-
-	if ( connection.status === 'refresh-failed' ) {
-		notice = __( 'The connection seems to have expired.', 'jetpack' );
 	}
 
 	return (
 		<div>
-			<span className="description">{ notice }</span>
+			<span className="description">
+				{ service
+					? __( 'There is an issue with this connection.', 'jetpack' )
+					: createInterpolateElement(
+							sprintf(
+								'%1$s %2$s',
+								__( 'This platform is no longer supported.', 'jetpack' ),
+								__( 'You can use our <link>Manual Sharing</link> feature instead.', 'jetpack' )
+							),
+							{
+								link: (
+									<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) } />
+								),
+							}
+					  ) }
+			</span>
 			&nbsp;
-			<Disconnect
-				connection={ connection }
-				label={ __( 'Reconnect', 'jetpack' ) }
-				showSuccessNotice={ false }
-				onDisconnect={ onReconnect }
-				variant="link"
-				isDestructive={ false }
-				showConfirmation={ false }
-			/>
+			{ service ? (
+				<Reconnect connection={ connection } service={ service } />
+			) : (
+				<Disconnect connection={ connection } variant="link" isDestructive={ false } />
+			) }
 		</div>
 	);
 }

@@ -2,7 +2,7 @@ import { InspectorControls, RichText, useBlockProps } from '@wordpress/block-edi
 import { PanelBody, RangeControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import ColorEdit from './color-edit';
 import getColorAndStyleProps from './color-props';
 
@@ -44,14 +44,13 @@ function LoginButtonEdit( props ) {
 
 	return (
 		<>
-			{ /* eslint-disable-next-line wpcalypso/jsx-classname-namespace */ }
 			<div { ...blockProps }>
 				<RichText
 					placeholder={ __( 'Add text…', 'jetpack' ) }
 					value={ text }
 					onChange={ value => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
-					className={ classnames( className, 'wp-block-button__link', colorProps.className, {
+					className={ clsx( className, 'wp-block-button__link', colorProps.className, {
 						'no-border-radius': borderRadius === 0,
 					} ) }
 					style={ {

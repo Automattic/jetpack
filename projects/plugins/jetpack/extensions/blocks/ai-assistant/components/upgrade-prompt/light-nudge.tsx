@@ -11,12 +11,13 @@ export const LightNudge = ( {
 	goToCheckoutPage = null,
 	isRedirecting = false,
 	showButton = true,
+	target = '_top',
 } ) => {
 	const redirectingText = __( 'Redirecting…', 'jetpack' );
 
 	return (
 		<div className="jetpack-upgrade-plan-banner-light">
-			<Notice status="warning" isDismissible={ false }>
+			<Notice status="error" isDismissible={ false }>
 				<p>
 					{ title && <strong>{ title }</strong> }
 					{ description }{ ' ' }
@@ -25,7 +26,7 @@ export const LightNudge = ( {
 							href={ isRedirecting ? null : checkoutUrl } // Only for server-side rendering, since onClick doesn't work there.
 							onClick={ goToCheckoutPage }
 							variant="link"
-							target="_top"
+							target={ target }
 						>
 							{ isRedirecting ? redirectingText : buttonText }
 						</Button>

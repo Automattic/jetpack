@@ -185,6 +185,7 @@ class Settings {
 		$settings['useAdminUiV1'] = false;
 
 		$settings['is_publicize_enabled'] = false;
+		$settings['hasPaidFeatures']      = false;
 
 		$connection = new Manager();
 
@@ -197,13 +198,14 @@ class Settings {
 			);
 
 			$settings['is_publicize_enabled'] = true;
+			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
 		} else {
 			$settings['connectionData'] = array(
 				'connections' => array(),
 			);
 		}
 
-		$settings['connectionRefreshPath'] = '/jetpack/v4/publicize/connection-test-results';
+		$settings['connectionRefreshPath'] = ! empty( $settings['useAdminUiV1'] ) ? 'jetpack/v4/publicize/connections?test_connections=1' : '/jetpack/v4/publicize/connection-test-results';
 
 		return $settings;
 	}

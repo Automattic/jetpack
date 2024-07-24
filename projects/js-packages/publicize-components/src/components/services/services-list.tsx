@@ -1,22 +1,16 @@
 import { useSelect } from '@wordpress/data';
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { ServiceItem, ServicesItemProps } from './service-item';
+import { ServiceItem } from './service-item';
 import styles from './style.module.scss';
-import { SupportedService, useSupportedServices } from './use-supported-services';
-
-type ServicesListProps = Pick< ServicesItemProps, 'onConfirm' > & {
-	defaultExpandedService?: SupportedService;
-};
+import { useSupportedServices } from './use-supported-services';
 
 /**
  * Services list component
  *
- * @param {ServicesListProps} props - Component props
- *
  * @returns {import('react').ReactNode} Services list component
  */
-export function ServicesList( { onConfirm, defaultExpandedService }: ServicesListProps ) {
+export function ServicesList() {
 	const supportedServices = useSupportedServices();
 
 	const connections = useSelect( select => {
@@ -37,12 +31,7 @@ export function ServicesList( { onConfirm, defaultExpandedService }: ServicesLis
 		<ul className={ styles.services }>
 			{ supportedServices.map( service => (
 				<li key={ service.ID } className={ styles[ 'service-list-item' ] }>
-					<ServiceItem
-						service={ service }
-						onConfirm={ onConfirm }
-						initialOpenPanel={ service.ID === defaultExpandedService?.ID }
-						serviceConnections={ connections[ service.ID ] || [] }
-					/>
+					<ServiceItem service={ service } serviceConnections={ connections[ service.ID ] || [] } />
 				</li>
 			) ) }
 		</ul>

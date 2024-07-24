@@ -109,26 +109,28 @@ class Jetpack_Subscribe_Overlay {
 	 * @return string
 	 */
 	public function get_subscribe_overlay_template_content() {
-		$site_tagline    = get_bloginfo( 'description' );
-		$default_tagline = __( 'Stay informed with curated content and the latest headlines, all delivered straight to your inbox. Subscribe now to stay ahead and never miss a beat!', 'jetpack' );
-		$tagline_block   = empty( $site_tagline )
+		$home_url         = get_home_url();
+		$site_tagline     = get_bloginfo( 'description' );
+		$default_tagline  = __( 'Stay informed with curated content and the latest headlines, all delivered straight to your inbox. Subscribe now to stay ahead and never miss a beat!', 'jetpack' );
+		$tagline_block    = empty( $site_tagline )
 			? '<!-- wp:paragraph {"align":"center","fontSize":"medium"} --><p class="has-text-align-center has-medium-font-size">' . $default_tagline . '</p><!-- /wp:paragraph -->'
 			: '<!-- wp:site-tagline {"textAlign":"center","fontSize":"medium"} /-->';
-		$skip_to_content = __( 'Skip to content', 'jetpack' );
+		$skip_to_content  = __( 'Skip to content', 'jetpack' );
+		$group_block_name = esc_attr__( 'Subscribe overlay container', 'jetpack' );
 
 		return <<<HTML
-	<!-- wp:group {"style":{"spacing":"padding":{"right":"0","left":"0","top":"0","bottom":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
+	<!-- wp:group {"metadata":{"name":"$group_block_name"},"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"0","right":"0"}}},"layout":{"type":"constrained","contentSize":"400px"}} -->
 	<div class="wp-block-group" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
 		<!-- wp:site-logo {"width":90,"isLink":false,"shouldSyncIcon":true,"align":"center","className":"is-style-rounded"} /-->
-	
+
 		<!-- wp:site-title {"textAlign":"center","isLink":false,"fontSize":"x-large"} /-->
 
 		$tagline_block
 
-		<!-- wp:jetpack/subscriptions /-->
+		<!-- wp:jetpack/subscriptions {"appSource":"subscribe-overlay"} /-->
 
 		<!-- wp:paragraph {"align":"center","className":"jetpack-subscribe-overlay__to-content"} -->
-		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="#">$skip_to_content ↓</a></p>
+		<p class="has-text-align-center jetpack-subscribe-overlay__to-content"><a href="$home_url">$skip_to_content ↓</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->

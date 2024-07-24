@@ -8,13 +8,14 @@ import { useNavigate } from 'react-router-dom';
 
 type UpgradeCTAProps = {
 	description: string;
+	identifier: string;
 };
 
-const UpgradeCTA = ( { description }: UpgradeCTAProps ) => {
+const UpgradeCTA = ( { description, identifier }: UpgradeCTAProps ) => {
 	const navigate = useNavigate();
 
 	const showBenefits = () => {
-		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', {} );
+		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', { identifier } );
 		navigate( '/upgrade' );
 	};
 

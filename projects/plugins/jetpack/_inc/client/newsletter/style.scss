@@ -2,9 +2,11 @@
 	0% {
 		overflow: hidden;
 	}
+
 	99% {
 		overflow: hidden;
 	}
+
 	100% {
 		overflow: unset;
 	}
@@ -14,43 +16,127 @@
 	0% {
 		overflow: unset;
 	}
+
 	1% {
 		overflow: hidden;
 	}
+
 	100% {
 		overflow: hidden;
 	}
 }
-  
+
 .newsletter-colapsable {
 	grid-template-rows: 1fr;
 	transition: grid-template-rows 500ms;
 	display: grid;
 	position: relative;
+
 	.tree-dropdown {
 		animation: categories-slide-down 500ms;
 		overflow: unset;
 	}
+
 	&.hide {
 		.tree-dropdown {
 			animation: categories-slide-up 500ms;
 			overflow: hidden;
 		}
+
 		grid-template-rows: 0fr;
-    }
+	}
 }
 
 .newsletter-card-colapsable {
-    transition: max-height 500ms;
-    max-height: 60px;
-        
-    &.hide {
-        max-height: 0px;
-        overflow: hidden;
-    }
+	transition: max-height 500ms;
+	max-height: 60px;
+
+	&.hide {
+		max-height: 0px;
+		overflow: hidden;
+	}
 }
 
 .newsletter-categories-toggle-wrapper {
 	display: flex;
 	margin-bottom: 16px;
+}
+
+.jp-form-settings-group.newsletter-group .sender-name {
+	--vertical-gutter: 8px;
+}
+
+.sender-name-example {
+	font-size: var(--font-body-small);
+	color: var(--jp-gray-20);
+	margin-top: 8px;
+}
+
+#jp-settings-subscriptions .jp-form-fieldset:not(:first-of-type) {
+	margin-top: 24px;
+}
+
+.byline-preview {
+	display: inline-flex;
+	align-items: center;
+	flex-flow: row;
+	margin-bottom: 24px;
+	padding: 16px;
+	background-color: var(--jp-gray-0);
+}
+
+.byline-preview__label {
+	height: 24px;
+	line-height: 24px;
+	margin-right: 8px;
+}
+
+.byline-preview__gravatar {
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	margin: 0 8px 0 0;
+}
+
+.email-settings__help-info {
+	margin-left: 60px;
+	margin-bottom: 12px;
+	margin-top: -12px;
+	color: #747474;
+	padding-right: 48px;
+}
+
+.jp-settings-container .email-settings__help-info a.components-button {
+	text-decoration: none;
+}
+
+.jp-settings-container .email-settings__help-info a.components-button.is-link {
+	text-decoration: underline;
+}
+
+.email-settings__gravatar-help-info {
+	display: flex;
+	align-items: center;
+}
+
+.email-settings__gravatar {
+	position: relative;
+	margin-right: -48px;
+}
+.jp-form-settings-group .email-settings__gravatar .jp-support-info {
+	top: 3px;
+}
+.email-settings__gravatar-image {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+	margin-right: 16px;
+}
+
+.email-settings__gravatar-help-text {
+	margin-bottom: 8px;
+}
+
+#jp-settings-subscriptions .dops-textarea {
+	field-sizing: content;
 }

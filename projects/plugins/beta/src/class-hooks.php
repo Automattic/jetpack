@@ -21,16 +21,16 @@ class Hooks {
 	/**
 	 * Singleton class instance.
 	 *
-	 * @var static
+	 * @var self
 	 */
-	protected static $instance = null;
+	private static $instance = null;
 
 	/**
 	 * Previous error handler.
 	 *
-	 * @var callable
+	 * @var callable|null
 	 */
-	protected static $prev_error_handler = null;
+	private static $prev_error_handler = null;
 
 	/**
 	 * Main Instance
@@ -90,6 +90,7 @@ class Hooks {
 			unset( $transient->no_update[ $dev ] );
 
 			// If the dev version is active, populate it into the transient.
+			// (no need to care about mu-plugins here, they can't be updated in the normal way)
 			if ( is_plugin_active( $dev ) ) {
 				list( $response, $no_update ) = Plugin::get_plugin( dirname( $nondev ) )->dev_upgrader_response();
 				if ( $response ) {
@@ -300,7 +301,7 @@ class Hooks {
 
 		// Initialize the WP_Filesystem API.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, '', array() );
 		if ( ! WP_Filesystem( $creds ) ) {
 			// Any problems and we exit.
 			return;
@@ -312,7 +313,7 @@ class Hooks {
 
 		// Delete dev plugin dirs.
 		foreach ( $plugins as $plugin ) {
-			$working_dir = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_slug();
+			$working_dir = dirname( $plugin->dev_plugin_path() );
 			if ( $wp_filesystem->is_dir( $working_dir ) ) {
 				$wp_filesystem->delete( $working_dir, true );
 			}
@@ -334,9 +335,11 @@ class Hooks {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		// If no managed plugins are active, we don't want to display anything.
+		// Assume any mu-plugins will have a corresponding <slug>-loader.php, and there isn't any weirdness about having a mu-plugin loader named the same as a non-mu-plugin.
+		// (We don't want to actually create Plugin objects here to avoid unnecessary network fetches, even though they're cached).
 		$any = array();
 		foreach ( Plugin::get_plugin_file_map() as $nondev => $dev ) {
-			if ( is_plugin_active( $nondev ) || is_plugin_active( $dev ) ) {
+			if ( is_plugin_active( $nondev ) || is_plugin_active( $dev ) || file_exists( WPMU_PLUGIN_DIR . '/' . dirname( $nondev ) . '-loader.php' ) ) {
 				$any = true;
 				break;
 			}
@@ -369,11 +372,11 @@ class Hooks {
 			$wp_admin_bar->add_node( $args );
 		}
 		foreach ( $plugins as $slug => $plugin ) {
-			if ( is_plugin_active( $plugin->plugin_file() ) ) {
+			if ( $plugin->is_active( 'stable' ) ) {
 				$is_dev   = false;
 				$version  = $plugin->stable_pretty_version();
 				$dev_info = null;
-			} elseif ( is_plugin_active( $plugin->dev_plugin_file() ) ) {
+			} elseif ( $plugin->is_active( 'dev' ) ) {
 				$is_dev   = true;
 				$any_dev  = true;
 				$version  = $plugin->dev_pretty_version();
@@ -504,8 +507,8 @@ class Hooks {
 	/**
 	 * Builds and sends an email about succesfull plugin autoupdate.
 	 *
-	 * @param Array  $plugins - List of plugins that were updated.
-	 * @param String $log     - Upgrade message from core's plugin upgrader.
+	 * @param array    $plugins - List of plugins that were updated.
+	 * @param string[] $log     - Upgrade message from core's plugin upgrader.
 	 */
 	private static function send_autoupdate_email( $plugins, $log ) {
 		$admin_email = get_site_option( 'admin_email' );
@@ -545,7 +548,7 @@ class Hooks {
 				continue;
 			}
 
-			$file     = WP_PLUGIN_DIR . '/' . $plugin->dev_plugin_file();
+			$file     = $plugin->dev_plugin_path();
 			$tmp      = get_plugin_data( $file, false, false );
 			$message .= sprintf(
 				$fmt,

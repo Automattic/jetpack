@@ -121,13 +121,13 @@ const recommendationsRoutes = [
 	'/recommendations/welcome-search',
 	'/recommendations/welcome-scan',
 	'/recommendations/welcome-social-basic',
-	'/recommendations/welcome-social-advanced',
+	'/recommendations/welcome-social-v1',
 	'/recommendations/welcome-social-image-generator',
 	'/recommendations/welcome-golden-token',
 	'/recommendations/backup-activated',
 	'/recommendations/scan-activated',
 	'/recommendations/unlimited-sharing-activated',
-	'/recommendations/social-advanced-activated',
+	'/recommendations/social-v1-activated',
 	'/recommendations/antispam-activated',
 	'/recommendations/videopress-activated',
 	'/recommendations/search-activated',
@@ -485,7 +485,6 @@ class Main extends React.Component {
 					See: https://www.scottohara.me/blog/2019/01/12/lists-and-safari.html
 					*/ }
 					<ul role="list">
-						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
@@ -599,12 +598,12 @@ class Main extends React.Component {
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
 			case '/recommendations/welcome-social-basic':
-			case '/recommendations/welcome-social-advanced':
+			case '/recommendations/welcome-social-v1':
 			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/unlimited-sharing-activated':
-			case '/recommendations/social-advanced-activated':
+			case '/recommendations/social-v1-activated':
 			case '/recommendations/welcome-social-image-generator':
 			case '/recommendations/antispam-activated':
 			case '/recommendations/videopress-activated':
@@ -628,7 +627,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite ) {
+		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );

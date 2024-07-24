@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Calypsoify;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status;
 
 /**
@@ -14,12 +15,12 @@ use Automattic\Jetpack\Status;
  */
 class Jetpack_Calypsoify {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.2';
 
 	/**
 	 * Singleton instance of `Jetpack_Calypsoify`.
 	 *
-	 * @var object
+	 * @var self|false
 	 */
 	public static $instance = false;
 
@@ -68,11 +69,16 @@ class Jetpack_Calypsoify {
 	 */
 	public function enqueue_for_gutenberg() {
 		$site_suffix = ( new Status() )->get_site_suffix();
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'build/style-gutenberg.css', false, self::PACKAGE_VERSION );
-		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-		wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
 
-		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'build/mods-gutenberg.js', array( 'jquery' ), self::PACKAGE_VERSION, false );
+		Assets::register_script(
+			'calypsoify_wpadminmods_js',
+			'../dist/index.js',
+			__FILE__,
+			array(
+				'enqueue' => true,
+			)
+		);
+
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
 			'calypsoifyGutenberg',
@@ -211,5 +217,3 @@ class Jetpack_Calypsoify {
 		// phpcs:enable
 	}
 }
-
-Jetpack_Calypsoify::get_instance();

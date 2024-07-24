@@ -22,6 +22,13 @@ class Debug {
 
 		$debug = $script_debug || $manual_debug_mode;
 
+		/**
+		 * Filter debug status on/off
+		 *
+		 * @param bool $debug_status enable or disable debug mode.
+		 *
+		 * @since   1.0.0
+		 */
 		return apply_filters( 'jetpack_boost_debug', $debug );
 	}
 }

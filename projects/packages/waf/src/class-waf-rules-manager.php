@@ -24,11 +24,19 @@ class Waf_Rules_Manager {
 	// WAF Options
 	const VERSION_OPTION_NAME                      = 'jetpack_waf_rules_version';
 	const AUTOMATIC_RULES_ENABLED_OPTION_NAME      = 'jetpack_waf_automatic_rules';
-	const IP_LISTS_ENABLED_OPTION_NAME             = 'jetpack_waf_ip_list';
 	const IP_ALLOW_LIST_OPTION_NAME                = 'jetpack_waf_ip_allow_list';
+	const IP_ALLOW_LIST_ENABLED_OPTION_NAME        = 'jetpack_waf_ip_allow_list_enabled';
 	const IP_BLOCK_LIST_OPTION_NAME                = 'jetpack_waf_ip_block_list';
+	const IP_BLOCK_LIST_ENABLED_OPTION_NAME        = 'jetpack_waf_ip_block_list_enabled';
 	const RULE_LAST_UPDATED_OPTION_NAME            = 'jetpack_waf_last_updated_timestamp';
 	const AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_automatic_rules_last_updated_timestamp';
+
+	/**
+	 * IP Lists Enabled Option Name
+	 *
+	 * @deprecated $next-version$ Use Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME and Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME instead.
+	 */
+	const IP_LISTS_ENABLED_OPTION_NAME = 'jetpack_waf_ip_list';
 
 	// Rule Files
 	const RULES_ENTRYPOINT_FILE = '/rules/rules.php';
@@ -45,10 +53,12 @@ class Waf_Rules_Manager {
 		// Re-activate the WAF any time an option is added or updated.
 		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_ALLOW_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_BLOCK_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		// Register the cron job.
@@ -74,11 +84,6 @@ class Waf_Rules_Manager {
 	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_cron() {
-		Waf_Constants::define_mode();
-		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return new WP_Error( 'waf_invalid_mode', 'Invalid firewall mode.' );
-		}
-
 		try {
 			self::generate_automatic_rules();
 			self::generate_ip_rules();
@@ -115,10 +120,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function update_rules_if_changed() {
-		Waf_Constants::define_mode();
-		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			throw new Waf_Exception( 'Invalid firewall mode.' );
-		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			self::generate_automatic_rules();
@@ -213,9 +214,13 @@ class Waf_Rules_Manager {
 			}
 		}
 
-		// Add manual rules
-		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
+		// Add IP allow list
+		if ( get_option( self::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) ) {
 			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
+		}
+
+		// Add IP block list
+		if ( get_option( self::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) ) {
 			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 

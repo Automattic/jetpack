@@ -2,7 +2,6 @@
 	&.foldable-element-control {
 		color: var( --primary-black );
 		font-size: 16px;
-		margin-bottom: 24px;
 	}
 }
 
@@ -27,6 +26,16 @@
 	animation-name: fadeIn;
 }
 
-.expanded {
-	margin-bottom: 24px;
+.expanded p {
+	padding-top: 1em;
+	padding-bottom: 1em;
+	margin: 0 !important;
+}
+
+.expanded p:last-child {
+	padding-bottom: 0;
+}
+
+.foldable-element-control {
+	font-weight: 600;
 }

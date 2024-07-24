@@ -1,24 +1,13 @@
 import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
-import cs from 'classnames';
+import clsx from 'clsx';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
-
-export const PRODUCT_STATUSES = {
-	ACTIVE: 'active',
-	INACTIVE: 'inactive',
-	MODULE_DISABLED: 'module_disabled',
-	ERROR: 'error',
-	ABSENT: 'plugin_absent',
-	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
-	NEEDS_PURCHASE: 'needs_purchase',
-	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
-	CAN_UPGRADE: 'can_upgrade',
-};
 
 const ActionButton = ( {
 	status,
@@ -37,6 +26,7 @@ const ActionButton = ( {
 	onInstall,
 	onLearnMore,
 	upgradeInInterstitial,
+	isOwned,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
 	const [ currentAction, setCurrentAction ] = useState( {} );
@@ -54,6 +44,8 @@ const ActionButton = ( {
 		return {
 			variant: ! isBusy ? 'primary' : undefined,
 			disabled: isBusy,
+			size: 'small',
+			weight: 'regular',
 			className,
 		};
 	}, [ isBusy, className ] );
@@ -65,9 +57,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onLearnMore,
 					...( primaryActionOverride &&
@@ -80,9 +70,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: '',
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onInstall,
 					...( primaryActionOverride &&
@@ -90,18 +78,32 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ] ),
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE: {
+			// The site or user have never been connected before and the connection is required
+			case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: __( 'Learn more', 'jetpack-my-jetpack' ),
 					onClick: onAdd,
 					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PURCHASE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE ] ),
+						PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ] ),
+				};
+			case PRODUCT_STATUSES.NEEDS_PLAN: {
+				const getPlanText = __( 'Get plan', 'jetpack-my-jetpack' );
+				const learnMoreText = __( 'Learn more', 'jetpack-my-jetpack' );
+				const buttonText = isOwned ? getPlanText : learnMoreText;
+
+				return {
+					...buttonState,
+					href: purchaseUrl || `#/add-${ slug }`,
+					variant: 'primary',
+					label: buttonText,
+					onClick: onAdd,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.NEEDS_PLAN in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PLAN ] ),
 				};
 			}
 			case PRODUCT_STATUSES.CAN_UPGRADE: {
@@ -112,9 +114,7 @@ const ActionButton = ( {
 				return {
 					...buttonState,
 					href: purchaseUrl || `#/add-${ slug }`,
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onAdd,
 					...( primaryActionOverride &&
@@ -122,19 +122,6 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.CAN_UPGRADE ] ),
 				};
 			}
-			case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
-				return {
-					...buttonState,
-					href: `#/add-${ slug }`,
-					size: 'small',
-					variant: 'primary',
-					weight: 'regular',
-					label: __( 'Learn more', 'jetpack-my-jetpack' ),
-					onClick: onAdd,
-					...( primaryActionOverride &&
-						PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ] ),
-				};
 			case PRODUCT_STATUSES.ACTIVE: {
 				const buttonText = __( 'View', 'jetpack-my-jetpack' );
 
@@ -142,9 +129,7 @@ const ActionButton = ( {
 					...buttonState,
 					disabled: isManageDisabled || buttonState?.disabled,
 					href: manageUrl,
-					size: 'small',
 					variant: 'secondary',
-					weight: 'regular',
 					label: buttonText,
 					onClick: onManage,
 					...( primaryActionOverride &&
@@ -152,27 +137,34 @@ const ActionButton = ( {
 						primaryActionOverride[ PRODUCT_STATUSES.ACTIVE ] ),
 				};
 			}
-			case PRODUCT_STATUSES.ERROR:
+			case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 				return {
 					...buttonState,
 					href: '#/connection',
-					size: 'small',
 					variant: 'primary',
-					weight: 'regular',
-					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
+					label: __( 'Connect', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
 						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
 						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
 				};
+			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
+				return {
+					href: '#/connection',
+					variant: 'primary',
+					label: __( 'Connect', 'jetpack-my-jetpack' ),
+					onClick: onFixConnection,
+					...( primaryActionOverride &&
+						PRODUCT_STATUSES.USER_CONNECTION_ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ] ),
+				};
 			case PRODUCT_STATUSES.INACTIVE:
 			case PRODUCT_STATUSES.MODULE_DISABLED:
+			case PRODUCT_STATUSES.NEEDS_ACTIVATION:
 				return {
 					...buttonState,
 					href: '',
-					size: 'small',
 					variant: 'secondary',
-					weight: 'regular',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
 					...( primaryActionOverride &&
@@ -197,6 +189,7 @@ const ActionButton = ( {
 		manageUrl,
 		onManage,
 		primaryActionOverride,
+		isOwned,
 	] );
 
 	const allActions = useMemo(
@@ -282,7 +275,7 @@ const ActionButton = ( {
 	return (
 		<>
 			<div
-				className={ cs(
+				className={ clsx(
 					styles[ 'action-button' ],
 					hasAdditionalActions ? styles[ 'has-additional-actions' ] : null
 				) }
@@ -292,7 +285,7 @@ const ActionButton = ( {
 				</Button>
 				{ hasAdditionalActions && (
 					<button
-						className={ cs(
+						className={ clsx(
 							styles[ 'dropdown-chevron' ],
 							currentAction.variant === 'primary' ? styles.primary : styles.secondary
 						) }

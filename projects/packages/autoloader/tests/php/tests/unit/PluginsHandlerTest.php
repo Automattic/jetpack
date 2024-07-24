@@ -105,9 +105,11 @@ class PluginsHandlerTest extends TestCase {
 		$jetpack_autoloader_activating_plugins_paths = array( WP_PLUGIN_DIR . '/plugin_activating' );
 		$this->plugin_locator->expects( $this->exactly( 2 ) )
 			->method( 'find_using_option' )
-			->withConsecutive(
-				array( 'active_plugins', false ),
-				array( 'active_sitewide_plugins', true )
+			->with(
+				...with_consecutive(
+					array( 'active_plugins', false ),
+					array( 'active_sitewide_plugins', true )
+				)
 			)
 			->willReturnOnConsecutiveCalls(
 				array( WP_PLUGIN_DIR . '/dummy_current' ),
@@ -230,9 +232,11 @@ class PluginsHandlerTest extends TestCase {
 			->willReturn( array( WP_PLUGIN_DIR . '/dummy_newer' ) );
 		$this->plugin_locator->expects( $this->exactly( 2 ) )
 			->method( 'find_using_request_action' )
-			->withConsecutive(
-				array( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) ),
-				array( array( 'deactivate', 'deactivate-selected' ) )
+			->with(
+				...with_consecutive(
+					array( array( 'activate', 'activate-selected', 'deactivate', 'deactivate-selected' ) ),
+					array( array( 'deactivate', 'deactivate-selected' ) )
+				)
 			)
 			->willReturnOnConsecutiveCalls(
 				array( WP_PLUGIN_DIR . '/dummy_dev' ),

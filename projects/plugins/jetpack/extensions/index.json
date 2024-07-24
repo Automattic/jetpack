@@ -50,7 +50,6 @@
 		"payments-intro",
 		"post-publish-qr-post-panel",
 		"payment-buttons",
-		"site-editor-snackbars",
 		"videopress/video",
 		"ai-assistant-support",
 		"ai-assistant-form-support",
@@ -67,7 +66,9 @@
 		"goodreads",
 		"voice-to-content",
 		"ai-featured-image-generator",
-		"ai-title-optimization"
+		"ai-title-optimization",
+		"ai-assistant-experimental-image-generation-support",
+		"ai-general-purpose-image-generator"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -76,9 +77,9 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-logo-generator",
 		"ai-assistant-extensions-support",
-		"ai-assistant-experimental-image-generation-support"
+		"ai-proofread-breve",
+		"ai-assistant-site-logo-support"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

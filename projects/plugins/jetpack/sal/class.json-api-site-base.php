@@ -417,6 +417,13 @@ abstract class SAL_Site {
 	abstract public function is_deleted();
 
 	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_a4a_client();
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.
@@ -953,6 +960,8 @@ abstract class SAL_Site {
 			'view_stats'          => stats_is_blog_user( $this->blog_id ),
 			'activate_plugins'    => $this->current_user_can( 'activate_plugins' ),
 			'update_plugins'      => $this->current_user_can( 'update_plugins' ),
+			'export'              => $this->current_user_can( 'export' ),
+			'import'              => $this->current_user_can( 'import' ),
 		);
 	}
 
@@ -1348,15 +1357,19 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Returns the 'siteGoals' option if set (eg. share, promote, educate, sell, showcase), null otherwise.
+	 * Returns the 'site_goals' option if set (eg. share, promote, educate, sell, showcase).
 	 *
-	 * @return string|null
+	 * @return array
 	 **/
 	public function get_site_goals() {
-		$options = get_option( 'options' );
-		return empty( $options['siteGoals'] ) ? null : $options['siteGoals'];
-	}
+		$site_goals_option = get_option( 'site_goals' );
 
+		if ( is_array( $site_goals_option ) ) {
+			return $site_goals_option;
+		}
+
+		return array();
+	}
 	/**
 	 * Return site's launch status. Expanded in class.json-api-site-jetpack.php.
 	 *
@@ -1479,6 +1492,15 @@ abstract class SAL_Site {
 	 */
 	public function get_launchpad_screen() {
 		return get_option( 'launchpad_screen' );
+	}
+
+	/**
+	 * Get the option onboarding_segment coming from the Guided Flow
+	 *
+	 * @return string
+	 */
+	public function get_onboarding_segment() {
+		return get_option( 'onboarding_segment', '' );
 	}
 
 	/**

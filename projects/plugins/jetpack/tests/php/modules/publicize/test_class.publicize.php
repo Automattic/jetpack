@@ -81,38 +81,36 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->user_id = self::factory()->user->create();
 		wp_set_current_user( $this->user_id );
 
-		Jetpack_Options::update_options(
-			array(
-				'publicize_connections' => array(
-					// Normally connected facebook.
-					'facebook' => array(
-						'id_number' => array(
-							'connection_data' => array(
-								'user_id'  => $this->user_id,
-								'id'       => '456',
-								'token_id' => 'test-unique-id456',
-								'meta'     => array(
-									'display_name' => 'test-display-name456',
-								),
-							),
-						),
-					),
-					// Globally connected tumblr.
-					'tumblr'   => array(
-						'id_number' => array(
-							'connection_data' => array(
-								'user_id'  => 0,
-								'id'       => '123',
-								'token_id' => 'test-unique-id123',
-								'meta'     => array(
-									'display_name' => 'test-display-name123',
-								),
-							),
+		$social_connections = array(
+			// Normally connected facebook.
+			'facebook' => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'  => $this->user_id,
+						'id'       => '456',
+						'token_id' => 'test-unique-id456',
+						'meta'     => array(
+							'display_name' => 'test-display-name456',
 						),
 					),
 				),
-			)
+			),
+			// Globally connected tumblr.
+			'tumblr'   => array(
+				'id_number' => array(
+					'connection_data' => array(
+						'user_id'  => 0,
+						'id'       => '123',
+						'token_id' => 'test-unique-id123',
+						'meta'     => array(
+							'display_name' => 'test-display-name123',
+						),
+					),
+				),
+			),
 		);
+
+		$this->publicize->receive_updated_publicize_connections( $social_connections );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
@@ -152,7 +150,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_does_not_fire_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 
-		Jetpack_Options::delete_option( array( 'publicize_connections' ) );
+		$this->publicize->receive_updated_publicize_connections( array() );
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( false, $this->post );
@@ -267,12 +265,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 				),
 			),
 		);
-		Jetpack_Options::update_options(
+
+		$this->publicize->receive_updated_publicize_connections(
 			array(
-				'publicize_connections' => array(
-					'facebook' => $facebook_connection,
-					'twitter'  => $twitter_connection,
-				),
+				'facebook' => $facebook_connection,
+				'twitter'  => $twitter_connection,
 			)
 		);
 

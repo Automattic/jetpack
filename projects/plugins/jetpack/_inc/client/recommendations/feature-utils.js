@@ -1,7 +1,7 @@
 import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, __, _x } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
@@ -14,6 +14,7 @@ import {
 	getSiteRawUrl,
 	getJetpackCloudUrl,
 	getStaticProductsForPurchase,
+	getSocialInitiaState,
 } from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
@@ -78,12 +79,16 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 			};
 		case 'publicize':
 			return {
-				configureButtonLabel: __( 'Manage connections', 'jetpack' ),
+				configureButtonLabel: getSocialInitiaState( state ).useAdminUiV1
+					? __( 'View Jetpack Social settings', 'jetpack' )
+					: _x( 'Manage connections', '', 'jetpack' ),
 				displayName: __( 'Social Media Sharing', 'jetpack' ),
 				summaryActivateButtonLabel: __( 'Enable', 'jetpack' ),
-				configLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				configLink: getSocialInitiaState( state ).useAdminUiV1
+					? '#/sharing'
+					: getRedirectUrl( 'calypso-marketing-connections', {
+							site: getSiteRawUrl( state ),
+					  } ),
 			};
 		case 'videopress':
 			return {
@@ -160,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 				ctaLabel: __( 'Manage', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
 			};
-		case 'social-advanced-activated':
+		case 'social-v1-activated':
 			return {
 				displayName: __( 'Advanced Sharing Features', 'jetpack' ),
 				ctaLabel: __( 'Manage', 'jetpack' ),
@@ -549,17 +554,20 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
-		case 'welcome__social_advanced':
+		case 'welcome__social_v1':
 			return {
 				question: __( 'Welcome to Jetpack Social!', 'jetpack' ),
 				description: __(
-					"With your new advanced plan you unlocked unlimited sharing, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
+					"With your new Social plan you unlocked priority support, access to upload photos and videos with your posts, and usage of Social Image Generator.<br/><br/>Let's start with connecting your social media accounts, if you haven't already.",
 					'jetpack'
 				),
 				ctaText: __( 'Manage Social Media Connections', 'jetpack' ),
-				ctaLink: getRedirectUrl( 'calypso-marketing-connections', {
-					site: getSiteRawUrl( state ),
-				} ),
+				ctaLink: getSocialInitiaState( state ).useAdminUiV1
+					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing'
+					: getRedirectUrl( 'calypso-marketing-connections', {
+							site: getSiteRawUrl( state ),
+					  } ),
+				ctaForceExternal: true,
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -572,6 +580,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/sharing',
+				ctaForceExternal: true,
 				illustration: 'assistant-social-image-post',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -618,7 +627,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Jetpack Social', 'jetpack' ),
 				description: __(
-					'You have access to unlimited social sharing with your Jetpack Social plan. You can share your posts from the post editor to your connected social media accounts.<br/><br/>You can toggle the social sharing feature, manage your connections, and tweak the options from the Jetpack Social Settings.',
+					'It’s easy to share your content to a wider audience by connecting your social media accounts to Jetpack. When you publish a post, it will automatically appear on all your favorite platforms.',
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),
@@ -626,11 +635,11 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-jetpack-social',
 				skipText: __( 'Next', 'jetpack' ),
 			};
-		case 'social-advanced-activated':
+		case 'social-v1-activated':
 			return {
 				question: __( 'Advanced Sharing features', 'jetpack' ),
 				description: __(
-					'Use your unlocked unlimited sharing, upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
+					'Use your Social plan to upload photos and videos with your posts, and create previews with Social Image Generator. To use these features, just head to the post editor and start creating your post!<br/><br/>You can manage your connections, and tweak features like Social Image Generator from the Jetpack Social Settings.',
 					'jetpack'
 				),
 				ctaText: __( 'View Jetpack Social settings', 'jetpack' ),

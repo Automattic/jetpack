@@ -82,7 +82,11 @@ export class CustomContentTypes extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
-						label={ __( 'Testimonials', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Testimonials', 'jetpack' ) }
+							</span>
+						}
 						help={
 							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
@@ -122,7 +126,9 @@ export class CustomContentTypes extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ disabledReason }
-						label={ __( 'Portfolios', 'jetpack' ) }
+						label={
+							<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
+						}
 						help={
 							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }

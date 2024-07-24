@@ -1,7 +1,8 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
@@ -10,7 +11,7 @@ import { SupportedService } from './use-supported-services';
 
 export type ServicesItemDetailsProps = {
 	service: SupportedService;
-	serviceConnections?: Array< Connection >;
+	serviceConnections: Array< Connection >;
 };
 
 /**
@@ -32,6 +33,8 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 		};
 	}, [] );
 
+	const isAdmin = useSelect( select => select( coreStore ).canUser( 'update', 'settings' ), [] );
+
 	if ( serviceConnections.length ) {
 		return (
 			<ul className={ styles[ 'service-connection-list' ] }>
@@ -43,7 +46,11 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 					return (
 						<li key={ connection.connection_id }>
 							<Disabled isDisabled={ isUpdatingOrDeleting }>
-								<ServiceConnectionInfo connection={ connection } service={ service } />
+								<ServiceConnectionInfo
+									connection={ connection }
+									service={ service }
+									isAdmin={ isAdmin }
+								/>
 							</Disabled>
 						</li>
 					);
@@ -54,7 +61,7 @@ export function ServiceItemDetails( { service, serviceConnections }: ServicesIte
 
 	return (
 		<div
-			className={ classNames( styles[ 'example-wrapper' ], {
+			className={ clsx( styles[ 'example-wrapper' ], {
 				[ styles.small ]: isSmall,
 			} ) }
 		>

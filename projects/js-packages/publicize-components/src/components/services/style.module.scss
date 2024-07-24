@@ -35,6 +35,24 @@
 		gap: 0.25rem;
 	}
 
+	.heading {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.badges {
+		display: flex;
+		gap: 0.5rem;
+	}
+
+	.badge {
+		border-radius: 4px;
+		font-size: .75rem;
+		font-weight: 600;
+		padding: 2px 8px;
+	}
+
 	.title {
 		font-size: 16px;
 		line-height: 24px;
@@ -101,6 +119,11 @@
 		white-space: nowrap;
 	}
 
+	.broken-connection-alert {
+		margin-block: 0px;
+		font-size: var(--font-body-small);
+	}
+
 	.service-connection-list {
 		border-top: 1px solid var(--jp-gray-5);
 		padding-top: 1rem;
@@ -163,7 +186,7 @@
 
 
 	.disconnect {
-		&:global(.components-button) {
+		&:global(.components-button.is-tertiary) {
 			font-size: 1rem;
 			font-weight: 400;
 			color: var(--jp-gray-50);
@@ -191,11 +214,6 @@
 			font-size: 14px;
 		}
 	}
-}
-
-.mark-shared-wrap {
-	display: flex;
-	gap: 0.5rem;
 }
 
 .mark-shared-wrap {

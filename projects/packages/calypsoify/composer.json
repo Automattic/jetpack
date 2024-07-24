@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=7.0",
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {

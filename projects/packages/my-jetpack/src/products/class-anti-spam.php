@@ -51,6 +51,13 @@ class Anti_Spam extends Product {
 	public static $has_free_offering = true;
 
 	/**
+	 * Akismet has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the product name
 	 *
 	 * @return string
@@ -101,10 +108,11 @@ class Anti_Spam extends Product {
 
 	/**
 	 * Determine if the site has an Akismet plan by checking for an API key
+	 * Note that some Akismet Plans are free - we're just checking for an API key and don't have the perspective of the plan attached to it here
 	 *
 	 * @return bool - whether an API key was found
 	 */
-	public static function has_required_plan() {
+	public static function has_paid_plan_for_product() {
 		// Check if the site has an API key for Akismet
 		$akismet_api_key = apply_filters( 'akismet_get_api_key', defined( 'WPCOM_API_KEY' ) ? constant( 'WPCOM_API_KEY' ) : get_option( 'wordpress_api_key' ) );
 		$fallback        = ! empty( $akismet_api_key );

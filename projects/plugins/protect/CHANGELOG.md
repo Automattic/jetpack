@@ -5,7 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2.1.0-beta - 2024-03-14
+## 2.2.0 - 2024-05-24
+### Added
+- Add data to WAF logs and a toggle for users to opt-in to share more data with us if needed. [#36377]
+- Trigger a red bubble notification when a bad install is detected. [#36449]
+
+### Changed
+- Update WordPress minimum version requirement to WordPress 6.4. [#37047]
+- Only show installation errors on the plugins page. [#36390]
+
+### Fixed
+- Jetpack Protect Footer: ensure that "Go to cloud" links are not shown when on a platform with no firewall support. [#36794]
+
+## 2.1.0 - 2024-03-14
 ### Added
 - Added onboarding flows. [#34649]
 - Added firewall standalone mode indicator. [#34840]

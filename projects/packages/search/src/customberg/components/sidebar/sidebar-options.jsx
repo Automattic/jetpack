@@ -6,7 +6,7 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useEntityRecordState from 'hooks/use-entity-record-state';
 import useSiteLoadingState from 'hooks/use-loading-state';
 import useSearchOptions from 'hooks/use-search-options';
@@ -73,7 +73,7 @@ export default function SidebarOptions() {
 
 	return (
 		<Panel
-			className={ classNames( 'jp-search-configure-sidebar-options', {
+			className={ clsx( 'jp-search-configure-sidebar-options', {
 				'jp-search-configure-sidebar-options--is-disabled': isDisabled,
 			} ) }
 		>

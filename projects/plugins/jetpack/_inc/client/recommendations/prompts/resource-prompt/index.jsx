@@ -45,6 +45,7 @@ const ResourcePromptComponent = props => {
 		illustration,
 		ctaText,
 		ctaLink,
+		ctaForceExternal,
 		hasNoAction,
 		skipText,
 		stepSlug,
@@ -119,6 +120,9 @@ const ResourcePromptComponent = props => {
 		return null;
 	}, [ stepProgressValue, progressValue ] );
 
+	const ctaLinkIsExternal =
+		ctaLink?.match( /^https:\/\/jetpack.com\/redirect/ ) || ctaForceExternal;
+
 	return (
 		<PromptLayout
 			progressBar={ progressBarComponent }
@@ -155,14 +159,20 @@ const ResourcePromptComponent = props => {
 				<div className="jp-recommendations-question__install-section">
 					{ ! hasNoAction ? (
 						<>
-							<ExternalLink
-								type="button"
-								className="dops-button is-rna is-primary"
-								href={ ctaLink }
-								onClick={ onResourceLinkClick }
-							>
-								{ ctaText }
-							</ExternalLink>
+							{ ctaLinkIsExternal ? (
+								<ExternalLink
+									type="button"
+									className="dops-button is-rna is-primary"
+									href={ ctaLink }
+									onClick={ onResourceLinkClick }
+								>
+									{ ctaText }
+								</ExternalLink>
+							) : (
+								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
+									{ ctaText }
+								</Button>
+							) }
 							<div className="jp-recommendations-question__jump-nav">
 								<a href={ nextRoute } onClick={ onResourceSkipClick }>
 									{ skipText || __( 'Not now', 'jetpack' ) }

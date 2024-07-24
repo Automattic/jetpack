@@ -48,6 +48,13 @@ class Premium_Features {
 		$features = array();
 		// Prepare a list of features after applying jetpack_boost_has_feature_* filter for each feature.
 		foreach ( $all_features as $feature ) {
+			/**
+			 * Filter the availability of a feature
+			 *
+			 * @param bool $has_feature if the feature is available
+			 *
+			 * @since   1.0.0
+			 */
 			if ( apply_filters( "jetpack_boost_has_feature_{$feature}", in_array( $feature, $available_features, true ) ) ) {
 				$features[] = $feature;
 			}

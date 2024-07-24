@@ -2,12 +2,11 @@
 /**
  * Rectangular layout Tiled Gallery template.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::template
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
-'@phan-var-force array $context';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 foreach ( $context['rows'] as $row ) :
 	?>
@@ -27,7 +26,7 @@ foreach ( $context['rows'] as $row ) :
 		>
 			<?php
 			foreach ( $group->items( $context['needs_attachment_link'], $context['grayscale'] ) as $item ) :
-				$this->partial( // @phan-suppress-current-line PhanAccessMethodPrivate -- Called in the scope of the class.
+				$this->partial(
 					'item',
 					array(
 						'item' => $item,

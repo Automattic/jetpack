@@ -12,7 +12,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import React, { useCallback } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -37,7 +37,7 @@ function Price( { value, currency, isOld } ) {
 
 	const priceObject = getCurrencyObject( value, currency );
 
-	const classNames = classnames( styles.price, {
+	const classNames = clsx( styles.price, {
 		[ styles[ 'is-old' ] ]: isOld,
 	} );
 
@@ -219,15 +219,6 @@ const ProductDetailCard = ( {
 			/* dummy arg to avoid bad minification */ 0
 		);
 	}
-	const clickHandler = useCallback( () => {
-		trackButtonClick();
-		onClick?.( mainCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
-
-	const trialClickHandler = useCallback( () => {
-		trackButtonClick( true, wpcomFreeProductSlug, detail );
-		onClick?.( trialCheckoutRedirect, detail );
-	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -280,9 +271,19 @@ const ProductDetailCard = ( {
 			  );
 	const ctaLabel = ctaButtonLabel || defaultCtaLabel;
 
+	const clickHandler = useCallback( () => {
+		trackButtonClick( { ctaText: ctaLabel } );
+		onClick?.( mainCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail, ctaLabel ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( { customSlug: wpcomFreeProductSlug, ctaText: 'Start for free' } );
+		onClick?.( trialCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug, detail ] );
+
 	return (
 		<div
-			className={ classnames( styles.card, className, {
+			className={ clsx( styles.card, className, {
 				[ styles[ 'is-bundle-card' ] ]: isBundle,
 			} ) }
 		>
@@ -301,7 +302,7 @@ const ProductDetailCard = ( {
 				<Text mb={ 3 }>{ longDescription }</Text>
 
 				<ul
-					className={ classnames( styles.features, {
+					className={ clsx( styles.features, {
 						[ styles[ 'highlight-last-feature' ] ]: highlightLastFeature,
 					} ) }
 				>

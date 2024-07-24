@@ -2,6 +2,10 @@
 /**
  * Template to display a branch card.
  *
+ * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-manage.template.php
+ * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed (from render()).
+ * @html-template-var object                         $branch Branch data (from plugin-manage.template.php).
+ * @html-template-var object                         $active_branch Active branch data (from plugin-manage.template.php).
  * @package automattic/jetpack-beta
  */
 
@@ -12,27 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// @global \Automattic\JetpackBeta\Plugin $plugin Plugin being managed.
-if ( ! isset( $plugin ) ) {
-	throw new InvalidArgumentException( 'Template parameter $plugin missing' );
-}
-// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-$plugin = $plugin; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// @global object $branch Branch data.
-if ( ! isset( $branch ) ) {
-	throw new InvalidArgumentException( 'Template parameter $branch missing' );
-}
-$branch = $branch; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// @global object $active_branch Active branch data.
-if ( ! isset( $active_branch ) ) {
-	throw new InvalidArgumentException( 'Template parameter $active_branch missing' );
-}
-$active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable.
-
-// -------------
-
+// Wrap in a function to avoid leaking all the variables we create to subsequent runs.
 ( function ( $plugin, $branch, $active_branch ) {
 	$slug      = 'dev' === $branch->which ? $plugin->dev_plugin_slug() : $plugin->plugin_slug();
 	$classes   = array( 'dops-foldable-card', 'has-expanded-summary', 'dops-card', 'branch-card' );
@@ -50,7 +34,7 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 			esc_html( $branch->version ),
 			esc_attr( $branch->version )
 		);
-	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source ) {
+	} elseif ( 'rc' === $branch->source || 'trunk' === $branch->source || 'unknown' === $branch->source && $branch->version ) {
 		$more_info[] = sprintf(
 			// translators: %s: Version number.
 			__( 'Version %s', 'jetpack-beta' ),
@@ -77,7 +61,12 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 		$classes[] = 'branch-card-active';
 	}
 	if ( 'unknown' === $branch->source ) {
-		$classes[] = 'existing-branch-for-' . $plugin->plugin_slug();
+		if ( $branch->id === 'deactivate' ) {
+			$classes[] = 'deactivate-mu-plugin';
+			$classes[] = 'deactivate-mu-plugin-' . $plugin->plugin_slug();
+		} else {
+			$classes[] = 'existing-branch-for-' . $plugin->plugin_slug();
+		}
 	}
 	if ( empty( $branch->is_last ) ) {
 		$classes[] = 'is-compact';
@@ -87,8 +76,16 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 	// phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.I18n.TextDomainMismatch
 	$updater_version = sprintf( __( 'Version %s', 'default' ), $branch->version );
 
+	if ( $branch->source === 'unknown' && $branch->id === 'deactivate' ) {
+		$active_text   = __( 'Inactive', 'jetpack-beta' );
+		$activate_text = __( 'Deactivate', 'jetpack-beta' );
+	} else {
+		$active_text   = __( 'Active', 'jetpack-beta' );
+		$activate_text = __( 'Activate', 'jetpack-beta' );
+	}
+
 	?>
-			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
+			<div <?php echo $data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above ?> class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-slug="<?php echo esc_attr( $slug ); ?>" data-updater-version="<?php echo esc_attr( $updater_version ); ?>">
 				<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
@@ -99,11 +96,11 @@ $active_branch = $active_branch; // Dummy assignment to fool VariableAnalysis.Co
 						</div>
 					</span>
 					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary" data-active="<?php echo esc_attr( __( 'Active', 'jetpack-beta' ) ); ?>">
-							<a href="<?php echo esc_html( $activate_url ); ?>" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html__( 'Activate', 'jetpack-beta' ); ?></a>
+						<span class="dops-foldable-card__summary" data-active="<?php echo esc_attr( $active_text ); ?>">
+							<a href="<?php echo esc_html( $activate_url ); ?>" class="is-primary jp-form-button activate-branch dops-button is-compact jptracks" data-jptracks-name="jetpack_beta_activate_branch" data-jptracks-prop="<?php echo esc_attr( "{$branch->source}:{$branch->id}" ); ?>"><?php echo esc_html( $activate_text ); ?></a>
 						</span>
 					</span>
 				</div>
 			</div>
 	<?php
-} )( $plugin, $branch, $active_branch );
+} )( $plugin, $branch, $active_branch ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template.

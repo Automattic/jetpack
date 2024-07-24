@@ -83,9 +83,9 @@ class Test_Plugin_Factory {
 	/**
 	 * Creates a new factory for the plugin and returns it.
 	 *
-	 * @param bool     $is_mu_plugin Indicates whether or not the plugin is an mu-plugin.
-	 * @param string   $slug         The slug of the plugin we're building.
-	 * @param string[] $autoloads    The composer autoloads for the plugin we're building.
+	 * @param bool   $is_mu_plugin Indicates whether or not the plugin is an mu-plugin.
+	 * @param string $slug         The slug of the plugin we're building.
+	 * @param array  $autoloads    The composer autoloads for the plugin we're building.
 	 * @return Test_Plugin_Factory
 	 * @throws \InvalidArgumentException When the slug is invalid.
 	 */
@@ -177,7 +177,7 @@ class Test_Plugin_Factory {
 			$namespace  = substr( $fqn, 0, -strlen( $class_name ) - 1 );
 		} else {
 			$class_name = $fqn;
-			$namespace  = null;
+			$namespace  = '';
 		}
 
 		$path = null;
@@ -209,7 +209,7 @@ class Test_Plugin_Factory {
 					break;
 				}
 
-				if ( ! isset( $path ) ) {
+				if ( $path === null ) {
 					throw new \InvalidArgumentException( 'The namespace for this class is not in the factory\'s autoloads.' );
 				}
 
@@ -222,12 +222,12 @@ class Test_Plugin_Factory {
 		}
 
 		$file_content = "<?php\n\n";
-		if ( isset( $namespace ) ) {
+		if ( $namespace !== '' ) {
 			$file_content .= "namespace $namespace;\n\n";
 		}
 		$file_content .= "class $class_name {\n$content\n}";
 
-		return $this->with_file( $path, $file_content );
+		return $this->with_file( (string) $path, $file_content );
 	}
 
 	/**
@@ -245,7 +245,7 @@ class Test_Plugin_Factory {
 	/**
 	 * Adds options that will be passed to the plugin's composer.json file.
 	 *
-	 * @param string[] $options The options that we want to set in the composer config.
+	 * @param array $options The options that we want to set in the composer config.
 	 * @return $this
 	 */
 	public function with_composer_config( $options ) {

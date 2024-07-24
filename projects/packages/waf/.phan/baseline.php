@@ -9,10 +9,9 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 10+ occurrences
     // PhanDeprecatedFunction : 9 occurrences
+    // PhanTypeMismatchArgument : 9 occurrences
     // PhanNoopNew : 6 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanTypeMismatchDefault : 5 occurrences
     // PhanTypeMismatchReturn : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 5 occurrences
@@ -20,6 +19,7 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
@@ -40,7 +40,7 @@ return [
         'src/brute-force-protection/class-blocked-login-page.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault'],
         'src/brute-force-protection/class-math-fallback.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchReturnProbablyReal'],
         'src/brute-force-protection/class-shared-functions.php' => ['PhanTypeComparisonToArray', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn'],
+        'src/class-brute-force-protection.php' => ['PhanNoopNew', 'PhanStaticCallToNonStatic', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchReturn'],
         'src/class-compatibility.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
         'src/class-waf-constants.php' => ['PhanCoalescingNeverNull', 'PhanUndeclaredConstant'],
         'src/class-waf-operators.php' => ['PhanTypeMismatchReturn'],
@@ -48,7 +48,6 @@ return [
         'src/class-waf-runtime.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable', 'PhanUndeclaredConstant'],
         'src/class-waf-transforms.php' => ['PhanPluginInvalidPregRegex', 'PhanTypeInvalidDimOffset'],
         'tests/php/integration/test-waf-compatibility.php' => ['PhanParamTooMany'],
-        'tests/php/integration/test-waf-unsupported-environment.php' => ['PhanTypeMismatchArgument'],
         'tests/php/unit/functions-wordpress.php' => ['PhanRedefineFunction'],
         'tests/php/unit/test-waf-operators.php' => ['PhanTypeMismatchArgumentInternal'],
         'tests/php/unit/test-waf-runtime-targets.php' => ['PhanPluginRedundantAssignment'],

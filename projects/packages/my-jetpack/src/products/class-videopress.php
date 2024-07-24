@@ -174,11 +174,22 @@ class Videopress extends Hybrid_Product {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Checks whether the site has a paid plan for this product
 	 *
 	 * @return boolean
 	 */
-	public static function has_required_plan() {
-		return static::does_site_have_feature( 'videopress' );
+	public static function has_paid_plan_for_product() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if ( str_contains( $purchase->product_slug, 'jetpack_videopress' ) || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

@@ -11,7 +11,7 @@ const ChevronUp = () => (
 			/>
 		</mask>
 		<g mask="url(#mask0_4507_36473)">
-			<rect width="16" height="16" fill="#069E08" />
+			<rect width="16" height="16" fill="none" />
 		</g>
 	</svg>
 );

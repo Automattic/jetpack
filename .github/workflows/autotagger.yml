@@ -86,7 +86,7 @@ jobs:
       - name: Fetch tags, shallowly and blobless
         if: steps.get-tags.outputs.any == 'true'
         run: |
-          git fetch --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
+          git fetch --force --depth=1 --filter=blob:none origin 'refs/tags/*:refs/tags/*'
 
       - name: Tag projects
         if: steps.get-tags.outputs.any == 'true'

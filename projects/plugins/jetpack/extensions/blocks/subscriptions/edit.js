@@ -7,14 +7,14 @@ import {
 	withColors,
 	withFontSizes,
 	useBlockProps,
-	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
 import { useSelect, withSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
-import classnames from 'classnames';
+import clsx from 'clsx';
 import { isEqual } from 'lodash';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -298,7 +298,7 @@ export function SubscriptionEdit( props ) {
 									<TextControl
 										placeholder={ subscribePlaceholder }
 										disabled={ true }
-										className={ classnames(
+										className={ clsx(
 											emailFieldClasses,
 											'wp-block-jetpack-subscriptions__textfield'
 										) }
@@ -306,7 +306,7 @@ export function SubscriptionEdit( props ) {
 									/>
 								) }
 								<RichText
-									className={ classnames(
+									className={ clsx(
 										buttonClasses,
 										'wp-block-jetpack-subscriptions__button',
 										'wp-block-button__link'
@@ -333,7 +333,7 @@ export function SubscriptionEdit( props ) {
 	return (
 		<div
 			{ ...blockProps }
-			className={ classnames(
+			className={ clsx(
 				blockProps.className,
 				'wp-block-jetpack-subscriptions__container',
 				'wp-block-jetpack-subscriptions__supports-newline',

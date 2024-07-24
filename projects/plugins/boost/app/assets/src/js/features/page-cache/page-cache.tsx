@@ -1,312 +1,152 @@
-import { Button, IconTooltip, Notice, getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import ChevronDown from '$svg/chevron-down';
-import ChevronUp from '$svg/chevron-up';
-import Lightning from '$svg/lightning';
-import styles from './page-cache.module.scss';
-import { useEffect, useState } from 'react';
-import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
-import { Link } from 'react-router-dom';
-import classNames from 'classnames';
+import Module from '$features/module/module';
+import PageCacheMeta from '$features/page-cache/meta/meta';
+import Health from '$features/page-cache/health/health';
+import { ReactNode, useEffect, useState } from 'react';
 import { useMutationNotice } from '$features/ui';
-import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
-import ErrorBoundary from '$features/error-boundary/error-boundary';
-import ErrorNotice from '$features/error-notice/error-notice';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import { useShowCacheEngineErrorNotice } from './lib/stores';
+import { usePageCacheError, usePageCacheSetup } from '$lib/stores/page-cache';
+import { Notice } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import { useSingleModuleState } from '$features/module/lib/stores';
+import styles from './page-cache.module.scss';
 
-const Meta = () => {
-	const [ isExpanded, setIsExpanded ] = useState( false );
-	const pageCache = usePageCache();
+const DismissableNotice = ( { title, children }: { title: string; children: ReactNode } ) => {
+	const [ dismissed, setDismissed ] = useState( false );
 
-	const [ logging, mutateLogging ] = useDataSyncSubset( pageCache, 'logging' );
-	const [ bypassPatterns, mutateBypassPatterns ] = useDataSyncSubset(
-		pageCache,
-		'bypass_patterns'
-	);
-	const [ clearedCacheMessage, runClearPageCacheAction ] = useClearPageCacheAction();
-
-	const clearPageCache = () => {
-		runClearPageCacheAction.mutate();
-	};
-
-	const totalBypassPatterns = bypassPatterns?.length || 0;
-
-	const getSummary = () => {
-		if ( runClearPageCacheAction.isPending ) {
-			return __( 'Clearing cache…', 'jetpack-boost' );
-		}
-
-		if ( totalBypassPatterns === 0 && ! logging ) {
-			return __( 'No exceptions or logging.', 'jetpack-boost' );
-		}
-
-		return (
-			<>
-				{ totalBypassPatterns > 0 ? (
-					<>
-						{ sprintf(
-							/* translators: %d is the number of cache bypass patterns. */
-							_n( '%d exception.', '%d exceptions.', totalBypassPatterns, 'jetpack-boost' ),
-							totalBypassPatterns
-						) }
-					</>
-				) : (
-					__( 'No exceptions.', 'jetpack-boost' )
-				) }{ ' ' }
-				{ logging && __( 'Logging activated.', 'jetpack-boost' ) }
-				{ ! logging && __( 'No logging.', 'jetpack-boost' ) }
-			</>
-		);
-	};
-
-	const updatePatterns = ( newValue: string ) => {
-		const newPatterns = newValue.split( '\n' ).map( line => line.trim() );
-
-		recordBoostEvent( 'page_cache_bypass_patterns', {
-			total: newPatterns.length,
-		} );
-		mutateBypassPatterns.mutate( newPatterns );
-	};
-
-	const toggleLogging = ( event: React.ChangeEvent< HTMLInputElement > ) => {
-		recordBoostEvent( 'page_cache_toggle_logging', {} );
-		mutateLogging.mutate( event.target.checked );
-	};
-
-	const loggingEnabledMessage = __( 'Logging enabled.', 'jetpack-boost' );
-	const loggingDisabledMessage = __( 'Logging disabled.', 'jetpack-boost' );
-	useMutationNotice( 'update-bypass-patterns', mutateBypassPatterns );
-	useMutationNotice( 'update-logging', mutateLogging, {
-		successMessage: logging ? loggingEnabledMessage : loggingDisabledMessage,
-	} );
-
-	useMutationNotice( 'clear-page-cache', runClearPageCacheAction, {
-		savingMessage: __( 'Clearing cache…', 'jetpack-boost' ),
-		errorMessage: __( 'Unable to clear cache.', 'jetpack-boost' ),
-		successMessage: clearedCacheMessage || __( 'Cache cleared.', 'jetpack-boost' ),
-	} );
-
-	return (
-		pageCache && (
-			<div className={ styles.wrapper } data-testid="page-cache-meta">
-				<div className={ styles.head }>
-					<div className={ styles.summary }>{ getSummary() }</div>
-					<div className={ styles.actions }>
-						<Button
-							variant="link"
-							size="small"
-							weight="regular"
-							iconSize={ 16 }
-							icon={ <Lightning /> }
-							onClick={ clearPageCache }
-							disabled={ runClearPageCacheAction.isPending }
-						>
-							{ __( 'Clear Cache', 'jetpack-boost' ) }
-						</Button>{ ' ' }
-						<Button
-							variant="link"
-							size="small"
-							weight="regular"
-							iconSize={ 16 }
-							icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-							onClick={ () => setIsExpanded( ! isExpanded ) }
-						>
-							{ __( 'Show Options', 'jetpack-boost' ) }
-						</Button>
-					</div>
-				</div>
-				{ isExpanded && (
-					<div className={ styles.body }>
-						<>
-							<BypassPatterns
-								patterns={ bypassPatterns.join( '\n' ) }
-								setPatterns={ updatePatterns }
-								showErrorNotice={ mutateBypassPatterns.isError }
-							/>
-							<div className={ styles.section }>
-								<div className={ styles.title }>{ __( 'Logging', 'jetpack-boost' ) }</div>
-								<label htmlFor="cache-logging" className={ styles[ 'logging-toggle' ] }>
-									<input
-										type="checkbox"
-										id="cache-logging"
-										checked={ logging }
-										onChange={ toggleLogging }
-									/>{ ' ' }
-									{ __( 'Activate logging to track all your cache events.', 'jetpack-boost' ) }
-								</label>
-								{ logging && (
-									<Link className={ styles[ 'see-logs-link' ] } to="/cache-debug-log">
-										{ __( 'See Logs', 'jetpack-boost' ) }
-									</Link>
-								) }
-								<div className={ styles.clearfix } />
-							</div>
-						</>
-					</div>
-				) }
-			</div>
-		)
-	);
-};
-
-type BypassPatternsProps = {
-	patterns: string;
-	setPatterns: ( newValue: string ) => void;
-	showErrorNotice: boolean;
-};
-
-const BypassPatterns = ( {
-	patterns,
-	setPatterns,
-	showErrorNotice = false,
-}: BypassPatternsProps ) => {
-	const [ inputValue, setInputValue ] = useState( patterns );
-	const [ showNotice, setShowNotice ] = useState( showErrorNotice );
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [ inputInvalid, setInputInvalid ] = useState( false );
-
-	const exclusionsLink = getRedirectUrl( 'jetpack-boost-cache-how-to-exclude' );
-
-	const validateInputValue = ( value: string ) => {
-		setInputValue( value );
-		setInputInvalid( ! validatePatterns( value ) );
-	};
-
-	const validatePatterns = ( value: string ) => {
-		const lines = value
-			.split( '\n' )
-			.map( line => line.trim() )
-			.filter( line => line.trim() !== '' );
-
-		// check if it's a valid regex
-		try {
-			lines.forEach( line => new RegExp( line ) );
-		} catch ( e ) {
-			return false;
-		}
-
-		return true;
-	};
-
-	useEffect( () => {
-		setInputValue( patterns );
-	}, [ patterns ] );
-
-	useEffect( () => {
-		setShowNotice( showErrorNotice );
-	}, [ showErrorNotice ] );
-
-	function save() {
-		setPatterns( inputValue );
+	if ( dismissed ) {
+		return null;
 	}
 
 	return (
-		<div
-			className={ classNames( styles.section, {
-				[ styles[ 'has-error' ] ]: inputInvalid,
-			} ) }
-		>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
-			<label htmlFor="jb-cache-exceptions">
-				{ __( 'URLs of pages and posts that will never be cached:', 'jetpack-boost' ) }
-			</label>
-			<textarea
-				value={ inputValue }
-				rows={ 3 }
-				onChange={ e => validateInputValue( e.target.value ) }
-				id="jb-cache-exceptions"
-			/>
-			<p className={ classNames( styles.description, styles[ 'error-message' ] ) }>
-				{ __( 'Error: Invalid format', 'jetpack-boost' ) }
-			</p>
-			<div className={ styles.description }>
-				{ __(
-					'Use (.*) to address multiple URLs under a given path. Be sure each URL path is in its own line.',
-					'jetpack-boost'
-				) }
-				<br />
-				{ createInterpolateElement(
-					__( '<help>See an example</help> or <link>learn more</link>.', 'jetpack-boost' ),
-					{
-						help: <BypassPatternsExample />, // children are passed after the interpolation.
-						// eslint-disable-next-line jsx-a11y/anchor-has-content
-						link: <a href={ exclusionsLink } target="_blank" rel="noreferrer" />,
-					}
-				) }
-			</div>
-			{ showNotice && (
-				<Notice
-					level="error"
-					title={ __( 'Error: Unable to save changes.', 'jetpack-boost' ) }
-					onClose={ () => setShowNotice( false ) }
-				>
-					{ __( 'An error occurred while saving changes. Please, try again.', 'jetpack-boost' ) }
-				</Notice>
-			) }
-			<Button
-				disabled={ patterns === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-		</div>
-	);
-};
-
-type BypassPatternsExampleProps = {
-	children?: React.ReactNode;
-};
-
-const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
-	const [ show, setShow ] = useState( false );
-
-	return (
-		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
+		<div className={ styles.notice }>
+			<Notice level="info" title={ title } onClose={ () => setDismissed( true ) }>
 				{ children }
-			</a>
-			<div className={ styles[ 'tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-start"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					className={ styles.tooltip }
-				>
-					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
-					<br />
-					checkout
-					<br />
-					gallery/.*
-					<br />
-					specific-page
-				</IconTooltip>
-			</div>
+			</Notice>
 		</div>
 	);
 };
 
-export default () => {
+const PageCache = () => {
+	const [ moduleState ] = useSingleModuleState( 'page_cache' );
+	const [ pageCacheSetup, pageCacheSetupNotices ] = usePageCacheSetup();
+	const [ pageCacheError, pageCacheErrorMutation ] = usePageCacheError();
+	const [ isPageCacheSettingUp, setIsPageCacheSettingUp ] = useState( false );
+	const [ runningFreshSetup, setRunningFreshSetup ] = useState( false );
+	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
+		pageCacheSetup.isSuccess && !! moduleState?.active
+	);
+
+	const { site } = Jetpack_Boost;
+
+	const [ removePageCacheNotice ] = useMutationNotice(
+		'page-cache-setup',
+		{
+			...pageCacheSetup,
+
+			/*
+			 * We run page cache setup on both onMountEnabled and onEnable.
+			 * However, the mutation notice should only show when the user is responsible for the action.
+			 * So, we only show the notice if `runningFreshSetup`, unless it's an error.
+			 */
+			isSuccess: runningFreshSetup && pageCacheSetup.isSuccess,
+			isPending: runningFreshSetup && ( isPageCacheSettingUp || pageCacheSetup.isPending ),
+			isIdle: runningFreshSetup && pageCacheSetup.isIdle,
+		},
+		{
+			savingMessage: __( 'Setting up cache…', 'jetpack-boost' ),
+			errorMessage: __( 'An error occurred while setting up cache.', 'jetpack-boost' ),
+			successMessage: __( 'Cache setup complete.', 'jetpack-boost' ),
+		}
+	);
+
+	useEffect( () => {
+		if ( pageCacheSetup.isPending ) {
+			setIsPageCacheSettingUp( false );
+		}
+	}, [ pageCacheSetup.isPending ] );
+
 	return (
-		<ErrorBoundary
-			fallback={
-				<ErrorNotice
-					title={ __( 'Error', 'jetpack-boost' ) }
-					error={ new Error( __( 'Unable to load Cache settings.', 'jetpack-boost' ) ) }
-				/>
+		<Module
+			slug="page_cache"
+			title={ __( 'Cache Site Pages', 'jetpack-boost' ) }
+			onBeforeToggle={ status => {
+				setIsPageCacheSettingUp( status );
+				if ( status === false ) {
+					removePageCacheNotice();
+					pageCacheSetup.reset();
+				}
+				if ( pageCacheError.data && pageCacheError.data.dismissed !== true ) {
+					pageCacheErrorMutation.mutate( {
+						...pageCacheError.data,
+						dismissed: true,
+					} );
+				}
+			} }
+			onMountEnable={ () => {
+				pageCacheSetup.mutate();
+			} }
+			onEnable={ () => {
+				setRunningFreshSetup( true );
+				pageCacheSetup.mutate();
+			} }
+			description={
+				<>
+					<p>
+						{ __(
+							'Store and serve preloaded content to reduce load times and enhance your site performance and user experience.',
+							'jetpack-boost'
+						) }
+					</p>
+					{ site.isAtomic && (
+						<Notice
+							level="warning"
+							title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+							hideCloseButton={ true }
+						>
+							<p>
+								{ __(
+									'Your website already has a page cache running on it powered by WordPress.com.',
+									'jetpack-boost'
+								) }
+							</p>
+						</Notice>
+					) }
+					<Health
+						error={ pageCacheError.data }
+						setError={ pageCacheErrorMutation.mutate }
+						cacheSetup={ pageCacheSetup }
+					/>
+				</>
 			}
 		>
-			<Meta />
-		</ErrorBoundary>
+			{ showCacheEngineErrorNotice && (
+				<Notice
+					level="warning"
+					title={ __( 'Page Cache is not working', 'jetpack-boost' ) }
+					hideCloseButton={ true }
+				>
+					<p>
+						{ __(
+							'It appears that the cache engine is not loading. Please try re-installing Jetpack Boost. If the issue persists, please contact support.',
+							'jetpack-boost'
+						) }
+					</p>
+				</Notice>
+			) }
+			{ ! showCacheEngineErrorNotice && ! pageCacheError.data && ! pageCacheSetup.isError && (
+				<>
+					<PageCacheMeta />
+
+					{ pageCacheSetup.isSuccess &&
+						pageCacheSetupNotices.map( ( { title, message }, index ) => (
+							<DismissableNotice title={ title } key={ index }>
+								{ message }
+							</DismissableNotice>
+						) ) }
+				</>
+			) }
+		</Module>
 	);
 };
+
+export default PageCache;

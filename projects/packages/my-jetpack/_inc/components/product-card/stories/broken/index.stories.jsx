@@ -1,7 +1,8 @@
 /* eslint-disable react/react-in-jsx-scope */
 import { arrowUp } from '@wordpress/icons';
 import React from 'react';
-import ProductCard, { PRODUCT_STATUSES } from '../index.jsx';
+import { PRODUCT_STATUSES } from '../../../../constants';
+import ProductCard from '../index.jsx';
 
 // Set myJetpackRest global var.
 window.myJetpackRest = {};
@@ -63,8 +64,8 @@ export default {
 				PRODUCT_STATUSES.ERROR,
 				PRODUCT_STATUSES.ABSENT,
 				PRODUCT_STATUSES.ABSENT_WITH_PLAN,
-				PRODUCT_STATUSES.NEEDS_PURCHASE,
-				PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+				PRODUCT_STATUSES.NEEDS_PLAN,
+				PRODUCT_STATUSES.NEEDS_ACTIVATION,
 			],
 		},
 	},

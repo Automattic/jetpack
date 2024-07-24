@@ -167,7 +167,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'placeholder' => 'e.g. New York',
 					'area'        => 'Main Address',
 					'migrate'     => 'addresses',
-					'max_len'     => 100,
+					'max_len'     => 200,
 				),
 				'county'        => array(
 					// db model:
@@ -244,7 +244,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'area'        => 'Second Address',
 					'migrate'     => 'addresses',
 					'opt'         => 'secondaddress',
-					'max_len'     => 100,
+					'max_len'     => 200,
 					'dal1key'     => 'secaddr_city', // previous field name
 				),
 				'seccounty'     => array(

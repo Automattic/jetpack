@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.1 - 2024-06-12
+### Changed
+- Dashboard: switch to a smaller and faster dependency (`clsx`) to handle class names. [#37708]
+- Dashboard: update the connection screen's messaging to make our Terms of Service clearer. [#37536]
+- Dependencies: remove the 'jetpack-identity-crisis' dependency. [#36968]
+- Dependencies: update multiple dependencies. [#37669], [#37767], [#37776], [#37796]
+
+## 0.2.0 - 2024-05-28
+### Added
+- Add autotagger and autorelease to composer.json to enable auto-tagging and auto-release actions [#37143]
+
+### Changed
+- Updated package dependencies. [#37147]
+
+### Removed
+- Remove the Plugin Installer package dependency. [#37430]
+
 ## 0.1.0 - 2024-04-30
 ### Added
 - Added connected state content and site disconnection flow. [#36747]

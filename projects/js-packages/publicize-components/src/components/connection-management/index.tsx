@@ -1,20 +1,18 @@
 import { Button } from '@automattic/jetpack-components';
 import { Disabled } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useReducer, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
-import AddConnectionModal from '../add-connection-modal';
+import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
 
 const ConnectionManagement = ( { className = null } ) => {
 	const { refresh } = useSocialMediaConnections();
-
-	const [ expandedService, setExpandedService ] = useState< SupportedService >( null );
 
 	const { connections, deletingConnections, updatingConnections } = useSelect( select => {
 		const { getConnections, getDeletingConnections, getUpdatingConnections } = select( store );
@@ -33,63 +31,53 @@ const ConnectionManagement = ( { className = null } ) => {
 		return a.service_name.localeCompare( b.service_name );
 	} );
 
-	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
-
 	useEffect( () => {
 		refresh();
 	}, [ refresh ] );
 
 	const supportedServices = useSupportedServices();
-
-	const onReconnect = useCallback(
-		( serviceName: string ) => () => {
-			const service = supportedServices.find( _service => _service.ID === serviceName );
-
-			setExpandedService( service );
-			toggleModal();
+	const servicesByName = supportedServices.reduce< Record< string, SupportedService > >(
+		( acc, service ) => {
+			acc[ service.ID ] = service;
+			return acc;
 		},
-		[ supportedServices ]
+		{}
 	);
 
-	const onCloseModal = useCallback( () => {
-		setExpandedService( null );
-		toggleModal();
-	}, [] );
+	const { openConnectionsModal } = useDispatch( store );
 
 	return (
-		<div className={ classNames( styles.wrapper, className ) }>
-			<h3>{ __( 'My Connections', 'jetpack' ) }</h3>
+		<div className={ clsx( styles.wrapper, className ) }>
 			{ connections.length ? (
-				<ul className={ styles[ 'connection-list' ] }>
-					{ connections.map( connection => {
-						const isUpdatingOrDeleting =
-							updatingConnections.includes( connection.connection_id ) ||
-							deletingConnections.includes( connection.connection_id );
+				<>
+					<h3>{ __( 'Connected accounts', 'jetpack' ) }</h3>
+					<ul className={ styles[ 'connection-list' ] }>
+						{ connections.map( connection => {
+							const isUpdatingOrDeleting =
+								updatingConnections.includes( connection.connection_id ) ||
+								deletingConnections.includes( connection.connection_id );
 
-						return (
-							<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
-								<Disabled isDisabled={ isUpdatingOrDeleting }>
-									<ConnectionInfo
-										connection={ connection }
-										onReconnect={ onReconnect( connection.service_name ) }
-									/>
-								</Disabled>
-							</li>
-						);
-					} ) }
-				</ul>
-			) : (
-				<span>{ __( 'There are no connections added yet.', 'jetpack' ) }</span>
-			) }
-			<Button onClick={ toggleModal } variant={ connections.length ? 'secondary' : 'primary' }>
-				{ __( 'Add connection', 'jetpack' ) }
+							return (
+								<li className={ styles[ 'connection-list-item' ] } key={ connection.connection_id }>
+									<Disabled isDisabled={ isUpdatingOrDeleting }>
+										<ConnectionInfo
+											connection={ connection }
+											service={ servicesByName[ connection.service_name ] }
+										/>
+									</Disabled>
+								</li>
+							);
+						} ) }
+					</ul>
+				</>
+			) : null }
+			<ManageConnectionsModal />
+			<Button
+				variant={ connections.length ? 'secondary' : 'primary' }
+				onClick={ openConnectionsModal }
+			>
+				{ __( 'Connect an account', 'jetpack' ) }
 			</Button>
-			{ isModalOpen && (
-				<AddConnectionModal
-					onCloseModal={ onCloseModal }
-					defaultExpandedService={ expandedService }
-				/>
-			) }
 		</div>
 	);
 };

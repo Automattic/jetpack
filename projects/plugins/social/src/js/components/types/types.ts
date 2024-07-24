@@ -9,6 +9,7 @@ type JetpackSettingsSelectors = {
 	isUpdatingJetpackSettings: () => boolean;
 	hasPaidPlan: () => boolean;
 	useAdminUiV1: () => boolean;
+	hasPaidFeatures: () => boolean;
 };
 
 type ConnectionDataSelectors = {
@@ -27,6 +28,8 @@ type SharesDataSelectors = {
 type SiteDataSelectors = {
 	getSiteData: () => Array< object >;
 	getSiteTitle: () => string;
+	getSiteSuffix: () => string;
+	getBlogID: () => number;
 };
 
 type SocialImageGeneratorSettingsSelectors = {

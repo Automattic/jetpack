@@ -17,7 +17,7 @@
 		"@actions/core": "1.10.1",
 		"@actions/github": "6.0.0",
 		"@slack/web-api": "6.10.0",
-		"glob": "8.0.3",
+		"glob": "10.4.1",
 		"minimatch": "5.1.0"
 	},
 	"devDependencies": {

@@ -98,12 +98,6 @@ const ProductDetailTableColumn = ( {
 		quantity,
 	} );
 
-	// Register the click handler for the product button.
-	const onClick = useCallback( () => {
-		trackProductButtonClick( isFree );
-		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier, isFree ] );
-
 	// Compute the price per month.
 	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;
 	const offPrice = introductoryOffer?.costPerInterval
@@ -141,6 +135,20 @@ const ProductDetailTableColumn = ( {
 	const callToAction =
 		customCallToAction ||
 		( isFree ? __( 'Start for Free', 'jetpack-my-jetpack' ) : defaultCtaLabel );
+
+	// Register the click handler for the product button.
+	const onClick = useCallback( () => {
+		trackProductButtonClick( { isFreePlan: isFree, ctaText: callToAction } );
+		onProductButtonClick?.( runCheckout, detail, tier );
+	}, [
+		trackProductButtonClick,
+		onProductButtonClick,
+		runCheckout,
+		detail,
+		tier,
+		isFree,
+		callToAction,
+	] );
 
 	return (
 		<PricingTableColumn primary={ ! isFree }>

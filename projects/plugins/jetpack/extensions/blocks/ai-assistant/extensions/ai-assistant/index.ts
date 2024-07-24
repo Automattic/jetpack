@@ -26,16 +26,48 @@ export const isAiAssistantExtensionsSupportEnabled = getFeatureAvailability(
 	AI_ASSISTANT_EXTENSIONS_SUPPORT_NAME
 );
 
-const ALL_EXTENDED_BLOCKS = [ 'core/paragraph', 'core/list', 'core/heading' ];
+// All Jetpack Form blocks to extend
+export const JETPACK_FORM_CHILDREN_BLOCKS = [
+	'jetpack/field-name',
+	'jetpack/field-email',
+	'jetpack/field-text',
+	'jetpack/field-textarea',
+	'jetpack/field-checkbox',
+	'jetpack/field-date',
+	'jetpack/field-telephone',
+	'jetpack/field-url',
+	'jetpack/field-checkbox-multiple',
+	'jetpack/field-radio',
+	'jetpack/field-select',
+	'jetpack/field-consent',
+	'jetpack/button',
+] as const;
+
+// The list of all extended blocks before the inline extensions were released. Does not include the list-item block.
+export const ALL_EXTENDED_BLOCKS = [
+	'core/paragraph',
+	'core/list',
+	'core/heading',
+	'jetpack/contact-form',
+	...JETPACK_FORM_CHILDREN_BLOCKS,
+];
 
 // The blocks will be converted one by one to inline blocks, so we update the lists accordingly, under the feature flag.
 export let EXTENDED_TRANSFORMATIVE_BLOCKS: string[] = [ ...ALL_EXTENDED_BLOCKS ];
 export const EXTENDED_INLINE_BLOCKS: string[] = [];
 
 // Temporarily keep track of inline extensions that have been released to production.
-const releasedInlineExtensions = [ 'core/heading' ];
+const releasedInlineExtensions = [
+	'core/heading',
+	'core/paragraph',
+	'core/list-item',
+	'core/list',
+	'jetpack/contact-form',
+	...JETPACK_FORM_CHILDREN_BLOCKS,
+];
+
 // Temporarily keep track of inline extensions that are being worked on.
-const unreleasedInlineExtensions = [ 'core/paragraph' ];
+const unreleasedInlineExtensions = [];
 
 releasedInlineExtensions.forEach( block => {
 	// Add the released inline extension to the inline list...
@@ -54,8 +86,14 @@ unreleasedInlineExtensions.forEach( block => {
 } );
 
 // Since the lists depend on the feature flag, we need to define the types manually.
-export type ExtendedBlockProp = 'core/paragraph' | 'core/list';
-export type ExtendedInlineBlockProp = 'core/heading';
+export type ExtendedBlockProp = string;
+export type ExtendedInlineBlockProp =
+	| 'core/heading'
+	| 'core/paragraph'
+	| 'core/list-item'
+	| 'core/list'
+	| 'jetpack/contact-form'
+	| ( typeof JETPACK_FORM_CHILDREN_BLOCKS )[ number ];
 
 type BlockSettingsProps = {
 	supports: {
@@ -120,6 +158,12 @@ function addJetpackAISupport(
 ): BlockSettingsProps {
 	// Only extend the blocks in the list.
 	if ( ! EXTENDED_TRANSFORMATIVE_BLOCKS.includes( name ) ) {
+		return settings;
+	}
+
+	// Do not extend Form blocks, as they are handled differently.
+	const formBlocks = [ 'jetpack/contact-form', ...JETPACK_FORM_CHILDREN_BLOCKS ];
+	if ( formBlocks.includes( name ) ) {
 		return settings;
 	}
 

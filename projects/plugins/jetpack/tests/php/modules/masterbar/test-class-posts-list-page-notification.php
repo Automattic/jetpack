@@ -2,6 +2,8 @@
 /**
  * Tests for Posts_List_Page_Notification class.
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -18,21 +20,30 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 
 	/**
 	 * Check if the actions are attached.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::init_actions
 	 */
 	public function test_it_has_instance_loaded() {
-		$instance = new Posts_List_Page_Notification( '5', 'page', '4' );
+		$instance   = new Posts_List_Page_Notification( '5', 'page', '4' );
+		$reflection = new \ReflectionClass( $instance );
+		$wrapper    = $reflection->getProperty( 'post_list_page_notification_wrapper' );
+		$wrapper->setAccessible( true );
 
-		$this->assertSame( 10, has_action( 'init', array( $instance, 'init_actions' ) ) );
+		$this->assertSame( 10, has_action( 'init', array( $wrapper->getValue( $instance ), 'init_actions' ) ) );
 
 		$instance->init_actions();
 
-		$this->assertSame( 10, has_action( 'map_meta_cap', array( $instance, 'disable_posts_page' ) ) );
-		$this->assertSame( 10, has_action( 'post_class', array( $instance, 'add_posts_page_css_class' ) ) );
-		$this->assertSame( 10, has_action( 'admin_print_footer_scripts-edit.php', array( $instance, 'add_notification_icon' ) ) );
+		$this->assertSame( 10, has_action( 'map_meta_cap', array( $wrapper->getValue( $instance ), 'disable_posts_page' ) ) );
+		$this->assertSame( 10, has_action( 'post_class', array( $wrapper->getValue( $instance ), 'add_posts_page_css_class' ) ) );
+		$this->assertSame( 10, has_action( 'admin_print_footer_scripts-edit.php', array( $wrapper->getValue( $instance ), 'add_notification_icon' ) ) );
 	}
 
 	/**
 	 * Check if it appends the CSS class.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::add_posts_page_css_class
 	 */
 	public function test_it_appends_css_class() {
 		$instance = new Posts_List_Page_Notification( '5', 'page', '4' );
@@ -49,6 +60,9 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 
 	/**
 	 * Check if do_not_allow capability is added on Posts Page.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::disable_posts_page
 	 */
 	public function test_it_disables_posts_page() {
 		$instance = new Posts_List_Page_Notification( '5', 'page', '' );
@@ -62,11 +76,16 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 
 	/**
 	 * Check that the hooks are not loaded when the show_on_front option is not "page".
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::__construct
 	 */
 	public function test_it_is_not_loaded_when_show_on_front_option_is_not_page() {
-		$instance = new Posts_List_Page_Notification( '5', 'posts', '1' );
+		$instance   = new Posts_List_Page_Notification( '5', 'posts', '1' );
+		$reflection = new \ReflectionClass( $instance );
+		$wrapper    = $reflection->getProperty( 'post_list_page_notification_wrapper' );
+		$wrapper->setAccessible( true );
 
-		$this->assertFalse( has_action( 'init', array( $instance, 'init_actions' ) ) );
+		$this->assertFalse( has_action( 'init', array( $wrapper->getValue( $instance ), 'init_actions' ) ) );
 	}
 
 	/**
@@ -74,9 +93,15 @@ class Test_Posts_List_Page_Notification extends WP_UnitTestCase {
 	 *
 	 * Although in the WP-Admin interface, when the same page is selected in both dropdowns the posts page dropdown is reset,
 	 * internally WordPress will still store the page id in "page_for_posts" site_option.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Posts_List_Page_Notification::__construct
 	 */
 	public function test_it_is_not_loaded_when_posts_page_id_and_home_page_id_are_the_same() {
-		$instance = new Posts_List_Page_Notification( '5', 'page', '5' );
-		$this->assertFalse( has_action( 'init', array( $instance, 'init_actions' ) ) );
+		$instance   = new Posts_List_Page_Notification( '5', 'page', '5' );
+		$reflection = new \ReflectionClass( $instance );
+		$wrapper    = $reflection->getProperty( 'post_list_page_notification_wrapper' );
+		$wrapper->setAccessible( true );
+
+		$this->assertFalse( has_action( 'init', array( $wrapper->getValue( $instance ), 'init_actions' ) ) );
 	}
 }

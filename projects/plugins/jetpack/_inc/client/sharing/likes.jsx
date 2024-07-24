@@ -43,7 +43,9 @@ export const Likes = withModuleSettingsFormHelpers(
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
-							{ __( 'Add Like buttons to your posts and pages', 'jetpack' ) }
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Add Like buttons to your posts and pages', 'jetpack' ) }
+							</span>
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>

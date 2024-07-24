@@ -34,7 +34,9 @@ class Shortlinks extends Component {
 						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate shortened URLs for simpler sharing.', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Generate shortened URLs for simpler sharing.', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 				</SettingsGroup>
 			</SettingsCard>

@@ -411,6 +411,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @see WP_Widget::widget()
 		 *
+		 * @html-template-var array $instance
+		 *
 		 * @param array $args     Widget arguments.
 		 * @param array $instance Saved values from database.
 		 */
@@ -577,6 +579,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 * Back-end widget form.
 		 *
 		 * @see WP_Widget::form()
+		 *
+		 * @html-template-var array $instance
+		 * @html-template-var WP_Post[] $product_posts
 		 *
 		 * @param array $instance Previously saved values from database.
 		 */

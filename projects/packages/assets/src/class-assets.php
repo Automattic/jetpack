@@ -109,9 +109,8 @@ class Assets {
 	 */
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
 		_deprecated_function( __METHOD__, '2.1.0' );
-		$assets_instance = self::instance();
-		$assets_instance->add_async_script( $handle );
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
+		wp_script_add_data( $handle, 'strategy', 'defer' );
 	}
 
 	// endregion .
@@ -258,11 +257,11 @@ class Assets {
 		$ret  = '';
 		$ret .= isset( $parts['scheme'] ) ? $parts['scheme'] . '://' : '';
 		if ( isset( $parts['user'] ) || isset( $parts['pass'] ) ) {
-			$ret .= isset( $parts['user'] ) ? $parts['user'] : '';
+			$ret .= $parts['user'] ?? '';
 			$ret .= isset( $parts['pass'] ) ? ':' . $parts['pass'] : '';
 			$ret .= '@';
 		}
-		$ret .= isset( $parts['host'] ) ? $parts['host'] : '';
+		$ret .= $parts['host'] ?? '';
 		$ret .= isset( $parts['port'] ) ? ':' . $parts['port'] : '';
 
 		$pp = explode( '/', $parts['path'] );
@@ -323,6 +322,7 @@ class Assets {
 	 *  - `strategy`:         (string) Specify a script strategy to use, eg. `defer` or `async`. Default is `""`.
 	 *  - `textdomain`:       (string) Text domain for the script. Required if the script depends on wp-i18n.
 	 *  - `version`:          (string) Override the version from the `asset_path` file.
+	 * @phan-param array{asset_path?:?string,async?:bool,css_dependencies?:string[],css_path?:?string,dependencies?:string[],enqueue?:bool,in_footer?:bool,media?:string,minify?:?bool,nonmin_path?:string,strategy?:string,textdomain?:string,version?:string} $options
 	 * @throws \InvalidArgumentException If arguments are invalid.
 	 */
 	public static function register_script( $handle, $path, $relative_to, array $options = array() ) {
@@ -349,8 +349,9 @@ class Assets {
 			'strategy'         => '',
 			'textdomain'       => null,
 		);
+		'@phan-var array{asset_path:?string,async:bool,css_dependencies:string[],css_path:?string,dependencies:string[],enqueue:bool,in_footer:bool,media:string,minify:?bool,nonmin_path?:string,strategy:string,textdomain:string,version?:string} $options'; // Phan gets confused by the array addition.
 
-		if ( $options['css_path'] && substr( $options['css_path'], -4 ) !== '.css' ) {
+		if ( is_string( $options['css_path'] ) && $options['css_path'] !== '' && substr( $options['css_path'], -4 ) !== '.css' ) {
 			throw new \InvalidArgumentException( '$options[\'css_path\'] must end in ".css"' );
 		}
 
@@ -376,9 +377,9 @@ class Assets {
 				),
 				$options['css_dependencies']
 			);
-			$ver                         = isset( $options['version'] ) ? $options['version'] : $asset['version'];
+			$ver                         = $options['version'] ?? $asset['version'];
 		} else {
-			$ver = isset( $options['version'] ) ? $options['version'] : filemtime( "$dir/$path" );
+			$ver = $options['version'] ?? filemtime( "$dir/$path" );
 		}
 
 		if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option
@@ -407,7 +408,7 @@ class Assets {
 			);
 		}
 
-		if ( $options['css_path'] && file_exists( "$dir/{$options['css_path']}" ) ) {
+		if ( is_string( $options['css_path'] ) && $options['css_path'] !== '' && file_exists( "$dir/{$options['css_path']}" ) ) {
 			$csspath = $options['css_path'];
 			if ( is_rtl() ) {
 				$rtlcsspath = substr( $csspath, 0, -4 ) . '.rtl.css';
@@ -528,6 +529,11 @@ class Assets {
 		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
+
+		// Register the React JSX runtime script - used as a polyfill until we can update JSX transforms. See https://github.com/Automattic/jetpack/issues/38424.
+		// @todo Remove this when we drop support for WordPress 6.5, as well as the script inclusion in test_wp_default_scripts_hook.
+		$jsx_url = self::normalize_path( plugins_url( '../build/react-jsx-runtime.js', __FILE__ ) );
+		$wp_scripts->add( 'react-jsx-runtime', $jsx_url, array( 'react' ), '18.3.1', true );
 	}
 
 	// endregion .
@@ -667,7 +673,7 @@ class Assets {
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
-	 * @param string $number The number to compare against to use either the singular or plural form.
+	 * @param int    $number The number to compare against to use either the singular or plural form.
 	 * @param string $domain Text domain.
 	 * @return string Translated text.
 	 */
@@ -704,7 +710,7 @@ class Assets {
 	 * @param string $translation Translated text.
 	 * @param string $single The text to be used if the number is singular.
 	 * @param string $plural The text to be used if the number is plural.
-	 * @param string $number The number to compare against to use either the singular or plural form.
+	 * @param int    $number The number to compare against to use either the singular or plural form.
 	 * @param string $context Context information for the translators.
 	 * @param string $domain Text domain.
 	 * @return string Translated text.

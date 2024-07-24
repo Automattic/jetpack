@@ -1,0 +1,55 @@
+{
+	"name": "automattic/patchwork-redefine-exit",
+	"description": "Use antecedent/patchwork to redefine `exit` and `die` for more robust PHPUnit testing.",
+	"keywords": [
+		"patchwork",
+		"testing",
+		"redefinition",
+		"exit",
+		"die",
+		"phpunit"
+	],
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.0",
+		"antecedent/patchwork": "^2.1"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.1.0",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-php": [
+			"@composer phpunit"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "1.0.x-dev"
+		},
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/patchwork-redefine-exit/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/patchwork-redefine-exit"
+	}
+}

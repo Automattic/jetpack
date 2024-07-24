@@ -84,7 +84,9 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 						toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Add sharing buttons to your posts and pages', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 				);
 

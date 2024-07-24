@@ -11,6 +11,7 @@ import Newsletter from './newsletter';
 import NewsletterCategories from './newsletter-categories';
 import PaidNewsletter from './paid-newsletter';
 import SubscriptionsSettings from './subscriptions-settings';
+import './style.scss';
 
 /**
  * Newsletter Section.

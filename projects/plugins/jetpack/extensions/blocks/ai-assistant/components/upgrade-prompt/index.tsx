@@ -38,24 +38,20 @@ const DefaultUpgradePrompt = ( {
 }: UpgradePromptProps ): ReactElement => {
 	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 
-	const { checkoutUrl, autosaveAndRedirect, isRedirecting } = useAICheckout();
+	const { checkoutUrl } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
 	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
 
 	const { tracks } = useAnalytics();
 
-	const handleUpgradeClick = useCallback(
-		event => {
-			debug( 'upgrade', placement );
-			tracks.recordEvent( 'jetpack_ai_upgrade_button', {
-				current_tier_slug: currentTier?.slug,
-				requests_count: requestsCount,
-				placement: placement,
-			} );
-			autosaveAndRedirect( event );
-		},
-		[ autosaveAndRedirect, currentTier, requestsCount, tracks, placement ]
-	);
+	const handleUpgradeClick = useCallback( () => {
+		debug( 'upgrade', placement );
+		tracks.recordEvent( 'jetpack_ai_upgrade_button', {
+			current_tier_slug: currentTier?.slug,
+			requests_count: requestsCount,
+			placement: placement,
+		} );
+	}, [ currentTier, requestsCount, tracks, placement ] );
 
 	const handleContactUsClick = useCallback( () => {
 		debug( 'contact us', placement );
@@ -107,6 +103,7 @@ const DefaultUpgradePrompt = ( {
 					title={ null }
 					context={ null }
 					goToCheckoutPage={ handleContactUsClick }
+					target="_blank"
 				/>
 			);
 		}
@@ -136,11 +133,11 @@ const DefaultUpgradePrompt = ( {
 				className={ 'jetpack-ai-upgrade-banner' }
 				description={ description || upgradeDescription }
 				goToCheckoutPage={ handleUpgradeClick }
-				isRedirecting={ isRedirecting }
 				visible={ true }
 				align={ 'center' }
 				title={ null }
 				context={ null }
+				target="_blank"
 			/>
 		);
 	}
@@ -159,12 +156,12 @@ const DefaultUpgradePrompt = ( {
 					strong: <strong />,
 				}
 			) }
-			goToCheckoutPage={ autosaveAndRedirect }
-			isRedirecting={ isRedirecting }
+			goToCheckoutPage={ handleUpgradeClick }
 			visible={ true }
 			align={ null }
 			title={ null }
 			context={ null }
+			target="_blank"
 		/>
 	);
 };

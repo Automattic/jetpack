@@ -2,7 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -40,7 +40,7 @@ export class Sitemaps extends React.Component {
 			sitemap_url = get( sitemaps, [ 'extra', 'sitemap_url' ], '' ),
 			news_sitemap_url = get( sitemaps, [ 'extra', 'news_sitemap_url' ], '' );
 
-		const searchEngineVisibilityClasses = classNames( {
+		const searchEngineVisibilityClasses = clsx( {
 			'jp-form-setting-explanation': true,
 			'is-warning':
 				! this.props.isSiteVisibleToSearchEngines && this.props.getOptionValue( 'sitemaps' ),
@@ -68,7 +68,9 @@ export class Sitemaps extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						{ __( 'Generate XML sitemaps', 'jetpack' ) }
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Generate XML sitemaps', 'jetpack' ) }
+						</span>
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (

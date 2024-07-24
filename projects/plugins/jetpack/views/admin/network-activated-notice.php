@@ -2,6 +2,7 @@
 /**
  * View template file for network activation notice.
  *
+ * @html-template Jetpack::load_view
  * @package automattic/jetpack
  */
 

@@ -14,7 +14,7 @@ import {
 	useImageAnalysisRequest,
 	IsaCounts,
 } from '$features/image-size-analysis';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import styles from './recommendations-meta.module.scss';
 
 const getWaitNotice = ( isRequesting: boolean, currentStatus: string | undefined ) => {
@@ -81,7 +81,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 							</ErrorNotice>
 						</div>
 					) : waitNotice ? (
-						<div className={ classNames( styles[ 'summary-line' ], styles[ 'wait-notice' ] ) }>
+						<div className={ clsx( styles[ 'summary-line' ], styles[ 'wait-notice' ] ) }>
 							{ waitNotice }
 						</div>
 					) : null }
@@ -89,7 +89,7 @@ const RecommendationsMeta: React.FC< Props > = ( { isCdnActive } ) => {
 					{ ! isaRequest.isPending && status === ISAStatus.Completed && (
 						<div className={ styles[ 'summary-line' ] }>
 							{ totalIssues > 0 ? (
-								<div className={ classNames( styles[ 'has-issues' ], styles.summary ) }>
+								<div className={ clsx( styles[ 'has-issues' ], styles.summary ) }>
 									<WarningIcon />
 									{ sprintf(
 										// translators: 1: Number of scanned issues found 2: Number of scanned pages

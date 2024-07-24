@@ -2,14 +2,11 @@
 /**
  * Jetpack_Flickr_Widget frontend widget output.
  *
+ * @html-template Jetpack_Flickr_Widget::widget
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Flickr_Widget $this';
-'@phan-var-force array $instance';
-'@phan-var-force string|null $flickr_home';
-'@phan-var-force string $photos';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
 <!-- Start of Flickr Widget -->

@@ -1,5 +1,5 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import SocialLogo from 'social-logos';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types';
@@ -20,7 +20,7 @@ const IconWrapper: React.FC< BaseIconProps > = ( {
 	children,
 } ) => {
 	const iconProps = {
-		className: classNames( styles.iconWrapper, className ),
+		className: clsx( styles.iconWrapper, className ),
 		width: size,
 		height: size,
 		viewBox,
@@ -282,7 +282,7 @@ export const SocialServiceIcon: React.FC< {
 } > = ( { serviceName, className, iconSize } ) => {
 	return (
 		<SocialLogo
-			className={ classNames( styles.socialIcon, styles[ serviceName ], className ) }
+			className={ clsx( styles.socialIcon, styles[ serviceName ], className ) }
 			icon={ serviceName }
 			size={ iconSize || 24 }
 		/>

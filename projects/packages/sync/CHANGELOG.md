@@ -5,6 +5,65 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2024-07-15
+### Added
+- Jetpack Sync: Add support for HPOS checksums [#38320]
+
+### Changed
+- Jetpack Sync: Ensure HPOS order status is prefixed with 'wc-' before sending it to WPCOM [#38258]
+
+## [3.2.1] - 2024-07-10
+### Fixed
+- Jetpack Sync HPOS: Ensure get_objects_by_id will return all relevant orders [#38251]
+
+## [3.2.0] - 2024-07-08
+### Changed
+- Jetpack Sync: Ensure we always sync heartbeat data and active plugins no matter the consumer config [#38135]
+
+### Fixed
+- Jetpack Sync: Fix HPOS checksum support for wc_order_operational_data [#38191]
+- Sync: Fix bug in WooCommerce_HPOS_Orders::get_objects_by_id method [#38192]
+
+## [3.1.4] - 2024-07-01
+### Fixed
+- Sync Checksum:Use postmeta table name from wpdb to compare so we don't filter by whitelist due to performance reasons. [#38084]
+
+## [3.1.3] - 2024-06-25
+### Changed
+- Internal updates.
+
+## [3.1.2] - 2024-06-21
+### Added
+- Adding a new toggles to control the newsletter byline [#37916]
+
+## [3.1.1] - 2024-06-13
+### Changed
+- Internal updates.
+
+## [3.1.0] - 2024-06-10
+### Added
+- Staging: deprecating staging mode and separating the logic into is_development_site and in_safe_mode [#37023]
+
+## [3.0.2] - 2024-06-04
+### Fixed
+- Defaults: Add new item to default_theme_support_whitelist to prevent failing sync tests. [#37701]
+
+## [3.0.1] - 2024-05-29
+### Changed
+- Remove the 'jetpack-identity-crisis' dependency. [#36968]
+
+## [3.0.0] - 2024-05-27
+### Removed
+- Jetpack Sync: Remove 'admin_action_update' hook from Sync Plugins module. [#37488]
+
+## [2.16.6] - 2024-05-23
+### Added
+- Add reply to name setting for newsletters. [#37362]
+
+## [2.16.5] - 2024-05-22
+### Changed
+- Internal updates.
+
 ## [2.16.4] - 2024-05-20
 ### Changed
 - Replaced heredoc syntax with strings. [#37396]
@@ -1152,6 +1211,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.3.0]: https://github.com/Automattic/jetpack-sync/compare/v3.2.1...v3.3.0
+[3.2.1]: https://github.com/Automattic/jetpack-sync/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/Automattic/jetpack-sync/compare/v3.1.4...v3.2.0
+[3.1.4]: https://github.com/Automattic/jetpack-sync/compare/v3.1.3...v3.1.4
+[3.1.3]: https://github.com/Automattic/jetpack-sync/compare/v3.1.2...v3.1.3
+[3.1.2]: https://github.com/Automattic/jetpack-sync/compare/v3.1.1...v3.1.2
+[3.1.1]: https://github.com/Automattic/jetpack-sync/compare/v3.1.0...v3.1.1
+[3.1.0]: https://github.com/Automattic/jetpack-sync/compare/v3.0.2...v3.1.0
+[3.0.2]: https://github.com/Automattic/jetpack-sync/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/Automattic/jetpack-sync/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Automattic/jetpack-sync/compare/v2.16.6...v3.0.0
+[2.16.6]: https://github.com/Automattic/jetpack-sync/compare/v2.16.5...v2.16.6
+[2.16.5]: https://github.com/Automattic/jetpack-sync/compare/v2.16.4...v2.16.5
 [2.16.4]: https://github.com/Automattic/jetpack-sync/compare/v2.16.3...v2.16.4
 [2.16.3]: https://github.com/Automattic/jetpack-sync/compare/v2.16.2...v2.16.3
 [2.16.2]: https://github.com/Automattic/jetpack-sync/compare/v2.16.1...v2.16.2

@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import clsx from 'clsx';
 import Text from '../text';
 import styles from './style.module.scss';
 
@@ -21,7 +21,7 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 	return (
 		<Text
 			variant="body-extra-small"
-			className={ classNames(
+			className={ clsx(
 				styles.status,
 				{
 					[ styles[ `is-${ status }` ] ]: status,

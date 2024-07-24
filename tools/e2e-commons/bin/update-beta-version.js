@@ -1,10 +1,16 @@
 import { fileURLToPath } from 'url';
 import fetch from 'node-fetch';
 
+/* eslint-disable no-process-exit */
+
 // Below call should be BEFORE requiring config, so library wil pick it up.
 process.env.NODE_CONFIG_DIR = fileURLToPath( new URL( '../config', import.meta.url ) );
 const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-helper.js' );
 
+/**
+ * Get HTTP Authentication header value
+ * @returns {string} header value
+ */
 function getAuthHeader() {
 	const credentials = getSiteCredentials();
 	return (
@@ -13,6 +19,10 @@ function getAuthHeader() {
 	);
 }
 
+/**
+ * Get Jetpack version from site
+ * @returns {string} Version
+ */
 async function getJetpackVersionFromSite() {
 	let response;
 	try {
@@ -39,6 +49,9 @@ async function getJetpackVersionFromSite() {
 	}
 }
 
+/**
+ * Force plugin updates
+ */
 async function forcePluginUpdates() {
 	const response = await fetch(
 		resolveSiteUrl() + '/index.php?rest_route=/jp-e2e/v1/beta-autoupdate',
@@ -50,6 +63,10 @@ async function forcePluginUpdates() {
 	console.log( await response.json() );
 }
 
+/**
+ * Get latest version
+ * @returns {string} Version
+ */
 async function getLatestVersion() {
 	const type = getVersionType();
 	const response = await fetch( 'https://betadownload.jetpack.me/jetpack-branches.json' );
@@ -63,6 +80,9 @@ async function getLatestVersion() {
 	return manifest.pr.type.version;
 }
 
+/**
+ * Wait for plugin update
+ */
 async function waitForPluginUpdate() {
 	let timesRun = 0;
 	const interval = setInterval( async () => {
@@ -83,6 +103,10 @@ async function waitForPluginUpdate() {
 	}, 5000 );
 }
 
+/**
+ * Get version type
+ * @returns {string} 'trunk' or 'rc'
+ */
 function getVersionType() {
 	const refType = process.argv[ 2 ];
 	const refName = process.argv[ 3 ];
@@ -95,8 +119,12 @@ function getVersionType() {
 	// TODO: cover the case for non-trunk branches, such as pushes to release branches.
 	console.error( 'Invalid version type: ' + refType + ' ' + refName );
 	process.exit( 0 );
+	throw new Error( 'Invalid version type: ' + refType + ' ' + refName ); // Shouldn't reach this, but eslint doesn't know that.
 }
 
+/**
+ * Main
+ */
 function main() {
 	getJetpackVersionFromSite().then( version => {
 		getLatestVersion().then( latestVersion => {

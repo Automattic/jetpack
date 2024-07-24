@@ -2,12 +2,11 @@
 /**
  * Template used to display arguments used to build the carousel modal.
  *
+ * @html-template Jetpack_Tiled_Gallery_Layout::partial
  * @package automattic/jetpack
  */
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Defined by the caller. Let Phan handle it.
-'@phan-var-force Jetpack_Tiled_Gallery_Layout $this';
-'@phan-var-force array $context';
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 $item             = $context['item'];
 $fuzzy_image_meta = $item->fuzzy_image_meta(); // See https://github.com/Automattic/jetpack/issues/2765 .

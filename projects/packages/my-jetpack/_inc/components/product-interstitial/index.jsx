@@ -1,11 +1,18 @@
 /**
  * External dependencies
  */
-import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import classNames from 'classnames';
+import { __, sprintf } from '@wordpress/i18n';
+import clsx from 'clsx';
 import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -66,6 +73,7 @@ export default function ProductInterstitial( {
 	ctaCallback = null,
 } ) {
 	const { detail } = useProduct( slug );
+	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating } = useActivate( slug );
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
@@ -76,6 +84,15 @@ export default function ProductInterstitial( {
 		skipUserConnection: true,
 		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
 	} );
+	const showBundledTOS = ! hideTOS && !! bundle;
+	const productName = detail?.title;
+	const bundleName = bundleDetail?.title;
+	const bundledTosLabels = [
+		/* translators: %s is the product name  */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productName ),
+		/* translators: %s is the bundled product name */
+		sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), bundleName ),
+	];
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_product_interstitial_view', { product: slug } );
@@ -97,24 +114,17 @@ export default function ProductInterstitial( {
 		[ slug, pricingForUi ]
 	);
 
-	const trackProductClick = useCallback(
-		( isFreePlan = false, customSlug = null ) => {
+	const trackProductOrBundleClick = useCallback(
+		options => {
+			const { customSlug = null, isFreePlan = false, ctaText = null } = options || {};
+			const productSlug = customSlug ? customSlug : bundle ?? slug;
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: customSlug ?? slug,
+				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
+				ctaText,
 			} );
 		},
-		[ recordEvent, slug, getProductSlugForTrackEvent ]
-	);
-
-	const trackBundleClick = useCallback(
-		( isFreePlan = false ) => {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
-				product: bundle,
-				product_slug: getProductSlugForTrackEvent( isFreePlan ),
-			} );
-		},
-		[ recordEvent, bundle, getProductSlugForTrackEvent ]
+		[ recordEvent, slug, getProductSlugForTrackEvent, bundle ]
 	);
 
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
@@ -218,7 +228,7 @@ export default function ProductInterstitial( {
 							slug={ slug }
 							clickHandler={ clickHandler }
 							onProductButtonClick={ clickHandler }
-							trackProductButtonClick={ trackProductClick }
+							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
 						/>
@@ -232,13 +242,13 @@ export default function ProductInterstitial( {
 							<Col sm={ 4 } md={ 4 } lg={ 7 }>
 								<ProductDetailCard
 									slug={ slug }
-									trackButtonClick={ trackProductClick }
+									trackButtonClick={ trackProductOrBundleClick }
 									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
 									supportingInfo={ supportingInfo }
 									preferProductName={ preferProductName }
 									ctaButtonLabel={ ctaButtonLabel }
-									hideTOS={ hideTOS }
+									hideTOS={ hideTOS || showBundledTOS }
 									quantity={ quantity }
 									highlightLastFeature={ highlightLastFeature }
 									isFetching={ isActivating || siteIsRegistering }
@@ -248,14 +258,15 @@ export default function ProductInterstitial( {
 								sm={ 4 }
 								md={ 4 }
 								lg={ 5 }
-								className={ classNames( styles.imageContainer, imageContainerClassName ) }
+								className={ clsx( styles.imageContainer, imageContainerClassName ) }
 							>
 								{ bundle ? (
 									<ProductDetailCard
 										slug={ bundle }
-										trackButtonClick={ trackBundleClick }
+										trackButtonClick={ trackProductOrBundleClick }
 										onClick={ clickHandler }
 										className={ isUpgradableByBundle ? styles.container : null }
+										hideTOS={ hideTOS || showBundledTOS }
 										quantity={ quantity }
 										highlightLastFeature={ highlightLastFeature }
 										isFetching={ isActivating }
@@ -265,6 +276,13 @@ export default function ProductInterstitial( {
 								) }
 							</Col>
 						</Container>
+					) }
+				</Col>
+				<Col>
+					{ showBundledTOS && (
+						<div className={ styles[ 'tos-container' ] }>
+							<TermsOfService multipleButtons={ bundledTosLabels } />
+						</div>
 					) }
 				</Col>
 			</Container>

@@ -9,6 +9,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { EXTENDED_INLINE_BLOCKS } from '../../extensions/ai-assistant';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -92,27 +93,70 @@ const quickActionsList: {
 			icon: postContent,
 		},
 	],
-	'core/list': [
+	'core/list-item': [
 		{
-			name: __( 'Turn list into a table', 'jetpack' ),
-			key: 'turn-into-table',
-			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
-			icon: blockTable,
-			options: {
-				userPrompt: 'make a table from this list, do not enclose the response in a code block',
-			},
+			name: __( 'Simplify', 'jetpack' ),
+			key: QUICK_EDIT_KEY_SIMPLIFY,
+			aiSuggestion: PROMPT_TYPE_SIMPLIFY,
+			icon: post,
 		},
 		{
-			name: __( 'Write a post from this list', 'jetpack' ),
-			key: 'write-post-from-list',
-			aiSuggestion: PROMPT_TYPE_USER_PROMPT,
-			icon: post,
-			options: {
-				userPrompt:
-					'Write a post based on the list items. Include a title as first order heading and try to use secondary headings for each entry',
-			},
+			name: __( 'Expand', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_LONGER,
+			aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
+			icon: postContent,
+		},
+		{
+			name: __( 'Make shorter', 'jetpack' ),
+			key: QUICK_EDIT_KEY_MAKE_SHORTER,
+			aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
+			icon: postContent,
 		},
 	],
+	'core/list': EXTENDED_INLINE_BLOCKS.includes( 'core/list' )
+		? [
+				{
+					name: __( 'Simplify', 'jetpack' ),
+					key: QUICK_EDIT_KEY_SIMPLIFY,
+					aiSuggestion: PROMPT_TYPE_SIMPLIFY,
+					icon: post,
+				},
+				{
+					name: __( 'Expand', 'jetpack' ),
+					key: QUICK_EDIT_KEY_MAKE_LONGER,
+					aiSuggestion: PROMPT_TYPE_MAKE_LONGER,
+					icon: postContent,
+				},
+				{
+					name: __( 'Make shorter', 'jetpack' ),
+					key: QUICK_EDIT_KEY_MAKE_SHORTER,
+					aiSuggestion: PROMPT_TYPE_MAKE_SHORTER,
+					icon: postContent,
+				},
+		  ]
+		: [
+				// Those actions are transformative in nature and are better suited for the AI Assistant block.
+				// TODO: Keep the action, but transforming the block.
+				{
+					name: __( 'Turn list into a table', 'jetpack' ),
+					key: 'turn-into-table',
+					aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+					icon: blockTable,
+					options: {
+						userPrompt: 'make a table from this list, do not enclose the response in a code block',
+					},
+				},
+				{
+					name: __( 'Write a post from this list', 'jetpack' ),
+					key: 'write-post-from-list',
+					aiSuggestion: PROMPT_TYPE_USER_PROMPT,
+					icon: post,
+					options: {
+						userPrompt:
+							'Write a post based on the list items. Include a title as first order heading and try to use secondary headings for each entry',
+					},
+				},
+		  ],
 };
 
 export type AiAssistantDropdownOnChangeOptionsArgProps = {

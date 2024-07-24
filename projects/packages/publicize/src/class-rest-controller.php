@@ -31,8 +31,7 @@ class REST_Controller {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SOCIAL_BASIC_YEARLY    = 'jetpack_social_basic_yearly';
-	const JETPACK_SOCIAL_ADVANCED_YEARLY = 'jetpack_social_advanced_yearly';
+	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
 
 	/**
 	 * Constructor
@@ -83,7 +82,7 @@ class REST_Controller {
 
 		// Dismiss a notice.
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated $$next_version$$.
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',
@@ -147,7 +146,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'update_connection_permission_check' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
@@ -159,9 +158,59 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
 			)
 		);
+	}
+
+	/**
+	 * Manage connection permission check
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can manage the connection, false otherwise.
+	 */
+	public function manage_connection_permission_check( WP_REST_Request $request ) {
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * Publicize instance.
+		 *
+		 * @var Publicize $publicize Publicize instance.
+		 */
+		global $publicize;
+
+		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
+
+		$owns_connection = isset( $connection['user_id'] ) && get_current_user_id() === (int) $connection['user_id'];
+
+		return $owns_connection;
+	}
+
+	/**
+	 * Update connection permission check.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can update the connection, false otherwise.
+	 */
+	public function update_connection_permission_check( WP_REST_Request $request ) {
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return false;
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return $this->require_author_privilege_callback();
 	}
 
 	/**
@@ -281,12 +330,25 @@ class REST_Controller {
 	 * Gets the current Publicize connections for the site.
 	 *
 	 * GET `jetpack/v4/publicize/connections`
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
 	 */
-	public function get_publicize_connections() {
-		$blog_id  = $this->get_blog_id();
-		$path     = sprintf( '/sites/%d/publicize/connections', absint( $blog_id ) );
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+	public function get_publicize_connections( $request ) {
+		$run_test_results = $request->get_param( 'test_connections' );
+		$clear_cache      = $request->get_param( 'clear_cache' );
+
+		$args = array();
+
+		if ( ! empty( $run_test_results ) ) {
+			$args['test_connections'] = true;
+		}
+
+		if ( ! empty( $clear_cache ) ) {
+			$args['clear_cache'] = true;
+		}
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_all_connections_for_user( $args ) );
 	}
 
 	/**
@@ -313,8 +375,7 @@ class REST_Controller {
 
 		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
 		return array(
-			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
-			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+			'v1' => $products->{self::JETPACK_SOCIAL_V1_YEARLY},
 		);
 	}
 
@@ -453,7 +514,15 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		global $publicize;
+		return rest_ensure_response( $publicize->get_connection_for_user( (int) $connection_id ) );
 	}
 
 	/**
@@ -513,6 +582,21 @@ class REST_Controller {
 			$body,
 			'wpcom'
 		);
-		return rest_ensure_response( $this->make_proper_response( $response ) );
+
+		$response = $this->make_proper_response( $response );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( isset( $response['ID'] ) ) {
+			global $publicize;
+			return rest_ensure_response( $publicize->get_connection_for_user( (int) $response['ID'] ) );
+		}
+
+		return new WP_Error(
+			'could_not_create_connection',
+			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+		);
 	}
 }

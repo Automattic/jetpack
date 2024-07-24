@@ -92,7 +92,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( popoverContainer ).queryByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).queryByRole( 'tab', { name: 'Color' } )
 			).not.toBeInTheDocument();
 			expect(
 				within( popoverContainer ).queryByRole( 'tab', { name: 'Gradient' } )
@@ -150,7 +150,7 @@ describe( 'Inspector settings', () => {
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
 			expect(
-				within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } )
+				within( popoverContainer ).getByRole( 'tab', { name: 'Color' } )
 			).toBeInTheDocument();
 			expect(
 				within( popoverContainer ).getByRole( 'tab', { name: 'Gradient' } )
@@ -180,7 +180,7 @@ describe( 'Inspector settings', () => {
 			await user.click( backgroundButton );
 			// eslint-disable-next-line testing-library/no-node-access
 			const popoverContainer = document.querySelector( '.components-popover__fallback-container' );
-			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Solid' } ) );
+			await user.click( within( popoverContainer ).getByRole( 'tab', { name: 'Color' } ) );
 			await user.click(
 				within( popoverContainer ).getAllByRole( 'option', { name: /^Color: / } )[ 0 ]
 			);

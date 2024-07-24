@@ -1,0 +1,13 @@
+@import "variables";
+
+// Light theme specifics
+#wpadminbar #wp-admin-bar-blog > a.ab-item:before,
+#wpadminbar #wp-admin-bar-newdash > a.ab-item:before,
+#wpadminbar #wp-admin-bar-notes .noticon-bell:before {
+  filter: brightness(0.1);
+}
+
+@import "../_core-overrides";
+@import "../_gutenberg";
+@import "../_inline-help";
+@import "sidebar-notice";

@@ -1,10 +1,12 @@
 import {
+	Notice,
 	PanelBody,
 	RangeControl,
 	SelectControl,
 	ToggleControl,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
 export function TopPostsInspectorControls( {
@@ -17,17 +19,26 @@ export function TopPostsInspectorControls( {
 	const { displayAuthor, displayContext, displayDate, displayThumbnail, period, postsToShow } =
 		attributes;
 
+	const [ showErrorMessage, setShowErrorMessage ] = useState( false );
+
 	if ( ! postTypesData ) {
 		return;
 	}
 
 	const handleToggleChange = toggleId => isChecked => {
-		setToggleAttributes( prevAttributes => ( {
-			...prevAttributes,
+		const updatedAttributes = {
+			...toggleAttributes,
 			[ toggleId ]: isChecked,
-		} ) );
+		};
 
-		setAttributes( { postTypes: { ...toggleAttributes, [ toggleId ]: isChecked } } );
+		// Require at least one type to be selected.
+		if ( Object.values( updatedAttributes ).every( value => value === false ) ) {
+			return setShowErrorMessage( true );
+		}
+
+		setToggleAttributes( updatedAttributes );
+		setAttributes( { postTypes: updatedAttributes } );
+		setShowErrorMessage( false );
 	};
 
 	const periodOptions = [
@@ -70,6 +81,11 @@ export function TopPostsInspectorControls( {
 						onChange={ handleToggleChange( toggle.id ) }
 					/>
 				) ) }
+				{ showErrorMessage && (
+					<Notice className="jetpack-top-posts__error" status="error" isDismissible={ false }>
+						{ __( 'At least one item must be selected.', 'jetpack' ) }
+					</Notice>
+				) }
 			</PanelBody>
 			<PanelBody title={ __( 'Metadata settings', 'jetpack' ) }>
 				<ToggleControl

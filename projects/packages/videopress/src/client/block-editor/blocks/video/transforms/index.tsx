@@ -5,7 +5,7 @@ import { createBlobURL } from '@wordpress/blob';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
-import classnames from 'classnames';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -104,7 +104,7 @@ const transformToCoreEmbed = {
 		const { clientId } = block;
 		setTimeout( () => {
 			const { className: embedClassName } = getBlockAttributes( clientId ) || {};
-			const updatedClassName = classnames( className, embedClassName );
+			const updatedClassName = clsx( className, embedClassName );
 			updateBlockAttributes( clientId, { className: updatedClassName } );
 		}, 100 );
 
