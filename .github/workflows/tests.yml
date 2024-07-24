@@ -72,6 +72,11 @@ jobs:
           php: ${{ matrix.php }}
           node: ${{ matrix.node }}
 
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
       - name: Monorepo install
         run: |
           echo "::group::Pnpm"
