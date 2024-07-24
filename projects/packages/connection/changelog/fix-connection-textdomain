@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix textdomain on i18n messages imported from the IDC package.

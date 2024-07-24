@@ -9,7 +9,7 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "2.5.3",
+		"automattic/wc-calypso-bridge": "2.5.4",
 		"wordpress/classic-editor-plugin": "1.5",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-post-list": "@dev",
@@ -26,7 +26,6 @@
 	},
 	"autoload": {
 		"classmap": [
-			"block-theme-footer-credits",
 			"customizer-fixes",
 			"custom-colors",
 			"endpoints",
@@ -130,7 +129,7 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ4_1_0_alpha"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_0_0"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",

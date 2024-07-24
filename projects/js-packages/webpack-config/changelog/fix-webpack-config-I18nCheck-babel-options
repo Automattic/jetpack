@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Pass default Babel options to I18nCheckWebpackPlugin if none are supplied, as we already do for TranspileRule.

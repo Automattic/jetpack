@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled)

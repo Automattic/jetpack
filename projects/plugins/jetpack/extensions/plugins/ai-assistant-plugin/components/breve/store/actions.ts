@@ -3,6 +3,7 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
+import { BREVE_FEATURE_NAME } from '../constants';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -48,18 +49,35 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setBlockMd5( feature: string, blockId: string, md5: string ) {
+	return {
+		type: 'SET_BLOCK_MD5',
+		feature,
+		blockId,
+		md5,
+	};
+}
+
+export function invalidateSuggestions( feature: string, blockId: string ) {
+	return {
+		type: 'INVALIDATE_SUGGESTIONS',
+		feature,
+		blockId,
+	};
+}
+
 export function setSuggestions( {
 	id,
 	feature,
 	target,
-	sentence,
+	text,
 	blockId,
 	occurrence,
 }: {
 	id: string;
 	feature: string;
 	target: string;
-	sentence: string;
+	text: string;
 	blockId: string;
 	occurrence: string;
 } ) {
@@ -76,12 +94,12 @@ export function setSuggestions( {
 			getRequestMessages( {
 				feature,
 				target,
-				sentence,
+				text,
 				blockId,
 				occurrence,
 			} ),
 			{
-				feature: 'jetpack-ai-breve',
+				feature: BREVE_FEATURE_NAME,
 			}
 		)
 			.then( response => {

@@ -1594,10 +1594,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response(
 			array(
 				'code'  => 'response',
-				'debug' => array(
-					'data' => $encrypted['data'],
-					'key'  => $encrypted['key'],
-				),
+				'debug' => $encrypted,
 			)
 		);
 	}
@@ -2338,8 +2335,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'waf',
 			),
-			'jetpack_waf_ip_list'                   => array(
-				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
+			'jetpack_waf_ip_allow_list_enabled'     => array(
+				'description'       => esc_html__( 'Allow list - Allow a specific request IP.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
+			'jetpack_waf_ip_block_list_enabled'     => array(
+				'description'       => esc_html__( 'Block list - Block a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

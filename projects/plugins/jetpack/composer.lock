@@ -124,7 +124,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/assets",
-				"reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
+				"reference": "f5fd9602849fa481571e1bb6c46b3460dad33095"
 			},
 			"require": {
 				"automattic/jetpack-constants": "@dev",
@@ -148,7 +148,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "2.1.x-dev"
+					"dev-trunk": "2.2.x-dev"
 				}
 			},
 			"autoload": {
@@ -1139,6 +1139,78 @@
 			}
 		},
 		{
+			"name": "automattic/jetpack-explat",
+			"version": "dev-trunk",
+			"dist": {
+				"type": "path",
+				"url": "../../packages/explat",
+				"reference": "04730c821356389b213b361f33a2fc696826ad77"
+			},
+			"require": {
+				"automattic/jetpack-connection": "@dev",
+				"php": ">=7.0"
+			},
+			"require-dev": {
+				"automattic/jetpack-changelogger": "@dev",
+				"yoast/phpunit-polyfills": "1.1.0"
+			},
+			"suggest": {
+				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+			},
+			"type": "jetpack-library",
+			"extra": {
+				"autotagger": true,
+				"branch-alias": {
+					"dev-trunk": "0.1.x-dev"
+				},
+				"changelogger": {
+					"link-template": "https://github.com/Automattic/jetpack-explat/compare/v${old}...v${new}"
+				},
+				"mirror-repo": "Automattic/jetpack-explat",
+				"textdomain": "jetpack-explat",
+				"version-constants": {
+					"::PACKAGE_VERSION": "src/class-explat.php"
+				}
+			},
+			"autoload": {
+				"classmap": [
+					"src/"
+				]
+			},
+			"scripts": {
+				"phpunit": [
+					"./vendor/phpunit/phpunit/phpunit --colors=always"
+				],
+				"test-php": [
+					"@composer phpunit"
+				],
+				"test-js": [
+					"echo 'Run `pnpm run test` when ready'"
+				],
+				"test-js-watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run test --watch"
+				],
+				"build-development": [
+					"pnpm run build"
+				],
+				"build-production": [
+					"NODE_ENV=production pnpm run build"
+				],
+				"watch": [
+					"Composer\\Config::disableProcessTimeout",
+					"pnpm run watch"
+				]
+			},
+			"license": [
+				"GPL-2.0-or-later"
+			],
+			"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
+			"transport-options": {
+				"relative": true
+			}
+		},
+		{
 			"name": "automattic/jetpack-forms",
 			"version": "dev-trunk",
 			"dist": {
@@ -1740,7 +1812,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "a41e05669aceb5dff88c10468a3b7faf0152b1e4"
+				"reference": "524d5410bf385fd2e2c03092430d398339745aa4"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1748,6 +1820,7 @@
 				"automattic/jetpack-boost-speed-score": "@dev",
 				"automattic/jetpack-connection": "@dev",
 				"automattic/jetpack-constants": "@dev",
+				"automattic/jetpack-explat": "@dev",
 				"automattic/jetpack-jitm": "@dev",
 				"automattic/jetpack-licensing": "@dev",
 				"automattic/jetpack-plans": "@dev",
@@ -1778,7 +1851,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "4.29.x-dev"
+					"dev-trunk": "4.30.x-dev"
 				},
 				"version-constants": {
 					"::PACKAGE_VERSION": "src/class-initializer.php"
