@@ -3,6 +3,7 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
+import { BREVE_FEATURE_NAME } from '../constants';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -98,7 +99,7 @@ export function setSuggestions( {
 				occurrence,
 			} ),
 			{
-				feature: 'jetpack-ai-breve',
+				feature: BREVE_FEATURE_NAME,
 			}
 		)
 			.then( response => {

@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	PanelRow,
@@ -21,8 +22,8 @@ import React, { useState, useEffect, useCallback } from 'react';
  */
 import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
-import './breve.scss';
 import { getPostText } from './utils/getPostText';
+import './breve.scss';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
@@ -36,6 +37,7 @@ export const useInit = init => {
 const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState( null );
 	const { toggleFeature, toggleProofread } = useDispatch( 'jetpack/ai-breve' );
+	const { tracks } = useAnalytics();
 
 	const isProofreadEnabled = useSelect(
 		select => select( 'jetpack/ai-breve' ).isProofreadEnabled(),
@@ -63,14 +65,16 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	const handleToggleFeature = useCallback(
 		feature => checked => {
+			tracks.recordEvent( 'jetpack_ai_breve_feature_toggle', { type: feature, on: checked } );
 			toggleFeature( feature, checked );
 		},
-		[ toggleFeature ]
+		[ tracks, toggleFeature ]
 	);
 
 	const handleAiFeedbackToggle = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_breve_toggle', { on: ! isProofreadEnabled } );
 		toggleProofread();
-	}, [ toggleProofread ] );
+	}, [ tracks, isProofreadEnabled, toggleProofread ] );
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
