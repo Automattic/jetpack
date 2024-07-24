@@ -77,6 +77,7 @@ export type BreveDispatch = {
 	invalidateSuggestions: ( feature: string, blockId: string ) => void;
 	setBlockMd5: ( feature: string, blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
+		anchor: Anchor[ 'target' ];
 		id: string;
 		feature: string;
 		target: string;
