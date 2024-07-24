@@ -265,6 +265,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 				'plan_completed',
 				'setup_free',
 				'design_selected',
+				'generate_content',
 				'domain_upsell',
 				'design_edited',
 				'site_launched',
