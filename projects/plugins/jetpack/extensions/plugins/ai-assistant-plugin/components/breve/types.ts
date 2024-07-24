@@ -80,7 +80,7 @@ export type BreveDispatch = {
 		id: string;
 		feature: string;
 		target: string;
-		sentence: string;
+		text: string;
 		blockId: string;
 		occurrence: string;
 	} ) => void;
@@ -91,6 +91,7 @@ export type BreveFeatureConfig = {
 	title: string;
 	tagName: string;
 	className: string;
+	defaultEnabled: boolean;
 };
 
 export type BreveFeature = {

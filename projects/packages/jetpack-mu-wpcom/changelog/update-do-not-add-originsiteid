@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Add query param to URL only for users with manage options permission

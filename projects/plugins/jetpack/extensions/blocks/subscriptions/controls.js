@@ -5,7 +5,7 @@ import {
 	ContrastChecker,
 	PanelColorSettings,
 	FontSizePicker,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
 import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';

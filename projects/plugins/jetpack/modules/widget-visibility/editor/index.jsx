@@ -50,7 +50,7 @@ const blockHasVisibilitySettings = name => {
  *
  * @param {object} settings - Block settings.
  * @param {string} name - Block name.
- * @return {object} Modified settings.
+ * @returns {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {

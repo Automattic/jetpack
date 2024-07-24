@@ -1,7 +1,7 @@
 import {
 	InspectorControls,
 	RichText,
-	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
