@@ -1,9 +1,8 @@
+const path = require( 'path' );
 const puppeteer = require( 'puppeteer' );
-
 const { generateCriticalCSS, BrowserInterfacePuppeteer } = require( '../../lib/back-end.js' );
 const { dataUrl } = require( '../lib/data-directory' );
 const mockFetch = require( '../lib/mock-fetch' );
-const path = require( 'path' );
 
 const testPageUrls = {
 	pageA: path.join( dataUrl, 'page-a/index.html' ),
@@ -16,13 +15,13 @@ class MockedFetchInterface extends BrowserInterfacePuppeteer {
 	}
 }
 
-let testPages = {};
+const testPages = {};
 
 /**
  * Run a batch of CSS generation test runs, verify the results contain (and do not contain) specific substrings.
  * Verifies no warnings get generated.
  *
- * @param {Object[]} testSets Sets of tests to run, and strings the result should / should not contain.
+ * @param {Object[]} testSets - Sets of tests to run, and strings the result should / should not contain.
  */
 async function runTestSet( testSets ) {
 	for ( const { urls, viewports, shouldContain, shouldNotContain, shouldMatch } of testSets ) {
@@ -70,6 +69,7 @@ describe( 'Generate Critical CSS', () => {
 	} );
 
 	describe( 'Inclusions and Exclusions', () => {
+		// eslint-disable-next-line jest/expect-expect
 		it( 'Excludes elements below the fold', async () => {
 			await runTestSet( [
 				{
@@ -86,6 +86,7 @@ describe( 'Generate Critical CSS', () => {
 			] );
 		} );
 
+		// eslint-disable-next-line jest/expect-expect
 		it( 'Excludes irrelevant media queries', async () => {
 			await runTestSet( [
 				{
@@ -95,6 +96,7 @@ describe( 'Generate Critical CSS', () => {
 			] );
 		} );
 
+		// eslint-disable-next-line jest/expect-expect
 		it( 'Excludes Critical CSS from a <link media="print"> tag', async () => {
 			await runTestSet( [
 				{
@@ -103,6 +105,7 @@ describe( 'Generate Critical CSS', () => {
 			] );
 		} );
 
+		// eslint-disable-next-line jest/expect-expect
 		it( 'Includes implicit @media rules inherited from <link> tags', async () => {
 			await runTestSet( [
 				{
@@ -111,6 +114,7 @@ describe( 'Generate Critical CSS', () => {
 			] );
 		} );
 
+		// eslint-disable-next-line jest/expect-expect
 		it( 'Can manage complex implicit @media rules inherited from <link> tags', async () => {
 			await runTestSet( [
 				{

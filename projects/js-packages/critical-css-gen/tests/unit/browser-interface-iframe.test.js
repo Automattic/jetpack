@@ -1,9 +1,8 @@
 /* global CriticalCSSGenerator */
-const puppeteer = require( 'puppeteer' );
-
 const path = require( 'path' );
-const TestServer = require( '../lib/test-server' );
+const puppeteer = require( 'puppeteer' );
 const { dataDirectory } = require( '../lib/data-directory' );
+const TestServer = require( '../lib/test-server' );
 
 let testServer = null;
 let browser;
@@ -42,7 +41,7 @@ describe( 'Iframe interface', () => {
 				urls: [ url ],
 				viewports: [ { width: 640, height: 480 } ],
 				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
-					verifyPage: ( url, innerWindow, innerDocument ) => {
+					verifyPage: ( _url, innerWindow, innerDocument ) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
 				} ),
@@ -55,6 +54,7 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
+	// eslint-disable-next-line jest/expect-expect
 	it( 'Allows scripts if not explicitly turned off', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
@@ -65,7 +65,7 @@ describe( 'Iframe interface', () => {
 		// 'script-created-content'; a string appended to page-a by a script.
 		await page.evaluate( async url => {
 			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
-				verifyPage: ( url, innerWindow, innerDocument ) => {
+				verifyPage: ( _url, innerWindow, innerDocument ) => {
 					return innerDocument.documentElement.innerHTML.includes( 'script-created-content' );
 				},
 			} );
@@ -76,6 +76,7 @@ describe( 'Iframe interface', () => {
 		await page.close();
 	} );
 
+	// eslint-disable-next-line jest/expect-expect
 	it( 'Blocks scripts if turned off', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
@@ -86,7 +87,7 @@ describe( 'Iframe interface', () => {
 		// 'script-created-content'; a string appended to page-a by a script.
 		await page.evaluate( async url => {
 			const iframeInterface = new CriticalCSSGenerator.BrowserInterfaceIframe( {
-				verifyPage: ( url, innerWindow, innerDocument ) => {
+				verifyPage: ( _url, innerWindow, innerDocument ) => {
 					return ! innerDocument.documentElement.innerHTML.includes( 'script-created-content' );
 				},
 				allowScripts: false,
@@ -109,7 +110,7 @@ describe( 'Iframe interface', () => {
 				urls: [ url ],
 				viewports: [ { width: 640, height: 480 } ],
 				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
-					verifyPage: ( url, innerWindow, innerDocument ) => {
+					verifyPage: ( _url, innerWindow, innerDocument ) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
 					allowScripts: false,
@@ -126,8 +127,6 @@ describe( 'Iframe interface', () => {
 	it( 'Throws an error if a successRatio is not met', async () => {
 		const page = await browser.newPage();
 		await page.goto( testServer.getUrl() );
-
-		const innerUrl = path.join( testServer.getUrl(), 'page-a' );
 
 		await expect( async () => {
 			await page.evaluate( () => {
@@ -156,7 +155,7 @@ describe( 'Iframe interface', () => {
 				urls: [ 'about:blank', url ],
 				viewports: [ { width: 640, height: 480 } ],
 				browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
-					verifyPage: ( url, innerWindow, innerDocument ) => {
+					verifyPage: ( _url, innerWindow, innerDocument ) => {
 						return !! innerDocument.querySelector( 'meta[name="testing-page"]' );
 					},
 				} ),
@@ -178,10 +177,10 @@ describe( 'Iframe interface', () => {
 		const pageB = path.join( testServer.getUrl(), 'page-b' );
 
 		const [ css, warnings, pages ] = await page.evaluate(
-			async ( pageA, pageB ) => {
-				let pagesVerified = [];
+			async ( pA, pB ) => {
+				const pagesVerified = [];
 				const result = await CriticalCSSGenerator.generateCriticalCSS( {
-					urls: [ 'about:blank', pageA, pageB, 'about:blank' ],
+					urls: [ 'about:blank', pA, pB, 'about:blank' ],
 					viewports: [ { width: 640, height: 480 } ],
 					browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
 						verifyPage: ( url, innerWindow, innerDocument ) => {
