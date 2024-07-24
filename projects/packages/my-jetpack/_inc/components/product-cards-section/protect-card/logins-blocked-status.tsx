@@ -25,16 +25,16 @@ export const LoginsBlockedStatus = () => {
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasBruteForceProtection ) {
-			return <BlockedStatus status="success" blockedLoginsCount={ blockedLoginsCount } />;
+			return <BlockedStatus status="success" />;
 		}
 
-		return <BlockedStatus status="inactive" blockedLoginsCount={ blockedLoginsCount } />;
+		return <BlockedStatus status="inactive" />;
 	}
 	if ( isSiteConnected && blockedLoginsCount > 0 ) {
 		// logins have been blocked previoulsy, but either the Jetpack or Protect plugin is not active
-		return <BlockedStatus status="inactive" blockedLoginsCount={ blockedLoginsCount } />;
+		return <BlockedStatus status="inactive" />;
 	}
-	return <BlockedStatus status="off" blockedLoginsCount={ blockedLoginsCount } />;
+	return <BlockedStatus status="off" />;
 };
 
 /**
@@ -42,17 +42,15 @@ export const LoginsBlockedStatus = () => {
  *
  * @param {PropsWithChildren} props - The component props
  * @param {'success' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
- * @param {number} props.blockedLoginsCount - The number of blocked login attempts
  *
  * @returns {ReactElement} rendered component
  */
-function BlockedStatus( {
-	status,
-	blockedLoginsCount,
-}: {
-	status: 'success' | 'inactive' | 'off';
-	blockedLoginsCount: number;
-} ) {
+function BlockedStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+	const {
+		protect: { wafConfig: wafData },
+	} = getMyJetpackWindowInitialState();
+	const { blocked_logins: blockedLoginsCount } = wafData || {};
+
 	const tooltipContent = useProtectTooltipCopy();
 	const { blockedLoginsTooltip } = tooltipContent;
 
