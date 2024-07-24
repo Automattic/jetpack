@@ -1005,7 +1005,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'rss_use_excerpt':
-					$sanitized_value = (bool) $value;
+					$sanitized_value = (int) (bool) $value;
 					update_option( $key, $sanitized_value );
 					$updated[ $key ] = $sanitized_value;
 					break;
