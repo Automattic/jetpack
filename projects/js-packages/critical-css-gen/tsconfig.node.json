@@ -4,7 +4,7 @@
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
 		"outDir": "./lib",
-		"target": "ES2022",
+		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,
 		"allowSyntheticDefaultImports": true,
