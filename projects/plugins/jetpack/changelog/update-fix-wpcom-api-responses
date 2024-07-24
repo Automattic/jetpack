@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WPCOM API: Return actial value instead of bool for some settings after update
