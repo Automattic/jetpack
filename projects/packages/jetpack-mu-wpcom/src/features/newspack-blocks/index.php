@@ -47,6 +47,22 @@ function blog_posts_block_name( $name ) {
 add_filter( 'newspack_blocks_block_name', __NAMESPACE__ . '\blog_posts_block_name' );
 
 /**
+ * Fix the issue that the first post will be excluded from the homepage.
+ *
+ * @param array $args WP_Query arguments as created by build_articles_query().
+ *
+ * @return array $args Returns the constructed WP_Query arguments.
+ */
+function blog_posts_build_articles_query( $args ) {
+	if ( ! in_the_loop() ) {
+		$args['post__not_in'] = array_diff( $args['post__not_in'], get_the_ID() ? array( get_the_ID() ) : array() );
+	}
+
+	return $args;
+}
+add_filter( 'newspack_blocks_build_articles_query', __NAMESPACE__ . '\blog_posts_build_articles_query' );
+
+/**
  * Enqueue the data of the newspack blocks.
  *
  * @param string $handle The name of the script to add the data of the newspack blocks to.
