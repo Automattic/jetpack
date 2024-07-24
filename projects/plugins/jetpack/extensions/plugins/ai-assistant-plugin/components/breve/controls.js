@@ -2,7 +2,13 @@
  * WordPress dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { BaseControl, PanelRow, CheckboxControl, ToggleControl } from '@wordpress/components';
+import {
+	BaseControl,
+	PanelRow,
+	CheckboxControl,
+	ToggleControl,
+	Tooltip,
+} from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -81,20 +87,22 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 			<PanelRow>
 				<BaseControl>
 					<div className="grade-level-container">
-						<p>
-							{ gradeLevel === null ? (
+						{ gradeLevel === null ? (
+							<p>
 								<em className="breve-help-text">
 									{ __( 'Write some words to see your grade level.', 'jetpack' ) }
 								</em>
-							) : (
-								<>
+							</p>
+						) : (
+							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>
+								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
 										{ __( 'Readability score', 'jetpack' ) }
 									</span>
-								</>
-							) }
-						</p>
+								</p>
+							</Tooltip>
+						) }
 					</div>
 				</BaseControl>
 			</PanelRow>
