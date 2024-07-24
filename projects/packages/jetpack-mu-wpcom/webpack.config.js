@@ -36,7 +36,7 @@ const entry = {
 	'wpcom-global-styles-frontend': './src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 	'wpcom-documentation-links':
 		'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
-	'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
+	'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 };
 
 module.exports = [
