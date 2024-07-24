@@ -268,7 +268,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_scheduled_plugins_update'             => array(),
 			'jetpack_waf_automatic_rules'                  => false,
 			'jetpack_waf_ip_allow_list'                    => 'pineapple',
-			'jetpack_waf_ip_allow_list_enabled'            => true,
+			'jetpack_waf_ip_allow_list_enabled'            => false,
 			'jetpack_waf_ip_block_list'                    => 'pineapple',
 			'jetpack_waf_ip_block_list_enabled'            => false,
 			'jetpack_waf_share_data'                       => true,
