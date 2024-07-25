@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.4.2';
+	const PACKAGE_VERSION = '0.4.3-alpha';
 
 	/**
 	 * Modules to include.
@@ -23,6 +23,7 @@ class Main {
 	 */
 	public $modules = array(
 		'responsive-videos.php',
+		'social-menu.php',
 		'jetpack-color.php',
 	);
 
