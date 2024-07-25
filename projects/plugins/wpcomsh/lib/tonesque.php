@@ -6,4 +6,6 @@
  */
 
 // Dummy comment to make phpcs happy.
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/tonesque.php';
+if ( defined( 'CLASSIC_THEME_HELPER_PLUGIN_DIR' ) ) {
+	require_once CLASSIC_THEME_HELPER_PLUGIN_DIR . '_inc/lib/tonesque.php';
+}
