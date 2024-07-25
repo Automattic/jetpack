@@ -24,6 +24,13 @@ async function handleMouseEnter( e: MouseEvent ) {
 
 		isFirstHover = false;
 		localStorage.setItem( 'jetpack-ai-breve-first-hover', 'false' );
+
+		const isSmall = window.innerWidth < 600;
+
+		// Do not show popover on small screens on first hover, as the sidebar will open
+		if ( isSmall ) {
+			return;
+		}
 	}
 
 	clearTimeout( highlightTimeout );
