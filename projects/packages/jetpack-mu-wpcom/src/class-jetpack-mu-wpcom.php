@@ -128,6 +128,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';

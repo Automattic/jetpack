@@ -2,13 +2,13 @@
 /**
  * Adds a tiny WordPress.com Plugins integration to the plugin list.
  *
- * @package wpcomsh
+ * @package automattic/jetpack-mu-wpcom
  */
 
 /**
  * Displays a banner before the plugin browser that links to the WP.com Plugins Marketplace.
  */
-function wpcomsh_plugins_show_banner() {
+function wpcom_plugins_show_banner() {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['tab'] ) && 'favorites' === $_GET['tab'] ) {
@@ -44,10 +44,10 @@ function wpcomsh_plugins_show_banner() {
 		'wpcomPluginsBanner',
 		array(
 			'logo'             => esc_url( $wpcom_logo ),
-			'title'            => esc_html__( "Flex your site's features with plugins", 'wpcomsh' ),
-			'description'      => esc_html__( "Access a variety of free and paid plugins that can enhance your site's functionality and features.", 'wpcomsh' ),
+			'title'            => esc_html__( "Flex your site's features with plugins", 'jetpack-mu-wpcom' ),
+			'description'      => esc_html__( "Access a variety of free and paid plugins that can enhance your site's functionality and features.", 'jetpack-mu-wpcom' ),
 			'actionUrl'        => esc_url( "https://wordpress.com/plugins/$site_slug?ref=woa-plugin-banner" ),
-			'actionText'       => esc_html__( 'Explore plugins', 'wpcomsh' ),
+			'actionText'       => esc_html__( 'Explore plugins', 'jetpack-mu-wpcom' ),
 			'bannerBackground' => esc_url( $background_image ),
 		)
 	);
@@ -55,6 +55,7 @@ function wpcomsh_plugins_show_banner() {
 		'wpcom-plugins-banner',
 		plugins_url( 'css/banner.css', __FILE__ ),
 		array(),
-		WPCOMSH_VERSION,
+		WPCOMSH_VERSION
 	);
 }
+add_action( 'load-plugin-install.php', 'wpcom_plugins_show_banner' );
