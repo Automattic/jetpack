@@ -3,12 +3,13 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 import debugFactory from 'debug';
 import React from 'react';
 /**
@@ -88,15 +89,25 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 			{ requireUpgrade && ! isUsagePanelAvailable && (
-				<PanelRow>
+				<PanelRow className="jetpack-ai-upgrade-control__header">
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (
-				<PanelRow>
+				<PanelRow className="jetpack-ai-usage-control__header">
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
+
+			<Button
+				variant="link"
+				className="jetpack-ai__feedback-button"
+				href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
+				target="_blank"
+			>
+				<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
+				<Icon icon={ external } className="icon" />
+			</Button>
 		</>
 	);
 };
