@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Export button props type to be used elsewhere
