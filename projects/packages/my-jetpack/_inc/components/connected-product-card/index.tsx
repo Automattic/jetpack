@@ -3,19 +3,35 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { MyJetpackRoutes } from '../../constants';
+import { PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ProductCard from '../product-card';
+import type { AdditionalAction, SecondaryAction } from '../product-card/types';
+import type { FC, ReactNode } from 'react';
 
-const ConnectedProductCard = ( {
+interface ConnectedProductCardProps {
+	admin: boolean;
+	slug: string;
+	children: ReactNode;
+	isDataLoading?: boolean;
+	Description?: JSX.Element | ( () => null );
+	additionalActions?: AdditionalAction[];
+	secondaryAction?: SecondaryAction;
+	upgradeInInterstitial?: boolean;
+	primaryActionOverride?: AdditionalAction;
+	onMouseEnter?: () => void;
+	onMouseLeave?: () => void;
+}
+
+const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	admin,
 	slug,
 	children,
@@ -33,7 +49,7 @@ const ConnectedProductCard = ( {
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
-	const { detail } = useProduct( slug );
+	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
@@ -67,13 +83,23 @@ const ConnectedProductCard = ( {
 		);
 	};
 
+	useEffect( () => {
+		if (
+			isRegistered &&
+			( status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
+				status === PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION )
+		) {
+			refetch();
+		}
+	}, [ isRegistered, status, refetch ] );
+
 	return (
 		<ProductCard
 			name={ name }
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
-			isFetching={ isActivating || isInstalling }
+			isFetching={ isActivating || isInstalling || isProductDataLoading }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ isInstalling }
 			additionalActions={ additionalActions }
@@ -89,18 +115,6 @@ const ConnectedProductCard = ( {
 			{ children }
 		</ProductCard>
 	);
-};
-
-ConnectedProductCard.propTypes = {
-	children: PropTypes.node,
-	admin: PropTypes.bool.isRequired,
-	slug: PropTypes.string.isRequired,
-	isDataLoading: PropTypes.bool,
-	additionalActions: PropTypes.array,
-	primaryActionOverride: PropTypes.object,
-	secondaryAction: PropTypes.object,
-	onMouseEnter: PropTypes.func,
-	onMouseLeave: PropTypes.func,
 };
 
 export default ConnectedProductCard;
