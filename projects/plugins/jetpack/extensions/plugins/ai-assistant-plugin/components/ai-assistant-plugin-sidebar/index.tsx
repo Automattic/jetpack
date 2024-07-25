@@ -64,28 +64,28 @@ const JetpackAndSettingsContent = ( {
 	return (
 		<>
 			{ isBreveAvailable && (
-				<PanelRow className="jetpack-ai-proofread-control__header">
+				<PanelRow>
 					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
 
-			<PanelRow className="jetpack-ai-feedback__header">
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
 				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
-				<PanelRow className="jetpack-ai-title-optimization__header">
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
 			) }
 			{ isAIFeaturedImageAvailable && (
-				<PanelRow className="jetpack-ai-featured-image-control__header">
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
