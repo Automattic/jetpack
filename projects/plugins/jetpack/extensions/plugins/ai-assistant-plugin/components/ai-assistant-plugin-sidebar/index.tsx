@@ -3,7 +3,7 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, Button } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink, Button } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -17,6 +17,7 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
@@ -57,6 +58,8 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
+	const { isMyJetpackAvailable, productPageUrl, autosaveAndRedirect, isRedirecting } =
+		useAiProductPage();
 
 	return (
 		<>
@@ -108,6 +111,18 @@ const JetpackAndSettingsContent = ( {
 				<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
 				<Icon icon={ external } className="icon" />
 			</Button>
+			<PanelRow>
+				{ ! isMyJetpackAvailable && (
+					<ExternalLink href={ productPageUrl }>
+						{ __( 'Discover all features', 'jetpack' ) }
+					</ExternalLink>
+				) }
+				{ isMyJetpackAvailable && (
+					<Button variant="link" disabled={ isRedirecting } onClick={ autosaveAndRedirect }>
+						{ __( 'Discover all features', 'jetpack' ) }
+					</Button>
+				) }
+			</PanelRow>
 		</>
 	);
 };
