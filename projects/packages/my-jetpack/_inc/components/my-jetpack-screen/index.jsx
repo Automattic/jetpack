@@ -147,7 +147,7 @@ export default function MyJetpackScreen() {
 						</Col>
 					</Container>
 				) }
-				<WelcomeFlow />
+				{ isWelcomeBannerVisible && <WelcomeFlow /> }
 				<EvaluationRecommendations />
 				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>

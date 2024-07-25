@@ -33,11 +33,23 @@ class REST_Recommendations_Evaluation {
 
 		register_rest_route(
 			'my-jetpack/v1',
-			'/site/recommendations/save-evaluation/',
+			'/site/recommendations/evaluation/result/',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::save_evaluation_recommendations',
+					'permission_callback' => __CLASS__ . '::permissions_callback',
+				),
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'/site/recommendations/evaluation/result/',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => __CLASS__ . '::delete_evaluation_recommendations',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 				),
 			)
@@ -113,5 +125,24 @@ class REST_Recommendations_Evaluation {
 		\Jetpack_Options::update_option( 'recommendations_evaluation', $json['recommendations'] );
 
 		return rest_ensure_response( Initializer::get_recommended_modules() );
+	}
+
+	/**
+	 * Endpoint to delete recommendations results.
+	 *
+	 * @param \WP_REST_Request $request Query request.
+	 *
+	 * @return \WP_REST_Response|WP_Error success response.
+	 */
+	public static function delete_evaluation_recommendations( $request ) {
+		$show_welcome_banner = $request->get_param( 'showWelcomeBanner' );
+
+		\Jetpack_Options::delete_option( 'recommendations_evaluation' );
+
+		if ( isset( $show_welcome_banner ) && $show_welcome_banner === 'true' ) {
+			\Jetpack_Options::delete_option( 'dismissed_welcome_banner' );
+		}
+
+		return rest_ensure_response( array() );
 	}
 }
