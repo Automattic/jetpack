@@ -7,6 +7,7 @@ import type { FC } from 'react';
 
 const BoostCard: FC< { admin: boolean } > = props => {
 	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
+	const [ forceHideTooltip, setForceHideTooltip ] = useState( false );
 	// Override the primary action button to read "Boost your site" instead
 	// of the default text, "Lern more".
 	const primaryActionOverride = {
@@ -21,7 +22,14 @@ const BoostCard: FC< { admin: boolean } > = props => {
 
 	const handleMouseLeave = useCallback( () => {
 		setShouldShowTooltip( false );
-	}, [ setShouldShowTooltip ] );
+		if ( forceHideTooltip ) {
+			setForceHideTooltip( false );
+		}
+	}, [ forceHideTooltip ] );
+
+	const handleHideTooltip = useCallback( () => {
+		setForceHideTooltip( true );
+	}, [] );
 
 	return (
 		<ProductCard
@@ -31,7 +39,10 @@ const BoostCard: FC< { admin: boolean } > = props => {
 			onMouseLeave={ handleMouseLeave }
 			{ ...props }
 		>
-			<BoostSpeedScore shouldShowTooltip={ shouldShowTooltip } />
+			<BoostSpeedScore
+				shouldShowTooltip={ shouldShowTooltip && ! forceHideTooltip }
+				onTooltipClicked={ handleHideTooltip }
+			/>
 		</ProductCard>
 	);
 };
