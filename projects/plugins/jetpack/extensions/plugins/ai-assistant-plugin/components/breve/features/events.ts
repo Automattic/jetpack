@@ -18,6 +18,18 @@ let anchorTimeout: number;
 
 let isFirstHover = ! localStorage.getItem( 'jetpack-ai-breve-first-hover' );
 
+function getHighlightEl( el: HTMLElement ) {
+	if ( el === document.body ) {
+		return null;
+	}
+
+	if ( el.getAttribute( 'data-type' ) === null ) {
+		return getHighlightEl( el.parentElement );
+	}
+
+	return el;
+}
+
 async function handleMouseEnter( e: MouseEvent ) {
 	if ( isFirstHover ) {
 		await showAiAssistantSection();
@@ -38,7 +50,7 @@ async function handleMouseEnter( e: MouseEvent ) {
 			return;
 		}
 
-		const el = e.target as HTMLElement;
+		const el = getHighlightEl( e.target as HTMLElement );
 		let virtual = el;
 
 		const shouldPointToCursor = el.getAttribute( 'data-type' ) === 'long-sentences';
@@ -67,7 +79,7 @@ async function handleMouseEnter( e: MouseEvent ) {
 
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
-			target: e.target as HTMLElement,
+			target: el,
 			virtual: virtual,
 		} as Anchor );
 	}, 100 );
