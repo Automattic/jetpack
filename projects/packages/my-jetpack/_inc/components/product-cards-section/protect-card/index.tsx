@@ -5,7 +5,7 @@ import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import ProtectValueSection from './protect-value-section';
 
-const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
+const ProtectCard: FC< { admin: boolean; recommendation?: boolean } > = props => {
 	const { recordEvent } = useAnalytics();
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
@@ -39,7 +39,7 @@ const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
+			{ ...props }
 			slug={ slug }
 			upgradeInInterstitial={ true }
 			secondaryAction={ viewButton }

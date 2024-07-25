@@ -75,7 +75,7 @@ const WelcomeFlow: FC = () => {
 	);
 
 	return (
-		<Container horizontalSpacing={ 3 } className={ styles[ 'banner-container' ] }>
+		<Container horizontalSpacing={ 6 }>
 			<Col lg={ 12 } className={ styles.banner }>
 				<CardWrapper className={ styles[ 'banner-card' ] }>
 					<Container

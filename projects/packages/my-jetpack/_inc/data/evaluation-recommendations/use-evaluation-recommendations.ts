@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_EVALUATE_KEY,
@@ -111,13 +111,18 @@ const useEvaluationRecommendations = () => {
 		);
 	}, [ handleRemoveEvaluationResult, setRecommendedModules, showWelcomeBanner ] );
 
+	const unownedRecommendedModules = useMemo( () => {
+		const { unownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+		return recommendedModules?.filter( module => unownedProducts.includes( module ) );
+	}, [ recommendedModules ] );
+
 	return {
 		submitEvaluation,
 		saveEvaluationResult,
 		removeEvaluationResult,
 		redoEvaluation,
-		recommendedModules,
-		isSectionVisible: recommendedModules !== null && ! isWelcomeBannerVisible,
+		recommendedModules: unownedRecommendedModules,
+		isSectionVisible: !! unownedRecommendedModules?.length && ! isWelcomeBannerVisible,
 	};
 };
 

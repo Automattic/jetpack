@@ -56,6 +56,7 @@ const EvaluationStep = ( {
 				<form className={ styles.form }>
 					{ Object.entries( questions ).map( ( [ key, question ]: [ EvaluationAreas, string ] ) => (
 						<CheckboxControl
+							key={ key }
 							className={ styles[ 'form-checkbox' ] }
 							label={ question }
 							checked={ values[ key ] }
