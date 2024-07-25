@@ -1,12 +1,12 @@
 import { localizeUrl } from '@automattic/i18n-utils';
-import { isMobile } from '@automattic/viewport';
 import { ExternalLink } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import { getEditorType } from './get-editor-type';
-import type { WpcomStep } from '@automattic/tour-kit';
+import type { WpcomStep } from '../../../../common/tour-kit';
 
 interface TourAsset {
 	desktop?: { src: string; type: string };
@@ -74,7 +74,7 @@ function getTourAssets( key: string ): TourAsset | undefined {
  * @param themeName - The name of the theme.
  * @param siteIntent - The intent of the current site.
  */
-function getTourSteps(
+function useTourSteps(
 	localeSlug: string,
 	referencePositioning = false,
 	isSiteEditor = false,
@@ -83,6 +83,7 @@ function getTourSteps(
 ): WpcomStep[] {
 	const isVideoMaker = 'videomaker' === ( themeName ?? '' );
 	const isPatternAssembler = !! getQueryArg( window.location.href, 'assembler' );
+	const isMobile = useViewportMatch( 'mobile', '<' );
 	const siteEditorCourseUrl = `https://wordpress.com/home/${ window.location.hostname }?courseSlug=site-editor-quick-start`;
 	const editorType = getEditorType();
 	const onSiteEditorCourseLinkClick = () => {
@@ -249,7 +250,7 @@ function getTourSteps(
 				},
 			},
 		},
-		...( ! isMobile()
+		...( ! isMobile
 			? [
 					{
 						slug: 'find-your-way',
@@ -273,7 +274,7 @@ function getTourSteps(
 					},
 			  ]
 			: [] ),
-		...( ! isMobile()
+		...( ! isMobile
 			? [
 					{
 						slug: 'undo',
@@ -439,4 +440,4 @@ function getTourSteps(
 	];
 }
 
-export default getTourSteps;
+export default useTourSteps;

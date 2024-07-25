@@ -1,5 +1,4 @@
 @import "@automattic/typography/styles/fonts";
-@import "@automattic/onboarding/styles/mixins";
 
 $wpcom-modal-breakpoint: 660px;
 
@@ -148,13 +147,15 @@ $wpcom-modal-footer-height: 30px + ( $wpcom-modal-footer-padding-v * 2 );
 }
 
 .wpcom-block-editor-nux__heading {
-	@include onboarding-font-recoleta;
 	/* Gray / Gray 90 */
 	color: #1d2327;
 
+	font-family: $brand-serif;
+	font-weight: 400;
 	/* stylelint-disable-next-line declaration-property-unit-allowed-list */
 	font-size: 32px;
 	line-height: 1.19;
+	letter-spacing: -0.4px;
 
 	@media (min-width: $wpcom-modal-breakpoint) {
 		/* stylelint-disable-next-line declaration-property-unit-allowed-list */

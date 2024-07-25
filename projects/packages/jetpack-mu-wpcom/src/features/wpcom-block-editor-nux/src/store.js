@@ -2,8 +2,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { combineReducers, registerStore } from '@wordpress/data';
 import { apiFetch as apiFetchControls, controls } from '@wordpress/data-controls';
 
-import 'a8c-fse-common-data-stores';
-
 export const DEFAULT_VARIANT = 'tour';
 export const BLANK_CANVAS_VARIANT = 'blank-canvas-tour';
 
@@ -139,7 +137,7 @@ export const selectors = {
 };
 
 /**
- *
+ * Register the wpcom-welcome-guide store
  */
 export function register() {
 	return registerStore( 'automattic/wpcom-welcome-guide', {

@@ -2,11 +2,13 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import videoSuccessImage from 'calypso/assets/images/illustrations/video-success.svg';
-import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
-import { useHasSeenVideoCelebrationModal } from '../../../dotcom-fse/lib/video-celebration-modal/has-seen-video-celebration-modal-context';
-import useShouldShowVideoCelebrationModal from '../../../dotcom-fse/lib/video-celebration-modal/use-should-show-video-celebration-modal';
+import {
+	useShouldShowVideoCelebrationModal,
+	useSiteIntent,
+	useHasSeenVideoCelebrationModal,
+} from '../../../../common/tour-kit';
 import NuxModal from '../nux-modal';
+import videoSuccessImage from './video-success.svg';
 import './style.scss';
 
 // Shows a celebration modal after a video is first uploaded to a site and the editor is saved.

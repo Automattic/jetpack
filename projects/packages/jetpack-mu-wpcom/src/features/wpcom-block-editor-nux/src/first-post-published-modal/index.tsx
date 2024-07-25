@@ -4,9 +4,8 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
 import React from 'react';
+import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
-import { useShouldShowFirstPostPublishedModal } from '../../../dotcom-fse/lib/first-post-published-modal/should-show-first-post-published-modal-context';
-import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
 import NuxModal from '../nux-modal';
 import postPublishedImage from './images/post-published.svg';
 

@@ -1,20 +1,23 @@
-import { FormLabel } from '@automattic/components';
-import { START_WRITING_FLOW, DESIGN_FIRST_FLOW } from '@automattic/onboarding';
 import { Modal, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { Icon, globe, link as linkIcon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { useI18n } from '@wordpress/react-i18n';
-import ClipboardButton from 'calypso/components/forms/clipboard-button';
-import FormInputCheckbox from 'calypso/components/forms/form-checkbox';
 import clsx from 'clsx';
 import React from 'react';
+import {
+	START_WRITING_FLOW,
+	DESIGN_FIRST_FLOW,
+	useSiteIntent,
+	useShouldShowSellerCelebrationModal,
+	useShouldShowVideoCelebrationModal,
+	useShouldShowFirstPostPublishedModal,
+} from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
-import { useShouldShowFirstPostPublishedModal } from '../../../dotcom-fse/lib/first-post-published-modal/should-show-first-post-published-modal-context';
-import useShouldShowSellerCelebrationModal from '../../../dotcom-fse/lib/seller-celebration-modal/use-should-show-seller-celebration-modal';
-import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
-import useShouldShowVideoCelebrationModal from '../../../dotcom-fse/lib/video-celebration-modal/use-should-show-video-celebration-modal';
+import ClipboardButton from './clipboard-button';
+import FormInputCheckbox from './form-checkbox';
+import FormLabel from './form-label';
 import postPublishedImage from './images/illo-share.svg';
 import InlineSocialLogo from './inline-social-logo';
 import InlineSocialLogosSprite from './inline-social-logos-sprite';

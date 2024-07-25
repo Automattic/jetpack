@@ -1,9 +1,4 @@
-/*** THIS MUST BE THE FIRST THING EVALUATED IN THIS SCRIPT *****/
-import './public-path';
-
-/* eslint-disable wpcalypso/jsx-classname-namespace */
-
-import { LocaleProvider, i18nDefaultLocaleSlug } from '@automattic/i18n-utils';
+import { LocaleProvider } from '@automattic/i18n-utils';
 import { Guide, GuidePage } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
@@ -11,9 +6,11 @@ import { applyFilters } from '@wordpress/hooks';
 import { registerPlugin } from '@wordpress/plugins';
 import { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from '@wordpress/private-apis';
 import { getQueryArg } from '@wordpress/url';
-import { ShouldShowFirstPostPublishedModalProvider } from '../../dotcom-fse/lib/first-post-published-modal/should-show-first-post-published-modal-context';
-import { HasSeenSellerCelebrationModalProvider } from '../../dotcom-fse/lib/seller-celebration-modal/has-seen-seller-celebration-modal-context';
-import { HasSeenVideoCelebrationModalProvider } from '../../dotcom-fse/lib/video-celebration-modal/has-seen-video-celebration-modal-context';
+import {
+	HasSeenSellerCelebrationModalProvider,
+	HasSeenVideoCelebrationModalProvider,
+	ShouldShowFirstPostPublishedModalProvider,
+} from '../../../common/tour-kit';
 import { BloggingPromptsModal } from './blogging-prompts-modal';
 import DraftPostModal from './draft-post-modal';
 import FirstPostPublishedModal from './first-post-published-modal';
@@ -42,7 +39,7 @@ try {
 }
 
 /**
- *
+ * The WelcomeTour component
  */
 function WelcomeTour() {
 	const [ showDraftPostModal ] = useState(
@@ -107,7 +104,7 @@ function WelcomeTour() {
 
 	if ( variant === DEFAULT_VARIANT ) {
 		return (
-			<LocaleProvider localeSlug={ window.wpcomBlockEditorNuxLocale ?? i18nDefaultLocaleSlug }>
+			<LocaleProvider>
 				{ showDraftPostModal ? <DraftPostModal /> : <LaunchWpcomWelcomeTour /> }
 			</LocaleProvider>
 		);

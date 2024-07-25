@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
-
 define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
+
+require_once __DIR__ . '/../../utils.php';
 
 /**
  * Class WPCOM_Block_Editor_NUX
@@ -46,38 +46,8 @@ class WPCOM_Block_Editor_NUX {
 	 * Enqueue block editor assets.
 	 */
 	public function enqueue_script_and_style() {
-		$asset_file          = include plugin_dir_path( __FILE__ ) . 'dist/wpcom-block-editor-nux.asset.php';
-		$script_dependencies = $asset_file['dependencies'];
-		$version             = $asset_file['version'];
-
-		wp_enqueue_script(
-			'wpcom-block-editor-nux-script',
-			plugins_url( 'dist/wpcom-block-editor-nux.min.js', __FILE__ ),
-			is_array( $script_dependencies ) ? $script_dependencies : array(),
-			$version,
-			true
-		);
-
-		wp_localize_script(
-			'wpcom-block-editor-nux-script',
-			'wpcomBlockEditorNuxAssetsUrl',
-			plugins_url( 'dist/', __FILE__ )
-		);
-		wp_localize_script(
-			'wpcom-block-editor-nux-script',
-			'wpcomBlockEditorNuxLocale',
-			Common\get_iso_639_locale( determine_locale() )
-		);
-
-		wp_set_script_translations( 'wpcom-block-editor-nux-script', 'jetpack-mu-wpcom' );
-
-		$style_path = 'dist/wpcom-block-editor-nux' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-		wp_enqueue_style(
-			'wpcom-block-editor-nux-style',
-			plugins_url( $style_path, __FILE__ ),
-			array(),
-			filemtime( plugin_dir_path( __FILE__ ) . $style_path )
-		);
+		jetpack_mu_wpcom_enqueue_assets( 'wpcom-block-editor-nux', array( 'js', 'css' ) );
+		wp_set_script_translations( 'wpcom-block-editor-nux', 'jetpack-mu-wpcom' );
 	}
 
 	/**
