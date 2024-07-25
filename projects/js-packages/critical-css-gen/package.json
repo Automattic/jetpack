@@ -51,8 +51,8 @@
 		"path-browserify": "1.0.1",
 		"playwright-core": "1.33.0",
 		"prettier": "npm:wp-prettier@2.0.5",
-		"puppeteer": "22.13.1",
-		"puppeteer-core": "22.13.1",
+		"puppeteer": "22.6.5",
+		"puppeteer-core": "22.6.5",
 		"rollup": "2.78.1",
 		"rollup-plugin-polyfill-node": "0.10.2",
 		"source-map": "0.7.4",
@@ -78,7 +78,7 @@
 		"css-tree": "2.3.1"
 	},
 	"peerDependencies": {
-		"puppeteer-core": "22.13.1"
+		"puppeteer-core": "22.6.5"
 	},
 	"peerDependenciesMeta": {
 		"puppeteer-core": {
