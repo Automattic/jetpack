@@ -1005,7 +1005,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'rss_use_excerpt':
-					update_option( 'rss_use_excerpt', (int) (bool) $value );
+					$sanitized_value = (int) (bool) $value;
+					update_option( $key, $sanitized_value );
+					$updated[ $key ] = $sanitized_value;
 					break;
 
 				case 'wpcom_subscription_emails_use_excerpt':
@@ -1016,16 +1018,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_subscriptions_reply_to':
 					require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions/class-settings.php';
 					$to_set_value = Automattic\Jetpack\Modules\Subscriptions\Settings::is_valid_reply_to( $value )
-						? $value
+						? (string) $value
 						: Automattic\Jetpack\Modules\Subscriptions\Settings::get_default_reply_to();
 
-					update_option( 'jetpack_subscriptions_reply_to', (string) $to_set_value );
-					$updated[ $key ] = (bool) $value;
+					if ( update_option( $key, $to_set_value ) ) {
+						$updated[ $key ] = $to_set_value;
+					}
 					break;
+
 				case 'jetpack_subscriptions_from_name':
-					$to_set_value = sanitize_text_field( $value );
-					update_option( 'jetpack_subscriptions_from_name', (string) $to_set_value );
-					$updated[ $key ] = (bool) $value;
+					$sanitized_value = sanitize_text_field( $value );
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
+					}
 					break;
 
 				case 'instant_search_enabled':
