@@ -2,12 +2,10 @@
 /**
  * Starter page templates file.
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
-
-use function A8C\FSE\Common\get_iso_639_locale;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 /**
  * Class Starter_Page_Templates
@@ -34,10 +32,7 @@ class Starter_Page_Templates {
 	 */
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_scripts' ) );
-		add_action( 'init', array( $this, 'register_meta_field' ) );
-		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_assets' ) );
-		add_action( 'delete_attachment', array( $this, 'clear_sideloaded_image_cache' ) );
 		add_action( 'switch_theme', array( $this, 'clear_templates_cache' ) );
 		add_action( 'block_editor_settings_all', array( $this, 'add_default_editor_styles_for_classic_themes' ), 10, 2 );
 	}
@@ -56,7 +51,7 @@ class Starter_Page_Templates {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\Starter_Page_Templates
+	 * @return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates
 	 */
 	public static function get_instance() {
 		if ( null === self::$instance ) {
@@ -70,77 +65,14 @@ class Starter_Page_Templates {
 	 * Register block editor scripts.
 	 */
 	public function register_scripts() {
+		$script_path = '../../build/starter-page-templates/starter-page-templates.js';
 		wp_register_script(
 			'starter-page-templates',
-			plugins_url( 'dist/starter-page-templates.min.js', __FILE__ ),
+			plugin_dir_url( __FILE__ ) . $script_path,
 			array( 'wp-plugins', 'wp-edit-post', 'wp-element' ),
-			filemtime( plugin_dir_path( __FILE__ ) . 'dist/starter-page-templates.min.js' ),
+			filemtime( plugin_dir_path( __FILE__ ) . $script_path ),
 			true
 		);
-	}
-
-	/**
-	 * Register meta field for storing the template identifier.
-	 */
-	public function register_meta_field() {
-		$args = array(
-			'type'           => 'string',
-			'description'    => 'Selected template',
-			'single'         => true,
-			'show_in_rest'   => true,
-			'object_subtype' => 'page',
-			'auth_callback'  => function () {
-				return current_user_can( 'edit_posts' );
-			},
-		);
-		register_meta( 'post', '_starter_page_template', $args );
-
-		$args = array(
-			'type'              => 'array',
-			'description'       => 'Selected category',
-			'show_in_rest'      => array(
-				'schema' => array(
-					'type'  => 'array',
-					'items' => array(
-						'type' => 'string',
-					),
-				),
-			),
-			'single'            => true,
-			'object_subtype'    => 'page',
-			'auth_callback'     => function () {
-				return current_user_can( 'edit_pages' );
-			},
-			'sanitize_callback' => function ( $meta_value ) {
-				if ( ! is_array( $meta_value ) ) {
-					return array();
-				}
-
-				if ( ! class_exists( '\A8C\FSE\Starter_Page_Templates' ) ) {
-					return array();
-				}
-
-				$starter_page_templates = \A8C\FSE\Starter_Page_Templates::get_instance();
-				// We need to pass a locale in here, but we don't actually depend on it, so we use the default site locale to optimise hitting the pattern cache for the site.
-				$all_page_templates     = $starter_page_templates->get_page_templates( $starter_page_templates->get_verticals_locale() );
-				$all_categories = array_merge( ...array_map( 'array_keys', wp_list_pluck( $all_page_templates, 'categories' ) ) );
-
-				$unique_categories = array_unique( $all_categories );
-
-				// Only permit values that are valid categories.
-				return array_intersect( $meta_value, $unique_categories );
-			},
-		);
-		register_meta( 'post', '_wpcom_template_layout_category', $args );
-	}
-
-	/**
-	 * Register rest api endpoint for side-loading images.
-	 */
-	public function register_rest_api() {
-		require_once __DIR__ . '/class-wp-rest-sideload-image-controller.php';
-
-		( new WP_REST_Sideload_Image_Controller() )->register_routes();
 	}
 
 	/**
@@ -171,7 +103,7 @@ class Starter_Page_Templates {
 	 */
 	public function enqueue_assets() {
 		$screen      = get_current_screen();
-		$user_locale = get_iso_639_locale( get_user_locale() );
+		$user_locale = Common\get_iso_639_locale( get_user_locale() );
 
 		// Return early if we don't meet conditions to show templates.
 		if ( 'page' !== $screen->id ) {
@@ -213,27 +145,27 @@ class Starter_Page_Templates {
 		}
 
 		if ( empty( $page_templates ) ) {
-			$this->pass_error_to_frontend( __( 'No data received from the vertical API. Skipped showing modal window with template selection.', 'full-site-editing' ) );
+			$this->pass_error_to_frontend( __( 'No data received from the vertical API. Skipped showing modal window with template selection.', 'jetpack-mu-wpcom' ) );
 			return;
 		}
 
 		if ( empty( $page_templates ) ) {
-			$this->pass_error_to_frontend( __( 'No templates available. Skipped showing modal window with template selection.', 'full-site-editing' ) );
+			$this->pass_error_to_frontend( __( 'No templates available. Skipped showing modal window with template selection.', 'jetpack-mu-wpcom' ) );
 			return;
 		}
 
 		wp_enqueue_script( 'starter-page-templates' );
-		wp_set_script_translations( 'starter-page-templates', 'full-site-editing' );
+		wp_set_script_translations( 'starter-page-templates', 'jetpack-mu-wpcom' );
 
 		$default_templates = array(
 			array(
 				'ID'    => null,
-				'title' => __( 'Blank', 'full-site-editing' ),
+				'title' => __( 'Blank', 'jetpack-mu-wpcom' ),
 				'name'  => 'blank',
 			),
 			array(
 				'ID'    => null,
-				'title' => __( 'Current', 'full-site-editing' ),
+				'title' => __( 'Current', 'jetpack-mu-wpcom' ),
 				'name'  => 'current',
 			),
 		);
@@ -261,11 +193,13 @@ class Starter_Page_Templates {
 			? 'starter-page-templates.rtl.css'
 			: 'starter-page-templates.css';
 
+		$style_file_path = '../../build/starter-page-templates/' . $style_file;
+
 		wp_enqueue_style(
 			'starter-page-templates',
-			plugins_url( 'dist/' . $style_file, __FILE__ ),
+			plugin_dir_url( __FILE__ ) . $style_file_path,
 			array(),
-			filemtime( plugin_dir_path( __FILE__ ) . 'dist/' . $style_file )
+			filemtime( plugin_dir_path( __FILE__ ) . $style_file_path )
 		);
 	}
 
@@ -320,18 +254,6 @@ class Starter_Page_Templates {
 	}
 
 	/**
-	 * Deletes cached attachment data when attachment gets deleted.
-	 *
-	 * @param int $id Attachment ID of the attachment to be deleted.
-	 */
-	public function clear_sideloaded_image_cache( $id ) {
-		$url = get_post_meta( $id, '_sideloaded_url', true );
-		if ( ! empty( $url ) ) {
-			delete_transient( 'fse_sideloaded_image_' . hash( 'crc32b', $url ) );
-		}
-	}
-
-	/**
 	 * Deletes cached templates data when theme switches.
 	 */
 	public function clear_templates_cache() {
@@ -344,7 +266,7 @@ class Starter_Page_Templates {
 	public function get_verticals_locale() {
 		// Make sure to get blog locale, not user locale.
 		$language = function_exists( 'get_blog_lang_code' ) ? get_blog_lang_code() : get_locale();
-		return get_iso_639_locale( $language );
+		return Common\get_iso_639_locale( $language );
 	}
 
 	/**

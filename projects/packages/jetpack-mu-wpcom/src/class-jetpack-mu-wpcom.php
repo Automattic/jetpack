@@ -164,7 +164,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
-		//require_once __DIR__ . '/features/starter-page-templates/starter-page-templates.php';
+
+		// Loaders with initializers
+		self::load_starter_page_templates_feature();
 	}
 
 	/**
@@ -366,5 +368,34 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_random_redirect() {
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
+	}
+
+	/**
+	 * Load the Starter Page Templates feature.
+	 */
+	public static function load_starter_page_templates_feature() {
+		// Disable the feature in ETK plugin
+		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
+
+		// We don't want the user to choose a template when copying a post.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['jetpack-copy'] ) ) {
+			return;
+		}
+
+		/**
+		 * Can be used to disable the Starter Page Templates.
+		 *
+		 * @since 0.2
+		 *
+		 * @param bool true if Starter Page Templates should be disabled, false otherwise.
+		 */
+		if ( apply_filters( 'a8c_disable_starter_page_templates', false ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
+
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates::get_instance();
 	}
 }
