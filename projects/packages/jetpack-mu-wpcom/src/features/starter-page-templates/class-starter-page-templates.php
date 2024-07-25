@@ -32,6 +32,7 @@ class Starter_Page_Templates {
 	 */
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_scripts' ) );
+		add_action( 'init', array( $this, 'register_meta_field' ) );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_assets' ) );
 		add_action( 'switch_theme', array( $this, 'clear_templates_cache' ) );
 		add_action( 'block_editor_settings_all', array( $this, 'add_default_editor_styles_for_classic_themes' ), 10, 2 );
@@ -73,6 +74,61 @@ class Starter_Page_Templates {
 			filemtime( plugin_dir_path( __FILE__ ) . $script_path ),
 			true
 		);
+	}
+
+	/**
+	 * Register meta field for storing the template identifier.
+	 */
+	public function register_meta_field() {
+		$args = array(
+			'type'           => 'string',
+			'description'    => 'Selected template',
+			'single'         => true,
+			'show_in_rest'   => true,
+			'object_subtype' => 'page',
+			'auth_callback'  => function () {
+				return current_user_can( 'edit_posts' );
+			},
+		);
+		register_meta( 'post', '_starter_page_template', $args );
+
+		$args = array(
+			'type'              => 'array',
+			'description'       => 'Selected category',
+			'show_in_rest'      => array(
+				'schema' => array(
+					'type'  => 'array',
+					'items' => array(
+						'type' => 'string',
+					),
+				),
+			),
+			'single'            => true,
+			'object_subtype'    => 'page',
+			'auth_callback'     => function () {
+				return current_user_can( 'edit_pages' );
+			},
+			'sanitize_callback' => function ( $meta_value ) {
+				if ( ! is_array( $meta_value ) ) {
+					return array();
+				}
+
+				if ( ! class_exists( '\A8C\FSE\Starter_Page_Templates' ) ) {
+					return array();
+				}
+
+				$starter_page_templates = \A8C\FSE\Starter_Page_Templates::get_instance();
+				// We need to pass a locale in here, but we don't actually depend on it, so we use the default site locale to optimise hitting the pattern cache for the site.
+				$all_page_templates     = $starter_page_templates->get_page_templates( $starter_page_templates->get_verticals_locale() );
+				$all_categories = array_merge( ...array_map( 'array_keys', wp_list_pluck( $all_page_templates, 'categories' ) ) );
+
+				$unique_categories = array_unique( $all_categories );
+
+				// Only permit values that are valid categories.
+				return array_intersect( $meta_value, $unique_categories );
+			},
+		);
+		register_meta( 'post', '_wpcom_template_layout_category', $args );
 	}
 
 	/**
