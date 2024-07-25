@@ -9,16 +9,26 @@ import {
 	REST_API_SITE_EVALUATION_RESULT,
 } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
+import getGuessedSiteLifecycleStatus from '../utils/get-guessed-site-lifecycle-status';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 type SubmitRecommendationsResult = Record< string, number >;
 
+const getInitialRecommendedModules = (): JetpackModule[] | null => {
+	const { lifecycleStats, recommendedModules } = getMyJetpackWindowInitialState();
+
+	const isNewUser = [ 'new', 'brand-new' ].includes(
+		getGuessedSiteLifecycleStatus( lifecycleStats )
+	);
+	return isNewUser ? recommendedModules : null;
+};
+
 const useEvaluationRecommendations = () => {
 	const { isWelcomeBannerVisible, showWelcomeBanner } = useWelcomeBanner();
 	const [ recommendedModules, setRecommendedModules ] = useValueStore(
 		'recommendedModules',
-		getMyJetpackWindowInitialState().recommendedModules
+		getInitialRecommendedModules()
 	);
 	const { mutate: handleSubmitRecommendations } = useSimpleMutation< SubmitRecommendationsResult >(
 		{
