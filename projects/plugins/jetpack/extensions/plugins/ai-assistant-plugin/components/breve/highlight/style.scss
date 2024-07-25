@@ -45,8 +45,8 @@
 			white-space: nowrap;
 
 			.color {
-				width: 24px;
-				height: 24px;
+				width: 10px;
+				height: 10px;
 				border-radius: 50%;
 				@include features-colors( ( 'background-color' ) );
 			}
