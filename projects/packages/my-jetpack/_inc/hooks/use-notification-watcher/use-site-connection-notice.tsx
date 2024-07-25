@@ -38,7 +38,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 		const productSlugsThatRequireUserConnection =
 			getProductSlugsThatRequireUserConnection( products );
-		const requiresUserConnection = false; //connectionError.type === 'user';
+		const requiresUserConnection = connectionError.type === 'user';
 
 		const onActionButtonClick = () => {
 			if ( requiresUserConnection ) {
