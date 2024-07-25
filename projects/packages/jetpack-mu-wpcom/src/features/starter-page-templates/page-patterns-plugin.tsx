@@ -24,8 +24,9 @@ type CoreNuxPlaceholder = {
 };
 
 /**
+ * Starter page templates feature plugin
  *
- * @param props
+ * @param props - An object that receives the page patterns
  */
 export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 	const { setOpenState } = useDispatch( pageLayoutStore );
