@@ -139,8 +139,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
 
-require_once __DIR__ . '/wpcom-plugins/plugins.php';
-
 // We include WPCom Themes results and installation on non-WP_CLI context.
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
 	require_once __DIR__ . '/wpcom-themes/themes.php';

@@ -58,3 +58,4 @@ function wpcomsh_plugins_show_banner() {
 		WPCOMSH_VERSION,
 	);
 }
+add_action( 'load-plugin-install.php', 'wpcomsh_plugins_show_banner' );
