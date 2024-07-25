@@ -22,7 +22,7 @@
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"lint": "prettier --check src/**/* && eslint . && echo '✔ eslint and prettier ran successfully.'",
 		"lint:fix": "prettier --write src/**/*.ts && eslint --fix . && echo '✔ eslint and prettier ran successfully.'",
-		"test": "npm run build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
+		"test": "NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"main": "./lib/back-end.js",
 	"browser": "./dist/bundle.js",
