@@ -67,6 +67,7 @@ export function invalidateSuggestions( feature: string, blockId: string ) {
 }
 
 export function setSuggestions( {
+	anchor,
 	id,
 	feature,
 	target,
@@ -74,6 +75,7 @@ export function setSuggestions( {
 	blockId,
 	occurrence,
 }: {
+	anchor: HTMLElement;
 	id: string;
 	feature: string;
 	target: string;
@@ -82,6 +84,8 @@ export function setSuggestions( {
 	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
+		anchor?.classList?.add( 'is-loading' );
+
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
 			id,
@@ -103,6 +107,8 @@ export function setSuggestions( {
 			}
 		)
 			.then( response => {
+				anchor?.classList?.remove( 'is-loading' );
+
 				try {
 					const suggestions = JSON.parse( response );
 					dispatch( {
@@ -123,6 +129,8 @@ export function setSuggestions( {
 				}
 			} )
 			.catch( () => {
+				anchor?.classList?.remove( 'is-loading' );
+
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',
 					id,
