@@ -8,6 +8,4 @@
 // phpcs:ignoreFile WordPress.Files.FileName.NotHyphenatedLowercase
 
 // Dummy comment to make phpcs happy.
-if ( defined( 'CLASSIC_THEME_HELPER_PLUGIN_DIR') ) {
-	require_once CLASSIC_THEME_HELPER_PLUGIN_DIR . '_inc/lib/class.color.php';
-}
+require_once WPCOMSH__PLUGIN_DIR_PATH . '/vendor/automattic/jetpack-classic-theme-helper/_inc/lib/class.color.php';
