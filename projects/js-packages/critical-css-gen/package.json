@@ -59,7 +59,7 @@
 		"source-map-js": "1.2.0",
 		"stream-http": "3.2.0",
 		"tslib": "2.5.0",
-		"typescript": "5.5.4",
+		"typescript": "5.0.4",
 		"webpack": "5.76.0",
 		"webpack-dev-middleware": "5.3.3"
 	},
