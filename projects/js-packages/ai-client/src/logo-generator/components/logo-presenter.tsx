@@ -86,7 +86,9 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 	);
 };
 
-const UseOnSiteButton: React.FC< { onApplyLogo: () => void } > = ( { onApplyLogo } ) => {
+const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > = ( {
+	onApplyLogo,
+} ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { isSavingLogoToLibrary, selectedLogo, logos, selectedLogoIndex, context } =
@@ -100,7 +102,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: () => void } > = ( { onApplyLogo
 				selected_logo: selectedLogoIndex != null ? selectedLogoIndex + 1 : 0,
 			} );
 
-			onApplyLogo?.();
+			onApplyLogo?.( selectedLogo?.mediaId );
 		}
 	};
 
@@ -127,11 +129,11 @@ const LogoLoading: React.FC = () => {
 	);
 };
 
-const LogoReady: React.FC< { siteId: string; logo: Logo; onApplyLogo: () => void } > = ( {
-	siteId,
-	logo,
-	onApplyLogo,
-} ) => {
+const LogoReady: React.FC< {
+	siteId: string;
+	logo: Logo;
+	onApplyLogo: ( mediaId: number ) => void;
+} > = ( { siteId, logo, onApplyLogo } ) => {
 	return (
 		<>
 			<img

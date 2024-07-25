@@ -165,9 +165,9 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
 	};
 
-	const handleApplyLogo = () => {
+	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
-		onApplyLogo?.();
+		onApplyLogo?.( mediaId );
 	};
 
 	const handleFeedbackClick = () => {
