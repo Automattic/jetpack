@@ -15,7 +15,6 @@ import {
 	PanelRow,
 	KeyboardShortcuts,
 	ExternalLink,
-	Button,
 } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -126,12 +125,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const connected = isUserConnected();
 
-	const {
-		productPageUrl,
-		isRedirecting,
-		autosaveAndRedirect: redirectToProductPage,
-		isMyJetpackAvailable,
-	} = useAiProductPage();
+	const { productPageUrl } = useAiProductPage();
 
 	/*
 	 * Auto request the prompt if we detect
@@ -363,16 +357,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					{ /* Mock BlockCard component styles to keep alignment */ }
 					<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
 						<span className="block-editor-block-icon"></span>
-						{ isMyJetpackAvailable && (
-							<Button variant="link" onClick={ redirectToProductPage } disabled={ isRedirecting }>
-								{ __( 'Discover all features', 'jetpack' ) }
-							</Button>
-						) }
-						{ ! isMyJetpackAvailable && (
-							<ExternalLink href={ productPageUrl }>
-								{ __( 'Discover all features', 'jetpack' ) }
-							</ExternalLink>
-						) }
+						<ExternalLink href={ productPageUrl }>
+							{ __( 'Discover all features', 'jetpack' ) }
+						</ExternalLink>
 					</div>
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
