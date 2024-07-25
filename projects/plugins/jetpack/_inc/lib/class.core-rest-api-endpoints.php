@@ -787,6 +787,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/json-api',
+			array(
+				'methods'             => WP_REST_Server::ALLMETHODS,
+				'callback'            => array( static::class, 'json_api' ),
+				'permission_callback' => '__return_true',
+			)
+		);
 	}
 
 	/**
@@ -4500,5 +4510,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Handle the JSON API request coming from WPCOM.
+	 *
+	 * @param WP_REST_Request $request The API request.
+	 *
+	 * @return WP_REST_Response|WP_Error The endpoint response.
+	 */
+	public static function json_api( $request ) {
+		$method       = $request->get_method();
+		$url          = $request->get_param( 'url' );
+		$user_details = $request->get_param( 'user_details' );
+		$locale       = $request->get_param( 'locale' );
+		$auth_args    = $request->get_param( 'auth_args' );
+
+		$body = $request->get_body();
+
+		$xmlrpc_args = array(
+			array( $method, $url, $body, null, $user_details, $locale ),
+			$auth_args,
+		);
+
+		$result = Jetpack_XMLRPC_Methods::json_api( $xmlrpc_args );
+
+		if ( is_array( $result ) && count( $result ) === 3 ) {
+			return rest_ensure_response(
+				array(
+					'code' => 'success',
+					'data' => array(
+						'output' => $result[0],
+						'nonce'  => $result[1],
+						'hmac'   => $result[2],
+					),
+				)
+			);
+		}
+
+		return new WP_Error( 'json_api_error' );
 	}
 } // class end
