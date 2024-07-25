@@ -1,8 +1,8 @@
 const path = require( 'path' );
 const puppeteer = require( 'puppeteer' );
 const { generateCriticalCSS, BrowserInterfacePuppeteer } = require( '../../lib/back-end.js' );
-const { dataUrl } = require( '../lib/data-directory' );
-const mockFetch = require( '../lib/mock-fetch' );
+const { dataUrl } = require( '../lib/data-directory.js' );
+const mockFetch = require( '../lib/mock-fetch.js' );
 
 const testPageUrls = {
 	pageA: path.join( dataUrl, 'page-a/index.html' ),

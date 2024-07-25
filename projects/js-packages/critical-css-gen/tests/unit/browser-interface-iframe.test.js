@@ -1,8 +1,8 @@
 /* global CriticalCSSGenerator */
 const path = require( 'path' );
 const puppeteer = require( 'puppeteer' );
-const { dataDirectory } = require( '../lib/data-directory' );
-const TestServer = require( '../lib/test-server' );
+const { dataDirectory } = require( '../lib/data-directory.js' );
+const TestServer = require( '../lib/test-server.js' );
 
 let testServer = null;
 let browser;
