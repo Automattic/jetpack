@@ -139,7 +139,7 @@ class Starter_Page_Templates {
 	public function pass_error_to_frontend( $message ) {
 		wp_register_script(
 			'starter-page-templates-error',
-			null,
+			false,
 			array(),
 			'1.O',
 			true
