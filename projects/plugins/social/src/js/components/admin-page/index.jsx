@@ -21,7 +21,6 @@ import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -32,7 +31,6 @@ const Admin = () => {
 
 	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
 
-	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
@@ -108,7 +106,6 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
-						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isAutoConversionAvailable && (

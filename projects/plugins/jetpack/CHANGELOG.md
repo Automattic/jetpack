@@ -2,6 +2,104 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.7-a.5 - 2024-07-22
+### Enhancements
+- Dashboard: Add a dashboard card for AI Assistant. [#38413]
+- Security: Add separate IP allow and block list toggles in Web Application Firewall settings. [#38267]
+- Settings: Add a link to the AI assistant product page. [#38414]
+
+### Improved compatibility
+- Contact Form: Ensure checkboxes are properly displayed when using the Twenty Twenty or the Twenty Twenty One theme. [#38407]
+- General: Remove code for compatibility with WordPress versions before 6.5. [#38386]
+- General: Update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Bug fixes
+- Blocks: Check if the fontFamily block attribute is a string before trying to format. [#38321]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Logo Generator: Extend the site logo block to include an AI button on the toolbar. [#38439]
+- AI Proofread: Add long sentences and unconfident word checks. [#38443]
+- AI Proofread: Add suggestions handling on AI Proofread. [#38344]
+- AI Proofread: Improve Popover UX on AI Proofread. [#38342]
+- AI Proofread: Invalidate Suggestions on AI Proofread based on actions. [#38434]
+- AI Proofread: Target specific term occurrence. [#38397]
+- AI Proofread: Wrap suggestion text. [#38431]
+- Connection Screen: Remove mention of Stats from the list of available free features. [#38328]
+- Custom Post Types: Remove Comic post type. [#38307]
+- Google Fonts: Added an optional filter to short circuit fetching google font data. [#38343]
+- Jetpack AI: Add logo generator codebase to ai-client package and solve issues. [#38391]
+- Jetpack Color and Tonesque: Add existence guard. [#38341]
+- Jetpack Dashboard: use flex-start alignment for dash item cards for more consistent header-content spacing. [#38371]
+- JSON API: Fix Warnings in post endpoints. [#38365]
+- Security: Remove "new" badge from Jetpack Firewall settings card. [#38415]
+- Subscriptions: Update Newsletter module toggle label. [#38373]
+- Stats: Ensure Jetpack posts stats link points to WP Admin stats. [#38376]
+- WordPress.com REST API: Expose is_a4a_client attribute with sites API response. [#38403]
+
+## 13.7-a.3 - 2024-07-15
+### Enhancements
+- Blocks: Add the EventCoutdown block. [#38250]
+- Blocks: Add the Timeline block. [#38255]
+- Newsletter: Improve the modal overlay. [#38266]
+- Social: Added recommendation steps for the Social plan. [#38219]
+- Subscriptions: Implemented a more dynamic approach to displaying the modal. [#38079]
+
+### Improved compatibility
+- Blocks: Changed the use of default parameters in the Map block for React 19 compatibility. [#38274]
+
+### Bug fixes
+- Donations Block: Fix undefined array key warnings with old/malformed blocks. [#38281]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: Redirect Jetpack pages. [#38148]
+- AI Assistant: Add ambiguous words to proofread features list. [#38292]
+- AI Assistant: Add long sentences feature to proofread. [#38314]
+- AI Assistant: Add Popover content for AI Proofread. [#38290]
+- AI Assistant: Fix blocks content definition. [#38270]
+- AI Assistant: Integrate AI Proofread toggle with code. [#38280]
+- AI Breve: Update highlight. [#38189]
+- AI Proofread: Toggle specific feature. [#38286]
+- AI Proofread: Update hover events. [#38261]
+- AI Proofread: Update sidebar layout. [#38289]
+- Blocks: Honor the `$symbol` arg when passed an unknown currency. [#38281]
+- Calypsoify: Removing functionality from Jetpack. [#38259]
+- Custom Post Types: Remove Comic post type. [#38309]
+- Jetpack AI: Add beta flag to control logo generator extension. [#38322]
+- Jetpack AI Image: Trigger featured image auto generation when there is content on the post. [#38262]
+- General: Fix redirect for comments pending approval. [#38301]
+- MU WPCOM: Move countdown and timeline blocks from jetpack to jetpack-mu-wpcom. [#38298]
+- Newsletter Settings: Fix default value for Full text vs Excerpt. [#38256]
+- Random Redirect: Remove module. [#38310]
+- Theme tools: Add social menu to Classic Theme Helper package. [#38243]
+- WPCOM Block Editor: Removing functionality from Jetpack. [#38299]
+- WooCommerce Analytics: Initialize the module only if is not initialized in WooCommerce core. [#38236]
+
+## 13.7-a.1 - 2024-07-08
+### Enhancements
+- AI Assistant: The general purpose image generator is now available to all users. [#38203]
+- Subscriptions: Add command palette commands for quickly changing post access. [#37716]
+- Subscriptions: Improve the Subscribe block loading animation. [#38174]
+
+### Bug fixes
+- Like block: Fix warning displayed when trying to load the Like block on unsupported pages. [#38199]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add feature to tracks event. [#38207]
+- AI Assistant: Update Breve implementation to React. [#38125]
+- AI Assistant: Update Breve toggle location. [#38157]
+- AI Proofread: Change Breve request endpoint. [#38149]
+- AI Proofread: Move prompts to the backend. [#38182]
+- Carousel: Updating event listener to remove unnecessary default event prevention function call. [#38143]
+- Classic Theme Helper: Require Responsive Videos and Featured Content files. [#37969]
+- Featured Content: Don't call setup for wpcom platform since jetpack-mu-wpcom already takes care of that. [#38215]
+- Jetpack AI Breve: Fix popover font and css classnames. [#38161]
+- Jetpack AI Image: Include new entrypoint as a button on the image/gallery/slideshow block. [#38123]
+- Jetpack AI Image: Use better names when saving images. [#38179]
+- Masterbar: Deprecate module files. [#38109]
+- Newsletter settings: fix reply to example email when comment reply chosen. [#38151]
+- Search: Update search close button behaviour. [#38204]
+- Updated package dependencies. [#38132] [#38228] [#38235]
+
 ## 13.6 - 2024-07-02
 ### Enhancements
 - AI Assistant: Hide input when user types on extended block. [#37801]

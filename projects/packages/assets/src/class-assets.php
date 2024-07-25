@@ -529,6 +529,11 @@ class Assets {
 		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
+
+		// Register the React JSX runtime script - used as a polyfill until we can update JSX transforms. See https://github.com/Automattic/jetpack/issues/38424.
+		// @todo Remove this when we drop support for WordPress 6.5, as well as the script inclusion in test_wp_default_scripts_hook.
+		$jsx_url = self::normalize_path( plugins_url( '../build/react-jsx-runtime.js', __FILE__ ) );
+		$wp_scripts->add( 'react-jsx-runtime', $jsx_url, array( 'react' ), '18.3.1', true );
 	}
 
 	// endregion .

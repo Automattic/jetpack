@@ -20,7 +20,7 @@ const AiCard = props => {
 			href: '#/jetpack-ai',
 			label: __( 'View', 'jetpack-my-jetpack' ),
 		},
-		[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: {
+		[ PRODUCT_STATUSES.NEEDS_PLAN ]: {
 			href: userOptFree.current ? '#/jetpack-ai' : '#/add-jetpack-ai',
 		},
 	};

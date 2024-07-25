@@ -2,8 +2,7 @@ import { Button, useGlobalNotices } from '@automattic/jetpack-components';
 import {
 	BaseControl,
 	FlexBlock,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalHStack as HStack,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -53,11 +52,12 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
  */
 export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: ConfirmationFormProps ) {
 	const supportedServices = useSupportedServices();
-	const { existingConnections } = useSelect( select => {
+	const { existingConnections, reconnectingAccount } = useSelect( select => {
 		const store = select( socialStore );
 
 		return {
 			existingConnections: store.getConnections(),
+			reconnectingAccount: store.getReconnectingAccount(),
 		};
 	}, [] );
 
@@ -121,7 +121,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 		return { connected, not_connected };
 	}, [ isAlreadyConnected, keyringResult, service ] );
 
-	const { createConnection } = useDispatch( socialStore );
+	const { createConnection, setReconnectingAccount } = useDispatch( socialStore );
 
 	const onConfirm = useCallback(
 		async ( event: React.FormEvent ) => {
@@ -149,17 +149,24 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 				option => option.value === external_user_ID
 			);
 
+			if ( reconnectingAccount ) {
+				setReconnectingAccount( '' );
+			}
+
 			// Do not await the connection creation to unblock the UI
 			createConnection( data, {
 				display_name: accountInfo?.label,
 				profile_picture: accountInfo?.profile_picture,
 				service_name: service.ID,
+				external_id: external_user_ID,
 			} );
 
 			onComplete();
 		},
 		[
 			createConnection,
+			reconnectingAccount,
+			setReconnectingAccount,
 			createErrorNotice,
 			keyringResult.ID,
 			onComplete,
@@ -205,6 +212,12 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 						 }
 						<div className={ styles[ 'accounts-list' ] }>
 							{ accounts.not_connected.map( ( option, index ) => {
+								// If we are reconnecting an account, preselect it,
+								// otherwise, preselect the first account
+								const defaultChecked = reconnectingAccount
+									? reconnectingAccount === `${ service?.ID }:${ option.value }`
+									: index === 0;
+
 								return (
 									// eslint-disable-next-line jsx-a11y/label-has-associated-control -- https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/869
 									<label key={ option.value } className={ styles[ 'account-label' ] } aria-required>
@@ -212,7 +225,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 											type="radio"
 											name="external_user_ID"
 											value={ option.value }
-											defaultChecked={ index === 0 }
+											defaultChecked={ defaultChecked }
 											className={ styles[ 'account-input' ] }
 											required
 										/>

@@ -1,3 +1,4 @@
+import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
 import uid from 'component-uid';
 import RootChild from 'components/root-child';
@@ -5,13 +6,11 @@ import debugFactory from 'debug';
 import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
 import {
 	bindWindowListeners,
 	unbindWindowListeners,
 	suggested as suggestPosition,
 	constrainLeft,
-	isElement as isDOMElement,
 	offset,
 } from './util';
 
@@ -68,6 +67,9 @@ class Popover extends Component {
 			top: -99999,
 			positionClass: this.getPositionClass( props.position ),
 		};
+
+		this.domContainerRef = createRef();
+		this.domContextRef = createRef();
 	}
 
 	componentDidMount() {
@@ -76,23 +78,22 @@ class Popover extends Component {
 		bindWindowListeners();
 	}
 
-	UNSAFE_componentWillReceiveProps( nextProps ) {
-		// update context (target) reference into a property
-		if ( ! isDOMElement( nextProps.context ) ) {
-			this.domContext = ReactDom.findDOMNode( nextProps.context );
-		} else {
-			this.domContext = nextProps.context;
-		}
-
-		if ( ! nextProps.isVisible ) {
-			return null;
-		}
-
-		this.setPosition();
+	isDOMNode( obj ) {
+		return obj instanceof HTMLElement;
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { isVisible } = this.props;
+		const { context, isVisible } = this.props;
+
+		// update context (target - expecting a DOM node not a ref) reference into a property.
+		if ( context !== prevProps.context ) {
+			if ( ! context || this.isDOMNode( context ) ) {
+				this.domContextRef.current = context;
+			} else {
+				// eslint-disable-next-line no-console
+				this.debug( 'Expected a DOM node for props.context', context );
+			}
+		}
 
 		if ( isVisible !== prevProps.isVisible ) {
 			if ( isVisible ) {
@@ -102,7 +103,7 @@ class Popover extends Component {
 			}
 		}
 
-		if ( ! this.domContainer || ! this.domContext ) {
+		if ( ! this.domContainerRef.current || ! this.domContextRef.current ) {
 			return null;
 		}
 
@@ -163,7 +164,7 @@ class Popover extends Component {
 	}
 
 	// --- click outside ---
-	bindClickoutHandler( el = this.domContainer ) {
+	bindClickoutHandler( el = this.domContainerRef.current ) {
 		if ( ! el ) {
 			this.debug( 'no element to bind clickout side ' );
 			return null;
@@ -193,15 +194,23 @@ class Popover extends Component {
 
 	onClickout( event ) {
 		let shouldClose =
-			this.domContext && this.domContext.contains && ! this.domContext.contains( event.target );
+			this.domContextRef.current &&
+			this.domContextRef.current?.contains &&
+			! this.domContextRef.current.contains( event.target );
 
 		if ( this.props.ignoreContext && shouldClose ) {
-			const ignoreContext = ReactDom.findDOMNode( this.props.ignoreContext );
-			shouldClose =
-				shouldClose &&
-				ignoreContext &&
-				ignoreContext.contains &&
-				! ignoreContext.contains( event.target );
+			let ignoreContext;
+			if ( ! this.props.ignoreContext || this.isDOMNode( this.props.ignoreContext ) ) {
+				ignoreContext = this.props.ignoreContext;
+			} else {
+				// eslint-disable-next-line no-console
+				this.debug( 'Expected a DOM node for props.context', this.props.ignoreContext );
+			}
+			if ( ignoreContext && ignoreContext.contains ) {
+				shouldClose = shouldClose && ! ignoreContext.contains( event.target );
+			} else {
+				shouldClose = false;
+			}
 		}
 
 		if ( shouldClose ) {
@@ -240,17 +249,17 @@ class Popover extends Component {
 
 		this.bindClickoutHandler( domContainer );
 
-		// store DOM element referencies
-		this.domContainer = domContainer;
-
+		// store DOM element references - note we expect DOM nodes not refs.
+		this.domContainerRef.current = domContainer;
 		// store context (target) reference into a property
-		if ( ! isDOMElement( this.props.context ) ) {
-			this.domContext = ReactDom.findDOMNode( this.props.context );
+		if ( ! this.props.context || this.isDOMNode( this.props.context ) ) {
+			this.domContextRef.current = this.props.context;
 		} else {
-			this.domContext = this.props.context;
+			// eslint-disable-next-line no-console
+			this.debug( 'Expected a DOM node for props.context', this.props.context );
 		}
 
-		this.domContainer.focus();
+		this.domContainerRef.current.focus();
 		this.setPosition();
 	}
 
@@ -262,17 +271,18 @@ class Popover extends Component {
 	 * Computes the position of the Popover in function
 	 * of its main container and the target.
 	 *
-	 * @return {Object} reposition parameters
+	 * @returns {object} reposition parameters
 	 */
 	computePosition() {
 		if ( ! this.props.isVisible ) {
 			return null;
 		}
 
-		const { domContainer, domContext } = this;
+		const { domContainerRef, domContextRef } = this;
+
 		const { position } = this.props;
 
-		if ( ! domContainer || ! domContext ) {
+		if ( ! domContainerRef.current || ! domContextRef.current ) {
 			this.debug( '[WARN] no DOM elements to work' );
 			return null;
 		}
@@ -282,13 +292,20 @@ class Popover extends Component {
 		this.debug( 'position: %o', position );
 
 		if ( this.props.autoPosition ) {
-			suggestedPosition = suggestPosition( position, domContainer, domContext );
+			suggestedPosition = suggestPosition(
+				position,
+				domContainerRef.current,
+				domContextRef.current
+			);
 			this.debug( 'suggested position: %o', suggestedPosition );
 		}
 
 		const reposition = assign(
 			{},
-			constrainLeft( offset( suggestedPosition, domContainer, domContext ), domContainer ),
+			constrainLeft(
+				offset( suggestedPosition, domContainerRef.current, domContextRef.current ),
+				domContainerRef.current
+			),
 			{ positionClass: this.getPositionClass( suggestedPosition ) }
 		);
 
@@ -360,7 +377,7 @@ class Popover extends Component {
 			return null;
 		}
 
-		this.domContext.focus();
+		this.domContextRef.current.focus();
 		this.props.onClose( wasCanceled );
 	}
 

@@ -3,12 +3,11 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import React from 'react';
@@ -17,11 +16,11 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
-import { Breve } from '../breve';
-import Proofread from '../proofread';
+import { Breve, registerBreveHighlights, Highlight } from '../breve';
+import isBreveAvailable from '../breve/utils/get-availability';
+import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
 import {
@@ -57,30 +56,23 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-	const [ isHighlighting, setIsHighlighting ] = useState( true );
-
-	const handleAiFeedbackToggle = () => {
-		setIsHighlighting( current => ! current );
-	};
-
-	const aiFeedbackLabel = (
-		<div className="jetpack-ai-feedback__label">
-			{ __( 'AI feedback', 'jetpack' ) }
-			{ isBreveAvailable && (
-				<ToggleControl checked={ isHighlighting } onChange={ handleAiFeedbackToggle } />
-			) }
-		</div>
-	);
 
 	return (
 		<>
-			<PanelRow className="jetpack-ai-proofread-control__header">
-				<BaseControl label={ aiFeedbackLabel }>
-					{ isBreveAvailable && <Breve active={ isHighlighting } /> }
-					<Proofread placement={ placement } busy={ false } disabled={ requireUpgrade } />
+			{ isBreveAvailable && (
+				<PanelRow className="jetpack-ai-proofread-control__header">
+					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
+						<Breve />
+					</BaseControl>
+				</PanelRow>
+			) }
+
+			<PanelRow className="jetpack-ai-feedback__header">
+				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
+					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
+
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-title-optimization__header">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
@@ -112,7 +104,6 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
-
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
@@ -124,6 +115,7 @@ export default function AiAssistantPluginSidebar() {
 
 		return postTypeObject?.viewable;
 	}, [] );
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
@@ -138,6 +130,7 @@ export default function AiAssistantPluginSidebar() {
 
 	return (
 		<>
+			{ isBreveAvailable && <Highlight /> }
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
@@ -145,6 +138,7 @@ export default function AiAssistantPluginSidebar() {
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
+					className="jetpack-ai-assistant-panel"
 				>
 					<JetpackAndSettingsContent
 						placement={ PLACEMENT_JETPACK_SIDEBAR }
@@ -179,7 +173,7 @@ export default function AiAssistantPluginSidebar() {
 							disabled={ requireUpgrade }
 						/>
 					) }
-					<Proofread
+					<Feedback
 						placement={ PLACEMENT_PRE_PUBLISH }
 						busy={ false }
 						disabled={ requireUpgrade }
@@ -197,3 +191,6 @@ export default function AiAssistantPluginSidebar() {
 		</>
 	);
 }
+
+// Register the highlight format type from the Breve component
+isBreveAvailable && registerBreveHighlights();

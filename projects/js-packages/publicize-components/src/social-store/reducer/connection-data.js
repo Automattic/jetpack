@@ -2,12 +2,16 @@ import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
 	DELETING_CONNECTION,
+	SET_RECONNECTING_ACCOUNT,
 	SET_CONNECTIONS,
 	SET_KEYRING_RESULT,
 	TOGGLE_CONNECTION,
 	TOGGLE_CONNECTIONS_MODAL,
 	UPDATE_CONNECTION,
 	UPDATING_CONNECTION,
+	ADD_ABORT_CONTROLLER,
+	REMOVE_ABORT_CONTROLLERS,
+	REQUEST_TYPE_DEFAULT,
 } from '../actions/constants';
 
 /**
@@ -56,6 +60,13 @@ const connectionData = ( state = {}, action ) => {
 			};
 		}
 
+		case SET_RECONNECTING_ACCOUNT: {
+			return {
+				...state,
+				reconnectingAccount: action.reconnectingAccount,
+			};
+		}
+
 		case UPDATE_CONNECTION:
 			return {
 				...state,
@@ -81,6 +92,33 @@ const connectionData = ( state = {}, action ) => {
 			return {
 				...state,
 				updatingConnections: [ ...updating ],
+			};
+		}
+
+		case ADD_ABORT_CONTROLLER: {
+			const requestType = action.requestType || REQUEST_TYPE_DEFAULT;
+
+			return {
+				...state,
+				abortControllers: {
+					...state.abortControllers,
+					[ requestType ]: [
+						...( state.abortControllers?.[ requestType ] || [] ),
+						action.abortController,
+					],
+				},
+			};
+		}
+
+		case REMOVE_ABORT_CONTROLLERS: {
+			const requestType = action.requestType || REQUEST_TYPE_DEFAULT;
+
+			return {
+				...state,
+				abortControllers: {
+					...state.abortControllers,
+					[ requestType ]: [],
+				},
 			};
 		}
 

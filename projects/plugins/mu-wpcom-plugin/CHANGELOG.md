@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.5.0 - 2024-07-22
+### Added
+- Add missing `scssphp/scssphp` dependency to the plugin zip. [#38337]
+- Add checks to remove WP.comm items and links in WP Admin for users who are not connected to WP.com. [#38401]
+
+## 2.4.1 - 2024-07-18
+### Changed
+- Internal updates.
+
+## 2.4.0 - 2024-07-15
+### Added
+- Composer lock update. [#38241]
+
+## 2.3.3 - 2024-07-08
+### Changed
+- Updated package dependencies. [#38228]
+
 ## 2.3.2 - 2024-07-01
 ### Changed
 - Internal updates.

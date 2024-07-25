@@ -11,6 +11,11 @@ module.exports = {
 			parserOptions: {
 				parser: require.resolve( '@typescript-eslint/parser' ),
 			},
+			settings: {
+				'import/parsers': {
+					'@typescript-eslint/parser': [ '.js' ],
+				},
+			},
 		},
 	],
 	rules: {
@@ -18,6 +23,6 @@ module.exports = {
 		// yet mounted in the DOM from attaching to the window directly. Not
 		// relevant in a svelte project.
 		// Ref: https://github.com/WordPress/gutenberg/pull/26810
-		'@wordpress/no-global-event-listener': 0,
+		'@wordpress/no-global-event-listener': 'off',
 	},
 };

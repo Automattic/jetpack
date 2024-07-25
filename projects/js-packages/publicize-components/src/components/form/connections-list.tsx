@@ -1,6 +1,7 @@
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
+import { EnabledConnectionsNotice } from './enabled-connections-notice';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
 import { useConnectionState } from './use-connection-state';
@@ -33,6 +34,7 @@ export const ConnectionsList: React.FC = () => {
 					);
 				} ) }
 			</ul>
+			<EnabledConnectionsNotice />
 			{ ! needsUserConnection ? <SettingsButton variant="secondary" /> : null }
 		</div>
 	);

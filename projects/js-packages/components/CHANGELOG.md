@@ -2,6 +2,18 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.55.0] - 2024-07-22
+### Removed
+- Remove compatibility with WordPress 6.4. [#38386]
+
+## [0.54.4] - 2024-07-18
+### Changed
+- Internal updates.
+
+## [0.54.3] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
 ## [0.54.2] - 2024-06-25
 ### Added
 - Added social preview for Threads [#38003]
@@ -1079,6 +1091,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.55.0]: https://github.com/Automattic/jetpack-components/compare/0.54.4...0.55.0
+[0.54.4]: https://github.com/Automattic/jetpack-components/compare/0.54.3...0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-components/compare/0.54.2...0.54.3
 [0.54.2]: https://github.com/Automattic/jetpack-components/compare/0.54.1...0.54.2
 [0.54.1]: https://github.com/Automattic/jetpack-components/compare/0.54.0...0.54.1
 [0.54.0]: https://github.com/Automattic/jetpack-components/compare/0.53.10...0.54.0

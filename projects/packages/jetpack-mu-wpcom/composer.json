@@ -16,6 +16,7 @@
 		"automattic/jetpack-status": "@dev",
 		"automattic/scheduled-updates": "@dev",
 		"automattic/jetpack-compat": "@dev",
+		"automattic/jetpack-google-analytics": "@dev",
 		"scssphp/scssphp": "1.12.0"
 	},
 	"require-dev": {
@@ -61,7 +62,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "5.42.x-dev"
+			"dev-trunk": "5.49.x-dev"
 		},
 		"textdomain": "jetpack-mu-wpcom",
 		"version-constants": {

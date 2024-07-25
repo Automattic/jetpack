@@ -3,32 +3,27 @@
  */
 import {
 	AdminSection,
-	AdminSectionHero,
 	AdminPage,
 	Container,
 	Col,
 	Notice,
-	Text,
 	ZendeskChat,
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { useExperiment } from '@automattic/jetpack-explat';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
  * Internal dependencies
  */
-import { PRODUCT_STATUSES } from '../../constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
-import { WELCOME_BANNER_NOTICE_IDS } from '../../context/notices/noticeTemplates';
 import {
 	REST_API_CHAT_AUTHENTICATION_ENDPOINT,
 	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
-import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
@@ -40,7 +35,6 @@ import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
-import StatsSection from '../stats-section';
 import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
@@ -81,9 +75,9 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
-	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
@@ -97,7 +91,6 @@ export default function MyJetpackScreen() {
 		name: QUERY_CHAT_AVAILABILITY_KEY,
 		query: { path: REST_API_CHAT_AVAILABILITY_ENDPOINT },
 	} );
-	const { detail: statsDetails } = useProduct( 'stats' );
 	const { data: authData, isLoading: isJwtLoading } = useSimpleQuery( {
 		name: QUERY_CHAT_AUTHENTICATION_KEY,
 		query: { path: REST_API_CHAT_AUTHENTICATION_ENDPOINT },
@@ -108,9 +101,6 @@ export default function MyJetpackScreen() {
 
 	const shouldShowZendeskChatWidget =
 		! isJwtLoading && ! isChatAvailabilityLoading && isAvailable && jwt;
-	const shouldShowNotice =
-		noticeMessage &&
-		( ! isWelcomeBannerVisible || WELCOME_BANNER_NOTICE_IDS.includes( noticeOptions.id ) );
 	const isNewUser = getMyJetpackWindowInitialState( 'userIsNewToJetpack' ) === '1';
 
 	const { recordEvent } = useAnalytics();
@@ -138,53 +128,41 @@ export default function MyJetpackScreen() {
 
 	return (
 		<AdminPage siteAdminUrl={ adminUrl }>
+			<hr className={ styles.separator } />
+
 			<IDCModal />
-			<AdminSectionHero>
-				{ ! isNewUser && (
-					<Container horizontalSpacing={ 0 }>
-						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-						</Col>
-					</Container>
-				) }
-				{ isWelcomeBannerVisible && <WelcomeFlow /> }
-				<EvaluationRecommendations />
-				<Container horizontalSpacing={ 5 } horizontalGap={ noticeMessage ? 3 : 6 }>
-					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<Text variant="headline-small">
-							{ __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' ) }
-						</Text>
-					</Col>
-					{ shouldShowNotice && (
-						<Col>
-							{
-								<GlobalNotice
-									message={ noticeMessage }
-									title={ noticeTitle }
-									options={ noticeOptions }
-								/>
-							}
-						</Col>
-					) }
-					{ showFullJetpackStatsCard && (
-						<Col
-							className={ clsx( {
-								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
-							} ) }
-						>
-							<StatsSection />
-						</Col>
-					) }
+			{ ! isNewUser && (
+				<Container horizontalSpacing={ 0 }>
 					<Col>
-						<ProductCardsSection />
+						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
 					</Col>
-					{ jetpackManage.isEnabled && (
-						<Col>
-							<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
-						</Col>
-					) }
 				</Container>
-			</AdminSectionHero>
+			) }
+			{ isWelcomeBannerVisible && <WelcomeFlow /> }
+			<EvaluationRecommendations />
+			{ noticeMessage && ! isWelcomeBannerVisible && (
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col>
+						{
+							<GlobalNotice
+								message={ noticeMessage }
+								title={ noticeTitle }
+								options={ noticeOptions }
+							/>
+						}
+					</Col>
+				</Container>
+			) }
+
+			<ProductCardsSection />
+
+			{ jetpackManage.isEnabled && (
+				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+					<Col>
+						<JetpackManageBanner isAgencyAccount={ jetpackManage.isAgencyAccount } />
+					</Col>
+				</Container>
+			) }
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>

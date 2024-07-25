@@ -16,11 +16,6 @@ function wpcomsh_activate_blaze_module() {
 		return;
 	}
 
-	// Blaze was introduced in Jetpack 12.3-a.9.
-	if ( version_compare( JETPACK__VERSION, '12.3-a.9', '<' ) ) {
-		return;
-	}
-
 	if ( ! Jetpack::is_module_active( 'blaze' ) ) {
 		Jetpack::activate_module( 'blaze', false, false );
 	}
@@ -46,7 +41,7 @@ add_action( 'init', 'wpcomsh_force_activate_blaze_module', 0, 0 );
  * @return array
  */
 function wpcomsh_rm_blaze_module_list( $items ) {
-	if ( isset( $items['blaze'] ) && ! wpcom_is_nav_redesign_enabled() ) {
+	if ( isset( $items['blaze'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		unset( $items['blaze'] );
 	}
 	return $items;

@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton from './action-button';
@@ -11,20 +12,6 @@ import SecondaryButton, { type SecondaryButtonProps } from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
 import type { FC, MouseEventHandler, ReactNode } from 'react';
-
-export const PRODUCT_STATUSES_LABELS = {
-	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.MODULE_DISABLED ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ABSENT ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.ABSENT_WITH_PLAN ]: __( 'Needs Plugin', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: __( 'Inactive', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.USER_CONNECTION_ERROR ]: __( 'Needs user account', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: __( 'Needs connection', 'jetpack-my-jetpack' ),
-	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
-};
 
 export type ProductCardProps = {
 	children?: ReactNode;
@@ -37,14 +24,14 @@ export type ProductCardProps = {
 	isInstallingStandalone?: boolean;
 	isManageDisabled?: boolean;
 	onActivate?: () => void;
-	slug: string;
+	slug: JetpackModule;
 	additionalActions?: SecondaryButtonProps[];
 	upgradeInInterstitial?: boolean;
 	primaryActionOverride?: Record< string, { href?: string; label?: string } >;
 	secondaryAction?: Record< string, SecondaryButtonProps & { positionFirst?: boolean } >;
 	onInstallStandalone?: () => void;
 	onActivateStandalone?: () => void;
-	status: ( typeof PRODUCT_STATUSES )[ keyof typeof PRODUCT_STATUSES ];
+	status: keyof typeof PRODUCT_STATUSES;
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
 	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
 };
@@ -76,14 +63,15 @@ const ProductCard: FC< ProductCardProps > = props => {
 		recommendation,
 	} = props;
 
+	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+	const isOwned = ownedProducts?.includes( slug );
+
 	const isError =
 		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
 		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
-	const isPurchaseRequired =
-		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
-		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
+	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PLAN;
 
 	const containerClassName = clsx( {
 		[ styles.plugin_absent ]: isAbsent,
@@ -196,6 +184,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 							className={ styles.button }
 							additionalActions={ additionalActions }
 							primaryActionOverride={ primaryActionOverride }
+							isOwned={ isOwned }
 						/>
 						{ secondaryAction && ! secondaryAction?.positionFirst && (
 							<SecondaryButton { ...secondaryAction } />
@@ -205,6 +194,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 						status={ status }
 						isFetching={ isFetching }
 						isInstallingStandalone={ isInstallingStandalone }
+						isOwned={ isOwned }
 					/>
 				</div>
 			) }
