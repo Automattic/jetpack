@@ -1,10 +1,10 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { useLocale } from '@automattic/i18n-utils';
 import { START_WRITING_FLOW, DESIGN_FIRST_FLOW } from '@automattic/onboarding';
 import { WpcomTourKit, usePrefetchTourAssets } from '@automattic/tour-kit';
 import { isWithinBreakpoint } from '@automattic/viewport';
 import { useDispatch, useSelect, dispatch } from '@wordpress/data';
 import { useEffect, useMemo } from '@wordpress/element';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
 import useSitePlan from '../../../dotcom-fse/lib/site-plan/use-site-plan';
 import { selectors as starterPageTemplatesSelectors } from '../../../starter-page-templates/store';
@@ -34,7 +34,7 @@ type CoreInterfacePlaceholder = {
 };
 
 /**
- *
+ * The Welcome Tour of the Launch.
  */
 function LaunchWpcomWelcomeTour() {
 	const { show, isNewPageLayoutModalOpen, isManuallyOpened } = useSelect(
@@ -74,7 +74,7 @@ function LaunchWpcomWelcomeTour() {
 		}
 
 		// Track opening of the Welcome Guide
-		recordTracksEvent( 'calypso_editor_wpcom_tour_open', {
+		wpcomTrackEvent( 'calypso_editor_wpcom_tour_open', {
 			is_gutenboarding: window.calypsoifyGutenberg?.isGutenboarding,
 			is_manually_opened: isManuallyOpened,
 			intent: siteIntent,
@@ -98,9 +98,10 @@ function LaunchWpcomWelcomeTour() {
 }
 
 /**
+ * Display the welcome tour.
  *
- * @param root0
- * @param root0.siteIntent
+ * @param props - The props of the component.
+ * @param props.siteIntent - The intent of the site.
  */
 function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 	const sitePlan = useSitePlan( window._currentSiteId );
@@ -158,7 +159,7 @@ function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 	const tourConfig: WpcomConfig = {
 		steps: tourSteps,
 		closeHandler: ( _steps, currentStepIndex, source ) => {
-			recordTracksEvent( 'calypso_editor_wpcom_tour_dismiss', {
+			wpcomTrackEvent( 'calypso_editor_wpcom_tour_dismiss', {
 				is_gutenboarding: isGutenboarding,
 				slide_number: currentStepIndex + 1,
 				action: source,
@@ -184,7 +185,7 @@ function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 					(
 						dispatch( 'automattic/wpcom-welcome-guide' ) as WPcomWelcomeGuideActions
 					 ).setTourRating( rating );
-					recordTracksEvent( 'calypso_editor_wpcom_tour_rate', {
+					wpcomTrackEvent( 'calypso_editor_wpcom_tour_rate', {
 						thumbs_up: rating === 'thumbs-up',
 						is_gutenboarding: false,
 						intent: siteIntent,
@@ -194,7 +195,7 @@ function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 			},
 			callbacks: {
 				onMinimize: currentStepIndex => {
-					recordTracksEvent( 'calypso_editor_wpcom_tour_minimize', {
+					wpcomTrackEvent( 'calypso_editor_wpcom_tour_minimize', {
 						is_gutenboarding: isGutenboarding,
 						slide_number: currentStepIndex + 1,
 						intent: siteIntent,
@@ -202,7 +203,7 @@ function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 					} );
 				},
 				onMaximize: currentStepIndex => {
-					recordTracksEvent( 'calypso_editor_wpcom_tour_maximize', {
+					wpcomTrackEvent( 'calypso_editor_wpcom_tour_maximize', {
 						is_gutenboarding: isGutenboarding,
 						slide_number: currentStepIndex + 1,
 						intent: siteIntent,
@@ -213,7 +214,7 @@ function WelcomeTour( { siteIntent }: { siteIntent?: string } ) {
 					const lastStepIndex = tourSteps.length - 1;
 					const { heading } = tourSteps[ currentStepIndex ].meta;
 
-					recordTracksEvent( 'calypso_editor_wpcom_tour_slide_view', {
+					wpcomTrackEvent( 'calypso_editor_wpcom_tour_slide_view', {
 						slide_number: currentStepIndex + 1,
 						is_last_slide: currentStepIndex === lastStepIndex,
 						slide_heading: heading,

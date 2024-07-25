@@ -1,4 +1,3 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { useLocale } from '@automattic/i18n-utils';
 import { Button, FormTokenField } from '@wordpress/components';
 import { TokenItem } from '@wordpress/components/build-types/form-token-field/types';
@@ -7,6 +6,7 @@ import { useEffect } from '@wordpress/element';
 import { store as noticesStore } from '@wordpress/notices';
 import { useI18n } from '@wordpress/react-i18n';
 import * as React from 'react';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import useAddTagsToPost from './use-add-tags-to-post';
 
 type PostMeta = {
@@ -32,8 +32,9 @@ type SuggestedTagsProps = {
 };
 
 /**
+ * Display the suggested tags.
  *
- * @param props
+ * @param props - The props of the component.
  */
 function SuggestedTags( props: SuggestedTagsProps ) {
 	const { __, _n } = useI18n();
@@ -60,7 +61,7 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 			number_of_suggested_tags_selected: numSameTags,
 			number_of_added_tags: numAddedTags,
 		};
-		recordTracksEvent( 'calypso_reader_post_publish_add_tags', eventProps );
+		wpcomTrackEvent( 'calypso_reader_post_publish_add_tags', eventProps );
 		if ( numAddedTags > 0 ) {
 			createNotice(
 				'success',
@@ -82,19 +83,20 @@ function SuggestedTags( props: SuggestedTagsProps ) {
 		if ( origSuggestedTags?.length === 0 ) {
 			// Check if localeSlug begins with 'en'
 			if ( localeSlug && localeSlug.startsWith( 'en' ) ) {
-				recordTracksEvent( 'calypso_reader_post_publish_no_suggested_tags' );
+				wpcomTrackEvent( 'calypso_reader_post_publish_no_suggested_tags' );
 			}
 			props.setShouldShowSuggestedTags( false );
 		} else {
-			recordTracksEvent( 'calypso_reader_post_publish_show_suggested_tags', {
+			wpcomTrackEvent( 'calypso_reader_post_publish_show_suggested_tags', {
 				number_of_original_suggested_tags: origSuggestedTags.length,
 			} );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const onChangeSelectedTags = ( newTags: ( string | TokenItem )[] ) => {
 		setSelectedTags( newTags );
-		recordTracksEvent( 'calypso_reader_post_publish_update_suggested_tags' );
+		wpcomTrackEvent( 'calypso_reader_post_publish_update_suggested_tags' );
 	};
 
 	const tokenField = (

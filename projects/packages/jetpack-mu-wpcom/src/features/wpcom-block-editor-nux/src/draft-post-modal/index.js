@@ -1,9 +1,9 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { doAction, hasAction } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
 import draftPostImage from './images/draft-post.svg';
 import './style.scss';
@@ -48,7 +48,7 @@ const DraftPostModal = () => {
 				</>
 			}
 			onRequestClose={ closeModal }
-			onOpen={ () => recordTracksEvent( 'calypso_editor_wpcom_draft_post_modal_show' ) }
+			onOpen={ () => wpcomTrackEvent( 'calypso_editor_wpcom_draft_post_modal_show' ) }
 		/>
 	);
 };

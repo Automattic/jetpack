@@ -1,4 +1,3 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import apiFetch from '@wordpress/api-fetch';
 import { createBlock } from '@wordpress/blocks';
 import { Button, Modal } from '@wordpress/components';
@@ -7,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import { ArrowLeftIcon, ArrowRightIcon } from './icons';
 
 import './style.scss';
@@ -28,7 +28,7 @@ export const BloggingPromptsModalInner = () => {
 			path,
 		} )
 			.then( result => {
-				recordTracksEvent( 'calypso_editor_writing_prompts_modal_viewed' );
+				wpcomTrackEvent( 'calypso_editor_writing_prompts_modal_viewed' );
 				return setPrompts( result );
 			} )
 			// eslint-disable-next-line no-console
@@ -39,22 +39,19 @@ export const BloggingPromptsModalInner = () => {
 		return null;
 	}
 
-	/**
-	 *
-	 */
-	function selectPrompt() {
+	const selectPrompt = () => {
 		const promptId = prompts[ promptIndex ]?.id;
 		dispatch( 'core/editor' ).resetEditorBlocks( [
 			createBlock( 'jetpack/blogging-prompt', { promptId } ),
 		] );
-		recordTracksEvent( 'calypso_editor_writing_prompts_modal_prompt_selected', {
+		wpcomTrackEvent( 'calypso_editor_writing_prompts_modal_prompt_selected', {
 			prompt_id: promptId,
 		} );
 		setIsOpen( false );
-	}
+	};
 
 	const closeModal = () => {
-		recordTracksEvent( 'calypso_editor_writing_prompts_modal_closed' );
+		wpcomTrackEvent( 'calypso_editor_writing_prompts_modal_closed' );
 		setIsOpen( false );
 	};
 

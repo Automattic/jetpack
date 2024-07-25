@@ -1,10 +1,10 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
 import React from 'react';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import { useShouldShowFirstPostPublishedModal } from '../../../dotcom-fse/lib/first-post-published-modal/should-show-first-post-published-modal-context';
 import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
 import NuxModal from '../nux-modal';
@@ -102,7 +102,7 @@ const FirstPostPublishedModalInner: React.FC = () => {
 				</>
 			}
 			onRequestClose={ closeModal }
-			onOpen={ () => recordTracksEvent( 'calypso_editor_wpcom_first_post_published_modal_show' ) }
+			onOpen={ () => wpcomTrackEvent( 'calypso_editor_wpcom_first_post_published_modal_show' ) }
 		/>
 	);
 };

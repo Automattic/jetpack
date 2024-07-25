@@ -1,10 +1,10 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { localizeUrl } from '@automattic/i18n-utils';
 import { isMobile } from '@automattic/viewport';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import { getEditorType } from './get-editor-type';
 import type { WpcomStep } from '@automattic/tour-kit';
 
@@ -14,8 +14,9 @@ interface TourAsset {
 }
 
 /**
+ * Get the tour asset by the key.
  *
- * @param key
+ * @param key - The key of the tour asset.
  */
 function getTourAssets( key: string ): TourAsset | undefined {
 	const CDN_PREFIX = 'https://s0.wp.com/i/editor-welcome-tour';
@@ -65,12 +66,13 @@ function getTourAssets( key: string ): TourAsset | undefined {
 }
 
 /**
+ * Get the steps of the tour
  *
- * @param localeSlug
- * @param referencePositioning
- * @param isSiteEditor
- * @param themeName
- * @param siteIntent
+ * @param localeSlug - The slug of the locale.
+ * @param referencePositioning - The reference positioning.
+ * @param isSiteEditor - Whether is the site editor.
+ * @param themeName - The name of the theme.
+ * @param siteIntent - The intent of the current site.
  */
 function getTourSteps(
 	localeSlug: string,
@@ -84,7 +86,7 @@ function getTourSteps(
 	const siteEditorCourseUrl = `https://wordpress.com/home/${ window.location.hostname }?courseSlug=site-editor-quick-start`;
 	const editorType = getEditorType();
 	const onSiteEditorCourseLinkClick = () => {
-		recordTracksEvent( 'calypso_editor_wpcom_tour_site_editor_course_link_click', {
+		wpcomTrackEvent( 'calypso_editor_wpcom_tour_site_editor_course_link_click', {
 			is_pattern_assembler: isPatternAssembler,
 			intent: siteIntent,
 			editor_type: editorType,

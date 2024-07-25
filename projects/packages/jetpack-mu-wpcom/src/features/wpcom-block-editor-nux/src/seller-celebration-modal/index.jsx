@@ -1,8 +1,8 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import { useHasSeenSellerCelebrationModal } from '../../../dotcom-fse/lib/seller-celebration-modal/has-seen-seller-celebration-modal-context';
 import useShouldShowSellerCelebrationModal from '../../../dotcom-fse/lib/seller-celebration-modal/use-should-show-seller-celebration-modal';
 import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
@@ -121,7 +121,7 @@ const SellerCelebrationModalInner = () => {
 				</>
 			}
 			onRequestClose={ closeModal }
-			onOpen={ () => recordTracksEvent( 'calypso_editor_wpcom_seller_celebration_modal_show' ) }
+			onOpen={ () => wpcomTrackEvent( 'calypso_editor_wpcom_seller_celebration_modal_show' ) }
 		/>
 	);
 };

@@ -1,10 +1,8 @@
-/* eslint-disable wpcalypso/jsx-classname-namespace */
-
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { Guide, GuidePage } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import blockPickerImage from './images/block-picker.svg';
 import editorImage from './images/editor.svg';
 import previewImage from './images/preview.svg';
@@ -13,7 +11,7 @@ import privateImage from './images/private.svg';
 import './style.scss';
 
 /**
- *
+ * The nux component.
  */
 function WpcomNux() {
 	const { show, isNewPageLayoutModalOpen, isManuallyOpened } = useSelect( select => ( {
@@ -29,7 +27,7 @@ function WpcomNux() {
 	// Track opening of the welcome guide
 	useEffect( () => {
 		if ( show && ! isNewPageLayoutModalOpen ) {
-			recordTracksEvent( 'calypso_editor_wpcom_nux_open', {
+			wpcomTrackEvent( 'calypso_editor_wpcom_nux_open', {
 				is_gutenboarding: window.calypsoifyGutenberg?.isGutenboarding,
 				is_manually_opened: isManuallyOpened,
 			} );
@@ -41,7 +39,7 @@ function WpcomNux() {
 	}
 
 	const dismissWpcomNux = () => {
-		recordTracksEvent( 'calypso_editor_wpcom_nux_dismiss', {
+		wpcomTrackEvent( 'calypso_editor_wpcom_nux_dismiss', {
 			is_gutenboarding: window.calypsoifyGutenberg?.isGutenboarding,
 		} );
 		setShowWelcomeGuide( false, { openedManually: false } );
@@ -113,18 +111,19 @@ function getWpcomNuxPages() {
 }
 
 /**
+ * Display the Nux page
  *
- * @param root0
- * @param root0.pageNumber
- * @param root0.isLastPage
- * @param root0.alignBottom
- * @param root0.heading
- * @param root0.description
- * @param root0.imgSrc
+ * @param props - The props of the component.
+ * @param props.pageNumber - The number of page.
+ * @param props.isLastPage - Whether the current page is the last one.
+ * @param props.alignBottom - Whether to align bottom.
+ * @param props.heading - The text of heading.
+ * @param props.description - The text of description.
+ * @param props.imgSrc - The src of image.
  */
 function NuxPage( { pageNumber, isLastPage, alignBottom = false, heading, description, imgSrc } ) {
 	useEffect( () => {
-		recordTracksEvent( 'calypso_editor_wpcom_nux_slide_view', {
+		wpcomTrackEvent( 'calypso_editor_wpcom_nux_slide_view', {
 			slide_number: pageNumber,
 			is_last_slide: isLastPage,
 			is_gutenboarding: window.calypsoifyGutenberg?.isGutenboarding,

@@ -1,4 +1,3 @@
-import { recordTracksEvent } from '@automattic/calypso-analytics';
 import { FormLabel } from '@automattic/components';
 import { START_WRITING_FLOW, DESIGN_FIRST_FLOW } from '@automattic/onboarding';
 import { Modal, Button } from '@wordpress/components';
@@ -11,6 +10,7 @@ import ClipboardButton from 'calypso/components/forms/clipboard-button';
 import FormInputCheckbox from 'calypso/components/forms/form-checkbox';
 import clsx from 'clsx';
 import React from 'react';
+import { wpcomTrackEvent } from '../../../../common/tracks';
 import { useShouldShowFirstPostPublishedModal } from '../../../dotcom-fse/lib/first-post-published-modal/should-show-first-post-published-modal-context';
 import useShouldShowSellerCelebrationModal from '../../../dotcom-fse/lib/seller-celebration-modal/use-should-show-seller-celebration-modal';
 import useSiteIntent from '../../../dotcom-fse/lib/site-intent/use-site-intent';
@@ -86,7 +86,7 @@ const SharingModalInner: React.FC = () => {
 			postType === 'post'
 		) {
 			previousIsCurrentPostPublished.current = isCurrentPostPublished;
-			recordTracksEvent( 'calypso_editor_sharing_dialog_show' );
+			wpcomTrackEvent( 'calypso_editor_sharing_dialog_show' );
 
 			// When the post published panel shows, it is focused automatically.
 			// Thus, we need to delay open the modal so that the modal would not be close immediately
@@ -97,6 +97,8 @@ const SharingModalInner: React.FC = () => {
 		}
 	}, [
 		postType,
+		postPassword,
+		postStatus,
 		shouldShowFirstPostPublishedModal,
 		shouldShowSellerCelebrationModal,
 		shouldShowVideoCelebrationModal,
@@ -117,7 +119,7 @@ const SharingModalInner: React.FC = () => {
 		baseUrl.search = params.toString();
 		const twitterUrl = baseUrl.href;
 
-		recordTracksEvent( 'calypso_editor_sharing_twitter' );
+		wpcomTrackEvent( 'calypso_editor_sharing_twitter' );
 		window.open( twitterUrl, 'twitter', 'width=550,height=420,resizeable,scrollbars' );
 	};
 	const shareFb = () => {
@@ -129,7 +131,7 @@ const SharingModalInner: React.FC = () => {
 		baseUrl.search = params.toString();
 		const facebookUrl = baseUrl.href;
 
-		recordTracksEvent( 'calypso_editor_sharing_facebook' );
+		wpcomTrackEvent( 'calypso_editor_sharing_facebook' );
 		window.open( facebookUrl, 'facebook', 'width=626,height=436,resizeable,scrollbars' );
 	};
 	const shareLinkedin = () => {
@@ -141,7 +143,7 @@ const SharingModalInner: React.FC = () => {
 		baseUrl.search = params.toString();
 		const linkedinUrl = baseUrl.href;
 
-		recordTracksEvent( 'calypso_editor_sharing_linkedin' );
+		wpcomTrackEvent( 'calypso_editor_sharing_linkedin' );
 		window.open( linkedinUrl, 'linkedin', 'width=626,height=436,resizeable,scrollbars' );
 	};
 	const shareTumblr = () => {
@@ -153,7 +155,7 @@ const SharingModalInner: React.FC = () => {
 		baseUrl.search = params.toString();
 		const tumblrUrl = baseUrl.href;
 
-		recordTracksEvent( 'calypso_editor_sharing_tumblr' );
+		wpcomTrackEvent( 'calypso_editor_sharing_tumblr' );
 		window.open( tumblrUrl, 'tumblr', 'width=626,height=436,resizeable,scrollbars' );
 	};
 	const sharePinterest = () => {
@@ -165,11 +167,11 @@ const SharingModalInner: React.FC = () => {
 		baseUrl.search = params.toString();
 		const pinterestUrl = baseUrl.href;
 
-		recordTracksEvent( 'calypso_editor_sharing_pinterest' );
+		wpcomTrackEvent( 'calypso_editor_sharing_pinterest' );
 		window.open( pinterestUrl, 'pinterest', 'width=626,height=436,resizeable,scrollbars' );
 	};
 	const copyLinkClick = () => {
-		recordTracksEvent( 'calypso_editor_sharing_link_copy' );
+		wpcomTrackEvent( 'calypso_editor_sharing_link_copy' );
 		createNotice( 'success', __( 'Link copied to clipboard.', 'jetpack-mu-wpcom' ), {
 			type: 'snackbar',
 		} );
