@@ -15,6 +15,7 @@ export interface GeneratorModalProps {
 	siteDetails?: SiteDetails;
 	isOpen: boolean;
 	onClose: () => void;
+	onApplyLogo: () => void;
 	context: string;
 }
 

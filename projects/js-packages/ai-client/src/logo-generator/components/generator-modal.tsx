@@ -43,6 +43,7 @@ const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );
 export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
+	onApplyLogo,
 	siteDetails,
 	context,
 } ) => {
@@ -167,6 +168,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 	const handleApplyLogo = () => {
 		setLogoAccepted( true );
+		onApplyLogo?.();
 	};
 
 	const handleCloseAndReload = () => {
