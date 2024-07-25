@@ -65,7 +65,7 @@
 	},
 	"exports": {
 		".": {
-			"jetpack:src": "./src/index.ts",
+			"jetpack:src": "./src/back-end.ts",
 			"types": "./lib/back-end.d.ts",
 			"browser": "./dist/bundle.js",
 			"import": "./lib/back-end.js",
