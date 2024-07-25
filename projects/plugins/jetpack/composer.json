@@ -28,7 +28,6 @@
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-forms": "@dev",
-		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",

@@ -11,7 +11,7 @@ import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { InfoTooltip } from './info-tooltip';
-import { useProtectTooltipCopy, type TooltipContent } from './use-protect-tooltip-copy';
+import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { ReactElement, PropsWithChildren } from 'react';
 
 export const ScanAndThreatStatus = () => {
@@ -20,28 +20,17 @@ export const ScanAndThreatStatus = () => {
 	const { isPluginActive = false, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 	const { isSiteConnected } = useMyJetpackConnection();
 	const {
-		plugins,
-		themes,
 		protect: { scanData },
 	} = getMyJetpackWindowInitialState();
-	const {
-		plugins: fromScanPlugins,
-		themes: fromScanThemes,
-		num_threats: numThreats = 0,
-	} = scanData;
-
-	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
-	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
-	const tooltipContent = useProtectTooltipCopy( { pluginsCount, themesCount, numThreats } );
-	const { scanThreatsTooltip } = tooltipContent;
+	const { plugins, themes, num_threats: numThreats = 0 } = scanData || {};
 
 	const criticalScanThreatCount = useMemo( () => {
-		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData;
+		const { core, database, files, num_plugins_threats, num_themes_threats } = scanData || {};
 		const pluginsThreats = num_plugins_threats
-			? fromScanPlugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
+			? plugins.reduce( ( accum, plugin ) => accum.concat( plugin.threats ), [] )
 			: [];
 		const themesThreats = num_themes_threats
-			? fromScanThemes.reduce( ( accum, theme ) => accum.concat( theme.threats ), [] )
+			? themes.reduce( ( accum, theme ) => accum.concat( theme.threats ), [] )
 			: [];
 		const allThreats = [
 			...pluginsThreats,
@@ -54,53 +43,50 @@ export const ScanAndThreatStatus = () => {
 			( accum, threat ) => ( threat.severity >= 5 ? ( accum += 1 ) : accum ),
 			0
 		);
-	}, [ fromScanPlugins, fromScanThemes, scanData ] );
+	}, [ plugins, themes, scanData ] );
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( hasProtectPaidPlan ) {
 			if ( numThreats ) {
 				return (
-					<ThreatStatus
-						numThreats={ numThreats }
-						criticalThreatCount={ criticalScanThreatCount }
-						tooltipContent={ scanThreatsTooltip }
-					/>
+					<ThreatStatus numThreats={ numThreats } criticalThreatCount={ criticalScanThreatCount } />
 				);
 			}
-			return <ScanStatus status="success" tooltipContent={ scanThreatsTooltip } />;
+			return <ScanStatus status="success" />;
 		}
 		return numThreats ? (
-			<ThreatStatus numThreats={ numThreats } tooltipContent={ scanThreatsTooltip } />
+			<ThreatStatus numThreats={ numThreats } />
 		) : (
-			<ScanStatus status="partial" tooltipContent={ scanThreatsTooltip } />
+			<ScanStatus status="partial" />
 		);
 	}
 
-	return <ScanStatus status="off" tooltipContent={ scanThreatsTooltip } />;
+	return <ScanStatus status="off" />;
 };
 
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren}                      props                     - The component props
- * @param {number}                                 props.numThreats          - The number of threats
- * @param {number}                                 props.criticalThreatCount - The number of critical threats
- * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent      - The number of critical threats
+ * @param {PropsWithChildren} props                     - The component props
+ * @param {number}            props.numThreats          - The number of threats
+ * @param {number}            props.criticalThreatCount - The number of critical threats
+ *
  * @return {ReactElement} rendered component
  */
 function ThreatStatus( {
 	numThreats,
 	criticalThreatCount,
-	tooltipContent,
 }: {
 	numThreats: number;
 	criticalThreatCount?: number;
-	tooltipContent?: TooltipContent[ 'scanThreatsTooltip' ];
 } ) {
 	const { recordEvent } = useAnalytics();
 	const useTooltipRef = useRef< HTMLButtonElement >();
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
+
+	const tooltipContent = useProtectTooltipCopy();
+	const { scanThreatsTooltip } = tooltipContent;
 
 	const toggleTooltip = useCallback(
 		() =>
@@ -110,8 +96,7 @@ function ThreatStatus( {
 						page: 'my-jetpack',
 						feature: 'jetpack-protect',
 						location: 'scan',
-						status: 'alert',
-						hasPaidPlan: true,
+						has_paid_plan: true,
 						threats: numThreats,
 					} );
 				}
@@ -152,8 +137,8 @@ function ThreatStatus( {
 									onClose={ hideTooltip }
 								>
 									<>
-										<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
-										<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
+										<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
+										<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
 									</>
 								</Popover>
 							) }
@@ -177,18 +162,15 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren}                      props                - The component props
- * @param {'success' | 'partial' | 'off'}          props.status         - The number of threats
- * @param {TooltipContent[ 'scanThreatsTooltip' ]} props.tooltipContent - The number of critical threats
+ * @param {PropsWithChildren}             props        - The component props
+ * @param {'success' | 'partial' | 'off'} props.status - The number of threats
+ *
  * @return { ReactElement} rendered component
  */
-function ScanStatus( {
-	status,
-	tooltipContent,
-}: {
-	status: 'success' | 'partial' | 'off';
-	tooltipContent?: TooltipContent[ 'scanThreatsTooltip' ];
-} ) {
+function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
+	const tooltipContent = useProtectTooltipCopy();
+	const { scanThreatsTooltip } = tooltipContent;
+
 	if ( status === 'success' ) {
 		return (
 			<>
@@ -225,14 +207,14 @@ function ScanStatus( {
 						tracksEventName={ 'protect_card_tooltip_open' }
 						tracksEventProps={ {
 							location: 'scan',
-							status: 'partial',
+							status: status,
 							hasPaidPlan: false,
 							threats: 0,
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ tooltipContent.title }</h3>
-							<p className="value-section__tooltip-content">{ tooltipContent.text }</p>
+							<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
+							<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
 						</>
 					</InfoTooltip>
 				</div>

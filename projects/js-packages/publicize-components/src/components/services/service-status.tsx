@@ -1,11 +1,11 @@
-import { Button } from '@automattic/jetpack-components';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { Alert } from '@automattic/jetpack-components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Connection } from '../../social-store/types';
 import styles from './style.module.scss';
 
 export type ServiceStatusProps = {
 	serviceConnections: Array< Connection >;
-	onClickBroken?: VoidFunction;
+	brokenConnections: Array< Connection >;
 };
 
 /**
@@ -15,24 +15,27 @@ export type ServiceStatusProps = {
  *
  * @return {import('react').ReactNode} Service status component
  */
-export function ServiceStatus( { serviceConnections, onClickBroken }: ServiceStatusProps ) {
+export function ServiceStatus( { serviceConnections, brokenConnections }: ServiceStatusProps ) {
 	if ( ! serviceConnections.length ) {
 		return null;
 	}
 
-	if ( serviceConnections.some( ( { status } ) => status === 'broken' ) ) {
+	if ( brokenConnections.length > 0 ) {
+		const canFix = brokenConnections.some( ( { can_disconnect } ) => can_disconnect );
+
 		return (
-			<span>
-				<Button
-					variant="link"
-					className={ styles[ 'broken-connection' ] }
-					onClick={ onClickBroken }
-				>
-					{ serviceConnections.length > 1
-						? __( 'Broken connections', 'jetpack' )
-						: _x( 'Broken connection', '', 'jetpack' ) }
-				</Button>
-			</span>
+			<Alert
+				level={ canFix ? 'error' : 'warning' }
+				showIcon={ false }
+				className={ styles[ 'broken-connection-alert' ] }
+			>
+				{ canFix
+					? __(
+							'Please fix the broken connections or disconnect them to create more connections.',
+							'jetpack'
+					  )
+					: _n( 'Broken connection', 'Broken connections', brokenConnections.length, 'jetpack' ) }
+			</Alert>
 		);
 	}
 

@@ -9,7 +9,7 @@ const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
 	const { recordEvent } = useAnalytics();
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
-	const { isPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const { isPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } = detail || {};
 
 	/**
 	 * Called when secondary "View" button is clicked.

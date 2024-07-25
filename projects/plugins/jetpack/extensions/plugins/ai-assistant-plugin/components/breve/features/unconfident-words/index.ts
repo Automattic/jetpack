@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
@@ -10,9 +14,10 @@ import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
 export const UNCONFIDENT_WORDS: BreveFeatureConfig = {
 	name: 'unconfident-words',
-	title: 'Unconfident words',
+	title: __( 'Unconfident words', 'jetpack' ),
 	tagName: 'span',
 	className: 'has-proofread-highlight--unconfident-words',
+	defaultEnabled: true,
 };
 
 const list = new RegExp( `\\b(${ words.map( escapeRegExp ).join( '|' ) })\\b`, 'gi' );

@@ -17,11 +17,11 @@ export const AutoFirewallStatus = () => {
 	const {
 		protect: { wafConfig: wafData },
 	} = getMyJetpackWindowInitialState();
-	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData;
+	const { jetpack_waf_automatic_rules: isAutoFirewallEnabled } = wafData || {};
 
 	if ( isPluginActive && isSiteConnected ) {
 		if ( isAutoFirewallEnabled ) {
-			return <WafStatus status="success" />;
+			return <WafStatus status="active" />;
 		}
 
 		return <WafStatus status="inactive" />;
@@ -33,19 +33,19 @@ export const AutoFirewallStatus = () => {
 /**
  * WafStatus component
  *
- * @param {PropsWithChildren}              props        - The component props
- * @param {'success' | 'inactive' | 'off'} props.status - The number of threats
+ * @param {PropsWithChildren}             props        - The component props
+ * @param {'active' | 'inactive' | 'off'} props.status - The status of the WAF
  *
  * @return {ReactElement} rendered component
  */
-function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
+function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
-	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy();
 	const { autoFirewallTooltip } = tooltipContent;
 
-	if ( status === 'success' ) {
+	if ( status === 'active' ) {
 		return (
 			<>
 				<div>
@@ -70,21 +70,19 @@ function WafStatus( { status }: { status: 'success' | 'inactive' | 'off' } ) {
 					/>
 				</div>
 				<div className="value-section__status-text">{ __( 'Inactive', 'jetpack-my-jetpack' ) }</div>
-				{ ! hasProtectPaidPlan && (
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
-						tracksEventProps={ {
-							location: 'auto-firewall',
-							status: 'inactive',
-							hasPaidPlan: false,
-						} }
-					>
-						<>
-							<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
-						</>
-					</InfoTooltip>
-				) }
+				<InfoTooltip
+					tracksEventName={ 'protect_card_tooltip_open' }
+					tracksEventProps={ {
+						location: 'auto-firewall',
+						status: status,
+						has_paid_plan: hasPaidPlanForProduct,
+					} }
+				>
+					<>
+						<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
+						<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
+					</>
+				</InfoTooltip>
 			</>
 		);
 	}

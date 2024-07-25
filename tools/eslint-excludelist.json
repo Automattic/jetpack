@@ -7,7 +7,6 @@
 	"projects/plugins/jetpack/_inc/client/components/modal/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/module-settings/connect-module-options.jsx",
 	"projects/plugins/jetpack/_inc/client/components/module-settings/with-module-settings-form-helpers.jsx",
-	"projects/plugins/jetpack/_inc/client/components/popover/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/popover/util.js",
 	"projects/plugins/jetpack/_inc/client/components/root-child/index.jsx",
 	"projects/plugins/jetpack/_inc/client/components/section-nav/index.jsx",

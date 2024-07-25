@@ -22,8 +22,9 @@ export function tooltipsPlugin( periods ) {
 	 */
 	function init( u: uPlot, _opts: object ) {
 		container.classList.add( 'jb-score-tooltips-container' );
-
-		reactDom = ReactDOM.createRoot( reactRoot );
+		if ( ! reactDom ) {
+			reactDom = ReactDOM.createRoot( reactRoot );
+		}
 		reactRoot.style.position = 'absolute';
 		reactRoot.style.bottom = -20 + 'px';
 		reactRoot.style.translate = '-50% calc( 100% - 20px )';

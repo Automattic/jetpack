@@ -1,13 +1,13 @@
 /**
  * WordPress dependencies
  */
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	PanelRow,
-	SVG,
-	Path,
 	CheckboxControl,
 	ToggleControl,
+	Tooltip,
 } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
@@ -21,8 +21,8 @@ import React, { useState, useEffect, useCallback } from 'react';
  */
 import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
-import './breve.scss';
 import { getPostText } from './utils/getPostText';
+import './breve.scss';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
@@ -36,6 +36,7 @@ export const useInit = init => {
 const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState( null );
 	const { toggleFeature, toggleProofread } = useDispatch( 'jetpack/ai-breve' );
+	const { tracks } = useAnalytics();
 
 	const isProofreadEnabled = useSelect(
 		select => select( 'jetpack/ai-breve' ).isProofreadEnabled(),
@@ -63,14 +64,16 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	const handleToggleFeature = useCallback(
 		feature => checked => {
+			tracks.recordEvent( 'jetpack_ai_breve_feature_toggle', { type: feature, on: checked } );
 			toggleFeature( feature, checked );
 		},
-		[ toggleFeature ]
+		[ tracks, toggleFeature ]
 	);
 
 	const handleAiFeedbackToggle = useCallback( () => {
+		tracks.recordEvent( 'jetpack_ai_breve_toggle', { on: ! isProofreadEnabled } );
 		toggleProofread();
-	}, [ toggleProofread ] );
+	}, [ tracks, isProofreadEnabled, toggleProofread ] );
 
 	useEffect( () => {
 		debouncedGradeLevelUpdate();
@@ -84,29 +87,22 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 			<PanelRow>
 				<BaseControl>
 					<div className="grade-level-container">
-						{ gradeLevel !== null && gradeLevel <= 12 && (
-							<>
-								<SVG xmlns="http://www.w3.org/2000/svg" width={ 16 } height={ 15 } fill="none">
-									<Path
-										fill="#000"
-										d="M7.776.454a.25.25 0 0 1 .448 0l2.069 4.192a.25.25 0 0 0 .188.137l4.626.672a.25.25 0 0 1 .139.426l-3.348 3.263a.251.251 0 0 0-.072.222l.79 4.607a.25.25 0 0 1-.362.263l-4.138-2.175a.25.25 0 0 0-.232 0l-4.138 2.175a.25.25 0 0 1-.363-.263l.79-4.607a.25.25 0 0 0-.071-.222L.754 5.881a.25.25 0 0 1 .139-.426l4.626-.672a.25.25 0 0 0 .188-.137L7.776.454Z"
-									/>
-								</SVG>
-								&nbsp;
-							</>
-						) }
-						<p>
-							{ gradeLevel === null ? (
-								<em className="breve-help-text">Write some words to see your grade&nbsp;level.</em>
-							) : (
-								<>
+						{ gradeLevel === null ? (
+							<p>
+								<em className="breve-help-text">
+									{ __( 'Write some words to see your grade level.', 'jetpack' ) }
+								</em>
+							</p>
+						) : (
+							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>
+								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
 										{ __( 'Readability score', 'jetpack' ) }
 									</span>
-								</>
-							) }
-						</p>
+								</p>
+							</Tooltip>
+						) }
 					</div>
 				</BaseControl>
 			</PanelRow>

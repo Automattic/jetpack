@@ -1,8 +1,16 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { useCallback, useMemo, createElement, type ReactElement } from 'react';
 import useProduct from '../../../data/products/use-product';
-import type { ReactElement } from 'react';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import useAnalytics from '../../../hooks/use-analytics';
+import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 
-type TooltipType = 'pluginsThemesTooltip' | 'scanThreatsTooltip' | 'autoFirewallTooltip';
+type TooltipType =
+	| 'pluginsThemesTooltip'
+	| 'scanThreatsTooltip'
+	| 'autoFirewallTooltip'
+	| 'blockedLoginsTooltip';
 export type TooltipContent = {
 	[ key in TooltipType ]: {
 		title: ReactElement | string;
@@ -13,24 +21,131 @@ export type TooltipContent = {
 /**
  * Gets the translated tooltip copy based on Protect Scan details.
  *
- * @param {object} props              - React props
- * @param {number} props.pluginsCount - The number of installed plugins on the site.
- * @param {number} props.themesCount  - The number of installed themes on the site.
- * @param {number} props.numThreats   - The number of detected scan threats on the site.
  * @return {TooltipContent} An object containing each tooltip's title and text content.
  */
-export function useProtectTooltipCopy( {
-	pluginsCount = 0,
-	themesCount = 0,
-	numThreats = 0,
-}: {
-	pluginsCount?: number;
-	themesCount?: number;
-	numThreats?: number;
-} = {} ): TooltipContent {
+export function useProtectTooltipCopy(): TooltipContent {
 	const slug = 'protect';
 	const { detail } = useProduct( slug );
-	const { hasPaidPlanForProduct: hasProtectPaidPlan } = detail;
+	const { isPluginActive: isProtectPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } =
+		detail || {};
+	const { recordEvent } = useAnalytics();
+	const {
+		plugins,
+		themes,
+		protect: { scanData, wafConfig: wafData },
+	} = getMyJetpackWindowInitialState();
+	const {
+		plugins: fromScanPlugins,
+		themes: fromScanThemes,
+		num_threats: numThreats = 0,
+	} = scanData || {};
+	const {
+		jetpack_waf_automatic_rules: isAutoFirewallEnabled,
+		blocked_logins: blockedLoginsCount,
+		brute_force_protection: hasBruteForceProtection,
+	} = wafData || {};
+
+	const pluginsCount = fromScanPlugins.length || Object.keys( plugins ).length;
+	const themesCount = fromScanThemes.length || Object.keys( themes ).length;
+
+	const settingsLink = useMemo( () => {
+		if ( isProtectPluginActive ) {
+			return 'admin.php?page=jetpack-protect#/firewall';
+		}
+		return isJetpackPluginActive() ? 'admin.php?page=jetpack#/settings' : null;
+	}, [ isProtectPluginActive ] );
+
+	const trackFirewallSettingsLinkClick = useCallback( () => {
+		recordEvent( 'jetpack_protect_card_tooltip_content_link_click', {
+			page: 'my-jetpack',
+			feature: 'jetpack-protect',
+			location: 'auto-firewall-tooltip',
+			path: settingsLink,
+		} );
+	}, [ recordEvent, settingsLink ] );
+
+	const isBruteForcePluginsActive = isProtectPluginActive || isJetpackPluginActive();
+
+	const blockedLoginsTooltip = useMemo( () => {
+		if ( blockedLoginsCount === 0 ) {
+			if ( hasBruteForceProtection ) {
+				return {
+					title: __( 'Brute Force Protection: Active', 'jetpack-my-jetpack' ),
+					text: __(
+						'Brute Force Protection is actively blocking malicious login attempts. The number of blocked login attempts will display here soon!',
+						'jetpack-my-jetpack'
+					),
+				};
+			}
+			return {
+				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+				text: settingsLink
+					? createInterpolateElement(
+							sprintf(
+								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								__(
+									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'jetpack-my-jetpack'
+								),
+								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+							),
+							{
+								a: createElement( 'a', {
+									href: settingsLink,
+									onClick: trackFirewallSettingsLinkClick,
+								} ),
+							}
+					  )
+					: __(
+							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'jetpack-my-jetpack'
+					  ),
+			};
+		}
+		// blockedLoginsCount is greator than 0 here.
+		if ( ! hasBruteForceProtection ) {
+			if ( ! isBruteForcePluginsActive ) {
+				return {
+					title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+					text: __(
+						'For Brute Force Protection, activate the Jetpack or Protect plugin and enable it in settings.',
+						'jetpack-my-jetpack'
+					),
+				};
+			}
+			return {
+				title: __( 'Brute Force Protection: Inactive', 'jetpack-my-jetpack' ),
+				text: settingsLink
+					? createInterpolateElement(
+							sprintf(
+								/* translators: %s is the location/page where the settings are located. Either "firewall settings" or "Jetpack settings". */
+								__(
+									'Brute Force Protection is disabled and not actively blocking malicious login attempts. Go to <a>%s</a> to activate it.',
+									'jetpack-my-jetpack'
+								),
+								isProtectPluginActive ? 'firewall settings' : 'Jetpack settings'
+							),
+							{
+								a: createElement( 'a', {
+									href: settingsLink,
+									onClick: trackFirewallSettingsLinkClick,
+								} ),
+							}
+					  )
+					: __(
+							'Brute Force Protection is disabled and not actively blocking malicious login attempts.',
+							'jetpack-my-jetpack'
+					  ),
+			};
+		}
+	}, [
+		blockedLoginsCount,
+		hasBruteForceProtection,
+		isBruteForcePluginsActive,
+		isProtectPluginActive,
+		settingsLink,
+		trackFirewallSettingsLinkClick,
+	] );
 
 	return {
 		pluginsThemesTooltip: {
@@ -82,9 +197,30 @@ export function useProtectTooltipCopy( {
 							'jetpack-my-jetpack'
 						),
 				  },
-		autoFirewallTooltip: {
-			title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
-			text: __( 'Upgrade required for activation. Manual rules available.', 'jetpack-my-jetpack' ),
-		},
+		autoFirewallTooltip:
+			hasProtectPaidPlan && ! isAutoFirewallEnabled
+				? {
+						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
+						text: createInterpolateElement(
+							__(
+								'You have Auto-Firewall disabled, visit your Protect <a>firewall settings</a> to activate.',
+								'jetpack-my-jetpack'
+							),
+							{
+								a: createElement( 'a', {
+									href: settingsLink,
+									onClick: trackFirewallSettingsLinkClick,
+								} ),
+							}
+						),
+				  }
+				: {
+						title: __( 'Auto-Firewall: Inactive', 'jetpack-my-jetpack' ),
+						text: __(
+							'Upgrade required for activation. Manual rules available.',
+							'jetpack-my-jetpack'
+						),
+				  },
+		blockedLoginsTooltip: blockedLoginsTooltip,
 	};
 }
