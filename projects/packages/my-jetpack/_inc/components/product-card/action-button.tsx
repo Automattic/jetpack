@@ -8,8 +8,20 @@ import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useOutsideAlerter from '../../hooks/use-outside-alerter';
 import styles from './style.module.scss';
+import { ProductCardProps } from '.';
+import type { SecondaryButtonProps } from './secondary-button';
+import type { FC, ComponentProps } from 'react';
 
-const ActionButton = ( {
+type ActionButtonProps< A = () => void > = ProductCardProps & {
+	onFixConnection?: A;
+	onManage?: A;
+	onAdd?: A;
+	onInstall?: A;
+	onLearnMore?: A;
+	className?: string;
+};
+
+const ActionButton: FC< ActionButtonProps > = ( {
 	status,
 	admin,
 	name,
@@ -28,7 +40,7 @@ const ActionButton = ( {
 	upgradeInInterstitial,
 } ) => {
 	const [ isDropdownOpen, setIsDropdownOpen ] = useState( false );
-	const [ currentAction, setCurrentAction ] = useState( {} );
+	const [ currentAction, setCurrentAction ] = useState< ComponentProps< typeof Button > >( {} );
 	const { detail } = useProduct( slug );
 	const { manageUrl, purchaseUrl } = detail;
 	const isManageDisabled = ! manageUrl;
@@ -47,7 +59,7 @@ const ActionButton = ( {
 		};
 	}, [ isBusy, className ] );
 
-	const getStatusAction = useCallback( () => {
+	const getStatusAction = useCallback( (): SecondaryButtonProps => {
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
@@ -165,8 +177,8 @@ const ActionButton = ( {
 					label: __( 'Fix connection', 'jetpack-my-jetpack' ),
 					onClick: onFixConnection,
 					...( primaryActionOverride &&
-						PRODUCT_STATUSES.ERROR in primaryActionOverride &&
-						primaryActionOverride[ PRODUCT_STATUSES.ERROR ] ),
+						PRODUCT_STATUSES.SITE_CONNECTION_ERROR in primaryActionOverride &&
+						primaryActionOverride[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ] ),
 				};
 			case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 				return {

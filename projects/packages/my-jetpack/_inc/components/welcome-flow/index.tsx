@@ -2,7 +2,7 @@ import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import useRecommendationsSection from '../../data/recommendations-section/use-recommendations-section';
+import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -16,7 +16,7 @@ import type { FC } from 'react';
 const WelcomeFlow: FC = () => {
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
-	const { submitEvaluation, saveEvaluationResult } = useRecommendationsSection();
+	const { submitEvaluation, saveEvaluationResult } = useEvaluationRecommendations();
 	const {
 		siteIsRegistered,
 		siteIsRegistering,

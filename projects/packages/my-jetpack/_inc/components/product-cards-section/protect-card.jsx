@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import ProductCard from '../connected-product-card';
 
-const ProtectCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug={ 'protect' } />;
+const ProtectCard = props => {
+	return <ProductCard slug="protect" { ...props } />;
 };
 
 ProtectCard.propTypes = {

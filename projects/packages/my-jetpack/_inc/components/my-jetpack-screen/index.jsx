@@ -169,7 +169,7 @@ export default function MyJetpackScreen() {
 					{ showFullJetpackStatsCard && (
 						<Col
 							className={ clsx( {
-								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.ERROR,
+								[ styles.stats ]: statsDetails?.status !== PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
 							} ) }
 						>
 							<StatsSection />

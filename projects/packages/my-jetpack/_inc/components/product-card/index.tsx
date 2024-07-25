@@ -1,14 +1,16 @@
-import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useAnalytics from '../../hooks/use-analytics';
 import Card from '../card';
 import ActionButton from './action-button';
+import PriceComponent from './pricing-component';
+import RecommendationActions from './recommendation-actions';
+import SecondaryButton, { type SecondaryButtonProps } from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
+import type { FC, MouseEventHandler, ReactNode } from 'react';
 
 export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
@@ -24,51 +26,36 @@ export const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.CAN_UPGRADE ]: __( 'Active', 'jetpack-my-jetpack' ),
 };
 
-// SecondaryButton component
-const SecondaryButton = props => {
-	const {
-		shouldShowButton = () => true,
-		positionFirst,
-		...buttonProps
-	} = {
-		size: 'small',
-		variant: 'secondary',
-		weight: 'regular',
-		label: __( 'Learn more', 'jetpack-my-jetpack' ),
-		...props,
-	};
-
-	if ( ! shouldShowButton() ) {
-		return false;
-	}
-
-	return <Button { ...buttonProps }>{ buttonProps.label }</Button>;
-};
-
-SecondaryButton.propTypes = {
-	href: PropTypes.string,
-	size: PropTypes.oneOf( [ 'normal', 'small' ] ),
-	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'link', 'tertiary' ] ),
-	weight: PropTypes.oneOf( [ 'bold', 'regular' ] ),
-	label: PropTypes.string,
-	shouldShowButton: PropTypes.func,
-	onClick: PropTypes.func,
-	positionFirst: PropTypes.bool,
-	isExternalLink: PropTypes.bool,
-	icon: PropTypes.node,
-	iconSize: PropTypes.number,
-	disabled: PropTypes.bool,
-	isLoading: PropTypes.bool,
-	className: PropTypes.string,
+export type ProductCardProps = {
+	children?: ReactNode;
+	name: string;
+	Description: FC;
+	admin: boolean;
+	recommendation?: boolean;
+	isFetching?: boolean;
+	isDataLoading?: boolean;
+	isInstallingStandalone?: boolean;
+	isManageDisabled?: boolean;
+	onActivate?: () => void;
+	slug: string;
+	additionalActions?: SecondaryButtonProps[];
+	upgradeInInterstitial?: boolean;
+	primaryActionOverride?: Record< string, { href?: string; label?: string } >;
+	secondaryAction?: Record< string, SecondaryButtonProps & { positionFirst?: boolean } >;
+	onInstallStandalone?: () => void;
+	onActivateStandalone?: () => void;
+	status: ( typeof PRODUCT_STATUSES )[ keyof typeof PRODUCT_STATUSES ];
+	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
+	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
 };
 
 // ProductCard component
-const ProductCard = inprops => {
-	const props = {
+const ProductCard: FC< ProductCardProps > = props => {
+	const ownProps = {
 		isFetching: false,
 		isInstallingStandalone: false,
 		onActivate: () => {},
-		...inprops,
+		...props,
 	};
 	const {
 		name,
@@ -86,9 +73,12 @@ const ProductCard = inprops => {
 		onInstallStandalone,
 		onMouseEnter,
 		onMouseLeave,
+		recommendation,
 	} = props;
 
-	const isError = status === PRODUCT_STATUSES.ERROR;
+	const isError =
+		status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
+		status === PRODUCT_STATUSES.USER_CONNECTION_ERROR;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired =
@@ -107,16 +97,12 @@ const ProductCard = inprops => {
 	/**
 	 * Calls the passed function onActivate after firing Tracks event
 	 */
-	const activateHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
-				product: slug,
-			} );
-			onActivate();
-		},
-		[ slug, onActivate, recordEvent ]
-	);
+	const activateHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_activate_click', {
+			product: slug,
+		} );
+		onActivate();
+	}, [ slug, onActivate, recordEvent ] );
 
 	/**
 	 * Calls the passed function onAdd after firing Tracks event
@@ -157,16 +143,12 @@ const ProductCard = inprops => {
 	/**
 	 * Use a Tracks event to count a standalone plugin install request
 	 */
-	const installStandaloneHandler = useCallback(
-		event => {
-			event.preventDefault();
-			recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
-				product: slug,
-			} );
-			onInstallStandalone();
-		},
-		[ slug, onInstallStandalone, recordEvent ]
-	);
+	const installStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+			product: slug,
+		} );
+		onInstallStandalone();
+	}, [ slug, onInstallStandalone, recordEvent ] );
 
 	/**
 	 * Sends an event when the card loads
@@ -186,6 +168,7 @@ const ProductCard = inprops => {
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
 		>
+			{ recommendation && <PriceComponent slug={ slug } /> }
 			<Description />
 
 			{ isDataLoading ? (
@@ -194,67 +177,39 @@ const ProductCard = inprops => {
 				children
 			) }
 
-			<div className={ styles.actions }>
-				<div className={ styles.buttons }>
-					{ secondaryAction && secondaryAction?.positionFirst && (
-						<SecondaryButton { ...secondaryAction } />
-					) }
-					<ActionButton
-						{ ...props }
-						onActivate={ activateHandler }
-						onFixConnection={ fixConnectionHandler }
-						onManage={ manageHandler }
-						onAdd={ addHandler }
-						onInstall={ installStandaloneHandler }
-						onLearnMore={ learnMoreHandler }
-						className={ styles.button }
-						additionalActions={ additionalActions }
-						primaryActionOverride={ primaryActionOverride }
+			{ recommendation ? (
+				<RecommendationActions slug={ slug } />
+			) : (
+				<div className={ styles.actions }>
+					<div className={ styles.buttons }>
+						{ secondaryAction && secondaryAction?.positionFirst && (
+							<SecondaryButton { ...secondaryAction } />
+						) }
+						<ActionButton
+							{ ...ownProps }
+							onActivate={ activateHandler }
+							onFixConnection={ fixConnectionHandler }
+							onManage={ manageHandler }
+							onAdd={ addHandler }
+							onInstall={ installStandaloneHandler }
+							onLearnMore={ learnMoreHandler }
+							className={ styles.button }
+							additionalActions={ additionalActions }
+							primaryActionOverride={ primaryActionOverride }
+						/>
+						{ secondaryAction && ! secondaryAction?.positionFirst && (
+							<SecondaryButton { ...secondaryAction } />
+						) }
+					</div>
+					<Status
+						status={ status }
+						isFetching={ isFetching }
+						isInstallingStandalone={ isInstallingStandalone }
 					/>
-					{ secondaryAction && ! secondaryAction?.positionFirst && (
-						<SecondaryButton { ...secondaryAction } />
-					) }
 				</div>
-				<Status
-					status={ status }
-					isFetching={ isFetching }
-					isInstallingStandalone={ isInstallingStandalone }
-				/>
-			</div>
+			) }
 		</Card>
 	);
-};
-
-ProductCard.propTypes = {
-	children: PropTypes.node,
-	name: PropTypes.string.isRequired,
-	Description: PropTypes.func.isRequired,
-	admin: PropTypes.bool.isRequired,
-	isFetching: PropTypes.bool,
-	isInstallingStandalone: PropTypes.bool,
-	isManageDisabled: PropTypes.bool,
-	onActivate: PropTypes.func,
-	slug: PropTypes.string.isRequired,
-	additionalActions: PropTypes.array,
-	primaryActionOverride: PropTypes.object,
-	secondaryAction: PropTypes.object,
-	onInstallStandalone: PropTypes.func,
-	onActivateStandalone: PropTypes.func,
-	status: PropTypes.oneOf( [
-		PRODUCT_STATUSES.ACTIVE,
-		PRODUCT_STATUSES.INACTIVE,
-		PRODUCT_STATUSES.SITE_CONNECTION_ERROR,
-		PRODUCT_STATUSES.ABSENT,
-		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
-		PRODUCT_STATUSES.NEEDS_PURCHASE,
-		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
-		PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION,
-		PRODUCT_STATUSES.USER_CONNECTION_ERROR,
-		PRODUCT_STATUSES.CAN_UPGRADE,
-		PRODUCT_STATUSES.MODULE_DISABLED,
-	] ).isRequired,
-	onMouseEnter: PropTypes.func,
-	onMouseLeave: PropTypes.func,
 };
 
 export { PRODUCT_STATUSES };
