@@ -91,6 +91,7 @@ export type BreveFeatureConfig = {
 	title: string;
 	tagName: string;
 	className: string;
+	defaultEnabled: boolean;
 };
 
 export type BreveFeature = {

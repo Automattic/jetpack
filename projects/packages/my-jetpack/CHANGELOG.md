@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.29.0] - 2024-07-22
+### Added
+- Added the auto-firewall status to the Protect product  card in My Jetpack. [#38332]
+- Added the number of logins blocked to the Protect card in My Jetpack. [#38396]
+
+### Changed
+- Connection Screen: Removed mention of Stats from the list of available free features. [#38328]
+- Display My Jetpack products segemented by ownership. [#38283]
+- My Jetpack: Updated social icons in the connection screen. [#38334]
+- Updated statuses to make more sense in relation to ownership. [#38390]
+
 ## [4.28.0] - 2024-07-15
 ### Added
 - Add scan/threat info to the Protect card in My Jetpack. [#38165]
@@ -1571,6 +1582,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.28.0...4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
 [4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2
 [4.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.0...4.27.1

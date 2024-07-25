@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WPCOM Connection test: use better ciphers than RC4, which is no longer available on many hosts.

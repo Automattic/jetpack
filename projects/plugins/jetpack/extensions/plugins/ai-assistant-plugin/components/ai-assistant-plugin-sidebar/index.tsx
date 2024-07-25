@@ -1,15 +1,13 @@
 /**
  * External dependencies
  */
-import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, Button } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import React from 'react';
@@ -18,10 +16,10 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
-import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
+import isBreveAvailable from '../breve/utils/get-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -52,23 +50,12 @@ const isAITitleOptimizationAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
 	false;
 
-const siteDetails = {
-	ID: parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ),
-	URL: window?.Jetpack_Editor_Initial_State?.siteFragment,
-	domain: window?.Jetpack_Editor_Initial_State?.siteFragment,
-	name: '',
-	description: '',
-};
-
 const JetpackAndSettingsContent = ( {
 	placement,
 	requireUpgrade,
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-	const isLogoGeneratorAvailable = getFeatureAvailability( 'ai-assistant-site-logo-support' );
 	const { checkoutUrl } = useAICheckout();
-	const [ showLogoGeneratorModal, setShowLogoGeneratorModal ] = useState( false );
 
 	return (
 		<>
@@ -105,28 +92,6 @@ const JetpackAndSettingsContent = ( {
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
 			) }
-			{ isLogoGeneratorAvailable && (
-				<PanelRow className="jetpack-ai-logo-generator-control__header">
-					<BaseControl label={ __( 'AI Logo Generator', 'jetpack' ) }>
-						<GeneratorModal
-							isOpen={ showLogoGeneratorModal }
-							onClose={ () => setShowLogoGeneratorModal( false ) }
-							context="jetpack-ai-sidebar"
-							siteDetails={ siteDetails }
-						/>
-
-						<p>
-							{ __(
-								'Experimental panel to trigger the logo generator modal. Will be dropped after the extension is ready.',
-								'jetpack'
-							) }
-						</p>
-						<Button variant="secondary" onClick={ () => setShowLogoGeneratorModal( true ) }>
-							{ __( 'Generate Logo', 'jetpack' ) }
-						</Button>
-					</BaseControl>
-				</PanelRow>
-			) }
 			{ isUsagePanelAvailable && (
 				<PanelRow>
 					<UsagePanel placement={ placement } />
@@ -139,8 +104,6 @@ const JetpackAndSettingsContent = ( {
 export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
-	const isBreveAvailable = getFeatureAvailability( 'ai-proofread-breve' );
-
 	const { tracks } = useAnalytics();
 
 	const isViewable = useSelect( select => {
@@ -175,6 +138,7 @@ export default function AiAssistantPluginSidebar() {
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
+					className="jetpack-ai-assistant-panel"
 				>
 					<JetpackAndSettingsContent
 						placement={ PLACEMENT_JETPACK_SIDEBAR }
@@ -229,4 +193,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-getFeatureAvailability( 'ai-proofread-breve' ) && registerBreveHighlights();
+isBreveAvailable && registerBreveHighlights();
