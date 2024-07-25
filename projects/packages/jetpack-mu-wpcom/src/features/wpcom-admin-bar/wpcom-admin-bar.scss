@@ -42,12 +42,21 @@
 		mask-size: cover;
 		top: 7px;
 	}
+
+	@media (max-width: 480px) {
+		margin: 0 7px 0 1px;
+		margin-left: 1px;
+	}
 }
 
 /**
  * Reader menu
  */
 #wpadminbar .wp-admin-bar-reader {
+	@media (max-width: 360px) {
+		display: none !important;
+	}
+
 	a.ab-item {
 		display: flex;
 		align-items: center;
@@ -78,12 +87,28 @@
 		& a.ab-item:before {
 			width: 36px;
 			height: 36px;
-			margin: 0 8px;
+			margin: 0 10px;
 			mask-size: contain;
+		}
+	}
+	@media (max-width: 480px) {
+		& a.ab-item:before {
+			margin: 0 5px;
 		}
 	}
 }
 
+#wpadminbar #wp-admin-bar-site-name>.ab-item:before {
+	@media (max-width: 480px) {
+		max-width: 46px;
+	}
+}
+
+#wpadminbar #wp-admin-bar-new-content {
+	@media (max-width: 480px) {
+		display: none !important;
+	}
+}
 /**
  * Profile section of the admin bar
  */
