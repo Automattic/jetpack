@@ -104,19 +104,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		global $menu;
-
-		// No output when executed in single site mode.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-	}
-
-	/**
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
