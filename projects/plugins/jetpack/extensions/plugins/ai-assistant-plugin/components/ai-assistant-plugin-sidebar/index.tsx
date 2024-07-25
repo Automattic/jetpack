@@ -3,13 +3,12 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl, ExternalLink, Button } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
 import debugFactory from 'debug';
 import React from 'react';
 /**
@@ -58,8 +57,7 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
-	const { isMyJetpackAvailable, productPageUrl, autosaveAndRedirect, isRedirecting } =
-		useAiProductPage();
+	const { productPageUrl } = useAiProductPage();
 
 	return (
 		<>
@@ -92,36 +90,26 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 			{ requireUpgrade && ! isUsagePanelAvailable && (
-				<PanelRow className="jetpack-ai-upgrade-control__header">
+				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (
-				<PanelRow className="jetpack-ai-usage-control__header">
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
 
-			<Button
-				variant="link"
-				className="jetpack-ai__feedback-button"
-				href="https://jetpack.com/redirect/?source=jetpack-ai-feedback"
-				target="_blank"
-			>
-				<span>{ __( 'Provide feedback', 'jetpack' ) }</span>
-				<Icon icon={ external } className="icon" />
-			</Button>
 			<PanelRow>
-				{ ! isMyJetpackAvailable && (
-					<ExternalLink href={ productPageUrl }>
-						{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
-					</ExternalLink>
-				) }
-				{ isMyJetpackAvailable && (
-					<Button variant="link" disabled={ isRedirecting } onClick={ autosaveAndRedirect }>
-						{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
-					</Button>
-				) }
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Provide feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow>
+				<ExternalLink href={ productPageUrl }>
+					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
+				</ExternalLink>
 			</PanelRow>
 		</>
 	);
