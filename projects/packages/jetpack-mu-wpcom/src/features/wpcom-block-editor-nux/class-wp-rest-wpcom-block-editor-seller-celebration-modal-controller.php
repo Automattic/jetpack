@@ -2,10 +2,10 @@
 /**
  * WP_REST_WPCOM_Block_Editor_Seller_Celebration_Modal_Controller file.
  *
- * @package A8C\FSE
+ * @package Aautomattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
 /**
  * Class WP_REST_WPCOM_Block_Editor_Seller_Celebration_Modal_Controller.
@@ -53,7 +53,6 @@ class WP_REST_WPCOM_Block_Editor_Seller_Celebration_Modal_Controller extends \WP
 				),
 			)
 		);
-
 	}
 
 	/**

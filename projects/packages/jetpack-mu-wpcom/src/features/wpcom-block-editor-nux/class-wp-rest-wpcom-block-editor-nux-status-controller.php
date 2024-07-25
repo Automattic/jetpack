@@ -2,10 +2,10 @@
 /**
  * WP_REST_WPCOM_Block_Editor_NUX_Status_Controller file.
  *
- * @package A8C\FSE
+ * @package Aautomattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
 /**
  * Class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller.

@@ -2,10 +2,12 @@
 /**
  * WPCOM Block Editor NUX file.
  *
- * @package A8C\FSE
+ * @package automattic/jetpack-mu-wpcom
  */
 
-namespace A8C\FSE;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
+
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
 
@@ -31,7 +33,7 @@ class WPCOM_Block_Editor_NUX {
 	/**
 	 * Creates instance.
 	 *
-	 * @return \A8C\FSE\WPCOM_Block_Editor_NUX
+	 * @return \Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX\WPCOM_Block_Editor_NUX
 	 */
 	public static function init() {
 		if ( self::$instance === null ) {
@@ -64,10 +66,10 @@ class WPCOM_Block_Editor_NUX {
 		wp_localize_script(
 			'wpcom-block-editor-nux-script',
 			'wpcomBlockEditorNuxLocale',
-			\A8C\FSE\Common\get_iso_639_locale( determine_locale() )
+			Common\get_iso_639_locale( determine_locale() )
 		);
 
-		wp_set_script_translations( 'wpcom-block-editor-nux-script', 'full-site-editing' );
+		wp_set_script_translations( 'wpcom-block-editor-nux-script', 'jetpack-mu-wpcom' );
 
 		$style_path = 'dist/wpcom-block-editor-nux' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		wp_enqueue_style(
