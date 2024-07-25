@@ -162,7 +162,7 @@ const LogoUpdated: React.FC< { logo: Logo } > = ( { logo } ) => {
 			/>
 			<div className="jetpack-ai-logo-generator-modal-presenter__success-wrapper">
 				<Icon icon={ <CheckIcon /> } />
-				<span>{ __( 'Your logo has been successfully updated!', 'jetpack-ai-client' ) }</span>
+				<span>{ __( 'Your new logo was set to the block!', 'jetpack-ai-client' ) }</span>
 			</div>
 		</>
 	);
