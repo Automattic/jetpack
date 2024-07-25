@@ -144,6 +144,7 @@ export default function Highlight() {
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
+			anchor,
 			id,
 			target,
 			feature,
