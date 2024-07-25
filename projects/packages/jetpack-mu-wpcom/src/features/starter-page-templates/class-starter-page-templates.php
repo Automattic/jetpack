@@ -113,11 +113,11 @@ class Starter_Page_Templates {
 					return array();
 				}
 
-				if ( ! class_exists( '\A8C\FSE\Starter_Page_Templates' ) ) {
+				if ( ! class_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates' ) ) {
 					return array();
 				}
 
-				$starter_page_templates = \A8C\FSE\Starter_Page_Templates::get_instance();
+				$starter_page_templates = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates::get_instance();
 				// We need to pass a locale in here, but we don't actually depend on it, so we use the default site locale to optimise hitting the pattern cache for the site.
 				$all_page_templates     = $starter_page_templates->get_page_templates( $starter_page_templates->get_verticals_locale() );
 				$all_categories = array_merge( ...array_map( 'array_keys', wp_list_pluck( $all_page_templates, 'categories' ) ) );
