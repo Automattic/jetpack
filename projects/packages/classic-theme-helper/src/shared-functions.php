@@ -11,7 +11,7 @@ if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 	 * Build a list of Mastodon instance hosts.
 	 * That list can be extended via a filter.
 	 *
-	 * @since $$next-version$$ in Classic Theme Helper (previously in Jetpack since 11.8)
+	 * @since 0.4.3 in Classic Theme Helper (previously in Jetpack since 11.8)
 	 *
 	 * @return array
 	 */
@@ -33,7 +33,7 @@ if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 		/**
 		 * Filter the list of Mastodon instances.
 		 *
-		 * @since $$next-version$$ in Classic Theme Helper (previously in Jetpack since 11.8)
+		 * @since 0.4.3 in Classic Theme Helper (previously in Jetpack since 11.8)
 		 *
 		 * @module widgets, theme-tools
 		 *
