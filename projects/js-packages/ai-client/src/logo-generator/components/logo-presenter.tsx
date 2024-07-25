@@ -89,39 +89,22 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 const UseOnSiteButton: React.FC< { onApplyLogo: () => void } > = ( { onApplyLogo } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const {
-		applyLogo,
-		isSavingLogoToLibrary,
-		isApplyingLogo,
-		selectedLogo,
-		logos,
-		selectedLogoIndex,
-		context,
-	} = useLogoGenerator();
+	const { isSavingLogoToLibrary, selectedLogo, logos, selectedLogoIndex, context } =
+		useLogoGenerator();
 
 	const handleClick = async () => {
-		if ( ! isApplyingLogo && ! isSavingLogoToLibrary ) {
+		if ( ! isSavingLogoToLibrary ) {
 			recordTracksEvent( EVENT_USE, {
 				context,
 				logos_count: logos.length,
 				selected_logo: selectedLogoIndex != null ? selectedLogoIndex + 1 : 0,
 			} );
 
-			try {
-				await applyLogo();
-				onApplyLogo();
-			} catch ( error ) {
-				debug( 'Error applying logo', error );
-			}
+			onApplyLogo?.();
 		}
 	};
 
-	return isApplyingLogo && ! isSavingLogoToLibrary ? (
-		<button className="jetpack-ai-logo-generator-modal-presenter__action">
-			<Icon icon={ <LogoIcon /> } />
-			<span className="action-text">{ __( 'Applying logo…', 'jetpack-ai-client' ) }</span>
-		</button>
-	) : (
+	return (
 		<Button
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
