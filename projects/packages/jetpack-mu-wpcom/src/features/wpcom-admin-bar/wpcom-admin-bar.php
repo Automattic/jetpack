@@ -25,7 +25,7 @@ function maybe_add_origin_site_id_to_url( $url ) {
 	}
 
 	// Add query param to URL only for users who can access wp-admin.
-	if ( ! current_user_can( 'read' ) ) {
+	if ( ! is_user_member_of_blog() ) {
 		return $url;
 	}
 
@@ -113,6 +113,27 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 	);
 }
 add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 15 );
+
+/**
+ * Points the (Profile) -> Edit Profile menu to /me when appropriate.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
+ */
+function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
+	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
+	if ( $edit_profile_node ) {
+		// If one of the following is true:
+		// - the user is not a member of the current site
+		// - the current site uses Default admin interface
+		//
+		// Then, the Edit Profile menu should point to /me, instead of the site's profile.php.
+		if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			$edit_profile_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
+			$wp_admin_bar->add_node( (array) $edit_profile_node );
+		}
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 1 );
 
 /**
  * Adds (Profile) -> My Account menu pointing to /me/account.
