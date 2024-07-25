@@ -19,6 +19,7 @@ type ActionButtonProps< A = () => void > = ProductCardProps & {
 	onInstall?: A;
 	onLearnMore?: A;
 	className?: string;
+	isOwned?: boolean;
 };
 
 const ActionButton: FC< ActionButtonProps > = ( {
@@ -52,7 +53,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
-	const buttonState = useMemo( () => {
+	const buttonState = useMemo< Partial< SecondaryButtonProps > >( () => {
 		return {
 			variant: ! isBusy ? 'primary' : undefined,
 			disabled: isBusy,
