@@ -201,11 +201,6 @@ class Starter_Page_Templates {
 		}
 
 		if ( empty( $page_templates ) ) {
-			$this->pass_error_to_frontend( __( 'No data received from the vertical API. Skipped showing modal window with template selection.', 'jetpack-mu-wpcom' ) );
-			return;
-		}
-
-		if ( empty( $page_templates ) ) {
 			$this->pass_error_to_frontend( __( 'No templates available. Skipped showing modal window with template selection.', 'jetpack-mu-wpcom' ) );
 			return;
 		}
