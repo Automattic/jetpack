@@ -114,12 +114,12 @@ const JetpackAndSettingsContent = ( {
 			<PanelRow>
 				{ ! isMyJetpackAvailable && (
 					<ExternalLink href={ productPageUrl }>
-						{ __( 'Discover all features', 'jetpack' ) }
+						{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 					</ExternalLink>
 				) }
 				{ isMyJetpackAvailable && (
 					<Button variant="link" disabled={ isRedirecting } onClick={ autosaveAndRedirect }>
-						{ __( 'Discover all features', 'jetpack' ) }
+						{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 					</Button>
 				) }
 			</PanelRow>
