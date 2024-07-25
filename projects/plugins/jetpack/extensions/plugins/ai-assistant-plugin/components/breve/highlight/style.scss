@@ -3,6 +3,9 @@
 [class^='has-proofread-highlight'] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
+	&.is-loading {
+		@include pulse();
+	}
 }
 
 .highlight-popover {

@@ -3,6 +3,10 @@
  */
 import { combineReducers } from '@wordpress/data';
 /**
+ * Internal dependencies
+ */
+import features from '../features';
+/**
  * Types
  */
 import type { BreveState } from '../types';
@@ -14,7 +18,11 @@ const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
 const initialConfiguration = {
 	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
 	disabled:
-		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
+		disabledFeaturesFromLocalStorage !== null
+			? JSON.parse( disabledFeaturesFromLocalStorage )
+			: features
+					.filter( feature => ! feature.config.defaultEnabled )
+					.map( feature => feature.config.name ),
 };
 
 export function configuration(
