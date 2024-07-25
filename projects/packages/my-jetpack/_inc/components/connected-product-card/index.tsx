@@ -4,11 +4,12 @@
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import { MyJetpackRoutes } from '../../constants';
+import { PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
@@ -33,7 +34,7 @@ const ConnectedProductCard = ( {
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
-	const { detail } = useProduct( slug );
+	const { detail, refetch } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
@@ -66,6 +67,16 @@ const ConnectedProductCard = ( {
 			</Text>
 		);
 	};
+
+	useEffect( () => {
+		if (
+			isRegistered &&
+			( status === PRODUCT_STATUSES.SITE_CONNECTION_ERROR ||
+				status === PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION )
+		) {
+			refetch();
+		}
+	}, [ isRegistered, status, refetch ] );
 
 	return (
 		<ProductCard
