@@ -171,15 +171,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		onApplyLogo?.();
 	};
 
-	const handleCloseAndReload = () => {
-		closeModal();
-
-		setTimeout( () => {
-			// Reload the page to update the logo.
-			window.location.reload();
-		}, 1000 );
-	};
-
 	const handleFeedbackClick = () => {
 		recordTracksEvent( EVENT_FEEDBACK, { context } );
 	};
@@ -237,13 +228,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				/>
 				{ logoAccepted ? (
 					<div className="jetpack-ai-logo-generator__accept">
-						<VisitSiteBanner siteURL={ siteURL } onVisitBlankTarget={ handleCloseAndReload } />
+						<VisitSiteBanner siteURL={ siteURL } onVisitBlankTarget={ closeModal } />
 						<div className="jetpack-ai-logo-generator__accept-actions">
-							<Button variant="link" onClick={ handleCloseAndReload }>
-								{ __( 'Close and refresh', 'jetpack-ai-client' ) }
-							</Button>
-							<Button href={ siteURL } variant="primary">
-								{ __( 'Visit site', 'jetpack-ai-client' ) }
+							<Button variant="primary" onClick={ closeModal }>
+								{ __( 'Close', 'jetpack-ai-client' ) }
 							</Button>
 						</div>
 					</div>
@@ -273,7 +261,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			{ isOpen && (
 				<Modal
 					className="jetpack-ai-logo-generator-modal"
-					onRequestClose={ logoAccepted ? handleCloseAndReload : closeModal }
+					onRequestClose={ closeModal }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					title={ __( 'Jetpack AI Logo Generator', 'jetpack-ai-client' ) }
