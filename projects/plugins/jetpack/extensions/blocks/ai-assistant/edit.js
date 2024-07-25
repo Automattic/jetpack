@@ -9,7 +9,13 @@ import {
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Notice, PanelBody, PanelRow, KeyboardShortcuts } from '@wordpress/components';
+import {
+	Notice,
+	PanelBody,
+	PanelRow,
+	KeyboardShortcuts,
+	ExternalLink,
+} from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState, useCallback, useEffect, useRef } from '@wordpress/element';
@@ -29,6 +35,7 @@ import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
 import useAiFeature from './hooks/use-ai-feature';
+import useAiProductPage from './hooks/use-ai-product-page';
 import { isUserConnected } from './lib/connection';
 import './editor.scss';
 
@@ -117,6 +124,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const isLoadingCompletion = [ 'requesting', 'suggesting' ].includes( requestingState );
 
 	const connected = isUserConnected();
+
+	const { productPageUrl } = useAiProductPage();
 
 	/*
 	 * Auto request the prompt if we detect
@@ -345,6 +354,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 					</div>
 				) }
 				<InspectorControls>
+					{ /* Mock BlockCard component styles to keep alignment */ }
+					<div className="block-editor-block-card" style={ { paddingTop: 0 } }>
+						<span className="block-editor-block-icon"></span>
+						<ExternalLink href={ productPageUrl }>
+							{ __( 'Discover all features', 'jetpack' ) }
+						</ExternalLink>
+					</div>
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
 							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
