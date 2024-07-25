@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: Ensure duplicate Sync modules are not loaded
