@@ -128,7 +128,7 @@ const UseOnSiteButton: React.FC< { onApplyLogo: () => void } > = ( { onApplyLogo
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
 		>
 			<Icon icon={ <LogoIcon /> } />
-			<span className="action-text">{ __( 'Use on Site', 'jetpack-ai-client' ) }</span>
+			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
 		</Button>
 	);
 };
