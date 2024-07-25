@@ -1,4 +1,4 @@
-vendor/
-node_modules/
-lib/
-dist/
+/vendor
+/node_modules
+/lib
+/dist
