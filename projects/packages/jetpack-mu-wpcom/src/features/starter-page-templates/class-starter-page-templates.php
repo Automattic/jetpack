@@ -410,10 +410,12 @@ class Starter_Page_Templates {
 			return $editor_settings;
 		}
 		$default_editor_styles = file_get_contents( $default_editor_styles_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		/* @suppress PhanTypeArraySuspicious */
-		$editor_settings['styles'][] = array(
-			'css' => $default_editor_styles,
-		);
+
+		if ( is_array( $editor_settings['styles'] ) ) {
+			$editor_settings['styles'][] = array(
+				'css' => $default_editor_styles,
+			);
+		}
 		return $editor_settings;
 	}
 }
