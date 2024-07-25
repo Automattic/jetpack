@@ -3,7 +3,6 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import PropTypes from 'prop-types';
 import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -15,8 +14,24 @@ import useInstallStandalonePlugin from '../../data/products/use-install-standalo
 import useProduct from '../../data/products/use-product';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ProductCard from '../product-card';
+import type { AdditionalAction, SecondaryAction } from '../product-card/types';
+import type { FC, ReactNode } from 'react';
 
-const ConnectedProductCard = ( {
+interface ConnectedProductCardProps {
+	admin: boolean;
+	slug: string;
+	children: ReactNode;
+	isDataLoading?: boolean;
+	Description?: JSX.Element | ( () => null );
+	additionalActions?: AdditionalAction[];
+	secondaryAction?: SecondaryAction;
+	upgradeInInterstitial?: boolean;
+	primaryActionOverride?: AdditionalAction;
+	onMouseEnter?: () => void;
+	onMouseLeave?: () => void;
+}
+
+const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	admin,
 	slug,
 	children,
@@ -100,18 +115,6 @@ const ConnectedProductCard = ( {
 			{ children }
 		</ProductCard>
 	);
-};
-
-ConnectedProductCard.propTypes = {
-	children: PropTypes.node,
-	admin: PropTypes.bool.isRequired,
-	slug: PropTypes.string.isRequired,
-	isDataLoading: PropTypes.bool,
-	additionalActions: PropTypes.array,
-	primaryActionOverride: PropTypes.object,
-	secondaryAction: PropTypes.object,
-	onMouseEnter: PropTypes.func,
-	onMouseLeave: PropTypes.func,
 };
 
 export default ConnectedProductCard;
