@@ -34,7 +34,7 @@ const ConnectedProductCard = ( {
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
-	const { detail, refetch } = useProduct( slug );
+	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
 	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
@@ -84,7 +84,7 @@ const ConnectedProductCard = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
-			isFetching={ isActivating || isInstalling }
+			isFetching={ isActivating || isInstalling || isProductDataLoading }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ isInstalling }
 			additionalActions={ additionalActions }
