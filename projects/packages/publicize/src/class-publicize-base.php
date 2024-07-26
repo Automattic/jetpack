@@ -2153,7 +2153,10 @@ abstract class Publicize_Base {
 			// services can have multiple connections. Store them all in our array.
 			foreach ( $connections as $connection ) {
 				$connection_id   = $this->get_connection_id( $connection );
-				$mastodon_handle = $connection['external_display'] ?? '';
+				$connection_meta = $this->get_connection_meta( $connection );
+				$connection_data = $connection_meta['connection_data'];
+
+				$mastodon_handle = $connection_data['external_display'] ?? '';
 
 				if ( empty( $mastodon_handle ) ) {
 					continue;
@@ -2165,7 +2168,7 @@ abstract class Publicize_Base {
 				}
 
 				$post_mastodon_connections[] = array(
-					'user_id'       => (int) $connection['user_id'],
+					'user_id'       => (int) $connection_data['user_id'],
 					'connection_id' => (int) $connection_id,
 					'handle'        => $mastodon_handle,
 					'global'        => $this->is_global_connection( $connection ),
