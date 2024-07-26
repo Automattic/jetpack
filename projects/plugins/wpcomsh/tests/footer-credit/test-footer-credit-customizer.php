@@ -9,11 +9,6 @@
  * Class FooterCreditCustomizerTest.
  */
 class FooterCreditCustomizerTest extends WP_UnitTestCase {
-	public function set_up() {
-		parent::set_up();
-		switch_theme( 'block-theme' );
-	}
-
 	/**
 	 * Checks that the Footer Credit customizer settings and controls are not registered
 	 * for child block themes without causing a fatal error.
@@ -21,6 +16,8 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		$this->assertSame( 'block-theme', get_stylesheet() );
+		$this->assertFalse( wp_is_block_theme() );
+		switch_theme( 'block-theme' );
+		$this->assertTrue( wp_is_block_theme() );
 	}
 }
