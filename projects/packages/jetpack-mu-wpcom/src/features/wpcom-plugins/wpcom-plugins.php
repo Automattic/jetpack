@@ -5,11 +5,12 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Displays a banner before the plugin browser that links to the WP.com Plugins Marketplace.
  */
 function wpcom_plugins_show_banner() {
-
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['tab'] ) && 'favorites' === $_GET['tab'] ) {
 		// no banner on the favorites tab, it's a bit overbearing given they presumably want
@@ -17,20 +18,17 @@ function wpcom_plugins_show_banner() {
 		return;
 	}
 
-	// No banner for agency-managed sites.
-	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
-		return;
-	}
-
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
 
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-plugins-banner/wpcom-plugins-banner.asset.php';
+
 	wp_enqueue_script(
 		'wpcom-plugins-banner',
-		plugins_url( 'js/banner.js', __FILE__ ),
-		array(),
-		WPCOMSH_VERSION,
+		plugins_url( 'build/wpcom-plugins-banner/wpcom-plugins-banner.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-plugins-banner/wpcom-plugins-banner.js' ),
 		array(
 			'strategy'  => 'defer',
 			'in_footer' => true,
@@ -48,11 +46,13 @@ function wpcom_plugins_show_banner() {
 			'bannerBackground' => esc_url( $background_image ),
 		)
 	);
+
+	$asset_file_style = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-plugins-banner/wpcom-plugins-banner.asset.php';
 	wp_enqueue_style(
-		'wpcom-plugins-banner',
-		plugins_url( 'css/banner.css', __FILE__ ),
+		'wpcom-plugins-banner-style',
+		plugins_url( 'build/wpcom-plugins-banner-style/wpcom-plugins-banner-style.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		WPCOMSH_VERSION
+		$asset_file_style['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-plugins-banner-style/wpcom-plugins-banner-style.css' )
 	);
 }
 add_action( 'load-plugin-install.php', 'wpcom_plugins_show_banner' );
