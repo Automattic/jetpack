@@ -1,12 +1,13 @@
 const path = require( 'path' );
 const { chromium } = require( 'playwright' );
 const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../lib/back-end.js' );
-const { dataUrl } = require( '../lib/data-directory.js' );
+const { dataDirectory } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
+const TestServer = require( '../lib/test-server.js' );
 
-const testPageUrls = {
-	pageA: path.join( dataUrl, 'page-a/index.html' ),
-};
+let testServer = null;
+
+let testPageUrls;
 let browser;
 
 class MockedFetchInterface extends BrowserInterfacePlaywright {
@@ -25,10 +26,11 @@ const testPages = {};
  */
 async function runTestSet( testSets ) {
 	for ( const { urls, viewports, shouldContain, shouldNotContain, shouldMatch } of testSets ) {
+		const urlsToGenerateFor = urls || Object.values( testPageUrls );
 		const [ css, warnings ] = await generateCriticalCSS( {
-			urls: urls || Object.values( testPageUrls ),
+			urls: urlsToGenerateFor,
 			viewports: viewports || [ { width: 640, height: 480 } ],
-			browserInterface: new MockedFetchInterface( testPages ),
+			browserInterface: new MockedFetchInterface( browser, urlsToGenerateFor ),
 		} );
 
 		expect( warnings ).toHaveLength( 0 );
@@ -50,6 +52,15 @@ async function runTestSet( testSets ) {
 describe( 'Generate Critical CSS', () => {
 	// Open test pages in tabs ready for tests.
 	beforeAll( async () => {
+		testServer = new TestServer( {
+			'page-a': path.resolve( dataDirectory, 'page-a' ),
+		} );
+		await testServer.start();
+
+		testPageUrls = {
+			pageA: testServer.getUrl() + '/page-a/',
+		};
+
 		browser = await chromium.launch();
 
 		for ( const url of Object.values( testPageUrls ) ) {
@@ -65,6 +76,9 @@ describe( 'Generate Critical CSS', () => {
 		}
 		if ( browser ) {
 			await browser.close();
+		}
+		if ( testServer ) {
+			await testServer.stop();
 		}
 	} );
 
