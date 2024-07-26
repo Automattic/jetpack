@@ -311,7 +311,10 @@ interface Window {
 				};
 			};
 		};
-		recommendedModules: JetpackModule[] | null;
+		recommendedModules: {
+			modules: JetpackModule[] | null;
+			dismissed: boolean;
+		};
 		themes: {
 			[ key: string ]: {
 				Author: string;

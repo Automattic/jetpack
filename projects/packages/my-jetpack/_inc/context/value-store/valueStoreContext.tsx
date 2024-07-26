@@ -4,6 +4,7 @@ import type { Dispatch, SetStateAction } from 'react';
 type ValueStoreType = {
 	isWelcomeBannerVisible: boolean;
 	recommendedModules: JetpackModule[] | null;
+	recommendedModulesVisible: boolean;
 };
 
 type ValueStoreContextType = {

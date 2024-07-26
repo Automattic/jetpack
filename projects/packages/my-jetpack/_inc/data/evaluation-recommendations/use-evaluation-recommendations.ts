@@ -16,8 +16,7 @@ import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 type SubmitRecommendationsResult = Record< string, number >;
 
 const getInitialRecommendedModules = (): JetpackModule[] | null => {
-	const { recommendedModules } = getMyJetpackWindowInitialState();
-	return isJetpackUserNew() ? recommendedModules : null;
+	return getMyJetpackWindowInitialState( 'recommendedModules' ).modules;
 };
 
 const useEvaluationRecommendations = () => {
@@ -26,6 +25,22 @@ const useEvaluationRecommendations = () => {
 		'recommendedModules',
 		getInitialRecommendedModules()
 	);
+
+	const unownedRecommendedModules = useMemo( () => {
+		const { ownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+		return recommendedModules?.filter( module => ownedProducts.includes( module ) );
+	}, [ recommendedModules ] );
+
+	const isEligibleForRecommendations = useMemo( () => {
+		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
+		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew();
+	}, [ isWelcomeBannerVisible ] );
+
+	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
+		'recommendedModulesVisible',
+		isEligibleForRecommendations && !! unownedRecommendedModules?.length
+	);
+
 	const { mutate: handleSubmitRecommendations } = useSimpleMutation< SubmitRecommendationsResult >(
 		{
 			name: QUERY_EVALUATE_KEY,
@@ -75,13 +90,14 @@ const useEvaluationRecommendations = () => {
 					{
 						onSuccess: response => {
 							setRecommendedModules( response );
+							setIsSectionVisible( true );
 							resolve();
 						},
 						onError: reject,
 					}
 				);
 			} ),
-		[ handleSaveEvaluationResult, setRecommendedModules ]
+		[ handleSaveEvaluationResult, setIsSectionVisible, setRecommendedModules ]
 	);
 
 	const removeEvaluationResult = useCallback( () => {
@@ -89,28 +105,23 @@ const useEvaluationRecommendations = () => {
 			{},
 			{
 				onSuccess: () => {
-					setRecommendedModules( null );
+					setIsSectionVisible( false );
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, setRecommendedModules ] );
+	}, [ handleRemoveEvaluationResult, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
 		handleRemoveEvaluationResult(
 			{ queryParams: { showWelcomeBanner: 'true' } },
 			{
 				onSuccess: () => {
-					setRecommendedModules( null );
+					setIsSectionVisible( false );
 					showWelcomeBanner();
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, setRecommendedModules, showWelcomeBanner ] );
-
-	const unownedRecommendedModules = useMemo( () => {
-		const { unownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
-		return recommendedModules?.filter( module => unownedProducts.includes( module ) );
-	}, [ recommendedModules ] );
+	}, [ handleRemoveEvaluationResult, setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
@@ -118,7 +129,7 @@ const useEvaluationRecommendations = () => {
 		removeEvaluationResult,
 		redoEvaluation,
 		recommendedModules: unownedRecommendedModules,
-		isSectionVisible: !! unownedRecommendedModules?.length && ! isWelcomeBannerVisible,
+		isSectionVisible,
 	};
 };
 
