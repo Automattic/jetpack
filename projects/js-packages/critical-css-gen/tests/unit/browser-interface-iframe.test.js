@@ -1,6 +1,6 @@
 /* global CriticalCSSGenerator */
 const path = require( 'path' );
-const puppeteer = require( 'puppeteer' );
+const { chromium } = require( 'playwright' );
 const { dataDirectory } = require( '../lib/data-directory.js' );
 const TestServer = require( '../lib/test-server.js' );
 
@@ -15,7 +15,7 @@ describe( 'Iframe interface', () => {
 		} );
 		await testServer.start();
 
-		browser = await puppeteer.launch();
+		browser = await chromium.launch();
 	} );
 
 	// Kill test server.

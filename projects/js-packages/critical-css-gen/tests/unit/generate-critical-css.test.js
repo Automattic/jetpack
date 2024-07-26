@@ -1,6 +1,6 @@
 const path = require( 'path' );
-const puppeteer = require( 'puppeteer' );
-const { generateCriticalCSS, BrowserInterfacePuppeteer } = require( '../../lib/back-end.js' );
+const { chromium } = require( 'playwright' );
+const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../lib/back-end.js' );
 const { dataUrl } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
 
@@ -9,7 +9,7 @@ const testPageUrls = {
 };
 let browser;
 
-class MockedFetchInterface extends BrowserInterfacePuppeteer {
+class MockedFetchInterface extends BrowserInterfacePlaywright {
 	fetch( url, options ) {
 		return mockFetch( url, options );
 	}
@@ -50,7 +50,7 @@ async function runTestSet( testSets ) {
 describe( 'Generate Critical CSS', () => {
 	// Open test pages in tabs ready for tests.
 	beforeAll( async () => {
-		browser = await puppeteer.launch();
+		browser = await chromium.launch();
 
 		for ( const url of Object.values( testPageUrls ) ) {
 			testPages[ url ] = await browser.newPage();
