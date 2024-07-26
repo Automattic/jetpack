@@ -30,7 +30,7 @@ class WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller extends \WP_REST_Contr
 		);
 
 		wp_add_inline_script(
-			'wpcom-block-editor-nux-script',
+			'wpcom-block-editor-nux',
 			'var sharingModalOptions = ' . wp_json_encode( $modal_options, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
 		);
