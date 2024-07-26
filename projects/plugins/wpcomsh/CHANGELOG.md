@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.0.2 - 2024-07-26
+### Fixed
+- Fix the "The parent theme is missing" issue [#38557]
+
+## 5.0.1 - 2024-07-25
+### Changed
+- WooCommerce Calypso Bridge version update to 2.5.5 [#38469]
+
 ## 5.0.0 - 2024-07-23
 ### Added
 - Added new feature for social editor preview. [#38425]

@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { escapeRegExp } from '../../utils/escapeRegExp';
@@ -9,9 +13,10 @@ import type { BreveFeatureConfig, HighlightedText } from '../../types';
 
 export const LONG_SENTENCES: BreveFeatureConfig = {
 	name: 'long-sentences',
-	title: 'Long sentences',
+	title: __( 'Long sentences', 'jetpack' ),
 	tagName: 'span',
 	className: 'has-proofread-highlight--long-sentences',
+	defaultEnabled: false,
 };
 
 const sentenceRegex = /[^\s][^.!?]+[.!?]+/g;

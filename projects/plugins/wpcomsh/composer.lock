@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9dedc290e93c633c02b3289fb40bcd2",
+    "content-hash": "a2b3dc7a7194b89327a123f9d4fe88fb",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1142,7 +1142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "a7f5a8b0a0412e24617a256c5d30fbe1f2f5fc65"
+                "reference": "ec392c1041a500bb3899148909bb2654efa86321"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1176,7 +1176,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.48.x-dev"
+                    "dev-trunk": "5.49.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1863,16 +1863,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "164752a01f038220202455c00844a80ee8e51ef0"
+                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/164752a01f038220202455c00844a80ee8e51ef0",
-                "reference": "164752a01f038220202455c00844a80ee8e51ef0",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/f7dc90d348ac82031f26dff6076e4cf492b09138",
+                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138",
                 "shasum": ""
             },
             "require": {
@@ -1913,7 +1913,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2024-07-22T10:08:33+00:00"
+            "time": "2024-07-23T22:02:25+00:00"
         },
         {
             "name": "composer/installers",

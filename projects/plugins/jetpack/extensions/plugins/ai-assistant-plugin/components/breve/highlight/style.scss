@@ -3,6 +3,9 @@
 [class^='has-proofread-highlight'] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
+	&.is-loading {
+		@include pulse();
+	}
 }
 
 .highlight-popover {
@@ -42,8 +45,8 @@
 			white-space: nowrap;
 
 			.color {
-				width: 24px;
-				height: 24px;
+				width: 10px;
+				height: 10px;
 				border-radius: 50%;
 				@include features-colors( ( 'background-color' ) );
 			}
@@ -79,6 +82,8 @@
 				background-color: #f6f7f7;
 				white-space: nowrap;
 				color: #646970;
+				margin: 0 4px 4px 4px;
+				border-radius: 4px;
 			}
 
 			.components-button.is-tertiary {
@@ -86,9 +91,11 @@
 				white-space: break-spaces;
 				min-height: 36px;
 				height: unset;
-				min-width: 300px;
-				justify-content: center;
+				min-width: 320px;
 				text-align: unset;
+				padding-top: 16px;
+				padding-bottom: 16px;
+				line-height: 20px;
 			}
 		}
 	}
