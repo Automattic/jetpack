@@ -176,10 +176,10 @@ describe( 'Iframe interface', () => {
 		const pageA = path.join( testServer.getUrl(), 'page-a' );
 		const pageB = path.join( testServer.getUrl(), 'page-b' );
 
-		const [ css, warnings, pages ] = await page.evaluate(
-			async ( pA, pB ) => {
+		const result = await page.evaluate(
+			async ( { pA, pB } ) => {
 				const pagesVerified = [];
-				const result = await CriticalCSSGenerator.generateCriticalCSS( {
+				const criticalCSSResult = await CriticalCSSGenerator.generateCriticalCSS( {
 					urls: [ 'about:blank', pA, pB, 'about:blank' ],
 					viewports: [ { width: 640, height: 480 } ],
 					browserInterface: new CriticalCSSGenerator.BrowserInterfaceIframe( {
@@ -192,15 +192,18 @@ describe( 'Iframe interface', () => {
 					maxPages: 1,
 				} );
 
-				return [ ...result, pagesVerified ];
+				return {
+					css: criticalCSSResult[ 0 ],
+					warnings: criticalCSSResult[ 1 ],
+					pagesVerified,
+				};
 			},
-			pageA,
-			pageB
+			{ pA: pageA, pB: pageB }
 		);
 
-		expect( pages ).not.toContain( pageB );
-		expect( warnings ).toHaveLength( 0 );
-		expect( css ).toContain( 'div.top' );
+		expect( result.pagesVerified ).not.toContain( pageB );
+		expect( result.warnings ).toHaveLength( 0 );
+		expect( result.css ).toContain( 'div.top' );
 
 		await page.close();
 	} );
