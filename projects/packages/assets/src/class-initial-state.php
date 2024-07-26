@@ -22,9 +22,10 @@ class Initial_State {
 		// so that when dependent scripts are enqueued, the scripts here are already registered.
 		add_action( 'wp_loaded', array( self::class, 'register_assets' ) );
 
-		// We want to render the initial state as late as possible,
-		// so that it can be filtered when plugins want to decide whether they need to enqueue their scripts or not.
-		add_action( 'admin_enqueue_scripts', array( self::class, 'render_initial_state' ), 999999 );
+		// We want to render the initial state on print
+		// so that the hook callbacks have enough time and information
+		// to decide whether to update the initial state or not.
+		add_action( 'admin_print_scripts', array( self::class, 'render_initial_state' ), 1 );
 	}
 
 	/**
