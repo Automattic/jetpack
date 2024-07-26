@@ -29,6 +29,7 @@ import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
@@ -83,6 +84,7 @@ export default function MyJetpackScreen() {
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
 	const { isSectionVisible } = useEvaluationRecommendations();
+	const { siteIsRegistered } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -140,7 +142,7 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ noticeMessage && ! isWelcomeBannerVisible && (
+			{ noticeMessage && ( ! isWelcomeBannerVisible || siteIsRegistered ) && (
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
 						{
