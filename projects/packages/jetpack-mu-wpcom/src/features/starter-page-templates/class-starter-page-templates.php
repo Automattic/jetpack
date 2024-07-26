@@ -469,3 +469,6 @@ class Starter_Page_Templates {
 		return $editor_settings;
 	}
 }
+
+// Initialization
+\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates::get_instance();

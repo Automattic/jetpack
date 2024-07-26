@@ -165,7 +165,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
-		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Starter_Page_Templates::get_instance();
 	}
 
 	/**
