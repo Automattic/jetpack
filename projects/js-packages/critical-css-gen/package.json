@@ -48,7 +48,7 @@
 		"nodemon": "3.1.2",
 		"os-browserify": "0.3.0",
 		"playwright-core": "1.33.0",
-		"prettier": "npm:wp-prettier@2.0.5",
+		"prettier": "npm:wp-prettier@3.0.3",
 		"puppeteer": "22.8.2",
 		"puppeteer-core": "22.6.5",
 		"rollup": "2.79.1",
