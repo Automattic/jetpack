@@ -618,8 +618,8 @@ importers:
         specifier: 5.76.0
         version: 5.76.0
       webpack-dev-middleware:
-        specifier: 5.3.3
-        version: 5.3.3(webpack@5.76.0)
+        specifier: 5.3.4
+        version: 5.3.4(webpack@5.76.0)
 
   projects/js-packages/eslint-changed:
     dependencies:
@@ -14457,8 +14457,8 @@ packages:
       webpack-dev-server:
         optional: true
 
-  webpack-dev-middleware@5.3.3:
-    resolution: {integrity: sha512-hj5CYrY0bZLB+eTO+x/j67Pkrquiy7kWepMHmUMoPsmcUaeEnQJqFzHJOyxgWlq746/wUuA64p9ta34Kyb01pA==}
+  webpack-dev-middleware@5.3.4:
+    resolution: {integrity: sha512-BVdTqhhs+0IfoeAf7EoH5WE+exCmqGerHfDM0IL096Px60Tq2Mn9MAbnaGUe6HiMa41KMCYF19gyzZmBcq/o4Q==}
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^4.0.0 || ^5.0.0
@@ -27998,7 +27998,7 @@ snapshots:
       webpack: 5.76.0(webpack-cli@4.9.1)
       webpack-merge: 5.10.0
 
-  webpack-dev-middleware@5.3.3(webpack@5.76.0):
+  webpack-dev-middleware@5.3.4(webpack@5.76.0):
     dependencies:
       colorette: 2.0.20
       memfs: 3.5.3
