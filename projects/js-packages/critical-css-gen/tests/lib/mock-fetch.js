@@ -9,7 +9,10 @@ const { dataDirectory } = require( './data-directory.js' );
  */
 const mockFetch = async url => {
 	return new Promise( ( resolve, reject ) => {
-		const localPath = fs.realpathSync( url.substring( 7 ) );
+		const pathname = new URL( url ).pathname;
+		const domain = new URL( url ).toString().replace( pathname, '' );
+		const localPath = url.replace( domain, dataDirectory );
+
 		if ( ! localPath.startsWith( dataDirectory ) ) {
 			throw new Error( 'Invalid URL: ' + url );
 		}
