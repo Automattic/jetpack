@@ -18,14 +18,26 @@ class Initial_State {
 	 * Configure.
 	 */
 	public static function configure() {
-		// Ensure that assets are registered on wp load,
-		// so that when dependent scripts are enqueued, the scripts here are already registered.
+		/**
+		 * Ensure that assets are registered on wp_loaded,
+		 * which is fired before *_enqueue_scripts actions.
+		 * It means that when the dependent scripts are registered,
+		 * the scripts here are already registered.
+		 */
 		add_action( 'wp_loaded', array( self::class, 'register_assets' ) );
 
-		// We want to render the initial state on print
-		// so that the hook callbacks have enough time and information
-		// to decide whether to update the initial state or not.
-		add_action( 'admin_print_scripts', array( self::class, 'render_initial_state' ), 1 );
+		/**
+		 * Notes:
+		 * 1. wp_print_scripts action is fired on both admin and public pages.
+		 *    On admin pages, it's fired before admin_enqueue_scripts action,
+		 *    which can be a problem if the consumer package uses admin_enqueue_scripts
+		 *    to hook into the initial state. Thus, we prefer to use admin_print_scripts on admin pages.
+		 * 2. We want to render the initial state on print, instead of init or enqueue actions,
+		 *    so that the hook callbacks have enough time and information
+		 *    to decide whether to update the initial state or not.
+		 */
+		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
+		add_action( $hook, array( self::class, 'render_initial_state' ), 1 );
 	}
 
 	/**
@@ -55,8 +67,10 @@ class Initial_State {
 	 */
 	public static function render_initial_state() {
 
+		$initial_state = is_admin() ? self::get_admin_initial_state() : self::get_public_initial_state();
+
 		$initial_state = wp_json_encode(
-			self::get_initial_state(),
+			$initial_state,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
 
@@ -68,11 +82,11 @@ class Initial_State {
 	}
 
 	/**
-	 * Get the initial state.
+	 * Get the admin initial state.
 	 *
 	 * @return array
 	 */
-	protected static function get_initial_state() {
+	protected static function get_admin_initial_state() {
 
 		global $wp_version;
 
@@ -90,11 +104,39 @@ class Initial_State {
 		);
 
 		/**
-		 * Filter the initial state.
+		 * Filter the admin initial state.
+		 *
+		 * When using this filter, ensure that the data is added only if it is used by some script.
+		 * This filter may be called on almost every admin page load. So, one should check if the data is needed/used on that page.
+		 * For example, the social (publicize) data is used only on Social admin page, Jetpack settings page and the post editor.
+		 * So, the social data should be added only on those pages.
 		 *
 		 * @param array $state The initial state.
 		 */
-		return apply_filters( 'jetpack_js_initial_state', $state );
+		return apply_filters( 'jetpack_admin_js_initial_state', $state );
+	}
+
+	/**
+	 * Get the admin initial state.
+	 *
+	 * @return array
+	 */
+	protected static function get_public_initial_state() {
+
+		$state = array(
+			'site' => array(
+				'title' => self::get_site_title(),
+			),
+		);
+
+		/**
+		 * Filter the public initial state.
+		 *
+		 * See the docs for `jetpack_admin_js_initial_state` filter for more information.
+		 *
+		 * @param array $state The initial state.
+		 */
+		return apply_filters( 'jetpack_public_js_initial_state', $state );
 	}
 
 	/**
