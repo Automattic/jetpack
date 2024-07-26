@@ -122,9 +122,9 @@ const selectors = {
 	getRequireUpgrade( state: LogoGeneratorStateProp ): boolean {
 		const feature = state.features.aiAssistantFeature;
 		const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
-		const currentLimit = feature?.currentTier?.value || 0;
+		const currentLimit = feature?.currentTier?.limit || 0;
 		const currentUsage = feature?.usagePeriod?.requestsCount || 0;
-		const isUnlimited = currentLimit === 1;
+		const isUnlimited = feature?.currentTier?.value === 1;
 		const hasNoNextTier = ! feature?.nextTier; // If there is no next tier, the user cannot upgrade.
 
 		// Add a local check on top of the feature flag, based on the current usage and logo cost.
