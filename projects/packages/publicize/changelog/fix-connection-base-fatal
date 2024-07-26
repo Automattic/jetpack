@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed incorrect use of get_services() in Publicize_Base class.
