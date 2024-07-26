@@ -143,5 +143,4 @@ function footercredits_init() {
 		add_action( 'customize_register', 'footercredits_register', 99 );
 	}
 }
-
 add_action( 'init', 'footercredits_init' );
