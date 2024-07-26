@@ -112,16 +112,10 @@ const useEvaluationRecommendations = () => {
 	}, [ handleRemoveEvaluationResult, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
-		handleRemoveEvaluationResult(
-			{ queryParams: { showWelcomeBanner: 'true' } },
-			{
-				onSuccess: () => {
-					setIsSectionVisible( false );
-					showWelcomeBanner();
-				},
-			}
-		);
-	}, [ handleRemoveEvaluationResult, setIsSectionVisible, showWelcomeBanner ] );
+		// It just happens locally - on reload we're back to recommendations view
+		setIsSectionVisible( false );
+		showWelcomeBanner();
+	}, [ setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
