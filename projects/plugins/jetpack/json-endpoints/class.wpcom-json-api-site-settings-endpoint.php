@@ -1056,7 +1056,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					if ( update_option( $key, $new_value ) ) {
-						$updated[ $key ] = $new_value;
+						$updated[ $key ] = $sanitized_category_ids;
 					}
 					break;
 
