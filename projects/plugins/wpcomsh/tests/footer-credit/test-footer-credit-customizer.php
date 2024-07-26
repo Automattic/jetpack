@@ -13,8 +13,8 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	/**
 	 * Set up.
 	 */
-	public function set_up() {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 		switch_theme( 'block-theme' );
 	}
 
