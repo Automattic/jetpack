@@ -377,8 +377,10 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
  * Register all tasks and task lists on init.
  */
 function wpcom_register_default_launchpad_checklists() {
-	wpcom_launchpad_get_task_lists();
-	wpcom_add_active_task_listener_hooks_to_correct_action();
+	if ( is_user_logged_in() ) {
+		wpcom_launchpad_get_task_lists();
+		wpcom_add_active_task_listener_hooks_to_correct_action();
+	}
 }
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
 
