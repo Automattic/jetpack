@@ -663,6 +663,8 @@ HTML;
 	 * This function exists because when we submit the form via the jetpack.wordpress.com iframe
 	 * in Chrome the request comes in to jetpack but for some reason the request doesn't hace access to cookies yet.
 	 * By submitting the form again locally with the same data the process works as expected.
+	 *
+	 * @return never
 	 */
 	public function retry_submit_comment_form_locally() {
 		// We are not doing any valiodation here since all the validation will be done again by pre_comment_on_post().
