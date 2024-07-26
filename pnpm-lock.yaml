@@ -585,8 +585,8 @@ importers:
         specifier: 0.3.0
         version: 0.3.0
       playwright-core:
-        specifier: 1.33.0
-        version: 1.33.0
+        specifier: 1.45.1
+        version: 1.45.1
       prettier:
         specifier: npm:wp-prettier@3.0.3
         version: wp-prettier@3.0.3
