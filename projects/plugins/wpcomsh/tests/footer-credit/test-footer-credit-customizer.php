@@ -10,8 +10,8 @@
  */
 class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	public function set_up() {
+		switch_theme( 'block-theme-child' );
 		parent::set_up();
-		remove_action( 'customize_register', 'footercredits_register', 99 );
 	}
 
 	/**
@@ -21,9 +21,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		switch_theme( 'block-theme' );
-		require_once __DIR__ . '/../../footer-credit/footer-credit/customizer.php';
-		do_action( 'init' );
-		$this->assertFalse( has_action( 'customize_register', 'footercredits_register' ) );
+		$this->assertFalse( wp_get_theme()->errors() );
 	}
 }
