@@ -4,7 +4,7 @@
 import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -28,6 +28,46 @@ type CoreSelect = {
 	};
 };
 
+/**
+ * Hook to set the site logo on the local state, affecting the logo block.
+ *
+ * @return {object} An object with the setLogo function.
+ */
+const useSetLogo = () => {
+	const editEntityRecord = useDispatch( 'core' ).editEntityRecord;
+	const saveLogo = useCallback(
+		( mediaId: number ) => {
+			editEntityRecord( 'root', 'site', undefined, {
+				site_logo: mediaId,
+			} );
+		},
+		[ editEntityRecord ]
+	);
+
+	const saveIcon = useCallback(
+		( mediaId: number ) => {
+			editEntityRecord( 'root', 'site', undefined, {
+				site_icon: mediaId,
+			} );
+		},
+		[ editEntityRecord ]
+	);
+
+	const setLogo = useCallback(
+		( mediaId: number, updateIcon: boolean ) => {
+			saveLogo( mediaId );
+			if ( updateIcon ) {
+				saveIcon( mediaId );
+			}
+		},
+		[ saveLogo, saveIcon ]
+	);
+
+	return {
+		setLogo,
+	};
+};
+
 const useSiteDetails = () => {
 	const siteSettings = useSelect( select => {
 		return ( select( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
@@ -48,6 +88,8 @@ const useSiteDetails = () => {
 const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
 		const [ isLogoGeneratorModalVisible, setIsLogoGeneratorModalVisible ] = useState( false );
+		const { setLogo } = useSetLogo();
+		const shouldSyncIcon = props?.attributes?.shouldSyncIcon || false;
 
 		const showModal = useCallback( () => {
 			setIsLogoGeneratorModalVisible( true );
@@ -57,9 +99,18 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
 
+		const applyLogoHandler = useCallback(
+			( mediaId: number ) => {
+				if ( mediaId ) {
+					setLogo( mediaId, shouldSyncIcon );
+				}
+			},
+			[ setLogo, shouldSyncIcon ]
+		);
+
 		useEffect( () => {
 			return () => {
-				// close modal if open
+				// close modal if open when the component unmounts
 				closeModal();
 			};
 		}, [ closeModal ] );
@@ -75,6 +126,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				<GeneratorModal
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
+					onApplyLogo={ applyLogoHandler }
 					context="block-editor"
 					siteDetails={ siteDetails }
 				/>
