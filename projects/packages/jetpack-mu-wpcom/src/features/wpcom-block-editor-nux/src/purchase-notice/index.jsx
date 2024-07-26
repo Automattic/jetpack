@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import './style.scss';
 
 /**
- *
+ * Display the purchase notice snackbar
  */
 function PurchaseNotice() {
 	const hasPaymentNotice = useRef( false );

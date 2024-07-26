@@ -5,8 +5,9 @@ const useSharingModalDismissed = ( initial: boolean ) => {
 	const [ isDismissed, setSharingModalDismissed ] = useState( initial );
 
 	/**
+	 * Update the value to dismiss the sharing modal
 	 *
-	 * @param value
+	 * @param value - The value to update.
 	 */
 	function updateIsDismissed( value: boolean ) {
 		apiFetch( {
