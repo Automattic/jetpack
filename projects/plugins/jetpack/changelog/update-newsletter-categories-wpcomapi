@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-WPCOM API: Return list of newsletter categories after saving
+WPCOM API: Return list of newsletter categories IDs after saving
