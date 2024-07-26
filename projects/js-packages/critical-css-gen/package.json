@@ -20,7 +20,7 @@
 		"build:node": "tsc",
 		"build": "pnpm run clean && pnpm run build:browser && pnpm run build:node",
 		"clean": "rm -rf lib/ && rm -rf dist/",
-		"test": "NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
+		"test": "pnpm build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
 	"main": "./lib/back-end.js",
 	"browser": "./dist/bundle.js",
