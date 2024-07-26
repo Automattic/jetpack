@@ -1,10 +1,10 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc-declaration-only.json",
-	"include": [ "src/front-end.ts" ],
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "src/back-end.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
 		"outDir": "./lib",
-		"target": "ES2021",
+		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,
 		"allowSyntheticDefaultImports": true,

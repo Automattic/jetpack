@@ -17,7 +17,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"build:browser": "rollup -c",
-		"build:node": "tsc --project tsconfig.node.json",
+		"build:node": "tsc",
 		"build": "npm run clean && npm run build:browser && npm run build:node",
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"lint": "prettier --check src/**/* && eslint . && echo '✔ eslint and prettier ran successfully.'",
