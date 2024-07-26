@@ -93,6 +93,9 @@
 		}
 	}
 	@media (max-width: 480px) {
+		& a.ab-item {
+			width: 46px;
+		}
 		& a.ab-item:before {
 			margin: 0 5px;
 		}
