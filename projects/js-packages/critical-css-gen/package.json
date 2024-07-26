@@ -18,7 +18,7 @@
 	"scripts": {
 		"build:browser": "rollup -c",
 		"build:node": "tsc",
-		"build": "npm run clean && npm run build:browser && npm run build:node",
+		"build": "pnpm run clean && pnpm run build:browser && pnpm run build:node",
 		"clean": "rm -rf lib/ && rm -rf dist/",
 		"test": "npm run build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
