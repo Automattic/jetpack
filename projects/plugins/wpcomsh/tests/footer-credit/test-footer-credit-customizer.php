@@ -39,7 +39,7 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 		unset( $GLOBALS['wp_themes'] );
 
 		// Remove Footer Credit action in case it was previously registered.
-		remove_action( 'customize_register', 'footercredits_register', 99 );
+		switch_theme( 'block-theme' );
 	}
 
 	public function tear_down() {
@@ -69,8 +69,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		switch_theme( 'block-theme' );
-		do_action( 'init' );
 		$this->assertFalse( has_action( 'customize_register', 'footercredits_register' ) );
 	}
 }
