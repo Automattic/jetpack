@@ -164,7 +164,7 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip, onTooltipCli
 								{ shouldShowTooltip && (
 									<Popover
 										onClick={ onTooltipClicked }
-										placement={ isMobileViewport ? 'top-end' : 'right' }
+										placement={ isMobileViewport ? 'top-end' : 'top right' }
 										noArrow={ false }
 										offset={ 10 }
 									>

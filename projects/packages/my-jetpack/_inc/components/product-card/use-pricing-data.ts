@@ -57,12 +57,14 @@ const getPurchaseAction = ( detail: ProductCamelCase, onCheckout: () => void ) =
 };
 
 const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) => {
+	const START_FOR_FREE_FEATURE_FLAG = false;
 	const isNotActiveOrNeedsExplicitFreePlan =
 		! detail.isPluginActive ||
 		detail.status === PRODUCT_STATUSES.NEEDS_ACTIVATION ||
 		detail.status === PRODUCT_STATUSES.NEEDS_PLAN;
 
 	if (
+		START_FOR_FREE_FEATURE_FLAG &&
 		isNotActiveOrNeedsExplicitFreePlan &&
 		( detail.tiers.includes( 'free' ) ||
 			detail.hasFreeOffering ||
