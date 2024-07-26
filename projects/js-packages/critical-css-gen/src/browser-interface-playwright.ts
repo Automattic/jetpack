@@ -105,7 +105,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	}
 
 	/**
-	 * Replacement for browser.fetch, uses node-fetch to simulate the same
+	 * Replacement for browser.fetch, uses node's fetch to simulate the same
 	 * interface.
 	 *
 	 * @param {string} url     - URL to fetch.
@@ -114,9 +114,7 @@ export class BrowserInterfacePlaywright extends BrowserInterface {
 	 * @returns {Promise<Response>} A promise that resolves to the fetch response.
 	 */
 	async fetch( url: string, options: FetchOptions, _role: 'css' | 'html' ) {
-		const nodeFetch = await import( 'node-fetch' );
-
-		return nodeFetch.default( url, options );
+		return fetch( url, options );
 	}
 
 	private isOkStatus( statusCode: number ) {
