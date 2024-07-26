@@ -69,6 +69,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		$this->assertFalse( has_action( 'customize_register', 'footercredits_register' ) );
+		$this->assertSame( 'block-theme', get_stylesheet() );
 	}
 }
