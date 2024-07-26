@@ -123,6 +123,8 @@ class Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::DEFAULT_SYNC_MODULES );
 
+		$modules = array_unique( $modules );
+
 		$modules = array_map( array( __CLASS__, 'load_module' ), $modules );
 
 		return array_map( array( __CLASS__, 'set_module_defaults' ), $modules );
