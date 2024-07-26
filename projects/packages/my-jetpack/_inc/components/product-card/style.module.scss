@@ -16,7 +16,8 @@ $box-shadow-color: rgba( 0, 0, 0, 0.1 );
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	margin-top: calc( var( --spacing-base ) * 3 ); // 16px
+	margin-top: auto; // align to the bottom
+	padding-top: calc( var( --spacing-base ) * 3 ); // 16px
 	min-height: $actions-size;
 	flex-wrap: wrap;
 }

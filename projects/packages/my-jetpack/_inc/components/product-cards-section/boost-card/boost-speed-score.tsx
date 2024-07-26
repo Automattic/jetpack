@@ -163,7 +163,7 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 								{ speedLetterGrade }
 								{ shouldShowTooltip && (
 									<Popover
-										placement={ isMobileViewport ? 'top-end' : 'right' }
+										placement={ isMobileViewport ? 'top-end' : 'top-start' }
 										noArrow={ false }
 										offset={ 10 }
 									>

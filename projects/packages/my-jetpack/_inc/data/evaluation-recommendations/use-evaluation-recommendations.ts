@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
 import {
 	QUERY_EVALUATE_KEY,
@@ -9,19 +9,14 @@ import {
 	REST_API_SITE_EVALUATION_RESULT,
 } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
-import getGuessedSiteLifecycleStatus from '../utils/get-guessed-site-lifecycle-status';
 import { getMyJetpackWindowInitialState } from '../utils/get-my-jetpack-window-state';
+import isJetpackUserNew from '../utils/is-jetpack-user-new';
 import useWelcomeBanner from '../welcome-banner/use-welcome-banner';
 
 type SubmitRecommendationsResult = Record< string, number >;
 
 const getInitialRecommendedModules = (): JetpackModule[] | null => {
-	const { lifecycleStats, recommendedModules } = getMyJetpackWindowInitialState();
-
-	const isNewUser = [ 'new', 'brand-new' ].includes(
-		getGuessedSiteLifecycleStatus( lifecycleStats )
-	);
-	return isNewUser ? recommendedModules : null;
+	return getMyJetpackWindowInitialState( 'recommendedModules' ).modules;
 };
 
 const useEvaluationRecommendations = () => {
@@ -30,6 +25,23 @@ const useEvaluationRecommendations = () => {
 		'recommendedModules',
 		getInitialRecommendedModules()
 	);
+
+	const unownedRecommendedModules = useMemo( () => {
+		const { ownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
+		// We filter out owned modules, and return top 3 recommendations
+		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
+	}, [ recommendedModules ] );
+
+	const isEligibleForRecommendations = useMemo( () => {
+		const { dismissed } = getMyJetpackWindowInitialState( 'recommendedModules' );
+		return ! dismissed && ! isWelcomeBannerVisible && isJetpackUserNew();
+	}, [ isWelcomeBannerVisible ] );
+
+	const [ isSectionVisible, setIsSectionVisible ] = useValueStore(
+		'recommendedModulesVisible',
+		isEligibleForRecommendations && !! unownedRecommendedModules?.length
+	);
+
 	const { mutate: handleSubmitRecommendations } = useSimpleMutation< SubmitRecommendationsResult >(
 		{
 			name: QUERY_EVALUATE_KEY,
@@ -79,13 +91,14 @@ const useEvaluationRecommendations = () => {
 					{
 						onSuccess: response => {
 							setRecommendedModules( response );
+							setIsSectionVisible( true );
 							resolve();
 						},
 						onError: reject,
 					}
 				);
 			} ),
-		[ handleSaveEvaluationResult, setRecommendedModules ]
+		[ handleSaveEvaluationResult, setIsSectionVisible, setRecommendedModules ]
 	);
 
 	const removeEvaluationResult = useCallback( () => {
@@ -93,31 +106,25 @@ const useEvaluationRecommendations = () => {
 			{},
 			{
 				onSuccess: () => {
-					setRecommendedModules( null );
+					setIsSectionVisible( false );
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, setRecommendedModules ] );
+	}, [ handleRemoveEvaluationResult, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
-		handleRemoveEvaluationResult(
-			{ queryParams: { showWelcomeBanner: 'true' } },
-			{
-				onSuccess: () => {
-					setRecommendedModules( null );
-					showWelcomeBanner();
-				},
-			}
-		);
-	}, [ handleRemoveEvaluationResult, setRecommendedModules, showWelcomeBanner ] );
+		// It just happens locally - on reload we're back to recommendations view
+		setIsSectionVisible( false );
+		showWelcomeBanner();
+	}, [ setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
 		saveEvaluationResult,
 		removeEvaluationResult,
 		redoEvaluation,
-		recommendedModules,
-		isSectionVisible: recommendedModules !== null && ! isWelcomeBannerVisible,
+		recommendedModules: unownedRecommendedModules,
+		isSectionVisible,
 	};
 };
 

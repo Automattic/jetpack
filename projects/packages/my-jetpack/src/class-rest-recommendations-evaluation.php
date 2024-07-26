@@ -49,7 +49,7 @@ class REST_Recommendations_Evaluation {
 			array(
 				array(
 					'methods'             => \WP_REST_Server::DELETABLE,
-					'callback'            => __CLASS__ . '::delete_evaluation_recommendations',
+					'callback'            => __CLASS__ . '::dismiss_evaluation_recommendations',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
 				),
 			)
@@ -123,21 +123,22 @@ class REST_Recommendations_Evaluation {
 		}
 
 		\Jetpack_Options::update_option( 'recommendations_evaluation', $json['recommendations'] );
+		\Jetpack_Options::delete_option( 'dismissed_recommendations' );
 
 		return rest_ensure_response( Initializer::get_recommended_modules() );
 	}
 
 	/**
-	 * Endpoint to delete recommendations results.
+	 * Endpoint to dismiss the recommendation section
 	 *
 	 * @param \WP_REST_Request $request Query request.
 	 *
 	 * @return \WP_REST_Response|WP_Error success response.
 	 */
-	public static function delete_evaluation_recommendations( $request ) {
+	public static function dismiss_evaluation_recommendations( $request ) {
 		$show_welcome_banner = $request->get_param( 'showWelcomeBanner' );
 
-		\Jetpack_Options::delete_option( 'recommendations_evaluation' );
+		\Jetpack_Options::update_option( 'dismissed_recommendations', true );
 
 		if ( isset( $show_welcome_banner ) && $show_welcome_banner === 'true' ) {
 			\Jetpack_Options::delete_option( 'dismissed_welcome_banner' );

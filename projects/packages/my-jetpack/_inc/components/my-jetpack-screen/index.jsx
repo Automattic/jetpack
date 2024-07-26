@@ -24,10 +24,12 @@ import {
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
+import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
 import EvaluationRecommendations from '../evaluation-recommendations';
@@ -81,6 +83,8 @@ export default function MyJetpackScreen() {
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
+	const { isSectionVisible } = useEvaluationRecommendations();
+	const { siteIsRegistered } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -138,21 +142,30 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ isWelcomeBannerVisible && <WelcomeFlow /> }
-			<EvaluationRecommendations />
-			{ noticeMessage && ! isWelcomeBannerVisible && (
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						{
+			{ isWelcomeBannerVisible ? (
+				<WelcomeFlow>
+					{ noticeMessage && siteIsRegistered && (
+						<GlobalNotice
+							message={ noticeMessage }
+							title={ noticeTitle }
+							options={ noticeOptions }
+						/>
+					) }
+				</WelcomeFlow>
+			) : (
+				noticeMessage && (
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col>
 							<GlobalNotice
 								message={ noticeMessage }
 								title={ noticeTitle }
 								options={ noticeOptions }
 							/>
-						}
-					</Col>
-				</Container>
+						</Col>
+					</Container>
+				)
 			) }
+			{ isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 

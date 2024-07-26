@@ -9,12 +9,8 @@ import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
 
 const EvaluationRecommendations: React.FC = () => {
-	const { isSectionVisible, recommendedModules, redoEvaluation, removeEvaluationResult } =
+	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
-
-	if ( ! isSectionVisible ) {
-		return null;
-	}
 
 	return (
 		<Container horizontalGap={ 2 } horizontalSpacing={ 6 }>
