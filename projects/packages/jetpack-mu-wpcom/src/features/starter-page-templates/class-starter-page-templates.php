@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
 /**
  * Class Starter_Page_Templates
  */
@@ -73,12 +75,12 @@ class Starter_Page_Templates {
 	 * Register block editor scripts.
 	 */
 	public function register_scripts() {
-		$script_path = '../../build/starter-page-templates/starter-page-templates.js';
+		$script_path = 'build/starter-page-templates/starter-page-templates.js';
 		wp_register_script(
 			'starter-page-templates',
-			plugin_dir_url( __FILE__ ) . $script_path,
+			plugin_dir_url( Jetpack_Mu_Wpcom::BASE_DIR ) . 'src/' . $script_path,
 			array( 'wp-plugins', 'wp-edit-post', 'wp-element' ),
-			filemtime( plugin_dir_path( __FILE__ ) . $script_path ),
+			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $script_path ),
 			true
 		);
 	}
@@ -260,13 +262,13 @@ class Starter_Page_Templates {
 			? 'starter-page-templates.rtl.css'
 			: 'starter-page-templates.css';
 
-		$style_file_path = '../../build/starter-page-templates/' . $style_file;
+		$style_file_path = 'build/starter-page-templates/' . $style_file;
 
 		wp_enqueue_style(
 			'starter-page-templates',
-			plugin_dir_url( __FILE__ ) . $style_file_path,
+			plugin_dir_url( Jetpack_Mu_Wpcom::BASE_DIR ) . 'src/' . $style_file_path,
 			array(),
-			filemtime( plugin_dir_path( __FILE__ ) . $style_file_path )
+			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $style_file_path )
 		);
 	}
 
