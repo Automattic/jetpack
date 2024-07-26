@@ -142,21 +142,29 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			{ noticeMessage && ( ! isWelcomeBannerVisible || siteIsRegistered ) && (
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						{
+			{ isWelcomeBannerVisible ? (
+				<WelcomeFlow>
+					{ noticeMessage && siteIsRegistered && (
+						<GlobalNotice
+							message={ noticeMessage }
+							title={ noticeTitle }
+							options={ noticeOptions }
+						/>
+					) }
+				</WelcomeFlow>
+			) : (
+				noticeMessage && (
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col>
 							<GlobalNotice
 								message={ noticeMessage }
 								title={ noticeTitle }
 								options={ noticeOptions }
 							/>
-						}
-					</Col>
-				</Container>
+						</Col>
+					</Container>
+				)
 			) }
-
-			{ isWelcomeBannerVisible && <WelcomeFlow /> }
 			{ isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />

@@ -1,8 +1,11 @@
 import { Container, Col, Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
+import getGuessedSiteLifecycleStatus from '../../data/utils/get-guessed-site-lifecycle-status';
+import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -11,9 +14,9 @@ import ConnectionStep from './ConnectionStep';
 import EvaluationProcessingStep from './EvaluationProcessingStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
 import styles from './style.module.scss';
-import type { FC } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
-const WelcomeFlow: FC = () => {
+const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
 	const { submitEvaluation, saveEvaluationResult } = useEvaluationRecommendations();
@@ -33,6 +36,13 @@ const WelcomeFlow: FC = () => {
 		if ( ! siteIsRegistered ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
+			if (
+				[ 'brand-new', 'new' ].includes(
+					getGuessedSiteLifecycleStatus( getMyJetpackWindowInitialState( 'lifecycleStats' ) )
+				)
+			) {
+				return null;
+			}
 			return 'evaluation';
 		}
 
@@ -74,10 +84,26 @@ const WelcomeFlow: FC = () => {
 		[ dismissWelcomeBanner, recordEvent, saveEvaluationResult, submitEvaluation ]
 	);
 
+	useEffect( () => {
+		if ( ! currentStep ) {
+			dismissWelcomeBanner();
+		}
+	}, [ currentStep, dismissWelcomeBanner ] );
+
+	if ( ! currentStep ) {
+		return null;
+	}
+
 	return (
-		<Container horizontalSpacing={ 6 }>
+		<Container horizontalSpacing={ 6 } horizontalGap={ 2 }>
+			<Col>{ children }</Col>
 			<Col lg={ 12 } className={ styles.banner }>
-				<CardWrapper className={ styles[ 'banner-card' ] }>
+				<CardWrapper
+					className={ clsx(
+						styles[ 'banner-card' ],
+						'connection' === currentStep && styles[ 'is-mandatory' ]
+					) }
+				>
 					<Container
 						horizontalSpacing={ 0 }
 						horizontalGap={ 0 }
