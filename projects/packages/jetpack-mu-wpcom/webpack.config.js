@@ -62,6 +62,8 @@ module.exports = [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
 				DefinePlugin: {
+					// __i18n_text_domain__ is used in page-pattern-modal npm package, which is used only by starter-page-templates feature.
+					// Consider moving page-pattern-modal package to starter-page-templates and remove this.
 					__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
 				},
 			} ),
