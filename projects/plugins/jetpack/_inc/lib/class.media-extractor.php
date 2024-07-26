@@ -36,6 +36,7 @@ class Jetpack_Media_Meta_Extractor {
 		'vimeo',
 		'hulu',
 		'ted',
+		'video',
 		'wpvideo',
 		'videopress',
 	);
@@ -197,6 +198,8 @@ class Jetpack_Media_Meta_Extractor {
 							$id = call_user_func( $shortcode_get_id_func, $attr );
 						} elseif ( method_exists( $shortcode_class_name, $shortcode_get_id_method ) ) {
 							$id = call_user_func( array( $shortcode_class_name, $shortcode_get_id_method ), $attr );
+						} elseif ( 'video' === $shortcode ) {
+							$id = $attr['url'] ?? $attr['mp4'] ?? $attr['m4v'] ?? $attr['webm'] ?? $attr['ogv'] ?? $attr['wmv'] ?? $attr['flv'] ?? null;
 						}
 						if ( ! empty( $id )
 							&& ( ! isset( $shortcode_details[ $shortcode_name ] ) || ! in_array( $id, $shortcode_details[ $shortcode_name ], true ) ) ) {
