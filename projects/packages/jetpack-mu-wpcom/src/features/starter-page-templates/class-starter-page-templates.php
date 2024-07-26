@@ -32,9 +32,16 @@ class Starter_Page_Templates {
 	 */
 	private function __construct() {
 		add_action( 'init', array( $this, 'register_scripts' ) );
+		// Register post metas for Launchpad newsletter task and template tracking
 		add_action( 'init', array( $this, 'register_meta_field' ) );
+		// Enqueue scripts and pass templates in a global JS variable
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_assets' ) );
+		// Sideload images to add them to the Media Library for Gallery block images to work
+		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
+		// Clean caches
+		add_action( 'delete_attachment', array( $this, 'clear_sideloaded_image_cache' ) );
 		add_action( 'switch_theme', array( $this, 'clear_templates_cache' ) );
+		// Handle styles for classic themes
 		add_action( 'block_editor_settings_all', array( $this, 'add_default_editor_styles_for_classic_themes' ), 10, 2 );
 	}
 
@@ -129,6 +136,15 @@ class Starter_Page_Templates {
 			},
 		);
 		register_meta( 'post', '_wpcom_template_layout_category', $args );
+	}
+
+	/**
+	 * Register rest api endpoint for side-loading images.
+	 */
+	public function register_rest_api() {
+		require_once __DIR__ . '/class-wp-rest-sideload-image-controller.php';
+
+		( new WP_REST_Sideload_Image_Controller() )->register_routes();
 	}
 
 	/**
@@ -302,6 +318,18 @@ class Starter_Page_Templates {
 		}
 
 		return $page_template_data;
+	}
+
+	/**
+	 * Deletes cached attachment data when attachment gets deleted.
+	 *
+	 * @param int $id Attachment ID of the attachment to be deleted.
+	 */
+	public function clear_sideloaded_image_cache( $id ) {
+		$url = get_post_meta( $id, '_sideloaded_url', true );
+		if ( ! empty( $url ) ) {
+			delete_transient( 'fse_sideloaded_image_' . hash( 'crc32b', $url ) );
+		}
 	}
 
 	/**
