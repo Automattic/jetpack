@@ -37,10 +37,11 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if (
-				[ 'brand-new', 'new' ].includes(
+				! [ 'brand-new', 'new' ].includes(
 					getGuessedSiteLifecycleStatus( getMyJetpackWindowInitialState( 'lifecycleStats' ) )
 				)
 			) {
+				// If the user is not new, we don't show the evaluation step
 				return null;
 			}
 			return 'evaluation';
