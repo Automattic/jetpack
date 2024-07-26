@@ -22,7 +22,7 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
 		switch_theme( 'block-theme' );
-		require dirname( __DIR__ ) . '/footer-credit/footer-credit.php';
+		require_once __DIR__ . '/../../footer-credit/footer-credit/customizer.php';
 		do_action( 'init' );
 		$this->assertFalse( has_action( 'customize_register', 'footercredits_register' ) );
 	}
