@@ -2112,9 +2112,6 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
-      '@automattic/calypso-analytics':
-        specifier: 1.1.2
-        version: 1.1.2
       '@automattic/calypso-color-schemes':
         specifier: 3.1.3
         version: 3.1.3
@@ -4880,9 +4877,6 @@ packages:
   '@automattic/babel-plugin-preserve-i18n@1.0.0':
     resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
 
-  '@automattic/calypso-analytics@1.1.2':
-    resolution: {integrity: sha512-+pPM41BL8XYxHKoEidk3/J3XjKxinVZfB0/t8E2KPBqGclDSVg7PXxslOzWsQsNju64rSWcjIY5+c8fnnWRW5g==}
-
   '@automattic/calypso-color-schemes@3.1.3':
     resolution: {integrity: sha512-nzs36yfxUOcsD3HvB72IHgdUfIzTRnT7QmF78CBXEREawTEs0uDyELdx/rAOtW/PauxRYRGQ4zeK5c67FWqLxw==}
 
@@ -4909,9 +4903,6 @@ packages:
 
   '@automattic/languages@1.0.0':
     resolution: {integrity: sha512-froTyDbTmLitHkvY9WLCpFdjUo6moOLkDKw63J2fLiB2gBApy2thkBV+LRx4Z0kIF5iXVkQF4yYOPYkT9Sr13Q==}
-
-  '@automattic/load-script@1.0.0':
-    resolution: {integrity: sha512-Hc1mRmTK12OKrONnGhe7Ht1Gpo4B/ls8WQ1IZ1/qBws1bUZ6u7Crnpv3HZkN4UI7irG3OU4l4Pn1TXtoJLcKRw==}
 
   '@automattic/page-pattern-modal@1.1.5':
     resolution: {integrity: sha512-cFA82qWUDSSFhOHfOkOqh7X8I9As5fNGp7w3LVw7ZDRl6wSiQZveLvWp4msNDnLmeiJTpxWVOZWvCirxYUE3Sw==}
@@ -10426,9 +10417,6 @@ packages:
     resolution: {integrity: sha512-NqADB8VjPFLM2V0VvHUewwwsw0ZWBaIdgo+ieHtK3hasLz4qeCRjYcqfB6AQrBggRKppKF8L52/VqdVsO47Dlw==}
     engines: {node: '>= 0.4'}
 
-  hash.js@1.1.7:
-    resolution: {integrity: sha512-taOaskGt4z4SOANNseOviYDvjEJinIkRgmp7LbKP2YTTmVxWBl87s/uzK9r+44BclBSp2X7K1hqeNfz9JbBeXA==}
-
   hasha@5.2.2:
     resolution: {integrity: sha512-Hrp5vIK/xr5SkeN2onO32H0MgNZ0f17HRNH39WfL0SYUNOTZ5Lz1TJ8Pajo/87dYGEFlLMm7mIc/k/s6Bvz9HQ==}
     engines: {node: '>=8'}
@@ -11707,9 +11695,6 @@ packages:
     engines: {node: '>= 12.13.0'}
     peerDependencies:
       webpack: ^5.0.0
-
-  minimalistic-assert@1.0.1:
-    resolution: {integrity: sha512-UtJcAD4yEaGtjPezWuO9wC4nwUnVH/8/Im3yEHQP4b67cXlD/Qr9hdITCU1xDbSEXg2XKNaP8jsReV7vQd00/A==}
 
   minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -14697,17 +14682,6 @@ snapshots:
 
   '@automattic/babel-plugin-preserve-i18n@1.0.0': {}
 
-  '@automattic/calypso-analytics@1.1.2':
-    dependencies:
-      '@automattic/load-script': 1.0.0
-      cookie: 0.4.1
-      debug: 4.3.4
-      hash.js: 1.1.7
-      tslib: 2.6.3
-      uuid: 9.0.1
-    transitivePeerDependencies:
-      - supports-color
-
   '@automattic/calypso-color-schemes@3.1.3': {}
 
   '@automattic/calypso-config@1.2.0': {}
@@ -14749,13 +14723,6 @@ snapshots:
   '@automattic/languages@1.0.0':
     dependencies:
       tslib: 2.5.0
-
-  '@automattic/load-script@1.0.0':
-    dependencies:
-      '@babel/runtime': 7.24.7
-      debug: 3.2.7
-    transitivePeerDependencies:
-      - supports-color
 
   '@automattic/page-pattern-modal@1.1.5(@types/react@18.3.1)(@wordpress/data@10.2.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
     dependencies:
@@ -23199,11 +23166,6 @@ snapshots:
     dependencies:
       has-symbols: 1.0.3
 
-  hash.js@1.1.7:
-    dependencies:
-      inherits: 2.0.4
-      minimalistic-assert: 1.0.1
-
   hasha@5.2.2:
     dependencies:
       is-stream: 2.0.1
@@ -24993,8 +24955,6 @@ snapshots:
     dependencies:
       schema-utils: 4.2.0
       webpack: 5.76.0(webpack-cli@4.9.1)
-
-  minimalistic-assert@1.0.1: {}
 
   minimatch@3.1.2:
     dependencies:
