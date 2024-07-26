@@ -569,9 +569,6 @@ importers:
       express:
         specifier: 4.18.1
         version: 4.18.1
-      https-browserify:
-        specifier: 1.0.0
-        version: 1.0.0
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.14.10)
@@ -587,9 +584,6 @@ importers:
       os-browserify:
         specifier: 0.3.0
         version: 0.3.0
-      path-browserify:
-        specifier: 1.0.1
-        version: 1.0.1
       playwright-core:
         specifier: 1.33.0
         version: 1.33.0
@@ -614,9 +608,6 @@ importers:
       source-map-js:
         specifier: 1.2.0
         version: 1.2.0
-      stream-http:
-        specifier: 3.2.0
-        version: 3.2.0
       tslib:
         specifier: 2.5.0
         version: 2.5.0
@@ -8747,9 +8738,6 @@ packages:
   builtin-status-codes@2.0.0:
     resolution: {integrity: sha512-8KPx+JfZWi0K8L5sycIOA6/ZFZbaFKXDeUIXaqwUnhed1Ge1cB0wyq+bNDjKnL9AR2Uj3m/khkF6CDolsyMitA==}
 
-  builtin-status-codes@3.0.0:
-    resolution: {integrity: sha512-HpGFw18DgFWlncDfjTa2rcQ4W88O1mC8e8yZ2AvQY5KDaktSTwo+KRf6nHK6FRI5FyRyb/5T6+TSxfP7QyGsmQ==}
-
   bytes-iec@3.1.1:
     resolution: {integrity: sha512-fey6+4jDK7TFtFg/klGSvNKJctyU7n2aQdnM+CO0ruLPbqqMOM8Tio0Pc+deqUeVKX1tL5DQep1zQ7+37aTAsA==}
     engines: {node: '>= 0.8'}
@@ -10679,9 +10667,6 @@ packages:
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
     engines: {node: '>= 14'}
-
-  https-browserify@1.0.0:
-    resolution: {integrity: sha512-J+FkSdyD+0mA0N+81tMotaRMfSL9SGi+xpD3T6YApKsc3bGSXJlfXri3VyFOeYkfLRQisDk1W+jIFFKBeUBbBg==}
 
   https-proxy-agent@5.0.1:
     resolution: {integrity: sha512-dFcAjpTQFgoLMzC2VwU+C/CbS7uRL0lWmxDITmqm7C+7F0Odmj6s9l6alZc6AELXhrnggM2CeWSXHGOdX2YtwA==}
@@ -13677,9 +13662,6 @@ packages:
   storybook@8.1.6:
     resolution: {integrity: sha512-qouQEB+sSb9ktE6fGVoBy6CLEUq4NOqDUpt/EhnITaWqzUeAZSQXTcoHg9DXhTMiynnbfqsUcZuK9PZOjgt7/w==}
     hasBin: true
-
-  stream-http@3.2.0:
-    resolution: {integrity: sha512-Oq1bLqisTyK3TSCXpPbT4sdeYNdmyZJv1LxpEm2vu1ZhK89kSE5YXwZc3cWk0MagGaKriBh9mCFbVGtO+vY29A==}
 
   stream-shift@1.0.3:
     resolution: {integrity: sha512-76ORR0DO1o1hlKwTbi/DM3EXWGf3ZJYO8cXX5RJwnul2DEg2oyoZyjLNoQM8WsvZiFKCRfC1O0J7iCvie3RZmQ==}
@@ -21251,8 +21233,6 @@ snapshots:
 
   builtin-status-codes@2.0.0: {}
 
-  builtin-status-codes@3.0.0: {}
-
   bytes-iec@3.1.1: {}
 
   bytes@3.0.0: {}
@@ -23572,8 +23552,6 @@ snapshots:
       debug: 4.3.5
     transitivePeerDependencies:
       - supports-color
-
-  https-browserify@1.0.0: {}
 
   https-proxy-agent@5.0.1:
     dependencies:
@@ -27261,13 +27239,6 @@ snapshots:
       - react-dom
       - supports-color
       - utf-8-validate
-
-  stream-http@3.2.0:
-    dependencies:
-      builtin-status-codes: 3.0.0
-      inherits: 2.0.4
-      readable-stream: 3.6.2
-      xtend: 4.0.2
 
   stream-shift@1.0.3: {}
 
