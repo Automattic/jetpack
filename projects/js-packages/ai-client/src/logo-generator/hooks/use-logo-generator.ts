@@ -128,7 +128,7 @@ Site description: ${ description }`;
 				throw error;
 			}
 		},
-		[ setFirstLogoPromptFetchError, increaseAiAssistantRequestsCount ]
+		[ setFirstLogoPromptFetchError, increaseAiAssistantRequestsCount, name, description ]
 	);
 
 	const enhancePrompt = async function ( { prompt }: { prompt: string } ): Promise< string > {
