@@ -4,8 +4,7 @@ import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
-import getGuessedSiteLifecycleStatus from '../../data/utils/get-guessed-site-lifecycle-status';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import isJetpackUserNew from '../../data/utils/is-jetpack-user-new';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -36,11 +35,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		if ( ! siteIsRegistered ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if (
-				! [ 'brand-new', 'new' ].includes(
-					getGuessedSiteLifecycleStatus( getMyJetpackWindowInitialState( 'lifecycleStats' ) )
-				)
-			) {
+			if ( ! isJetpackUserNew() ) {
 				// If the user is not new, we don't show the evaluation step
 				return null;
 			}
@@ -97,7 +92,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 
 	return (
 		<Container horizontalSpacing={ 6 } horizontalGap={ 2 }>
-			<Col>{ children }</Col>
+			{ children && <Col>{ children }</Col> }
 			<Col lg={ 12 } className={ styles.banner }>
 				<CardWrapper
 					className={ clsx(

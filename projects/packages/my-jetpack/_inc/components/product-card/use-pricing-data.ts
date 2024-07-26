@@ -9,12 +9,13 @@ import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
-	const { tiers } = pricingForUi;
+	const { tiers, wpcomFreeProductSlug } = pricingForUi;
 
 	if ( pricingForUi.tiers ) {
 		const { discountPrice, fullPrice, currencyCode, wpcomProductSlug, quantity } = tiers.upgraded;
 		const hasDiscount = discountPrice && discountPrice !== fullPrice;
 		return {
+			wpcomFreeProductSlug,
 			wpcomProductSlug: ! quantity ? wpcomProductSlug : `${ wpcomProductSlug }:-q-${ quantity }`,
 			discountPrice: hasDiscount ? discountPrice / 12 : null,
 			fullPrice: fullPrice / 12,
@@ -30,6 +31,7 @@ const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) =>
 		wpcomProductSlug,
 	} = pricingForUi;
 	return {
+		wpcomFreeProductSlug,
 		wpcomProductSlug,
 		discountPrice: isIntroductoryOffer ? discountPricePerMonth : null,
 		fullPrice: fullPricePerMonth,
@@ -56,11 +58,15 @@ const getPurchaseAction = ( detail: ProductCamelCase, onCheckout: () => void ) =
 
 const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) => {
 	const isNotActiveOrNeedsExplicitFreePlan =
-		! detail.isPluginActive || detail.status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
+		! detail.isPluginActive ||
+		detail.status === PRODUCT_STATUSES.NEEDS_ACTIVATION ||
+		detail.status === PRODUCT_STATUSES.NEEDS_PLAN;
 
 	if (
 		isNotActiveOrNeedsExplicitFreePlan &&
-		( detail.tiers.includes( 'free' ) || detail.hasFreeOffering )
+		( detail.tiers.includes( 'free' ) ||
+			detail.hasFreeOffering ||
+			detail.pricingForUi.wpcomFreeProductSlug )
 	) {
 		return {
 			label: __( 'Start for free', 'jetpack-my-jetpack' ),
@@ -73,22 +79,35 @@ const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) 
 
 const usePricingData = ( slug: string ) => {
 	const { detail } = useProduct( slug );
-	const { wpcomProductSlug, ...data } = parsePricingData( detail.pricingForUi );
+	const { wpcomProductSlug, wpcomFreeProductSlug, ...data } = parsePricingData(
+		detail.pricingForUi
+	);
 
 	const { isUserConnected } = useMyJetpackConnection();
 	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
 	const { activate, isPending: isActivating } = useActivate( slug );
-	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run: runCheckout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
 		redirectUrl: myJetpackUrl,
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
+	const { run: runFreeCheckout } = useProductCheckoutWorkflow( {
+		from: 'my-jetpack',
+		productSlug: wpcomFreeProductSlug,
+		redirectUrl: myJetpackUrl,
+		connectAfterCheckout: ! isUserConnected,
+		siteSuffix,
+	} );
 
 	const handleActivate = useCallback( () => {
-		activate( {} );
-	}, [ activate ] );
+		if ( wpcomFreeProductSlug ) {
+			runFreeCheckout();
+		} else {
+			activate( {} );
+		}
+	}, [ activate, runFreeCheckout, wpcomFreeProductSlug ] );
 
 	const handleCheckout = useCallback( () => {
 		if ( slug === 'crm' ) {
@@ -103,7 +122,6 @@ const usePricingData = ( slug: string ) => {
 		secondaryAction: getSecondaryAction( detail, handleActivate ),
 		purchaseAction: getPurchaseAction( detail, handleCheckout ),
 		isActivating,
-		hasCheckoutStarted,
 		...data,
 	};
 };

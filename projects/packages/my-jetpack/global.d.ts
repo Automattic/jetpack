@@ -142,6 +142,7 @@ interface Window {
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
+						wpcom_free_product_slug: string;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
