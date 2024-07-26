@@ -557,15 +557,6 @@ importers:
       '@types/node':
         specifier: ^20.4.2
         version: 20.14.10
-      '@typescript-eslint/eslint-plugin':
-        specifier: 6.21.0
-        version: 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.0.4))(eslint@8.57.0)(typescript@5.0.4)
-      '@typescript-eslint/parser':
-        specifier: 6.21.0
-        version: 6.21.0(eslint@8.57.0)(typescript@5.0.4)
-      eslint:
-        specifier: 8.57.0
-        version: 8.57.0
       express:
         specifier: 4.19.2
         version: 4.19.2
