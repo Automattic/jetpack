@@ -1623,6 +1623,8 @@ class Woo_Sync_Background_Sync_Job {
 
 			$order_data['subtotal'] = 0.0;
 
+			$item_tax_rate_ids = null;
+
 			// cycle through order items to create crm line items
 			foreach ( $order_items as $item_key => $item ) {
 
