@@ -3,7 +3,7 @@
  */
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { PanelBody, PanelRow, BaseControl } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
@@ -16,6 +16,7 @@ import React from 'react';
  */
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
+import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
@@ -56,32 +57,33 @@ const JetpackAndSettingsContent = ( {
 	upgradeType,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
+	const { productPageUrl } = useAiProductPage();
 
 	return (
 		<>
 			{ isBreveAvailable && (
-				<PanelRow className="jetpack-ai-proofread-control__header">
+				<PanelRow>
 					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
 						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
 
-			<PanelRow className="jetpack-ai-feedback__header">
+			<PanelRow className="jetpack-ai-sidebar__feature-section">
 				<BaseControl label={ __( 'AI Feedback', 'jetpack' ) }>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
 
 			{ isAITitleOptimizationAvailable && (
-				<PanelRow className="jetpack-ai-title-optimization__header">
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
 			) }
 			{ isAIFeaturedImageAvailable && (
-				<PanelRow className="jetpack-ai-featured-image-control__header">
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl label={ __( 'AI Featured Image', 'jetpack' ) }>
 						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
 					</BaseControl>
@@ -93,10 +95,22 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 			{ isUsagePanelAvailable && (
-				<PanelRow>
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
+
+			<PanelRow>
+				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+					{ __( 'Provide feedback', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
+
+			<PanelRow>
+				<ExternalLink href={ productPageUrl }>
+					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
 		</>
 	);
 };

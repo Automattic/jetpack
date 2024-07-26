@@ -144,6 +144,7 @@ export default function Highlight() {
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
+			anchor,
 			id,
 			target,
 			feature,
@@ -214,7 +215,7 @@ export default function Highlight() {
 									{ suggestions?.suggestion }
 								</Button>
 								<div className="helper">
-									{ __( 'Click on a suggestion to insert it.', 'jetpack' ) }
+									{ __( 'Click on the suggestion to insert it.', 'jetpack' ) }
 								</div>
 							</div>
 						) : (
