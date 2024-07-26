@@ -15,6 +15,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * for block themes.
 	 */
 	public function test_wpcomsh_footer_credit_customizer_block_theme() {
-		$this->assertTrue( true );
+		$this->assertTrue( false );
 	}
 }
