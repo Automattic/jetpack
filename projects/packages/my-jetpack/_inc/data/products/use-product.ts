@@ -35,7 +35,7 @@ export const useAllProducts = (): { [ key: string ]: ProductCamelCase } => {
 // Create query to fetch new product data from the server
 const useFetchProduct = ( productId: string ) => {
 	const queryResult = useSimpleQuery< ProductSnakeCase >( {
-		name: QUERY_PRODUCT_KEY,
+		name: `${ QUERY_PRODUCT_KEY }${ productId }`,
 		query: {
 			path: `${ REST_API_SITE_PRODUCTS_ENDPOINT }/${ productId }`,
 		},
