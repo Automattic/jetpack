@@ -43,6 +43,7 @@ const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );
 export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
+	onApplyLogo,
 	siteDetails,
 	context,
 } ) => {
@@ -62,7 +63,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
-	const siteURL = siteDetails?.URL;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 
 	// First fetch the feature data so we have the most up-to-date info from the backend.
@@ -165,17 +165,9 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
 	};
 
-	const handleApplyLogo = () => {
+	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
-	};
-
-	const handleCloseAndReload = () => {
-		closeModal();
-
-		setTimeout( () => {
-			// Reload the page to update the logo.
-			window.location.reload();
-		}, 1000 );
+		onApplyLogo?.( mediaId );
 	};
 
 	const handleFeedbackClick = () => {
@@ -235,13 +227,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				/>
 				{ logoAccepted ? (
 					<div className="jetpack-ai-logo-generator__accept">
-						<VisitSiteBanner siteURL={ siteURL } onVisitBlankTarget={ handleCloseAndReload } />
+						<VisitSiteBanner onVisitBlankTarget={ closeModal } />
 						<div className="jetpack-ai-logo-generator__accept-actions">
-							<Button variant="link" onClick={ handleCloseAndReload }>
-								{ __( 'Close and refresh', 'jetpack-ai-client' ) }
-							</Button>
-							<Button href={ siteURL } variant="primary">
-								{ __( 'Visit site', 'jetpack-ai-client' ) }
+							<Button variant="primary" onClick={ closeModal }>
+								{ __( 'Close', 'jetpack-ai-client' ) }
 							</Button>
 						</div>
 					</div>
@@ -271,7 +260,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			{ isOpen && (
 				<Modal
 					className="jetpack-ai-logo-generator-modal"
-					onRequestClose={ logoAccepted ? handleCloseAndReload : closeModal }
+					onRequestClose={ closeModal }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					title={ __( 'Jetpack AI Logo Generator', 'jetpack-ai-client' ) }
