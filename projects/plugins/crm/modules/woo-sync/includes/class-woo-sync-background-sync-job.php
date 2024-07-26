@@ -1733,7 +1733,7 @@ class Woo_Sync_Background_Sync_Job {
 							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 						}
 
-						$order_data['subtotal'] += $new_line_item['price'];
+						$order_data['subtotal'] += floatval( $new_line_item['price'] );
 
 						// Add fee as an item to the invoice
 						$data['lineitems'][] = $new_line_item;
