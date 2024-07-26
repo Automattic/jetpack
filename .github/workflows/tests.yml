@@ -72,11 +72,6 @@ jobs:
           php: ${{ matrix.php }}
           node: ${{ matrix.node }}
 
-      - name: Setup Chrome for Puppeteer
-        run: |
-          echo "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true" >> $GITHUB_ENV
-          echo "PUPPETEER_EXECUTABLE_PATH=$(which google-chrome-stable)" >> $GITHUB_ENV
-
       - name: Monorepo install
         run: |
           echo "::group::Pnpm"
