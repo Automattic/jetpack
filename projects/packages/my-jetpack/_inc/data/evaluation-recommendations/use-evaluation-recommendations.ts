@@ -28,7 +28,8 @@ const useEvaluationRecommendations = () => {
 
 	const unownedRecommendedModules = useMemo( () => {
 		const { ownedProducts = [] } = getMyJetpackWindowInitialState( 'lifecycleStats' );
-		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) );
+		// We filter out owned modules, and return top 3 recommendations
+		return recommendedModules?.filter( module => ! ownedProducts.includes( module ) ).slice( 0, 3 );
 	}, [ recommendedModules ] );
 
 	const isEligibleForRecommendations = useMemo( () => {
