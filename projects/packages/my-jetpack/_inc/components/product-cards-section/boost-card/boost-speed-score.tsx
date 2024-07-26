@@ -20,7 +20,7 @@ import type { SetStateAction } from 'react';
 
 import './style.scss';
 
-const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip, onTooltipClicked } ) => {
+const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 	const { recordEvent } = useAnalytics();
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( '' );
@@ -163,8 +163,7 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip, onTooltipCli
 								{ speedLetterGrade }
 								{ shouldShowTooltip && (
 									<Popover
-										onClick={ onTooltipClicked }
-										placement={ isMobileViewport ? 'top-end' : 'top right' }
+										placement={ isMobileViewport ? 'top-end' : 'top-start' }
 										noArrow={ false }
 										offset={ 10 }
 									>

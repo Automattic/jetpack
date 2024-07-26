@@ -4,7 +4,6 @@ export type SpeedScores = Window[ 'myJetpackInitialState' ][ 'latestBoostSpeedSc
 
 interface BoostSpeedScoreProps {
 	shouldShowTooltip: boolean;
-	onTooltipClicked: () => void;
 }
 
 export type BoostSpeedScoreType = FC< BoostSpeedScoreProps >;
