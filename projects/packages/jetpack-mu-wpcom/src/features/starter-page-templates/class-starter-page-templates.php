@@ -33,6 +33,27 @@ class Starter_Page_Templates {
 	 * Starter_Page_Templates constructor.
 	 */
 	private function __construct() {
+		// Disable the feature in ETK plugin
+		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
+
+		// We don't want the user to choose a template when copying a post.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['jetpack-copy'] ) ) {
+			return;
+		}
+
+		/**
+		 * Can be used to disable the Starter Page Templates.
+		 *
+		 * @since 0.2
+		 *
+		 * @param bool true if Starter Page Templates should be disabled, false otherwise.
+		 */
+		if ( apply_filters( 'a8c_disable_starter_page_templates', false ) ) {
+			return;
+		}
+
+		// Register scripts
 		add_action( 'init', array( $this, 'register_scripts' ) );
 		// Register post metas for Launchpad newsletter task and template tracking
 		add_action( 'init', array( $this, 'register_meta_field' ) );
