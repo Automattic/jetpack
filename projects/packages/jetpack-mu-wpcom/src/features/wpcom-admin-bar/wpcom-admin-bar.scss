@@ -82,12 +82,13 @@
 			justify-content: center;
 			text-indent: 0;
 			font-size: 0;
+			width: 52px;
 		}
 
 		& a.ab-item:before {
 			width: 36px;
 			height: 36px;
-			margin: 0 10px;
+			margin: 0 8px;
 			mask-size: contain;
 		}
 	}
@@ -158,13 +159,35 @@
 							right: 0;
 							width: 36px !important;
 							height: 40px !important;
-									background-size: contain;
+							background-size: contain;
 						}
 					}
 				}
 
 				#wpnt-notes-panel2 {
 					top: 46px;
+				}
+			}
+		}
+		@media (max-width: 480px) {
+			#wp-admin-bar-help-center {
+				width: 46px !important;
+				.ab-item {
+					svg {
+						width: 30px;
+					}
+				}
+			}
+			#wp-admin-bar-notes {
+				width: 46px !important;
+			}
+			#wp-admin-bar-my-account {
+				.ab-item {
+					width: 46px;
+
+					img {
+						right: 7px;
+					}
 				}
 			}
 		}

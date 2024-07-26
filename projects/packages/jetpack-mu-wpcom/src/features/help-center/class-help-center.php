@@ -86,9 +86,8 @@ class Help_Center {
 			// Crazy high number to prevent Jetpack removing it
 			// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
 			add_action(
-				'wp_before_admin_bar_render',
-				function () {
-					global $wp_admin_bar;
+				'admin_bar_menu',
+				function ( $wp_admin_bar ) {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
@@ -102,8 +101,7 @@ class Help_Center {
 							),
 						)
 					);
-				},
-				100000
+				}
 			);
 		}
 
