@@ -17,8 +17,7 @@ export const BloggingPromptsModalInner = () => {
 	const [ promptIndex, setPromptIndex ] = useState( 0 );
 
 	useEffect( () => {
-		const siteId = window._currentSiteId;
-		const path = addQueryArgs( `/wpcom/v3/sites/${ siteId }/blogging-prompts`, {
+		const path = addQueryArgs( `/wpcom/v3/blogging-prompts`, {
 			per_page: 10,
 			after: moment().format( '--MM-DD' ),
 			order: 'desc',
