@@ -518,10 +518,10 @@ importers:
   projects/js-packages/critical-css-gen:
     dependencies:
       clean-css:
-        specifier: 5.3.1
+        specifier: ^5.3.1
         version: 5.3.1
       css-tree:
-        specifier: 2.3.1
+        specifier: ^2.3.1
         version: 2.3.1
     devDependencies:
       '@babel/core':

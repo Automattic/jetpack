@@ -62,7 +62,7 @@
 		}
 	},
 	"dependencies": {
-		"clean-css": "5.3.1",
-		"css-tree": "2.3.1"
+		"clean-css": "^5.3.1",
+		"css-tree": "^2.3.1"
 	}
 }
