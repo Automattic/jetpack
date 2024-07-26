@@ -408,7 +408,7 @@ class Starter_Page_Templates {
 	/**
 	 * Fix for text overlapping on the page patterns preview on classic themes.
 	 *
-	 * @param object $editor_settings Editor settings.
+	 * @param array  $editor_settings Editor settings.
 	 * @param object $editor_context  Editor context.
 	 *
 	 * Only for classic themes because the default styles for block themes include a line-height for the body.
@@ -433,17 +433,16 @@ class Starter_Page_Templates {
 			return $editor_settings;
 		}
 
-		$default_editor_styles_file = gutenberg_dir_path() . 'build/block-editor/default-editor-styles.css';
+		$default_editor_styles_file = gutenberg_dir_path() . 'build/block-editor/default-editor-styles.css'; // @phan-suppress-current-line PhanUndeclaredFunction
 		if ( ! file_exists( $default_editor_styles_file ) ) {
 			return $editor_settings;
 		}
 		$default_editor_styles = file_get_contents( $default_editor_styles_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 
-		if ( is_array( $editor_settings['styles'] ) ) {
-			$editor_settings['styles'][] = array(
-				'css' => $default_editor_styles,
-			);
-		}
+		$editor_settings['styles'][] = array(
+			'css' => $default_editor_styles,
+		);
+
 		return $editor_settings;
 	}
 }

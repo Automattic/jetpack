@@ -31,7 +31,7 @@ class WP_REST_Sideload_Image_Controller extends \WP_REST_Attachments_Controller 
 			'/' . $this->rest_base,
 			array(
 				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
+					'methods'             => \WP_REST_Server::CREATABLE, // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
 					'show_in_index'       => false,
@@ -89,7 +89,7 @@ class WP_REST_Sideload_Image_Controller extends \WP_REST_Attachments_Controller 
 			$id = media_sideload_image(
 				$request->get_param( 'url' ),
 				$request->get_param( 'post_id' ),
-				null,
+				'',
 				'id'
 			);
 
@@ -139,7 +139,7 @@ class WP_REST_Sideload_Image_Controller extends \WP_REST_Attachments_Controller 
 			do_action( 'rest_after_insert_attachment', $attachment, $request, true );
 		}
 
-		$response = $this->prepare_item_for_response( $attachment, $request );
+		$response = $this->prepare_item_for_response( $attachment, $request ); // @phan-suppress-current-line PhanTypeMismatchArgumentNullable
 		$response = rest_ensure_response( $response );
 		$response->header( 'Location', rest_url( sprintf( '%s/%s/%d', 'wp/v2', 'media', $attachment->ID ) ) );
 
@@ -218,9 +218,9 @@ class WP_REST_Sideload_Image_Controller extends \WP_REST_Attachments_Controller 
 
 		}
 
-		$response->add_link( 'self', rest_url( trailingslashit( $base ) . $post->ID ) );
-		$response->add_link( 'collection', rest_url( $base ) );
-		$response->add_link( 'about', rest_url( 'wp/v2/types/' . $post->post_type ) );
+		$response->add_link( 'self', rest_url( trailingslashit( $base ) . $post->ID ) ); // @phan-suppress-current-line PhanAccessMethodInternal
+		$response->add_link( 'collection', rest_url( $base ) ); // @phan-suppress-current-line PhanAccessMethodInternal
+		$response->add_link( 'about', rest_url( 'wp/v2/types/' . $post->post_type ) ); // @phan-suppress-current-line PhanAccessMethodInternal
 
 		return $response;
 	}
