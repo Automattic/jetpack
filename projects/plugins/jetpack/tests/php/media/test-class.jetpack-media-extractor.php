@@ -566,6 +566,9 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				),
 				'video'   => array(
 					'count' => 1,
+					'id'    => array(
+						'video-source.mp4',
+					),
 				),
 				'gallery' => array(
 					'count' => 1,
