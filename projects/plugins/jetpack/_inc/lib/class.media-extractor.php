@@ -200,10 +200,10 @@ class Jetpack_Media_Meta_Extractor {
 						} elseif ( method_exists( $shortcode_class_name, $shortcode_get_id_method ) ) {
 							$id = call_user_func( array( $shortcode_class_name, $shortcode_get_id_method ), $attr );
 						} elseif ( 'video' === $shortcode ) {
-							$id = $attr['url'] ?? $attr['mp4'] ?? $attr['m4v'] ?? $attr['webm'] ?? $attr['ogv'] ?? $attr['wmv'] ?? $attr['flv'] ?? null;
+							$id = $attr['src'] ?? $attr['url'] ?? $attr['mp4'] ?? $attr['m4v'] ?? $attr['webm'] ?? $attr['ogv'] ?? $attr['wmv'] ?? $attr['flv'] ?? null;
 						} elseif ( 'audio' === $shortcode ) {
-							preg_match( '#(https?://(?:[^\s"|\']+)\.(?:mp3|ogg|flac|m4a|wav))([ "\'|]|$)#', implode( ' ', $attr ), $matches );
-							$id = $matches[1] ?? null;
+							preg_match( '#(https?://(?:[^\s"|\']+)\.(?:mp3|ogg|flac|m4a|wav))([ "\'|]|$)#', implode( ' ', $attr ), $audio_matches );
+							$id = $audio_matches[1] ?? null;
 						}
 						if ( ! empty( $id )
 							&& ( ! isset( $shortcode_details[ $shortcode_name ] ) || ! in_array( $id, $shortcode_details[ $shortcode_name ], true ) ) ) {
