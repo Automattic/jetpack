@@ -1,5 +1,5 @@
 Significance: patch
 Type: other
-Comment: Janitorial: improved type consistency in synced Jetpack options
+Comment: Janitorial: Updated jetpack_waf_ip_allow_list_enabled options group from "waf" to "settings".
 
 
