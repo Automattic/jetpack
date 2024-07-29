@@ -1,5 +1,0 @@
-Significance: patch
-Type: changed
-Comment: Update Boost to use critical css gen package from the monorepo instead of the external one.
-
-

@@ -8,7 +8,6 @@
 	"dependencies": {
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@automattic/jetpack-critical-css-gen": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@react-spring/core": "9.7.3",
 		"@react-spring/web": "9.7.3",
@@ -19,6 +18,7 @@
 		"clsx": "2.1.1",
 		"copy-webpack-plugin": "11.0.0",
 		"history": "5.3.0",
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.11",
 		"prettier": "npm:wp-prettier@3.0.3",
 		"react-router-dom": "6.21.0",
 		"react-use-measure": "2.1.1",
@@ -70,7 +70,9 @@
 		"test-e2e:start": "pnpm --prefix tests/e2e run tunnel:up && pnpm --prefix tests/e2e run env:up",
 		"test-e2e:run": "pnpm --prefix tests/e2e run test:run",
 		"test-e2e:stop": "pnpm --prefix tests/e2e run tunnel:down && pnpm --prefix tests/e2e run env:down",
-		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt"
+		"test-e2e:decrypt-config": "pnpm --prefix tests/e2e run config:decrypt",
+		"postinstall": "pnpm run postyalc.jetpack-boost-critical-css-gen",
+		"postyalc.jetpack-boost-critical-css-gen": "symlink='./node_modules/jetpack-boost-critical-css-gen'; new_target='../.yalc/jetpack-boost-critical-css-gen'; [ -d ./.yalc ] && rm -f \"$symlink\" && ln -s \"$new_target\" \"$symlink\" && pnpm run build-concurrently || echo 'Proceeding without yalc'"
 	},
 	"private": true,
 	"repository": {

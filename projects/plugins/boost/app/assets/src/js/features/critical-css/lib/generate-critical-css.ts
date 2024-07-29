@@ -6,7 +6,7 @@ import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
 import { standardizeError } from '$lib/utils/standardize-error';
-import { SuccessTargetError } from '@automattic/jetpack-critical-css-gen';
+import { SuccessTargetError } from 'jetpack-boost-critical-css-gen';
 
 type Viewport = {
 	width: number;

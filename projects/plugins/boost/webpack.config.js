@@ -7,7 +7,7 @@ const CopyPlugin = require( 'copy-webpack-plugin' );
 const isProduction = process.env.NODE_ENV === 'production';
 
 const cssGenPath = path.dirname(
-	path.dirname( require.resolve( '@automattic/jetpack-critical-css-gen' ) )
+	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
 );
 
 let cssGenCopyPatterns;
