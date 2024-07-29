@@ -17,7 +17,6 @@ import {
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
-	EVENT_PLACEMENT_QUICK_LINKS,
 	EVENT_GENERATE,
 } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
@@ -46,6 +45,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	onApplyLogo,
 	siteDetails,
 	context,
+	placement,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
@@ -148,10 +148,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 	const handleModalOpen = useCallback( async () => {
 		setContext( context );
-		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement } );
 
 		initializeModal();
-	}, [ setContext, context, initializeModal ] );
+	}, [ setContext, context, placement, initializeModal ] );
 
 	const closeModal = () => {
 		// Reset the state when the modal is closed, so we trigger the modal initialization again when it's opened.
@@ -162,7 +162,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setNeedsMoreRequests( false );
 		clearErrors();
 		setLogoAccepted( false );
-		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
 
 	const handleApplyLogo = ( mediaId: number ) => {

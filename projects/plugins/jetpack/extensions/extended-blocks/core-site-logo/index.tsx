@@ -12,7 +12,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { getFeatureAvailability } from '../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import AiToolbarButton from './components/ai-toolbar-button.js';
-import { SITE_LOGO_BLOCK_AI_EXTENSION } from './constants.js';
+import { SITE_LOGO_BLOCK_AI_EXTENSION, TOOL_PLACEMENT, PLACEMENT_CONTEXT } from './constants.js';
 
 /**
  * Mininal type definition for the core select function.
@@ -127,7 +127,8 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
-					context="block-editor"
+					context={ PLACEMENT_CONTEXT }
+					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
 				/>
 			</>
