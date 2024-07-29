@@ -9,10 +9,6 @@
  * Class FooterCreditCustomizerTest.
  */
 class FooterCreditCustomizerTest extends WP_UnitTestCase {
-	public function set_up() {
-		switch_theme( 'block-theme-child' );
-		parent::set_up();
-	}
 
 	/**
 	 * Checks that the Footer Credit customizer settings and controls are not registered
@@ -21,6 +17,9 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		$this->assertFalse( wp_get_theme()->errors() );
+		switch_theme( 'block-theme-child' );
+		$output = array();
+		exec( 'php wp-admin/themes.php', $output );
+		$this->assertEmpty( $output );
 	}
 }
