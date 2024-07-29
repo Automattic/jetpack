@@ -60,6 +60,10 @@ function wpcom_enqueue_admin_bar_assets() {
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
 					order: -1;
 				}
+
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-help-center {
+					order: 1;
+				}
 CSS
 		);
 	}
