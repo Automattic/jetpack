@@ -3,6 +3,7 @@
  */
 import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
+import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -144,6 +145,13 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  */
 function canExtendBlock( name: string ): boolean {
 	if ( name !== 'core/site-logo' ) {
+		return false;
+	}
+
+	// Check if the AI Assistant block is registered. If not, we understand that Jetpack AI is not active.
+	const isAIAssistantBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
+
+	if ( ! isAIAssistantBlockRegistered ) {
 		return false;
 	}
 
