@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
-import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { NO_MEDIA_ERROR } from '../../hooks/use-media-restrictions/constants';
@@ -15,7 +14,6 @@ import { Connection } from '../../social-store/types';
 export const useConnectionState = () => {
 	const { connections, enabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
-	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { showShareLimits, numberOfSharesRemaining } = useSelect( select => {
 		return {
 			showShareLimits: select( socialStore ).showShareLimits(),
@@ -28,10 +26,7 @@ export const useConnectionState = () => {
 
 	const { validationErrors, isConvertible } = useMediaRestrictions(
 		connections,
-		useMediaDetails( mediaId )[ 0 ],
-		{
-			isSocialImageGeneratorEnabledForPost,
-		}
+		useMediaDetails( mediaId )[ 0 ]
 	);
 
 	const outOfConnections = showShareLimits && numberOfSharesRemaining <= enabledConnections.length;
