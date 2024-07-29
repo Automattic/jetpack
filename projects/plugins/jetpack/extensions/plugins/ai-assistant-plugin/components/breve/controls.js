@@ -84,6 +84,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	return (
 		<div className="jetpack-ai-proofread">
+			<p> { __( 'Improve your writing with AI.', 'jetpack' ) }</p>
 			<PanelRow>
 				<BaseControl>
 					<div className="grade-level-container">

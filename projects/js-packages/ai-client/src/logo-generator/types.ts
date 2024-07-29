@@ -15,13 +15,15 @@ export interface GeneratorModalProps {
 	siteDetails?: SiteDetails;
 	isOpen: boolean;
 	onClose: () => void;
+	onApplyLogo: ( mediaId: number ) => void;
 	context: string;
+	placement: string;
 }
 
 export interface LogoPresenterProps {
 	logo?: Logo;
 	loading?: boolean;
-	onApplyLogo: () => void;
+	onApplyLogo: ( mediaId: number ) => void;
 	logoAccepted?: boolean;
 	siteId: string | number;
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.0.3 - 2024-07-26
+### Removed
+- Footer credit: Remove customizer option for block themes [#38559]
+
 ## 5.0.2 - 2024-07-26
 ### Fixed
 - Fix the "The parent theme is missing" issue [#38557]

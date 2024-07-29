@@ -86,49 +86,34 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 	);
 };
 
-const UseOnSiteButton: React.FC< { onApplyLogo: () => void } > = ( { onApplyLogo } ) => {
+const UseOnSiteButton: React.FC< { onApplyLogo: ( mediaId: number ) => void } > = ( {
+	onApplyLogo,
+} ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const {
-		applyLogo,
-		isSavingLogoToLibrary,
-		isApplyingLogo,
-		selectedLogo,
-		logos,
-		selectedLogoIndex,
-		context,
-	} = useLogoGenerator();
+	const { isSavingLogoToLibrary, selectedLogo, logos, selectedLogoIndex, context } =
+		useLogoGenerator();
 
 	const handleClick = async () => {
-		if ( ! isApplyingLogo && ! isSavingLogoToLibrary ) {
+		if ( ! isSavingLogoToLibrary ) {
 			recordTracksEvent( EVENT_USE, {
 				context,
 				logos_count: logos.length,
 				selected_logo: selectedLogoIndex != null ? selectedLogoIndex + 1 : 0,
 			} );
 
-			try {
-				await applyLogo();
-				onApplyLogo();
-			} catch ( error ) {
-				debug( 'Error applying logo', error );
-			}
+			onApplyLogo?.( selectedLogo?.mediaId );
 		}
 	};
 
-	return isApplyingLogo && ! isSavingLogoToLibrary ? (
-		<button className="jetpack-ai-logo-generator-modal-presenter__action">
-			<Icon icon={ <LogoIcon /> } />
-			<span className="action-text">{ __( 'Applying logo…', 'jetpack-ai-client' ) }</span>
-		</button>
-	) : (
+	return (
 		<Button
 			className="jetpack-ai-logo-generator-modal-presenter__action"
 			onClick={ handleClick }
 			disabled={ isSavingLogoToLibrary || ! selectedLogo?.mediaId }
 		>
 			<Icon icon={ <LogoIcon /> } />
-			<span className="action-text">{ __( 'Use on Site', 'jetpack-ai-client' ) }</span>
+			<span className="action-text">{ __( 'Use on block', 'jetpack-ai-client' ) }</span>
 		</Button>
 	);
 };
@@ -144,11 +129,11 @@ const LogoLoading: React.FC = () => {
 	);
 };
 
-const LogoReady: React.FC< { siteId: string; logo: Logo; onApplyLogo: () => void } > = ( {
-	siteId,
-	logo,
-	onApplyLogo,
-} ) => {
+const LogoReady: React.FC< {
+	siteId: string;
+	logo: Logo;
+	onApplyLogo: ( mediaId: number ) => void;
+} > = ( { siteId, logo, onApplyLogo } ) => {
 	return (
 		<>
 			<img
@@ -179,7 +164,7 @@ const LogoUpdated: React.FC< { logo: Logo } > = ( { logo } ) => {
 			/>
 			<div className="jetpack-ai-logo-generator-modal-presenter__success-wrapper">
 				<Icon icon={ <CheckIcon /> } />
-				<span>{ __( 'Your logo has been successfully updated!', 'jetpack-ai-client' ) }</span>
+				<span>{ __( 'Your new logo was set to the block!', 'jetpack-ai-client' ) }</span>
 			</div>
 		</>
 	);
