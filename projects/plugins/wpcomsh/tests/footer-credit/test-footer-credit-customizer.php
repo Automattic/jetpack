@@ -19,7 +19,7 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
 		switch_theme( 'block-theme-child' );
 		$output = array();
-		exec( 'php ' . WPMU_PLUGIN_DIR . '/../wp-admin/themes.php', $output );
+		exec( 'php ' . WP_CORE_DIR . '/wp-admin/themes.php', $output );
 		$this->assertStringContainsString( 'The parent theme is missing', implode( '', $output ) );
 	}
 }
