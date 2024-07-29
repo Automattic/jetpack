@@ -19,7 +19,7 @@ export function getSiteData() {
 /**
  * Get the admin URL from the initial state.
  *
- * @param {string} [path] - The path to append to the admin URL.
+ * @param {string} [path] - The path to append to the admin URL. e.g. `admin.php?page=jetpack`.
  *
  * @returns {string} The admin URL.
  */
@@ -28,12 +28,32 @@ export function getAdminUrl( path = '' ) {
 }
 
 /**
+ * Get the url for the Jetpack admin page.
+ *
+ * @param {string} [section] - The section to append to the My Jetpack URL. e.g. `#/settings`.
+ *
+ * @returns {string} The Jetpack admin page URL.
+ */
+export function getJetpackAdminPageUrl( section = '' ) {
+	return getAdminUrl( `admin.php?page=jetpack${ section }` );
+}
+
+/**
  * Get the url for the My Jetpack page.
  *
- * @param {string} [section] - The section to append to the My Jetpack URL.
+ * @param {string} [section] - The section to append to the My Jetpack URL. e.g. `#/connection`.
  *
  * @returns {string} The My Jetpack URL.
  */
 export function getMyJetpackUrl( section = '' ) {
 	return getAdminUrl( `admin.php?page=my-jetpack${ section }` );
+}
+
+/**
+ * Get the current user data from the initial state.
+ *
+ * @returns {import('./types').SitePlan['features']['active']} The active features.
+ */
+export function getActiveFeatures() {
+	return getInitialState().site.plan?.features?.active ?? [];
 }

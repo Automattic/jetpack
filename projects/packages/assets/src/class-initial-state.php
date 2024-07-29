@@ -92,11 +92,23 @@ class Initial_State {
 
 		$state = array(
 			'site' => array(
-				'admin_url'  => esc_url_raw( admin_url() ),
-				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-				'rest_root'  => esc_url_raw( rest_url() ),
-				'title'      => self::get_site_title(),
-				'wp_version' => $wp_version,
+				'admin_url'    => esc_url_raw( admin_url() ),
+				'date_format'  => get_option( 'date_format' ),
+				'icon'         => self::get_site_icon(),
+				'is_multisite' => is_multisite(),
+				'plan'         => array(
+					// The properties here should be updated by the consumer package/plugin.
+					// It includes properties like 'product_slug', 'features', etc.
+					'product_slug' => '',
+				),
+				'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
+				'rest_root'    => esc_url_raw( rest_url() ),
+				'title'        => self::get_site_title(),
+				'wp_version'   => $wp_version,
+				'wpcom'        => array(
+					// This should contain the connected site details like blog_id, is_atomic etc.
+					'blog_id' => 0,
+				),
 			),
 			'user' => array(
 				'current_user' => self::get_current_user_data(),
@@ -125,6 +137,7 @@ class Initial_State {
 
 		$state = array(
 			'site' => array(
+				'icon'  => self::get_site_icon(),
 				'title' => self::get_site_title(),
 			),
 		);
@@ -148,6 +161,19 @@ class Initial_State {
 		$title = get_bloginfo( 'name' );
 
 		return $title ? $title : esc_url_raw( ( get_site_url() ) );
+	}
+
+	/**
+	 * Get the site icon.
+	 *
+	 * @return string
+	 */
+	protected static function get_site_icon() {
+		if ( ! has_site_icon() ) {
+			return '';
+		}
+
+		return apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) );
 	}
 
 	/**
