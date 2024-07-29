@@ -137,6 +137,25 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 }, 'SiteLogoEditWithAiComponents' );
 
 /**
+ * Function to check if the block can be extended.
+ *
+ * @param {string} name - The block name.
+ * @returns {boolean} True if the block can be extended.
+ */
+function canExtendBlock( name: string ): boolean {
+	if ( name !== 'core/site-logo' ) {
+		return false;
+	}
+
+	// Disable if the feature is not available.
+	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
  * Function to override the core Site Logo block edit settings.
  * Will create a HOC to use as the edit implementation.
  *
@@ -145,13 +164,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * @returns {object} The new block settings.
  */
 function jetpackSiteLogoWithAiSupport( settings, name: string ) {
-	// Only extend the core Site Logo block.
-	if ( name !== 'core/site-logo' ) {
-		return settings;
-	}
-
-	// Disable if the feature is not available.
-	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+	if ( ! canExtendBlock( name ) ) {
 		return settings;
 	}
 
