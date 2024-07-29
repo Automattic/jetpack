@@ -667,9 +667,9 @@ HTML;
 	 * @return never
 	 */
 	public function retry_submit_comment_form_locally() {
-		// We are not doing any valiodation here since all the validation will be done again by pre_comment_on_post().
-		// if the comment has been posted, this is where we do our service verification checks
-		$comment_data = stripslashes_deep( $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// We are not doing any validation here since all the validation will be done again by pre_comment_on_post().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$comment_data = stripslashes_deep( $_POST );
 		?>
 		<!DOCTYPE html>
 		<html>
