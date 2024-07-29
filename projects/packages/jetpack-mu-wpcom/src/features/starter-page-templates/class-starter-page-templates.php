@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+require_once __DIR__ . '/../../utils.php';
+
+// Disable the feature in ETK plugin
+define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
 
 /**
  * Class Starter_Page_Templates
@@ -33,9 +36,6 @@ class Starter_Page_Templates {
 	 * Starter_Page_Templates constructor.
 	 */
 	private function __construct() {
-		// Disable the feature in ETK plugin
-		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
-
 		// We don't want the user to choose a template when copying a post.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['jetpack-copy'] ) ) {
@@ -45,16 +45,12 @@ class Starter_Page_Templates {
 		/**
 		 * Can be used to disable the Starter Page Templates.
 		 *
-		 * @since 0.2
-		 *
 		 * @param bool true if Starter Page Templates should be disabled, false otherwise.
 		 */
 		if ( apply_filters( 'a8c_disable_starter_page_templates', false ) ) {
 			return;
 		}
 
-		// Register scripts
-		add_action( 'init', array( $this, 'register_scripts' ) );
 		// Register post metas for Launchpad newsletter task and template tracking
 		add_action( 'init', array( $this, 'register_meta_field' ) );
 		// Enqueue scripts and pass templates in a global JS variable
@@ -90,20 +86,6 @@ class Starter_Page_Templates {
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * Register block editor scripts.
-	 */
-	public function register_scripts() {
-		$script_path = 'build/starter-page-templates/starter-page-templates.js';
-		wp_register_script(
-			'starter-page-templates',
-			plugin_dir_url( Jetpack_Mu_Wpcom::BASE_DIR ) . 'src/' . $script_path,
-			array( 'wp-plugins', 'wp-edit-post', 'wp-element' ),
-			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $script_path ),
-			true
-		);
 	}
 
 	/**
@@ -244,7 +226,7 @@ class Starter_Page_Templates {
 			return;
 		}
 
-		wp_enqueue_script( 'starter-page-templates' );
+		jetpack_mu_wpcom_enqueue_assets( 'starter-page-templates', array( 'js', 'css' ) );
 		wp_set_script_translations( 'starter-page-templates', 'jetpack-mu-wpcom' );
 
 		$default_templates = array(
@@ -276,21 +258,7 @@ class Starter_Page_Templates {
 			)
 		);
 
-		wp_localize_script( 'starter-page-templates', 'starterPageTemplatesConfig', $config );
-
-		// Enqueue styles.
-		$style_file = is_rtl()
-			? 'starter-page-templates.rtl.css'
-			: 'starter-page-templates.css';
-
-		$style_file_path = 'build/starter-page-templates/' . $style_file;
-
-		wp_enqueue_style(
-			'starter-page-templates',
-			plugin_dir_url( Jetpack_Mu_Wpcom::BASE_DIR ) . 'src/' . $style_file_path,
-			array(),
-			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $style_file_path )
-		);
+		wp_add_inline_script( 'starter-page-templates', 'starterPageTemplatesConfig', $config );
 	}
 
 	/**
