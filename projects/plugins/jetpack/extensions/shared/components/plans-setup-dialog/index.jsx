@@ -1,6 +1,5 @@
 import {
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalConfirmDialog as ConfirmDialog,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';

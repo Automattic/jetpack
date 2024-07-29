@@ -513,37 +513,42 @@ function jetpack_is_frontend() {
 	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
 }
 
-/**
- * Build a list of Mastodon instance hosts.
- * That list can be extended via a filter.
- *
- * @since 11.8
- *
- * @return array
- */
-function jetpack_mastodon_get_instance_list() {
-	$mastodon_instance_list = array(
-		// Regex pattern to match any .tld for the mastodon host name.
-		'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
-		// Regex pattern to match any .tld for the mstdn host name.
-		'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
-		'counter.social',
-		'fosstodon.org',
-		'gc2.jp',
-		'hachyderm.io',
-		'infosec.exchange',
-		'mas.to',
-		'pawoo.net',
-	);
-
+if ( ! function_exists( 'jetpack_mastodon_get_instance_list' ) ) {
 	/**
-	 * Filter the list of Mastodon instances.
+	 * Build a list of Mastodon instance hosts.
+	 * That list can be extended via a filter.
+	 *
+	 * @todo This function is now replicated in the Classic Theme Helper package and can be
+	 * removed here once Social Links are moved out of Jetpack.
 	 *
 	 * @since 11.8
 	 *
-	 * @module widgets, theme-tools
-	 *
-	 * @param array $mastodon_instance_list Array of Mastodon instances.
+	 * @return array
 	 */
-	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+	function jetpack_mastodon_get_instance_list() {
+		$mastodon_instance_list = array(
+			// Regex pattern to match any .tld for the mastodon host name.
+			'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
+			// Regex pattern to match any .tld for the mstdn host name.
+			'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
+			'counter.social',
+			'fosstodon.org',
+			'gc2.jp',
+			'hachyderm.io',
+			'infosec.exchange',
+			'mas.to',
+			'pawoo.net',
+		);
+
+		/**
+		 * Filter the list of Mastodon instances.
+		 *
+		 * @since 11.8
+		 *
+		 * @module widgets, theme-tools
+		 *
+		 * @param array $mastodon_instance_list Array of Mastodon instances.
+		 */
+		return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+	}
 }

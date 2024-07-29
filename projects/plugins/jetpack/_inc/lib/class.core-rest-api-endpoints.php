@@ -1594,10 +1594,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response(
 			array(
 				'code'  => 'response',
-				'debug' => array(
-					'data' => $encrypted['data'],
-					'key'  => $encrypted['key'],
-				),
+				'debug' => $encrypted,
 			)
 		);
 	}

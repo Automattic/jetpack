@@ -1,7 +1,4 @@
-.jetpack-ai-logo-generator-control__header,
-.jetpack-ai-proofread-control__header,
-.jetpack-ai-featured-image-control__header,
-.jetpack-ai-title-optimization__header {
+.jetpack-ai-sidebar__feature-section {
 	margin-bottom: 2em;
 }
 
@@ -10,5 +7,14 @@
 	gap: 16px;
 	.components-toggle-control {
 		margin-bottom: 8px;
+	}
+}
+
+.jetpack-ai__feedback-button {
+	.icon {
+		width: 20px;
+		height: 20px;
+		color: var( --studio-gray-20 );
+		margin-left: 4px;
 	}
 }

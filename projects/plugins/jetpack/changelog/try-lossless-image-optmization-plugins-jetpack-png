@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Lossless optimization of PNGs in plugins/jetpack.

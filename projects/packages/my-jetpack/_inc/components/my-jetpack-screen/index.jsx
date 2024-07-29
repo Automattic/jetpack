@@ -11,6 +11,7 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
+import { useExperiment } from '@automattic/jetpack-explat';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
@@ -43,7 +44,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		const tracksArgs = options?.tracksArgs || {};
 
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
-			noticeId: options.id,
+			notice_id: options.id,
 			...tracksArgs,
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
@@ -73,6 +74,7 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();

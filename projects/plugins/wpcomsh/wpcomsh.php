@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 4.1.0-alpha
+ * Version: 5.1.0-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '4.1.0-alpha' );
+define( 'WPCOMSH_VERSION', '5.1.0-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -28,7 +28,6 @@ require_once __DIR__ . '/lib/require-lib.php';
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';
-require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.php';
 require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
 require_once __DIR__ . '/storage/storage.php';
@@ -139,8 +138,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
-
-require_once __DIR__ . '/wpcom-plugins/plugins.php';
 
 // We include WPCom Themes results and installation on non-WP_CLI context.
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {

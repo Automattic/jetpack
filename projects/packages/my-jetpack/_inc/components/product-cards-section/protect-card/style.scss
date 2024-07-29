@@ -52,6 +52,13 @@
         font-size: var(--font-body);
         line-height: var(--font-title-small);
         color: var(--jp-gray-70);
+        a {
+            color: var(--jp-black);
+            text-decoration: underline;
+        }
+        a:hover, a:focus {
+            text-decoration: none;
+        }
     }
 
     &__data {

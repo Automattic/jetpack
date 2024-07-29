@@ -179,14 +179,22 @@ class Videopress extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
-		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		$plans_with_videopress = array(
+			'jetpack_videopress',
+			'jetpack_complete',
+			'jetpack_business',
+			'jetpack_premium',
+		);
+		$purchases_data        = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				if ( str_contains( $purchase->product_slug, 'jetpack_videopress' ) || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
+				foreach ( $plans_with_videopress as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
 				}
 			}
 		}

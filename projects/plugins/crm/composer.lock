@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
+                "reference": "f5fd9602849fa481571e1bb6c46b3460dad33095"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -36,7 +36,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.2.x-dev"
                 }
             },
             "autoload": {
