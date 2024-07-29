@@ -5,6 +5,11 @@
  * @package wpcomsh
  */
 
+/**
+ * Include the composer autoloader.
+ */
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 $_core_dir  = getenv( 'WP_CORE_DIR' );
 $wp_branch  = getenv( 'WP_BRANCH' );
@@ -26,7 +31,6 @@ if ( ! $_core_dir ) {
 }
 
 define( 'IS_ATOMIC', true );
-define( 'WP_CORE_DIR', $_core_dir );
 define( 'WPMU_PLUGIN_DIR', "{$_core_dir}/wp-content/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
