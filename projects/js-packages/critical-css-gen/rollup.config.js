@@ -12,6 +12,7 @@ const sharedPlugins = [
 		modulesOnly: false,
 	} ),
 	typescript( {
+		tsconfig: 'tsconfig.browser.json',
 		sourceMap: true,
 		inlineSources: false,
 		declaration: false,
