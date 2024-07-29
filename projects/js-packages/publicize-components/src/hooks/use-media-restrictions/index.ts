@@ -16,7 +16,7 @@ import {
 	PHOTON_CONVERTIBLE_TYPES,
 	RESTRICTIONS,
 } from './restrictions';
-import { MediaRestrictions, MediaRestrictionsOptions } from './types';
+import { MediaRestrictions } from './types';
 
 /**
  * Checks whether a media is a video.
@@ -48,7 +48,7 @@ const isMediaConvertible = metaData => {
 		return false;
 	}
 
-	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
+	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : 0;
 
 	if ( sizeInMb >= 55 ) {
 		return false;
@@ -176,33 +176,29 @@ const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia 
  *
  * @param {Array< Connection >} connections - Currently enabled connections.
  * @param {MediaDetails} media - Currently enabled connections.
- * @param { MediaRestrictionsOptions } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
  * @returns {MediaRestrictions} Social media connection handler.
  */
 const useMediaRestrictions = (
 	connections: Array< Connection >,
-	media: MediaDetails,
-	{ isSocialImageGeneratorEnabledForPost }: MediaRestrictionsOptions
+	media: MediaDetails
 ): MediaRestrictions => {
 	const { attachedMedia } = useAttachedMedia();
 	const hasAttachedMedia = attachedMedia.length > 0;
 	const errors = useRef( {} );
 
 	return useMemo( () => {
-		const newErrors = isSocialImageGeneratorEnabledForPost
-			? {}
-			: connections.reduce( ( errs, { connection_id, service_name } ) => {
-					const error = getValidationError(
-						media.metaData,
-						media.mediaData,
-						service_name,
-						hasAttachedMedia
-					);
-					if ( error ) {
-						errs[ connection_id ] = error;
-					}
-					return errs;
-			  }, {} );
+		const newErrors = connections.reduce( ( errs, { connection_id, service_name } ) => {
+			const error = getValidationError(
+				media.metaData,
+				media.mediaData,
+				service_name,
+				hasAttachedMedia
+			);
+			if ( error ) {
+				errs[ connection_id ] = error;
+			}
+			return errs;
+		}, {} );
 
 		if ( JSON.stringify( newErrors ) !== JSON.stringify( errors.current ) ) {
 			errors.current = newErrors;
@@ -211,13 +207,7 @@ const useMediaRestrictions = (
 			validationErrors: errors.current,
 			isConvertible: isMediaConvertible( media.metaData ),
 		};
-	}, [
-		isSocialImageGeneratorEnabledForPost,
-		connections,
-		media.metaData,
-		media.mediaData,
-		hasAttachedMedia,
-	] );
+	}, [ connections, media.metaData, media.mediaData, hasAttachedMedia ] );
 };
 
 export default useMediaRestrictions;
