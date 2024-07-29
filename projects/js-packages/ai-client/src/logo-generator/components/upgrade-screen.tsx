@@ -46,7 +46,7 @@ export const UpgradeScreen: React.FC< {
 				</span>
 				&nbsp;
 				<Button variant="link" href="https://jetpack.com/ai/" target="_blank">
-					{ __( 'Learn more', 'jetpack-ai-client' ) }
+					{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }
 				</Button>
 			</div>
 			<div className="jetpack-ai-logo-generator-modal__notice-actions">
