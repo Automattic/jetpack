@@ -308,13 +308,7 @@ const EmailSettings = props => {
 								'jetpack'
 							),
 							{
-								settingsLink: (
-									<ExternalLink
-										// variant="link"
-										// isExternalLink={ true }
-										href={ adminUrl + 'options-general.php' }
-									/>
-								),
+								settingsLink: <ExternalLink href={ adminUrl + 'options-general.php' } />,
 							}
 						) }
 					</div>
