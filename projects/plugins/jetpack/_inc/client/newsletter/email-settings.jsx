@@ -310,8 +310,8 @@ const EmailSettings = props => {
 							{
 								settingsLink: (
 									<ExternalLink
-										variant="link"
-										isExternalLink={ true }
+										// variant="link"
+										// isExternalLink={ true }
 										href={ adminUrl + 'options-general.php' }
 									/>
 								),
