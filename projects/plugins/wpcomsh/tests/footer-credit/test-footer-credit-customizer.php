@@ -16,9 +16,9 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	/**
 	 * Tear down.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		Monkey\tearDown();
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
