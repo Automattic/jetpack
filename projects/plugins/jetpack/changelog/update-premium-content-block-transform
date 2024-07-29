@@ -1,0 +1,4 @@
+Significance: major
+Type: enhancement
+
+Premium Content Block: Only show it as a transformation option if group or columns blocks are selected or if multiple blocks are selected.
