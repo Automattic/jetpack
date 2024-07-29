@@ -1,7 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName,Squiz.Commenting.FileComment.Missing
 
-require_once __DIR__ . '/class-wp-customize-footercredit-select.php';
-
 /**
  * Footer Credit Customizer.
  */
@@ -34,6 +32,8 @@ class FooterCreditCustomizer {
 				'sanitize_callback' => array( __CLASS__, 'sanitize_setting' ),
 			)
 		);
+
+		require_once __DIR__ . '/class-wp-customize-footercredit-select.php';
 
 		$wp_customize->add_control(
 			new WP_Customize_Footercredit_Select(
