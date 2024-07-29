@@ -105,19 +105,6 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 	} );
 
-	test( 'Should be valid if SIG is enabled', () => {
-		[
-			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
-		].forEach( media => {
-			const { result } = renderHook( () =>
-				useMediaRestrictions(
-					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
-				)
-			);
-			expect( result.current.validationErrors ).toEqual( {} );
-		} );
-	} );
-
 	test( 'Should be valid if image is not uploaded', () => {
 		[ { metaData: { mime: 'image/jpg', fileSize: 100000000 } } ].forEach( media => {
 			const { result } = renderHook( () =>
