@@ -138,9 +138,6 @@ function footercredits_sanitize_setting( $val ) {
  * Setup the Footer Credit customizer settings and controls for classic themes only.
  * We don't support the footer credit on block themes, see https://wp.me/paYJgx-51l.
  */
-function footercredits_init() {
-	if ( ! wp_is_block_theme() ) {
-		add_action( 'customize_register', 'footercredits_register', 99 );
-	}
+if ( ! wp_is_block_theme() ) {
+	add_action( 'customize_register', 'footercredits_register', 99 );
 }
-add_action( 'init', 'footercredits_init' );
