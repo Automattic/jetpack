@@ -48,6 +48,26 @@ To clean up your site, we suggest using a malware removal tool, or if possible r
 
 [Learn more about cleaning your site](https://jetpack.com/support/scan/how-to-clean-your-hacked-wordpress-site/)
 
+== BRUTE FORCE ATTACK PROTECTION ==
+
+Jetpack Protect blocks unwanted login attempts from malicious botnets and distributed attacks.
+
+= Is my site under attack? =
+Brute force attacks are the most common form of hacking — and hackers don’t discriminate. As the most commonly used Content Management System on the web, WordPress sites make an attractive target for hackers looking to exploit code vulnerabilities unique to WordPress. 
+
+Using large networks of computers known as botnets, hackers can try to gain access to your site by using thousands of different combinations of usernames and passwords until they find the right one. 
+
+Recently, attackers have found a way to “amplify” these attacks against the WordPress XML-RPC file – making it easier for attackers to try and break into your site.
+
+WordPress brute force attacks can:
+- Slow down your site (or cause it to stop responding) because of repeated server requests.
+- Allow unauthorized access to your site for hackers to modify your code or insert spammy links.
+- Put your site content and data at risk.
+
+That’s where Jetpack Protect comes in. Our state-of-the-art security tools automatically block these attacks, protecting your WordPress site from unauthorized access.
+
+On average, Jetpack blocks 5,193 WordPress brute force attacks over a site’s lifetime. It allows you to protect yourself against both traditional brute force attacks and distributed brute force attacks that use many servers against your site.
+
 == UPGRADE PROTECT TO REMOVE MALWARE IN ONE CLICK AND BE PROTECTED BY OUR WAF ==
 By upgrading Protect, you unlock total site security from WordPress experts:
 - Automated daily malware scanning in addition to vulnerability checks
@@ -68,7 +88,7 @@ A web application firewall blocks traffic and malicious requests to your site fr
 
 As threats are detected, new rules are added to Jetpack Protect’s firewall, which provides around-the-clock protection for your WordPress site.
 
-== OVER 38,393 REGISTERED VULNERABILITIES IN OUR DATABASE ==
+== OVER 53,500 REGISTERED VULNERABILITIES IN OUR DATABASE ==
 
 WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
 
@@ -100,7 +120,7 @@ We are working hard to bring more features and improvements to Jetpack Protect. 
 
 Protect is a free WordPress security and malware scanner plugin that scans your site and lets you know possible malware and security threats on your installed plugins, themes, and core files.
 
-The free plan scans your site for WordPress version, plugin, and theme vulnerabilities from our extensive vulnerability database (38,393) that is powered by WPScan.
+The free plan scans your site for WordPress version, plugin, and theme vulnerabilities from our extensive vulnerability database (53,500) that is powered by WPScan.
 
 By upgrading Protect, you gain access to WordPress malware scanning with one-click fixes, instant threat notifications, and our Web application Firewall (WAF) that protects your site around the clock.
 

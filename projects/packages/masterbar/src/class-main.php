@@ -14,7 +14,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.6.0-alpha';
 
 	/**
 	 * Initializer.
@@ -35,7 +35,7 @@ class Main {
 
 		$host = new Host();
 
-		if ( ! $host->is_wpcom_simple() ) {
+		if ( ! $host->is_wpcom_simple() && ! ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) ) {
 			new Masterbar();
 		}
 

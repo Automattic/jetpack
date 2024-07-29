@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: bjkzupj7mgxhpr4jv54264ts6e
+pnpmfileChecksum: hogs2xjgnkyiea7znn3abfx4o4
 
 importers:
 
@@ -115,9 +115,15 @@ importers:
       '@types/react':
         specifier: 18.3.1
         version: 18.3.1
+      '@types/wordpress__block-editor':
+        specifier: 11.5.14
+        version: 11.5.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.2.0
         version: 7.2.0
+      '@wordpress/blob':
+        specifier: 4.2.0
+        version: 4.2.0
       '@wordpress/block-editor':
         specifier: 13.2.0
         version: 13.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1579,6 +1585,10 @@ importers:
   projects/packages/admin-ui: {}
 
   projects/packages/assets:
+    dependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2120,6 +2130,9 @@ importers:
       '@sentry/browser':
         specifier: 7.80.1
         version: 7.80.1
+      '@tanstack/react-query':
+        specifier: ^5.15.5
+        version: 5.20.5(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.2.0
         version: 7.2.0
@@ -2138,6 +2151,9 @@ importers:
       '@wordpress/dom-ready':
         specifier: ^4.0.0
         version: 4.2.0
+      '@wordpress/element':
+        specifier: 6.2.0
+        version: 6.2.0
       '@wordpress/hooks':
         specifier: 4.2.0
         version: 4.2.0
@@ -2234,27 +2250,6 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
-  projects/packages/lazy-images:
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@wordpress/browserslist-config':
-        specifier: 6.2.0
-        version: 6.2.0
-      copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.76.0(webpack-cli@4.9.1))
-      intersection-observer:
-        specifier: 0.12.0
-        version: 0.12.0
-      webpack:
-        specifier: 5.76.0
-        version: 5.76.0(webpack-cli@4.9.1)
-      webpack-cli:
-        specifier: 4.9.1
-        version: 4.9.1(webpack@5.76.0)
-
   projects/packages/masterbar:
     dependencies:
       '@automattic/calypso-color-schemes':
@@ -2336,6 +2331,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-explat':
+        specifier: workspace:*
+        version: link:../explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
@@ -4734,9 +4732,6 @@ importers:
       eslint-plugin-import:
         specifier: 2.29.1
         version: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.0.4))(eslint@8.57.0)
-      eslint-plugin-inclusive-language:
-        specifier: 2.2.1
-        version: 2.2.1
       eslint-plugin-jest:
         specifier: 27.9.0
         version: 27.9.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.0.4))(eslint@8.57.0)(typescript@5.0.4))(eslint@8.57.0)(jest@29.7.0)(typescript@5.0.4)
@@ -4770,9 +4765,6 @@ importers:
       eslint-plugin-testing-library:
         specifier: 6.2.2
         version: 6.2.2(eslint@8.57.0)(typescript@5.0.4)
-      eslint-plugin-wpcalypso:
-        specifier: 8.0.0
-        version: 8.0.0(@babel/core@7.24.7)(eslint-plugin-inclusive-language@2.2.1)(eslint-plugin-jsdoc@46.10.1(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.34.2(eslint@8.57.0))(eslint@8.57.0)
       glob:
         specifier: 10.4.1
         version: 10.4.1
@@ -9680,9 +9672,6 @@ packages:
       '@typescript-eslint/parser':
         optional: true
 
-  eslint-plugin-inclusive-language@2.2.1:
-    resolution: {integrity: sha512-RL6avDWXCS0Dcp9axhvHRUp65qG07qjOrh6J4BNNahPvRY3PuYGnAd0H1strZ9cob79JiEW4Bq0j3gEuzbv0/A==}
-
   eslint-plugin-jest-dom@5.4.0:
     resolution: {integrity: sha512-yBqvFsnpS5Sybjoq61cJiUsenRkC9K32hYQBFS9doBR7nbQZZ5FyO+X7MlmfM1C48Ejx/qTuOCgukDUNyzKZ7A==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6', yarn: '>=1'}
@@ -9774,22 +9763,6 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6'}
     peerDependencies:
       eslint: ^7.5.0 || ^8.0.0
-
-  eslint-plugin-wpcalypso@8.0.0:
-    resolution: {integrity: sha512-V1BqCzy1TpQGMxEId1ZudTszaRBAfjgHav9aCDdzlY1AwOjvVojhxqAk1Ir4AqIDddoz39RKfvJ9SdKpq3S+/Q==}
-    engines: {node: '>=v14.21.3'}
-    peerDependencies:
-      '@babel/core': '>=7.17.5'
-      eslint: '>=8.48.0'
-      eslint-plugin-inclusive-language: ^2.2.0
-      eslint-plugin-jsdoc: ^46.5.1
-      eslint-plugin-react: ^7.33.2
-      eslint-plugin-react-hooks: ^4.3.0
-    peerDependenciesMeta:
-      eslint-plugin-react:
-        optional: true
-      eslint-plugin-react-hooks:
-        optional: true
 
   eslint-scope@5.1.1:
     resolution: {integrity: sha512-2NxwbF/hZ0KpepYN0cNbo+FN6XoK7GaHlQhgx/hIZl6Va0bF45RQOOwhLIy8lQDbuCiadSLCBnH2CFYquit5bw==}
@@ -10498,9 +10471,6 @@ packages:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
 
-  humps@2.0.1:
-    resolution: {integrity: sha512-E0eIbrFWUhwfXJmsbdjRQFQPrl5pTEoKlz163j1mTqqUnU9PgR4AgB8AIITzuB3vLBdxZXyZ9TDIrwB2OASz4g==}
-
   husky@8.0.3:
     resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
     engines: {node: '>=14'}
@@ -10590,9 +10560,6 @@ packages:
   interpret@2.2.0:
     resolution: {integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==}
     engines: {node: '>= 0.10'}
-
-  intersection-observer@0.12.0:
-    resolution: {integrity: sha512-2Vkz8z46Dv401zTWudDGwO7KiGHNDkMv417T5ItcNYfmvHR/1qCTVBO9vwH8zZmQ0WkA/1ARwpysR9bsnop4NQ==}
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
@@ -22187,10 +22154,6 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-plugin-inclusive-language@2.2.1:
-    dependencies:
-      humps: 2.0.1
-
   eslint-plugin-jest-dom@5.4.0(eslint@8.57.0):
     dependencies:
       '@babel/runtime': 7.24.7
@@ -22316,16 +22279,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
       - typescript
-
-  eslint-plugin-wpcalypso@8.0.0(@babel/core@7.24.7)(eslint-plugin-inclusive-language@2.2.1)(eslint-plugin-jsdoc@46.10.1(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.34.2(eslint@8.57.0))(eslint@8.57.0):
-    dependencies:
-      '@babel/core': 7.24.7
-      eslint: 8.57.0
-      eslint-plugin-inclusive-language: 2.2.1
-      eslint-plugin-jsdoc: 46.10.1(eslint@8.57.0)
-    optionalDependencies:
-      eslint-plugin-react: 7.34.2(eslint@8.57.0)
-      eslint-plugin-react-hooks: 4.6.2(eslint@8.57.0)
 
   eslint-scope@5.1.1:
     dependencies:
@@ -23214,8 +23167,6 @@ snapshots:
 
   human-signals@5.0.0: {}
 
-  humps@2.0.1: {}
-
   husky@8.0.3: {}
 
   iconv-lite@0.4.24:
@@ -23288,8 +23239,6 @@ snapshots:
       side-channel: 1.0.6
 
   interpret@2.2.0: {}
-
-  intersection-observer@0.12.0: {}
 
   invariant@2.2.4:
     dependencies:

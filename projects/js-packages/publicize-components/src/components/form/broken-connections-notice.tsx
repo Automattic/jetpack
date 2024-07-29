@@ -1,12 +1,14 @@
 import { Button } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
-import { _n } from '@wordpress/i18n';
+import { createInterpolateElement, Fragment } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
+import { Connection } from '../../social-store/types';
 import Notice from '../notice';
+import { SupportedService, useSupportedServices } from '../services/use-supported-services';
 import styles from './styles.module.scss';
 import { checkConnectionCode } from './utils';
 
@@ -38,14 +40,77 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		<ExternalLink href={ connectionsAdminUrl } />
 	);
 
+	const supportedServices = useSupportedServices();
+
+	if ( ! brokenConnections.length ) {
+		return null;
+	}
+
+	const servicesMap = supportedServices.reduce< Record< string, SupportedService > >(
+		( acc, service ) => {
+			acc[ service.ID ] = service;
+			return acc;
+		},
+		{}
+	);
+
+	// Group broken connections by service
+	// Since Object.groupBy is not supported widely yet, we use a manual grouping
+	const brokenConnectionsList = brokenConnections.reduce< Record< string, Array< Connection > > >(
+		( acc, connection ) => {
+			if ( ! acc[ connection.service_name ] ) {
+				acc[ connection.service_name ] = [];
+			}
+			acc[ connection.service_name ].push( connection );
+			return acc;
+		},
+		{}
+	);
+
 	return (
 		brokenConnections.length > 0 && (
 			<Notice type={ 'error' }>
+				{ __( 'Your following connections need to be reconnected:', 'jetpack' ) }
+				<ul>
+					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
+						const serviceLabel =
+							// For Jetpack sites, we should have the service in the map
+							// But for WPCOM sites, we might not have the service in the map yet
+							servicesMap[ service_name ]?.label ||
+							// So we capitalize the service name
+							service_name[ 0 ].toUpperCase() + service_name.substring( 1 );
+
+						return (
+							<li key={ service_name }>
+								<div className={ styles[ 'broken-connection-service' ] }>
+									<span>
+										{ serviceLabel }
+										{ _x( ':', 'Colon to display before the list of connections', 'jetpack' ) }
+										&nbsp;
+									</span>
+									{
+										// Since Intl.ListFormat is not allowed in Jetpack yet,
+										// we join the connections with a comma and space
+										connectionsList.map( ( { display_name, external_display, id }, i ) => (
+											<Fragment key={ id }>
+												<span className={ styles[ 'broken-connection' ] }>
+													{ display_name || external_display }
+												</span>
+												{ i < connectionsList.length - 1 &&
+													_x( ',', 'Comma to separate list of social media accounts', 'jetpack' ) +
+														' ' }
+											</Fragment>
+										) )
+									}
+								</div>
+							</li>
+						);
+					} ) }
+				</ul>
 				{ createInterpolateElement(
-					_n(
-						'One of your social connections is broken. Reconnect them in the <fixLink>connections management</fixLink> section.',
-						'Some of your social connections are broken. Reconnect them in the <fixLink>connections management</fixLink> section.',
-						brokenConnections.length,
+					_x(
+						'Please reconnect them in the <fixLink>connections management</fixLink> section.',
+						'"them" refers to the broken connections.',
 						'jetpack'
 					),
 					{

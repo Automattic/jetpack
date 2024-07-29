@@ -32,9 +32,14 @@ module.exports = [
 			'wpcom-blocks-timeline-editor': './src/features/wpcom-blocks/timeline/editor.js',
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
-			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
+			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
+			'wpcom-global-styles-frontend':
+				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
+			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
+			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
+			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

@@ -34,6 +34,7 @@ import DashBackups from './backups';
 import DashBoost from './boost';
 import DashConnections from './connections';
 import DashCRM from './crm';
+import DashJetpackAi from './jetpack-ai';
 import DashMonitor from './monitor';
 import DashPhoton from './photon';
 import DashProtect from './protect';
@@ -162,6 +163,10 @@ class AtAGlance extends Component {
 
 			if ( this.props.userCanManagePlugins ) {
 				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
+			}
+
+			if ( this.shouldAddCard( 'jetpack-ai' ) ) {
+				performanceCards.push( <DashJetpackAi /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
