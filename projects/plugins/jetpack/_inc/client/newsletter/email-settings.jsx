@@ -7,6 +7,7 @@ import {
 	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -308,7 +309,7 @@ const EmailSettings = props => {
 							),
 							{
 								settingsLink: (
-									<JetpackButton
+									<ExternalLink
 										variant="link"
 										isExternalLink={ true }
 										href={ adminUrl + 'options-general.php' }
