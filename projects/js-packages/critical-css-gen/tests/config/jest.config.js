@@ -3,7 +3,7 @@ export default {
 	testEnvironment: 'jest-environment-node',
 	testMatch: [ '**/?(*.)+(spec|test).js' ],
 	setupFilesAfterEnv: [ './config/jest-setup.js' ],
-	collectCoverageFrom: [ '../lib/*.js' ],
-	testPathIgnorePatterns: [ '/node_modules/', 'config/jest-setup.js', 'lib/*' ],
-	moduleDirectories: [ 'lib', 'node_modules' ],
+	collectCoverageFrom: [ '../build-node/*.js' ],
+	testPathIgnorePatterns: [ '/node_modules/', 'config/jest-setup.js', 'build-node/*' ],
+	moduleDirectories: [ 'build-node', 'node_modules' ],
 };

@@ -19,11 +19,11 @@
 		"build:browser": "rollup -c",
 		"build:node": "tsc",
 		"build": "pnpm run clean && pnpm run build:browser && pnpm run build:node",
-		"clean": "rm -rf lib/ && rm -rf dist/",
+		"clean": "rm -rf build-node/ && rm -rf build-browser/",
 		"test": "pnpm build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
-	"main": "./lib/back-end.js",
-	"browser": "./dist/bundle.js",
+	"main": "./build-node/back-end.js",
+	"browser": "./build-browser/bundle.js",
 	"devDependencies": {
 		"@babel/core": "7.24.7",
 		"@babel/preset-env": "7.24.7",
@@ -53,11 +53,11 @@
 	"exports": {
 		".": {
 			"jetpack:src": "./src/back-end.ts",
-			"types": "./lib/back-end.d.ts",
-			"browser": "./dist/bundle.js",
-			"import": "./lib/back-end.js",
-			"require": "./lib/back-end.js",
-			"default": "./lib/back-end.js"
+			"types": "./build-node/back-end.d.ts",
+			"browser": "./build-browser/bundle.js",
+			"import": "./build-node/back-end.js",
+			"require": "./build-node/back-end.js",
+			"default": "./build-node/back-end.js"
 		}
 	},
 	"dependencies": {

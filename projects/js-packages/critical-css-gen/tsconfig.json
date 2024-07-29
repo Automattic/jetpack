@@ -3,7 +3,7 @@
 	"include": [ "src/back-end.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
-		"outDir": "./lib",
+		"outDir": "./build-node",
 		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,

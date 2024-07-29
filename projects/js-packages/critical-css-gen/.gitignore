@@ -1,4 +1,4 @@
 /vendor
 /node_modules
-/lib
-/dist
+/build-node
+/build-browser
