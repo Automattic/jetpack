@@ -5,6 +5,14 @@
  * @package wpcomsh
  */
 
+/**
+ * Include the composer autoloader.
+ */
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// Preloading the file to reconcile Brain\Monkey with WordPress Core.
+require_once __DIR__ . '/../vendor/antecedent/patchwork/Patchwork.php';
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 $_core_dir  = getenv( 'WP_CORE_DIR' );
 $wp_branch  = getenv( 'WP_BRANCH' );
@@ -21,12 +29,12 @@ if ( ! $_core_dir ) {
 	if ( $wp_branch ) {
 		$_core_dir = '/tmp/wordpress-' . $wp_branch . '/src';
 	} else {
-		$_core_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress/';
+		$_core_dir = rtrim( sys_get_temp_dir(), '/\\' ) . '/wordpress';
 	}
 }
 
 define( 'IS_ATOMIC', true );
-define( 'WPMU_PLUGIN_DIR', "{$_core_dir}wp-content/mu-plugins" );
+define( 'WPMU_PLUGIN_DIR', "{$_core_dir}/wp-content/mu-plugins" );
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
 	echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
