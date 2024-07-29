@@ -2,7 +2,7 @@ import { localizeUrl } from '@automattic/i18n-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import { getEditorType } from './get-editor-type';
@@ -100,7 +100,7 @@ function useTourSteps(
 			meta: {
 				heading: isPatternAssembler
 					? __( 'Nice job! Your new page is set up.', 'jetpack-mu-wpcom' )
-					: __( 'Welcome to WordPress!', 'jetpack-mu-wpcom' ),
+					: _x( 'Welcome to WordPress!', 'jetpack-mu-wpcom', 'jetpack-mu-wpcom' ),
 				descriptions: {
 					desktop: ( () => {
 						if ( isPatternAssembler ) {
@@ -126,8 +126,9 @@ function useTourSteps(
 									'Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.',
 									'jetpack-mu-wpcom'
 							  )
-							: __(
+							: _x(
 									'Take this short, interactive tour to learn the fundamentals of the WordPress editor.',
+									'jetpack-mu-wpcom',
 									'jetpack-mu-wpcom'
 							  );
 					} )(),
@@ -210,8 +211,9 @@ function useTourSteps(
 								'Use the toolbar to change the appearance of a selected block. Try replacing a video!',
 								'jetpack-mu-wpcom'
 						  )
-						: __(
+						: _x(
 								'Use the toolbar to change the appearance of a selected block. Try making it bold.',
+								'jetpack-mu-wpcom',
 								'jetpack-mu-wpcom'
 						  ),
 					mobile: null,
