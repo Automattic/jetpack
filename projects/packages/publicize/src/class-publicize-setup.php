@@ -46,10 +46,6 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( static::class, 'register_core_options' ) );
 		add_action( 'admin_init', array( static::class, 'register_core_options' ) );
 
-		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
-		add_action( 'rest_api_init', array( new Auto_Conversion\REST_Settings_Controller(), 'register_routes' ) );
-
 		( new Social_Image_Generator\Setup() )->init();
 	}
 
