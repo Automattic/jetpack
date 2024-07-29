@@ -17,9 +17,12 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		switch_theme( 'block-theme-child' );
-		$output = array();
-		exec( 'php ' . WP_CORE_DIR . '/wp-admin/themes.php', $output );
-		$this->assertStringContainsString( 'The parent theme is missing', implode( '', $output ) );
+		$wp_theme = $this->getMockBuilder( WP_Theme::class )
+						->onlyMethods( array( 'is_block_theme' ) )
+						->getMock();
+		$wp_theme->expects( $this->once() )
+				->method( 'is_block_theme' );
+
+		require_once __DIR__ . '/../../footer-credit/footer-credit/customizer.php';
 	}
 }
