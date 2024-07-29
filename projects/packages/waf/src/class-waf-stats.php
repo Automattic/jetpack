@@ -105,7 +105,6 @@ class Waf_Stats {
 	 * Get the global stats from the API endpoint
 	 */
 	public static function fetch_global_stats_from_api() {
-		// todo: merge and deploy add/wpcom-endpoint-for-wpscan-statistics first!
 		$url      = esc_url_raw( 'https://public-api.wordpress.com/wpcom/v2/jetpack-protect-global-stats' );
 		$response = wp_remote_get( $url );
 
@@ -151,8 +150,8 @@ class Waf_Stats {
 			$global_stats = self::get_global_stats_from_options();
 		}
 
-		// Ensure that $global_stats is not null and is of the correct type
-		if ( $global_stats === null || ( ! is_array( $global_stats ) && ! ( $global_stats instanceof \WP_Error ) ) ) {
+		// Ensure that $global_stats is the correct type
+		if ( ! is_array( $global_stats ) && ! ( $global_stats instanceof \WP_Error ) ) {
 			return new \WP_Error( 'unexpected_type', 'Unexpected type or null returned for global stats' );
 		}
 

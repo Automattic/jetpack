@@ -77,9 +77,10 @@ const FooterInfo = () => {
 	const { hasRequiredPlan } = useProtectData();
 	const { stats } = useWafData();
 	const { globalStats } = stats;
-	const totalVulnerabilitiesFormatted = parseInt(
-		globalStats.totalVulnerabilities
-	).toLocaleString();
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );

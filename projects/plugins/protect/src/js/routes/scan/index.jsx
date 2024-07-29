@@ -26,6 +26,10 @@ const ScanPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { stats } = useWafData();
 	const { globalStats } = stats;
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { refreshStatus } = useDispatch( STORE_ID );
 	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
@@ -149,7 +153,7 @@ const ScanPage = () => {
 													'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
 													'jetpack-protect'
 												),
-												parseInt( globalStats.totalVulnerabilities ).toLocaleString()
+												totalVulnerabilitiesFormatted
 											) }
 										</Text>
 									</Col>
