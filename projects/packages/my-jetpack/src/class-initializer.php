@@ -352,7 +352,7 @@ class Initializer {
 		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
 			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
 		}
-		return $active_modules;
+		return array_values( $active_modules );
 	}
 
 	/**
@@ -373,12 +373,7 @@ class Initializer {
 		// TODO: add a data point for the last known connection/ disconnection time
 
 		// are any modules active?
-		$modules        = new Modules();
-		$active_modules = $modules->get_active();
-		// if the Jetpack plugin is active, filter out the modules that are active by default
-		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
-			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
-		}
+		$active_modules = self::get_active_modules();
 		if ( ! empty( $active_modules ) ) {
 			return false;
 		}
