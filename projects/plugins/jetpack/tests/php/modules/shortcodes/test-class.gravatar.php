@@ -34,11 +34,14 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_gravatar_image() {
-		$content = "[gravatar email='user@example.org' size='48']";
+		$email   = 'user@example.org';
+		$size    = 48;
+		$content = "[gravatar email='$email' size='$size']";
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( "<img alt='' src='http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=48&#038;d=mm&#038;r=g'", $shortcode_content );
-		$this->assertStringContainsString( "class='avatar avatar-48 photo' height='48' width='48'", $shortcode_content );
+		$avatar_url        = get_avatar_url( $email, array( 'size' => $size ) );
+		$this->assertStringContainsString( "<img alt='' src='$avatar_url'", $shortcode_content );
+		$this->assertStringContainsString( "class='avatar avatar-$size photo' height='$size' width='$size'", $shortcode_content );
 	}
 
 	/**
@@ -76,8 +79,9 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		add_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 
 		$shortcode_content = do_shortcode( $content );
+		$avatar_url        = get_avatar_url( $email, array( 'size' => 96 ) );
 		$this->assertStringContainsString( '<div class="grofile vcard" id="grofile-embed-0">', $shortcode_content );
-		$this->assertStringContainsString( '<img src="http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=96&#038;d=mm&#038;r=g" width="96" height="96" class="no-grav gravatar photo"', $shortcode_content );
+		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
 
 		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 	}
@@ -88,6 +92,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_gravatar_user_id() {
+		$email   = 'user@example.org';
 		$user    = self::factory()->user->create_and_get( array( 'user_email' => 'user@example.org' ) );
 		$content = "[gravatar_profile who='$user->ID']";
 		wp_set_current_user( $user->ID );
@@ -106,7 +111,8 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 		add_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 
 		$shortcode_content = do_shortcode( $content );
-		$this->assertStringContainsString( '<img src="http://2.gravatar.com/avatar/572c3489ea700045927076136a969e27?s=96&#038;d=mm&#038;r=g" width="96" height="96" class="no-grav gravatar photo"', $shortcode_content );
+		$avatar_url        = get_avatar_url( $email, array( 'size' => 96 ) );
+		$this->assertStringContainsString( "<img src=\"$avatar_url\" width=\"96\" height=\"96\" class=\"no-grav gravatar photo\"", $shortcode_content );
 
 		remove_filter( 'pre_http_request', $http_request_filter, 10, 1 );
 	}
