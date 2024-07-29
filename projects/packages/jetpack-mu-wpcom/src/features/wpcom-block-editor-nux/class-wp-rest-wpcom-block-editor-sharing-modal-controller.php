@@ -78,8 +78,8 @@ class WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller extends \WP_REST_Contr
 	/**
 	 * Dismiss the sharing modal
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
 	 */
 	public function set_wpcom_sharing_modal_dismissed( $request ) {
 		$params = $request->get_json_params();

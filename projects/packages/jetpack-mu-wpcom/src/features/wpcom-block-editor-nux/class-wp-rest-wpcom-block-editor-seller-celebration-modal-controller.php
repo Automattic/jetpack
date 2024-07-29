@@ -67,7 +67,7 @@ class WP_REST_WPCOM_Block_Editor_Seller_Celebration_Modal_Controller extends \WP
 	/**
 	 * Whether the user has seen the seller celebration modal
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function has_seen_seller_celebration_modal() {
 		// See D69932-code and apps/editing-toolkit/editing-toolkit-plugin/wpcom-block-editor-nux/class-wp-rest-wpcom-block-editor-first-post-published-modal-controller.php.
@@ -90,8 +90,8 @@ class WP_REST_WPCOM_Block_Editor_Seller_Celebration_Modal_Controller extends \WP
 	/**
 	 * Update the option for whether the user has seen the seller celebration modal.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
 	 */
 	public function set_has_seen_seller_celebration_modal( $request ) {
 		$params = $request->get_json_params();

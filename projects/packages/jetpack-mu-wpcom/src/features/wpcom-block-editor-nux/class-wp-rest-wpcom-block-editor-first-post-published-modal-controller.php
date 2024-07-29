@@ -67,7 +67,7 @@ class WP_REST_WPCOM_Block_Editor_First_Post_Published_Modal_Controller extends \
 	/**
 	 * Should we show the first post published modal
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function should_show_first_post_published_modal() {
 		// As we has synced the `has_never_published_post` option to part of atomic sites but we cannot

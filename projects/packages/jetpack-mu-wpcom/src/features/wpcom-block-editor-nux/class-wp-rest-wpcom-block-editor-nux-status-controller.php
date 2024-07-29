@@ -67,7 +67,7 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 	 * Once the tour has been dismissed, the closed state is saved in local storage (for the current site)
 	 * see src/block-editor-nux.js
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function get_nux_status() {
 
@@ -111,8 +111,8 @@ class WP_REST_WPCOM_Block_Editor_NUX_Status_Controller extends \WP_REST_Controll
 	/**
 	 * Update the WPCOM NUX status
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response
 	 */
 	public function update_nux_status( $request ) {
 		$params     = $request->get_json_params();
