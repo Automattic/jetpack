@@ -57,10 +57,6 @@
 			"import": "./build-node/node.js",
 			"require": "./build-node/node.js",
 			"default": "./build-node/node.js"
-		},
-		"./playwright": {
-			"types": "./build-node/browser-interface-playwright.d.ts",
-			"import": "./build-node/browser-interface-playwright.js"
 		}
 	},
 	"dependencies": {
