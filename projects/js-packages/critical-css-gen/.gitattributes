@@ -1,14 +1,15 @@
 # Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-node_modules      export-ignore
+.gitattributes         export-ignore
+node_modules           export-ignore
 
 # Files to include in the mirror repo
-/build-browser/** production-include
-/build-node/**    production-include
+/build-browser/**      production-include
+/build-node/**         production-include
 
 # Files to exclude from the mirror repo
-/changelog/**     production-exclude
-/src/**           production-exclude
-/tests/**         production-exclude
-/rollup.config.js production-exclude
-/jest.config.cjs  production-exclude
+/changelog/**          production-exclude
+/src/**                production-exclude
+/tests/**              production-exclude
+/rollup.config.js      production-exclude
+/jest.config.cjs       production-exclude
+/tsconfig.browser.json production-exclude
