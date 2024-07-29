@@ -5,7 +5,7 @@ import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, select } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -70,8 +70,8 @@ const useSetLogo = () => {
 };
 
 const useSiteDetails = () => {
-	const siteSettings = useSelect( select => {
-		return ( select( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
+	const siteSettings = useSelect( selectData => {
+		return ( selectData( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
 	}, [] );
 
 	return {
@@ -157,6 +157,19 @@ function canExtendBlock( name: string ): boolean {
 
 	// Disable if the feature is not available.
 	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+		return false;
+	}
+
+	/*
+	 * Do not extend if the AI Assistant block is hidden,
+	 * as a way for the user to hide the extension.
+	 * TODO: the `editPostStore` is undefined for P2 sites.
+	 * Let's find a way to check if the block is hidden there.
+	 */
+	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
+	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined
+
+	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;
 	}
 
