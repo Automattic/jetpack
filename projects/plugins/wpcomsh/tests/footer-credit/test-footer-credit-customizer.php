@@ -30,6 +30,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
 		Functions\expect( 'wp_is_block_theme' )->once();
 
-		include __DIR__ . '/../../footer-credit/footer-credit/customizer.php';
+		FooterCreditCustomizer::init();
 	}
 }
