@@ -661,7 +661,7 @@ HTML;
 	 * Handle Jetpack Comments POST requests: process the comment form, then client-side POST the results to the self-hosted blog
 	 *
 	 * This function exists because when we submit the form via the jetpack.wordpress.com iframe
-	 * in Chrome the request comes in to jetpack but for some reason the request doesn't hace access to cookies yet.
+	 * in Chrome the request comes in to Jetpack but for some reason the request doesn't have access to cookies yet.
 	 * By submitting the form again locally with the same data the process works as expected.
 	 *
 	 * @return never
