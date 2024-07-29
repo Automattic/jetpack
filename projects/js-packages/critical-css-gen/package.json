@@ -58,11 +58,23 @@
 			"import": "./build-node/back-end.js",
 			"require": "./build-node/back-end.js",
 			"default": "./build-node/back-end.js"
+		},
+		"./playwright": {
+			"types": "./build-node/browser-interface-playwright.d.ts",
+			"import": "./build-node/browser-interface-playwright.js"
 		}
 	},
 	"dependencies": {
 		"clean-css": "^5.3.1",
 		"css-tree": "^2.3.1"
+	},
+	"peerDependencies": {
+		"playwright-core": "^1.45.1"
+	},
+	"peerDependenciesMeta": {
+		"playwright-core": {
+			"optional": true
+		}
 	},
 	"engines": {
 		"node": ">=18.0.0"

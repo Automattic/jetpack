@@ -1,6 +1,6 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
-	"include": [ "src/back-end.ts" ],
+	"include": [ "src/back-end.ts", "src/browser-interface-playwright.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
 		"outDir": "./build-node",
