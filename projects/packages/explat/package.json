@@ -41,7 +41,7 @@
 	},
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
-		"@automattic/explat-client-react-helpers": "0.1.0",
+		"@automattic/explat-client-react-helpers": "0.1.1",
 		"@wordpress/api-fetch": "7.2.0",
 		"@wordpress/url": "4.2.0",
 		"cookie": "0.4.1",
