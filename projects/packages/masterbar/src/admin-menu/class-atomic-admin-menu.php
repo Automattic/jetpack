@@ -85,7 +85,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
@@ -192,21 +191,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$submenus_to_update = array( 'plugin-install.php' => $plugins_slug );
 
 		$this->update_submenus( 'plugins.php', $submenus_to_update );
-	}
-
-	/**
-	 * Adds the site switcher link if user has more than one site.
-	 */
-	public function add_browse_sites_link() {
-		$site_count = get_user_option( 'wpcom_site_count' );
-		if ( ! $site_count || $site_count < 2 ) {
-			return;
-		}
-
-		// Add the menu item.
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'site-switcher', 'jetpack-masterbar' ), __( 'Browse sites', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
-		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
 	/**
