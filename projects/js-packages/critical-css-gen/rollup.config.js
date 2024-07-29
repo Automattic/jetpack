@@ -30,9 +30,6 @@ export default {
 			format: 'iife',
 			name: 'CriticalCSSGenerator',
 			file: 'build-browser/bundle.full.js',
-			globals: {
-				'node-fetch': 'fetch',
-			},
 		},
 		{
 			sourcemap: true,
@@ -40,12 +37,8 @@ export default {
 			name: 'CriticalCSSGenerator',
 			file: 'build-browser/bundle.js',
 			plugins: [ terser() ],
-			globals: {
-				'node-fetch': 'fetch',
-			},
 		},
 	],
-	external: [ 'node-fetch' ],
 	plugins: sharedPlugins,
 	preserveSymlinks: true,
 	watch: {
