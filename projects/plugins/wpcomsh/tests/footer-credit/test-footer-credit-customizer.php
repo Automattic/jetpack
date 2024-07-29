@@ -14,14 +14,6 @@ use Brain\Monkey\Functions;
 class FooterCreditCustomizerTest extends WP_UnitTestCase {
 
 	/**
-	 * Set up.
-	 */
-	public function setUp() {
-		Monkey\setUp();
-		parent::setUp();
-	}
-
-	/**
 	 * Tear down.
 	 */
 	public function tearDown() {
