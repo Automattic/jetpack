@@ -55,6 +55,8 @@ export default function () {
 	const videoTitleForms = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
+	const videoTitleBreve = __( 'Make your writing easy to read', 'jetpack-my-jetpack' );
+
 	debug( aiAssistantFeature );
 	const {
 		requestsCount: allTimeRequests = 0,
@@ -81,6 +83,7 @@ export default function () {
 	const videoLinkContentFeedback = getRedirectUrl(
 		'jetpack-ai-product-page-content-feedback-link'
 	);
+	const jetpackAiLink = getRedirectUrl( 'org-ai' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -283,6 +286,40 @@ export default function () {
 									<iframe
 										width="280"
 										height="157"
+										src="https://videopress.com/embed/gRn8jXrG?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F07%2Fjetpack-ai-breve-poster.png%3Fw%3D560"
+										allowFullScreen
+										allow="clipboard-write"
+										title={ videoTitleBreve }
+									></iframe>
+									<script src="https://videopress.com/videopress-iframe.js"></script>
+								</div>
+								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
+									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
+										{ videoTitleBreve }
+										{ newBadge }
+									</div>
+									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
+										{ __(
+											"Simplify your writing with AI suggestions to fix long sentences and complex words, and sound more confident. View your writing's grade score as you type to ensure it suits your audience.",
+											'jetpack-my-jetpack'
+										) }
+									</div>
+									<Button
+										className={ styles[ 'product-interstitial__usage-videos-link' ] }
+										icon={ help }
+										target="_blank"
+										href={ jetpackAiLink }
+									>
+										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
+									</Button>
+								</div>
+							</div>
+
+							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
+								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
+									<iframe
+										width="280"
+										height="157"
 										src="https://videopress.com/embed/GdXmtVtW?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F02%2Fimage-37.png%3Fw%3D560"
 										allowFullScreen
 										allow="clipboard-write"
@@ -325,7 +362,6 @@ export default function () {
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
 										{ videoTitleFeaturedImages }
-										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
@@ -359,7 +395,6 @@ export default function () {
 								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
 									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
 										{ videoTitleTitleOptimization }
-										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
