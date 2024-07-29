@@ -22,7 +22,7 @@ const sharedPlugins = [
 ];
 
 export default {
-	input: 'src/front-end.ts',
+	input: 'src/browser.ts',
 	output: [
 		{
 			sourcemap: true,

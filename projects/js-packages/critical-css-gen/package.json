@@ -22,7 +22,7 @@
 		"clean": "rm -rf build-node/ && rm -rf build-browser/",
 		"test": "pnpm build && NODE_ENV=test NODE_PATH=./node_modules jest --forceExit --config=tests/config/jest.config.js"
 	},
-	"main": "./build-node/back-end.js",
+	"main": "./build-node/node.js",
 	"browser": "./build-browser/bundle.js",
 	"devDependencies": {
 		"@babel/core": "7.24.7",
@@ -52,12 +52,12 @@
 	},
 	"exports": {
 		".": {
-			"jetpack:src": "./src/back-end.ts",
-			"types": "./build-node/back-end.d.ts",
+			"jetpack:src": "./src/node.ts",
+			"types": "./build-node/node.d.ts",
 			"browser": "./build-browser/bundle.js",
-			"import": "./build-node/back-end.js",
-			"require": "./build-node/back-end.js",
-			"default": "./build-node/back-end.js"
+			"import": "./build-node/node.js",
+			"require": "./build-node/node.js",
+			"default": "./build-node/node.js"
 		},
 		"./playwright": {
 			"types": "./build-node/browser-interface-playwright.d.ts",

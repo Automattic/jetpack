@@ -1,4 +1,4 @@
-export { BrowserInterfaceIframe } from './browser-interface-iframe.js';
+export { BrowserInterfacePlaywright } from './browser-interface-playwright.js';
 export { BrowserInterface } from './browser-interface.js';
 export { generateCriticalCSS } from './generate-critical-css.js';
 
