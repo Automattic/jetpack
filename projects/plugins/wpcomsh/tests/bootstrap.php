@@ -10,6 +10,9 @@
  */
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Preloading the file to reconcile Brain\Monkey with WordPress Core.
+require_once __DIR__ . '/../../vendor/antecedent/patchwork/Patchwork.php';
+
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 $_core_dir  = getenv( 'WP_CORE_DIR' );
 $wp_branch  = getenv( 'WP_BRANCH' );
