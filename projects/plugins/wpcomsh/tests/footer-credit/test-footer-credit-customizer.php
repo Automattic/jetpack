@@ -20,6 +20,6 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 		switch_theme( 'block-theme-child' );
 		$output = array();
 		exec( 'php wp-admin/themes.php', $output );
-		$this->assertEmpty( $output );
+		$this->assertEmpty( implode( '', $output ) );
 	}
 }
