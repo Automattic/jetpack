@@ -22,7 +22,8 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"phpunit/phpunit": "^9",
 		"yoast/phpunit-polyfills": "1.1.0",
-		"wp-coding-standards/wpcs": "^3.0"
+		"wp-coding-standards/wpcs": "^3.0",
+		"brain/monkey": "2.6.1"
 	},
 	"autoload": {
 		"classmap": [

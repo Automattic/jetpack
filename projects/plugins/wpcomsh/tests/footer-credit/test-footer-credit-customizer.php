@@ -5,10 +5,29 @@
  * @package wpcomsh
  */
 
+use Brain\Monkey;
+use Brain\Monkey\Functions;
+
 /**
  * Class FooterCreditCustomizerTest.
  */
 class FooterCreditCustomizerTest extends WP_UnitTestCase {
+
+	/**
+	 * Set up.
+	 */
+	public function setUp() {
+		Monkey\setUp();
+		parent::setUp();
+	}
+
+	/**
+	 * Tear down.
+	 */
+	public function tearDown() {
+		Monkey\tearDown();
+		parent::tearDown();
+	}
 
 	/**
 	 * Checks that the Footer Credit customizer settings and controls are not registered
@@ -17,11 +36,7 @@ class FooterCreditCustomizerTest extends WP_UnitTestCase {
 	 * @see p1721946083481019-slack-C02FMH4G8
 	 */
 	public function test_wpcomsh_footer_credit_customizer_child_block_theme() {
-		$wp_theme = $this->getMockBuilder( WP_Theme::class )
-						->onlyMethods( array( 'is_block_theme' ) )
-						->getMock();
-		$wp_theme->expects( $this->once() )
-				->method( 'is_block_theme' );
+		Functions\expect( 'wp_is_block_theme' )->once();
 
 		require_once __DIR__ . '/../../footer-credit/footer-credit/customizer.php';
 	}
