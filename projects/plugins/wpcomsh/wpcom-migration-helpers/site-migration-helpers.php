@@ -67,7 +67,7 @@ function aiowp_migration_logging_helper() {
 		return;
 	}
 
-	$target_blog_id = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+	$target_blog_id = _wpcom_get_current_blog_id();
 
 	// Filter that gets called when import starts
 	add_filter(
