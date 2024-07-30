@@ -2262,27 +2262,6 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
-  projects/packages/lazy-images:
-    devDependencies:
-      '@automattic/jetpack-webpack-config':
-        specifier: workspace:*
-        version: link:../../js-packages/webpack-config
-      '@wordpress/browserslist-config':
-        specifier: 6.2.0
-        version: 6.2.0
-      copy-webpack-plugin:
-        specifier: 11.0.0
-        version: 11.0.0(webpack@5.76.0(webpack-cli@4.9.1))
-      intersection-observer:
-        specifier: 0.12.0
-        version: 0.12.0
-      webpack:
-        specifier: 5.76.0
-        version: 5.76.0(webpack-cli@4.9.1)
-      webpack-cli:
-        specifier: 4.9.1
-        version: 4.9.1(webpack@5.76.0)
-
   projects/packages/masterbar:
     dependencies:
       '@automattic/calypso-color-schemes':
@@ -10614,9 +10593,6 @@ packages:
   interpret@2.2.0:
     resolution: {integrity: sha512-Ju0Bz/cEia55xDwUWEa8+olFpCiQoypjnQySseKtmjNrnps3P+xfpUmGr90T7yjlVJmOtybRvPXhKMbHr+fWnw==}
     engines: {node: '>= 0.10'}
-
-  intersection-observer@0.12.0:
-    resolution: {integrity: sha512-2Vkz8z46Dv401zTWudDGwO7KiGHNDkMv417T5ItcNYfmvHR/1qCTVBO9vwH8zZmQ0WkA/1ARwpysR9bsnop4NQ==}
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==}
@@ -23344,8 +23320,6 @@ snapshots:
       side-channel: 1.0.6
 
   interpret@2.2.0: {}
-
-  intersection-observer@0.12.0: {}
 
   invariant@2.2.4:
     dependencies:
