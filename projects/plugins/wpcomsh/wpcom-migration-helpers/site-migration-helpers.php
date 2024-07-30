@@ -72,7 +72,7 @@ function aiowp_migration_logging_helper() {
 	// Filter that gets called when import starts
 	add_filter(
 		'ai1wm_import',
-		function ( $params = array() ) {
+		function ( $params = array() ) use ( $target_blog_id ) {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_start',
 				array(
@@ -88,7 +88,7 @@ function aiowp_migration_logging_helper() {
 	// Filter that gets called when import finishes or is cancelled by the user
 	add_filter(
 		'ai1wm_import',
-		function ( $params = array() ) {
+		function ( $params = array() ) use ( $target_blog_id ) {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_done',
 				array(
