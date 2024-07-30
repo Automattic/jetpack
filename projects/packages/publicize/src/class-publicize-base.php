@@ -2008,7 +2008,7 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the auto-conversion feature is one of the active features.
 	 *
-	 * TODO: Remove this after certain releases of Jetpack.
+	 * TODO: Remove this after certain releases of Jetpack v15.
 	 *
 	 * @param string $type Whether image or video.
 	 *
