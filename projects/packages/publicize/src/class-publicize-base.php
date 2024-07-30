@@ -490,6 +490,10 @@ abstract class Publicize_Base {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
 		}
 
+		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $connection['external_name'];
+		}
+
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
 			return 'https://mastodon.social/@' . $cmeta['external_name'];
 		}

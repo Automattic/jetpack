@@ -4,7 +4,8 @@ import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
-import { PLUGIN_SUPPORT_URL } from '../../constants';
+import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../../constants';
+import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import SeventyFiveLayout from '../seventy-five-layout';
@@ -45,6 +46,7 @@ const StandaloneMode = () => {
 
 const ShareDebugData = () => {
 	const { config, isUpdating, toggleShareDebugData } = useWafData();
+	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafShareDebugData } = config || {};
 	const { setNotice } = useDispatch( STORE_ID );
 
@@ -76,12 +78,16 @@ const ShareDebugData = () => {
 							'jetpack-protect'
 						),
 						{
-							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+							supportLink: (
+								<ExternalLink
+									href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+								/>
+							),
 						}
 					),
 				} );
 			} );
-	}, [ settings, toggleShareDebugData, setNotice ] );
+	}, [ settings, toggleShareDebugData, setNotice, hasRequiredPlan ] );
 
 	useEffect( () => {
 		setSettings( {
@@ -111,6 +117,7 @@ const ShareDebugData = () => {
 
 const ShareData = () => {
 	const { config, isUpdating, toggleShareData } = useWafData();
+	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafShareData } = config || {};
 	const { setNotice } = useDispatch( STORE_ID );
 
@@ -139,12 +146,16 @@ const ShareData = () => {
 							'jetpack-protect'
 						),
 						{
-							supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+							supportLink: (
+								<ExternalLink
+									href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+								/>
+							),
 						}
 					),
 				} );
 			} );
-	}, [ settings, toggleShareData, setNotice ] );
+	}, [ settings, toggleShareData, setNotice, hasRequiredPlan ] );
 
 	useEffect( () => {
 		setSettings( {
