@@ -232,7 +232,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_social_notes_config'                  => array(),
 			'jetpack_social_settings'                      => array( 'image' => true ),
-			'jetpack_social_autoconvert_images'            => array( 'enabled' => true ),
 			'jetpack_sync_non_blocking'                    => false,
 			'jetpack_sync_settings_dedicated_sync_enabled' => false,
 			'jetpack_sync_settings_custom_queue_table_enabled' => false,
