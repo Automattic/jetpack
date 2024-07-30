@@ -14,6 +14,9 @@ test.beforeEach( async ( { page } ) => {
 
 test( 'Jetpack Social connection', async ( { page } ) => {
 	await test.step( 'Can connect wordpress.com account to Jetpack Social', async () => {
+		page.on( 'pageerror', err => {
+			console.log( err.message );
+		} );
 		await connect( page );
 		const socialPage = await JetpackSocialPage.init( page );
 		expect( await socialPage.isConnected(), 'Jetpack Social should be connected' ).toBeTruthy();
