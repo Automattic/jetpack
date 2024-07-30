@@ -40,9 +40,13 @@ class Settings {
 	 * @return void
 	 */
 	private function migrate_old_option() {
-		// Delete the old options.
-		delete_option( 'jetpack_social_settings' );
-		delete_option( 'jetpack_social_autoconvert_images' );
+		// Delete the old options if they exist.
+		if ( get_option( 'jetpack_social_settings' ) ) {
+			delete_option( 'jetpack_social_settings' );
+		}
+		if ( get_option( 'jetpack_social_autoconvert_images' ) ) {
+			delete_option( 'jetpack_social_autoconvert_images' );
+		}
 
 		$sig_settings = get_option( 'jetpack_social_image_generator_settings' );
 		// If the option is not set, we don't need to migrate.
