@@ -978,6 +978,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
+      '@automattic/jetpack-initial-state':
+        specifier: workspace:*
+        version: link:../initial-state
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../shared-extension-utils
@@ -4309,6 +4312,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-initial-state':
+        specifier: workspace:*
+        version: link:../../js-packages/initial-state
       '@automattic/jetpack-publicize-components':
         specifier: workspace:*
         version: link:../../js-packages/publicize-components
