@@ -181,7 +181,7 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
-						firstDetected, // todo: still needs a proper fix
+						firstDetected,
 						fixedIn,
 						fixedOn,
 						fixed_on,
