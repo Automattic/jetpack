@@ -142,7 +142,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	 * Sends an event when the card loads
 	 */
 	useEffect( () => {
-		recordEvent( 'jetpack_myjetpack_product_card_loaded', {
+		recordEvent( 'jetpack_myjetpack_product_card_load', {
 			product: slug,
 			status: status,
 		} );

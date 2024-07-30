@@ -47,16 +47,16 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
-			recordEvent( 'jetpack_myjetpack_welcome_banner_step_view', { currentStep } );
+			recordEvent( 'jetpack_myjetpack_welcome_banner_step_view', { current_step: currentStep } );
 			setPrevStep( currentStep );
 		}
 	}, [ currentStep, prevStep, recordEvent ] );
 
 	const onDismissClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_dismiss_click', {
-			currentStep,
-			isUserConnected,
-			isSiteConnected,
+			current_step: currentStep,
+			is_user_connected: isUserConnected,
+			is_site_connected: isSiteConnected,
 		} );
 		dismissWelcomeBanner();
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
