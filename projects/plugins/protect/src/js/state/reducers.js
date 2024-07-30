@@ -1,8 +1,8 @@
 import { combineReducers } from '@wordpress/data';
+import camelize from 'camelize';
 import {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
-	SET_VIEWING_SCAN_HISTORY,
 	SET_SCAN_HISTORY,
 	SET_STATUS,
 	SET_STATUS_PROGRESS,
@@ -46,18 +46,10 @@ const credentialsIsFetching = ( state = false, action ) => {
 	return state;
 };
 
-const viewingScanHistory = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case SET_VIEWING_SCAN_HISTORY:
-			return action.viewingScanHistory;
-	}
-	return state;
-};
-
 const scanHistory = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_SCAN_HISTORY:
-			return action.scanHistory;
+			return camelize( action.scanHistory );
 	}
 	return state;
 };
@@ -214,7 +206,6 @@ const waf = ( state = defaultWaf, action ) => {
 const reducers = combineReducers( {
 	credentials,
 	credentialsIsFetching,
-	viewingScanHistory,
 	scanHistory,
 	status,
 	statusIsFetching,

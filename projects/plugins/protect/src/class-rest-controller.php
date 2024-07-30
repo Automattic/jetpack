@@ -203,20 +203,8 @@ class REST_Controller {
 			'jetpack-protect/v1',
 			'scan-history',
 			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::api_get_scan_history',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'clear-scan-history-cache',
-			array(
-				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_clear_scan_history_cache',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -437,12 +425,10 @@ class REST_Controller {
 	/**
 	 * Return Scan History for the API endpoint
 	 *
-	 * @param WP_REST_Request $request The request object.
-	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_scan_history( $request ) {
-		$scan_history = Scan_History::get_scan_history( false, $request['filter'] );
+	public static function api_get_scan_history() {
+		$scan_history = Scan_History::get_scan_history( false );
 		return rest_ensure_response( $scan_history, 200 );
 	}
 
