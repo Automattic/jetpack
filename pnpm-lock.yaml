@@ -523,9 +523,6 @@ importers:
       css-tree:
         specifier: ^2.3.1
         version: 2.3.1
-      playwright-core:
-        specifier: ^1.45.1
-        version: 1.45.1
     devDependencies:
       '@babel/core':
         specifier: 7.24.7
@@ -568,6 +565,9 @@ importers:
         version: 29.7.0(@types/node@20.14.10)
       playwright:
         specifier: 1.45.1
+        version: 1.45.1
+      playwright-core:
+        specifier: ^1.45.1
         version: 1.45.1
       prettier:
         specifier: npm:wp-prettier@3.0.3

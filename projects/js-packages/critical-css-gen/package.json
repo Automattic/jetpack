@@ -39,6 +39,7 @@
 		"express": "4.19.2",
 		"jest": "29.7.0",
 		"playwright": "1.45.1",
+		"playwright-core": "^1.45.1",
 		"prettier": "npm:wp-prettier@3.0.3",
 		"rollup": "2.79.1",
 		"rollup-plugin-polyfill-node": "0.13.0",
@@ -61,8 +62,7 @@
 	},
 	"dependencies": {
 		"clean-css": "^5.3.1",
-		"css-tree": "^2.3.1",
-		"playwright-core": "^1.45.1"
+		"css-tree": "^2.3.1"
 	},
 	"peerDependencies": {
 		"playwright-core": "^1.45.1"
