@@ -8,6 +8,7 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { getInitialState } from '@automattic/jetpack-initial-state';
 import {
 	ShareLimitsBar,
 	store as socialStore,
@@ -29,7 +30,6 @@ const Header = () => {
 		postsCount,
 		totalShareCount,
 		showShareLimits,
-		useAdminUiV1,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -40,9 +40,11 @@ const Header = () => {
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
 			showShareLimits: store.showShareLimits(),
-			useAdminUiV1: store.useAdminUiV1(),
 		};
 	} );
+	// TODO - Replace this with a utility function like `getSocialFeatureFlags` when available
+	const { useAdminUiV1 } = getInitialState().social.feature_flags;
+
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
