@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Add comment to empty `catch` blocks. No change to functionality.
+
+
