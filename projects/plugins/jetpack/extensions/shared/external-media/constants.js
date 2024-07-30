@@ -4,6 +4,7 @@ import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
+export const SOURCE_GOOGLE_PHOTOS_PICKER = 'google_photos_picker';
 export const SOURCE_OPENVERSE = 'openverse';
 export const SOURCE_PEXELS = 'pexels';
 export const SOURCE_JETPACK_APP_MEDIA = 'jetpack_app_media';
