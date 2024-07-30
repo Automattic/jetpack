@@ -20,7 +20,8 @@ const AdminPage = ( { children } ) => {
 
 	const { isSeen: wafSeen } = useWafData();
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
+	const { refreshPlan, startScanOptimistically, refreshStatus, refreshScanHistory } =
+		useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -39,9 +40,10 @@ const AdminPage = ( { children } ) => {
 			setTimeout( () => {
 				refreshPlan();
 				refreshStatus( true );
+				refreshScanHistory();
 			}, 5000 );
 		}
-	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
+	}, [ refreshPlan, refreshStatus, refreshScanHistory, startScanOptimistically ] );
 
 	/*
 	 * Show interstital page when
@@ -57,7 +59,7 @@ const AdminPage = ( { children } ) => {
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
-					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
+					<Tab link="/scan" label={ __( 'Scan', 'jetpack-protect' ) } />
 					<Tab
 						link="/firewall"
 						label={
