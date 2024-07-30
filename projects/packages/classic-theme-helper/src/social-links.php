@@ -32,7 +32,7 @@ namespace Automattic\Jetpack\Classic_Theme_Helper;
 // add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
 // }
 
-if ( ! class_exists( __NAMESPACE__ . '\Social Links' ) ) {
+if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 	/**
 	 * Social_Links main class.
@@ -139,7 +139,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social Links' ) ) {
 		/**
 		 * Add social link dropdown to the Customizer.
 		 *
-		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
+		 * @param \WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public function customize_register( $wp_customize ) {
 			$wp_customize->add_section(
