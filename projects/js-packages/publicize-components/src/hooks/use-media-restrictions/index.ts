@@ -1,18 +1,22 @@
 import { useRef, useMemo } from '@wordpress/element';
+import { Connection } from '../../social-store/types';
 import useAttachedMedia from '../use-attached-media';
+import { MediaDetails } from '../use-media-details/types';
+import {
+	NO_MEDIA_ERROR,
+	FILE_TYPE_ERROR,
+	FILE_SIZE_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
+	DIMENSION_ERROR,
+} from './constants';
 import {
 	DEFAULT_RESTRICTIONS,
 	GLOBAL_MAX_SIZE,
 	PHOTON_CONVERTIBLE_TYPES,
 	RESTRICTIONS,
 } from './restrictions';
-
-export const NO_MEDIA_ERROR = 'NO_MEDIA_ERROR';
-export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
-export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
-export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
-export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
-export const DIMENSION_ERROR = 'DIMENSION_ERROR';
+import { MediaRestrictions } from './types';
 
 /**
  * Checks whether a media is a video.
@@ -44,7 +48,7 @@ const isMediaConvertible = metaData => {
 		return false;
 	}
 
-	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
+	const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : 0;
 
 	if ( sizeInMb >= 55 ) {
 		return false;
@@ -170,31 +174,31 @@ const getValidationError = ( metaData, mediaData, serviceName, hasAttachedMedia 
 /**
  * Hooks to deal with the media restrictions
  *
- * @param {object} connections - Currently enabled connections.
- * @param {object} media - Currently enabled connections.
- * @param { { isSocialImageGeneratorEnabledForPost: boolean } } options - Flags for the current state. If SIG is enabled, then we assume it's valid.
- * @returns {object} Social media connection handler.
+ * @param {Array< Connection >} connections - Currently enabled connections.
+ * @param {MediaDetails} media - Currently enabled connections.
+ * @returns {MediaRestrictions} Social media connection handler.
  */
-const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabledForPost } ) => {
+const useMediaRestrictions = (
+	connections: Array< Connection >,
+	media: MediaDetails
+): MediaRestrictions => {
 	const { attachedMedia } = useAttachedMedia();
 	const hasAttachedMedia = attachedMedia.length > 0;
 	const errors = useRef( {} );
 
 	return useMemo( () => {
-		const newErrors = isSocialImageGeneratorEnabledForPost
-			? {}
-			: connections.reduce( ( errs, { connection_id, service_name } ) => {
-					const error = getValidationError(
-						media.metaData,
-						media.mediaData,
-						service_name,
-						hasAttachedMedia
-					);
-					if ( error ) {
-						errs[ connection_id ] = error;
-					}
-					return errs;
-			  }, {} );
+		const newErrors = connections.reduce( ( errs, { connection_id, service_name } ) => {
+			const error = getValidationError(
+				media.metaData,
+				media.mediaData,
+				service_name,
+				hasAttachedMedia
+			);
+			if ( error ) {
+				errs[ connection_id ] = error;
+			}
+			return errs;
+		}, {} );
 
 		if ( JSON.stringify( newErrors ) !== JSON.stringify( errors.current ) ) {
 			errors.current = newErrors;
@@ -203,13 +207,7 @@ const useMediaRestrictions = ( connections, media, { isSocialImageGeneratorEnabl
 			validationErrors: errors.current,
 			isConvertible: isMediaConvertible( media.metaData ),
 		};
-	}, [
-		isSocialImageGeneratorEnabledForPost,
-		connections,
-		media.metaData,
-		media.mediaData,
-		hasAttachedMedia,
-	] );
+	}, [ connections, media.metaData, media.mediaData, hasAttachedMedia ] );
 };
 
 export default useMediaRestrictions;
