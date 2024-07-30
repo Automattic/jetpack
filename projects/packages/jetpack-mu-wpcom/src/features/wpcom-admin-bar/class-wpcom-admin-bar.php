@@ -33,11 +33,6 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 		'wp-admin/user-new.php'                => 'https://wordpress.com/people/new/%home_url%',
 
 		/**
-		 * Profile menu
-		 */
-		'wp-admin/profile.php'                 => 'https://wordpress.com/me',
-
-		/**
 		 * Jetpack
 		 */
 		'wp-admin/post-new.php?post_type=jetpack-testimonial' => 'https://wordpress.com/types/jetpack-testimonial/%home_url%',

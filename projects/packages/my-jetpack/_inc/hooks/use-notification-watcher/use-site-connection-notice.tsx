@@ -113,7 +113,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			isRedBubble: true,
 			tracksArgs: {
 				type: connectionError.type,
-				isError: connectionError.is_error,
+				is_error: connectionError.is_error,
 			},
 		};
 

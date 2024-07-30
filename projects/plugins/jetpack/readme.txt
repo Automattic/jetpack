@@ -326,19 +326,19 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.7-a.5 - 2024-07-22
+### 13.7-a.7 - 2024-07-29
 #### Enhancements
-- Dashboard: Add a dashboard card for AI Assistant.
-- Security: Add separate IP allow and block list toggles in Web Application Firewall settings.
-- Settings: Add a link to the AI assistant product page.
+- AI Assistant: Add feedback link to the sidebar.
+- AI Assistant: Breve UI enhancements.
+- AI Assistant: Disable first Breve hover on mobile.
+- AI Assistant: Disable long sentences Breve feature by default.
+- AI Assistant: Enable Breve for 10% of production sites.
+- AI Assistant: Enable Breve for 20% of production sites.
+- General: Losslessly optimized PNG images.
+- Site Editor: Remove extra site editor notices in favor of the ones provided by WordPress directly.
 
 #### Improved compatibility
-- Contact Form: Ensure checkboxes are properly displayed when using the Twenty Twenty or the Twenty Twenty One theme.
-- General: Remove code for compatibility with WordPress versions before 6.5.
-- General: Update WordPress version requirements to WordPress 6.5.
-
-#### Bug fixes
-- Blocks: Check if the fontFamily block attribute is a string before trying to format.
+- Masterbar: Always show the notification bell.
 
 --------
 

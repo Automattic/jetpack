@@ -196,8 +196,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const hasSiteConnectionBrokenModules = brokenModules?.needs_site_connection.length > 0;
 	const tracksEventData = useMemo( () => {
 		return {
-			userConnectionBrokenModules: brokenModules?.needs_user_connection.join( ', ' ),
-			siteConnectionBrokenModules: brokenModules?.needs_site_connection.join( ', ' ),
+			user_connection_broken_modules: brokenModules?.needs_user_connection.join( ', ' ),
+			site_connection_broken_modules: brokenModules?.needs_site_connection.join( ', ' ),
 		};
 	}, [ brokenModules ] );
 
@@ -209,7 +209,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 			e && e.preventDefault();
 			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', {
 				...tracksEventData,
-				connectionType,
+				connection_type: connectionType,
 			} );
 			setIsManageConnectionDialogOpen( true );
 		},
