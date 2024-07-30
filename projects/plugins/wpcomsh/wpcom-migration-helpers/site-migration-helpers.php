@@ -67,6 +67,8 @@ function aiowp_migration_logging_helper() {
 		return;
 	}
 
+	$target_blog_id = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+
 	// Filter that gets called when import starts
 	add_filter(
 		'ai1wm_import',
@@ -75,7 +77,7 @@ function aiowp_migration_logging_helper() {
 				'wpcom_site_migration_start',
 				array(
 					'migration_tool' => 'aiowp',
-					'target_blog_id' => get_current_blog_id(),
+					'target_blog_id' => $target_blog_id,
 				)
 			);
 			return $params;
@@ -91,7 +93,7 @@ function aiowp_migration_logging_helper() {
 				'wpcom_site_migration_done',
 				array(
 					'migration_tool' => 'aiowp',
-					'target_blog_id' => get_current_blog_id(),
+					'target_blog_id' => $target_blog_id,
 				)
 			);
 			return $params;
