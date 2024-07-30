@@ -449,7 +449,7 @@ class Jetpack_Ai extends Product {
 		$next_tier      = self::get_next_usage_tier();
 
 		// If there's a next tier available, the product is upgradable.
-		if ( $current_tier && $current_tier !== 1 && $next_tier ) {
+		if ( $current_tier !== null && $current_tier !== 1 && $next_tier ) {
 			return true;
 		}
 
