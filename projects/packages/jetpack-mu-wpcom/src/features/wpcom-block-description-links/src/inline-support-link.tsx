@@ -3,6 +3,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 import { useState, JSXElementConstructor, ReactElement } from 'react';
 
 interface Props {
@@ -27,7 +28,7 @@ export default function DescriptionSupportLink( {
 	title,
 	url,
 	postId,
-}: Props ): JSX.Element {
+}: Props ): React.JSX.Element {
 	// This was cooked up to only apply the link in the BlockEditor sidebar.
 	// Since there was no identifier in the environment to differentiate.
 	const [ ref, setRef ] = useState< Element | null >();
@@ -37,7 +38,7 @@ export default function DescriptionSupportLink( {
 	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
 	if ( ref && ! ref?.closest( '.block-editor-block-inspector' ) ) {
-		return children as JSX.Element;
+		return children as React.JSX.Element;
 	}
 
 	return (

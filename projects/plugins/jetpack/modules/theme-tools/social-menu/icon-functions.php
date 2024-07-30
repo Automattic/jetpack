@@ -10,7 +10,7 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
 	 * Add SVG definitions to the footer.
 	 */
 	function jetpack_social_menu_include_svg_icons() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Return early if Social Menu doesn't exist.
 		if ( ! has_nav_menu( 'jetpack-social-menu' ) ) {
 			return;
@@ -37,7 +37,7 @@ if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) {
 	 * @return string SVG markup.
 	 */
 	function jetpack_social_menu_get_svg( $args = array() ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Make sure $args are an array.
 		if ( empty( $args ) ) {
 			return esc_html__( 'Please define default parameters in the form of an array.', 'jetpack' );
@@ -94,7 +94,7 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) {
 	 * @return string  $item_output The menu item output with social icon.
 	 */
 	function jetpack_social_menu_nav_menu_social_icons( $item_output, $item, $depth, $args ) {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Get supported social icons.
 		$social_icons = jetpack_social_menu_social_links_icons();
 
@@ -136,7 +136,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 	 * @return array $social_links_icons
 	 */
 	function jetpack_social_menu_social_links_icons() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 		// Supported social links icons.
 		$social_links_icons = array(
 			'#https?:\/\/(www\.)?amazon\.(com|cn|in|fr|de|it|nl|es|co|ca)\/#' => 'amazon',
