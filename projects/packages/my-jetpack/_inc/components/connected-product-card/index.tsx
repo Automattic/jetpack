@@ -21,6 +21,7 @@ import type { FC, ReactNode } from 'react';
 
 interface ConnectedProductCardProps {
 	admin: boolean;
+	recommendation: boolean;
 	slug: string;
 	children: ReactNode;
 	isDataLoading?: boolean;
@@ -35,6 +36,7 @@ interface ConnectedProductCardProps {
 
 const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	admin,
+	recommendation,
 	slug,
 	children,
 	isDataLoading,
@@ -125,6 +127,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
+			recommendation={ recommendation }
 			isFetching={ isActivating || isInstalling || isProductDataLoading }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ isInstalling }

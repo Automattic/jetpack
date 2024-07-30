@@ -40,6 +40,7 @@
 		"@wordpress/element": "6.2.0",
 		"@wordpress/i18n": "5.2.0",
 		"@wordpress/icons": "10.2.0",
+		"@wordpress/url": "4.2.0",
 		"clsx": "2.1.1",
 		"debug": "4.3.4",
 		"gridicons": "3.4.1",
