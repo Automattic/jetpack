@@ -83,6 +83,8 @@ export default function () {
 	const videoLinkContentFeedback = getRedirectUrl(
 		'jetpack-ai-product-page-content-feedback-link'
 	);
+
+	// TODO: switch this to a proper link when the page is ready
 	const jetpackAiLink = getRedirectUrl( 'org-ai' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
