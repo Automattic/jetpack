@@ -2084,7 +2084,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/protect-models",
-				"reference": "a79c18207b3476214e4be25eb5184c452c952ea9"
+				"reference": "7acb119f496f32361379b236b6dbbcca68680d4d"
 			},
 			"require": {
 				"php": ">=7.0"
@@ -2101,7 +2101,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.1.x-dev"
+					"dev-trunk": "0.2.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-protect-models/compare/v${old}...v${new}"
