@@ -64,6 +64,13 @@ export type BreveSelect = {
 		html: string;
 		suggestion: string;
 	};
+	getIgnoredSuggestions: ( {
+		feature,
+		blockId,
+	}: {
+		feature: string;
+		blockId: string;
+	} ) => Array< string >;
 };
 
 export type BreveDispatch = {
@@ -73,6 +80,7 @@ export type BreveDispatch = {
 	toggleProofread: ( force?: boolean ) => void;
 	toggleFeature: ( feature: string, force?: boolean ) => void;
 	invalidateSuggestions: ( feature: string, blockId: string ) => void;
+	ignoreSuggestion: ( feature: string, blockId: string, id: string ) => void;
 	setBlockMd5: ( feature: string, blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
 		anchor: Anchor[ 'target' ];
@@ -97,6 +105,7 @@ export type BreveFeature = {
 	config: BreveFeatureConfig;
 	highlight: ( text: string ) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
+	description: string;
 };
 
 export type HighlightedText = {

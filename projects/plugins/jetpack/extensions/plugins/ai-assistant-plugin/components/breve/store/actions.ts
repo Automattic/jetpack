@@ -66,6 +66,15 @@ export function invalidateSuggestions( feature: string, blockId: string ) {
 	};
 }
 
+export function ignoreSuggestion( feature: string, blockId: string, id: string ) {
+	return {
+		type: 'IGNORE_SUGGESTION',
+		feature,
+		blockId,
+		id,
+	};
+}
+
 export function setSuggestions( {
 	anchor,
 	id,

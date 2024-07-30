@@ -178,6 +178,19 @@ export function suggestions(
 				},
 			};
 		}
+
+		case 'IGNORE_SUGGESTION': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						ignored: [ ...( currentBlock.ignored ?? [] ), id ],
+					},
+				},
+			};
+		}
 	}
 
 	return state;

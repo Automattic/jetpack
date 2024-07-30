@@ -54,3 +54,10 @@ export function getSuggestions(
 ) {
 	return state.suggestions?.[ feature ]?.[ blockId ]?.[ id ]?.suggestions;
 }
+
+export function getIgnoredSuggestions(
+	state: BreveState,
+	{ feature, blockId }: { feature: string; blockId: string }
+) {
+	return state.suggestions?.[ feature ]?.[ blockId ]?.ignored;
+}
