@@ -22,7 +22,9 @@ domReady( function () {
 			remove();
 			const dismissEvent = new Event( 'eucookielaw-dismissed' );
 			document.dispatchEvent( dismissEvent );
-		} catch ( err ) {}
+		} catch ( err ) {
+			// Avoid sending an error to the browser console.
+		}
 	}
 
 	/**
