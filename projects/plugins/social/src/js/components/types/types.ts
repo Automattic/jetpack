@@ -46,16 +46,6 @@ type SocialImageGeneratorSettingsSelectors = {
 	getSocialImageGeneratorDefaultTemplate: () => string;
 };
 
-type AutoConversionSettingsSelectors = {
-	getAutoConversionSettings: () => {
-		available: boolean;
-		[ 'auto-conversion' ]: boolean;
-	};
-	isAutoConversionAvailable: () => boolean;
-	isAutoConversionEnabled: () => boolean;
-	isAutoConversionSettingsUpdating: () => boolean;
-};
-
 type SocialNotesSettingsSelectors = {
 	isSocialNotesEnabled: () => boolean;
 	isSocialNotesSettingsUpdating: () => boolean;
@@ -71,5 +61,4 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors &
 	SocialNotesSettingsSelectors;

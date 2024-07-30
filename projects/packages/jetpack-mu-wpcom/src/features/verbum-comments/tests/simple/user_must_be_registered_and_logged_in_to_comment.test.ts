@@ -14,7 +14,9 @@ test( 'Simple: user_must_be_registered_and_logged_in_to_comment - Anonymous', as
 			.frameLocator( '#cmp-app-container iframe' )
 			.getByRole( 'button', { name: 'I Agree!' } )
 			.click();
-	} catch ( e ) {}
+	} catch ( e ) {
+		// It's ok if it wasn't there to be dismissed.
+	}
 
 	await page.getByText( 'Leave a comment', { exact: true } ).click();
 
