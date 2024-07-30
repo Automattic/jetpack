@@ -297,6 +297,8 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'test_var', 'test_value' ), $value );
 		$this->assertContains( array( 'test_2[child]', 'value' ), $value );
 		$this->assertContains( array( 'test_num[0]', 'value1' ), $value );
+
+		$_POST = array();
 	}
 
 	/**
@@ -323,6 +325,23 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$this->assertContains( array( 'json.arr.1', 'b' ), $value );
 		$this->assertContains( array( 'json.arr.2', 'c' ), $value );
 		$this->assertContains( array( 'json.obj.foo', 'bar' ), $value );
+
+		unset( $_SERVER['CONTENT_TYPE'] );
+	}
+
+	/**
+	 * Test that the Waf_Request class returns any parameters when HTTP method isn't POST.
+	 */
+	public function testGetVarsPostHttpMethodNotPost() {
+		$_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
+		$request                 = $this->mock_request(
+			array(
+				'body' => 'value',
+			)
+		);
+		$value                   = $request->get_post_vars();
+		$this->assertIsArray( $value );
+		$this->assertContains( array( 'value', '' ), $value );
 
 		unset( $_SERVER['CONTENT_TYPE'] );
 	}

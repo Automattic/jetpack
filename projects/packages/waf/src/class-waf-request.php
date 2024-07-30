@@ -344,7 +344,7 @@ class Waf_Request {
 			// Attempt to retrieve all parameters when method used isn't POST
 			$body = $this->get_body();
 			parse_str( $body, $params );
-			return flatten_array( array_merge( $_POST, $params ) );
+			return flatten_array( $params );
 		}
 	}
 
