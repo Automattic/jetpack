@@ -105,6 +105,7 @@ export type BreveFeature = {
 	config: BreveFeatureConfig;
 	highlight: ( text: string ) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
+	description: string;
 };
 
 export type HighlightedText = {

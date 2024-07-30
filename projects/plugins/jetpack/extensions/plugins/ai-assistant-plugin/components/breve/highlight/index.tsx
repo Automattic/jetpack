@@ -13,7 +13,6 @@ import {
 	useSelect,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { trash } from '@wordpress/icons';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
@@ -56,54 +55,64 @@ export default function Highlight() {
 		return { getBlock: selector.getBlock };
 	}, [] );
 
-	const { anchor, virtual, popoverOpen, id, feature, blockId, title, loading, suggestions } =
-		useSelect( select => {
-			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+	const {
+		anchor,
+		virtual,
+		popoverOpen,
+		id,
+		feature,
+		blockId,
+		title,
+		loading,
+		suggestions,
+		description,
+	} = useSelect( select => {
+		const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-			// Popover
-			const isPopoverHover = breveSelect.isPopoverHover();
-			const isHighlightHover = breveSelect.isHighlightHover();
+		// Popover
+		const isPopoverHover = breveSelect.isPopoverHover();
+		const isHighlightHover = breveSelect.isHighlightHover();
 
-			// Anchor data
-			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor() ?? {
-				target: null,
-				virtual: null,
-			};
-			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
-			const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
-			const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
+		// Anchor data
+		const defaultAnchor = { target: null, virtual: null };
+		const { target: anchorEl, virtual: virtualEl } =
+			breveSelect.getPopoverAnchor() ?? defaultAnchor;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
+		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
-			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
-				name: '',
-				title: '',
-			};
+		// Feature data
+		const featureData = features?.find?.( ftr => ftr.config.name === anchorFeature );
+		const featureConfig = featureData?.config ?? { name: '', title: '' };
+		const featureDescription = featureData?.description ?? '';
+		const featureTitle = featureConfig?.title ?? '';
 
-			// Suggestions
-			const loadingSuggestions = breveSelect.getSuggestionsLoading( {
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-			} );
+		// Suggestions
+		const loadingSuggestions = breveSelect.getSuggestionsLoading( {
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+		} );
 
-			const suggestionsData = breveSelect.getSuggestions( {
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-			} );
+		const suggestionsData = breveSelect.getSuggestions( {
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+		} );
 
-			return {
-				config,
-				anchor: anchorEl,
-				virtual: virtualEl,
-				title: config?.title,
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-				popoverOpen: isHighlightHover || isPopoverHover,
-				loading: loadingSuggestions,
-				suggestions: suggestionsData,
-			};
-		}, [] );
+		return {
+			title: featureTitle,
+			description: featureDescription,
+			anchor: anchorEl,
+			virtual: virtualEl,
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+			popoverOpen: isHighlightHover || isPopoverHover,
+			loading: loadingSuggestions,
+			suggestions: suggestionsData,
+		};
+	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
 	const hasSuggestions = Boolean( suggestions?.suggestion );
@@ -190,6 +199,7 @@ export default function Highlight() {
 
 	const handleIgnoreSuggestion = () => {
 		ignoreSuggestion( feature, blockId, id );
+		setPopoverHover( false );
 		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
 			feature: BREVE_FEATURE_NAME,
 			type: feature,
@@ -214,39 +224,44 @@ export default function Highlight() {
 							'has-suggestions': hasSuggestions,
 						} ) }
 					>
-						<div className="title">
-							<div className="color" data-type={ feature } />
-							<div>{ title }</div>
+						<div className="header-container">
+							<div className="title">
+								<div className="color" data-type={ feature } />
+								<div>{ title }</div>
+							</div>
+							{ ! hasSuggestions && (
+								<div className="action">
+									{ loading ? (
+										<div className="loading">
+											<Spinner />
+										</div>
+									) : (
+										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
+											{ __( 'Suggest', 'jetpack' ) }
+										</Button>
+									) }
+								</div>
+							) }
 						</div>
-						{ hasSuggestions ? (
-							<div className="suggestion-container">
+						<div className="bottom-container">
+							{ hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
-								<div className="helper">
-									{ __( 'Click on the suggestion to insert it.', 'jetpack' ) }
-								</div>
-							</div>
-						) : (
-							<div className="action">
-								{ loading ? (
-									<div className="loading">
-										<Spinner />
-									</div>
+							) }
+							<div className="helper">
+								{ hasSuggestions ? (
+									__( 'Click on the suggestion to insert it.', 'jetpack' )
 								) : (
 									<>
-										<Button
-											icon={ trash }
-											label={ __( 'Ignore suggestion', 'jetpack' ) }
-											onClick={ handleIgnoreSuggestion }
-										/>
-										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
-											{ __( 'Suggest', 'jetpack' ) }
+										{ description }
+										<Button variant="link" onClick={ handleIgnoreSuggestion }>
+											{ __( 'Dismiss', 'jetpack' ) }
 										</Button>
 									</>
 								) }
 							</div>
-						) }
+						</div>
 					</div>
 				</Popover>
 			) }

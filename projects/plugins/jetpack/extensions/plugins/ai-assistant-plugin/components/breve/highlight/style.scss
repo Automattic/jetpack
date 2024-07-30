@@ -20,70 +20,85 @@
 	.highlight-content {
 		align-items: center;
 		display: flex;
-		justify-content: space-between;
-		gap: 32px;
+		flex-direction: column;
 
 		&.has-suggestions {
 			align-items: flex-start;
-			flex-direction: column;
 			padding-top: 8px;
 			gap: 8px;
 		}
 
-		.title,
-		.action {
-			padding: 8px 12px;
-		}
-
-		.title {
+		.header-container {
 			display: flex;
-			align-items: center;
-			justify-content: flex-start;
-			gap: 8px;
-			font-size: 14px;
-			font-weight: 500;
-			white-space: nowrap;
+			width: 100%;
+			justify-content: space-between;
+			gap: 32px;
 
-			.color {
-				width: 10px;
-				height: 10px;
-				border-radius: 50%;
-				@include features-colors( ( 'background-color' ) );
+			.title,
+			.action {
+				padding: 8px 12px;
 			}
-		}
 
-		.action {
-			font-size: 13px;
-			display: flex;
-			align-items: center;
-			justify-content: flex-end;
-			gap: 4px;
+			.title {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
+				font-size: 14px;
+				font-weight: 500;
+				white-space: nowrap;
 
-			.suggest.components-button {
-				padding-top: 0px;
-				padding-bottom: 0px;
-				padding-right: 0px;
-				height: unset;
+				.color {
+					width: 10px;
+					height: 10px;
+					border-radius: 50%;
+					@include features-colors( ( 'background-color' ) );
+				}
+			}
 
-				& > svg,
-				path {
-					fill: #0277a8;
+			.action {
+				font-size: 13px;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 4px;
+
+				.suggest.components-button {
+					padding-top: 0px;
+					padding-bottom: 0px;
+					padding-right: 0px;
+					height: unset;
+
+					& > svg,
+					path {
+						fill: #0277a8;
+					}
 				}
 			}
 		}
 
-		.suggestion-container {
+		.bottom-container {
 			display: flex;
 			flex-direction: column;
 			border-top: 1px solid #dcdcde;
+			width: 100%;
 
 			.helper {
-				padding: 8px;
+				padding: 4px 8px;
 				background-color: #f6f7f7;
 				white-space: nowrap;
 				color: #646970;
-				margin: 0 4px 4px 4px;
+				margin: 4px;
 				border-radius: 4px;
+				font-size: 12px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+
+				.components-button {
+					padding: 0px;
+					color: #646970;
+				}
 			}
 
 			.components-button.is-tertiary {
