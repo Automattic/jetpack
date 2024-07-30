@@ -13,23 +13,26 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+namespace Automattic\Jetpack\Classic_Theme_Helper;
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
-if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
-	/**
-	 * Init Social_Links if the theme declares support.
-	 *
-	 * @suppress PhanNoopNew
-	 */
-	function jetpack_theme_supports_social_links() {
-		if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
-			new Social_Links();
-		}
-	}
-	add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
-}
+// @todo Un-comment and possibly move initialization when requiring the file.
+// if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
+// **
+// * Init Social_Links if the theme declares support.
+// *
+// * @suppress PhanNoopNew
+// */
+// function jetpack_theme_supports_social_links() {
+// if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
+// new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
+// }
+// }
+// add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
+// }
 
-if ( ! class_exists( 'Social_Links' ) ) {
+if ( ! class_exists( __NAMESPACE__ . '\Social Links' ) ) {
 
 	/**
 	 * Social_Links main class.
@@ -80,7 +83,7 @@ if ( ! class_exists( 'Social_Links' ) ) {
 			}
 
 			$this->theme_supported_services = $theme_support[0];
-			$this->links                    = class_exists( \Jetpack_Options::class ) ? Jetpack_Options::get_option( 'social_links', array() ) : '';
+			$this->links                    = class_exists( \Jetpack_Options::class ) ? \Jetpack_Options::get_option( 'social_links', array() ) : '';
 
 			$this->admin_setup();
 
@@ -128,7 +131,7 @@ if ( ! class_exists( 'Social_Links' ) ) {
 			if ( $active_links !== $this->links ) {
 				$this->links = $active_links;
 				if ( class_exists( \Jetpack_Options::class ) ) {
-					Jetpack_Options::update_option( 'social_links', $active_links );
+					\Jetpack_Options::update_option( 'social_links', $active_links );
 				}
 			}
 		}
