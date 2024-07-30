@@ -209,7 +209,6 @@ module.exports = {
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'no-alert': 'off',
 		'no-bitwise': 'off',
-		'no-empty': [ 'error', { allowEmptyCatch: true } ],
 		'no-fallthrough': 'off',
 		'no-prototype-builtins': 'off',
 		'no-undef-init': 'off',

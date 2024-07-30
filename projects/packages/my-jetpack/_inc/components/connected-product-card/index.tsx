@@ -25,7 +25,7 @@ interface ConnectedProductCardProps {
 	slug: string;
 	children: ReactNode;
 	isDataLoading?: boolean;
-	Description?: JSX.Element | ( () => null );
+	Description?: React.JSX.Element | ( () => null );
 	additionalActions?: AdditionalAction[];
 	secondaryAction?: SecondaryAction;
 	upgradeInInterstitial?: boolean;
