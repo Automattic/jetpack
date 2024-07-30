@@ -13,7 +13,6 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 const NOTICES = {
 	advancedUpgradeEditor: 'advanced-upgrade-nudge-editor',
 	advancedUpgradeAdmin: 'advanced-upgrade-nudge-admin',
-	autoConversion: 'auto-conversion-editor-notice',
 };
 
 const calculateReappearanceTime = seconds => {
