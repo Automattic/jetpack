@@ -108,7 +108,6 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function hide_customizer_menu_on_block_theme() {
 		if ( wp_is_block_theme() && ! is_customize_preview() ) {
 			remove_action( 'customize_register', 'add_logotool_button', 20 );
-			remove_action( 'customize_register', 'footercredits_register', 99 );
 			remove_action( 'customize_register', 'wpcom_disable_customizer_site_icon', 20 );
 
 			if ( class_exists( '\Jetpack_Fonts' ) ) {
