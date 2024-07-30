@@ -334,10 +334,19 @@ class Waf_Request {
 	 * @return array{string, scalar}[]
 	 */
 	public function get_post_vars() {
+		$content_type = $this->get_header( 'content-type' );
+
 		// Attempt to decode JSON requests.
-		if ( strpos( $this->get_header( 'content-type' ), 'application/json' ) !== false ) {
+		if ( strpos( $content_type, 'application/json' ) !== false ) {
 			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
 			return flatten_array( $decoded_json, 'json', true );
+		}
+
+		// Attempt to retrieve all parameters when method used isn't POST
+		if ( strpos( $content_type, 'application/x-www-form-urlencoded' ) !== false ) {
+			$body = $this->get_body();
+			parse_str( $body, $params );
+			return flatten_array( array_merge( $_POST, $params ) );
 		}
 
 		return flatten_array( $_POST );
