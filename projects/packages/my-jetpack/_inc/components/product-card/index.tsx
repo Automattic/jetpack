@@ -111,7 +111,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 	}, [ slug, recordEvent ] );
 
 	/**
-	 * Calls the passed function onManage after firing Tracks event
+	 * Calls the passed function onFixConnection after firing Tracks event
 	 */
 	const fixConnectionHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_product_card_fixconnection_click', {
