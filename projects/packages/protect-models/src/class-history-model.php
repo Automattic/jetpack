@@ -2,10 +2,10 @@
 /**
  * Model class for Protect history report data.
  *
- * @package automattic/jetpack-protect-plugin
+ * @package automattic/jetpack-protect-models
  */
 
-namespace Automattic\Jetpack\Protect;
+namespace Automattic\Jetpack\Protect_Models;
 
 /**
  * Model class for the Protect history report data.
@@ -17,13 +17,6 @@ class History_Model {
 	 * @var string
 	 */
 	public $last_checked;
-
-	/**
-	 * The filter to apply to the history.
-	 *
-	 * @var array
-	 */
-	public $filter = array( 'ignored', 'fixed' );
 
 	/**
 	 * The number of threats.

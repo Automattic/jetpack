@@ -3,7 +3,6 @@ const selectors = {
 	getCredentialsIsFetching: state => state.credentialsIsFetching || false,
 	getInstalledPlugins: state => state.installedPlugins || {},
 	getInstalledThemes: state => state.installedThemes || {},
-	getViewingScanHistory: state => state.viewingScanHistory || false,
 	getScanHistory: state => state.scanHistory || {},
 	getStatus: state => state.status || {},
 	getStatusIsFetching: state => state.statusIsFetching || false,
