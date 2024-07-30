@@ -3,7 +3,7 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -50,6 +50,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory } = useDispatch( STORE_NAME );
+	const { getIsRequestingAiAssistantFeature } = select( STORE_NAME );
 	const [ loadingState, setLoadingState ] = useState<
 		'loadingFeature' | 'analyzing' | 'generating' | null
 	>( null );
@@ -182,10 +183,13 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 		// When the site details are set, we need to fetch the feature data.
 		if ( ! requestedFeatureData.current ) {
-			requestedFeatureData.current = true;
-			fetchAiAssistantFeature();
+			const isRequestingFeature = getIsRequestingAiAssistantFeature();
+			if ( ! isRequestingFeature ) {
+				requestedFeatureData.current = true;
+				fetchAiAssistantFeature();
+			}
 		}
-	}, [ siteId, siteDetails, setSiteDetails ] );
+	}, [ siteId, siteDetails, setSiteDetails, getIsRequestingAiAssistantFeature ] );
 
 	// Handles modal opening logic
 	useEffect( () => {
