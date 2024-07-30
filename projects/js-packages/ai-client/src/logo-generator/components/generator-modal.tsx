@@ -43,6 +43,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
+	onReload,
 	siteDetails,
 	context,
 	placement,
@@ -210,7 +211,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	if ( loadingState ) {
 		body = <FirstLoadScreen state={ loadingState } />;
 	} else if ( featureFetchError || firstLogoPromptFetchError ) {
-		body = <FeatureFetchFailureScreen onCancel={ closeModal } onRetry={ initializeModal } />;
+		body = (
+			<FeatureFetchFailureScreen
+				onCancel={ closeModal }
+				onRetry={ () => {
+					closeModal();
+					onReload?.();
+				} }
+			/>
+		);
 	} else if ( needsFeature || needsMoreRequests ) {
 		body = (
 			<UpgradeScreen

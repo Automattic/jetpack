@@ -99,6 +99,11 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
 
+		const reloadModal = useCallback( () => {
+			closeModal();
+			showModal();
+		}, [ closeModal, showModal ] );
+
 		const applyLogoHandler = useCallback(
 			( mediaId: number ) => {
 				if ( mediaId ) {
@@ -127,6 +132,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
+					onReload={ reloadModal }
 					context={ PLACEMENT_CONTEXT }
 					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
