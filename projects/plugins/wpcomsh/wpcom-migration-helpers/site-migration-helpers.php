@@ -75,6 +75,7 @@ function aiowp_migration_logging_helper() {
 				'wpcom_site_migration_start',
 				array(
 					'migration_tool' => 'aiowp',
+					'target_blog_id' => get_current_blog_id(),
 				)
 			);
 			return $params;
@@ -90,6 +91,7 @@ function aiowp_migration_logging_helper() {
 				'wpcom_site_migration_done',
 				array(
 					'migration_tool' => 'aiowp',
+					'target_blog_id' => get_current_blog_id(),
 				)
 			);
 			return $params;
