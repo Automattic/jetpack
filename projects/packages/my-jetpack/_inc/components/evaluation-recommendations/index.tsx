@@ -34,7 +34,7 @@ const EvaluationRecommendations: React.FC = () => {
 					</FlexItem>
 					<FlexItem>
 						<DropdownMenu
-							menuProps={ { className: styles.dropdownMenu } }
+							menuProps={ { className: styles[ 'dropdown-menu' ] } }
 							popoverProps={ { position: 'bottom left' } }
 							icon={ moreHorizontalMobile }
 							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
@@ -53,12 +53,18 @@ const EvaluationRecommendations: React.FC = () => {
 				</Flex>
 			</Col>
 			<Col>
-				<Container horizontalGap={ 4 } horizontalSpacing={ 2 } fluid>
+				<Container
+					tagName="ul"
+					className={ styles[ 'recommendations-list' ] }
+					horizontalGap={ 4 }
+					horizontalSpacing={ 2 }
+					fluid
+				>
 					{ recommendedModules.map( module => {
 						const Card = JetpackModuleToProductCard[ module ];
 						return (
 							Card && (
-								<Col key={ module } lg={ 4 }>
+								<Col tagName="li" key={ module } lg={ 4 }>
 									<Card recommendation />
 								</Col>
 							)
