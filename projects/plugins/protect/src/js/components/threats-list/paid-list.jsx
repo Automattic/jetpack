@@ -1,6 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -143,25 +142,6 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list } ) => {
-	const { scan } = useDispatch( STORE_ID );
-
-	const handleScanClick = () => {
-		return event => {
-			event.preventDefault();
-			scan();
-		};
-	};
-
-	const manualScan = createInterpolateElement(
-		__(
-			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
-			'jetpack-protect'
-		),
-		{
-			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
-		}
-	);
-
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (
@@ -223,9 +203,6 @@ const PaidList = ( { list } ) => {
 					)
 				) }
 			</PaidAccordion>
-			<Text className={ styles[ 'manual-scan' ] } variant="body-small">
-				{ manualScan }
-			</Text>
 		</>
 	);
 };
