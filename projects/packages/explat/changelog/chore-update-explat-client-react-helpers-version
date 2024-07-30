@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: This change updates one of the dependencies to remove the noise added by the previous version. It does not affect the end user.
+
+
