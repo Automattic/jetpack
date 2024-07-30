@@ -5,12 +5,50 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
-import useScanHistory from '../../hooks/use-scan-history';
 import { STORE_ID } from '../../state/store';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
+
+const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
+	return (
+		<>
+			{ detectedAt && (
+				<Text className={ styles[ 'accordion-header-status' ] }>
+					{ sprintf(
+						/* translators: %s: First detected date */
+						__( 'Threat found %s', 'jetpack-protect' ),
+						dateI18n( 'M j, Y', detectedAt )
+					) }
+					{ 'fixed' === status && (
+						<>
+							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+							<span className={ styles[ 'is-fixed' ] }>
+								{ sprintf(
+									/* translators: %s: Fixed on date */
+									__( 'Threat fixed %s', 'jetpack-protect' ),
+									dateI18n( 'M j, Y', fixedOn )
+								) }
+							</span>
+						</>
+					) }
+				</Text>
+			) }
+			{ ( 'fixed' === status || 'ignored' === status ) && (
+				<StatusBadge status={ 'fixed' === status ? 'fixed' : 'ignored' } />
+			) }
+		</>
+	);
+};
+
+const StatusBadge = ( { status } ) => (
+	<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
+		{ 'fixed' === status
+			? __( 'Fixed', 'jetpack-protect' )
+			: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
+	</div>
+);
 
 export const PaidAccordionItem = ( {
 	id,
@@ -23,12 +61,12 @@ export const PaidAccordionItem = ( {
 	firstDetected,
 	fixedOn,
 	onOpen,
+	status,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
-	const { viewingScanHistory } = useScanHistory();
 
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
@@ -46,49 +84,6 @@ export const PaidAccordionItem = ( {
 
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const FixDetails = ( { date, isFixed } ) => (
-		<span className={ styles[ isFixed ? 'is-fixed' : 'is-ignored' ] }>
-			{ isFixed
-				? sprintf(
-						/* translators: %s: Fixed on date */
-						__( 'Threat fixed %s', 'jetpack-protect' ),
-						dateI18n( 'M j, Y', date )
-				  )
-				: __( 'Threat ignored', 'jetpack-protect' ) }
-		</span>
-	);
-
-	const ScanHistoryDetails = ( { viewingHistory, detectedAt, fixedAt } ) => {
-		if ( ! viewingHistory ) {
-			return null;
-		}
-
-		return (
-			<>
-				{ detectedAt && (
-					<Text className={ styles[ 'accordion-header-status' ] }>
-						{ sprintf(
-							/* translators: %s: First detected date */
-							__( 'Threat found %s', 'jetpack-protect' ),
-							dateI18n( 'M j, Y', detectedAt )
-						) }
-						<span className={ styles[ 'accordion-header-status-separator' ] }></span>
-						<FixDetails date={ fixedAt || detectedAt } isFixed={ !! fixedAt } />
-					</Text>
-				) }
-				<StatusBadge status={ fixedAt ? 'fixed' : 'ignored' } />
-			</>
-		);
-	};
-
-	const StatusBadge = ( { status } ) => (
-		<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
-			{ 'fixed' === status
-				? __( 'Fixed', 'jetpack-protect' )
-				: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
-		</div>
-	);
-
 	return (
 		<div className={ styles[ 'accordion-item' ] }>
 			<button className={ styles[ 'accordion-header' ] } onClick={ handleClick }>
@@ -103,11 +98,13 @@ export const PaidAccordionItem = ( {
 					>
 						{ title }
 					</Text>
-					<ScanHistoryDetails
-						viewingHistory={ viewingScanHistory }
-						detectedAt={ firstDetected }
-						fixedAt={ fixedOn }
-					/>
+					{ ( 'fixed' === status || 'ignored' === status ) && (
+						<ScanHistoryDetails
+							detectedAt={ firstDetected }
+							status={ status }
+							fixedAt={ fixedOn }
+						/>
+					) }
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />
