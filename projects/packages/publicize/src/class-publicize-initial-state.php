@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -100,7 +99,7 @@ class Publicize_Initial_State {
 	 */
 	public static function get_feature_flags() {
 		return array(
-			'useAdminUiV1' => ! ( new Host() )->is_wpcom_platform(),
+			'useAdminUiV1' => Current_Plan::supports( 'social-connections-management' ),
 		);
 	}
 
