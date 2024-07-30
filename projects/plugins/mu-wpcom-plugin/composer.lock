@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "afde100c2bbad9a2e337db64b54ddc650efc9720"
+                "reference": "9f21b1d7607b21df7becfcdb49002d310d891440"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -954,7 +954,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1005,7 +1005,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "2fed571c20ac006c4bb336babe4ea20e1b9a7119"
+                "reference": "a9ffd2d847bb68899b38f0b6916a33e917fe2c90"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1039,7 +1039,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.50.x-dev"
+                    "dev-trunk": "5.52.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {

@@ -49,7 +49,6 @@
 			"widgets",
 			"wpcom-features",
 			"wpcom-migration-helpers",
-			"wpcom-plugins",
 			"wpcom-themes"
 		]
 	},
@@ -129,7 +128,7 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_0_4_alpha"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_1_1"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
