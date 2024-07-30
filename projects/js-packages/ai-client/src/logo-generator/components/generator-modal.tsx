@@ -17,7 +17,6 @@ import {
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
-	EVENT_PLACEMENT_QUICK_LINKS,
 	EVENT_GENERATE,
 } from '../constants.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
@@ -43,8 +42,10 @@ const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );
 export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
+	onApplyLogo,
 	siteDetails,
 	context,
+	placement,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
@@ -62,7 +63,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
-	const siteURL = siteDetails?.URL;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
 
 	// First fetch the feature data so we have the most up-to-date info from the backend.
@@ -148,10 +148,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 	const handleModalOpen = useCallback( async () => {
 		setContext( context );
-		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement } );
 
 		initializeModal();
-	}, [ setContext, context, initializeModal ] );
+	}, [ setContext, context, placement, initializeModal ] );
 
 	const closeModal = () => {
 		// Reset the state when the modal is closed, so we trigger the modal initialization again when it's opened.
@@ -162,20 +162,12 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setNeedsMoreRequests( false );
 		clearErrors();
 		setLogoAccepted( false );
-		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
 
-	const handleApplyLogo = () => {
+	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
-	};
-
-	const handleCloseAndReload = () => {
-		closeModal();
-
-		setTimeout( () => {
-			// Reload the page to update the logo.
-			window.location.reload();
-		}, 1000 );
+		onApplyLogo?.( mediaId );
 	};
 
 	const handleFeedbackClick = () => {
@@ -235,13 +227,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				/>
 				{ logoAccepted ? (
 					<div className="jetpack-ai-logo-generator__accept">
-						<VisitSiteBanner siteURL={ siteURL } onVisitBlankTarget={ handleCloseAndReload } />
+						<VisitSiteBanner onVisitBlankTarget={ closeModal } />
 						<div className="jetpack-ai-logo-generator__accept-actions">
-							<Button variant="link" onClick={ handleCloseAndReload }>
-								{ __( 'Close and refresh', 'jetpack-ai-client' ) }
-							</Button>
-							<Button href={ siteURL } variant="primary">
-								{ __( 'Visit site', 'jetpack-ai-client' ) }
+							<Button variant="primary" onClick={ closeModal }>
+								{ __( 'Close', 'jetpack-ai-client' ) }
 							</Button>
 						</div>
 					</div>
@@ -271,7 +260,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			{ isOpen && (
 				<Modal
 					className="jetpack-ai-logo-generator-modal"
-					onRequestClose={ logoAccepted ? handleCloseAndReload : closeModal }
+					onRequestClose={ closeModal }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					title={ __( 'Jetpack AI Logo Generator', 'jetpack-ai-client' ) }

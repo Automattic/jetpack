@@ -44,7 +44,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		const tracksArgs = options?.tracksArgs || {};
 
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
-			noticeId: options.id,
+			notice_id: options.id,
 			...tracksArgs,
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );

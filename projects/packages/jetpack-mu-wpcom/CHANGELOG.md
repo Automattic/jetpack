@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.50.0] - 2024-07-26
+### Added
+- Added a new task to the readymade-template launchpad for generating content with AI [#38507]
+
 ## [5.49.1] - 2024-07-26
 ### Changed
 - Update dependencies.
@@ -1050,6 +1054,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.50.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.1...v5.50.0
 [5.49.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.0...v5.49.1
 [5.49.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.48.0...v5.49.0
 [5.48.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.47.0...v5.48.0

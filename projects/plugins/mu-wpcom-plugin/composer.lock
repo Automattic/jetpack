@@ -926,7 +926,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "afde100c2bbad9a2e337db64b54ddc650efc9720"
+                "reference": "9f21b1d7607b21df7becfcdb49002d310d891440"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -954,7 +954,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1005,7 +1005,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "ec392c1041a500bb3899148909bb2654efa86321"
+                "reference": "2827550808c6c48c4760c787ce52592d9012059e"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1039,7 +1039,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.49.x-dev"
+                    "dev-trunk": "5.51.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1506,7 +1506,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "9e674c384f72544b488e3af3d9348692d32cee54"
+                "reference": "2965d36db9a224b6e142e46c92358b353eca463a"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1539,7 +1539,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "3.4.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
