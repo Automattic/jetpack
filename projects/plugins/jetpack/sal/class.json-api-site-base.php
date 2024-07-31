@@ -1063,13 +1063,13 @@ abstract class SAL_Site {
 	 * @return array
 	 **/
 	public function get_theme_errors() {
-		$themes       = wp_get_themes( array( 'errors' => null ) );
-		$theme_errors = array();
+		$themes_with_errors = wp_get_themes( array( 'errors' => true ) );
+		$theme_errors       = array();
 
-		foreach ( $themes as $theme ) {
+		foreach ( $themes_with_errors as $theme ) {
 			$errors = $theme->errors();
 
-			if ( ! empty( $errors ) ) {
+			if ( ! empty( $errors->get_error_messages() ) ) {
 				$theme_errors[] = array(
 					'name'   => $theme->get( 'Name' ),
 					'errors' => $errors->get_error_messages(),
