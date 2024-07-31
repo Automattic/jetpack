@@ -251,7 +251,7 @@ const EditVideoDetails = () => {
 		history.push( '/' );
 	}
 
-	let thumbnail: string | JSX.Element = posterImage;
+	let thumbnail: string | React.JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
 		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;

@@ -5,7 +5,7 @@ import ProductCard from '../../connected-product-card';
 import BoostSpeedScore from './boost-speed-score';
 import type { FC } from 'react';
 
-const BoostCard: FC< { admin: boolean } > = ( { admin } ) => {
+const BoostCard: FC< { admin: boolean } > = props => {
 	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
 	// Override the primary action button to read "Boost your site" instead
 	// of the default text, "Lern more".
@@ -25,11 +25,11 @@ const BoostCard: FC< { admin: boolean } > = ( { admin } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
 			slug="boost"
 			primaryActionOverride={ primaryActionOverride }
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }
+			{ ...props }
 		>
 			<BoostSpeedScore shouldShowTooltip={ shouldShowTooltip } />
 		</ProductCard>

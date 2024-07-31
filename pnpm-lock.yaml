@@ -1908,8 +1908,8 @@ importers:
         specifier: 0.1.0
         version: 0.1.0
       '@automattic/explat-client-react-helpers':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.1
+        version: 0.1.1
       '@wordpress/api-fetch':
         specifier: 7.2.0
         version: 7.2.0
@@ -2376,6 +2376,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.2.0
         version: 10.2.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.2.0
+        version: 4.2.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -4868,8 +4871,8 @@ packages:
   '@automattic/color-studio@2.6.0':
     resolution: {integrity: sha512-2LzB6bbQw1vayZxZy5Y+DnCYU7x8tPu+rZhNkWD7V8QZTSJMJO65XKZhYaCByC+C5OegXyGyZzcqEOHHdj5iiQ==}
 
-  '@automattic/explat-client-react-helpers@0.1.0':
-    resolution: {integrity: sha512-p8yaBt3byJCIXQSNuw/oWnvu6khK8FFozPdQVnXCIbW+OO9pylBrZz+1VIzdPH7+0YjV0hRA0KGeiVp+uNCemw==}
+  '@automattic/explat-client-react-helpers@0.1.1':
+    resolution: {integrity: sha512-ilebWXmuleHg3BYThJvKW/iraS5kV9iQvm+vtJn6Mkl01rkMDCmsl4MGYOYiKLi/BpUq0QVlD8qKapOsz5g3Vg==}
 
   '@automattic/explat-client@0.1.0':
     resolution: {integrity: sha512-+yYhjlWUTN/hTvL70ZCsrSn5GBxnEWmUdQU4n1K592JyB+c+nUhvo7rd1rnHa5qDPKX3vQsjYS0SSOKvlo7iww==}
@@ -14650,11 +14653,11 @@ snapshots:
 
   '@automattic/color-studio@2.6.0': {}
 
-  '@automattic/explat-client-react-helpers@0.1.0':
+  '@automattic/explat-client-react-helpers@0.1.1':
     dependencies:
       '@automattic/explat-client': 0.1.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.6.3
 
   '@automattic/explat-client@0.1.0':
     dependencies:

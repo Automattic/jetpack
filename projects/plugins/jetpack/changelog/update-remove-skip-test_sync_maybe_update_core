@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Tests: Removing test_sync_maybe_update_core test skip as core bug now fixed.

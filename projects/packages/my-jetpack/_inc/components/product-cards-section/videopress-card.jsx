@@ -54,18 +54,18 @@ const useVideoPressStats = () => {
 	};
 };
 
-const VideopressCard = ( { admin } ) => {
+const VideopressCard = props => {
 	const { videoPressStats = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 	const { loading, hasError, change, currentFormatted, changePercentage } = useVideoPressStats();
 
 	if ( ! videoPressStats || hasError ) {
-		return <ProductCard admin={ admin } slug="videopress" showMenu />;
+		return <ProductCard slug="videopress" showMenu { ...props } />;
 	}
 
 	const description = __( 'Views, last 7 days', 'jetpack-my-jetpack' );
 
 	return (
-		<ProductCard admin={ admin } slug="videopress" showMenu>
+		<ProductCard slug="videopress" showMenu { ...props }>
 			<SingleContextualInfo
 				loading={ loading }
 				description={ description }

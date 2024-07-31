@@ -87,7 +87,7 @@ const getMediaDetails = async media => {
  * Hook to handle storing the attached media.
  *
  * @param {number} mediaId - ID of the current media in the Media Lib.
- * @returns {[ mediaDetails: {metaData: {mime: string, fileSize: number, length: number}, mediaData: {width: number, height: number, sourceUrl: string}} ]} - The media details
+ * @returns {[ mediaDetails: import('./types').MediaDetails ]} - The media details
  */
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
