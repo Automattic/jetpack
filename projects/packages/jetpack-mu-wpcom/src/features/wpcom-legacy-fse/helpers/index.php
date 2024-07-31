@@ -143,7 +143,7 @@ function get_supported_themes() {
  * @return bool True if the template parts have been inserted. False otherwise.
  */
 function did_insert_template_parts() {
-	require_once __DIR__ . '/templates/class-wp-template-inserter.php';
+	require_once dirname( __DIR__ ) . '/templates/class-wp-template-inserter.php';
 
 	$theme_slug = normalize_theme_slug( get_theme_slug() );
 	$inserter   = new WP_Template_Inserter( $theme_slug );

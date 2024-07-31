@@ -80,7 +80,7 @@ class WP_Template_Inserter {
 	 * @param string            $theme_slug Current theme slug.
 	 * @param {LoadingStrategy} $loading_strategy The strategy to use to load the template part content.
 	 */
-	public function __construct( $theme_slug, $loading_strategy = 'use-api' ) {
+	public function __construct( $theme_slug, $loading_strategy = 'use-local' ) {
 		$this->theme_slug       = $theme_slug;
 		$this->header_content   = '';
 		$this->footer_content   = '';
@@ -106,7 +106,7 @@ class WP_Template_Inserter {
 			return;
 		}
 
-		$request_url = 'https://public-api.wordpress.com/wpcom/v2/jetpack-mu-wpcom/templates';
+		$request_url = 'https://public-api.wordpress.com/wpcom/v2/full-site-editing/templates';
 
 		$request_args = array(
 			'body' => array( 'theme_slug' => $this->theme_slug ),
