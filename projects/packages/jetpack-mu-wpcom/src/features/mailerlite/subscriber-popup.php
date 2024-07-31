@@ -125,6 +125,7 @@ class WPCOM_Widget_Mailerlite extends \WP_Widget {
     $html .= '</label></p>';
 
 		echo $html;
+		return $html;
 	}
 }
 
