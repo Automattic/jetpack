@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.55.3] - 2024-07-30
+### Changed
+- React: Changing global JSX namespace to React.JSX [#38585]
+
 ## [0.55.2] - 2024-07-26
 ### Added
 - Export button props type to be used elsewhere [#38549]
@@ -1102,6 +1106,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.55.3]: https://github.com/Automattic/jetpack-components/compare/0.55.2...0.55.3
 [0.55.2]: https://github.com/Automattic/jetpack-components/compare/0.55.1...0.55.2
 [0.55.1]: https://github.com/Automattic/jetpack-components/compare/0.55.0...0.55.1
 [0.55.0]: https://github.com/Automattic/jetpack-components/compare/0.54.4...0.55.0
