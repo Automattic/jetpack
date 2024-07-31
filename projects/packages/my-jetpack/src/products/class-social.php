@@ -95,7 +95,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Promote your content on social media by automatically publishing when you publish on your site.', 'jetpack-my-jetpack' );
+		return __( 'Grow your following by sharing your content across social media automatically.', 'jetpack-my-jetpack' );
 	}
 
 	/**
