@@ -3,18 +3,26 @@
  */
 import { combineReducers } from '@wordpress/data';
 /**
+ * Internal dependencies
+ */
+import features from '../features';
+/**
  * Types
  */
 import type { BreveState } from '../types';
 
-const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-proofread-enabled' );
+const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
-	'jetpack-ai-proofread-disabled-features'
+	'jetpack-ai-breve-disabled-features'
 );
 const initialConfiguration = {
 	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
 	disabled:
-		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
+		disabledFeaturesFromLocalStorage !== null
+			? JSON.parse( disabledFeaturesFromLocalStorage )
+			: features
+					.filter( feature => ! feature.config.defaultEnabled )
+					.map( feature => feature.config.name ),
 };
 
 export function configuration(
@@ -24,7 +32,7 @@ export function configuration(
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
 			const enabled = action?.enabled !== undefined ? action?.enabled : ! state?.enabled;
-			window.localStorage.setItem( 'jetpack-ai-proofread-enabled', String( enabled ) );
+			window.localStorage.setItem( 'jetpack-ai-breve-enabled', String( enabled ) );
 
 			return {
 				...state,
@@ -35,7 +43,7 @@ export function configuration(
 		case 'ENABLE_FEATURE': {
 			const disabled = ( state.disabled ?? [] ).filter( feature => feature !== action.feature );
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 
@@ -48,7 +56,7 @@ export function configuration(
 		case 'DISABLE_FEATURE': {
 			const disabled = [ ...( state.disabled ?? [] ), action.feature ];
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 
@@ -94,4 +102,85 @@ export function popover(
 	return state;
 }
 
-export default combineReducers( { popover, configuration } );
+export function suggestions(
+	state = {},
+	action: {
+		type: string;
+		id: string;
+		feature: string;
+		blockId: string;
+		loading: boolean;
+		md5?: string;
+		suggestions?: {
+			revisedText: string;
+			suggestion: string;
+		};
+	}
+) {
+	const { id, feature, blockId } = action ?? {};
+	const current = { ...state };
+	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
+	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+
+	switch ( action.type ) {
+		case 'SET_SUGGESTIONS_LOADING': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: action.loading,
+						},
+					},
+				},
+			};
+		}
+
+		case 'SET_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						[ id ]: {
+							...currentItem,
+							loading: false,
+							suggestions: action.suggestions,
+						},
+					},
+				},
+			};
+		}
+
+		case 'SET_BLOCK_MD5': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {
+						...currentBlock,
+						md5: action.md5,
+					},
+				},
+			};
+		}
+
+		case 'INVALIDATE_SUGGESTIONS': {
+			return {
+				...current,
+				[ feature ]: {
+					...( current[ feature ] ?? {} ),
+					[ blockId ]: {},
+				},
+			};
+		}
+	}
+
+	return state;
+}
+
+export default combineReducers( { popover, configuration, suggestions } );

@@ -48,6 +48,8 @@ const getErrorMessage = ( errorCode, isOfflineMode ) => {
 				'Your site host is on a private network. Jetpack can only connect to public sites.',
 				'jetpack'
 			);
+		case 'connection_disabled':
+			return __( 'This site has been suspended.', 'jetpack' );
 	}
 
 	if ( isOfflineMode ) {

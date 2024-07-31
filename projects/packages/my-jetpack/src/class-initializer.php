@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
@@ -26,6 +27,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
 
@@ -39,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.29.0-alpha';
+	const PACKAGE_VERSION = '4.30.1-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -109,6 +111,9 @@ class Initializer {
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+
+		//  Set up the ExPlat package endpoints
+		ExPlat::init();
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -261,7 +266,13 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
-				'scanData'               => $scan_data,
+				'protect'                => array(
+					'scanData'  => $scan_data,
+					'wafConfig' => array_merge(
+						Waf_Runner::get_config(),
+						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
+					),
+				),
 			)
 		);
 

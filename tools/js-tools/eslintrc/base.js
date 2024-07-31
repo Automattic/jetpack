@@ -31,8 +31,12 @@ module.exports = {
 	parser: '@typescript-eslint/parser',
 	extends: [
 		'./preload',
-		'plugin:wpcalypso/recommended',
-		'plugin:@wordpress/eslint-plugin/i18n',
+		'eslint:recommended',
+		// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that in ./react.js.
+		'plugin:@wordpress/jsx-a11y',
+		'plugin:@wordpress/custom',
+		'plugin:@wordpress/esnext',
+		'plugin:@wordpress/i18n',
 		'plugin:jsx-a11y/recommended',
 		'plugin:prettier/recommended',
 	],
@@ -66,12 +70,17 @@ module.exports = {
 		},
 		jsdoc: {
 			preferredTypes: {
-				// Override wpcalypso, we'd rather follow jsdoc and typescript in this.
+				// Override @wordpress/eslint-plugin, we'd rather follow jsdoc and typescript in this.
 				object: 'object',
 				Object: 'object',
 				'object.<>': 'Object<>',
 				'Object.<>': 'Object<>',
 				'object<>': 'Object<>',
+			},
+			// Temporarily override plugin:@wordpress/esnext so we can clean up the jsdocs in a separate PR.
+			tagNamePreference: {
+				returns: 'returns',
+				yields: 'yields',
 			},
 		},
 	},
@@ -90,103 +99,8 @@ module.exports = {
 			extends: [ require.resolve( 'jetpack-js-tools/eslintrc/jest' ) ],
 		},
 	],
-	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc', '@typescript-eslint' ],
+	plugins: [ 'import', 'prettier', 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
-		// REST API objects include underscores
-		camelcase: 0,
-		'comma-spacing': 2,
-		curly: 2,
-		'computed-property-spacing': [ 2, 'always' ],
-		'func-call-spacing': 2,
-		'import/order': [
-			2,
-			{
-				'newlines-between': 'never',
-				alphabetize: { order: 'asc' },
-				groups: [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type' ],
-			},
-		],
-		'jsx-quotes': [ 2, 'prefer-double' ],
-		'key-spacing': 2,
-		'keyword-spacing': 2,
-		'lodash/import-scope': [ 2, 'member' ],
-		'max-len': 0, // Ignored for Jetpack
-		'new-cap': [ 2, { capIsNew: false, newIsCap: true } ],
-		'no-else-return': 2,
-		'no-extra-semi': 2,
-		'no-multiple-empty-lines': [ 2, { max: 1 } ],
-		'no-multi-spaces': 2,
-		'no-restricted-imports': [
-			2,
-			{
-				paths: restrictedPaths,
-			},
-		],
-		'no-restricted-modules': [
-			2,
-			{
-				paths: restrictedPaths,
-			},
-		],
-		'no-shadow': 2,
-		'no-spaced-func': 2,
-		'no-trailing-spaces': 2,
-		'no-var': 2,
-		'object-curly-spacing': [ 2, 'always' ],
-		'operator-linebreak': [
-			2,
-			'after',
-			{
-				overrides: {
-					'?': 'before',
-					':': 'before',
-				},
-			},
-		],
-		'padded-blocks': [ 2, 'never' ],
-		'prefer-const': 2,
-		semi: 2,
-		'semi-spacing': 2,
-		'space-before-blocks': [ 2, 'always' ],
-		'space-in-parens': [ 2, 'always' ],
-		'space-infix-ops': [ 2, { int32Hint: false } ],
-		'space-unary-ops': [
-			2,
-			{
-				overrides: {
-					'!': true,
-				},
-			},
-		],
-		'wpcalypso/i18n-no-this-translate': 2,
-		'wpcalypso/i18n-mismatched-placeholders': 2,
-		'wpcalypso/jsx-gridicon-size': 0, // Ignored for Jetpack
-		'wpcalypso/jsx-classname-namespace': 0, // Ignored for Jetpack
-		'jsx-a11y/label-has-for': [
-			2,
-			{
-				required: {
-					some: [ 'nesting', 'id' ],
-				},
-			},
-		],
-		// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
-		// on Safari requires `role=list` to announce the list if the style is overwritten.
-		'jsx-a11y/no-redundant-roles': 0,
-		// Disabled rules for now. Ideally we should resolve all the errors these rules create.
-		'wpcalypso/redux-no-bound-selectors': 0,
-		'jsx-a11y/anchor-has-content': 0,
-		'react/no-string-refs': 0,
-		'jsx-a11y/anchor-is-valid': 0,
-
-		// Both wpcalypso and @wordpress/eslint-plugin offer these. We only need one copy.
-		'wpcalypso/i18n-ellipsis': 0,
-		'wpcalypso/i18n-no-collapsible-whitespace': 0,
-		'wpcalypso/i18n-no-variables': 0,
-
-		// Rules that only make sense for Calypso.
-		'wpcalypso/i18n-unlocalized-url': 0,
-
 		// Dummy domain, projects should override this in their own .eslintrc.js.
 		'@wordpress/i18n-text-domain': [
 			'error',
@@ -195,71 +109,116 @@ module.exports = {
 			},
 		],
 
-		// JSDoc plugin overrides
-		'jsdoc/check-alignment': 1, // Recommended
-		'jsdoc/check-examples': 0, // See https://github.com/eslint/eslint/issues/14745
-		'jsdoc/check-indentation': 1,
-		'jsdoc/check-param-names': 1, // Recommended
-		'jsdoc/check-syntax': 1,
-		'jsdoc/check-tag-names': [
-			1, // Recommended
-			{ definedTags: [ 'jest-environment' ] },
-		],
-		'jsdoc/check-types': [
+		// REST API objects include underscores
+		camelcase: 'off',
+		'comma-spacing': 'error',
+		'computed-property-spacing': [ 'error', 'always' ],
+		curly: 'error',
+		'func-call-spacing': 'error',
+		'import/order': [
 			'error',
 			{
-				// See above, wpcalypso also sets this true for their "Object" preference.
-				unifyParentAndChildTypeChecks: false,
+				alphabetize: { order: 'asc' },
+				groups: [ 'builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'type' ],
+				'newlines-between': 'never',
 			},
 		],
-		'jsdoc/implements-on-classes': 1, // Recommended
-		'jsdoc/no-defaults': 0,
-		'jsdoc/no-undefined-types': [
-			1,
+
+		'jsdoc/check-indentation': 'warn',
+		'jsdoc/check-syntax': 'warn',
+		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'jest-environment' ] } ],
+		'jsdoc/check-values': 'warn',
+		'jsdoc/no-multi-asterisks': [ 'error', { preventAtMiddleLines: true } ],
+		'jsdoc/require-description': 'warn',
+		'jsdoc/require-hyphen-before-param-description': 'warn',
+		'jsdoc/require-jsdoc': 'warn',
+		'jsdoc/require-param-description': 'warn',
+		'jsdoc/require-returns': 'warn',
+		'jsdoc/require-yields': 'warn',
+
+		'jsx-a11y/anchor-has-content': 'off',
+		'jsx-a11y/anchor-is-valid': 'off',
+		'jsx-a11y/label-has-for': [
+			'error',
 			{
-				definedTypes: [
-					'Iterable', // https://github.com/jsdoc/jsdoc/issues/1009 and https://github.com/gajus/eslint-plugin-jsdoc/issues/280
-				],
+				required: {
+					some: [ 'nesting', 'id' ],
+				},
 			},
 		],
-		'jsdoc/require-description': 1,
-		'jsdoc/require-hyphen-before-param-description': 1,
-		'jsdoc/require-jsdoc': 1, // Recommended
-		'jsdoc/require-param': 1, // Recommended
-		'jsdoc/require-param-description': 1, // Recommended
-		'jsdoc/require-param-name': 1, // Recommended
-		'jsdoc/require-param-type': 1, // Recommended
-		'jsdoc/require-returns': 1, // Recommended
-		'jsdoc/require-returns-check': 1, // Recommended
-		'jsdoc/require-returns-description': 1, // Recommended
-		'jsdoc/require-returns-type': 1, // Recommended
-		'jsdoc/tag-lines': [
-			'warn',
-			'any',
+		// Redundant roles are sometimes necessary for screen reader support. For instance, VoiceOver
+		// on Safari requires `role=list` to announce the list if the style is overwritten.
+		'jsx-a11y/no-redundant-roles': 'off',
+
+		'jsx-quotes': [ 'error', 'prefer-double' ],
+		'key-spacing': 'error',
+		'keyword-spacing': 'error',
+		'lodash/import-scope': [ 'error', 'member' ],
+		'new-cap': [ 'error', { capIsNew: false, newIsCap: true } ],
+		'no-extra-semi': 'error',
+		'no-multi-spaces': 'error',
+		'no-multiple-empty-lines': [ 'error', { max: 1 } ],
+		'no-new': 'error',
+		'no-process-exit': 'error',
+		'no-restricted-imports': [
+			'error',
 			{
-				startLines: null,
-				endLines: 0,
-				applyToEndTag: false,
+				paths: restrictedPaths,
 			},
 		],
-		'jsdoc/valid-types': 1, // Recommended
-		'jsdoc/check-values': 1,
+		'no-restricted-modules': [
+			'error',
+			{
+				paths: restrictedPaths,
+			},
+		],
+		'no-spaced-func': 'error',
+		'no-trailing-spaces': 'error',
+		'object-curly-spacing': [ 'error', 'always' ],
+		'operator-linebreak': [
+			'error',
+			'after',
+			{
+				overrides: {
+					'?': 'before',
+					':': 'before',
+				},
+			},
+		],
+		'padded-blocks': [ 'error', 'never' ],
+		'prefer-const': [ 'error', { destructuring: 'any' } ],
+		semi: 'error',
+		'semi-spacing': 'error',
+		'space-before-blocks': [ 'error', 'always' ],
+		'space-in-parens': [ 'error', 'always' ],
+		'space-infix-ops': [ 'error', { int32Hint: false } ],
+		'space-unary-ops': [
+			'error',
+			{
+				overrides: {
+					'!': true,
+				},
+			},
+		],
+		strict: [ 'error', 'never' ],
 
-		// eslint 6.x migration
-		'no-unused-vars': 1,
-		'no-useless-escape': 1,
-		'no-extra-boolean-cast': 1,
-		'no-case-declarations': 1,
-		'no-class-assign': 1,
-		'no-redeclare': 1,
-
-		// Workaround for ESLint failing to parse files with template literals
-		// with this error: "TypeError: Cannot read property 'range' of null"
-		'template-curly-spacing': 'off',
-
-		// Disabled pending #16099.
-		'inclusive-language/use-inclusive-words': 0,
-		// Misc
-		'no-use-before-define': 'off',
+		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
+		'array-callback-return': 'off',
+		eqeqeq: [ 'error', 'allow-null' ],
+		'jsdoc/check-line-alignment': 'off',
+		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
+		'no-alert': 'off',
+		'no-bitwise': 'off',
+		'no-fallthrough': 'off',
+		'no-prototype-builtins': 'off',
+		'no-undef-init': 'off',
+		'no-unused-expressions': 'off',
+		'no-useless-computed-key': 'off',
+		'no-useless-return': 'off',
+		'object-shorthand': 'off',
+		'@wordpress/no-base-control-with-label-without-id': 'off',
+		'@wordpress/no-global-active-element': 'off',
+		'@wordpress/no-global-get-selection': 'off',
+		'@wordpress/no-unused-vars-before-return': 'off',
 	},
 };

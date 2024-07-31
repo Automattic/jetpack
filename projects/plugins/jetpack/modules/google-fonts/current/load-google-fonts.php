@@ -27,7 +27,7 @@ function jetpack_get_google_fonts_data() {
 	 *
 	 * @module google-fonts
 	 *
-	 * @since $$next-version$$
+	 * @since 13.7
 	 *
 	 * @param null|array $pre The pre-filtered Google Fonts data, default null.
 	 */
@@ -58,6 +58,8 @@ function jetpack_get_google_fonts_data() {
 	$custom_google_fonts_api_url = \esc_url(
 		/**
 		 * Filters the Google Fonts API URL.
+		 *
+		 * @module google-fonts
 		 *
 		 * @since 12.8
 		 *

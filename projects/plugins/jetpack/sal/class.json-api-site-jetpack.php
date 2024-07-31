@@ -656,6 +656,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Indicates that a site is an A4A client. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_client() {
+		return false;
+	}
+
+	/**
 	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.

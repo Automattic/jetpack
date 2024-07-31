@@ -4,8 +4,6 @@
 	margin-bottom: 24px;
 
 	.components-checkbox-control {
-		color: #757575;
-
 		&__input {
 			@include features-colors( ( 'border-color' ) );
 			&:checked {

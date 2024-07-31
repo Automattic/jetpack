@@ -9,9 +9,9 @@ import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
+import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { SharePostRow } from '../share-post';
@@ -21,6 +21,7 @@ import './global.scss';
 const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const refreshConnections = useRefreshConnections();
 
 	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
 
@@ -41,6 +42,8 @@ const PublicizePanel = ( { prePublish, children } ) => {
 	const wrapperProps = prePublish
 		? {}
 		: { title: __( 'Share this post', 'jetpack' ), className: styles.panel };
+
+	refreshConnections();
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
@@ -64,7 +67,6 @@ const PublicizePanel = ( { prePublish, children } ) => {
 						/>
 					) }
 
-					<PublicizeConnectionVerify />
 					<PublicizeForm />
 					<SharePostRow />
 				</Fragment>

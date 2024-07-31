@@ -22,6 +22,11 @@ declare -A PROJECT_PREFIXES=(
 	['js-packages']='JS Package'
 )
 
+declare -A PKG_VENDOR_DIR_CACHE=()
+while IFS=$'\t' read -r PKG VENDOR; do
+	PKG_VENDOR_DIR_CACHE["$PKG=dev-trunk"]="$VENDOR"
+done < <( jq -r '[ .name, if .type == "jetpack-library" then "jetpack_vendor" else "vendor" end ] | @tsv' "$BASE"/projects/packages/*/composer.json )
+
 PACKAGES=$(jq -nc 'reduce inputs as $in ({}; .[ $in.name ] |= ( $in.extra["mirror-repo"] | type == "string" ) )' "$BASE"/projects/packages/*/composer.json)
 JSPACKAGES='{}'
 for PROJECT in "$BASE"/projects/js-packages/*/.; do
@@ -399,6 +404,33 @@ for PROJECT in projects/*/*; do
 				echo "::error file=$PROJECT/CHANGELOG.md,line=${LINE%%:*}::Changelog should not mention semver when project does not use semver."
 			fi
 		fi
+	fi
+
+	# - Plugin non-dev composer dependencies need to be production-included.
+	if [[ "$TYPE" == "plugins" && -e "$PROJECT/composer.lock" ]]; then
+		HAS_COMPOSER_PLUGIN=false
+		if composer -d "$PROJECT" info --locked automattic/jetpack-composer-plugin &>/dev/null; then
+			HAS_COMPOSER_PLUGIN=true
+		fi
+		while IFS=$'\t' read -r PKG VER; do
+			VENDOR=vendor
+			if $HAS_COMPOSER_PLUGIN; then
+				if [[ -z "${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}" ]]; then
+					if composer -d "$PROJECT" info --locked --format=json "$PKG" | jq -e '.type == "jetpack-library"' &>/dev/null; then
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=jetpack_vendor
+					else
+						PKG_VENDOR_DIR_CACHE["$PKG=$VER"]=vendor
+					fi
+				fi
+				VENDOR=${PKG_VENDOR_DIR_CACHE["$PKG=$VER"]}
+			fi
+			if [[ "$(git check-attr production-include -- "$PROJECT/$VENDOR/$PKG/file")" != *": production-include: set" ]]; then
+				EXIT=1
+				echo "---"
+				echo "::error file=$PROJECT/.gitattributes::Non-dev composer dependency $PKG is not being production-included. Either make it a dev dependency, or add a line like%0A/$VENDOR/$PKG/**    production-include%0Ain \`.gitattributes\`."
+				echo "---"
+			fi
+		done < <( composer -d "$PROJECT" info --locked --no-dev --format=json | jq -r 'if type == "object" then .locked[] | [ .name, .version ] | @tsv else empty end' )
 	fi
 
 	# - `.extra.dependencies.test-only` must refer to dev dependencies.

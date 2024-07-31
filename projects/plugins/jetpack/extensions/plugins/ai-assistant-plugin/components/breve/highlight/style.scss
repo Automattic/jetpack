@@ -3,6 +3,9 @@
 [class^='has-proofread-highlight'] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
+	&.is-loading {
+		@include pulse();
+	}
 }
 
 .highlight-popover {
@@ -20,6 +23,18 @@
 		justify-content: space-between;
 		gap: 32px;
 
+		&.has-suggestions {
+			align-items: flex-start;
+			flex-direction: column;
+			padding-top: 8px;
+			gap: 8px;
+		}
+
+		.title,
+		.action {
+			padding: 8px 12px;
+		}
+
 		.title {
 			display: flex;
 			align-items: center;
@@ -27,10 +42,11 @@
 			gap: 8px;
 			font-size: 14px;
 			font-weight: 500;
+			white-space: nowrap;
 
 			.color {
-				width: 24px;
-				height: 24px;
+				width: 10px;
+				height: 10px;
 				border-radius: 50%;
 				@include features-colors( ( 'background-color' ) );
 			}
@@ -55,13 +71,32 @@
 				fill: #0277a8;
 			}
 		}
-	}
 
-	& div.components-popover__content {
-		align-items: center;
-		column-gap: 12px;
-		display: flex;
-		padding: 8px 12px;
-		white-space: nowrap;
+		.suggestion-container {
+			display: flex;
+			flex-direction: column;
+			border-top: 1px solid #dcdcde;
+
+			.helper {
+				padding: 8px;
+				background-color: #f6f7f7;
+				white-space: nowrap;
+				color: #646970;
+				margin: 0 4px 4px 4px;
+				border-radius: 4px;
+			}
+
+			.components-button.is-tertiary {
+				color: #000000;
+				white-space: break-spaces;
+				min-height: 36px;
+				height: unset;
+				min-width: 320px;
+				text-align: unset;
+				padding-top: 16px;
+				padding-bottom: 16px;
+				line-height: 20px;
+			}
+		}
 	}
 }

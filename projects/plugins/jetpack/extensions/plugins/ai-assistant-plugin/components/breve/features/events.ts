@@ -1,26 +1,63 @@
 /**
  * External dependencies
  */
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
+import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import getContainer from './container';
 import features from './index';
 /**
  * Types
  */
-import type { BreveDispatch, Anchor } from '../types';
+import type { BreveDispatch, Anchor, BreveSelect } from '../types';
 
 let highlightTimeout: number;
 let anchorTimeout: number;
 
-function handleMouseEnter( e: MouseEvent ) {
+let isFirstHover = ! localStorage.getItem( 'jetpack-ai-breve-first-hover' );
+
+function getHighlightEl( el: HTMLElement ) {
+	if ( el === document.body ) {
+		return null;
+	}
+
+	if ( el.getAttribute( 'data-type' ) === null ) {
+		return getHighlightEl( el.parentElement );
+	}
+
+	return el;
+}
+
+async function handleMouseEnter( e: MouseEvent ) {
+	if ( isFirstHover ) {
+		await showAiAssistantSection();
+
+		isFirstHover = false;
+		localStorage.setItem( 'jetpack-ai-breve-first-hover', 'false' );
+
+		const isSmall = window.innerWidth < 600;
+
+		// Do not show popover on small screens on first hover, as the sidebar will open
+		if ( isSmall ) {
+			return;
+		}
+	}
+
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 
+	const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+
 	anchorTimeout = setTimeout( () => {
-		const el = e.target as HTMLElement;
+		const isPopoverHover = breveSelect.isPopoverHover();
+
+		if ( isPopoverHover ) {
+			return;
+		}
+
+		const el = getHighlightEl( e.target as HTMLElement );
 		let virtual = el;
 
 		const shouldPointToCursor = el.getAttribute( 'data-type' ) === 'long-sentences';
@@ -49,7 +86,7 @@ function handleMouseEnter( e: MouseEvent ) {
 
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
-			target: e.target as HTMLElement,
+			target: el,
 			virtual: virtual,
 		} as Anchor );
 	}, 100 );

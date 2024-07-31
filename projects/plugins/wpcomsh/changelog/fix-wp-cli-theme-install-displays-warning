@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Removed access to WPCom Themes to WP_CLI

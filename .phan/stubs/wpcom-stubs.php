@@ -4,10 +4,11 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit a25939eb7a9654c086d1701613a63deaea5c909e.
+ * Stubs automatically generated from WordPress.com commit 2a880921ff80b3bf99b4f9e4a98d41471543ff2b.
  */
 
 namespace {
+    \define('WPCOM_VALUE_BUNDLE', 1003);
     \define('TRANSLATE_BLOG_ID', 101407);
     /**
      * @param object $blog
@@ -44,6 +45,12 @@ namespace {
      */
     function localized_wpcom_url($url, $the_locale = \null)
     {
+    }
+    class WPCom_Languages
+    {
+        public static function localize_url($url, $the_locale = \null)
+        {
+        }
     }
     /**
      * @return bool
@@ -172,9 +179,16 @@ namespace {
         {
         }
     }
+    /**
+    * @return Store_Product|null
+    */
+    function get_store_product($product_id, $meta = \null, $currency = \null, $blog_id = \null, ?int $usage_quantity = \null, ?string $plan_id = \null)
+    {
+    }
     class Store_Product
     {
         public $product_id;
+        public string $product_name;
     }
     /**
      * @property Store_Transaction $transaction
@@ -1158,20 +1172,17 @@ namespace {
         {
         }
     }
-    class WP_Enqueue_Dynamic_Script
-    {
-        /**
-         * @param string $handle
-         */
-        public static function enqueue_script($handle)
-        {
-        }
-    }
     /**
      * @param int|null $blog_id
      * @return int|string|false
      */
     function wpcom_get_blog_owner($blog_id = \null)
+    {
+    }
+    function add_blog_sticker($sticker, $notes = \NULL, $who = \NULL, $_blog_id = \NULL)
+    {
+    }
+    function remove_blog_sticker($sticker, $notes = \NULL, $who = \null, $_blog_id = \NULL)
     {
     }
     /**
@@ -1251,6 +1262,15 @@ namespace {
          * @return void
          */
         public function maybe_prepopulate_option()
+        {
+        }
+    }
+    class WP_Enqueue_Dynamic_Script
+    {
+        /**
+         * @param string $handle
+         */
+        public static function enqueue_script($handle)
         {
         }
     }

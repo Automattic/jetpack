@@ -2,7 +2,7 @@ import { AdminSectionHero, Container, Col, H3, Text } from '@automattic/jetpack-
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useMemo } from 'react';
 import AdminPage from '../../components/admin-page';
 import AlertSVGIcon from '../../components/alert-icon';
@@ -14,6 +14,7 @@ import ThreatsList from '../../components/threats-list';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import inProgressImage from './in-progress.png';
 import onboardingSteps from './onboarding-steps';
@@ -75,6 +76,13 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
 };
 
 const ScanningSection = ( { currentProgress } ) => {
+	const { stats } = useWafData();
+	const { globalStats } = stats;
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
+
 	return (
 		<>
 			<HeaderContainer />
@@ -100,9 +108,13 @@ const ScanningSection = ( { currentProgress } ) => {
 									<ProgressBar value={ currentProgress } />
 								) }
 								<Text>
-									{ __(
-										'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-										'jetpack-protect'
+									{ sprintf(
+										// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+										__(
+											'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+											'jetpack-protect'
+										),
+										totalVulnerabilitiesFormatted
 									) }
 								</Text>
 							</Col>
