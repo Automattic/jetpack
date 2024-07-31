@@ -17,6 +17,7 @@ import { useFormWrapper } from './util/form';
 import renderMaterialIcon from './util/render-material-icon';
 
 const FieldDefaults = {
+	apiVersion: 3,
 	category: 'contact-form',
 	supports: {
 		reusable: false,
@@ -229,6 +230,7 @@ const FieldDefaults = {
 };
 
 const OptionFieldDefaults = {
+	apiVersion: 3,
 	category: 'contact-form',
 	edit: JetpackFieldOptionEdit,
 	attributes: {
