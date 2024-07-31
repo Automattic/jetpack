@@ -18,7 +18,7 @@ export const config = key => get( settings, key );
 window.addEventListener( 'load', () => {
 	const container = document.getElementById( 'jp-forms-dashboard' );
 
-	settings = JSON.parse( unescape( container.dataset.config ) );
+	settings = JSON.parse( decodeURIComponent( container.dataset.config ) );
 	delete container.dataset.config;
 
 	const router = createHashRouter( [
