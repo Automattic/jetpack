@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { render } from '@wordpress/element';
 import { get } from 'lodash';
+import { createRoot } from 'react-dom/client';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -36,5 +36,6 @@ window.addEventListener( 'load', () => {
 		},
 	] );
 
-	render( <RouterProvider router={ router } />, container );
+	const root = createRoot( container );
+	root.render( <RouterProvider router={ router } /> );
 } );
