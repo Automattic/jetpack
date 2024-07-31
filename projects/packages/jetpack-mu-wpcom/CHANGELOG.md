@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.52.0] - 2024-07-30
+### Added
+- Help Center: extended post fetch endpoint to accept URLs [#38445]
+
+### Changed
+- Admin bar: Force mobile viewport to have the same icon color as desktop [#38588]
+- Blog Privacy: Update Applebot-Extended disallow rule [#38599]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
 ## [5.51.0] - 2024-07-29
 ### Changed
 - Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
@@ -1061,6 +1070,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.52.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.51.0...v5.52.0
 [5.51.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.50.0...v5.51.0
 [5.50.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.1...v5.50.0
 [5.49.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.0...v5.49.1

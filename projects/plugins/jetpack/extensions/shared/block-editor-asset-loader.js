@@ -114,9 +114,7 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
 
 	try {
 		editorAssetsUrl = new URL( 'editor-assets', __webpack_public_path__ );
-	} catch ( e ) {}
-
-	if ( ! editorAssetsUrl ) {
+	} catch ( e ) {
 		return;
 	}
 

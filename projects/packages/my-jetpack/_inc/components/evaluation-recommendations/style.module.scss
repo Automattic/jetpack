@@ -1,0 +1,17 @@
+.title {
+    margin-bottom: 0.75rem;
+}
+
+.dropdown-menu {
+    width: 200px;
+}
+
+// Setting min-width of recommendation (product) cards to 300px; see: /components/product-cards-section/style.module.scss:62
+@media screen and (min-width: 599px) and (max-width: 1290px) {
+	ul.recommendations-list {
+		grid-template-columns: repeat( auto-fill, minmax( 300px, 1fr ) );
+		> li {
+			grid-column-end: auto;
+		}
+	}	
+}

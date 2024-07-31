@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.1.1 - 2024-07-30
+### Removed
+- Remove the old plugin banner code [#38605]
+
 ## 5.1.0 - 2024-07-29
 ### Changed
 - Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
