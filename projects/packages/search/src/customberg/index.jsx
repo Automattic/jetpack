@@ -1,5 +1,5 @@
+import { createRoot } from '@wordpress/element';
 import Layout from 'components/layout';
-import { createRoot } from 'react-dom/client';
 import 'styles.scss';
 
 /**

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { createRoot } from '@wordpress/element';
 import { get } from 'lodash';
-import { createRoot } from 'react-dom/client';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies

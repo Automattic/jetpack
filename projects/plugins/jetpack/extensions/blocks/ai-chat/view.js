@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import { createRoot } from 'react-dom/client';
+import { createRoot } from '@wordpress/element';
 import { DEFAULT_ASK_BUTTON_LABEL, DEFAULT_PLACEHOLDER } from './constants';
 import QuestionAnswer from './question-answer';
 import './view.scss';

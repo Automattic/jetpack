@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import { createRoot } from 'react-dom/client';
+import { createRoot } from '@wordpress/element';
 import StoryPlayer from './player';
 
 function renderPlayer( rootElement, settings ) {

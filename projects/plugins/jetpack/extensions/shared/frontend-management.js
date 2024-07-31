@@ -1,6 +1,5 @@
-import { createElement } from '@wordpress/element';
+import { createElement, createRoot } from '@wordpress/element';
 import { assign, kebabCase } from 'lodash';
-import { createRoot } from 'react-dom/client';
 
 export class FrontendManagement {
 	blockIterator( rootNode, blocks ) {
