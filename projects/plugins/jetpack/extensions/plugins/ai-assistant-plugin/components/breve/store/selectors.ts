@@ -34,3 +34,27 @@ export function isFeatureEnabled( state: BreveState, feature: string ) {
 export function getDisabledFeatures( state: BreveState ) {
 	return state.configuration?.disabled;
 }
+
+// Suggestions
+
+export function getBlockMd5( state: BreveState, blockId: string ) {
+	return state.suggestions?.[ blockId ]?.md5 ?? '';
+}
+
+export function getSuggestionsLoading(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ blockId ]?.[ feature ]?.[ id ]?.loading;
+}
+
+export function getSuggestions(
+	state: BreveState,
+	{ feature, id, blockId }: { feature: string; id: string; blockId: string }
+) {
+	return state.suggestions?.[ blockId ]?.[ feature ]?.[ id ]?.suggestions;
+}
+
+export function getIgnoredSuggestions( state: BreveState, { blockId }: { blockId: string } ) {
+	return state.suggestions?.[ blockId ]?.ignored;
+}

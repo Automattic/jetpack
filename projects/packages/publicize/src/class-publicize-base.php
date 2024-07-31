@@ -254,10 +254,6 @@ abstract class Publicize_Base {
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
 		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
-
-		// Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_fediverse_creator_open_graph_tag' ), 10, 1 );
-		add_filter( 'jetpack_open_graph_output', array( $this, 'filter_fediverse_cards_output' ), 10, 1 );
 	}
 
 	/**
@@ -504,6 +500,10 @@ abstract class Publicize_Base {
 
 		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
+		}
+
+		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $connection['external_name'];
 		}
 
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {

@@ -10,27 +10,41 @@ import {
  * @returns {object} site purchases data
  */
 
-interface MyJetpackConnection {
+type MyJetpackConnection = {
 	apiNonce: string;
 	apiRoot: string;
 	blogID: string;
 	registrationNonce: string;
 	isSiteConnected: boolean;
+	siteIsRegistered: boolean;
 	topJetpackMenuItemUrl: string;
-	// The useConnection hook is not typed, so we don't know what other properties it returns.
-	// We could define the types here, but that hook returns a lot of data and it's not best practices
-	// to duplicate them here. The best approach would be to type the useConnection hook itself.
-	[ key: string ]: unknown;
-}
+} & ReturnType< typeof useConnection >;
 
-const useMyJetpackConnection = (): MyJetpackConnection => {
+type MyJetpackConnectionOptions = {
+	skipUserConnection?: boolean;
+	redirectUri?: string;
+};
+
+const useMyJetpackConnection = ( {
+	skipUserConnection = false,
+	redirectUri = '',
+}: MyJetpackConnectionOptions = {} ): MyJetpackConnection => {
 	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
 	const { topJetpackMenuItemUrl, blogID } = getMyJetpackWindowInitialState();
-	const connectionData = useConnection( { apiRoot, apiNonce } );
 	const { registrationNonce } = getMyJetpackWindowConnectionState();
+	const connectionData = useConnection( {
+		apiRoot,
+		apiNonce,
+		registrationNonce,
+		skipUserConnection,
+		from: 'my-jetpack',
+		redirectUri: redirectUri,
+		autoTrigger: false,
+	} );
 
 	// Alias: https://github.com/Automattic/jetpack/blob/trunk/projects/packages/connection/src/class-rest-connector.php/#L315
 	const isSiteConnected = connectionData.isRegistered;
+	const siteIsRegistered = connectionData.isRegistered;
 
 	return {
 		apiNonce,
@@ -39,6 +53,7 @@ const useMyJetpackConnection = (): MyJetpackConnection => {
 		registrationNonce,
 		...connectionData,
 		isSiteConnected,
+		siteIsRegistered,
 		topJetpackMenuItemUrl,
 	};
 };

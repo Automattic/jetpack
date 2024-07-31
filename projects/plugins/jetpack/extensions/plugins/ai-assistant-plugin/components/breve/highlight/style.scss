@@ -3,6 +3,9 @@
 [class^='has-proofread-highlight'] {
 	border-bottom: 3px solid;
 	@include features-colors( ( 'border-bottom-color' ) );
+	&.is-loading {
+		@include pulse();
+	}
 }
 
 .highlight-popover {
@@ -17,51 +20,99 @@
 	.highlight-content {
 		align-items: center;
 		display: flex;
-		justify-content: space-between;
-		gap: 32px;
+		flex-direction: column;
 
-		.title {
-			display: flex;
-			align-items: center;
-			justify-content: flex-start;
+		&.has-suggestions {
+			align-items: flex-start;
+			padding-top: 8px;
 			gap: 8px;
-			font-size: 14px;
-			font-weight: 500;
-
-			.color {
-				width: 24px;
-				height: 24px;
-				border-radius: 50%;
-				@include features-colors( ( 'background-color' ) );
-			}
 		}
 
-		.action {
-			font-size: 13px;
+		.header-container {
 			display: flex;
-			align-items: center;
-			justify-content: flex-end;
-			gap: 4px;
+			width: 100%;
+			justify-content: space-between;
+			gap: 32px;
 
-			.components-button {
-				padding-top: 0px;
-				padding-bottom: 0px;
-				padding-right: 0px;
-				height: unset;
+			.title,
+			.action {
+				padding: 8px 12px;
 			}
 
-			& > svg,
-			path {
-				fill: #0277a8;
+			.title {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
+				font-size: 14px;
+				font-weight: 500;
+				white-space: nowrap;
+
+				.color {
+					width: 10px;
+					height: 10px;
+					border-radius: 50%;
+					@include features-colors( ( 'background-color' ) );
+				}
+			}
+
+			.action {
+				font-size: 13px;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 4px;
+
+				.suggest.components-button {
+					padding-top: 0px;
+					padding-bottom: 0px;
+					padding-right: 0px;
+					height: unset;
+
+					& > svg,
+					path {
+						fill: #0277a8;
+					}
+				}
 			}
 		}
-	}
 
-	& div.components-popover__content {
-		align-items: center;
-		column-gap: 12px;
-		display: flex;
-		padding: 8px 12px;
-		white-space: nowrap;
+		.bottom-container {
+			display: flex;
+			flex-direction: column;
+			border-top: 1px solid #dcdcde;
+			width: 100%;
+
+			.helper {
+				padding: 4px 8px;
+				background-color: #f6f7f7;
+				white-space: nowrap;
+				color: #646970;
+				margin: 4px;
+				border-radius: 4px;
+				font-size: 12px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
+
+				.components-button {
+					padding: 0px;
+					color: #646970;
+				}
+			}
+
+			.components-button.is-tertiary {
+				color: #000000;
+				white-space: break-spaces;
+				min-height: 36px;
+				height: unset;
+				min-width: 320px;
+				text-align: unset;
+				padding-top: 16px;
+				padding-bottom: 16px;
+				line-height: 20px;
+			}
+		}
 	}
 }

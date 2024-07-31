@@ -5,7 +5,6 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { includes, forEach } from 'lodash';
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -30,7 +29,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 			}
 
 			// Only render if search terms present
-			const searchTerms = this.props.searchTerm;
+			const searchTerms = this.props.searchTerm || '';
 			if ( searchTerms.length < 3 ) {
 				return null;
 			}
@@ -83,14 +82,6 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 		}
 	}
 );
-
-SearchableModules.propTypes = {
-	searchTerm: PropTypes.string,
-};
-
-SearchableModules.defaultProps = {
-	searchTerm: '',
-};
 
 class ActiveCard extends Component {
 	render() {

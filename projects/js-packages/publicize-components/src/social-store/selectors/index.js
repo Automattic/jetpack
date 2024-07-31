@@ -1,4 +1,3 @@
-import autoConversionSettingsSelectors from './auto-conversion-settings';
 import * as connectionDataSelectors from './connection-data';
 import jetpackSettingSelectors from './jetpack-settings';
 import * as sharesData from './shares-data';
@@ -11,7 +10,6 @@ const selectors = {
 	...jetpackSettingSelectors,
 	...sharesData,
 	...socialImageGeneratorSettingsSelectors,
-	...autoConversionSettingsSelectors,
 	userConnectionUrl: state => state.userConnectionUrl,
 	useAdminUiV1: state => state.useAdminUiV1,
 	featureFlags: state => state.featureFlags,

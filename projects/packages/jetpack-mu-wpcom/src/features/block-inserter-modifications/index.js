@@ -1,5 +1,4 @@
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __unstableInserterMenuExtension as InserterMenuExtension } from '@wordpress/block-editor';
+import { __unstableInserterMenuExtension as InserterMenuExtension } from '@wordpress/block-editor'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useState } from '@wordpress/element';
 import { registerPlugin } from '@wordpress/plugins';
 import { debounce } from 'lodash';

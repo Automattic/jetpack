@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import ProductCard from '../connected-product-card';
 
-const AiCard = ( { admin } ) => {
+const AiCard = props => {
 	const { userConnectionData } = useConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
@@ -20,17 +20,17 @@ const AiCard = ( { admin } ) => {
 			href: '#/jetpack-ai',
 			label: __( 'View', 'jetpack-my-jetpack' ),
 		},
-		[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: {
+		[ PRODUCT_STATUSES.NEEDS_PLAN ]: {
 			href: userOptFree.current ? '#/jetpack-ai' : '#/add-jetpack-ai',
 		},
 	};
 
 	return (
 		<ProductCard
-			admin={ admin }
 			slug="jetpack-ai"
-			upgradeInInterstitial={ true }
 			primaryActionOverride={ userOverrides }
+			upgradeInInterstitial
+			{ ...props }
 		/>
 	);
 };

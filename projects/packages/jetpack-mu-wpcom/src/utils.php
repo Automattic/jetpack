@@ -5,7 +5,35 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+/**
+ * Whether the current user is logged-in via WordPress.com account.
+ *
+ * @return bool True if the user has associated WordPress.com account.
+ */
+function is_wpcom_user() {
+	// If the site is explicitly marked as agency-managed, treat the user as non-wpcom user.
+	if ( ! empty( get_option( 'is_fully_managed_agency_site' ) ) ) {
+		return false;
+	}
+
+	$user_id = get_current_user_id();
+
+	if ( function_exists( '\A8C\Billingdaddy\Users\get_wpcom_user' ) ) {
+		// On Simple sites, use get_wpcom_user function to check if the user has a WordPress.com account.
+		$user        = \A8C\Billingdaddy\Users\get_wpcom_user( $user_id );
+		$has_account = isset( $user->ID );
+	} else {
+		// On Atomic sites, use the Connection Manager to check if the user has a WordPress.com account.
+		$connection_manager = new Connection_Manager();
+		$wpcom_user_data    = $connection_manager->get_connected_user_data( $user_id );
+		$has_account        = isset( $wpcom_user_data['ID'] );
+	}
+
+	return $has_account;
+}
 
 /**
  * Helper function to return the site slug for Calypso URLs.
@@ -59,14 +87,17 @@ function wpcom_get_calypso_origin() {
  *
  * @param string $asset_name The name of the asset.
  * @param array  $asset_types The types of the asset.
+ *
+ * @return string
  */
 function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) {
-	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+	$asset_handle = "jetpack-mu-wpcom-$asset_name";
+	$asset_file   = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
 
 	if ( in_array( 'js', $asset_types, true ) ) {
 		$js_file = "build/$asset_name/$asset_name.js";
 		wp_enqueue_script(
-			"jetpack-mu-wpcom-$asset_name-script",
+			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			$asset_file['dependencies'] ?? array(),
 			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
@@ -78,10 +109,12 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
 		$css_file = "build/$asset_name/$asset_name.$css_ext";
 		wp_enqueue_style(
-			"jetpack-mu-wpcom-$asset_name-style",
+			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
 			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $css_file )
 		);
 	}
+
+	return $asset_handle;
 }

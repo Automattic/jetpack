@@ -200,12 +200,7 @@ module.exports = [
 						noErrorOnMissing: true,
 						// Automatically link scripts and styles
 						transform( content ) {
-							let metadata = {};
-
-							try {
-								metadata = JSON.parse( content.toString() );
-							} catch ( e ) {}
-
+							const metadata = JSON.parse( content.toString() );
 							const name = metadata.name.replace( 'jetpack/', '' );
 
 							if ( ! name ) {

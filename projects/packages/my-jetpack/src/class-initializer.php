@@ -16,6 +16,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
+use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
@@ -26,6 +27,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
 
@@ -39,7 +41,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.29.0-alpha';
+	const PACKAGE_VERSION = '4.30.1-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -109,6 +111,9 @@ class Initializer {
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
 		// This is later than the admin-ui package, which runs on 1000
 		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+
+		//  Set up the ExPlat package endpoints
+		ExPlat::init();
 
 		// Sets up JITMS.
 		JITM::configure();
@@ -252,6 +257,10 @@ class Initializer {
 					'modules'                   => self::get_active_modules(),
 				),
 				'redBubbleAlerts'        => self::get_red_bubble_alerts(),
+				'recommendedModules'     => array(
+					'modules'   => self::get_recommended_modules(),
+					'dismissed' => \Jetpack_Options::get_option( 'dismissed_recommendations', false ),
+				),
 				'isStatsModuleActive'    => $modules->is_active( 'stats' ),
 				'isUserFromKnownHost'    => self::is_user_from_known_host(),
 				'isCommercial'           => self::is_commercial_site(),
@@ -261,7 +270,13 @@ class Initializer {
 					'isAgencyAccount' => Jetpack_Manage::is_agency_account(),
 				),
 				'latestBoostSpeedScores' => $latest_score,
-				'scanData'               => $scan_data,
+				'protect'                => array(
+					'scanData'  => $scan_data,
+					'wafConfig' => array_merge(
+						Waf_Runner::get_config(),
+						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
+					),
+				),
 			)
 		);
 
@@ -337,7 +352,7 @@ class Initializer {
 		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
 			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
 		}
-		return $active_modules;
+		return array_values( $active_modules );
 	}
 
 	/**
@@ -358,12 +373,7 @@ class Initializer {
 		// TODO: add a data point for the last known connection/ disconnection time
 
 		// are any modules active?
-		$modules        = new Modules();
-		$active_modules = $modules->get_active();
-		// if the Jetpack plugin is active, filter out the modules that are active by default
-		if ( class_exists( 'Jetpack' ) && ! empty( $active_modules ) ) {
-			$active_modules = array_diff( $active_modules, Jetpack::get_default_modules() );
-		}
+		$active_modules = self::get_active_modules();
 		if ( ! empty( $active_modules ) ) {
 			return false;
 		}
@@ -440,6 +450,7 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		new REST_Product_Data();
 		new REST_AI();
+		new REST_Recommendations_Evaluation();
 
 		register_rest_route(
 			'my-jetpack/v1',
@@ -717,7 +728,13 @@ class Initializer {
 		global $menu;
 		// filters for the items in this file
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( __CLASS__, 'add_red_bubble_alerts' ) );
-		$red_bubble_alerts = self::get_red_bubble_alerts();
+		$red_bubble_alerts = array_filter(
+			self::get_red_bubble_alerts(),
+			function ( $alert ) {
+				// We don't want to show silent alerts
+				return ! $alert['is_silent'];
+			}
+		);
 
 		// The Jetpack menu item should be on index 3
 		if (
@@ -747,6 +764,23 @@ class Initializer {
 		$red_bubble_alerts = apply_filters( 'my_jetpack_red_bubble_notification_slugs', $red_bubble_alerts );
 
 		return $red_bubble_alerts;
+	}
+
+	/**
+	 * Get list of module names sorted by their recommendation score
+	 *
+	 * @return array|null
+	 */
+	public static function get_recommended_modules() {
+		$recommendations_evaluation = \Jetpack_Options::get_option( 'recommendations_evaluation', null );
+
+		if ( ! $recommendations_evaluation ) {
+			return null;
+		}
+
+		arsort( $recommendations_evaluation ); // Sort by scores in descending order
+
+		return array_keys( $recommendations_evaluation ); // Get only module names
 	}
 
 	/**
@@ -799,10 +833,12 @@ class Initializer {
 		if ( wp_doing_ajax() ) {
 			return array();
 		}
-
+		$connection               = new Connection_Manager();
 		$welcome_banner_dismissed = \Jetpack_Options::get_option( 'dismissed_welcome_banner', false );
 		if ( self::is_jetpack_user_new() && ! $welcome_banner_dismissed ) {
-			$red_bubble_slugs['welcome-banner-active'] = null;
+			$red_bubble_slugs['welcome-banner-active'] = array(
+				'is_silent' => $connection->is_connected(), // we don't display the red bubble if the user is connected
+			);
 			return $red_bubble_slugs;
 		} else {
 			return self::alert_if_missing_connection( $red_bubble_slugs );

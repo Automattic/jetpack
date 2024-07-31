@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Logo Generator: fix multiple feature requests error + retry handling.

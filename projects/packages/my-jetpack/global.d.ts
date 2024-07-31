@@ -126,10 +126,12 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_free_offering: boolean;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
+					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
 					manage_url: string;
@@ -140,6 +142,7 @@ interface Window {
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
+						wpcom_free_product_slug?: string;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -153,6 +156,26 @@ interface Window {
 							should_prorate_when_offer_ends: boolean;
 							transition_after_renewal_count: number;
 							usage_limit?: number;
+						};
+						tiers?: {
+							[ key: string ]: {
+								available: boolean;
+								currencyCode: string;
+								discountPrice: number;
+								fullPrice: number;
+								introductoryOffer?: {
+									costPerInterval: number;
+									intervalCount: number;
+									intervalUnit: string;
+									shouldProrateWhenOfferEnds: boolean;
+									transitionAfterRenewalCount: number;
+									usageLimit?: number;
+								};
+								isIntroductoryOffer: boolean;
+								productTerm: string;
+								wpcomProductSlug: string;
+								quantity: number;
+							};
 						};
 					};
 					purchase_url?: string;
@@ -171,23 +194,38 @@ interface Window {
 				};
 			};
 		};
-		scanData: {
-			core: ScanItem;
-			current_progress?: string;
-			data_source: string;
-			database: string[];
-			error: boolean;
-			error_code?: string;
-			error_message?: string;
-			files: string[];
-			has_unchecked_items: boolean;
-			last_checked: string;
-			num_plugins_threats: number;
-			num_themes_threats: number;
-			num_threats: number;
-			plugins: ScanItem[];
-			status: string;
-			themes: ScanItem[];
+		protect: {
+			scanData: {
+				core: ScanItem;
+				current_progress?: string;
+				data_source: string;
+				database: string[];
+				error: boolean;
+				error_code?: string;
+				error_message?: string;
+				files: string[];
+				has_unchecked_items: boolean;
+				last_checked: string;
+				num_plugins_threats: number;
+				num_themes_threats: number;
+				num_threats: number;
+				plugins: ScanItem[];
+				status: string;
+				themes: ScanItem[];
+			};
+			wafConfig: {
+				automatic_rules_available: boolean;
+				blocked_logins: number;
+				bootstrap_path: string;
+				brute_force_protection: boolean;
+				jetpack_waf_automatic_rules: '1' | '';
+				jetpack_waf_ip_allow_list: '1' | '';
+				jetpack_waf_ip_block_list: boolean;
+				jetpack_waf_ip_list: boolean;
+				jetpack_waf_share_data: '1' | '';
+				jetpack_waf_share_debug_data: boolean;
+				standalone_mode: boolean;
+			};
 		};
 		purchases: {
 			items: Array< {
@@ -272,6 +310,10 @@ interface Window {
 					plugin: string;
 				};
 			};
+		};
+		recommendedModules: {
+			modules: JetpackModule[] | null;
+			dismissed: boolean;
 		};
 		themes: {
 			[ key: string ]: {

@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 470+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 270+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 260+ occurrences
     // PhanNoopNew : 200+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 200+ occurrences
     // PhanTypeMismatchReturn : 150+ occurrences
@@ -18,9 +18,9 @@ return [
     // PhanDeprecatedFunction : 120+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 95+ occurrences
     // PhanRedundantCondition : 70+ occurrences
-    // PhanPossiblyUndeclaredVariable : 65+ occurrences
+    // PhanPossiblyUndeclaredVariable : 60+ occurrences
     // PhanTypeArraySuspiciousNullable : 60+ occurrences
-    // PhanTypeMismatchArgumentNullable : 55+ occurrences
+    // PhanTypeMismatchArgumentNullable : 50+ occurrences
     // PhanTypeExpectedObjectPropAccess : 45+ occurrences
     // PhanTypeMismatchArgumentInternal : 45+ occurrences
     // PhanParamTooMany : 40+ occurrences
@@ -29,7 +29,6 @@ return [
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanPluginSimplifyExpressionBool : 25+ occurrences
     // PhanRedefineFunction : 25+ occurrences
-    // PhanTypeInvalidDimOffset : 25+ occurrences
     // PhanTypeMismatchDefault : 25+ occurrences
     // PhanTypeMismatchPropertyProbablyReal : 25+ occurrences
     // PhanTypeMissingReturn : 25+ occurrences
@@ -37,22 +36,23 @@ return [
     // PhanDeprecatedProperty : 20+ occurrences
     // PhanTypeArraySuspicious : 20+ occurrences
     // PhanTypeMismatchDimFetch : 20+ occurrences
-    // PhanPluginDuplicateExpressionAssignmentOperation : 15+ occurrences
     // PhanPluginMixedKeyNoKey : 15+ occurrences
     // PhanSuspiciousMagicConstant : 15+ occurrences
     // PhanTypeExpectedObjectPropAccessButGotNull : 15+ occurrences
     // PhanTypeMismatchArgumentNullableInternal : 15+ occurrences
     // PhanTypeMismatchPropertyDefault : 15+ occurrences
     // PhanUndeclaredMethod : 15+ occurrences
+    // PhanPluginDuplicateExpressionAssignmentOperation : 10+ occurrences
     // PhanRedefineClass : 10+ occurrences
     // PhanRedundantConditionInLoop : 10+ occurrences
-    // PhanTypeInvalidLeftOperandOfNumericOp : 10+ occurrences
+    // PhanTypeInvalidDimOffset : 10+ occurrences
     // PhanTypeMismatchProperty : 10+ occurrences
     // PhanTypeMismatchReturnNullable : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
     // PhanTypeComparisonToArray : 9 occurrences
     // PhanPluginRedundantAssignment : 8 occurrences
     // PhanDeprecatedClass : 7 occurrences
+    // PhanTypeInvalidLeftOperandOfNumericOp : 7 occurrences
     // PhanTypeMismatchArgumentInternalReal : 7 occurrences
     // PhanCommentAbstractOnInheritedMethod : 6 occurrences
     // PhanImpossibleCondition : 5 occurrences
@@ -62,14 +62,13 @@ return [
     // PhanTypeMismatchDimAssignment : 5 occurrences
     // PhanTypeSuspiciousStringExpression : 5 occurrences
     // PhanAccessMethodInternal : 4 occurrences
-    // PhanImpossibleTypeComparison : 4 occurrences
     // PhanTypeInvalidLeftOperandOfAdd : 4 occurrences
     // PhanTypeInvalidLeftOperandOfBitwiseOp : 4 occurrences
     // PhanTypeInvalidRightOperandOfBitwiseOp : 4 occurrences
-    // PhanTypeInvalidRightOperandOfNumericOp : 4 occurrences
     // PhanUndeclaredFunctionInCallable : 4 occurrences
     // PhanDeprecatedFunctionInternal : 3 occurrences
     // PhanDeprecatedTrait : 3 occurrences
+    // PhanImpossibleTypeComparison : 3 occurrences
     // PhanPluginUnreachableCode : 3 occurrences
     // PhanStaticPropIsStaticType : 3 occurrences
     // PhanTypeConversionFromArray : 3 occurrences
@@ -95,6 +94,7 @@ return [
     // PhanPluginRedundantAssignmentInLoop : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeComparisonFromArray : 1 occurrence
+    // PhanTypeInvalidRightOperandOfNumericOp : 1 occurrence
     // PhanTypeVoidArgument : 1 occurrence
     // PhanUndeclaredExtendedClass : 1 occurrence
     // PhanUndeclaredTypeReturnType : 1 occurrence
@@ -123,7 +123,6 @@ return [
         '_inc/lib/class-jetpack-podcast-helper.php' => ['PhanStaticCallToNonStatic', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypeSuspiciousStringExpression'],
         '_inc/lib/class-jetpack-recommendations.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanRedundantCondition'],
         '_inc/lib/class-jetpack-top-posts-helper.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
-        '_inc/lib/class.color.php' => ['PhanImpossibleTypeComparison', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginDuplicateExpressionAssignmentOperation', 'PhanPluginSimplifyExpressionBool', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidDimOffset', 'PhanTypeInvalidLeftOperandOfNumericOp', 'PhanTypeInvalidRightOperandOfNumericOp', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchDefault'],
         '_inc/lib/class.core-rest-api-endpoints.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal', 'PhanUndeclaredMethod'],
         '_inc/lib/class.jetpack-keyring-service-helper.php' => ['PhanEmptyForeach', 'PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchArgumentNullable', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchDefault', 'PhanUndeclaredMethod'],
         '_inc/lib/class.jetpack-password-checker.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchDefault', 'PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
@@ -219,7 +218,7 @@ return [
         'extensions/blocks/wordads/wordads.php' => ['PhanNonClassMethodCall', 'PhanTypeExpectedObjectPropAccessButGotNull', 'PhanTypeMismatchArgument'],
         'extensions/plugins/sharing/sharing.php' => ['PhanRedundantCondition'],
         'functions.compat.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturn'],
-        'functions.global.php' => ['PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument'],
+        'functions.global.php' => ['PhanRedefineFunction', 'PhanRedundantCondition', 'PhanSuspiciousMagicConstant', 'PhanTypeMismatchArgument'],
         'functions.opengraph.php' => ['PhanTypeArraySuspicious'],
         'json-endpoints/class.wpcom-json-api-add-widget-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],
         'json-endpoints/class.wpcom-json-api-autosave-post-v1-1-endpoint.php' => ['PhanNoopNew', 'PhanTypeMismatchReturn'],

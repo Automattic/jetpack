@@ -30,23 +30,7 @@ mysql -e "CREATE DATABASE wordpress_tests;"
 echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
-case "$WP_BRANCH" in
-	trunk)
-		WORDPRESS_TAG=trunk
-		;;
-	latest)
-		WORDPRESS_TAG=$(php ./tools/get-wp-version.php)
-		;;
-	previous)
-		# We hard-code the version here because there's a time near WP releases where
-		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		WORDPRESS_TAG=6.4
-		;;
-	*)
-		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
-		exit 1
-		;;
-esac
+source .github/files/select-wordpress-tag.sh
 git clone --depth=1 --branch "$WORDPRESS_TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
 # We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
@@ -56,7 +40,6 @@ echo "::endgroup::"
 if [[ -n "$GITHUB_ENV" ]]; then
 	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
 	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
-	echo "WORDPRESS_TAG=$WORDPRESS_TAG" >> "$GITHUB_ENV"
 fi
 
 # Don't symlink, it breaks when copied later.

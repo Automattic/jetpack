@@ -58,7 +58,7 @@ export default function Carrousel( {
 	current: number;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
-	actions?: JSX.Element;
+	actions?: React.JSX.Element;
 } ) {
 	const prevButton = (
 		<button className="ai-carrousel__prev" onClick={ handlePreviousImage }>
