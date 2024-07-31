@@ -4,7 +4,6 @@
  *
  * @package automattic/jetpack-mu-wpcom
  */
-
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -37,6 +36,7 @@ class Help_Center {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ), 100 );
 	}
 
 	/**
@@ -283,7 +283,7 @@ class Help_Center {
 	public function is_block_editor() {
 		global $current_screen;
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -291,7 +291,7 @@ class Help_Center {
 	 */
 	private function is_wc_admin_home_page() {
 		global $current_screen;
-		return $current_screen->id === 'woocommerce_page_wc-admin';
+		return $current_screen && $current_screen->id === 'woocommerce_page_wc-admin';
 	}
 
 	/**
@@ -368,7 +368,32 @@ class Help_Center {
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
 		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+		if ( ! $asset_file ) {
+			return;
+		}
 
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+
+		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
+	}
+
+	/**
+	 * Add icon to the front-end admin bar.
+	 */
+	public function enqueue_frontend_scripts() {
+		if ( is_admin() ) {
+			return;
+		}
+
+		if ( ! is_home() || ! is_front_page() ) {
+			return;
+		}
+
+		$variant  = 'wp-admin';
+		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
+
+		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
 		if ( ! $asset_file ) {
 			return;
 		}
