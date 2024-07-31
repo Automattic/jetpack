@@ -133,7 +133,7 @@ function footercredit_rel_nofollow_link( $link ) {
  *
  * Note: These values are added to the fullSiteEditing global for access in JS.
  *
- * @return Array<CreditOption> The credit options to show the user.
+ * @return Array<\CreditOption> The credit options to show the user.
  */
 function get_footer_credit_options() {
 	/**
@@ -141,7 +141,7 @@ function get_footer_credit_options() {
 	 *
 	 * Defaults to a WordPress icon and a WordPress.org shout out.
 	 *
-	 * @param Array<CreditOption> The array of options to show the user.
+	 * @param Array<\CreditOption> The array of options to show the user.
 	 */
 	return apply_filters(
 		'a8c_fse_update_footer_credit_options',
@@ -187,7 +187,7 @@ function get_default_footer_credit_option() {
  *
  * If no credit information is found, null is returned.
  *
- * @return [CreditOption] The info associated with the currently selected option.
+ * @return [\CreditOption] The info associated with the currently selected option.
  */
 function get_credit_information() {
 	$credit_option = get_option( 'footercredit' );

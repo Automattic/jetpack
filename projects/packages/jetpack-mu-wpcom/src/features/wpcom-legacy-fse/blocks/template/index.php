@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
  */
 function render_template_block( $attributes ) {
 	if ( ! isset( $attributes['templateId'] ) || ! is_int( $attributes['templateId'] ) ) {
-		return;
+		return '';
 	}
 
 	$template = get_post( $attributes['templateId'] );

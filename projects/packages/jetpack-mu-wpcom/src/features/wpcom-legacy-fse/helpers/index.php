@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
  * Whether or not FSE is active.
  * If false, FSE functionality should be disabled.
  *
- * @returns bool True if FSE is active, false otherwise.
+ * @return bool True if FSE is active, false otherwise.
  */
 function is_full_site_editing_active() {
 	// We will always return false in admin and REST API contexts as we work towards getting rid of this.
