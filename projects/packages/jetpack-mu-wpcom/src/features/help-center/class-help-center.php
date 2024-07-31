@@ -172,6 +172,18 @@ class Help_Center {
 				'before'
 			);
 		}
+
+		if ( ! is_admin() ) {
+			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+			if ( function_exists( 'gutenberg_url' ) ) {
+				wp_enqueue_style(
+					'wp-components',
+					gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
+					array( 'dashicons' ),
+					$version
+				);
+			}
+		}
 	}
 
 	/**
@@ -383,7 +395,7 @@ class Help_Center {
 	 * Add icon to the front-end admin bar.
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( is_admin() ) {
+		if ( is_admin() || ! $this->is_blog_editor() ) {
 			return;
 		}
 
@@ -399,6 +411,23 @@ class Help_Center {
 		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
 
 		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
+	}
+
+	private function is_blog_editor() {
+		$user = wp_get_current_user();
+		if ( ! $user->ID ) {
+			return false;
+		}
+
+		$blog_id = get_current_blog_id();
+		if ( ! $blog_id ) {
+			return false;
+		}
+
+		// Check if the user has edit_posts permissions.
+		$the_user = clone $user;
+		$the_user->for_site( $blog_id );
+		return $the_user->has_cap( 'edit_posts' );
 	}
 }
 
