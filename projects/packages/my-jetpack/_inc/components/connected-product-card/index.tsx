@@ -58,6 +58,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	const {
 		name,
 		description: defaultDescription,
+		longDescription,
 		requiresUserConnection,
 		status,
 		manageUrl,
@@ -83,9 +84,9 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		navigateToConnectionPage,
 	] );
 
-	const DefaultDescription = () => {
+	const makeDescriptionComponent = ( descriptionString: string ) => {
 		// Replace the last space with a non-breaking space to prevent widows
-		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+		const cardDescription = descriptionString.replace( /\s(?=[^\s]*$)/, '\u00A0' );
 
 		return (
 			<Text variant="body-small" style={ { flexGrow: 1 } }>
@@ -124,7 +125,8 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	return (
 		<ProductCard
 			name={ name }
-			Description={ Description ? Description : DefaultDescription }
+			Description={ Description ? Description : makeDescriptionComponent( defaultDescription ) }
+			LongDescription={ longDescription ? makeDescriptionComponent( longDescription ) : null }
 			status={ status }
 			admin={ admin }
 			recommendation={ recommendation }

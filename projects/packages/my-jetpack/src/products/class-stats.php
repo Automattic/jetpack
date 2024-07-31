@@ -100,7 +100,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.', 'jetpack-my-jetpack' );
+		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing, understand your visitors, and grow your site.', 'jetpack-my-jetpack' );
 	}
 
 	/**

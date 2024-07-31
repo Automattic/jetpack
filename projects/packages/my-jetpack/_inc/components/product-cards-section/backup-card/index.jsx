@@ -130,7 +130,7 @@ const BackupCard = props => {
 	return hasBackups ? (
 		<WithBackupsValueSection slug={ slug } { ...props } />
 	) : (
-		<NoBackupsValueSection slug={ slug } { ...props } />
+		<ProductCard slug={ slug } { ...props }></ProductCard>
 	);
 };
 
@@ -194,6 +194,7 @@ const WithBackupsValueSection = props => {
 	);
 };
 
+// DEPRECATED: this output was more confusing than helpful
 const NoBackupsValueSection = props => {
 	const { data: backupStats, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_STATS_KEY,
