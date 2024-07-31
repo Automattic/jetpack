@@ -217,7 +217,7 @@ class Settings {
 			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
 
 			foreach ( self::FEATURE_FLAGS as $feature_flag ) {
-				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->use_feature_flag( $feature_flag['flag_name'], $feature_flag['plan_name'] );
+				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->has_feature_flag( $feature_flag['flag_name'], $feature_flag['plan_name'] );
 			}
 		} else {
 			$settings['connectionData'] = array(
