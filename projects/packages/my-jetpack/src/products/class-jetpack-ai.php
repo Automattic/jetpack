@@ -220,30 +220,12 @@ class Jetpack_Ai extends Product {
 	}
 
 	/**
-	 * Get the internationalized usage tier long description by tier
-	 *
-	 * @param int $tier The usage tier.
-	 * @return string
-	 */
-	public static function get_long_description_by_usage_tier( $tier ) {
-		$long_descriptions  = array(
-			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
-			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
-		);
-		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
-
-		return isset( $long_descriptions[ $tier ] ) ? $long_descriptions[ $tier ] : $tiered_description;
-	}
-
-	/**
 	 * Get the internationalized product long description
 	 *
 	 * @return string
 	 */
 	public static function get_long_description() {
-		$next_tier = self::get_next_usage_tier();
-
-		return self::get_long_description_by_usage_tier( $next_tier );
+		return __( 'Turn words into layouts, boost your productivity, and get feedback on your writing so you can nail it, every time.', 'jetpack-my-jetpack' );
 	}
 
 	/**
