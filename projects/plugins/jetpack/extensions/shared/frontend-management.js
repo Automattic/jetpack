@@ -1,5 +1,6 @@
-import { createElement, render } from '@wordpress/element';
+import { createElement } from '@wordpress/element';
 import { assign, kebabCase } from 'lodash';
+import { createRoot } from 'react-dom/client';
 
 export class FrontendManagement {
 	blockIterator( rootNode, blocks ) {
@@ -23,7 +24,8 @@ export class FrontendManagement {
 			assign( data, options.props );
 			const children = this.extractChildrenFromContainer( node );
 			const el = createElement( component, data, children );
-			render( el, selector ? node.querySelector( selector ) : node );
+			const root = createRoot( el );
+			root.render( selector ? node.querySelector( selector ) : node );
 
 			node.setAttribute( 'data-jetpack-block-initialized', true );
 		}
