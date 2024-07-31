@@ -43,16 +43,6 @@ type SocialImageGeneratorSettingsSelectors = {
 	getSocialImageGeneratorDefaultTemplate: () => string;
 };
 
-type AutoConversionSettingsSelectors = {
-	getAutoConversionSettings: () => {
-		available: boolean;
-		image: boolean;
-	};
-	isAutoConversionAvailable: () => boolean;
-	isAutoConversionEnabled: () => boolean;
-	isAutoConversionSettingsUpdating: () => boolean;
-};
-
 /**
  * Types of the Social Store selectors.
  *
@@ -62,5 +52,4 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SharesDataSelectors &
 	SiteDataSelectors &
-	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors;
+	SocialImageGeneratorSettingsSelectors;

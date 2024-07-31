@@ -208,7 +208,7 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 						tracksEventProps={ {
 							location: 'scan',
 							status: status,
-							hasPaidPlan: false,
+							has_paid_plan: false,
 							threats: 0,
 						} }
 					>

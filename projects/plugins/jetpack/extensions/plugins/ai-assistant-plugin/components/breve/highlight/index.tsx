@@ -43,7 +43,7 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions, invalidateSuggestions } = useDispatch(
+	const { setPopoverHover, setSuggestions, invalidateSuggestions, ignoreSuggestion } = useDispatch(
 		'jetpack/ai-breve'
 	) as BreveDispatch;
 
@@ -55,54 +55,64 @@ export default function Highlight() {
 		return { getBlock: selector.getBlock };
 	}, [] );
 
-	const { anchor, virtual, popoverOpen, id, feature, blockId, title, loading, suggestions } =
-		useSelect( select => {
-			const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
+	const {
+		anchor,
+		virtual,
+		popoverOpen,
+		id,
+		feature,
+		blockId,
+		title,
+		loading,
+		suggestions,
+		description,
+	} = useSelect( select => {
+		const breveSelect = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-			// Popover
-			const isPopoverHover = breveSelect.isPopoverHover();
-			const isHighlightHover = breveSelect.isHighlightHover();
+		// Popover
+		const isPopoverHover = breveSelect.isPopoverHover();
+		const isHighlightHover = breveSelect.isHighlightHover();
 
-			// Anchor data
-			const { target: anchorEl, virtual: virtualEl } = breveSelect.getPopoverAnchor() ?? {
-				target: null,
-				virtual: null,
-			};
-			const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
-			const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
-			const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
+		// Anchor data
+		const defaultAnchor = { target: null, virtual: null };
+		const { target: anchorEl, virtual: virtualEl } =
+			breveSelect.getPopoverAnchor() ?? defaultAnchor;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
+		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
-			const config = features?.find?.( ftr => ftr.config.name === anchorFeature )?.config ?? {
-				name: '',
-				title: '',
-			};
+		// Feature data
+		const featureData = features?.find?.( ftr => ftr.config.name === anchorFeature );
+		const featureConfig = featureData?.config ?? { name: '', title: '' };
+		const featureDescription = featureData?.description ?? '';
+		const featureTitle = featureConfig?.title ?? '';
 
-			// Suggestions
-			const loadingSuggestions = breveSelect.getSuggestionsLoading( {
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-			} );
+		// Suggestions
+		const loadingSuggestions = breveSelect.getSuggestionsLoading( {
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+		} );
 
-			const suggestionsData = breveSelect.getSuggestions( {
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-			} );
+		const suggestionsData = breveSelect.getSuggestions( {
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+		} );
 
-			return {
-				config,
-				anchor: anchorEl,
-				virtual: virtualEl,
-				title: config?.title,
-				feature: anchorFeature,
-				id: anchorId,
-				blockId: anchorBlockId,
-				popoverOpen: isHighlightHover || isPopoverHover,
-				loading: loadingSuggestions,
-				suggestions: suggestionsData,
-			};
-		}, [] );
+		return {
+			title: featureTitle,
+			description: featureDescription,
+			anchor: anchorEl,
+			virtual: virtualEl,
+			feature: anchorFeature,
+			id: anchorId,
+			blockId: anchorBlockId,
+			popoverOpen: isHighlightHover || isPopoverHover,
+			loading: loadingSuggestions,
+			suggestions: suggestionsData,
+		};
+	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
 	const hasSuggestions = Boolean( suggestions?.suggestion );
@@ -176,13 +186,22 @@ export default function Highlight() {
 		}
 
 		const [ newBlock ] = rawHandler( { HTML: render } );
-		invalidateSuggestions( feature, blockId );
+		invalidateSuggestions( blockId );
 		updateBlockAttributes( blockId, newBlock.attributes );
 		setPopoverHover( false );
 
 		tracks.recordEvent( 'jetpack_ai_breve_apply', {
 			feature: BREVE_FEATURE_NAME,
 			block: block.name,
+			type: feature,
+		} );
+	};
+
+	const handleIgnoreSuggestion = () => {
+		ignoreSuggestion( blockId, id );
+		setPopoverHover( false );
+		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
+			feature: BREVE_FEATURE_NAME,
 			type: feature,
 		} );
 	};
@@ -205,32 +224,44 @@ export default function Highlight() {
 							'has-suggestions': hasSuggestions,
 						} ) }
 					>
-						<div className="title">
-							<div className="color" data-type={ feature } />
-							<div>{ title }</div>
+						<div className="header-container">
+							<div className="title">
+								<div className="color" data-type={ feature } />
+								<div>{ title }</div>
+							</div>
+							{ ! hasSuggestions && (
+								<div className="action">
+									{ loading ? (
+										<div className="loading">
+											<Spinner />
+										</div>
+									) : (
+										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
+											{ __( 'Suggest', 'jetpack' ) }
+										</Button>
+									) }
+								</div>
+							) }
 						</div>
-						{ hasSuggestions ? (
-							<div className="suggestion-container">
+						<div className="bottom-container">
+							{ hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
-								<div className="helper">
-									{ __( 'Click on the suggestion to insert it.', 'jetpack' ) }
-								</div>
-							</div>
-						) : (
-							<div className="action">
-								{ loading ? (
-									<div className="loading">
-										<Spinner />
-									</div>
+							) }
+							<div className="helper">
+								{ hasSuggestions ? (
+									__( 'Click on the suggestion to insert it.', 'jetpack' )
 								) : (
-									<Button icon={ AiSVG } onClick={ handleSuggestions }>
-										{ __( 'Suggest', 'jetpack' ) }
-									</Button>
+									<>
+										{ description }
+										<Button variant="link" onClick={ handleIgnoreSuggestion }>
+											{ __( 'Dismiss', 'jetpack' ) }
+										</Button>
+									</>
 								) }
 							</div>
-						) }
+						</div>
 					</div>
 				</Popover>
 			) }
@@ -249,51 +280,53 @@ export function registerBreveHighlights() {
 			interactive: false,
 			edit: () => {},
 			...configSettings,
-			__experimentalGetPropsForEditableTreePreparation() {
+			__experimentalGetPropsForEditableTreePreparation( _select, { blockClientId } ) {
+				const { getIgnoredSuggestions, isFeatureEnabled, isProofreadEnabled } = globalSelect(
+					'jetpack/ai-breve'
+				) as BreveSelect;
+
 				return {
-					isProofreadEnabled: (
-						globalSelect( 'jetpack/ai-breve' ) as BreveSelect
-					 ).isProofreadEnabled(),
-					isFeatureEnabled: ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).isFeatureEnabled(
-						config.name
-					),
+					isProofreadEnabled: isProofreadEnabled(),
+					isFeatureEnabled: isFeatureEnabled( config.name ),
+					ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				};
 			},
 			__experimentalCreatePrepareEditableTree(
-				{ isProofreadEnabled, isFeatureEnabled },
+				{ isProofreadEnabled, isFeatureEnabled, ignored },
 				{ blockClientId, richTextIdentifier }
 			) {
 				return ( formats: Array< RichTextFormatList >, text: string ) => {
+					const { getBlock } = globalSelect( 'core/block-editor' ) as CoreBlockEditorSelect;
+					const { getBlockMd5 } = globalSelect( 'jetpack/ai-breve' ) as BreveSelect;
+					const { invalidateSuggestions, setBlockMd5 } = globalDispatch(
+						'jetpack/ai-breve'
+					) as BreveDispatch;
+
 					const record = { formats, text } as RichTextValue;
 					const type = formatName;
 
+					// Ignored suggestions
+					let ignoredList = ignored;
+
 					// Has to be defined here, as adding it to __experimentalGetPropsForEditableTreePreparation
 					// causes an issue with the block inserter. ref p1721746774569699-slack-C054LN8RNVA
-					const currentMd5 = ( globalSelect( 'jetpack/ai-breve' ) as BreveSelect ).getBlockMd5(
-						formatName,
-						blockClientId
-					);
+					const currentMd5 = getBlockMd5( blockClientId );
 
 					if ( text && isProofreadEnabled && isFeatureEnabled ) {
-						const block = globalSelect( 'core/block-editor' ).getBlock( blockClientId );
-						const blockContent = getBlockContent( block );
+						const block = getBlock( blockClientId );
+						// Only use block content for complex blocks like tables
+						const blockContent = richTextIdentifier === 'content' ? text : getBlockContent( block );
 						const textMd5 = md5( blockContent ).toString();
 
 						if ( currentMd5 !== textMd5 ) {
-							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).invalidateSuggestions(
-								type,
-								blockClientId
-							);
-
-							( globalDispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setBlockMd5(
-								type,
-								blockClientId,
-								textMd5
-							);
+							ignoredList = [];
+							invalidateSuggestions( blockClientId );
+							setBlockMd5( blockClientId, textMd5 );
 						}
 
 						const highlights = featureHighlight( text );
 						const applied = highlight( {
+							ignored: ignoredList,
 							content: record,
 							type,
 							indexes: highlights,

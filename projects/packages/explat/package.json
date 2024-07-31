@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-explat",
-	"version": "0.1.0-alpha",
+	"version": "0.1.1-alpha",
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
 	"bugs": {
@@ -41,7 +41,7 @@
 	},
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
-		"@automattic/explat-client-react-helpers": "0.1.0",
+		"@automattic/explat-client-react-helpers": "0.1.1",
 		"@wordpress/api-fetch": "7.2.0",
 		"@wordpress/url": "4.2.0",
 		"cookie": "0.4.1",

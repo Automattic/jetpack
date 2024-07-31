@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Popover: Refactor some code to use refs, adding in tests to future proof.
