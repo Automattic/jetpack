@@ -178,7 +178,7 @@ class Help_Center {
 			if ( function_exists( 'gutenberg_url' ) ) {
 				wp_enqueue_style(
 					'wp-components',
-					gutenberg_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ) ),
+					plugins_url( 'build/components/style' . ( is_rtl() ? '.rtl.css' : '.css' ), __DIR__ ),
 					array( 'dashicons' ),
 					$version
 				);
