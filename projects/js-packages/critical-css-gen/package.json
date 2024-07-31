@@ -67,6 +67,11 @@
 	"peerDependencies": {
 		"playwright-core": "^1.45.1"
 	},
+	"peerDependenciesMeta": {
+		"playwright-core": {
+			"optional": true
+		}
+	},
 	"engines": {
 		"node": ">=18.0.0"
 	}
