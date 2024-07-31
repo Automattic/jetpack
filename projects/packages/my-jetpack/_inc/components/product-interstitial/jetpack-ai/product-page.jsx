@@ -12,7 +12,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card, ExternalLink } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -57,15 +56,6 @@ export default function () {
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
 	const videoTitleBreve = __( 'Make your writing easy to read', 'jetpack-my-jetpack' );
-	const videoDescriptionBreve = createInterpolateElement(
-		__(
-			'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your <em>Reading grade score</em> to make sure it suits your audience.',
-			'jetpack-my-jetpack'
-		),
-		{
-			em: <em />,
-		}
-	);
 
 	debug( aiAssistantFeature );
 	const {
@@ -311,7 +301,10 @@ export default function () {
 										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
-										{ videoDescriptionBreve }
+										{ __(
+											'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your Reading grade score to make sure it suits your audience.',
+											'jetpack-my-jetpack'
+										) }
 									</div>
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
