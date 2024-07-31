@@ -1913,8 +1913,8 @@ importers:
         specifier: 0.1.0
         version: 0.1.0
       '@automattic/explat-client-react-helpers':
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.1.1
+        version: 0.1.1
       '@wordpress/api-fetch':
         specifier: 7.2.0
         version: 7.2.0
@@ -2117,6 +2117,9 @@ importers:
 
   projects/packages/jetpack-mu-wpcom:
     dependencies:
+      '@automattic/color-studio':
+        specifier: 2.6.0
+        version: 2.6.0
       '@automattic/i18n-utils':
         specifier: 1.2.3
         version: 1.2.3
@@ -2126,6 +2129,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/page-pattern-modal':
+        specifier: 1.1.5
+        version: 1.1.5(@types/react@18.3.1)(@wordpress/data@10.2.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -2180,6 +2186,9 @@ importers:
       preact:
         specifier: ^10.13.1
         version: 10.22.1
+      redux:
+        specifier: ^4.2.1
+        version: 4.2.1
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.5
@@ -2369,6 +2378,9 @@ importers:
       '@wordpress/icons':
         specifier: 10.2.0
         version: 10.2.0(react@18.3.1)
+      '@wordpress/url':
+        specifier: 4.2.0
+        version: 4.2.0
       clsx:
         specifier: 2.1.1
         version: 2.1.1
@@ -4861,8 +4873,8 @@ packages:
   '@automattic/color-studio@2.6.0':
     resolution: {integrity: sha512-2LzB6bbQw1vayZxZy5Y+DnCYU7x8tPu+rZhNkWD7V8QZTSJMJO65XKZhYaCByC+C5OegXyGyZzcqEOHHdj5iiQ==}
 
-  '@automattic/explat-client-react-helpers@0.1.0':
-    resolution: {integrity: sha512-p8yaBt3byJCIXQSNuw/oWnvu6khK8FFozPdQVnXCIbW+OO9pylBrZz+1VIzdPH7+0YjV0hRA0KGeiVp+uNCemw==}
+  '@automattic/explat-client-react-helpers@0.1.1':
+    resolution: {integrity: sha512-ilebWXmuleHg3BYThJvKW/iraS5kV9iQvm+vtJn6Mkl01rkMDCmsl4MGYOYiKLi/BpUq0QVlD8qKapOsz5g3Vg==}
 
   '@automattic/explat-client@0.1.0':
     resolution: {integrity: sha512-+yYhjlWUTN/hTvL70ZCsrSn5GBxnEWmUdQU4n1K592JyB+c+nUhvo7rd1rnHa5qDPKX3vQsjYS0SSOKvlo7iww==}
@@ -4875,6 +4887,13 @@ packages:
 
   '@automattic/languages@1.0.0':
     resolution: {integrity: sha512-froTyDbTmLitHkvY9WLCpFdjUo6moOLkDKw63J2fLiB2gBApy2thkBV+LRx4Z0kIF5iXVkQF4yYOPYkT9Sr13Q==}
+
+  '@automattic/page-pattern-modal@1.1.5':
+    resolution: {integrity: sha512-cFA82qWUDSSFhOHfOkOqh7X8I9As5fNGp7w3LVw7ZDRl6wSiQZveLvWp4msNDnLmeiJTpxWVOZWvCirxYUE3Sw==}
+    peerDependencies:
+      '@wordpress/data': ^10.2.0
+      react: ^18.2.0
+      redux: ^4.2.1
 
   '@automattic/popup-monitor@1.0.2':
     resolution: {integrity: sha512-Y4LMfdkV8iDmezu/7Ov/18JaFJ0QAy5vCntiP0S5AhLt4R/kjLtBt4ifNXNbdKTthGxlL17+LJ1bNtHBVCzPwg==}
@@ -14603,11 +14622,11 @@ snapshots:
 
   '@automattic/color-studio@2.6.0': {}
 
-  '@automattic/explat-client-react-helpers@0.1.0':
+  '@automattic/explat-client-react-helpers@0.1.1':
     dependencies:
       '@automattic/explat-client': 0.1.0
       react: 18.3.1
-      tslib: 2.5.0
+      tslib: 2.6.3
 
   '@automattic/explat-client@0.1.0':
     dependencies:
@@ -14632,6 +14651,29 @@ snapshots:
   '@automattic/languages@1.0.0':
     dependencies:
       tslib: 2.5.0
+
+  '@automattic/page-pattern-modal@1.1.5(@types/react@18.3.1)(@wordpress/data@10.2.0(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(redux@4.2.1)':
+    dependencies:
+      '@automattic/color-studio': 2.6.0
+      '@automattic/typography': 1.0.0
+      '@wordpress/base-styles': 5.2.0
+      '@wordpress/block-editor': 13.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/blocks': 13.2.0(react@18.3.1)
+      '@wordpress/components': 28.2.0(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose': 7.2.0(react@18.3.1)
+      '@wordpress/data': 10.2.0(react@18.3.1)
+      '@wordpress/element': 6.2.0
+      '@wordpress/i18n': 5.2.0
+      clsx: 2.1.1
+      debug: 4.3.4
+      lodash: 4.17.21
+      react: 18.3.1
+      redux: 4.2.1
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - react-dom
+      - supports-color
 
   '@automattic/popup-monitor@1.0.2':
     dependencies:
@@ -18472,7 +18514,7 @@ snapshots:
       '@types/hoist-non-react-statics': 3.3.5
       '@types/react': 18.3.1
       hoist-non-react-statics: 3.3.2
-      redux: 4.1.1
+      redux: 4.2.1
 
   '@types/react-router-dom@5.3.3':
     dependencies:

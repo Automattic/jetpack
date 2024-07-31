@@ -40,6 +40,7 @@ module.exports = [
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
+			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -62,6 +63,11 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+				DefinePlugin: {
+					// __i18n_text_domain__ is used in page-pattern-modal npm package, which is used only by starter-page-templates feature.
+					// Consider moving page-pattern-modal package to starter-page-templates and remove this.
+					__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
+				},
 			} ),
 		],
 		module: {
