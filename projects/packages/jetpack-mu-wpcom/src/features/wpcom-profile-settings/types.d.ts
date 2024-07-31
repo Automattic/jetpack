@@ -1,10 +1,16 @@
-interface WpcomProfileSettingsLinkToWpcom {
-	emailSettingsLinkText: string;
-}
-
 declare global {
 	interface Window {
-		wpcomProfileSettingsLinkToWpcom: WpcomProfileSettingsLinkToWpcom;
+		wpcomProfileSettingsLinkToWpcom: {
+			email: {
+				link: string;
+				text: string;
+			};
+			password: {
+				link: string;
+				text: string;
+			};
+			isWpcomSimple: boolean;
+		};
 	}
 }
 

@@ -39,8 +39,6 @@ module.exports = [
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
-			'wpcom-profile-settings-disable-email':
-				'./src/features/wpcom-profile-settings/profile-settings-disable-email.ts',
 			'wpcom-profile-settings-link-to-wpcom':
 				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
