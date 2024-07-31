@@ -302,7 +302,7 @@ export default function () {
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
 										{ __(
-											"Simplify your writing with AI suggestions to fix long sentences and complex words, and sound more confident. View your writing's grade score as you type to ensure it suits your audience.",
+											'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your Reading Grade score to make sure it suits your audience.',
 											'jetpack-my-jetpack'
 										) }
 									</div>

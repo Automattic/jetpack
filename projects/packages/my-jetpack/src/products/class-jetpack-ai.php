@@ -448,12 +448,12 @@ class Jetpack_Ai extends Product {
 		$current_tier   = self::get_current_usage_tier();
 		$next_tier      = self::get_next_usage_tier();
 
-		// If there's a next tier available, the product is upgradable.
+		// The check below is debatable, not having the feature should not flag as not upgradable.
+		// If user is free (tier = 0), not unlimited (tier = 1) and has a next tier, then it's upgradable.
 		if ( $current_tier !== null && $current_tier !== 1 && $next_tier ) {
 			return true;
 		}
 
-		// TODO: this check is debatable, not having the feature should not flag as not upgradable.
 		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
 		if ( ! $has_ai_feature || null === $current_tier || 1 === $current_tier ) {
 			return false;
