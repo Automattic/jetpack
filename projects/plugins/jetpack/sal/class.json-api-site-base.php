@@ -1058,6 +1058,29 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Returns a list of errors for broken themes on the site.
+	 *
+	 * @return array
+	 **/
+	public function get_theme_errors() {
+		$themes       = wp_get_themes( array( 'errors' => null ) );
+		$theme_errors = array();
+
+		foreach ( $themes as $theme ) {
+			$errors = $theme->errors();
+
+			if ( ! empty( $errors ) ) {
+				$theme_errors[] = array(
+					'name'   => $theme->get( 'Name' ),
+					'errors' => $errors->get_error_messages(),
+				);
+			}
+		}
+
+		return $theme_errors;
+	}
+
+	/**
 	 * Gets the header image data.
 	 *
 	 * @return bool|object
