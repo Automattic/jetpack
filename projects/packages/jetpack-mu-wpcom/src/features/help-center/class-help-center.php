@@ -386,10 +386,6 @@ class Help_Center {
 			return;
 		}
 
-		if ( ! is_home() || ! is_front_page() ) {
-			return;
-		}
-
 		$variant  = 'wp-admin';
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
