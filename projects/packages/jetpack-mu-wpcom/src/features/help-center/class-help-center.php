@@ -173,7 +173,7 @@ class Help_Center {
 			);
 		}
 
-		if ( ! is_admin() ) {
+		if ( $variant === 'wp-admin' && ! is_admin() ) {
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
 			if ( function_exists( 'gutenberg_url' ) ) {
 				wp_enqueue_style(
