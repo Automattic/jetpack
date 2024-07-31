@@ -1,5 +1,5 @@
 import domReady from '@wordpress/dom-ready';
-import { render } from '@wordpress/element';
+import { createRoot } from 'react-dom/client';
 import StoryPlayer from './player';
 
 function renderPlayer( rootElement, settings ) {
@@ -21,17 +21,20 @@ function renderPlayer( rootElement, settings ) {
 	}
 
 	const id = parseId( rootElement );
+	const container = document.querySelector( `[data-id='${ id }']` );
 
-	render(
-		<StoryPlayer
-			id={ id }
-			slides={ slides }
-			metadata={ metadata }
-			disabled={ false }
-			{ ...settings }
-		/>,
-		rootElement
-	);
+	if ( container ) {
+		const root = createRoot( container );
+		root.render(
+			<StoryPlayer
+				id={ id }
+				slides={ slides }
+				metadata={ metadata }
+				disabled={ false }
+				{ ...settings }
+			/>
+		);
+	}
 }
 
 function parseSlides( slidesWrapper ) {
