@@ -43,7 +43,9 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 		link.href = passwordSettingsLink;
 		link.textContent = passwordSettingsLinkText;
 		link.style.display = 'block';
-		link.style.marginTop = '14px';
+		if ( newPasswordSection.childElementCount > 0 ) {
+			link.style.marginTop = '14px';
+		}
 		newPasswordSection.appendChild( link );
 	}
 };
