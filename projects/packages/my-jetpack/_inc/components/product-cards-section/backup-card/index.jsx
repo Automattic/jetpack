@@ -130,7 +130,7 @@ const BackupCard = props => {
 	return hasBackups ? (
 		<WithBackupsValueSection slug={ slug } { ...props } />
 	) : (
-		<ProductCard slug={ slug } { ...props }></ProductCard>
+		<ProductCard slug={ slug } { ...props } />
 	);
 };
 
