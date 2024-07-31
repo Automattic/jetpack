@@ -12,6 +12,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -56,6 +57,15 @@ export default function () {
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
 	const videoTitleBreve = __( 'Make your writing easy to read', 'jetpack-my-jetpack' );
+	const videoDescriptionBreve = createInterpolateElement(
+		__(
+			'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your <em>Reading grade score</em> to make sure it suits your audience.',
+			'jetpack-my-jetpack'
+		),
+		{
+			em: <em />,
+		}
+	);
 
 	debug( aiAssistantFeature );
 	const {
@@ -288,7 +298,7 @@ export default function () {
 									<iframe
 										width="280"
 										height="157"
-										src="https://videopress.com/embed/gRn8jXrG?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F07%2Fjetpack-ai-breve-poster.png%3Fw%3D560"
+										src="https://videopress.com/embed/2OU6GCMs?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F07%2Fjetpack-ai-breve-poster.png%3Fw%3D560"
 										allowFullScreen
 										allow="clipboard-write"
 										title={ videoTitleBreve }
@@ -301,10 +311,7 @@ export default function () {
 										{ newBadge }
 									</div>
 									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
-										{ __(
-											'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your Reading Grade score to make sure it suits your audience.',
-											'jetpack-my-jetpack'
-										) }
+										{ videoDescriptionBreve }
 									</div>
 									<Button
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
