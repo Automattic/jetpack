@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.52.1-alpha';
+	const PACKAGE_VERSION = '5.53.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -146,7 +146,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Laod ETK features that need higher priority than the ETK plugin.
+	 * Load ETK features that need higher priority than the ETK plugin.
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
@@ -165,6 +165,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
+		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 	}
 
 	/**
