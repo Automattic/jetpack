@@ -3,7 +3,7 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -19,6 +19,7 @@ import {
 	EVENT_MODAL_CLOSE,
 	EVENT_GENERATE,
 } from '../constants.js';
+import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
 import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.js';
@@ -43,6 +44,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
 	onApplyLogo,
+	onReload,
 	siteDetails,
 	context,
 	placement,
@@ -50,6 +52,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory } = useDispatch( STORE_NAME );
+	const { getIsRequestingAiAssistantFeature } = select( STORE_NAME );
 	const [ loadingState, setLoadingState ] = useState<
 		'loadingFeature' | 'analyzing' | 'generating' | null
 	>( null );
@@ -58,12 +61,12 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
-	const [ upgradeURL, setUpgradeURL ] = useState( '' );
 	const { selectedLogo, getAiAssistantFeature, generateFirstPrompt, generateLogo, setContext } =
 		useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
+	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
 
 	// First fetch the feature data so we have the most up-to-date info from the backend.
 	const feature = getAiAssistantFeature();
@@ -107,16 +110,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				! hasHistory &&
 				currentLimit - currentUsage < logoCost + promptCreationCost;
 
-			// If the site requires an upgrade, set the upgrade URL and show the upgrade screen immediately.
+			// If the site requires an upgrade, show the upgrade screen immediately.
 			setNeedsFeature( ! feature?.hasFeature ?? true );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
-
 			if ( ! feature?.hasFeature || siteNeedsMoreRequests ) {
-				const siteUpgradeURL = new URL(
-					`${ location.origin }/checkout/${ siteDetails?.domain }/${ feature?.nextTier?.slug }`
-				);
-				siteUpgradeURL.searchParams.set( 'redirect_to', location.href );
-				setUpgradeURL( siteUpgradeURL.toString() );
 				setLoadingState( null );
 				return;
 			}
@@ -182,10 +179,13 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 		// When the site details are set, we need to fetch the feature data.
 		if ( ! requestedFeatureData.current ) {
-			requestedFeatureData.current = true;
-			fetchAiAssistantFeature();
+			const isRequestingFeature = getIsRequestingAiAssistantFeature();
+			if ( ! isRequestingFeature ) {
+				requestedFeatureData.current = true;
+				fetchAiAssistantFeature();
+			}
 		}
-	}, [ siteId, siteDetails, setSiteDetails ] );
+	}, [ siteId, siteDetails, setSiteDetails, getIsRequestingAiAssistantFeature ] );
 
 	// Handles modal opening logic
 	useEffect( () => {
@@ -206,7 +206,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	if ( loadingState ) {
 		body = <FirstLoadScreen state={ loadingState } />;
 	} else if ( featureFetchError || firstLogoPromptFetchError ) {
-		body = <FeatureFetchFailureScreen onCancel={ closeModal } onRetry={ initializeModal } />;
+		body = (
+			<FeatureFetchFailureScreen
+				onCancel={ closeModal }
+				onRetry={ () => {
+					closeModal();
+					onReload?.();
+				} }
+			/>
+		);
 	} else if ( needsFeature || needsMoreRequests ) {
 		body = (
 			<UpgradeScreen

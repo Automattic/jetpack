@@ -99,7 +99,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
-										{ __( 'Readability score', 'jetpack' ) }
+										{ __( 'Reading grade score', 'jetpack' ) }
 									</span>
 								</p>
 							</Tooltip>
