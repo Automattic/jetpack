@@ -42,7 +42,7 @@ export type BreveSelect = {
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
-	getBlockMd5: ( feature: string, blockId: string ) => string;
+	getBlockMd5: ( blockId: string ) => string;
 	getSuggestionsLoading: ( {
 		feature,
 		id,
@@ -64,19 +64,20 @@ export type BreveSelect = {
 		html: string;
 		suggestion: string;
 	};
+	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
 };
 
 export type BreveDispatch = {
 	setHighlightHover: ( isHover: boolean ) => void;
 	setPopoverHover: ( isHover: boolean ) => void;
 	setPopoverAnchor: ( anchor: Anchor ) => void;
-	increasePopoverLevel: () => void;
-	decreasePopoverLevel: () => void;
 	toggleProofread: ( force?: boolean ) => void;
 	toggleFeature: ( feature: string, force?: boolean ) => void;
-	invalidateSuggestions: ( feature: string, blockId: string ) => void;
-	setBlockMd5: ( feature: string, blockId: string, md5: string ) => void;
+	invalidateSuggestions: ( blockId: string ) => void;
+	ignoreSuggestion: ( blockId: string, id: string ) => void;
+	setBlockMd5: ( blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
+		anchor: Anchor[ 'target' ];
 		id: string;
 		feature: string;
 		target: string;
@@ -98,6 +99,7 @@ export type BreveFeature = {
 	config: BreveFeatureConfig;
 	highlight: ( text: string ) => Array< HighlightedText >;
 	dictionary?: { [ key: string ]: string };
+	description: string;
 };
 
 export type HighlightedText = {

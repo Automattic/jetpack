@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Google_Analytics\GA_Manager;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
@@ -127,6 +126,14 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'jetpack_subscriptions_subscribe_navigation_enabled' => '(Bool) Whether the Subscribe block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                    => '(string) User input in the AI site prompt',
+			'jetpack_waf_automatic_rules'             => '(bool) Whether the WAF should enforce automatic firewall rules',
+			'jetpack_waf_ip_allow_list'               => '(string) List of IP addresses to always allow',
+			'jetpack_waf_ip_allow_list_enabled'       => '(bool) Whether the IP allow list is enabled',
+			'jetpack_waf_ip_block_list'               => '(string) List of IP addresses the WAF should always block',
+			'jetpack_waf_ip_block_list_enabled'       => '(bool) Whether the IP block list is enabled',
+			'jetpack_waf_share_data'                  => '(bool) Whether the WAF should share basic data with Jetpack',
+			'jetpack_waf_share_debug_data'            => '(bool) Whether the WAF should share debug data with Jetpack',
+			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
 		),
 
 		'response_format'     => array(
@@ -481,6 +488,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
 						'migration_source_site_domain'     => (string) get_option( 'migration_source_site_domain' ),
+						'jetpack_waf_automatic_rules'      => (bool) get_option( 'jetpack_waf_automatic_rules' ),
+						'jetpack_waf_ip_allow_list'        => (string) get_option( 'jetpack_waf_ip_allow_list' ),
+						'jetpack_waf_ip_allow_list_enabled' => (bool) get_option( 'jetpack_waf_ip_allow_list_enabled' ),
+						'jetpack_waf_ip_block_list'        => (string) get_option( 'jetpack_waf_ip_block_list' ),
+						'jetpack_waf_ip_block_list_enabled' => (bool) get_option( 'jetpack_waf_ip_block_list_enabled' ),
+						'jetpack_waf_share_data'           => (bool) get_option( 'jetpack_waf_share_data' ),
+						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
+						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -593,38 +608,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get GA tracking code.
-	 *
-	 * @deprecated 13.6
-	 */
-	protected function get_google_analytics() {
-		if ( class_exists( GA_Manager::class ) ) {
-			$option_name = GA_Manager::get_instance()->get_google_analytics_option_name();
-		} else {
-			$option_name = $this->get_google_analytics_option_name();
-		}
-
-		return get_option( $option_name );
-	}
-
-	/**
-	 * Get GA tracking code option name.
-	 *
-	 * @deprecated 13.6
-	 */
-	protected function get_google_analytics_option_name() {
-		if ( class_exists( GA_Manager::class ) ) {
-			return GA_Manager::get_instance()->get_google_analytics_option_name();
-		}
-
-		/** This filter is documented in class.json-api-endpoints.php */
-		$is_jetpack  = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-		$option_name = $is_jetpack ? 'jetpack_wga' : 'wga';
-
-		return $option_name;
 	}
 
 	/**
@@ -1089,7 +1072,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					if ( update_option( $key, $new_value ) ) {
-						$updated[ $key ] = $new_value;
+						$updated[ $key ] = $sanitized_category_ids;
 					}
 					break;
 

@@ -150,6 +150,13 @@ class Social extends Hybrid_Product {
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
+		$plans_with_social = array(
+			'jetpack_social',
+			'jetpack_complete',
+			'jetpack_business',
+			'jetpack_premium',
+			'jetpack_personal',
+		);
 		// For atomic sites, do a feature check to see if the republicize feature is available
 		// This feature is available by default on all Jetpack sites
 		if ( ( new Host() )->is_woa_site() ) {
@@ -160,11 +167,13 @@ class Social extends Hybrid_Product {
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
+
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				// Social is available as standalone bundle and as part of the Complete plan.
-				if ( strpos( $purchase->product_slug, 'jetpack_social' ) !== false || str_starts_with( $purchase->product_slug, 'jetpack_complete' ) ) {
-					return true;
+				foreach ( $plans_with_social as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
 				}
 			}
 		}

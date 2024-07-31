@@ -5,10 +5,9 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BaseControl,
 	PanelRow,
-	SVG,
-	Path,
 	CheckboxControl,
 	ToggleControl,
+	Tooltip,
 } from '@wordpress/components';
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
@@ -85,32 +84,26 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	return (
 		<div className="jetpack-ai-proofread">
+			<p> { __( 'Improve your writing with AI.', 'jetpack' ) }</p>
 			<PanelRow>
 				<BaseControl>
 					<div className="grade-level-container">
-						{ gradeLevel !== null && gradeLevel <= 12 && (
-							<>
-								<SVG xmlns="http://www.w3.org/2000/svg" width={ 16 } height={ 15 } fill="none">
-									<Path
-										fill="#000"
-										d="M7.776.454a.25.25 0 0 1 .448 0l2.069 4.192a.25.25 0 0 0 .188.137l4.626.672a.25.25 0 0 1 .139.426l-3.348 3.263a.251.251 0 0 0-.072.222l.79 4.607a.25.25 0 0 1-.362.263l-4.138-2.175a.25.25 0 0 0-.232 0l-4.138 2.175a.25.25 0 0 1-.363-.263l.79-4.607a.25.25 0 0 0-.071-.222L.754 5.881a.25.25 0 0 1 .139-.426l4.626-.672a.25.25 0 0 0 .188-.137L7.776.454Z"
-									/>
-								</SVG>
-								&nbsp;
-							</>
-						) }
-						<p>
-							{ gradeLevel === null ? (
-								<em className="breve-help-text">Write some words to see your grade&nbsp;level.</em>
-							) : (
-								<>
+						{ gradeLevel === null ? (
+							<p>
+								<em className="breve-help-text">
+									{ __( 'Write some words to see your grade level.', 'jetpack' ) }
+								</em>
+							</p>
+						) : (
+							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>
+								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
-										{ __( 'Readability score', 'jetpack' ) }
+										{ __( 'Reading grade score', 'jetpack' ) }
 									</span>
-								</>
-							) }
-						</p>
+								</p>
+							</Tooltip>
+						) }
 					</div>
 				</BaseControl>
 			</PanelRow>

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.1] - 2024-07-30
+### Changed
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [0.15.0] - 2024-07-26
+### Added
+- Shared Extension Utils: add isMyJetpackAvailable export [#38529]
+
 ## [0.14.20] - 2024-07-23
 ### Fixed
 - Updated package dependencies. [#38464]
@@ -412,6 +420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.15.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.15.0...0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.20...0.15.0
 [0.14.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.19...0.14.20
 [0.14.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.18...0.14.19
 [0.14.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.14.17...0.14.18

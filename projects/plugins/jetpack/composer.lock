@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "bf59aa97ab4a9a5a9d72c1893f4f8ddc",
+	"content-hash": "fa4fcbac69cbb7823ffc581413e98ffc",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1292,74 +1292,6 @@
 			}
 		},
 		{
-			"name": "automattic/jetpack-google-analytics",
-			"version": "dev-trunk",
-			"dist": {
-				"type": "path",
-				"url": "../../packages/google-analytics",
-				"reference": "9aacc5acb62eda87adf12a76dcc1d006103adf5c"
-			},
-			"require": {
-				"automattic/jetpack-status": "@dev",
-				"php": ">=7.0"
-			},
-			"require-dev": {
-				"automattic/jetpack-changelogger": "@dev",
-				"automattic/wordbless": "^0.4.2",
-				"yoast/phpunit-polyfills": "1.1.0"
-			},
-			"suggest": {
-				"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
-			},
-			"type": "jetpack-library",
-			"extra": {
-				"autotagger": true,
-				"branch-alias": {
-					"dev-trunk": "0.2.x-dev"
-				},
-				"changelogger": {
-					"link-template": "https://github.com/Automattic/jetpack-google-analytics/compare/v${old}...v${new}"
-				},
-				"mirror-repo": "Automattic/jetpack-google-analytics",
-				"textdomain": "jetpack-google-analytics",
-				"version-constants": {
-					"::PACKAGE_VERSION": "src/class-ga-manager.php"
-				}
-			},
-			"autoload": {
-				"classmap": [
-					"src/"
-				]
-			},
-			"scripts": {
-				"build-development": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"build-production": [
-					"echo 'Add your build step to composer.json, please!'"
-				],
-				"phpunit": [
-					"./vendor/phpunit/phpunit/phpunit --colors=always"
-				],
-				"test-php": [
-					"@composer phpunit"
-				],
-				"post-install-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				],
-				"post-update-cmd": [
-					"WorDBless\\Composer\\InstallDropin::copy"
-				]
-			},
-			"license": [
-				"GPL-2.0-or-later"
-			],
-			"description": "Set up Google Analytics without touching a line of code.",
-			"transport-options": {
-				"relative": true
-			}
-		},
-		{
 			"name": "automattic/jetpack-image-cdn",
 			"version": "dev-trunk",
 			"dist": {
@@ -1733,7 +1665,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/masterbar",
-				"reference": "afde100c2bbad9a2e337db64b54ddc650efc9720"
+				"reference": "9f21b1d7607b21df7becfcdb49002d310d891440"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -1761,7 +1693,7 @@
 			"extra": {
 				"autotagger": true,
 				"branch-alias": {
-					"dev-trunk": "0.5.x-dev"
+					"dev-trunk": "0.6.x-dev"
 				},
 				"changelogger": {
 					"link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -2751,7 +2683,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/sync",
-				"reference": "9e674c384f72544b488e3af3d9348692d32cee54"
+				"reference": "2965d36db9a224b6e142e46c92358b353eca463a"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2784,7 +2716,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.3.x-dev"
+					"dev-trunk": "3.4.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -2906,7 +2838,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/waf",
-				"reference": "8877a29b9be7e4ab5b3a13a9afdde2b65870cfe8"
+				"reference": "6e2fd903a4dc024db95b51904989506f65013e0e"
 			},
 			"require": {
 				"automattic/jetpack-connection": "@dev",
@@ -2933,7 +2865,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "0.17.x-dev"
+					"dev-trunk": "0.18.x-dev"
 				}
 			},
 			"autoload": {
@@ -6056,7 +5988,6 @@
 		"automattic/jetpack-device-detection": 20,
 		"automattic/jetpack-error": 20,
 		"automattic/jetpack-forms": 20,
-		"automattic/jetpack-google-analytics": 20,
 		"automattic/jetpack-image-cdn": 20,
 		"automattic/jetpack-import": 20,
 		"automattic/jetpack-ip": 20,
