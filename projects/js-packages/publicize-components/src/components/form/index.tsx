@@ -62,8 +62,8 @@ export default function PublicizeForm() {
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
-					{ featureFlags.useEditorPreview ? <p>New modal trigger goes here</p> : null }
 					<MediaValidationNotices />
+					{ featureFlags.useEditorPreview ? <p>New modal trigger goes here</p> : null }
 				</>
 			) : null }
 			<PanelRow>
