@@ -84,12 +84,12 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		navigateToConnectionPage,
 	] );
 
-	const makeDescriptionComponent = ( descriptionString: string ) => {
+	const makeDescriptionComponent = ( descriptionString: string ) => () => {
 		// Replace the last space with a non-breaking space to prevent widows
 		const cardDescription = descriptionString.replace( /\s(?=[^\s]*$)/, '\u00A0' );
 
 		return (
-			<Text variant="body-small" style={ { flexGrow: 1 } }>
+			<Text variant="body-small" style={ { flexGrow: 1, marginBottom: '1.25rem' } }>
 				{ cardDescription }
 			</Text>
 		);
