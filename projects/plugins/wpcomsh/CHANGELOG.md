@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.1.2 - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
 ## 5.1.1 - 2024-07-30
 ### Removed
 - Remove the old plugin banner code [#38605]
