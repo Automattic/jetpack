@@ -76,7 +76,7 @@ class Initial_State {
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			sprintf( 'var JETPACK_INITIAL_STATE = %s;', $initial_state ),
+			sprintf( 'window.JetpackInitialState = %s;', $initial_state ),
 			'before'
 		);
 	}

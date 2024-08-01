@@ -44,6 +44,6 @@ export interface JetpackInitialState {
 
 declare global {
 	interface Window {
-		JETPACK_INITIAL_STATE: JetpackInitialState;
+		JetpackInitialState: JetpackInitialState;
 	}
 }

@@ -4,7 +4,7 @@
  * @returns {import('./types').JetpackInitialState} The initial state.
  */
 export function getInitialState() {
-	return window.JETPACK_INITIAL_STATE;
+	return window.JetpackInitialState;
 }
 
 /**
