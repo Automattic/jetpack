@@ -395,7 +395,13 @@ class Help_Center {
 	 * Add icon to the front-end admin bar.
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( is_admin() || ! $this->is_blog_editor() ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		// Don't show the help center icon if the user can't edit posts for the current site.
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		if ( ! $can_edit_posts ) {
 			return;
 		}
 
@@ -411,23 +417,6 @@ class Help_Center {
 		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
 
 		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
-	}
-
-	private function is_blog_editor() {
-		$user = wp_get_current_user();
-		if ( ! $user->ID ) {
-			return false;
-		}
-
-		$blog_id = get_current_blog_id();
-		if ( ! $blog_id ) {
-			return false;
-		}
-
-		// Check if the user has edit_posts permissions.
-		$the_user = clone $user;
-		$the_user->for_site( $blog_id );
-		return $the_user->has_cap( 'edit_posts' );
 	}
 }
 
