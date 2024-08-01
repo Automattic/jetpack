@@ -252,6 +252,9 @@ const unignoreThreat =
 				method: 'POST',
 			} )
 				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
 					return dispatch( refreshStatus() );
 				} )
 				.then( () => {
