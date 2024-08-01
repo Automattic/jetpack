@@ -48,10 +48,13 @@ const EvaluationStep = ( {
 		<>
 			<Col sm={ 6 } md={ 8 } lg={ 6 } className={ styles[ 'banner-description' ] }>
 				<Text variant="headline-small" mb={ 3 }>
-					{ __( 'What is your goal?', 'jetpack-my-jetpack' ) }
+					{ __( 'What would you like Jetpack to do?', 'jetpack-my-jetpack' ) }
 				</Text>
 				<Text variant="body" mb={ 2 }>
-					{ __( 'Let us customise your Jetpack experience', 'jetpack-my-jetpack' ) }
+					{ __(
+						'Jetpack does a lot. Select the items that are most important to you and we‘ll find the Jetpack tools that are the best match for your site.',
+						'jetpack-my-jetpack'
+					) }
 				</Text>
 				<form className={ styles.form }>
 					{ Object.entries( questions ).map( ( [ key, question ]: [ EvaluationAreas, string ] ) => (
