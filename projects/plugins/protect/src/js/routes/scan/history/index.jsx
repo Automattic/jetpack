@@ -3,7 +3,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import AdminPage from '../../../components/admin-page';
-import AlertSVGIcon from '../../../components/alert-icon';
+import ErrorScreen from '../../../components/error-section';
 import ProtectCheck from '../../../components/protect-check-icon';
 import ScanFooter from '../../../components/scan-footer';
 import ThreatsNavigation from '../../../components/threats-list/navigation';
@@ -222,27 +222,29 @@ const ScanHistoryRoute = () => {
 				<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
 					<Col>
 						<ScanSectionHeader
-							subtitle={ __( 'Threat history', 'jetpack-protect' ) }
-							title={ sprintf(
-								/* translators: %s: Total number of threats  */
-								__( '%1$s previously active %2$s', 'jetpack-protect' ),
-								numThreats,
-								numThreats === 1 ? 'threat' : 'threats'
-							) }
+							subtitle={ error ? null : __( 'Threat history', 'jetpack-protect' ) }
+							title={
+								error
+									? null
+									: sprintf(
+											/* translators: %s: Total number of threats  */
+											__( '%1$s previously active %2$s', 'jetpack-protect' ),
+											numThreats,
+											numThreats === 1 ? 'threat' : 'threats'
+									  )
+							}
 						/>
 					</Col>
 					{ error ? (
 						<Col>
-							<AlertSVGIcon />
-							<H3>
-								{ errorMessage && errorCode
-									? `${ errorMessage } (${ errorCode })`
-									: __(
-											"An error occurred loading your site's threat history.",
-											'jetpack-protect'
-									  ) }
-							</H3>
-							<Text>{ __( 'Please wait a moment and then try again.', 'jetpack-protect' ) }</Text>
+							<ErrorScreen
+								baseErrorMessage={ __(
+									"An error occurred loading your site's threat history.",
+									'jetpack-protect'
+								) }
+								errorMessage={ errorMessage }
+								errorCode={ errorCode }
+							/>
 						</Col>
 					) : (
 						<Col>
@@ -267,18 +269,26 @@ const ScanHistoryRoute = () => {
 											<PaidList list={ list } />
 										</div>
 									) : (
-										<div className={ styles.empty }>
-											<ProtectCheck />
-											<H3 weight="bold" mt={ 8 }>
-												{ __( "Don't worry about a thing", 'jetpack-protect' ) }
-											</H3>
-											<Text>
-												{ __(
-													'There are no threats in your scan history for the selected filters.',
-													'jetpack-protect'
-												) }
-											</Text>
-										</div>
+										<>
+											<div className={ styles[ 'list-header' ] }>
+												<div className={ styles[ 'list-header__controls' ] }>
+													<StatusFilters />
+												</div>
+											</div>
+											<div className={ styles.empty }>
+												<ProtectCheck />
+												<H3 weight="bold" mt={ 8 }>
+													{ __( "Don't worry about a thing", 'jetpack-protect' ) }
+												</H3>
+												<Text mb={ 4 }>
+													{ sprintf(
+														/* translators: %s: Filter type */
+														__( 'There are no%sthreats in your scan history.', 'jetpack-protect' ),
+														'all' === filter ? ' ' : ` ${ filter } `
+													) }
+												</Text>
+											</div>
+										</>
 									) }
 								</Col>
 							</Container>
