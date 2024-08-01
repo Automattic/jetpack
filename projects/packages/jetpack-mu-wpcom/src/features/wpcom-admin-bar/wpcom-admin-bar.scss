@@ -101,6 +101,14 @@
 		position: absolute;
 		right: 0;
 
+		#wp-admin-bar-my-account {
+			.ab-item {
+				> .display-name {
+					color: currentColor;
+				}
+			}
+		}
+
 		@media (max-width: 782px) {
 			#wp-admin-bar-help-center {
 				display: block !important;

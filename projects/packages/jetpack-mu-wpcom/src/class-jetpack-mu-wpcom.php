@@ -155,6 +155,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
+		require_once __DIR__ . '/features/newspack-blocks/index.php';
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
