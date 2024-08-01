@@ -352,8 +352,6 @@ class Jetpack_Social {
 			$initial_state['connectionRefreshPath'] = $social_state['connectionRefreshPath'];
 		}
 
-		$initial_state['featureFlags'] = $social_state['featureFlags'];
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
