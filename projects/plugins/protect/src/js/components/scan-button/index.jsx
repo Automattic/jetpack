@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import React, { forwardRef } from 'react';
 import { STORE_ID } from '../../state/store';
 
-const ScanButton = forwardRef( ( props, ref ) => {
+const ScanButton = forwardRef( ( { variant = 'secondary', children, ...props }, ref ) => {
 	const { scan } = useDispatch( STORE_ID );
 	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing(), [] );
 
@@ -18,12 +18,12 @@ const ScanButton = forwardRef( ( props, ref ) => {
 	return (
 		<Button
 			ref={ ref }
-			variant="secondary"
+			variant={ variant }
 			isLoading={ scanIsEnqueuing }
 			onClick={ handleScanClick() }
 			{ ...props }
 		>
-			{ __( 'Scan now', 'jetpack-protect' ) }
+			{ children ?? __( 'Scan now', 'jetpack-protect' ) }
 		</Button>
 	);
 } );
