@@ -123,6 +123,8 @@ class Initial_State {
 		 * For example, the social (publicize) data is used only on Social admin page, Jetpack settings page and the post editor.
 		 * So, the social data should be added only on those pages.
 		 *
+		 * @since $$next-version$$
+		 *
 		 * @param array $state The initial state.
 		 */
 		return apply_filters( 'jetpack_admin_js_initial_state', $state );
@@ -146,6 +148,8 @@ class Initial_State {
 		 * Filter the public initial state.
 		 *
 		 * See the docs for `jetpack_admin_js_initial_state` filter for more information.
+		 *
+		 * @since $$next-version$$
 		 *
 		 * @param array $state The initial state.
 		 */
@@ -173,6 +177,14 @@ class Initial_State {
 			return '';
 		}
 
+		/**
+		 * Filters the site icon using Photon.
+		 *
+		 * @see https://developer.wordpress.com/docs/photon/
+		 *
+		 * @param string       $url The URL of the site icon.
+		 * @param array|string $args An array of arguments, e.g. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456).
+		 */
 		return apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) );
 	}
 
