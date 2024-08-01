@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2024-08-01
+### Added
+- Adds global statistics [#38388]
+
+### Fixed
+- Fix global stats type check [#38634]
+
 ## [0.17.0] - 2024-07-22
 ### Added
 - Added the ability to toggle IP block and allow lists individually. [#38184]
@@ -333,6 +340,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.18.0]: https://github.com/Automattic/jetpack-waf/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/Automattic/jetpack-waf/compare/v0.16.10...v0.17.0
 [0.16.10]: https://github.com/Automattic/jetpack-waf/compare/v0.16.9...v0.16.10
 [0.16.9]: https://github.com/Automattic/jetpack-waf/compare/v0.16.8...v0.16.9
