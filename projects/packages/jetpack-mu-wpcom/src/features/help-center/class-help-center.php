@@ -37,7 +37,7 @@ class Help_Center {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 	}
 
 	/**
@@ -361,8 +361,10 @@ class Help_Center {
 	 */
 	public function enqueue_wp_admin_scripts() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 
-		if ( ! is_admin() ) {
+		// Don't show the help center icon on front end of site if user can't edit posts.
+		if ( ! is_admin() && ! $can_edit_posts ) {
 			return;
 		}
 
@@ -371,34 +373,6 @@ class Help_Center {
 		}
 
 		$variant  = $this->is_block_editor() ? 'gutenberg' : 'wp-admin';
-		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
-
-		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-		if ( ! $asset_file ) {
-			return;
-		}
-
-		// When the request is proxied, use a random cache buster as the version for easier debugging.
-		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
-
-		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
-	}
-
-	/**
-	 * Add icon to the front-end admin bar.
-	 */
-	public function enqueue_frontend_scripts() {
-		if ( is_admin() ) {
-			return;
-		}
-
-		// Don't show the help center icon if the user can't edit posts for the current site.
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		if ( ! $can_edit_posts ) {
-			return;
-		}
-
-		$variant  = 'wp-admin';
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
 		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
