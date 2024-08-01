@@ -7,11 +7,7 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
-/**
- * The strategy to use for loading the default template part content.
- *
- * @typedef {string="use-api","use-local"} LoadingStrategy
- */
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Class WP_Template_Inserter
@@ -70,15 +66,15 @@ class WP_Template_Inserter {
 	 *
 	 * 'use-local' will use the locally defined defaults.
 	 *
-	 * @var {LoadingStrategy} $loading_strategy
+	 * @var string $loading_strategy
 	 */
 	private $loading_strategy;
 
 	/**
 	 * WP_Template_Inserter constructor.
 	 *
-	 * @param string            $theme_slug Current theme slug.
-	 * @param {LoadingStrategy} $loading_strategy The strategy to use to load the template part content.
+	 * @param string $theme_slug Current theme slug.
+	 * @param string $loading_strategy The strategy to use to load the template part content.
 	 */
 	public function __construct( $theme_slug, $loading_strategy = 'use-local' ) {
 		$this->theme_slug       = $theme_slug;
@@ -163,9 +159,9 @@ class WP_Template_Inserter {
 	 * Retries a call to wp_remote_get on error.
 	 *
 	 * @param string $request_url Url of the api call to make.
-	 * @param string $request_args Addtional arguments for the api call.
+	 * @param array  $request_args Additional arguments for the api call.
 	 * @param int    $attempt The number of the attempt being made.
-	 * @return array wp_remote_get reponse array
+	 * @return array|null wp_remote_get response array
 	 */
 	private function fetch_retry( $request_url, $request_args = null, $attempt = 1 ) {
 		$max_retries = 3;
@@ -177,12 +173,12 @@ class WP_Template_Inserter {
 		}
 
 		if ( $attempt > $max_retries ) {
-			return;
+			return null;
 		}
 
 		sleep( pow( 2, $attempt ) );
 		++$attempt;
-		$this->fetch_retry( $request_url, $request_args, $attempt );
+		return $this->fetch_retry( $request_url, $request_args, $attempt );
 	}
 
 	/**
@@ -298,9 +294,6 @@ class WP_Template_Inserter {
 			// so we use an action to handle it with Headstart there.
 			if ( has_action( 'a8c_fse_upload_template_part_images' ) ) {
 				do_action( 'a8c_fse_upload_template_part_images', $image_urls, array( $header_id, $footer_id ) );
-			} else {
-				$image_inserter = new Template_Image_Inserter();
-				$image_inserter->copy_images_and_update_posts( $image_urls, array( $header_id, $footer_id ) );
 			}
 		}
 
@@ -333,10 +326,6 @@ class WP_Template_Inserter {
 	 * Because this function uses the MySQL '=' comparison, $page_title will usually be matched
 	 * as case-insensitive with default collation.
 	 *
-	 * @since 2.1.0
-	 * @since 3.0.0 The `$post_type` parameter was added.
-	 * @deprecated 6.2.0 Use WP_Query.
-	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
 	 * @param string       $page_title Page title.
@@ -344,7 +333,7 @@ class WP_Template_Inserter {
 	 *                                 correspond to a WP_Post object, an associative array, or a numeric array,
 	 *                                 respectively. Default OBJECT.
 	 * @param string|array $post_type  Optional. Post type or array of post types. Default 'page'.
-	 * @return WP_Post|array|null WP_Post (or array) on success, or null on failure.
+	 * @return \WP_Post|array|null WP_Post (or array) on success, or null on failure.
 	 */
 	public function get_page_by_title( $page_title, $output = OBJECT, $post_type = 'page' ) {
 		global $wpdb;
@@ -374,7 +363,7 @@ class WP_Template_Inserter {
 		$page = $wpdb->get_var( $sql );
 
 		if ( $page ) {
-			return get_post( $page, $output );
+			return get_post( (int) $page, $output );
 		}
 
 		return null;
@@ -433,6 +422,9 @@ class WP_Template_Inserter {
 		}
 
 		$api_response = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( empty( $api_response ) ) {
+			return;
+		}
 
 		// Convert templates response to [ slug => content ] pairs to extract required content more easily.
 		$template_content_by_slug = wp_list_pluck( $api_response['templates'], 'content', 'slug' );
@@ -478,7 +470,7 @@ class WP_Template_Inserter {
 	 */
 	private function get_template_locale() {
 		$language = get_locale();
-		return \A8C\FSE\Common\get_iso_639_locale( $language );
+		return Common\get_iso_639_locale( $language );
 	}
 
 	/**

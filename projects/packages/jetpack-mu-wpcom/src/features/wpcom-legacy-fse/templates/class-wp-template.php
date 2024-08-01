@@ -94,7 +94,7 @@ class WP_Template {
 		 * Assuming that we'll have just one default template for now.
 		 * We'll add support for multiple header and footer variations in future iterations.
 		 */
-		return $template_ids[0];
+		return (int) $template_ids[0];
 	}
 
 	/**
