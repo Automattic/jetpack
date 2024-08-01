@@ -176,9 +176,9 @@ class Help_Center {
 		if ( ! is_admin() ) {
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
 			wp_enqueue_style(
-				'wp-components',
+				'wp-components-help',
 				plugins_url( 'gutenberg/build/components/style.css' ),
-				array( 'dashicons' ),
+				array(),
 				$version
 			);
 		}
