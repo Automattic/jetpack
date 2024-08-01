@@ -10,24 +10,29 @@
  *     'facebook', 'twitter', 'linkedin', 'tumblr',
  * ) );
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
+
+namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
-if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
-	/**
-	 * Init Social_Links if the theme declares support.
-	 */
-	function jetpack_theme_supports_social_links() {
-		if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
-			new Social_Links();
-		}
-	}
-	add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
-}
+// @todo Un-comment and possibly move initialization when requiring the file.
+// if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
+// **
+// * Init Social_Links if the theme declares support.
+// *
+// * @suppress PhanNoopNew
+// */
+// function jetpack_theme_supports_social_links() {
+// if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
+// new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
+// }
+// }
+// add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
+// }
 
-if ( ! class_exists( 'Social_Links' ) ) {
+if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 	/**
 	 * Social_Links main class.
@@ -78,7 +83,7 @@ if ( ! class_exists( 'Social_Links' ) ) {
 			}
 
 			$this->theme_supported_services = $theme_support[0];
-			$this->links                    = Jetpack_Options::get_option( 'social_links', array() );
+			$this->links                    = class_exists( \Jetpack_Options::class ) ? \Jetpack_Options::get_option( 'social_links', array() ) : '';
 
 			$this->admin_setup();
 
@@ -103,7 +108,8 @@ if ( ! class_exists( 'Social_Links' ) ) {
 				return;
 			}
 
-			$this->publicize    = publicize_init();
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Function checked with function_exists - see https://github.com/phan/phan/issues/1204.
+			$this->publicize    = function_exists( 'publicize_init' ) ? publicize_init() : null;
 			$publicize_services = $this->publicize->get_services( 'connected' );
 			$this->services     = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
 
@@ -124,49 +130,53 @@ if ( ! class_exists( 'Social_Links' ) ) {
 
 			if ( $active_links !== $this->links ) {
 				$this->links = $active_links;
-				Jetpack_Options::update_option( 'social_links', $active_links );
+				if ( class_exists( \Jetpack_Options::class ) ) {
+					\Jetpack_Options::update_option( 'social_links', $active_links );
+				}
 			}
 		}
 
 		/**
 		 * Add social link dropdown to the Customizer.
 		 *
-		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
+		 * @param \WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public function customize_register( $wp_customize ) {
 			$wp_customize->add_section(
 				'jetpack_social_links',
 				array(
-					'title'    => esc_html__( 'Connect', 'jetpack' ),
+					'title'    => esc_html__( 'Connect', 'jetpack-classic-theme-helper' ),
 					'priority' => 35,
 				)
 			);
 
-			foreach ( array_keys( $this->publicize->get_services( 'all' ) ) as $service ) {
-				$choices = $this->get_customize_select( $service );
+			if ( class_exists( \Publicize::class ) ) {
+				foreach ( array_keys( $this->publicize->get_services( 'all' ) ) as $service ) {
+					$choices = $this->get_customize_select( $service );
 
-				if ( empty( $choices ) ) {
-					continue;
+					if ( empty( $choices ) ) {
+						continue;
+					}
+
+					$wp_customize->add_setting(
+						"jetpack_options[social_links][$service]",
+						array(
+							'type'    => 'option',
+							'default' => '',
+						)
+					);
+
+					$wp_customize->add_control(
+						"jetpack-$service",
+						array(
+							'label'    => $this->publicize->get_service_label( $service ),
+							'section'  => 'jetpack_social_links',
+							'settings' => "jetpack_options[social_links][$service]",
+							'type'     => 'select',
+							'choices'  => $choices,
+						)
+					);
 				}
-
-				$wp_customize->add_setting(
-					"jetpack_options[social_links][$service]",
-					array(
-						'type'    => 'option',
-						'default' => '',
-					)
-				);
-
-				$wp_customize->add_control(
-					"jetpack-$service",
-					array(
-						'label'    => $this->publicize->get_service_label( $service ),
-						'section'  => 'jetpack_social_links',
-						'settings' => "jetpack_options[social_links][$service]",
-						'type'     => 'select',
-						'choices'  => $choices,
-					)
-				);
 			}
 		}
 
@@ -228,23 +238,25 @@ if ( ! class_exists( 'Social_Links' ) ) {
 		 */
 		private function get_customize_select( $service ) {
 			$choices = array(
-				'' => __( '&mdash; Select &mdash;', 'jetpack' ),
+				'' => __( '&mdash; Select &mdash;', 'jetpack-classic-theme-helper' ),
 			);
 
 			if ( isset( $this->links[ $service ] ) ) {
 				$choices[ $this->links[ $service ] ] = $this->links[ $service ];
 			}
 
-			$connected_services = $this->publicize->get_services( 'connected' );
-			if ( isset( $connected_services[ $service ] ) ) {
-				foreach ( $connected_services[ $service ] as $c ) {
-					$profile_link = $this->publicize->get_profile_link( $service, $c );
+			if ( class_exists( \Publicize::class ) ) {
+				$connected_services = $this->publicize->get_services( 'connected' );
+				if ( isset( $connected_services[ $service ] ) ) {
+					foreach ( $connected_services[ $service ] as $c ) {
+						$profile_link = $this->publicize->get_profile_link( $service, $c );
 
-					if ( false === $profile_link ) {
-						continue;
+						if ( false === $profile_link ) {
+							continue;
+						}
+
+						$choices[ $profile_link ] = $this->publicize->get_display_name( $service, $c );
 					}
-
-					$choices[ $profile_link ] = $this->publicize->get_display_name( $service, $c );
 				}
 			}
 
