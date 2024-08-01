@@ -73,7 +73,6 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	public function permissions_check( $request ) {
 		if ( ! ( new Host() )->is_wpcom_simple() ) {
 			if ( ! ( new Manager() )->is_user_connected() ) {
-				l( 'not connected!' );
 				return new WP_Error(
 					'rest_cannot_send_email_preview',
 					__( 'Please connect your user account to WordPress.com', 'jetpack' ),
@@ -82,13 +81,17 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			}
 		}
 
-		$post = get_post( $request->get_param( 'id' ) );
+		$post = get_post( $request->get_param( 'post_id' ) );
 
-		if ( is_wp_error( $post ) ) {
-			return $post;
+		if ( ! $post ) {
+			return new \WP_Error(
+				'post_not_found',
+				__( 'Post not found.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
 		}
 
-		if ( $post && ! current_user_can( 'edit_post', $post->ID ) ) {
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 			return new WP_Error(
 				'rest_forbidden_context',
 				__( 'Please connect your user account to WordPress.com', 'jetpack' ),
@@ -109,48 +112,9 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	public function email_preview( $request ) {
 		$post_id = $request['post_id'];
 		$post    = get_post( $post_id );
-
-		// Return error if the post cannot be retrieved
-		if ( is_wp_error( $post ) ) {
-			return new WP_Error( 'post_not_found', 'Post not found', array( 'status' => 404 ) );
-		}
-
-		if ( ! defined( 'IS_HTML_EMAIL' ) ) {
-			define( 'IS_HTML_EMAIL', true );
-		}
-		A8C\Block_Rendering\load();
-
-		$subscriber = new Blog_Subscriber( 'foo@example.com' );
-		$mailer     = new Subscription_Mailer( $subscriber, true );
-
-		$mailer_html = $mailer->get_posts( array( $post ) )['html'][0];
-
-		if ( empty( $mailer_html ) ) {
-			return new WP_Error( 'empty_preview', 'Preview generation failed', array( 'status' => 500 ) );
-		}
-
-		$allowed_html    = wp_kses_allowed_html( 'post' );
-		$additional_tags = array(
-			'html'  => array(),
-			'head'  => array(),
-			'meta'  => array(
-				'name'       => true,
-				'content'    => true,
-				'http-equiv' => true,
-				'charset'    => true,
-			),
-			'style' => array(
-				'type' => true,
-			),
-			'body'  => array(),
-		);
-		$allowed_html    = array_merge( $allowed_html, $additional_tags );
-
-		$mailer_html = wp_kses( $mailer_html, $allowed_html );
-
 		return rest_ensure_response(
 			array(
-				'html' => $mailer_html,
+				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post ),
 			)
 		);
 	}
