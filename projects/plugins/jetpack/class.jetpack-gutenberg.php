@@ -771,8 +771,6 @@ class Jetpack_Gutenberg {
 
 				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
 			}
-
-			$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
 		}
 
 		wp_localize_script(
