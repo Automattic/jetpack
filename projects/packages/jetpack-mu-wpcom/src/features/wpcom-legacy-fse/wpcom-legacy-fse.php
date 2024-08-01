@@ -12,7 +12,6 @@ define( 'MU_WPCOM_TEMPLATE_INSERTER', true );
 
 require_once __DIR__ . '/blocks/navigation-menu/index.php';
 require_once __DIR__ . '/blocks/post-content/index.php';
-require_once __DIR__ . '/blocks/site-credit/index.php';
 require_once __DIR__ . '/blocks/site-description/index.php';
 require_once __DIR__ . '/blocks/site-title/index.php';
 require_once __DIR__ . '/blocks/template/index.php';
