@@ -1,11 +1,11 @@
 import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
-import { loadExperimentAssignment } from '@automattic/jetpack-explat';
+import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import useAnalytics from '../../hooks/use-analytics';
-import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
+import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
 
 type ConnectionStepProps = {
@@ -29,16 +29,20 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 
 	const onConnectSiteClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
-		onActivateSite().then( async () => {
+		onActivateSite().then( () => {
 			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
-			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_post_connection_flow_202408'
-			);
+			sideloadTracks( async () => {
+				initializeExPlat();
 
-			if ( variationName === 'control' ) {
-				window.location.href = getPurchasePlanUrl();
-			}
+				const { variationName } = await loadExperimentAssignment(
+					'jetpack_my_jetpack_post_connection_flow_202408'
+				);
+
+				if ( variationName === 'control' ) {
+					window.location.href = 'admin.php?page=my-jetpack#/connection';
+				}
+			} );
 
 			resetNotice();
 			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
