@@ -1,11 +1,13 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
+import { atSymbol } from '@wordpress/icons';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import CommandPalette from './command-palette';
 import deprecated from './deprecated';
 import edit from './edit';
+import NewsletterMenu from './menu';
 import SubscribePanels from './panel';
 
 const blockName = metadata.name.replace( 'jetpack/', '' );
@@ -67,9 +69,11 @@ registerJetpackPlugin( blockName, {
 	render: () => (
 		<>
 			<SubscribePanels />,
+			<NewsletterMenu />,
 			<CommandPalette />
 		</>
 	),
+	icon: atSymbol,
 } );
 
 // Allows block to be inserted inside core navigation block
