@@ -117,11 +117,11 @@
 }
 
 #wpadminbar #wp-admin-bar-site-name>.ab-item:before {
+	/**
+	 * Always show the House icon by the site name.
+	 */
 	content: "\f102" !important;
 
-	/**
-	* Always show the House icon by the site name.
-	*/
 	@media (max-width: 480px) {
 		max-width: 46px;
 	}
@@ -145,6 +145,8 @@
 		right: 0;
 
 		@media (max-width: 782px) {
+			height: 31px;
+
 			#wp-admin-bar-help-center {
 				display: block !important;
 				width: 52px !important;
