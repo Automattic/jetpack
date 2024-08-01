@@ -1,6 +1,9 @@
 import { Modal, PanelRow, Button } from '@wordpress/components';
 import { useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
+import { PreviewSection } from './preview-section';
+import { SettingsSection } from './settings-section';
 import styles from './styles.module.scss';
 
 /**
@@ -18,8 +21,18 @@ export function SocialPostModal() {
 					onRequestClose={ toggleModal }
 					title={ __( 'Social Previews', 'jetpack' ) }
 					className={ styles.modal }
+					__experimentalHideHeader
 				>
-					Something here
+					<div className={ styles[ 'modal-content' ] }>
+						<SettingsSection />
+						<PreviewSection />
+					</div>
+					<Button
+						className={ styles[ 'close-button' ] }
+						onClick={ toggleModal }
+						icon={ close }
+						label={ __( 'Close', 'jetpack' ) }
+					/>
 				</Modal>
 			) }
 			<Button variant="secondary" onClick={ toggleModal }>
