@@ -2,6 +2,7 @@ import { Button } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chevronDown, external, check } from '@wordpress/icons';
 import clsx from 'clsx';
+import debugFactory from 'debug';
 import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
 import useProduct from '../../data/products/use-product';
@@ -21,6 +22,8 @@ type ActionButtonProps< A = () => void > = ProductCardProps & {
 	className?: string;
 	isOwned?: boolean;
 };
+
+const debug = debugFactory( 'my-jetpack:product-card:action-button' );
 
 const ActionButton: FC< ActionButtonProps > = ( {
 	status,
@@ -50,6 +53,8 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	const chevronRef = useRef( null );
 	const { recordEvent } = useAnalytics();
 
+	slug === 'jetpack-ai' && debug( slug, detail );
+
 	const isBusy = isFetching || isInstallingStandalone;
 	const hasAdditionalActions = additionalActions?.length > 0;
 
@@ -64,6 +69,7 @@ const ActionButton: FC< ActionButtonProps > = ( {
 	}, [ isBusy, className ] );
 
 	const getStatusAction = useCallback( (): SecondaryButtonProps => {
+		slug === 'jetpack-ai' && debug( slug, status );
 		switch ( status ) {
 			case PRODUCT_STATUSES.ABSENT: {
 				const buttonText = __( 'Learn more', 'jetpack-my-jetpack' );
