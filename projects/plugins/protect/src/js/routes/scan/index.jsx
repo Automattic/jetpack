@@ -4,8 +4,9 @@ import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useEffect, useMemo } from 'react';
+import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminPage from '../../components/admin-page';
-import AlertSVGIcon from '../../components/alert-icon';
+import ErrorScreen from '../../components/error-section';
 import ProgressBar from '../../components/progress-bar';
 import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
@@ -16,8 +17,8 @@ import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
-import inProgressImage from './in-progress.png';
 import onboardingSteps from './onboarding-steps';
+import ScanSectionHeader from './scan-section-header';
 import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
@@ -48,29 +49,24 @@ const HeaderContainer = () => {
 };
 
 const ErrorSection = ( { errorMessage, errorCode } ) => {
-	const baseErrorMessage = __( 'We are having problems scanning your site.', 'jetpack-protect' );
-
-	let displayErrorMessage = errorMessage ? `${ errorMessage } (${ errorCode }).` : baseErrorMessage;
-	displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
-
 	return (
 		<>
 			<HeaderContainer />
-			<SeventyFiveLayout
-				main={
-					<div className={ styles[ 'main-content' ] }>
-						<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
-						<H3>{ baseErrorMessage }</H3>
-						<Text>{ displayErrorMessage }</Text>
-					</div>
-				}
-				secondary={
-					<div className={ styles.illustration }>
-						<img src={ inProgressImage } alt="" />
-					</div>
-				}
-				preserveSecondaryOnMobile={ false }
-			/>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Col>
+					<ScanSectionHeader />
+				</Col>
+				<Col>
+					<ErrorScreen
+						baseErrorMessage={ __(
+							'We are having problems scanning your site.',
+							'jetpack-protect'
+						) }
+						errorMessage={ errorMessage }
+						errorCode={ errorCode }
+					/>
+				</Col>
+			</Container>
 		</>
 	);
 };
@@ -86,48 +82,55 @@ const ScanningSection = ( { currentProgress } ) => {
 	return (
 		<>
 			<HeaderContainer />
-			<SeventyFiveLayout
-				main={
-					<div className={ styles[ 'main-content' ] }>
-						<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-							<Col className={ styles[ 'loading-content' ] }>
-								<Spinner
-									style={ {
-										color: 'black',
-										marginTop: 0,
-										marginLeft: 0,
-									} }
-								/>
-								<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
-							</Col>
-							<Col>
-								<H3 style={ { textWrap: 'balance' } }>
-									{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
-								</H3>
-								{ currentProgress !== null && currentProgress >= 0 && (
-									<ProgressBar value={ currentProgress } />
-								) }
-								<Text>
-									{ sprintf(
-										// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
-										__(
-											'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
-											'jetpack-protect'
-										),
-										totalVulnerabilitiesFormatted
-									) }
-								</Text>
-							</Col>
-						</Container>
-					</div>
-				}
-				secondary={
-					<div className={ styles.illustration }>
-						<img src={ inProgressImage } alt="" />
-					</div>
-				}
-				preserveSecondaryOnMobile={ false }
-			/>
+			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Col>
+					<ScanSectionHeader />
+				</Col>
+				<Col>
+					<SeventyFiveLayout
+						main={
+							<div className={ styles[ 'main-content' ] }>
+								<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
+									<Col className={ styles[ 'loading-content' ] }>
+										<Spinner
+											style={ {
+												color: 'black',
+												marginTop: 0,
+												marginLeft: 0,
+											} }
+										/>
+										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
+									</Col>
+									<Col>
+										<H3 style={ { textWrap: 'balance' } }>
+											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
+										</H3>
+										{ currentProgress !== null && currentProgress >= 0 && (
+											<ProgressBar value={ currentProgress } />
+										) }
+										<Text>
+											{ sprintf(
+												// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+												__(
+													'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
+													'jetpack-protect'
+												),
+												totalVulnerabilitiesFormatted
+											) }
+										</Text>
+									</Col>
+								</Container>
+							</div>
+						}
+						secondary={
+							<div className={ styles.illustration }>
+								<img src={ inProgressImage } alt="" />
+							</div>
+						}
+						preserveSecondaryOnMobile={ false }
+					/>
+				</Col>
+			</Container>
 		</>
 	);
 };
