@@ -28,12 +28,10 @@ class Help_Center {
 		global $wp_customize;
 
 		if ( isset( $wp_customize ) ) {
-			error_log( 'exit early due to wp_customize' );
 			return;
 		}
 
 		if ( ! function_exists( 'wpcom_get_site_purchases' ) ) {
-			error_log( 'exit early due to wpcom_get_site_purchases not existing' );
 			return;
 		}
 
@@ -84,9 +82,6 @@ class Help_Center {
 	 */
 	public function enqueue_script( $variant, $dependencies, $version ) {
 		$script_dependencies = $dependencies ?? array();
-
-		error_log( 'enqueue_script' );
-		error_log( print_r( compact('variant', 'dependencies', 'version'), true ) );
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
 			add_action(
@@ -178,15 +173,12 @@ class Help_Center {
 			);
 		}
 
-		error_log( 'check if is_admin' );
-
 		if ( ! is_admin() ) {
 			$stylesheet = 'build/components/' . ( is_rtl() ? 'style-rtl.css' : 'style.css' );
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
 			if ( function_exists( 'gutenberg_dir_path' ) ) {
 				$stylesheet_url = gutenberg_url( $stylesheet );
 			}
-			error_log( print_r( compact('stylesheet_url'), true ) );
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
 			wp_enqueue_style(
 				'wp-components-help',
