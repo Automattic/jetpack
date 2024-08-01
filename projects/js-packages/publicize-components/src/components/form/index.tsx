@@ -38,10 +38,11 @@ export default function PublicizeForm() {
 		userConnectionUrl,
 	} = usePublicizeConfig();
 
-	const { useAdminUiV1 } = useSelect( select => {
+	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			useAdminUiV1: store.useAdminUiV1(),
+			featureFlags: store.featureFlags(),
 		};
 	}, [] );
 
@@ -62,6 +63,7 @@ export default function PublicizeForm() {
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
 					<MediaValidationNotices />
+					{ featureFlags.useEditorPreview ? <p>New modal trigger goes here</p> : null }
 				</>
 			) : null }
 			<PanelRow>
