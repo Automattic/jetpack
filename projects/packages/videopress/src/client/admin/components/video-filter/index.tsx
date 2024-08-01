@@ -36,7 +36,7 @@ export const FilterButton = ( props: {
 	isActive: boolean;
 	onClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 	disabled?: boolean;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	const { isActive, ...componentProps } = props;
 	return (
 		<Button
@@ -53,7 +53,7 @@ export const FilterButton = ( props: {
 	);
 };
 
-const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
+const DisabledReasonTooltip = ( props: { message: string } ): React.JSX.Element => {
 	return (
 		<Tooltip position="middle center" text={ props.message }>
 			<span className={ styles[ 'title-adornment' ] }>
@@ -70,7 +70,7 @@ export const CheckboxCheckmark = ( props: {
 	disabled?: boolean;
 	disabledReason?: string;
 	onChange?: ( checked: boolean ) => void;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	return (
 		<label htmlFor={ props.for } className={ styles[ 'checkbox-container' ] }>
 			<Checkbox
@@ -96,7 +96,7 @@ export const FilterSection = ( props: {
 	) => void;
 	className?: string;
 	filter?: FilterObject;
-} ): JSX.Element => {
+} ): React.JSX.Element => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
 	const filterIsChecked = (

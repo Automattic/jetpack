@@ -98,12 +98,6 @@ export default function usePublicizeConfig() {
 	 */
 	const isEnhancedPublishingEnabled = !! getJetpackData()?.social?.isEnhancedPublishingEnabled;
 
-	/**
-	 * isAutoConversionEnabled:
-	 * Whether the site has the auto conversion feature enabled.
-	 */
-	const isAutoConversionEnabled = !! getJetpackData()?.social?.isAutoConversionEnabled;
-
 	/**\
 	 * Returns true if the post type is a Jetpack Social Note.
 	 */
@@ -132,7 +126,6 @@ export default function usePublicizeConfig() {
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
 		adminUrl: getJetpackData()?.social?.adminUrl,
-		isAutoConversionEnabled,
 		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
 		isJetpackSocialNote,
 		needsUserConnection,

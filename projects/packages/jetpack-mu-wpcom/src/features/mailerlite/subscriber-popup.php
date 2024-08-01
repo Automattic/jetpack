@@ -124,6 +124,7 @@ class WPCOM_Widget_Mailerlite extends \WP_Widget {
     $html .= '<input class="widefat" id="' . esc_attr( $this->get_field_id( 'uuid' ) ) . '" name="' . esc_attr( $this->get_field_name( 'uuid' ) ) . '" type="text" value="' . esc_attr( $instance['uuid'] ) . '" />';
     $html .= '</label></p>';
 
+		echo $html;
 		return $html;
 	}
 }

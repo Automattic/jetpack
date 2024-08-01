@@ -79,10 +79,10 @@ const SaveInLibraryButton: React.FC< { siteId: string } > = ( { siteId } ) => {
 			<span className="action-text">{ __( 'Save in Library', 'jetpack-ai-client' ) }</span>
 		</Button>
 	) : (
-		<button className="jetpack-ai-logo-generator-modal-presenter__action">
+		<Button className="jetpack-ai-logo-generator-modal-presenter__action">
 			<Icon icon={ saving ? <MediaIcon /> : <CheckIcon /> } />
 			<span className="action-text">{ saving ? savingLabel : savedLabel }</span>
-		</button>
+		</Button>
 	);
 };
 

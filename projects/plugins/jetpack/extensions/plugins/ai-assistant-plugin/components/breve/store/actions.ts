@@ -49,20 +49,26 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
-export function setBlockMd5( feature: string, blockId: string, md5: string ) {
+export function setBlockMd5( blockId: string, md5: string ) {
 	return {
 		type: 'SET_BLOCK_MD5',
-		feature,
 		blockId,
 		md5,
 	};
 }
 
-export function invalidateSuggestions( feature: string, blockId: string ) {
+export function invalidateSuggestions( blockId: string ) {
 	return {
 		type: 'INVALIDATE_SUGGESTIONS',
-		feature,
 		blockId,
+	};
+}
+
+export function ignoreSuggestion( blockId: string, id: string ) {
+	return {
+		type: 'IGNORE_SUGGESTION',
+		blockId,
+		id,
 	};
 }
 
