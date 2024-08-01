@@ -39,7 +39,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 					'jetpack_my_jetpack_post_connection_flow_202408'
 				);
 
-				if ( variationName === 'control' ) {
+				if ( variationName !== 'treatment' ) {
 					window.location.href = 'admin.php?page=my-jetpack#/connection';
 				}
 			} );
