@@ -90,9 +90,19 @@ CSS
 	wp_add_inline_style(
 		'wpcom-admin-bar',
 		<<<CSS
-			#wpadminbar.mobile .quicklinks .ab-icon:before,
-			#wpadminbar.mobile .quicklinks .ab-item:before {
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-icon:before,
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-item:before {
 				color: $admin_icon_color !important;
+			}
+CSS
+	);
+
+	// Force wpcom icons to have consistent color.
+	wp_add_inline_style(
+		'wpcom-admin-bar',
+		<<<CSS
+			#wpadminbar .ab-icon {
+				color: $admin_icon_color;
 			}
 CSS
 	);
