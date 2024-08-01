@@ -174,16 +174,8 @@ class Help_Center {
 		}
 
 		if ( $variant === 'wp-admin' && ! is_admin() ) {
-			if ( function_exists( 'gutenberg_dir_path' ) ) {
-				$stylesheet_path = gutenberg_dir_path() . 'build/components/' . ( is_rtl() ? 'style-rtl.css' : 'style.css' );
-				// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
-				wp_enqueue_style(
-					'wp-components',
-					$stylesheet_path,
-					array( 'dashicons' ),
-					$version
-				);
-			}
+			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+			wp_enqueue_style( 'wp-components' );
 		}
 	}
 
