@@ -175,14 +175,14 @@ class Help_Center {
 
 		if ( $variant === 'wp-admin' && ! is_admin() ) {
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
-			if ( function_exists( 'plugins_url' ) && defined( 'GUTENBERG_VERSION' ) ) {
+			//if ( defined( 'GUTENBERG_VERSION' ) ) {
 				wp_enqueue_style(
 					'wp-components',
-					'https://s0.wp.com/wp-content/plugins/gutenberg-core/v' . GUTENBERG_VERSION . '/build/components/style' . ( is_rtl() ? '-rtl.css' : '.css' ),
+					'https://s0.wp.com/wp-content/plugins/gutenberg-core/v18.8.0/build/components/style' . ( is_rtl() ? '-rtl.css' : '.css' ),
 					array( 'dashicons' ),
 					$version
 				);
-			}
+			//}
 		}
 	}
 
