@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Render the navigation menu.
  *
@@ -14,6 +16,8 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
  * @return string
  */
 function render_navigation_menu_block( $attributes ) {
+	Common\wpcom_record_tracks_event( 'wpcom_legacy_fse_render_block', array( 'block_name' => 'a8c/navigation-menu' ) );
+
 	$styles = '';
 
 	$container_class = 'menu-primary-container';

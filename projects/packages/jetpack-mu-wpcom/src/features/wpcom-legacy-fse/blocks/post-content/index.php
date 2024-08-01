@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Renders post content.
  *
@@ -19,6 +21,8 @@ function render_post_content_block( $attributes, $content ) {
 	if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 		return $content;
 	}
+
+	Common\wpcom_record_tracks_event( 'wpcom_legacy_fse_render_block', array( 'block_name' => 'a8c/post-content' ) );
 
 	$align = isset( $attributes['align'] ) ? ' align' . $attributes['align'] : '';
 

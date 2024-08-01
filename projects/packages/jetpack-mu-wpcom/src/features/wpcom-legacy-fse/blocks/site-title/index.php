@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Renders the site title and allows for editing in the full site editor.
  *
@@ -14,6 +16,8 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
  * @return string
  */
 function render_site_title_block( $attributes ) {
+	Common\wpcom_record_tracks_event( 'wpcom_legacy_fse_render_block', array( 'block_name' => 'a8c/site-title' ) );
+
 	ob_start();
 
 	$styles = '';

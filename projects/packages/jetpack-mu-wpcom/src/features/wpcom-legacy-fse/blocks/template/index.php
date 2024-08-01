@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Renders template.
  *
@@ -17,6 +19,8 @@ function render_template_block( $attributes ) {
 	if ( ! isset( $attributes['templateId'] ) || ! is_int( $attributes['templateId'] ) ) {
 		return '';
 	}
+
+	Common\wpcom_record_tracks_event( 'wpcom_legacy_fse_render_block', array( 'block_name' => 'a8c/template' ) );
 
 	$template = get_post( $attributes['templateId'] );
 
