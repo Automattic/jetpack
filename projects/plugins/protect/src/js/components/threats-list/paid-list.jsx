@@ -146,15 +146,21 @@ const ThreatAccordionItem = ( {
 						{ __( 'Unignore threat', 'jetpack-protect' ) }
 					</Button>
 				) }
-				{ status !== 'ignored' && status !== 'fixed' && (
-					<Button isDestructive={ true } variant="secondary" onClick={ handleIgnoreThreatClick() }>
-						{ __( 'Ignore threat', 'jetpack-protect' ) }
-					</Button>
-				) }
-				{ fixable && status !== 'fixed' && (
-					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
-						{ __( 'Fix threat', 'jetpack-protect' ) }
-					</Button>
+				{ 'current' === status && (
+					<>
+						<Button
+							isDestructive={ true }
+							variant="secondary"
+							onClick={ handleIgnoreThreatClick() }
+						>
+							{ __( 'Ignore threat', 'jetpack-protect' ) }
+						</Button>
+						{ fixable && (
+							<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
+								{ __( 'Fix threat', 'jetpack-protect' ) }
+							</Button>
+						) }
+					</>
 				) }
 			</div>
 		</PaidAccordionItem>
