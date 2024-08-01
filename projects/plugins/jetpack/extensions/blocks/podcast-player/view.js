@@ -1,7 +1,6 @@
-import { createElement } from '@wordpress/element';
+import { createElement, createRoot } from '@wordpress/element';
 import debugFactory from 'debug';
 import '../../store/media-source';
-import { createRoot } from 'react-dom/client';
 import PodcastPlayer from './components/podcast-player';
 
 import './style.scss';
