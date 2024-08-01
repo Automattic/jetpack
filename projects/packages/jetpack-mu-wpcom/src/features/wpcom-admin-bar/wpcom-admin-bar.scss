@@ -57,9 +57,13 @@
 		top: 7px;
 	}
 
+}
+#wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
+	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
-		margin: 0 7px 0 1px;
-		margin-left: 1px;
+		>.ab-item .ab-icon:before {
+			margin: 0 7px 0 1px;
+		}
 	}
 }
 
