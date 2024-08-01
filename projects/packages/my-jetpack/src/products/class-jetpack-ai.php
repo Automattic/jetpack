@@ -446,6 +446,13 @@ class Jetpack_Ai extends Product {
 	public static function is_upgradable() {
 		$has_ai_feature = static::does_site_have_feature( 'ai-assistant' );
 		$current_tier   = self::get_current_usage_tier();
+		$next_tier      = self::get_next_usage_tier();
+
+		// The check below is debatable, not having the feature should not flag as not upgradable.
+		// If user is free (tier = 0), not unlimited (tier = 1) and has a next tier, then it's upgradable.
+		if ( $current_tier !== null && $current_tier !== 1 && $next_tier ) {
+			return true;
+		}
 
 		// Mark as not upgradable if user is on unlimited tier or does not have any plan.
 		if ( ! $has_ai_feature || null === $current_tier || 1 === $current_tier ) {
@@ -479,7 +486,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/add-jetpack-ai';
+		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**

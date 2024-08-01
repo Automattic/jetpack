@@ -1,5 +1,9 @@
 .jetpack-ai-sidebar__feature-section {
 	margin-bottom: 2em;
+
+	p, p > * {
+		text-wrap: pretty;
+	}
 }
 
 .jetpack-ai-feedback__label {
