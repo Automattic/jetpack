@@ -1,0 +1,23 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.panel {
+    margin: 1rem 0 1.5rem;
+}
+
+.modal {
+
+	@media ( min-width: $break-small ) {
+		width: calc( 100vw - 40px );
+	}
+
+	@media ( min-width: $break-large ) {
+		width: calc( #{$break-large} - 40px );
+    }
+
+    :global(.components-modal__header) {
+        padding: 0.5rem 1.5rem;
+    }
+    :global(.components-modal__header h1) {
+        font-size: 1rem;
+    }
+}
