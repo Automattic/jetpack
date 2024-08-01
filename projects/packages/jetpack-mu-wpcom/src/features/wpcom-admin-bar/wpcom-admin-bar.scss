@@ -15,6 +15,20 @@
 }
 
 /**
+ * Hides certain icons on smaller viewports.
+ */
+@media (max-width: 480px) {
+	#wpadminbar #wp-admin-bar-new-content {
+		display: none !important;
+	}
+}
+@media (max-width: 360px) {
+	#wpadminbar .wp-admin-bar-reader {
+		display: none !important;
+	}
+}
+
+/**
  * WP logo menu
  */
 #wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
@@ -41,6 +55,15 @@
 		margin: 0 10px;
 		mask-size: cover;
 		top: 7px;
+	}
+
+}
+#wpadminbar #wp-admin-bar-wpcom-logo:not(:first-child) {
+	// Site admin on mobile viewport (the first child is the hamburger menu)
+	@media (max-width: 480px) {
+		>.ab-item .ab-icon:before {
+			margin: 0 7px 0 1px;
+		}
 	}
 }
 
@@ -73,6 +96,7 @@
 			justify-content: center;
 			text-indent: 0;
 			font-size: 0;
+			width: 52px;
 		}
 
 		& a.ab-item:before {
@@ -81,6 +105,25 @@
 			margin: 0 8px;
 			mask-size: contain;
 		}
+	}
+	@media (max-width: 480px) {
+		& a.ab-item {
+			width: 46px;
+		}
+		& a.ab-item:before {
+			margin: 0 5px;
+		}
+	}
+}
+
+#wpadminbar #wp-admin-bar-site-name>.ab-item:before {
+	/**
+	 * Always show the House icon by the site name.
+	 */
+	content: "\f102" !important;
+
+	@media (max-width: 480px) {
+		max-width: 46px;
 	}
 }
 
@@ -110,6 +153,8 @@
 		}
 
 		@media (max-width: 782px) {
+			height: 31px;
+
 			#wp-admin-bar-help-center {
 				display: block !important;
 				width: 52px !important;
@@ -136,7 +181,7 @@
 							right: 0;
 							width: 36px !important;
 							height: 40px !important;
-									background-size: contain;
+							background-size: contain;
 						}
 					}
 				}
@@ -146,12 +191,19 @@
 				}
 			}
 		}
-	}
-}
+		@media (max-width: 480px) {
+			#wp-admin-bar-notes {
+				width: 46px !important;
+			}
+			#wp-admin-bar-my-account {
+				.ab-item {
+					width: 46px;
 
-/**
- * Always show the House icon by the site name.
- */
-#wpadminbar #wp-admin-bar-site-name>.ab-item:before {
-  content: "\f102" !important;
+					img {
+						right: 7px;
+					}
+				}
+			}
+		}
+	}
 }
