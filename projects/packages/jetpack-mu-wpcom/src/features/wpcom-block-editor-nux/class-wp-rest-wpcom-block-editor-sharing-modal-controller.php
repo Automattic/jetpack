@@ -50,7 +50,7 @@ class WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller extends \WP_REST_Contr
 	 *
 	 * @return boolean
 	 */
-	public function get_wpcom_sharing_modal_dismissed() {
+	public static function get_wpcom_sharing_modal_dismissed() {
 		$old_sharing_modal_dismissed = (bool) get_option( 'sharing_modal_dismissed', false );
 		if ( $old_sharing_modal_dismissed ) {
 			return true;
