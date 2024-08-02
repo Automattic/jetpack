@@ -41,10 +41,10 @@ module.exports = [
 	{
 		...sharedConfig,
 		entry: {
-			'jetpack-initial-state': {
-				import: './src/js/initial-state.js',
+			'jetpack-script-data': {
+				import: './src/js/script-data.js',
 				library: {
-					name: 'JetpackInitialState',
+					name: 'JetpackScriptData',
 					type: 'umd',
 				},
 			},
@@ -55,7 +55,7 @@ module.exports = [
 				DependencyExtractionPlugin: {
 					requestMap: {
 						// We don't want to externalize this package, we rather want to bundle it.
-						'@automattic/jetpack-initial-state': {},
+						'@automattic/jetpack-script-data': {},
 					},
 				},
 			} ),

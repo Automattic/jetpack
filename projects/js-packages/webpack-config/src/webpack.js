@@ -106,9 +106,9 @@ const DefinePlugin = defines => [
 ];
 
 const defaultRequestMap = {
-	'@automattic/jetpack-initial-state': {
-		external: 'JetpackInitialState',
-		handle: 'jetpack-initial-state',
+	'@automattic/jetpack-script-data': {
+		external: 'JetpackScriptData',
+		handle: 'jetpack-script-data',
 	},
 };
 

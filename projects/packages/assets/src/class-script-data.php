@@ -1,6 +1,6 @@
 <?php
 /**
- * Jetpack Initial state.
+ * Jetpack script data.
  *
  * @package  automattic/jetpack-assets
  */
@@ -8,11 +8,11 @@
 namespace Automattic\Jetpack;
 
 /**
- * Class Initial State
+ * Class script data
  */
-class Initial_State {
+class Script_Data {
 
-	const SCRIPT_HANDLE = 'jetpack-initial-state';
+	const SCRIPT_HANDLE = 'jetpack-script-data';
 
 	/**
 	 * Configure.
@@ -31,13 +31,13 @@ class Initial_State {
 		 * 1. wp_print_scripts action is fired on both admin and public pages.
 		 *    On admin pages, it's fired before admin_enqueue_scripts action,
 		 *    which can be a problem if the consumer package uses admin_enqueue_scripts
-		 *    to hook into the initial state. Thus, we prefer to use admin_print_scripts on admin pages.
-		 * 2. We want to render the initial state on print, instead of init or enqueue actions,
+		 *    to hook into the script data. Thus, we prefer to use admin_print_scripts on admin pages.
+		 * 2. We want to render the script data on print, instead of init or enqueue actions,
 		 *    so that the hook callbacks have enough time and information
-		 *    to decide whether to update the initial state or not.
+		 *    to decide whether to update the script data or not.
 		 */
 		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
-		add_action( $hook, array( self::class, 'render_initial_state' ), 1 );
+		add_action( $hook, array( self::class, 'render_script_data' ), 1 );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class Initial_State {
 
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
-			'../build/jetpack-initial-state.js',
+			'../build/jetpack-script-data.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,
@@ -59,34 +59,34 @@ class Initial_State {
 	}
 
 	/**
-	 * Render the initial state using an inline script.
+	 * Render the script data using an inline script.
 	 *
 	 * @access private
 	 *
 	 * @return void
 	 */
-	public static function render_initial_state() {
+	public static function render_script_data() {
 
-		$initial_state = is_admin() ? self::get_admin_initial_state() : self::get_public_initial_state();
+		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
 
-		$initial_state = wp_json_encode(
-			$initial_state,
+		$script_data = wp_json_encode(
+			$script_data,
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
 		);
 
 		wp_add_inline_script(
 			self::SCRIPT_HANDLE,
-			sprintf( 'window.JetpackInitialState = %s;', $initial_state ),
+			sprintf( 'window.JetpackScriptData = %s;', $script_data ),
 			'before'
 		);
 	}
 
 	/**
-	 * Get the admin initial state.
+	 * Get the admin script data.
 	 *
 	 * @return array
 	 */
-	protected static function get_admin_initial_state() {
+	protected static function get_admin_script_data() {
 
 		global $wp_version;
 
@@ -116,7 +116,7 @@ class Initial_State {
 		);
 
 		/**
-		 * Filter the admin initial state.
+		 * Filter the admin script data.
 		 *
 		 * When using this filter, ensure that the data is added only if it is used by some script.
 		 * This filter may be called on almost every admin page load. So, one should check if the data is needed/used on that page.
@@ -125,17 +125,17 @@ class Initial_State {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $state The initial state.
+		 * @param array $state The script data.
 		 */
-		return apply_filters( 'jetpack_admin_js_initial_state', $state );
+		return apply_filters( 'jetpack_admin_js_script_data', $state );
 	}
 
 	/**
-	 * Get the admin initial state.
+	 * Get the admin script data.
 	 *
 	 * @return array
 	 */
-	protected static function get_public_initial_state() {
+	protected static function get_public_script_data() {
 
 		$state = array(
 			'site' => array(
@@ -145,15 +145,15 @@ class Initial_State {
 		);
 
 		/**
-		 * Filter the public initial state.
+		 * Filter the public script data.
 		 *
-		 * See the docs for `jetpack_admin_js_initial_state` filter for more information.
+		 * See the docs for `jetpack_admin_js_script_data` filter for more information.
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param array $state The initial state.
+		 * @param array $state The script data.
 		 */
-		return apply_filters( 'jetpack_public_js_initial_state', $state );
+		return apply_filters( 'jetpack_public_js_script_data', $state );
 	}
 
 	/**
