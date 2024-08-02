@@ -909,7 +909,7 @@ class Jetpack {
 		}
 
 		// Assets should be configured regardless of connection status.
-		// TODO - Uncomment this when `jetpack-publicize-components` imports `jetpack-initial-state`
+		// TODO - Uncomment this when `jetpack-publicize-components` imports `jetpack-script-data`
 		// Which makes the latter to be a dependency for Jetpack.
 		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
 		// \Automattic\Jetpack\Publicize\Publicize_Assets::configure();

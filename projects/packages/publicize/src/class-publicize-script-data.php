@@ -1,6 +1,6 @@
 <?php
 /**
- * Publicize_Initial_State.
+ * Publicize_Script_Data.
  *
  * @package automattic/jetpack-publicize
  */
@@ -13,9 +13,9 @@ use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Jetpack_Options;
 
 /**
- * Publicize_Initial_State class.
+ * Publicize_Script_Data class.
  */
-class Publicize_Initial_State {
+class Publicize_Script_Data {
 
 	/**
 	 * Get the publicize instance - properly typed
@@ -37,7 +37,7 @@ class Publicize_Initial_State {
 	 * Configure initial state.
 	 */
 	public static function configure() {
-		add_filter( 'jetpack_admin_js_initial_state', array( __CLASS__, 'set_admin_initial_state' ), 10, 1 );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_admin_script_data' ), 10, 1 );
 	}
 
 	/**
@@ -45,9 +45,9 @@ class Publicize_Initial_State {
 	 *
 	 * @param array $state Initial state.
 	 */
-	public static function set_admin_initial_state( $state ) {
+	public static function set_admin_script_data( $state ) {
 
-		$state['social'] = self::get_admin_initial_state();
+		$state['social'] = self::get_admin_script_data();
 
 		if ( empty( $state['site']['plan'] ) ) {
 			$state['site']['plan'] = Current_Plan::get();
@@ -61,15 +61,15 @@ class Publicize_Initial_State {
 	 *
 	 * @return array
 	 */
-	public static function get_admin_initial_state() {
+	public static function get_admin_script_data() {
 
 		// Only set initial state on the social settings page,
 		// the Jetpack settings page, or the block editor.
-		$should_set_initial_state = Utils::is_jetpack_settings_page()
+		$should_set_script_data = Utils::is_jetpack_settings_page()
 			|| Utils::is_social_settings_page()
 			|| Utils::should_block_editor_have_social();
 
-		if ( ! $should_set_initial_state ) {
+		if ( ! $should_set_script_data ) {
 			return array();
 		}
 
@@ -85,7 +85,7 @@ class Publicize_Initial_State {
 		return array_merge(
 			$basic_state,
 			array(
-				'store'       => self::get_store_initial_state(),
+				'store'       => self::get_store_script_data(),
 				'urls'        => self::get_urls(),
 				'shares_data' => self::get_shares_data(),
 			)
@@ -108,7 +108,7 @@ class Publicize_Initial_State {
 	 *
 	 * @return array
 	 */
-	public static function get_store_initial_state() {
+	public static function get_store_script_data() {
 
 		$settings = ( new Settings() );
 

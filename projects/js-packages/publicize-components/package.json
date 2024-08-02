@@ -21,7 +21,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@automattic/jetpack-initial-state": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/popup-monitor": "1.0.2",
 		"@automattic/social-previews": "2.1.0-beta.6",

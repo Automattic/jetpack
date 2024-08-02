@@ -16,6 +16,6 @@ class Publicize_Assets {
 	 * Initialize the class.
 	 */
 	public static function configure() {
-		Publicize_Initial_State::configure();
+		Publicize_Script_Data::configure();
 	}
 }

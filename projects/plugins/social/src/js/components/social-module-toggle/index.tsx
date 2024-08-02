@@ -5,8 +5,8 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { getInitialState } from '@automattic/jetpack-initial-state';
 import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -37,7 +37,7 @@ const SocialModuleToggle: React.FC = () => {
 		};
 	}, [] );
 
-	const { useAdminUiV1 } = getInitialState().social.feature_flags;
+	const { useAdminUiV1 } = getScriptData().social.feature_flags;
 
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 

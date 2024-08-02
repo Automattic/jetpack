@@ -2,7 +2,7 @@ export interface FeatureFlags {
 	useAdminUiV1: boolean;
 }
 
-export interface SocialInitialState {
+export interface SocialScriptData {
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 }
