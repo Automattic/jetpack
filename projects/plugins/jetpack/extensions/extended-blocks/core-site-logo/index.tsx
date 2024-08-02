@@ -144,6 +144,17 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 }, 'SiteLogoEditWithAiComponents' );
 
 /**
+ * Function to check if the feature is available depending on the site ID.
+ *
+ * @returns {boolean} True if the feature is available.
+ */
+function isFeatureAvailable() {
+	const siteId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
+
+	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) || siteId % 10 === 0;
+}
+
+/**
  * Function to check if the block can be extended.
  *
  * @param {string} name - The block name.
@@ -162,7 +173,7 @@ function canExtendBlock( name: string ): boolean {
 	}
 
 	// Disable if the feature is not available.
-	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+	if ( ! isFeatureAvailable() ) {
 		return false;
 	}
 

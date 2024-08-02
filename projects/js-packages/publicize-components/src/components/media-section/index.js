@@ -72,7 +72,10 @@ export default function MediaSection( {
 						mediaDetails={ mediaDetails }
 						onChange={ onChange }
 					/>
-					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
+						className={ styles[ 'learn-more' ] }
+					>
 						{ __( 'Learn photo and video best practices', 'jetpack' ) }
 					</ExternalLink>
 				</MediaWrapper>

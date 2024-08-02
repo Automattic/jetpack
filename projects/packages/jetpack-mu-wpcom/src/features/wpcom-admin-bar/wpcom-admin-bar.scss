@@ -139,6 +139,14 @@
 		}
 	}
 
+	// Move the secondary admin bar to the left side if the site is RTL.
+	body.rtl & {
+		#wp-admin-bar-top-secondary {
+			left: 0;
+			right: inherit;
+		}
+	}
+
 	#wp-admin-bar-top-secondary {
 		float: none;
 		position: absolute;

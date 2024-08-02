@@ -2,11 +2,11 @@ import { Guide, GuidePage } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import blockPickerImage from '../../../../assets/images/block-picker.svg';
+import editorImage from '../../../../assets/images/editor.svg';
+import previewImage from '../../../../assets/images/preview.svg';
+import privateImage from '../../../../assets/images/private.svg';
 import { wpcomTrackEvent } from '../../../../common/tracks';
-import blockPickerImage from './images/block-picker.svg';
-import editorImage from './images/editor.svg';
-import previewImage from './images/preview.svg';
-import privateImage from './images/private.svg';
 
 import './style.scss';
 

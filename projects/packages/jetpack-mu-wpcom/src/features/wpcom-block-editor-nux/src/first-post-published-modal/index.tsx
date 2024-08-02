@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
 import React from 'react';
+import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
-import postPublishedImage from './images/post-published.svg';
 
 import './style.scss';
 

@@ -566,6 +566,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
 		}
+		if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_full_site_editing_active' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_full_site_editing_active();
+		}
 		return function_exists( '\A8C\FSE\is_full_site_editing_active' ) && \A8C\FSE\is_full_site_editing_active();
 	}
 
@@ -582,6 +586,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function is_fse_eligible() {
 		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
 			return false;
+		}
+		if ( function_exists( '\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_site_eligible_for_full_site_editing' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction
+			return \Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE\is_site_eligible_for_full_site_editing();
 		}
 		return function_exists( '\A8C\FSE\is_site_eligible_for_full_site_editing' ) && \A8C\FSE\is_site_eligible_for_full_site_editing();
 	}
