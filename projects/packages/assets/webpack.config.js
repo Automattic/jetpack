@@ -44,7 +44,7 @@ module.exports = [
 			'jetpack-script-data': {
 				import: './src/js/script-data.js',
 				library: {
-					name: 'JetpackScriptData',
+					name: 'JetpackScriptDataModule',
 					type: 'umd',
 				},
 			},

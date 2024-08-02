@@ -107,7 +107,7 @@ const DefinePlugin = defines => [
 
 const defaultRequestMap = {
 	'@automattic/jetpack-script-data': {
-		external: 'JetpackScriptData',
+		external: 'JetpackScriptDataModule',
 		handle: 'jetpack-script-data',
 	},
 };
