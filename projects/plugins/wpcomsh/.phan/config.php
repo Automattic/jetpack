@@ -15,7 +15,7 @@ return make_phan_config(
 	array(
 		'exclude_file_regex'    => array( 'tests/lib/mocks' ),
 		'exclude_file_list'     => array(
-			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class.color.php',
+			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
 		),
 		'parse_file_list'       => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
@@ -26,7 +26,7 @@ return make_phan_config(
 			// other in 'require-dev' and `extra.dependencies.test-only' instead. See packages/config for an example.
 			// --
 			// class.color.php provides the definition of the Jetpack_Color class.
-			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class.color.php',
+			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
 			// class.jetpack.php provides the definition of the Jetpack megaclass.
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',
 			// class.jetpack-gutenberg.php provides the definition of the Jetpack_Gutenberg class.
