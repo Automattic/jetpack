@@ -1,5 +1,8 @@
 import { TabPanel } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { ToggleControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
 import { useService } from '../services/use-service';
@@ -48,12 +51,26 @@ export function PreviewSection() {
 		[ getService ]
 	);
 
+	const { toggleConnectionById } = useDispatch( socialStore );
+
+	const toggleConnection = useCallback(
+		( connectionId: string ) => () => {
+			toggleConnectionById( connectionId );
+		},
+		[ toggleConnectionById ]
+	);
+
 	return (
 		<div className={ styles[ 'preview-section' ] }>
 			<TabPanel tabs={ connections }>
 				{ ( tab: ( typeof connections )[ number ] ) => (
 					<div className={ styles[ 'preview-content' ] }>
 						<PostPreview connection={ tab } />
+						<ToggleControl
+							label={ __( 'Share to this account', 'jetpack' ) }
+							checked={ tab.enabled }
+							onChange={ toggleConnection( tab.connection_id ) }
+						/>
 					</div>
 				) }
 			</TabPanel>
