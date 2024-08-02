@@ -54,8 +54,15 @@
     }
 }
 
+.settings-section {
+    @include break-medium {
+        flex: 1
+    }
+}
+
 .settings-content {
     padding: 2rem;
+
     @include break-medium {
         border-inline-end: 1px solid var(--studio-gray-5);
     }
@@ -64,6 +71,10 @@
 .preview-section {
     flex: 1;
     background: var(--jp-gray-0); // closest to #F0F2F5;
+
+    @include break-medium {
+        flex: 2;
+    }
 
     :global(.components-tab-panel__tabs) {
         justify-content: center;
