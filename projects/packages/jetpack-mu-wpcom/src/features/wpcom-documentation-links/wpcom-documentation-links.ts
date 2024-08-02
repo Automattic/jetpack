@@ -2,13 +2,6 @@ import { localizeUrl } from '@automattic/i18n-utils';
 import { addFilter } from '@wordpress/hooks';
 import './wpcom-documentation-links.css';
 
-declare global {
-	interface Window {
-		_currentSiteId: number;
-		_currentSiteType: string;
-	}
-}
-
 /**
  * Override Core documentation that has matching WordPress.com documentation.
  *
