@@ -17,23 +17,6 @@ class WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller extends \WP_REST_Contr
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'block-editor/sharing-modal-dismissed';
-
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_script' ), 100 );
-	}
-
-	/**
-	 * Enqueue sharing modal options.
-	 */
-	public function enqueue_script() {
-		$modal_options = array(
-			'isDismissed' => $this->get_wpcom_sharing_modal_dismissed(),
-		);
-
-		wp_add_inline_script(
-			'wpcom-block-editor-nux',
-			'var sharingModalOptions = ' . wp_json_encode( $modal_options, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-			'before'
-		);
 	}
 
 	/**
