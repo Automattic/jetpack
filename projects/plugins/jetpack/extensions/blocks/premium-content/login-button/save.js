@@ -24,7 +24,6 @@ export default function save( { attributes } ) {
 	} );
 
 	return (
-		// eslint-disable-next-line wpcalypso/jsx-classname-namespace
 		<div { ...blockProps }>
 			<RichText.Content
 				tagName="a"

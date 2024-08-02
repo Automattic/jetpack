@@ -243,7 +243,9 @@ export class MapBoxComponent extends Component {
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
-			} catch ( e ) {}
+			} catch ( e ) {
+				// Ok if control wasn't there to remove.
+			}
 			return;
 		}
 		// If there is only one point, center map around it.
@@ -352,21 +354,34 @@ export class MapBoxComponent extends Component {
 		} );
 		/* Listen for clicks on the Map background, which hides the current popup. */
 		map.getCanvas().addEventListener( 'click', this.onMapClick );
-		this.setState( { map, zoomControl, fullscreenControl }, () => {
-			this.debouncedSizeMap();
-			map.addControl( zoomControl );
-			if ( showFullscreenButton ) {
-				map.addControl( fullscreenControl );
-				if ( admin && fullscreenControl._fullscreenButton ) {
-					fullscreenControl._fullscreenButton.disabled = true;
+		this.setState(
+			( { map: prevMap } ) => {
+				try {
+					// If there's an old map instance hanging around, try to
+					// clean it up.
+					prevMap?.remove();
+				} catch ( error ) {
+					// Ok if there wasn't one to clean up.
 				}
+
+				return { map, zoomControl, fullscreenControl };
+			},
+			() => {
+				this.debouncedSizeMap();
+				map.addControl( zoomControl );
+				if ( showFullscreenButton ) {
+					map.addControl( fullscreenControl );
+					if ( admin && fullscreenControl._fullscreenButton ) {
+						fullscreenControl._fullscreenButton.disabled = true;
+					}
+				}
+				this.mapRef.current.addEventListener( 'alignmentChanged', this.debouncedSizeMap );
+				map.resize();
+				onMapLoaded();
+				this.setState( { loaded: true } );
+				window.addEventListener( 'resize', this.debouncedSizeMap );
 			}
-			this.mapRef.current.addEventListener( 'alignmentChanged', this.debouncedSizeMap );
-			map.resize();
-			onMapLoaded();
-			this.setState( { loaded: true } );
-			window.addEventListener( 'resize', this.debouncedSizeMap );
-		} );
+		);
 	}
 }
 

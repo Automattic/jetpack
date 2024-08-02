@@ -1,10 +1,14 @@
 import { renderHook } from '@testing-library/react';
-import useMediaRestrictions, {
+import useAttachedMedia from '../../use-attached-media';
+import {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	VIDEO_LENGTH_TOO_LONG_ERROR,
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
-} from '../index';
+} from '../constants';
+import useMediaRestrictions from '../index';
+
+jest.mock( '../../use-attached-media', () => jest.fn() );
 
 const DUMMY_CONNECTIONS = [
 	{
@@ -44,27 +48,47 @@ const ALLOWED_MEDIA_TYPES_ALL = [
 ];
 
 const getHookProps = (
-	{
-		connections = DUMMY_CONNECTIONS,
-		media = [],
-		isSocialImageGeneratorEnabledForPost = false,
-		shouldUploadAttachedMedia = true,
-	} = {
+	{ connections = DUMMY_CONNECTIONS, media = [], isSocialImageGeneratorEnabledForPost = false } = {
 		connections: DUMMY_CONNECTIONS,
 		media: [],
 		isSocialImageGeneratorEnabledForPost: false,
-		shouldUploadAttachedMedia: true,
 	}
 ) => [
 	connections,
 	media,
 	{
 		isSocialImageGeneratorEnabledForPost,
-		shouldUploadAttachedMedia,
 	},
 ];
 
 describe( 'useMediaRestrictions hook', () => {
+	beforeEach( () => {
+		// Mocking attached media to allow validation
+		useAttachedMedia.mockReturnValue( { attachedMedia: [ 1 ] } );
+	} );
+
+	test( 'Should not run validation if a connection does not require media or if attachedMedia is empty', () => {
+		// Mocking useAttachedMedia to return an empty array to simulate no attached media
+		useAttachedMedia.mockReturnValue( { attachedMedia: [] } );
+
+		// Define media that would normally fail validation
+		const INVALID_MEDIA = {
+			metaData: { mime: 'image/jpg', fileSize: 100000000 }, // Large file size
+			mediaData: { width: 400, height: 500 },
+		};
+
+		const { result } = renderHook( () =>
+			useMediaRestrictions(
+				...getHookProps( { media: INVALID_MEDIA, connections: DUMMY_CONNECTIONS } )
+			)
+		);
+
+		// Expect only the Instagram connection to have an error since it requires media
+		// and we validate it even if there is no attached media
+		expect( result.current.validationErrors ).toEqual( {
+			'instagram-business': 'FILE_SIZE_ERROR',
+		} );
+	} );
 	test( 'should not get any errors for image that accepted by all platforms', () => {
 		VALID_MEDIA_ALL.forEach( media => {
 			const { result } = renderHook( () => useMediaRestrictions( ...getHookProps( { media } ) ) );
@@ -81,19 +105,6 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 	} );
 
-	test( 'Should be valid if SIG is enabled', () => {
-		[
-			{ media: { metaData: { mime: 'image/jpg', fileSize: 10000000 } }, error: FILE_SIZE_ERROR }, // Too big image
-		].forEach( media => {
-			const { result } = renderHook( () =>
-				useMediaRestrictions(
-					...getHookProps( { media, isSocialImageGeneratorEnabledForPost: true } )
-				)
-			);
-			expect( result.current.validationErrors ).toEqual( {} );
-		} );
-	} );
-
 	test( 'Should be valid if image is not uploaded', () => {
 		[ { metaData: { mime: 'image/jpg', fileSize: 100000000 } } ].forEach( media => {
 			const { result } = renderHook( () =>
@@ -101,7 +112,6 @@ describe( 'useMediaRestrictions hook', () => {
 					...getHookProps( {
 						connections: DUMMY_CONNECTIONS.splice( 0, -1 ), // Instagram checks even if not uploaded
 						media,
-						shouldUploadAttachedMedia: false,
 					} )
 				)
 			);

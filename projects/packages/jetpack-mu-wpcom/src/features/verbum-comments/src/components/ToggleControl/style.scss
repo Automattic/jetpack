@@ -42,7 +42,7 @@
         }
 
         &:focus+.verbum-toggle-control__button {
-            outline: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
+            outline: 1px solid var(--wp-components-color-accent, var(--verbum-focus-color, #0675c4));
         }
 
         &:checked+.verbum-toggle-control__button:after {

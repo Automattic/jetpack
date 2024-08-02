@@ -20,7 +20,7 @@ runs:
 
         if [[ "${INPUT_PHP:-$PHP_VERSION}" == 7.[01] ]]; then
           printf "Downgrading composer for PHP %s\n\n" "${INPUT_PHP:-$PHP_VERSION}"
-          COMPOSER_VERSION=2.2.23
+          COMPOSER_VERSION=2.2.24
         fi
 
         printf "\n\e[1mSelected tool versions\e[0m\n"

@@ -252,6 +252,7 @@ class Tracking {
 
 		$blog_details = array(
 			'blog_lang' => isset( $properties['blog_lang'] ) ? $properties['blog_lang'] : get_bloginfo( 'language' ),
+			'blog_id'   => \Jetpack_Options::get_option( 'id' ),
 		);
 
 		$timestamp        = ( false !== $event_timestamp_millis ) ? $event_timestamp_millis : round( microtime( true ) * 1000 );

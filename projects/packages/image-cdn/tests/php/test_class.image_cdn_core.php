@@ -428,6 +428,10 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 				true,
 				'https://en.wikipedia.org/wiki/File:MM10249.jpg',
 			),
+			'Banned Amazon domain'       => array(
+				true,
+				'http://m.media-amazon.com/images/I/41YeeCMUwTL._SL300_.jpg',
+			),
 		);
 	}
 }

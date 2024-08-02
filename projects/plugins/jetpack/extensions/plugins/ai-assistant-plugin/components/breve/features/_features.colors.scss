@@ -1,0 +1,42 @@
+@use 'sass:map';
+@use 'sass:string';
+
+$features-colors: (
+	'complex-words': rgb( 240, 184, 73 ),
+	'unconfident-words': rgb( 9, 181, 133 ),
+	'long-sentences': rgb( 122, 0, 223 ),
+);
+
+@mixin properties( $feature, $color, $properties ) {
+	&[data-type='#{$feature}'] {
+		@each $property in $properties {
+			#{$property}: $color;
+		}
+	}
+}
+
+@mixin features-colors( $properties ) {
+	@each $feature, $color in $features-colors {
+		@include properties( $feature, $color, $properties );
+	}
+}
+
+@mixin pulse() {
+	$name: pulse-#{unique-id()};
+
+	@keyframes #{$name} {
+		0% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.3;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	animation-name: $name;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+}

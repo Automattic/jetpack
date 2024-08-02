@@ -79,7 +79,9 @@ const VideoPressUploader = ( {
 				const parsedBody = JSON.parse( body );
 				setUploadErrorDataState( parsedBody );
 				return;
-			} catch {}
+			} catch {
+				// If it failed to parse, handle generically below.
+			}
 		}
 
 		setUploadErrorDataState( error );

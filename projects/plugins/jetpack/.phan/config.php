@@ -23,6 +23,8 @@ return make_phan_config(
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/mock-functions.php',
+			// Temporary duplicated defintions of classes.
+			'_inc/lib/class.color.php',
 		),
 		'exclude_analysis_directory_list' => array(
 			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.

@@ -166,7 +166,7 @@ abstract class Base_Admin_Menu {
 
 		// Only add submenu when there are other submenu items.
 		if ( $url && isset( $submenu[ $slug ] ) && $this->has_visible_items( $submenu[ $slug ] ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_submenu_page( $slug, $menu_item[3], $menu_item[0], $menu_item[1], $url, null, 0 );
 		}
 
@@ -226,7 +226,7 @@ abstract class Base_Admin_Menu {
 				$submenu_item[0] ?? '',
 				$submenu_item[1] ?? 'read',
 				$submenus_to_update[ $submenu_item[2] ],
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. TODO add link with Trac issue.
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 				0 === $i ? 0 : $i + 1
 			);
 		}
@@ -276,8 +276,8 @@ abstract class Base_Admin_Menu {
 			)
 		);
 
-		// Load nav unification styles when the user isn't using wp-admin interface style.
-		if ( ! $this->use_wp_admin_interface() ) {
+		// Load nav unification styles for the admin bar when the user isn't using wp-admin interface style.
+		if ( ! $this->use_wp_admin_interface() && ! ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) ) {
 			Assets::register_script(
 				'jetpack-admin-nav-unification',
 				$assets_base_path . 'admin-menu-nav-unification.js',
@@ -494,10 +494,8 @@ abstract class Base_Admin_Menu {
 		$this->sort_hidden_submenus();
 
 		foreach ( $menu as $menu_index => $menu_item ) {
-			$has_submenus = isset( $submenu[ $menu_item[2] ] );
-
 			// Skip if the menu doesn't have submenus.
-			if ( ! $has_submenus || ! is_array( $submenu[ $menu_item[2] ] ) ) {
+			if ( empty( $submenu[ $menu_item[2] ] ) || ! is_array( $submenu[ $menu_item[2] ] ) ) {
 				continue;
 			}
 
@@ -770,6 +768,9 @@ abstract class Base_Admin_Menu {
 	 * @return void
 	 */
 	public function inject_core_mobile_toggle() {
+		if ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) {
+			return;
+		}
 		echo '<span id="wp-admin-bar-menu-toggle" style="display: none!important">';
 	}
 

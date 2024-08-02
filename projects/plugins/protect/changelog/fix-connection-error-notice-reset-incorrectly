@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an issue where the connection error hook was always resetting the notice"

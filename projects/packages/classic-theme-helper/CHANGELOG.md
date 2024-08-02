@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2024-07-25
+### Changed
+- Social Menus: Requiring the feature from the Classic Theme Helper package. [#38297]
+
+## [0.4.2] - 2024-07-22
+### Added
+- Added Jetpack_Color class. [#38357]
+
+## [0.4.1] - 2024-07-15
+### Added
+- Theme Tools: Adding Social Menu to Classic Theme Helper package [#38243]
+
+## [0.4.0] - 2024-07-08
+### Changed
+- Classic Theme Helper - Featured Content: Moved check for plugins page to init since setup is used now externally [#38215]
+- Classic Theme Helper - Requiring Responsive Videos and Featured Content files. [#37969]
+- Updated package dependencies. [#38132]
+
+### Removed
+- Classic Theme Helper: Remove wpcom only code for featured content [#38154]
+
 ## [0.3.1] - 2024-06-13
 ### Changed
 - Updated package dependencies. [#37796]
@@ -33,6 +54,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.4.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.2.0...v0.2.1

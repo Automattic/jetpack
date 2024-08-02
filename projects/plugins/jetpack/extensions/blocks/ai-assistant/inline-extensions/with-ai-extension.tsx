@@ -502,6 +502,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 						inputRef={ inputRef }
 						action={ action }
 						blockType={ blockName }
+						feature={ feature }
 						request={ handleUserRequest }
 						stopSuggestion={ handleStopSuggestion }
 						close={ handleClose }

@@ -421,41 +421,51 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		}
 
 		/**
+		 * This is a post transfer command that is called after a site is transferred.
+		 *
+		 * This is necessary for some plugins that need to perform certain actions after
+		 * a site is transferred, such as WooCommerce Payments that needs to clear its cache.
+		 *
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
+		 *
+		 * @subcommand post-transfer
+		 */
+		public function post_transfer( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_transfer', $args, $assoc_args );
+
+			WP_CLI::success( 'Post transfer completed successfully.' );
+		}
+
+		/**
+		 * This is a post reset command that is called after a site is reset.
+		 *
+		 * This is necessary for some plugins that need to perform certain actions after
+		 * a site is reset, such as WooCommerce Payments that needs to clear its cache.
+		 *
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
+		 *
+		 * @subcommand post-reset
+		 */
+		public function post_reset( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_reset', $args, $assoc_args );
+
+			WP_CLI::success( 'Post reset completed successfully.' );
+		}
+
+		/**
 		 * This is a post clone command that is called after a site is cloned.
 		 *
 		 * This is necessary for some plugins that need to perform certain actions after
 		 * a site is cloned, such as WooCommerce Payments that needs to clear its cache.
 		 *
-		 * Note: This command should only be executed from WPCOM as part of an atomic transfer.
+		 * Note: This command should only be executed from WPCOM as part of a transfer.
 		 *
 		 * @subcommand post-clone
 		 */
-		public function post_clone( $args, $assoc_args = array() ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
-				$plugins = array(
-					'woocommerce-payments' => function () {
-						$account = \WC_Payments::get_account_service();
-						$account->clear_cache();
-					},
-				);
+		public function post_clone( $args, $assoc_args = array() ) {
+			do_action( 'wpcomsh_woa_post_clone', $args, $assoc_args );
 
-				foreach ( $plugins as $plugin => $callback ) {
-					$result = WP_CLI::runcommand(
-						sprintf( '--skip-plugins --skip-themes plugin is-active %s', $plugin ),
-						array(
-							'launch'     => false,
-							'return'     => 'all',
-							'exit_error' => false,
-						)
-					);
-					if ( 0 !== $result->return_code ) {
-						WP_CLI::log( sprintf( 'Skipping inactive plugin: %s', $plugin ) );
-						continue;
-					}
-
-					$callback();
-					WP_CLI::log( sprintf( 'Callback executed for %s', $plugin ) );
-				}
-				WP_CLI::success( 'Post clone completed successfully.' );
+			WP_CLI::success( 'Post clone completed successfully.' );
 		}
 
 		/**
@@ -856,6 +866,299 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			$formatter->display_items( $refined_plugin_list );
 		}
+
+		/**
+		 * Patch js_composer plugin to work with PHP 8.1.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <plugin>
+		 * : The plugin to patch.
+		 *
+		 * @subcommand php81-plugin-patch
+		 */
+		public function php_81_plugin_patch( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			if ( 'js_composer' !== $args[0] ) {
+				WP_CLI::error( 'Wrong plugin to patch.' );
+			}
+
+			$plugins = get_plugins();
+			$folder  = 'js_composer/js_composer.php';
+
+			if ( ! isset( $plugins[ $folder ] ) ) {
+				WP_CLI::error( 'js_composer plugin is not installed.' );
+			}
+
+			$file = WP_PLUGIN_DIR . '/js_composer/include/classes/editors/class-vc-frontend-editor.php';
+
+			if ( ! file_exists( $file ) ) {
+				WP_CLI::error( 'File not found: ' . $file );
+			}
+
+			$search        = '$host = isset( $s[\'HTTP_X_FORWARDED_HOST\'] ) ? $s[\'HTTP_X_FORWARDED_HOST\'] : isset( $s[\'HTTP_HOST\'] ) ? $s[\'HTTP_HOST\'] : $s[\'SERVER_NAME\'];';
+			$substitution  = "// The following line has been patched by wpcomsh to let this plugin work with PHP 8.1.\n";
+			$substitution .= '		$host = isset( $s[\'HTTP_X_FORWARDED_HOST\'] ) ? $s[\'HTTP_X_FORWARDED_HOST\'] : ( isset($s[\'HTTP_HOST\'] ) ? $s[\'HTTP_HOST\'] : $s[\'SERVER_NAME\'] );';
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$file_content = file_get_contents( $file );
+
+			if ( false === $file_content ) {
+				WP_CLI::error( 'File not found: ' . $file );
+			}
+
+			$count        = 0;
+			$file_content = str_replace( $search, $substitution, $file_content, $count );
+
+			if ( ! $count ) {
+				WP_CLI::error( 'String not found on ' . $file );
+			}
+
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			if ( ! file_put_contents( $file, $file_content ) ) {
+				WP_CLI::error( 'Failed to write to ' . $file );
+			}
+
+			WP_CLI::success( 'Success' );
+		}
+
+		/**
+		 * Enable or disable fatal error emails.
+		 *
+		 * ## OPTIONS
+		 *
+		 * <command>
+		 * : The subcommand
+		 * ---
+		 * options:
+		 *  - get
+		 *  - set
+		 * ---
+		 *
+		 * [--value=<value>]
+		 * : The value (when setting)
+		 * ---
+		 * default: 1
+		 * options:
+		 *  - 0
+		 *  - 1
+		 * ---
+		 *
+		 * @subcommand disable-fatal-error-emails
+		 */
+		public function fatal_error_emails_disable( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			$command = $args[0];
+			$value   = (bool) $assoc_args['value'];
+
+			switch ( $command ) {
+				case 'get':
+					$option = get_option( 'wpcomsh_disable_fatal_error_emails', false );
+					WP_CLI::log( $option ? 'true' : 'false' );
+					break;
+				case 'set':
+					update_option( 'wpcomsh_disable_fatal_error_emails', $value );
+					WP_CLI::success( 'Success' );
+					break;
+				default:
+					WP_CLI::error( 'Invalid command' );
+			}
+		}
+
+		/**
+		 * Check if the site is healthy after activating a plugin.
+		 * This is a helper function for the plugin-dance command.
+		 *
+		 * @return bool
+		 */
+		private function do_plugin_dance_health_check() {
+			$result = WP_CLI::runcommand(
+				'--skip-themes= --skip-plugins= wpcomsh plugin-dance-health-check', // pass empty values to skip-themes and skip-plugins.
+				array(
+					'return'     => true,
+					'launch'     => true, // must run in a new process to avoid false positives.
+					'exit_error' => false,
+				)
+			);
+
+			return (bool) strpos( $result, 'Healthy' );
+		}
+
+		/**
+		 * Tries disabling all plugins & enabling them one by one to find the plugin causing the issue.
+		 * Outputs a list of plugins that are disabled.
+		 *
+		 * ## OPTIONS
+		 *
+		 * [--strategy=<strategy>]
+		 * : The strategy to use to find the breaking plugin. Defaults to 'one-by-one'.
+		 * ---
+		 * default: one-by-one
+		 * options:
+		 *  - one-by-one
+		 *  - disable-all
+		 *
+		 * @subcommand plugin-dance
+		 */
+		public function plugin_dance( $args, $assoc_args ) {
+			$healthy = $this->do_plugin_dance_health_check();
+			if ( $healthy ) {
+				WP_CLI::success( '✔ Site health check passed before doing anything.' );
+				return;
+			}
+
+			$plugins = WP_CLI::runcommand(
+				'--skip-plugins --skip-themes plugin list --status=active --format=json',
+				array(
+					'launch' => false,
+					'return' => true,
+				)
+			);
+
+			$plugins = json_decode( $plugins, true );
+
+			// Filter out plugins we won't be touching. These won't be deactivated by deactivate-user-plugins.
+			$plugins_to_reactivate = array_filter(
+				$plugins,
+				function ( $plugin ) {
+					$plugin_name = $plugin['name'];
+					if ( in_array( $plugin_name, WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS, true ) || in_array( $plugin_name, WPCOMSH_CLI_ECOMMERCE_PLAN_PLUGINS, true ) ) {
+						WP_CLI::log( sprintf( 'ℹ️ Skipping %s.', $plugin_name ) );
+						return false;
+					}
+
+					return true;
+				}
+			);
+
+			$breaking_plugins = array();
+
+			if ( 'one-by-one' === $assoc_args['strategy'] ) {
+				while ( ! $healthy ) {
+					$plugin_to_deactivate = array_pop( $plugins_to_reactivate );
+					if ( empty( $plugin_to_deactivate ) ) {
+						WP_CLI::error( '❌ Site health check failed after testing all plugins one by one.' );
+						return;
+					}
+
+					WP_CLI::runcommand(
+						sprintf( '--skip-themes plugin deactivate %s', $plugin_to_deactivate['name'] ),
+						array(
+							'launch' => false,
+							'return' => true,
+						)
+					);
+
+					$healthy = $this->do_plugin_dance_health_check();
+
+					if ( ! $healthy ) {
+						WP_CLI::log( sprintf( 'ℹ️ Site health check still failed after deactivating: %s. Reactivating.', $plugin_to_deactivate['name'] ) );
+						$result = WP_CLI::runcommand(
+							sprintf( '--skip-themes plugin activate %s', $plugin_to_deactivate['name'] ),
+							array(
+								'launch'     => true,  // needed for exit_error => false.
+								'return'     => true,
+								'exit_error' => false,
+							)
+						);
+
+						if ( empty( $result ) ) {
+							WP_CLI::log( sprintf( '❌ Plugin did not like being activated: %s (probably broken).', $plugin_to_deactivate['name'] ) );
+							$breaking_plugins[] = array(
+								'name'    => $plugin_to_deactivate['name'],
+								'version' => $plugin_to_deactivate['version'],
+							);
+						}
+					} else {
+						WP_CLI::log( sprintf( '✔ Site health check passed after deactivating: %s.', $plugin_to_deactivate['name'] ) );
+						$breaking_plugins[] = array(
+							'name'    => $plugin_to_deactivate['name'],
+							'version' => $plugin_to_deactivate['version'],
+						);
+					}
+				}
+			} elseif ( 'disable-all' === $assoc_args['strategy'] ) {
+				WP_CLI::log( 'ℹ️ Deactivating all user plugins.' );
+
+				// deactivate all active plugins.
+				WP_CLI::runcommand(
+					'--skip-plugins --skip-themes wpcomsh deactivate-user-plugins',
+					array(
+						'launch' => false,
+					)
+				);
+
+				if ( ! $this->do_plugin_dance_health_check() ) {
+					WP_CLI::log( '❌ Site health check failed after deactivating all plugins. Something non-plugin related is causing the issue. Trying to reactivate all plugins.' );
+
+					WP_CLI::runcommand(
+						'--skip-themes --skip-plugins wpcomsh reactivate-user-plugins',
+						array()
+					);
+					return;
+				}
+
+				WP_CLI::log( sprintf( 'ℹ️ %d plugins will be reactivated one by one to find the breaking plugin.', count( $plugins_to_reactivate ) ) );
+
+				// loop through each active plugin and activate one by one.
+				foreach ( $plugins_to_reactivate as $plugin ) {
+					$result = WP_CLI::runcommand(
+						sprintf( '--skip-themes plugin activate %s', $plugin['name'] ),
+						array(
+							'launch'     => true, // needed for exit_error => false.
+							'return'     => true,
+							'exit_error' => false,
+						)
+					);
+					if ( empty( $result ) ) {
+						WP_CLI::log( sprintf( '❌ Plugin did not like being activated: %s (probably broken).', $plugin['name'] ) );
+						$breaking_plugins[] = array(
+							'name'    => $plugin['name'],
+							'version' => $plugin['version'],
+						);
+						continue;
+					}
+
+					if ( ! $this->do_plugin_dance_health_check() ) {
+						// deactivate the breaking plugin
+						WP_CLI::runcommand(
+							sprintf( '--skip-themes plugin deactivate %s', $plugin['name'] ),
+							array(
+								'launch' => false,
+								'return' => true,
+							)
+						);
+						WP_CLI::log( sprintf( '❌ Plugin activated, site health check failed and deactivated: %s.', $plugin['name'] ) );
+
+						$breaking_plugins[] = array(
+							'name'    => $plugin['name'],
+							'version' => $plugin['version'],
+						);
+					} else {
+						WP_CLI::log( sprintf( '✔ Plugin activated and site health check passed: %s.', $plugin['name'] ) );
+					}
+				}
+
+				if ( empty( $breaking_plugins ) ) {
+					WP_CLI::success( 'All plugins passed the site health check.' );
+				}
+			}
+
+			if ( ! empty( $breaking_plugins ) ) {
+				$formatter = new \WP_CLI\Formatter(
+					$assoc_args,
+					array( 'name', 'version' )
+				);
+				$formatter->display_items( $breaking_plugins );
+			}
+		}
+
+		/**
+		 * This just outputs healthy. If there are errors this doesn't get outputted at all
+		 *
+		 * @subcommand plugin-dance-health-check
+		 */
+		public function plugin_dance_health_check( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			WP_CLI::success( 'Healthy' );
+		}
 	}
 }
 
@@ -1112,7 +1415,9 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
+// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.14.15",
+	"version": "0.15.1",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -20,13 +20,13 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"@wordpress/api-fetch": "7.0.0",
-		"@wordpress/compose": "7.0.0",
-		"@wordpress/data": "10.0.0",
-		"@wordpress/element": "6.0.0",
-		"@wordpress/i18n": "5.0.0",
-		"@wordpress/plugins": "7.0.0",
-		"@wordpress/url": "4.0.0",
+		"@wordpress/api-fetch": "7.2.0",
+		"@wordpress/compose": "7.2.0",
+		"@wordpress/data": "10.2.0",
+		"@wordpress/element": "6.2.0",
+		"@wordpress/i18n": "5.2.0",
+		"@wordpress/plugins": "7.2.0",
+		"@wordpress/url": "4.2.0",
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
@@ -43,7 +43,7 @@
 		"@testing-library/react": "15.0.7",
 		"@testing-library/user-event": "14.5.2",
 		"@babel/plugin-transform-react-jsx": "7.24.7",
-		"@wordpress/babel-plugin-import-jsx-pragma": "5.0.0"
+		"@wordpress/babel-plugin-import-jsx-pragma": "5.2.0"
 	},
 	"exports": {
 		".": "./index.js"

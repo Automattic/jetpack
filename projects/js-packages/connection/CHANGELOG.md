@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.34.1] - 2024-07-22
+### Added
+- Display the proper error message for suspended sites on site registration. [#38359]
+
+## [0.34.0] - 2024-07-18
+### Changed
+- Connection Screen: remove mention of Stats from the list of available free features. [#38328]
+
+## [0.33.19] - 2024-07-03
+### Changed
+- Updated package dependencies. [#38132]
+
+## [0.33.18] - 2024-06-21
+### Changed
+- Update dependencies.
+
+## [0.33.17] - 2024-06-17
+### Changed
+- Update type to enable JSX use [#37802]
+
 ## [0.33.16] - 2024-06-12
 ### Changed
 - Updated package dependencies. [#37796]
@@ -785,6 +805,11 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.34.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.19...v0.34.0
+[0.33.19]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.18...v0.33.19
+[0.33.18]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.17...v0.33.18
+[0.33.17]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.16...v0.33.17
 [0.33.16]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.15...v0.33.16
 [0.33.15]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.14...v0.33.15
 [0.33.14]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.13...v0.33.14

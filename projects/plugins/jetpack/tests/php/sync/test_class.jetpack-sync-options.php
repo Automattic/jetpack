@@ -231,7 +231,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack-memberships-has-connected-account'    => true,
 			'jetpack_publicize_options'                    => array(),
 			'jetpack_social_notes_config'                  => array(),
-			'jetpack_connection_active_plugins'            => array( 'jetpack' ),
 			'jetpack_social_settings'                      => array( 'image' => true ),
 			'jetpack_social_autoconvert_images'            => array( 'enabled' => true ),
 			'jetpack_sync_non_blocking'                    => false,
@@ -246,6 +245,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
 			'wpcom_featured_image_in_email'                => false,
+			'jetpack_gravatar_in_email'                    => false,
+			'jetpack_author_in_email'                      => false,
+			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
 			'wpcom_gifting_subscription'                   => true,
@@ -264,6 +266,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'jetpack_waf_automatic_rules'                  => false,
+			'jetpack_waf_ip_allow_list'                    => 'pineapple',
+			'jetpack_waf_ip_allow_list_enabled'            => false,
+			'jetpack_waf_ip_block_list'                    => 'pineapple',
+			'jetpack_waf_ip_block_list_enabled'            => false,
+			'jetpack_waf_share_data'                       => true,
+			'jetpack_waf_share_debug_data'                 => false,
+			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

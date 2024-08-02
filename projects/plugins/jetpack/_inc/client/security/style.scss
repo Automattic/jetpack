@@ -6,25 +6,6 @@
     align-items: center;
     display: flex;
 
-    .waf__header__badge {
-        background-color: #D0E6B8;
-        border-radius: 3px;
-        font-size: 10px;
-        line-height: 18px;
-        margin-left: 10px;
-        padding: 0px 6px;
-
-        &,
-        &:link,
-        &:active,
-        &:focus,
-        &:hover,
-        &:visited {
-            color: #008710;
-            text-decoration: none;
-        }
-    }
-
     .waf__standalone__mode {
         margin-left: auto;
     }
@@ -34,6 +15,7 @@
 .waf__settings {
     margin-top: 24px;
     margin-left: 64px;
+	margin-bottom: 24px;
 
     &__toggle-setting {
         flex-wrap: wrap;
@@ -57,11 +39,7 @@
 
     &__ips {
         width: 100%;
-        margin-top: 24px;
-    }
-
-    &__ips:last-of-type {
-        margin-bottom: 12px;
+        margin-left: 64px;
     }
 
     &__ips__save-button {
@@ -112,7 +90,7 @@
 	z-index: 1000;
 
 	.modal-survey-notice__backdrop {
-		background: var(--studio-black);
+		background: #000;
 		opacity: 0.2;
 		position: absolute;
 		left: 0;
@@ -144,7 +122,7 @@
 			justify-content: space-between;
 
 			.modal-survey-notice__popup-head-title {
-				color: var(--studio-white);
+				color: #fff;
 				font-size: rem(14px);
 				font-weight: 500;
 				line-height: 20px;
@@ -152,13 +130,13 @@
 			}
 
 			.modal-survey-notice__popup-head-close svg {
-				fill: var(--studio-white);
+				fill: #fff;
 			}
 		}
 
 		.modal-survey-notice__popup-content {
 			padding: 1rem;
-			background: var(--studio-white);
+			background: #fff;
 
 			.modal-survey-notice__popup-content-title {
 				font-size: rem(16px);
@@ -181,8 +159,8 @@
 
 				.modal-survey-notice__popup-content-buttons-ok {
 					padding: 8px 14px;
-					background: var(--studio-blue-50);
-					color: var(--studio-white);
+					background: #0675c4;
+					color: #fff;
 					font-size: rem(14px);
 					line-height: 20px;
 					letter-spacing: -0.15px;
@@ -190,7 +168,7 @@
 
 				.modal-survey-notice__popup-content-buttons-cancel {
 					padding: 8px 14px;
-					color: var(--studio-blue-50);
+					color: #0675c4;
 					text-align: center;
 					font-size: rem(14px);
 					line-height: 20px;
@@ -199,4 +177,14 @@
 			}
 		}
 	}
+}
+
+.allow-list-button-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.jp-form-settings-group p {
+	margin-bottom: 0.5rem;
 }

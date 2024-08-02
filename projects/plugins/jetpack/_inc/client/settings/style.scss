@@ -78,7 +78,7 @@
 	.jp-form-settings-group + .jp-form-settings-group {
 		border-top: 1px solid var( --jp-gray );
 	}
-	
+
 	.dops-search__input[type="search"] {
 		width: 100%;
 	}
@@ -87,7 +87,7 @@
 		display: none;
 		font-size: rem( 14px );
 		line-height: 1.5;
-	
+
 		&:last-of-type {
 			display: inherit;
 		}

@@ -340,7 +340,7 @@ add_action( 'admin_menu', 'wpcomsh_maybe_remove_jetpack_dashboard_menu_item', 10
  * For more context, see https://github.com/Automattic/dotcom-forge/issues/5824.
  */
 function wpcomsh_remove_jetpack_manage_menu_item() {
-	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || ! wpcom_is_nav_redesign_enabled() ) {
+	if ( ! class_exists( 'Jetpack' ) || ! class_exists( 'Jetpack_Options' ) || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 		return;
 	}
 	$blog_id = Jetpack_Options::get_option( 'id' );

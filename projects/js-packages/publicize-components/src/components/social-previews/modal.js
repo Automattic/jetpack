@@ -13,7 +13,7 @@ import './modal.scss';
 
 const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabName } ) {
 	const availableServices = useAvailableSerivces();
-	const { image, media, title, description, url } = usePostData();
+	const { image, media, title, description, url, excerpt } = usePostData();
 
 	return (
 		<Modal
@@ -36,6 +36,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( { onClose, initialTabN
 					<div>
 						<tab.preview
 							// pass only the props that are common to all previews
+							excerpt={ excerpt }
 							title={ title }
 							description={ description }
 							url={ url }

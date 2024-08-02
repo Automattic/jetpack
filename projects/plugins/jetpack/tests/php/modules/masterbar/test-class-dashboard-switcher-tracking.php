@@ -2,6 +2,8 @@
 /**
  * Test file for Dashboard_Switcher_Tracking
  *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
+ *
  * @package automattic/jetpack
  */
 
@@ -49,6 +51,9 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 
 	/**
 	 * Check if an event is triggered for Jetpack.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking::record_switch_event
 	 */
 	public function test_it_creates_event_for_jetpack() {
 		$tracking = $this->createMock( Tracking::class );
@@ -80,6 +85,9 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 
 	/**
 	 * Check if an event is triggered for WPCOM.
+	 *
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking::__construct
+	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking::record_switch_event
 	 */
 	public function test_it_creates_event_for_wpcom() {
 		if ( ! static::$is_wpcom ) {

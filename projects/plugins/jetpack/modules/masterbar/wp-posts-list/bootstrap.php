@@ -2,13 +2,23 @@
 /**
  * WP-Admin Posts list bootstrap file.
  *
- * @package Jetpack
+ * @deprecated 13.7
+ *
+ * @package automattic\jetpack
+ *
+ * @phan-file-suppress PhanDeprecatedFunction -- Ok for deprecated code to call other deprecated code.
  */
+
+_deprecated_file( __FILE__, 'jetpack-13.7' );
 
 /**
  * Load the Posts_List_Notification.
+ *
+ * @deprecated 13.7
  */
 function masterbar_init_wp_posts_list() {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\masterbar_init_wp_posts_list' );
+
 	global $pagenow;
 
 	if (

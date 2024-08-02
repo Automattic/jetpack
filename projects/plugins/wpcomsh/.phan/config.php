@@ -14,6 +14,9 @@ return make_phan_config(
 	dirname( __DIR__ ),
 	array(
 		'exclude_file_regex'    => array( 'tests/lib/mocks' ),
+		'exclude_file_list'     => array(
+			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
+		),
 		'parse_file_list'       => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
@@ -23,7 +26,7 @@ return make_phan_config(
 			// other in 'require-dev' and `extra.dependencies.test-only' instead. See packages/config for an example.
 			// --
 			// class.color.php provides the definition of the Jetpack_Color class.
-			__DIR__ . '/../../../plugins/jetpack/_inc/lib/class.color.php',
+			__DIR__ . '/../../../packages/classic-theme-helper/_inc/lib/class.color.php',
 			// class.jetpack.php provides the definition of the Jetpack megaclass.
 			__DIR__ . '/../../../plugins/jetpack/class.jetpack.php',
 			// class.jetpack-gutenberg.php provides the definition of the Jetpack_Gutenberg class.
@@ -32,8 +35,11 @@ return make_phan_config(
 			__DIR__ . '/../../../plugins/jetpack/jetpack.php',
 			// photon-cdn.php provides the definition of the Jetpack_Photon_Static_Assets_CDN.
 			__DIR__ . '/../../../plugins/jetpack/modules/photon-cdn.php',
+			__DIR__ . '/../../../plugins/jetpack/functions.is-mobile.php',  // function jetpack_is_mobile
+			__DIR__ . '/../../../plugins/jetpack/modules/stats.php',        // function stats_get_from_restapi
+			__DIR__ . '/../../../plugins/jetpack/functions.compat.php',     // function wp_startswith
 		),
 		'php_extensions_needed' => array( 'sqlite3', 'zip' ),
-		'+stubs'                => array( 'woocommerce' ),
+		'+stubs'                => array( 'woocommerce', 'woopayments', 'wpcom' ),
 	)
 );

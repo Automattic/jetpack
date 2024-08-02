@@ -1,10 +1,11 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Panel, PanelBody } from '@wordpress/components';
 import { useReducer } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { ConnectForm } from './connect-form';
 import { ServiceItemDetails, ServicesItemDetailsProps } from './service-item-details';
+import { ServiceStatus } from './service-status';
 import styles from './style.module.scss';
 
 export type ServicesItemProps = ServicesItemDetailsProps;
@@ -23,6 +24,25 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 
 	const isMastodonPanelOpen = isPanelOpen && service.ID === 'mastodon';
 
+	const brokenConnections = serviceConnections.filter( ( { status } ) => status === 'broken' );
+
+	const hasOwnBrokenConnections = brokenConnections.some(
+		( { can_disconnect } ) => can_disconnect
+	);
+
+	const hideInitialConnectForm =
+		// For Mastodon, the initial connect form opens the panel,
+		// so we don't want to show it if the panel is already open
+		isMastodonPanelOpen ||
+		// For services with broken connections, we want to show the "Fix connections" button
+		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
+		( hasOwnBrokenConnections && isPanelOpen );
+
+	const buttonLabel =
+		brokenConnections.length > 1
+			? _x( 'Fix connections', 'Fix the social media connections', 'jetpack' )
+			: _x( 'Fix connection', 'Fix social media connection', 'jetpack' );
+
 	return (
 		<div className={ styles[ 'service-item' ] }>
 			<div className={ styles[ 'service-item-info' ] }>
@@ -30,29 +50,36 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 					<service.icon iconSize={ isSmall ? 36 : 48 } />
 				</div>
 				<div className={ styles[ 'service-basics' ] }>
-					<span className={ styles.title }>{ service.label }</span>
+					<div className={ styles.heading }>
+						<span className={ styles.title }>{ service.label }</span>
+						{ service.badges?.length ? (
+							<div className={ styles.badges }>
+								{ service.badges.map( ( { text, style }, index ) => (
+									<span key={ index } className={ styles.badge } style={ style }>
+										{ text }
+									</span>
+								) ) }
+							</div>
+						) : null }
+					</div>
 					{ ! isSmall && ! serviceConnections.length ? (
 						<span className={ styles.description }>{ service.description }</span>
 					) : null }
-					{ serviceConnections?.length > 0 ? (
-						<span className={ styles[ 'active-connection' ] }>
-							{ serviceConnections.length > 1
-								? sprintf(
-										// translators: %d: Number of connections
-										__( '%d connections', 'jetpack' ),
-										serviceConnections.length
-								  )
-								: __( 'Connected', 'jetpack' ) }
-						</span>
-					) : null }
+					<ServiceStatus
+						serviceConnections={ serviceConnections }
+						brokenConnections={ brokenConnections }
+					/>
 				</div>
 				<div className={ styles.actions }>
-					{ ! isMastodonPanelOpen ? (
+					{ ! hideInitialConnectForm ? (
 						<ConnectForm
 							service={ service }
 							isSmall={ isSmall }
-							onSubmit={ service.needsCustomInputs ? togglePanel : undefined }
+							onSubmit={
+								hasOwnBrokenConnections || service.needsCustomInputs ? togglePanel : undefined
+							}
 							hasConnections={ serviceConnections.length > 0 }
+							buttonLabel={ hasOwnBrokenConnections ? buttonLabel : undefined }
 						/>
 					) : null }
 					<Button
@@ -71,7 +98,8 @@ export function ServiceItem( { service, serviceConnections }: ServicesItemProps 
 				<PanelBody opened={ isPanelOpen } onToggle={ togglePanel }>
 					<ServiceItemDetails service={ service } serviceConnections={ serviceConnections } />
 
-					{ service.ID === 'mastodon' ? (
+					{ /* Only show the connect form for Mastodon if there are no broken connections */ }
+					{ service.ID === 'mastodon' && ! hasOwnBrokenConnections ? (
 						<div className={ styles[ 'connect-form-wrapper' ] }>
 							<ConnectForm
 								service={ service }

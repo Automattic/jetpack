@@ -5,6 +5,8 @@ import analytics from 'lib/analytics';
 import { debounce, noop } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
+import SearchClearButton from './clear-btn';
+import SearchCloseButton from './close-btn';
 
 import './style.scss';
 
@@ -13,6 +15,12 @@ import './style.scss';
  */
 const SEARCH_DEBOUNCE_MS = 300;
 
+/**
+ * Listener for key events
+ *
+ * @param {Function} methodToCall - Method to call
+ * @param {Event} event	- Event
+ */
 function keyListener( methodToCall, event ) {
 	switch ( event.key ) {
 		case ' ':
@@ -36,7 +44,6 @@ class Search extends React.Component {
 		onSearch: PropTypes.func.isRequired,
 		onSearchChange: PropTypes.func,
 		onSearchOpen: PropTypes.func,
-		onSearchClose: PropTypes.func,
 		analyticsGroup: PropTypes.string,
 		overlayStyling: PropTypes.func,
 		autoFocus: PropTypes.bool,
@@ -61,7 +68,6 @@ class Search extends React.Component {
 		disabled: false,
 		onSearchChange: noop,
 		onSearchOpen: noop,
-		onSearchClose: noop,
 		onKeyDown: noop,
 		onClick: noop,
 		//undefined value for overlayStyling is an optimization that will
@@ -102,10 +108,6 @@ class Search extends React.Component {
 			this.onSearch = this.props.delaySearch
 				? debounce( this.props.onSearch, this.props.delayTimeout )
 				: this.props.onSearch;
-		}
-
-		if ( nextProps.isOpen ) {
-			this.setState( { isOpen: nextProps.isOpen } );
 		}
 
 		if (
@@ -237,23 +239,21 @@ class Search extends React.Component {
 			return;
 		}
 
-		const input = this.searchInputRef.current;
-
 		this.setState( {
 			keyword: '',
-			isOpen: this.props.isOpen || false,
+			isOpen: false,
 		} );
-
-		input.value = ''; // will not trigger onChange
-		input.blur();
 
 		if ( this.props.pinned ) {
 			this.openIconRef.current.focus();
 		}
 
-		this.props.onSearchClose( event );
-
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Close Search' );
+	};
+
+	clearSearch = () => {
+		this.clear();
+		this.focus();
 	};
 
 	keyUp = event => {
@@ -320,6 +320,8 @@ class Search extends React.Component {
 
 		const fadeDivClass = clsx( 'dops-search__input-fade', this.props.dir );
 		const inputClass = clsx( 'dops-search__input', this.props.dir );
+		const showCloseButton = ! this.props.hideClose && ( this.state.keyword || this.state.isOpen );
+		const showClearButton = showCloseButton && searchValue;
 
 		return (
 			<div dir={ this.props.dir || null } className={ searchClass } role="search">
@@ -343,6 +345,7 @@ class Search extends React.Component {
 						className={ inputClass }
 						placeholder={ placeholder }
 						role="searchbox"
+						tabIndex={ isOpenUnpinnedOrQueried ? '0' : '-1' }
 						value={ searchValue }
 						ref={ this.searchInputRef }
 						onKeyUp={ this.keyUp }
@@ -359,7 +362,14 @@ class Search extends React.Component {
 					/>
 					{ this.props.overlayStyling && this.renderStylingDiv() }
 				</div>
-				{ this.closeButton() }
+				{ showClearButton && <SearchClearButton onClick={ this.clearSearch } /> }
+				{ showCloseButton && (
+					<SearchCloseButton
+						closeSearch={ this.closeSearch }
+						closeListener={ this.closeListener }
+						instanceId={ this.state.instanceId }
+					/>
+				) }
 			</div>
 		);
 	}
@@ -370,26 +380,6 @@ class Search extends React.Component {
 				{ this.props.overlayStyling( this.state.keyword ) }
 			</div>
 		);
-	};
-
-	closeButton = () => {
-		if ( ! this.props.hideClose && ( this.state.keyword || this.state.isOpen ) ) {
-			return (
-				<div
-					role="button"
-					className="dops-search__icon-navigation"
-					onClick={ this.closeSearch }
-					tabIndex="0"
-					onKeyDown={ this.closeListener }
-					aria-controls={ 'dops-search-component-' + this.state.instanceId }
-					aria-label="Close Search"
-				>
-					<Gridicon icon="cross" className="dops-search__close-icon" />
-				</div>
-			);
-		}
-
-		return null;
 	};
 }
 

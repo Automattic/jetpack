@@ -48,8 +48,10 @@ export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export type { ButtonProps } from './components/button/types';
 export { default as LoadingPlaceholder } from './components/loading-placeholder';
 export { default as TermsOfService } from './components/terms-of-service';
+export { default as Chip } from './components/chip';
 export {
 	default as PricingTable,
 	PricingTableColumn,

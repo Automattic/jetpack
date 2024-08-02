@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.4
+Requires at least: 6.5
 Requires PHP: 7.0
-Tested up to: 6.5
-Stable tag: 2.3.0
+Tested up to: 6.6
+Stable tag: 4.5.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,16 +102,15 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 4.5.0 - 2024-06-13
+### 5.0.0 - 2024-08-01
 #### Changed
-- Move the admin upsell to the toggle section
+- Social: Removed unnecessary feature checks for social connections
 - Updated package dependencies.
 
 #### Removed
-- Removed the social basic plan from the admin page
-
-#### Fixed
-- Updated wp.org screenshots
+- General: update WordPress version requirements to WordPress 6.5.
+- Removed the unused code for image auto-conversion from social store
+- Social | Removed the media auto-conversion UI
 
 == Upgrade Notice ==
 

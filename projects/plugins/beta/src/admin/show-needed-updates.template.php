@@ -3,7 +3,7 @@
  * Jetpack Beta wp-admin template to show needed updates.
  *
  * @html-template \Automattic\JetpackBeta\Admin::render -- Via plugin-select.template.php or plugin-manage.template.php
- * @html-template-var \Automattic\JetpackBeta\Plugin $plugin Plugin being managed (from render()).
+ * @html-template-var \Automattic\JetpackBeta\Plugin|null $plugin Plugin being managed.
  * @package automattic/jetpack-beta
  */
 
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Wrap in a function to avoid leaking all the variables we create to subsequent runs.
 ( function ( $plugin ) {
 	$updates = Utils::plugins_needing_update( true );
-	if ( isset( $plugin ) ) {
+	if ( $plugin ) {
 		$updates = array_intersect_key(
 			$updates,
 			array(

@@ -37,6 +37,7 @@ function robots_txt( string $output, $public ): string {
 		$ai_bots = array(
 			'Amazonbot',
 			'anthropic-ai',
+			'Applebot-Extended',
 			'Bytespider',
 			'CCBot',
 			'ClaudeBot',
@@ -45,6 +46,7 @@ function robots_txt( string $output, $public ): string {
 			'GPTBot',
 			'omgili',
 			'omgilibot',
+			'PerplexityBot',
 			'SentiBot',
 			'sentibot',
 		);

@@ -1,3 +1,5 @@
+import { REQUEST_TYPE_DEFAULT } from '../actions/constants';
+
 /**
  * Returns the connections list from the store.
  *
@@ -120,9 +122,9 @@ export function getConnectionProfileDetails( state, service, { forceDefaults = f
 		);
 
 		if ( connection ) {
-			const { display_name, profile_display_name, profile_picture } = connection;
+			const { display_name, profile_display_name, profile_picture, external_display } = connection;
 
-			displayName = 'twitter' === service ? profile_display_name : display_name;
+			displayName = 'twitter' === service ? profile_display_name : display_name || external_display;
 			username = 'twitter' === service ? display_name : connection.username;
 			profileImage = profile_picture;
 		}
@@ -149,6 +151,28 @@ export function getDeletingConnections( state ) {
  */
 export function getUpdatingConnections( state ) {
 	return state.connectionData?.updatingConnections ?? [];
+}
+
+/**
+ * Get the account being reconnected
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @returns {import("../types").ConnectionData['reconnectingAccount']} The account being reconnected.
+ */
+export function getReconnectingAccount( state ) {
+	return state.connectionData?.reconnectingAccount ?? '';
+}
+
+/**
+ * Get the abort controllers for a specific request type.
+ *
+ * @param {import("../types").SocialStoreState} state - State object.
+ * @param {string} requestType - The request type.
+ *
+ * @returns {Array<AbortController>} The abort controllers.
+ */
+export function getAbortControllers( state, requestType = REQUEST_TYPE_DEFAULT ) {
+	return state.connectionData?.abortControllers?.[ requestType ] ?? [];
 }
 
 /**

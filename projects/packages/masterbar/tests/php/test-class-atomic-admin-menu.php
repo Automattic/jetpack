@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
+use Brain\Monkey\Functions;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -103,54 +104,6 @@ class Test_Atomic_Admin_Menu extends TestCase {
 	}
 
 	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link() {
-		global $menu;
-
-		// No output when executed in single site mode.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-	}
-
-	/**
-	 * Tests add_browse_sites_link.
-	 *
-	 * @covers ::add_browse_sites_link
-	 */
-	public function test_add_browse_sites_link_multisite() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-
-		global $menu;
-
-		// No output when user has just one site.
-		static::$admin_menu->add_browse_sites_link();
-		$this->assertArrayNotHasKey( 0, $menu );
-
-		// Give user a second site.
-		update_user_option( static::$user_id, 'wpcom_site_count', 2 );
-
-		static::$admin_menu->add_browse_sites_link();
-
-		$browse_sites_menu_item = array(
-			'Browse sites',
-			'read',
-			'https://wordpress.com/sites',
-			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/sites',
-			'toplevel_page_https://wordpress.com/sites',
-			'dashicons-arrow-left-alt2',
-		);
-		$this->assertSame( $menu[0], $browse_sites_menu_item );
-
-		delete_user_option( static::$user_id, 'wpcom_site_count' );
-	}
-
-	/**
 	 * Tests add_new_site_link.
 	 *
 	 * @covers ::add_new_site_link
@@ -194,6 +147,37 @@ class Test_Atomic_Admin_Menu extends TestCase {
 <div class="site__info">
 	<div class="site__title">' . get_option( 'blogname' ) . '</div>
 	<div class="site__domain">' . static::$domain . "</div>\n\t\n</div>",
+			'read',
+			$home_url,
+			'site-card',
+			'menu-top toplevel_page_' . $home_url,
+			'toplevel_page_' . $home_url,
+			plugins_url( 'src/admin-menu/globe-icon.svg', dirname( __DIR__ ) ),
+		);
+
+		$this->assertEquals( $site_card_menu_item, $menu[1] );
+	}
+
+	/**
+	 * Tests add_site_card_menu for Private sites
+	 *
+	 * @covers ::add_site_card_menu
+	 */
+	public function test_add_site_card_menu_private_site() {
+		global $menu;
+
+		Functions\expect( '\Private_Site\site_is_private' )
+				->andReturn( true );
+
+		static::$admin_menu->add_site_card_menu();
+
+		$home_url            = home_url();
+		$site_card_menu_item = array(
+			// phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
+			'
+<div class="site__info">
+	<div class="site__title">' . get_option( 'blogname' ) . '</div>
+	<div class="site__domain">' . static::$domain . "</div>\n\t<span class=\"site__badge site__badge-private\">Private</span>\n</div>",
 			'read',
 			$home_url,
 			'site-card',

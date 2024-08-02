@@ -212,7 +212,7 @@ class Jetpack_Notifications {
 	 */
 	private static function get_notes_markup() {
 		return '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
-<span class="noticon noticon-bell"></span>
+<span class="noticon noticon-bell ab-icon"></span>
 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack' ) . '</span>';
 	}
 
@@ -232,21 +232,6 @@ class Jetpack_Notifications {
 	var wpNotesLinkAccountsURL = '<?php echo esc_url( $link_accounts_url ); ?>';
 <?php endif; ?>
 /* ]]> */
-	window.addEventListener('message', function ( event ) {
-		// Confirm that the message is from the right origin.
-		if ('https://widgets.wp.com' !== event.origin) {
-			return;
-		}
-		// Check whether 3rd Party Cookies are blocked
-		var has3PCBlocked = 'WPCOM:3PC:blocked' === event.data;
-
-		var tagerElement = document.getElementById('wp-admin-bar-notes');
-
-		if ( has3PCBlocked && tagerElement ) {
-			// Hide the notification button/icon
-			tagerElement.style.display = 'none';
-		}
-	}, false );
 </script>
 		<?php
 	}

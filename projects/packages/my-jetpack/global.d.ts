@@ -7,8 +7,50 @@ declare module '*.scss';
 // These libraries don't have types, this suppresses the TypeScript errors
 declare module '@wordpress/components';
 declare module '@wordpress/compose';
-declare module '@wordpress/i18n';
 declare module '@wordpress/icons';
+declare module '@automattic/jetpack-connection';
+
+type JetpackModule =
+	| 'anti-spam'
+	| 'backup'
+	| 'boost'
+	| 'crm'
+	| 'creator'
+	| 'extras'
+	| 'jetpack-ai'
+	| 'scan'
+	| 'search'
+	| 'social'
+	| 'security'
+	| 'protect'
+	| 'videopress'
+	| 'stats';
+
+type ThreatItem = {
+	// Protect API properties (free plan)
+	id: string;
+	title: string;
+	fixed_in: string;
+	description: string | null;
+	source: string | null;
+	// Scan API properties (paid plan)
+	context: string | null;
+	filename: string | null;
+	first_detected: string | null;
+	fixable: boolean | null;
+	severity: number | null;
+	signature: string | null;
+	status: number | null;
+};
+
+type ScanItem = {
+	checked: boolean;
+	name: string;
+	slug: string;
+	threats: ThreatItem[];
+	type: string;
+	version: string;
+};
 
 interface Window {
 	myJetpackInitialState?: {
@@ -43,11 +85,16 @@ interface Window {
 			videoPressStats: boolean;
 		};
 		lifecycleStats: {
-			historicallyActiveModules: Array< string >;
-			brokenModules: Array< string >;
+			historicallyActiveModules: JetpackModule[];
+			brokenModules: {
+				needs_site_connection: JetpackModule[];
+				needs_user_connection: JetpackModule[];
+			};
 			isSiteConnected: boolean;
 			isUserConnected: boolean;
 			jetpackPlugins: Array< string >;
+			ownedProducts: JetpackModule[];
+			unownedProducts: JetpackModule[];
 			modules: Array< string >;
 			purchases: Array< string >;
 		};
@@ -79,10 +126,12 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_free_offering: boolean;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
+					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
 					manage_url: string;
@@ -93,6 +142,7 @@ interface Window {
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
+						wpcom_free_product_slug?: string;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -106,6 +156,26 @@ interface Window {
 							should_prorate_when_offer_ends: boolean;
 							transition_after_renewal_count: number;
 							usage_limit?: number;
+						};
+						tiers?: {
+							[ key: string ]: {
+								available: boolean;
+								currencyCode: string;
+								discountPrice: number;
+								fullPrice: number;
+								introductoryOffer?: {
+									costPerInterval: number;
+									intervalCount: number;
+									intervalUnit: string;
+									shouldProrateWhenOfferEnds: boolean;
+									transitionAfterRenewalCount: number;
+									usageLimit?: number;
+								};
+								isIntroductoryOffer: boolean;
+								productTerm: string;
+								wpcomProductSlug: string;
+								quantity: number;
+							};
 						};
 					};
 					purchase_url?: string;
@@ -122,6 +192,39 @@ interface Window {
 					title: string;
 					wpcom_product_slug: string;
 				};
+			};
+		};
+		protect: {
+			scanData: {
+				core: ScanItem;
+				current_progress?: string;
+				data_source: string;
+				database: string[];
+				error: boolean;
+				error_code?: string;
+				error_message?: string;
+				files: string[];
+				has_unchecked_items: boolean;
+				last_checked: string;
+				num_plugins_threats: number;
+				num_themes_threats: number;
+				num_threats: number;
+				plugins: ScanItem[];
+				status: string;
+				themes: ScanItem[];
+			};
+			wafConfig: {
+				automatic_rules_available: boolean;
+				blocked_logins: number;
+				bootstrap_path: string;
+				brute_force_protection: boolean;
+				jetpack_waf_automatic_rules: '1' | '';
+				jetpack_waf_ip_allow_list: '1' | '';
+				jetpack_waf_ip_block_list: boolean;
+				jetpack_waf_ip_list: boolean;
+				jetpack_waf_share_data: '1' | '';
+				jetpack_waf_share_debug_data: boolean;
+				standalone_mode: boolean;
 			};
 		};
 		purchases: {
@@ -208,7 +311,27 @@ interface Window {
 				};
 			};
 		};
+		recommendedModules: {
+			modules: JetpackModule[] | null;
+			dismissed: boolean;
+		};
+		themes: {
+			[ key: string ]: {
+				Author: string;
+				Name: string;
+				RequiresPHP: string;
+				RequiresWP: string;
+				Status: string;
+				Template: string;
+				TextDomain: string;
+				ThemeURI: string;
+				Version: string;
+				active: boolean;
+				is_block_theme: boolean;
+			};
+		};
 		topJetpackMenuItemUrl: string;
+		isAtomic: boolean;
 		userIsAdmin: string;
 		userIsNewToJetpack: string;
 	};

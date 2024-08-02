@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.7] - 2024-07-10
+### Security
+- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements. [#38252]
+
+## [3.4.6] - 2024-06-26
+### Added
+- General: Automatically enables Page Cache when migrating from WP Super Cache. [#37963]
+
+### Fixed
+- Image CDN: Improvements to more closely match WP core behavior. [#37931] [#37946]
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+- Updated package dependencies. [#37796]
+- Page Cache: Update WP_CACHE detection in wp-config.php [#38022]
+- Page Cache: Avoid caching error pages. [#38054]
+- General: Fix instance where deactivating Boost can break caching for other caching plugins. [#38033]
+
+## [3.4.4] - 2024-06-18
+### Fixes
+- My Jetpack: Update My Jetpack to a more stable version. [#37911]
+
+## [3.4.3] - 2024-06-14
+### Fixed
+- Compatibility: Include a missing dependency required for Compatibility with WP Optimize [#37873]
+
 ## [3.4.2] - 2024-06-13
 ### Added
 - Critical CSS: Add a friendly error if css gen library is broken or missing. [#37283]
@@ -456,6 +480,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[3.4.7]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.6...3.4.7
+[3.4.6]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.4...3.4.6
+[3.4.4]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.3...3.4.4
+[3.4.3]: https://github.com/Automattic/jetpack-boost-production/compare/3.4.2...3.4.3
 [3.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/3.3.1...3.4.2
 [3.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.3.0...3.3.1
 [3.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.2.2...3.3.0

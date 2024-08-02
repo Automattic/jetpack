@@ -12,7 +12,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
 import AdvancedUpsellNotice from '../advanced-upsell-notice';
-import AutoConversionToggle from '../auto-conversion-toggle';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -21,7 +20,6 @@ import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -32,17 +30,14 @@ const Admin = () => {
 
 	const refreshJetpackSocialSettings = useDispatch( socialStore ).refreshJetpackSocialSettings;
 
-	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
 	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
 		isModuleEnabled,
 		showPricingPage,
-		hasPaidPlan,
-		isShareLimitEnabled,
+		hasPaidFeatures,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
-		isAutoConversionAvailable,
 		shouldShowAdvancedPlanNudge,
 		isUpdatingJetpackSettings,
 	} = useSelect( select => {
@@ -50,11 +45,9 @@ const Admin = () => {
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
-			hasPaidPlan: store.hasPaidPlan(),
-			isShareLimitEnabled: store.isShareLimitEnabled(),
+			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			isAutoConversionAvailable: store.isAutoConversionAvailable(),
 			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
 			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
@@ -63,20 +56,11 @@ const Admin = () => {
 	const hasEnabledModule = useRef( isModuleEnabled );
 
 	useEffect( () => {
-		if (
-			isModuleEnabled &&
-			! hasEnabledModule.current &&
-			( isAutoConversionAvailable || isSocialImageGeneratorAvailable )
-		) {
+		if ( isModuleEnabled && ! hasEnabledModule.current && isSocialImageGeneratorAvailable ) {
 			hasEnabledModule.current = true;
 			refreshJetpackSocialSettings();
 		}
-	}, [
-		isAutoConversionAvailable,
-		isModuleEnabled,
-		isSocialImageGeneratorAvailable,
-		refreshJetpackSocialSettings,
-	] );
+	}, [ isModuleEnabled, isSocialImageGeneratorAvailable, refreshJetpackSocialSettings ] );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -95,7 +79,7 @@ const Admin = () => {
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			<GlobalNotices />
-			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
+			{ ( ! hasPaidFeatures && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
@@ -110,12 +94,8 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
-						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
-						{ isModuleEnabled && isAutoConversionAvailable && (
-							<AutoConversionToggle disabled={ isUpdatingJetpackSettings } />
-						) }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && (
 							<SocialImageGeneratorToggle disabled={ isUpdatingJetpackSettings } />
 						) }

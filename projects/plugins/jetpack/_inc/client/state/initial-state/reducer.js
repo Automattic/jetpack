@@ -58,8 +58,24 @@ export function getInitialStateConnectedPlugins( state ) {
 	return get( state.jetpack.initialState, 'connectedPlugins', {} );
 }
 
+/**
+ * Returns the email address of the connected user if they are the current user.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {string}  The email address of the current user.       .
+ */
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
+}
+
+/**
+ * Returns the current users email address.
+ *
+ * @param   {object}  state - Global state tree
+ * @returns {string}  The email address of the current user.       .
+ */
+export function getCurrenUserEmailAddress( state ) {
+	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'email' ] );
 }
 
 export function getSiteRawUrl( state ) {
@@ -191,6 +207,18 @@ export function getUserGravatar( state ) {
 
 export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
+}
+/**
+ * Gets the current user display name.
+ * @param {object} state - Global state tree
+ * @returns {string} The user display name.
+ */
+export function getDisplayName( state ) {
+	const displayName = get( state.jetpack.initialState.userData.currentUser, [ 'displayName' ] );
+	if ( displayName === null ) {
+		return getUsername( state );
+	}
+	return displayName;
 }
 
 /**
@@ -702,16 +730,6 @@ export function isBlazeDashboardEnabled( state ) {
 }
 
 /**
- * Returns information about the Gutenberg plugin and its Interactivity API support.
- *
- * @param {object} state - Global state tree.
- * @returns {object} Gutenberg plugin information.
- */
-export function getGutenbergState( state ) {
-	return state.jetpack.initialState.gutenbergInitialState;
-}
-
-/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -739,6 +757,16 @@ export function getJetpackManageInfo( state ) {
  */
 export function isSubscriptionSiteEnabled( state ) {
 	return !! state.jetpack.initialState.isSubscriptionSiteEnabled;
+}
+
+/**
+ * returns the newletter date example.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {string} Newsletter date example.
+ */
+export function getNewsetterDateExample( state ) {
+	return state.jetpack.initialState.newsletterDateExample;
 }
 
 /**

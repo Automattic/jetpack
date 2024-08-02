@@ -416,9 +416,11 @@ class WPCOM_Features {
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_MASTODON_CONNECTION        = 'social-mastodon-connection';
+	public const SOCIAL_THREADS_CONNECTION         = 'social-threads-connection';
 	public const SOCIAL_INSTAGRAM_CONNECTION       = 'social-instagram-connection';
 	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
+	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
 	public const SOCIAL_MULTI_CONNECTIONS          = 'social-multi-connections';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
@@ -1029,13 +1031,8 @@ class WPCOM_Features {
 		 *
 		 */
 		self::SOCIAL_SHARES_1000                => array(
-			self::JETPACK_SOCIAL_PLANS,
-			self::JETPACK_SOCIAL_ADVANCED_PLANS,
-			self::JETPACK_COMPLETE_PLANS,
+			self::JETPACK_ALL_SITES,
 			self::BUNDLE_ENTERPRISE,
-			self::JETPACK_BUSINESS_PLANS,
-			self::JETPACK_PREMIUM_PLANS,
-			self::JETPACK_SOCIAL_V1_PLANS,
 		),
 
 		self::SOCIAL_ENHANCED_PUBLISHING        => array(
@@ -1043,6 +1040,7 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
 			self::JETPACK_SOCIAL_V1_PLANS,
+			self::JETPACK_SOCIAL_PLANS,
 		),
 		self::SOCIAL_IMAGE_GENERATOR            => array(
 			array(
@@ -1052,9 +1050,18 @@ class WPCOM_Features {
 				self::JETPACK_COMPLETE_PLANS,
 				self::BUNDLE_ENTERPRISE,
 				self::JETPACK_SOCIAL_V1_PLANS,
+				self::JETPACK_SOCIAL_PLANS,
 			),
 		),
 		self::SOCIAL_MASTODON_CONNECTION        => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
+		),
+		self::SOCIAL_THREADS_CONNECTION         => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',
@@ -1071,6 +1078,14 @@ class WPCOM_Features {
 			),
 		),
 		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
+		),
+		self::SOCIAL_EDITOR_PREVIEW             => array(
 			array(
 				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
 				'before' => '1900-01-01',

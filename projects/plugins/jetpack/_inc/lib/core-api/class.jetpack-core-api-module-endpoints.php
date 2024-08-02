@@ -1001,6 +1001,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'jetpack_subscribe_overlay_enabled':
 				case 'wpcom_newsletter_categories_enabled':
 				case 'wpcom_featured_image_in_email':
+				case 'jetpack_gravatar_in_email':
+				case 'jetpack_author_in_email':
+				case 'jetpack_post_date_in_email':
 				case 'wpcom_subscription_emails_use_excerpt':
 				case 'jetpack_subscriptions_subscribe_post_end_enabled':
 				case 'jetpack_subscriptions_login_navigation_enabled':

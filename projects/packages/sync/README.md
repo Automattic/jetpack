@@ -66,7 +66,10 @@ the following modules will be enabled no matter the configuration:
 - `Automattic\\Jetpack\\Sync\\Modules\\Callables`
 - `Automattic\\Jetpack\\Sync\\Modules\\Constants`
 - `Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately`
+- `Automattic\\Jetpack\\Sync\\Modules\\Stats`
 - `Automattic\\Jetpack\\Sync\\Modules\\Updates`
+
+**Attention**: Sync currently only supports configuring the list of [default Sync modules](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/sync/src/class-modules.php#L25). Any modules that Sync already loads conditionally, such as `WooCommerce` or `Search` are **NOT** configurable.
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 
@@ -91,7 +94,6 @@ It's important to note that we consider a list of certain options required for S
 - `jetpack_sync_settings_post_types_blacklist`, // Sync related option
 - `jetpack_sync_settings_taxonomies_blacklist`, // Sync related option
 - `jetpack_sync_settings_dedicated_sync_enabled`, // Sync related option
-- `jetpack_connection_active_plugins`, // Connection related option
 - `blog_charset`, // Generic site option
 - `blog_public`, // Generic site option
 - `blogdescription`, // Generic site option
@@ -100,6 +102,7 @@ It's important to note that we consider a list of certain options required for S
 - `stylesheet`, // Generic site option
 - `time_format`, // Generic site option
 - `timezone_string`, // Generic site option
+- `active_plugins`, // Generic site option
 
 Passing a list of options will result in syncing those options plus the required ones.
 
@@ -143,6 +146,7 @@ It's important to note that we consider a list of certain callables required for
 - `wp_get_environment_type`
 - `wp_max_upload_size`
 - `wp_version`
+- `jetpack_connection_active_plugins` // Connection related callable
 
 Passing a list of callables will result in syncing those callables plus the required ones.
 

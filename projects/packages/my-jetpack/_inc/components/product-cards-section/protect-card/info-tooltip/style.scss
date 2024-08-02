@@ -1,0 +1,12 @@
+.info-tooltip__button {
+    display: flex;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: var(--jp-gray-50);
+    padding: 2px;
+    cursor: pointer;
+    svg {
+        margin: 0 auto;
+    }
+}

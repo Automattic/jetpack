@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Dismissed_Notices;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -718,6 +719,9 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
+				// used to determine if we can link to My Jetpack from the block editor
+				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -764,8 +768,12 @@ class Jetpack_Gutenberg {
 			// Add connectionData if we are using the new Connection UI.
 			if ( $social_initial_state['useAdminUiV1'] ) {
 				$initial_state['social']['connectionData'] = $social_initial_state['connectionData'];
+
+				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
 			}
 		}
+
+		$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
 
 		wp_localize_script(
 			'jetpack-blocks-editor',

@@ -160,16 +160,26 @@ class Waf_Runner {
 	 */
 	public static function get_config() {
 		return array(
-			Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ),
-			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => get_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ),
+			Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => Waf_Rules_Manager::automatic_rules_enabled(),
 			Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ),
+			Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_allow_list_enabled(),
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
+			Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_block_list_enabled(),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
 			self::SHARE_DEBUG_DATA_OPTION_NAME           => get_option( self::SHARE_DEBUG_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
 			'standalone_mode'                            => self::get_standalone_mode_status(),
 			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
 			'brute_force_protection'                     => (bool) Brute_Force_Protection::is_enabled(),
+
+			/**
+			 * Provide the deprecated IP lists options for backwards compatibility with older versions of the Jetpack and Protect plugins.
+			 * i.e. If one plugin is updated and the other is not, the latest version of this package will be used by both plugins.
+			 *
+			 * @deprecated $next-version$
+			 */
+			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
+			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_allow_list_enabled() || Waf_Rules_Manager::ip_block_list_enabled(),
 		);
 	}
 
@@ -303,11 +313,6 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function activate() {
-		Waf_Constants::define_mode();
-		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			throw new Waf_Exception( 'Invalid firewall mode.' );
-		}
-
 		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 		if ( ! $version ) {
 			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
@@ -440,10 +445,8 @@ class Waf_Runner {
 			// Delete the automatic rules last updated option.
 			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
-			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-
 			// If automatic rules setting is enabled, disable it.
-			if ( $automatic_rules_enabled ) {
+			if ( Waf_Rules_Manager::automatic_rules_enabled() ) {
 				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 			}
 

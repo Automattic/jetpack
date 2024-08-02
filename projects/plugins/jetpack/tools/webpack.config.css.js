@@ -161,7 +161,6 @@ const weirdRtlNominEntries = {};
 
 // Admin CSS files to insert into weirdRtlNominEntries and weirdRtlEntries.
 for ( const name of [
-	'modules/custom-post-types/comics/comics',
 	'modules/shortcodes/css/recipes',
 	'modules/shortcodes/css/recipes-print',
 	'modules/shortcodes/css/slideshow-shortcode',
@@ -197,15 +196,6 @@ for ( const name of [
 	'modules/theme-tools/compat/twentytwentyone',
 ] ) {
 	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
-}
-
-// Calypso scss to compile.
-// prettier-ignore
-for ( const file of glob
-	.sync( 'modules/calypsoify/*.scss' )
-	.filter( n => ! path.basename( n ).startsWith( '_' ) )
-) {
-	weirdRtlEntries[ file.substring( 0, file.length - 5 ) + '.min' ] = './' + file;
 }
 
 // General scss to compile.
