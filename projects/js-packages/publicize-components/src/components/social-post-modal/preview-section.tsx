@@ -40,12 +40,15 @@ export function PreviewSection() {
 								profilePicture={ connection.profile_picture }
 							/>
 						);
-						const disabled = shouldBeDisabled( connection );
+						const disabled =
+							shouldBeDisabled( connection ) ||
+							! canBeTurnedOn( connection ) ||
+							! connection.enabled;
 
 						return {
 							...connection,
 							// Add the props needed for the TabPanel component
-							disabled,
+							className: disabled ? styles[ 'disabled-tab' ] : '',
 							name,
 							title,
 							icon,
