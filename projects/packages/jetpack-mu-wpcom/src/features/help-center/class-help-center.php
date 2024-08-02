@@ -176,7 +176,7 @@ class Help_Center {
 		if ( ! is_admin() ) {
 			$stylesheet = 'build/components/' . ( is_rtl() ? 'style-rtl.css' : 'style.css' );
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
-			if ( function_exists( 'gutenberg_dir_path' ) ) {
+			if ( function_exists( 'gutenberg_url' ) ) {
 				$stylesheet_url = gutenberg_url( $stylesheet );
 			}
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
