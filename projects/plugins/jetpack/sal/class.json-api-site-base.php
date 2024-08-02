@@ -1069,7 +1069,7 @@ abstract class SAL_Site {
 		foreach ( $themes_with_errors as $theme ) {
 			$errors = $theme->errors();
 
-			if ( ! empty( $errors->get_error_messages() ) ) {
+			if ( is_wp_error( $errors ) && ! empty( $errors->get_error_messages() ) ) {
 				$theme_errors[] = array(
 					'name'   => sanitize_title( $theme->get( 'Name' ) ),
 					'errors' => (array) $errors->get_error_messages(),
