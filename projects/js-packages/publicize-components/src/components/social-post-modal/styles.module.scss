@@ -40,7 +40,11 @@
     align-items: center;
     padding-inline: 2rem;
     border-bottom: 1px solid var(--studio-gray-5);
-    border-inline-end: 1px solid var(--studio-gray-5);
+
+
+    @include break-medium {
+        border-inline-end: 1px solid var(--studio-gray-5);
+    }
 
     h2 {
         font-weight: 600;
@@ -52,7 +56,9 @@
 
 .settings-content {
     padding: 2rem;
-    border-inline-end: 1px solid var(--studio-gray-5);
+    @include break-medium {
+        border-inline-end: 1px solid var(--studio-gray-5);
+    }
 }
 
 .preview-section {
