@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack Comments: fix replying to comments in chrome when logged in to both wordpress.com and the jetpack site

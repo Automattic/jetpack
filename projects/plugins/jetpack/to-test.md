@@ -1,4 +1,4 @@
-## Jetpack 13.6
+## Jetpack 13.7
 
 ### Before you start:
 
@@ -8,80 +8,88 @@
 - Blocks in beta status require a small change for you to be able to test them. You can do either of the following:
   - Edit your `wp-config.php` file to include: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
   - Or add the following to something like a code snippet plugin: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`
+	- To test Breve further in the document please enable the feature with the following snippet: `add_filter( 'breve_enabled', '__return_true' );`
 
-### Testing with WordPress Release Candidate
+### Jetpack Blocks
 
-The WordPress 6.6 RC 1 [is planned](https://make.wordpress.org/core/6-6/) for a release on 25th of June, 2024. Please update your site to the latest RC if you're testing at the time when it is already available.  
+Several blocks have been migrated to Jetpack's code.
 
-### Masterbar package
+#### The Timeline block
 
-The Masterbar module is now a Jetpack package, and we should test to make sure the features are loading as they are supposed to.
+- Open the editor and insert the Timeline block.
+- Add any timeline entry.
+- Enable the Alternate items setting of the block.
+- Toggle the left/right alignment setting of the block.
+- Configure the background color of the block.
+- Make sure everything works as expected.
+- Make sure the block looks good on your frontend page.
 
-#### RTL support
+#### The Event Countdown block
 
-Update your user locale to Arabic and ensure the Masterbar and Admin menu is displayed as it should be. To make sure you can switch back to the current version of Jetpack and visually compare locations of text and controls.
+- Go to the editor and insert an Event Countdown block.
+- Fill in both title and date.
+- Preview your changes on frontend.
+- Make sure everything works and looks as expected.
+- Make sure the celebration shows when countdown finishes.
 
-#### WP Admin
+### Jetpack Dashboard
 
-There should be no visible option to customize your WP Admin view in the top right side of your admin area.
+Jetpack is currently getting ready to switch to React 19 with the next WordPress release, and some work is already merged into the code. Keeping this in mind note any problems that appear in the Jetpack Dashboard. The changes could affect things like popovers, setting toggles, tab switching, etc. 
 
-### Google Analytics package
+#### The Jetpack AI card
 
-The Google Analytics API code has been moved into a separate package as well, and this change needs testing. For this you need to make sure your Jetpack plugin is connected. You'll need a way to manage WordPress options to test this, WP CLI is preferred:
+The Jetpack AI card has been added to the Dashboard. To test it:
 
-- Deactivate the Google Analytics feature if enabled.
-- If exists, alse delete the `jetpack_wga` option (`wp option delete jetpack_wga`).
-- Go to "Jetpack -> Settings -> Traffic", purchase the plan.
-- Go there again and click on "Configure your Google Analytics settings".
-- In Calypso, scroll down to "Google" card and activate it.
-- Check `jetpack_wga`, confirm the setting `is_active: true` is now stored.
-- Go to the Jetpack site, find "Modules" section (`/wp-admin/admin.php?page=jetpack_modules`), and confirm that Google Analytics module is active.
-- Add a Measurement ID (e.g. G-12345), click "Save". Check `jetpack_wga`, confirm the Measurement ID and `is_active` are correct, and other settings show up and valid.
-- Reload the page, confirm Google Analytics is still active, and Measurement ID is preserved.
-- Load the site's frontend, check the page source code to confirm the Measurement ID is added to the page.
-- Deactivate "Add Google". Check `jetpack_wga` option, confirm `is_active: false`, and the rest of the settings didn't change.
-- Visit Jetpack's Modules page, confirm the module got disabled.
-- Check the frontend and confirm that the measurement ID has now disappeared.
-- Reload the Calypso page, confirm "Add Google" is still deactivated. Turn it on, confirm Measurement ID is still there.
+- Go to the Jetpack dashboard.
+- See the new card is shown at the bottom of the list. It should be in inactive state showing the "Upgrade" button.
+- Click the "Upgrade" button, you should land in the interstitial for Jetpack AI.
+- Proceed with a purchase. Once finished, go to Jetpack dashboard again.
+- See that the card is now active and reads "All features" button.
+- Click the "All features" button, you should land in My Jetpack's AI product page.
 
-### AI Form Assistant
+### AI Assistant
 
-The AI Form has been refactored, so testing is needed to make sure it's working as expected. When editing a post add a form and use the AI Assistant inline, use the video in [this pull request](https://github.com/Automattic/jetpack/pull/37589) for reference.
+#### The AI Logo Generator
 
-### Testing WordPress on Atomic sites
+The AI Logo Generator feature has received a lot of improvements in this release. Test its functionality in different scenarios, here's an example:
 
-There were some changes that are specific to how Jetpack works in WordPress on Atomic sites. These apply if you're testing Jetpack in an Atomic environment:
+- Make sure your testing site has a paid tier for Jetpack AI.
+- Go to the block editor and add a Site Logo block.
+- Look for the AI extension icon on the block toolbar and click on it.
+- Confirm the logo generator modal opens.
+- If that is the first time you open it, wait for the first logo to be generated.
+- If not, confirm you see your history of logos and can generate another one.
+- When you have a logo you like, click the "Use on block" button.
+- Confirm the logo generator modal will show the confirmation screen with the newly generated logo, don't close it yet.
+- Confirm the "Learn more about Jetpack AI" link in the confirmation screen leads you to the Jetpack AI product page on Jetpack.com.
+- Confirm the modal can be closed after clicking the link (or the close button, or the X button at the top).
+- Confirm the logo block is updated with the new logo.
+- Save the post so the new logo is set on the site. There should be a confirmation step on the sidebar, asking you to allow updating the logo.
+- Confirm you can click on the AI extension button again and choose a new logo, that will replace the previous one correctly.
+- Bonus points for testing it in the site editor.
 
-#### Masterbar menu loading
+#### Breve
 
-Because the Masterbar module has been moved outside of the plugin into a package, some changes were made to how the code is loaded. For example, the admin-menu API endpoint loads code in a different way. 
+The Breve proofreader feature has also received various improvements. Here's a simple testing scenario:
 
-To test that the code loads properly and there are no fatals, you can toggle the Admin Interface Style option in Settings -> General in wp-admin.
+- Make sure Breve is enabled, and beta blocks are available, as specified in the "Before you start" section.
+- Go to your editor, add text, you can ask the AI Assistant to generate it for you.
+- See Breve highlights, hover over them and make sure you can ask for a suggestion.
+- When you click the Suggest button, the animation should happen, and you should get your suggestion.
+- Try formatting your text using bold, italic, various font colors, etc.
+- Highlights should work on these words too.
 
-Testing the endpoint can be done using the [WPCOM REST API Dev Console](https://developer.wordpress.com/docs/api/console/). Query the `wpcom/v2/sites/YOUR_BLOG_ID/admin-menu` endpoint, and ensure the same response on WoA sites with previous Jetpack version, and with the latest alpha.
+#### Sidebar
 
-Try switching between Classic vs Default view in the top right corner of the admin area. Confirm nothing breaks and both views are displayed as expected. If you're testing on a WoA site with Jetpack SSO disabled, this option should not be available.
+There are now action links for the AI Assistant block. To test:
 
-##### Admin color schemes
-
-Upon editing a User Profile via wp-admin, confirm the Admin Color Scheme field is present, and ensure that by picking one of the options, the admin theme is updated. Because you're testing an a WoA site, this change should be also reflected in Calypso. 
-
-When editing a user's profile via wp-admin on a WoA site, confirm that you see the message about changing profile's basic details, and the corresponding links to your WPCOM account page work as expected.
-
-##### WordPress.com nudges
-
-WordPress.com offers to purchase a plan to be able to customize CSS on your site. To test make sure your site is:
-
-1. using a non-block theme, eg Hever.
-2. IS NOT on the Explorer Plan.
-
-Navigate to Appearance -> Additional CSS and confirm you see the nudge to purchase the Explorer Plan.
-
-Ensure the Upgrade flow is working as expected by clicking the "Upgrade now" button. You should be redirected to checkout with the Explorer plan in your cart.
-
-#### Jetpack Scan menu item
-
-In order to expose the Jetpack Scan history to Atomic sites that are using the default wp-admin interface, there's a new Scan menu item. Make sure this link redirects to the Jetpack Cloud and shows only the history page of scans done.
+- Open the editor and insert an AI Assistant block.
+- On the block card (header of the block inspector) you should see a link "Discover all features".
+- Clicking the link should autosave any changes and land you on My Jetpack's product page for AI.
+- If My Jetpack is not available (Testing on Atomic) the link should show as external link and open Jetpack.com/ai on a new page.
+- Open Jetpack sidebar and uncollapse the AI Assistant section.
+- At the bottom of the section, you should see a link "Learn more about Jetpack AI".
+- Link should behave as the above one (link to AI page on My Jetpack or open new tab to Jetpack.com/ai otherwise).
 
 ### And More!
 

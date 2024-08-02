@@ -4,13 +4,15 @@
 	margin-bottom: 24px;
 
 	.components-checkbox-control {
-		color: #757575;
-
-		&__input {
+		&__input:not(:disabled) {
 			@include features-colors( ( 'border-color' ) );
 			&:checked {
 				@include features-colors( ( 'background-color' ) );
 			}
+		}
+		&__input:disabled {
+			border-color: #ddd;
+			background-color: #ddd;
 		}
 	}
 

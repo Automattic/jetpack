@@ -3,7 +3,7 @@
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -17,9 +17,9 @@ import {
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
-	EVENT_PLACEMENT_QUICK_LINKS,
 	EVENT_GENERATE,
 } from '../constants.js';
+import { useCheckout } from '../hooks/use-checkout.js';
 import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
 import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.js';
@@ -43,12 +43,16 @@ const debug = debugFactory( 'jetpack-ai-calypso:generator-modal' );
 export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	isOpen,
 	onClose,
+	onApplyLogo,
+	onReload,
 	siteDetails,
 	context,
+	placement,
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory } = useDispatch( STORE_NAME );
+	const { getIsRequestingAiAssistantFeature } = select( STORE_NAME );
 	const [ loadingState, setLoadingState ] = useState<
 		'loadingFeature' | 'analyzing' | 'generating' | null
 	>( null );
@@ -57,13 +61,12 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
-	const [ upgradeURL, setUpgradeURL ] = useState( '' );
 	const { selectedLogo, getAiAssistantFeature, generateFirstPrompt, generateLogo, setContext } =
 		useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
-	const siteURL = siteDetails?.URL;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
+	const { nextTierCheckoutURL: upgradeURL } = useCheckout();
 
 	// First fetch the feature data so we have the most up-to-date info from the backend.
 	const feature = getAiAssistantFeature();
@@ -107,16 +110,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				! hasHistory &&
 				currentLimit - currentUsage < logoCost + promptCreationCost;
 
-			// If the site requires an upgrade, set the upgrade URL and show the upgrade screen immediately.
+			// If the site requires an upgrade, show the upgrade screen immediately.
 			setNeedsFeature( ! feature?.hasFeature ?? true );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
-
 			if ( ! feature?.hasFeature || siteNeedsMoreRequests ) {
-				const siteUpgradeURL = new URL(
-					`${ location.origin }/checkout/${ siteDetails?.domain }/${ feature?.nextTier?.slug }`
-				);
-				siteUpgradeURL.searchParams.set( 'redirect_to', location.href );
-				setUpgradeURL( siteUpgradeURL.toString() );
 				setLoadingState( null );
 				return;
 			}
@@ -148,10 +145,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 	const handleModalOpen = useCallback( async () => {
 		setContext( context );
-		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_OPEN, { context, placement } );
 
 		initializeModal();
-	}, [ setContext, context, initializeModal ] );
+	}, [ setContext, context, placement, initializeModal ] );
 
 	const closeModal = () => {
 		// Reset the state when the modal is closed, so we trigger the modal initialization again when it's opened.
@@ -162,20 +159,12 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setNeedsMoreRequests( false );
 		clearErrors();
 		setLogoAccepted( false );
-		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement: EVENT_PLACEMENT_QUICK_LINKS } );
+		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
 
-	const handleApplyLogo = () => {
+	const handleApplyLogo = ( mediaId: number ) => {
 		setLogoAccepted( true );
-	};
-
-	const handleCloseAndReload = () => {
-		closeModal();
-
-		setTimeout( () => {
-			// Reload the page to update the logo.
-			window.location.reload();
-		}, 1000 );
+		onApplyLogo?.( mediaId );
 	};
 
 	const handleFeedbackClick = () => {
@@ -190,10 +179,13 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 		// When the site details are set, we need to fetch the feature data.
 		if ( ! requestedFeatureData.current ) {
-			requestedFeatureData.current = true;
-			fetchAiAssistantFeature();
+			const isRequestingFeature = getIsRequestingAiAssistantFeature();
+			if ( ! isRequestingFeature ) {
+				requestedFeatureData.current = true;
+				fetchAiAssistantFeature();
+			}
 		}
-	}, [ siteId, siteDetails, setSiteDetails ] );
+	}, [ siteId, siteDetails, setSiteDetails, getIsRequestingAiAssistantFeature ] );
 
 	// Handles modal opening logic
 	useEffect( () => {
@@ -214,7 +206,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	if ( loadingState ) {
 		body = <FirstLoadScreen state={ loadingState } />;
 	} else if ( featureFetchError || firstLogoPromptFetchError ) {
-		body = <FeatureFetchFailureScreen onCancel={ closeModal } onRetry={ initializeModal } />;
+		body = (
+			<FeatureFetchFailureScreen
+				onCancel={ closeModal }
+				onRetry={ () => {
+					closeModal();
+					onReload?.();
+				} }
+			/>
+		);
 	} else if ( needsFeature || needsMoreRequests ) {
 		body = (
 			<UpgradeScreen
@@ -235,13 +235,10 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				/>
 				{ logoAccepted ? (
 					<div className="jetpack-ai-logo-generator__accept">
-						<VisitSiteBanner siteURL={ siteURL } onVisitBlankTarget={ handleCloseAndReload } />
+						<VisitSiteBanner />
 						<div className="jetpack-ai-logo-generator__accept-actions">
-							<Button variant="link" onClick={ handleCloseAndReload }>
-								{ __( 'Close and refresh', 'jetpack-ai-client' ) }
-							</Button>
-							<Button href={ siteURL } variant="primary">
-								{ __( 'Visit site', 'jetpack-ai-client' ) }
+							<Button variant="primary" onClick={ closeModal }>
+								{ __( 'Close', 'jetpack-ai-client' ) }
 							</Button>
 						</div>
 					</div>
@@ -271,7 +268,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			{ isOpen && (
 				<Modal
 					className="jetpack-ai-logo-generator-modal"
-					onRequestClose={ logoAccepted ? handleCloseAndReload : closeModal }
+					onRequestClose={ closeModal }
 					shouldCloseOnClickOutside={ false }
 					shouldCloseOnEsc={ false }
 					title={ __( 'Jetpack AI Logo Generator', 'jetpack-ai-client' ) }

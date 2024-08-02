@@ -3,6 +3,7 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import { PRODUCT_STATUSES } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
+import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import ProductCard from '../product-card';
 import type { AdditionalAction, SecondaryAction } from '../product-card/types';
@@ -19,10 +21,11 @@ import type { FC, ReactNode } from 'react';
 
 interface ConnectedProductCardProps {
 	admin: boolean;
+	recommendation: boolean;
 	slug: string;
 	children: ReactNode;
 	isDataLoading?: boolean;
-	Description?: JSX.Element | ( () => null );
+	Description?: React.JSX.Element | ( () => null );
 	additionalActions?: AdditionalAction[];
 	secondaryAction?: SecondaryAction;
 	upgradeInInterstitial?: boolean;
@@ -33,6 +36,7 @@ interface ConnectedProductCardProps {
 
 const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	admin,
+	recommendation,
 	slug,
 	children,
 	isDataLoading,
@@ -45,12 +49,19 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	onMouseLeave,
 } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
+	const { recordEvent } = useAnalytics();
 
 	const { install: installStandalonePlugin, isPending: isInstalling } =
 		useInstallStandalonePlugin( slug );
 	const { activate, isPending: isActivating } = useActivate( slug );
 	const { detail, refetch, isLoading: isProductDataLoading } = useProduct( slug );
-	const { name, description: defaultDescription, requiresUserConnection, status } = detail;
+	const {
+		name,
+		description: defaultDescription,
+		requiresUserConnection,
+		status,
+		manageUrl,
+	} = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 
@@ -93,12 +104,30 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		}
 	}, [ isRegistered, status, refetch ] );
 
+	/**
+	 * Calls the passed function onManage after firing Tracks event
+	 */
+	const manageHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_manage_click', {
+			product: slug,
+		} );
+	}, [ slug, recordEvent ] );
+
+	if ( ! secondaryAction && status === PRODUCT_STATUSES.CAN_UPGRADE ) {
+		secondaryAction = {
+			href: manageUrl,
+			label: __( 'View', 'jetpack-my-jetpack' ),
+			onClick: manageHandler,
+		};
+	}
+
 	return (
 		<ProductCard
 			name={ name }
 			Description={ Description ? Description : DefaultDescription }
 			status={ status }
 			admin={ admin }
+			recommendation={ recommendation }
 			isFetching={ isActivating || isInstalling || isProductDataLoading }
 			isDataLoading={ isDataLoading }
 			isInstallingStandalone={ isInstalling }

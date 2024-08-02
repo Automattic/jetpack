@@ -12,6 +12,21 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 
+// The $icon-color variable for admin color schemes.
+// See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
+// Only the ones different from the "fresh" scheme are listed.
+const WPCOM_ADMIN_ICON_COLORS = array(
+	'blue'      => '#e5f8ff',
+	'coffee'    => '#f3f2f1',
+	'ectoplasm' => '#ece6f6',
+	'midnight'  => '#f3f2f1',
+	'fresh'     => '#a7aaad',
+	'ocean'     => '#f2fcff',
+	'light'     => '#999',
+	'modern'    => '#f3f1f1',
+	'sunrise'   => '#f3f1f1',
+);
+
 /**
  * Adds the origin_site_id query parameter to a URL.
  *
@@ -60,9 +75,37 @@ function wpcom_enqueue_admin_bar_assets() {
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-search {
 					order: -1;
 				}
+
+				#wpadminbar .quicklinks #wp-admin-bar-top-secondary #wp-admin-bar-help-center {
+					order: 1;
+				}
 CSS
 		);
 	}
+
+	$admin_color      = get_user_option( 'admin_color' );
+	$admin_icon_color = WPCOM_ADMIN_ICON_COLORS[ $admin_color ] ?? WPCOM_ADMIN_ICON_COLORS['fresh'];
+
+	// Force the icon colors to have desktop color even on mobile viewport.
+	wp_add_inline_style(
+		'wpcom-admin-bar',
+		<<<CSS
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-icon:before,
+			#wpadminbar.mobile .quicklinks li:not(#wpwrap.wp-responsive-open #wp-admin-bar-menu-toggle) .ab-item:before {
+				color: $admin_icon_color !important;
+			}
+CSS
+	);
+
+	// Force wpcom icons to have consistent color.
+	wp_add_inline_style(
+		'wpcom-admin-bar',
+		<<<CSS
+			#wpadminbar .ab-icon {
+				color: $admin_icon_color;
+			}
+CSS
+	);
 }
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );

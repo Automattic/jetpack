@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.31.0] - 2024-08-01
+### Added
+- Update Welcome Banner and set async site-only connection [#38534]
+
+### Changed
+- Fixup versions [#38612]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [4.30.0] - 2024-07-29
+### Added
+- Async card update after async site connection [#38549]
+- My Jetpack: add A/A experiment to test for correct random assignment and prevent bias in metric performance. [#38327]
+- Show View button on product card along with upgrade cta [#38550]
+
+### Changed
+- Final minor enhancements to the Protect product card in My Jetpack. [#38420]
+
+### Removed
+- Remove functionality that hid 1 value on the backup card for mid-sized screens [#38441]
+
+### Fixed
+- Include Jetpack Legacy plans when checking if user has social included with plan [#38516]
+- Update all tracks to snake case, camel case is not supported [#38576]
+
 ## [4.29.0] - 2024-07-22
 ### Added
 - Added the auto-firewall status to the Protect product  card in My Jetpack. [#38332]
@@ -1582,6 +1607,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.30.0...4.31.0
+[4.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.29.0...4.30.0
 [4.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.28.0...4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
 [4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2

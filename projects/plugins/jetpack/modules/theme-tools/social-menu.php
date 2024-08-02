@@ -19,7 +19,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * @uses current_theme_supports()
 		 */
 		function jetpack_social_menu_init() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 			// Only load our code if our theme declares support
 			if ( ! current_theme_supports( 'jetpack-social-menu' ) ) {
 				return;
@@ -65,7 +65,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * @return null|string $menu_type
 		 */
 		function jetpack_social_menu_get_type() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 			$options = get_theme_support( 'jetpack-social-menu' );
 
 			if ( ! $options ) {
@@ -86,7 +86,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * Function to enqueue the CSS.
 		 */
 		function jetpack_social_menu_style() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 			$menu_type = jetpack_social_menu_get_type();
 
 			if ( ! $menu_type ) {
@@ -106,7 +106,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * Create the function for the menu.
 		 */
 		function jetpack_social_menu() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.7' );
 			if ( has_nav_menu( 'jetpack-social-menu' ) ) :
 				$menu_type  = jetpack_social_menu_get_type();
 				$link_after = '</span>';

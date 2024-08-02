@@ -54,5 +54,5 @@ export type NumberSliderProps = {
 	renderThumb?: (
 		props: HTMLPropsWithRefCallback< HTMLDivElement >,
 		state: { index: number; value: number | ReadonlyArray< number >; valueNow: number }
-	) => JSX.Element | null;
+	) => React.JSX.Element | null;
 };

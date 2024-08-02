@@ -254,10 +254,6 @@ abstract class Publicize_Base {
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
 		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
-
-		// Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_fediverse_creator_open_graph_tag' ), 10, 1 );
-		add_filter( 'jetpack_open_graph_output', array( $this, 'filter_fediverse_cards_output' ), 10, 1 );
 	}
 
 	/**
@@ -291,6 +287,26 @@ abstract class Publicize_Base {
 		// Otherwise, check the constant and the plan feature.
 		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
 			|| $this->has_connections_management_feature();
+	}
+
+	/**
+	 * Whether the site has the feature flag enabled.
+	 *
+	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
+	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
+	 * @return bool
+	 */
+	public function has_feature_flag( $flag_name, $feature_name ): bool {
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
+			return true;
+		}
+		// If the constant is set, use it.
+		if ( defined( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) && constant( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) ) {
+			return true;
+		}
+
+		return Current_Plan::supports( 'social-' . $feature_name );
 	}
 
 	/**
@@ -488,6 +504,10 @@ abstract class Publicize_Base {
 
 		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
 			return 'https://instagram.com/' . $cmeta['connection_data']['meta']['username'];
+		}
+
+		if ( 'threads' === $service_name && isset( $connection['external_name'] ) ) {
+			return 'https://www.threads.net/@' . $connection['external_name'];
 		}
 
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
