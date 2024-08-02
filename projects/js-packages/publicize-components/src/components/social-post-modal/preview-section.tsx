@@ -18,6 +18,8 @@ import styles from './styles.module.scss';
 export function PreviewSection() {
 	const getService = useService();
 
+	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+
 	const connections = useSelect(
 		select => {
 			const store = select( socialStore );
@@ -38,10 +40,12 @@ export function PreviewSection() {
 								profilePicture={ connection.profile_picture }
 							/>
 						);
+						const disabled = shouldBeDisabled( connection );
 
 						return {
 							...connection,
 							// Add the props needed for the TabPanel component
+							disabled,
 							name,
 							title,
 							icon,
@@ -49,7 +53,7 @@ export function PreviewSection() {
 					} )
 			);
 		},
-		[ getService ]
+		[ getService, shouldBeDisabled ]
 	);
 
 	const { toggleConnectionById } = useDispatch( socialStore );
@@ -60,7 +64,6 @@ export function PreviewSection() {
 		},
 		[ toggleConnectionById ]
 	);
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	return (
 		<div className={ styles[ 'preview-section' ] }>
