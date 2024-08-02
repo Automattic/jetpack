@@ -1,7 +1,11 @@
 import { TabPanel } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { ToggleControl } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { useConnectionState } from '../form/use-connection-state';
 import { useService } from '../services/use-service';
 import { PostPreview } from './post-preview';
 import styles from './styles.module.scss';
@@ -13,6 +17,8 @@ import styles from './styles.module.scss';
  */
 export function PreviewSection() {
 	const getService = useService();
+
+	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	const connections = useSelect(
 		select => {
@@ -34,10 +40,15 @@ export function PreviewSection() {
 								profilePicture={ connection.profile_picture }
 							/>
 						);
+						const disabled =
+							shouldBeDisabled( connection ) ||
+							! canBeTurnedOn( connection ) ||
+							! connection.enabled;
 
 						return {
 							...connection,
 							// Add the props needed for the TabPanel component
+							className: disabled ? styles[ 'disabled-tab' ] : '',
 							name,
 							title,
 							icon,
@@ -45,7 +56,16 @@ export function PreviewSection() {
 					} )
 			);
 		},
-		[ getService ]
+		[ getService, shouldBeDisabled ]
+	);
+
+	const { toggleConnectionById } = useDispatch( socialStore );
+
+	const toggleConnection = useCallback(
+		( connectionId: string ) => () => {
+			toggleConnectionById( connectionId );
+		},
+		[ toggleConnectionById ]
 	);
 
 	return (
@@ -54,6 +74,12 @@ export function PreviewSection() {
 				{ ( tab: ( typeof connections )[ number ] ) => (
 					<div className={ styles[ 'preview-content' ] }>
 						<PostPreview connection={ tab } />
+						<ToggleControl
+							label={ __( 'Share to this account', 'jetpack' ) }
+							disabled={ shouldBeDisabled( tab ) }
+							checked={ canBeTurnedOn( tab ) && tab.enabled }
+							onChange={ toggleConnection( tab.connection_id ) }
+						/>
 					</div>
 				) }
 			</TabPanel>
