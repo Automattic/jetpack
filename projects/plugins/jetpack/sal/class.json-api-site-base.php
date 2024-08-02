@@ -1071,8 +1071,8 @@ abstract class SAL_Site {
 
 			if ( ! empty( $errors->get_error_messages() ) ) {
 				$theme_errors[] = array(
-					'name'   => $theme->get( 'Name' ),
-					'errors' => $errors->get_error_messages(),
+					'name'   => sanitize_title( $theme->get( 'Name' ) ),
+					'errors' => (array) $errors->get_error_messages(),
 				);
 			}
 		}
