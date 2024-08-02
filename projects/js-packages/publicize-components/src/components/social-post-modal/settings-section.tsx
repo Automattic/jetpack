@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { SharePostForm } from '../form/share-post-form';
 import styles from './styles.module.scss';
 
 /**
@@ -8,12 +9,12 @@ import styles from './styles.module.scss';
  */
 export function SettingsSection() {
 	return (
-		<div>
+		<div className={ styles[ 'settings-section' ] }>
 			<div className={ styles[ 'settings-header' ] }>
 				<h2>{ __( 'Social Preview', 'jetpack' ) }</h2>
 			</div>
 			<div className={ styles[ 'settings-content' ] }>
-				<textarea />
+				<SharePostForm />
 			</div>
 		</div>
 	);

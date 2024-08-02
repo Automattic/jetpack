@@ -36,7 +36,7 @@ export function SocialPostModal() {
 				</Modal>
 			) }
 			<Button variant="secondary" onClick={ toggleModal }>
-				{ __( 'Create custom posts', 'jetpack' ) }
+				{ __( 'Preview social posts', 'jetpack' ) }
 			</Button>
 		</PanelRow>
 	);
