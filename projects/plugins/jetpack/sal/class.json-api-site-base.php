@@ -1061,7 +1061,7 @@ abstract class SAL_Site {
 	 * Returns a list of errors for broken themes on the site.
 	 *
 	 * @return array
-	 **/
+	 */
 	public function get_theme_errors() {
 		$themes_with_errors = wp_get_themes( array( 'errors' => true ) );
 		$theme_errors       = array();
