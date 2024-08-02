@@ -3,10 +3,10 @@ import { Button, ButtonGroup, Modal, PanelBody, Path, SVG } from '@wordpress/com
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
-import { send as sendIcon } from '@wordpress/icons';
 import { useState, useCallback, useEffect } from 'react';
 
 // Fallback SVG for the send icon that will be released with Gutenberg 19.0
+// Replace with import { send  } from '@wordpress/icons' when available;
 const sendIconSvg = (
 	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 		<Path
@@ -86,7 +86,7 @@ const NewsletterMenu = () => {
 			<PluginSidebar
 				name="newsletter-settings-sidebar"
 				title={ __( 'Newsletter', 'jetpack' ) }
-				icon={ sendIcon || sendIconSvg }
+				icon={ sendIconSvg }
 			>
 				<PanelBody>
 					<p>
