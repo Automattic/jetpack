@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { useConnectionState } from '../form/use-connection-state';
 import { useService } from '../services/use-service';
 import { PostPreview } from './post-preview';
 import styles from './styles.module.scss';
@@ -59,6 +60,7 @@ export function PreviewSection() {
 		},
 		[ toggleConnectionById ]
 	);
+	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	return (
 		<div className={ styles[ 'preview-section' ] }>
@@ -68,7 +70,8 @@ export function PreviewSection() {
 						<PostPreview connection={ tab } />
 						<ToggleControl
 							label={ __( 'Share to this account', 'jetpack' ) }
-							checked={ tab.enabled }
+							disabled={ shouldBeDisabled( tab ) }
+							checked={ canBeTurnedOn( tab ) && tab.enabled }
 							onChange={ toggleConnection( tab.connection_id ) }
 						/>
 					</div>
