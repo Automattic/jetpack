@@ -41,7 +41,7 @@ class Settings {
 	/**
 	 * Feature flags. Each item has 3 keys because of the naming conventions:
 	 * - flag_name: The name of the feature flag for the option check.
-	 * - plan_name: The name of the plan that enables the feature. Will be checked with Current_Plan.
+	 * - feature_name: The name of the feature that enables the feature. Will be checked with Current_Plan.
 	 * - variable_name: The name of the variable that will be used in the front-end.
 	 *
 	 * @var array
@@ -218,7 +218,7 @@ class Settings {
 			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
 
 			foreach ( self::FEATURE_FLAGS as $feature_flag ) {
-				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->has_feature_flag( $feature_flag['flag_name'], $feature_flag['plan_name'] );
+				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->has_feature_flag( $feature_flag['flag_name'], $feature_flag['feature_name'] );
 			}
 		} else {
 			$settings['connectionData'] = array(
