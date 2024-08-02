@@ -174,7 +174,7 @@ class Help_Center {
 		}
 
 		if ( ! is_admin() ) {
-			$stylesheet = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
+			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
 			if ( function_exists( 'gutenberg_url' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction
