@@ -98,9 +98,40 @@ class Publicize_Script_Data {
 	 * @return array
 	 */
 	public static function get_feature_flags() {
-		return array(
-			'useAdminUiV1' => Current_Plan::supports( 'social-connections-management' ),
+		$variable_to_feature_map = array(
+			'useAdminUiV1' => 'connections-management',
 		);
+
+		$feature_flags = array();
+
+		foreach ( $variable_to_feature_map as $variable => $feature ) {
+			$feature_flags[ $variable ] = self::has_feature_flag( $feature );
+		}
+
+		return $feature_flags;
+	}
+
+	/**
+	 * Whether the site has the feature flag enabled.
+	 *
+	 * @param string $feature The feature name to check for, without the "social-" prefix.
+	 * @return bool
+	 */
+	public static function has_feature_flag( $feature ): bool {
+		$flag_name = str_replace( '-', '_', $feature );
+
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
+			return true;
+		}
+
+		$constant_name = 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name );
+		// If the constant is set, use it.
+		if ( defined( $constant_name ) && constant( $constant_name ) ) {
+			return true;
+		}
+
+		return Current_Plan::supports( 'social-' . $feature );
 	}
 
 	/**
