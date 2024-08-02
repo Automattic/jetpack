@@ -1,6 +1,6 @@
-# Initial State
+# Scrip Helpers
 
-A library to provide initial state and the corresponding utility functions for Jetpack.
+A library to provide data for script handles and the corresponding utility functions for Jetpack.
 
 ## Contribute
 

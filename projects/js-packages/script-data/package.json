@@ -1,0 +1,24 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-script-data",
+	"version": "0.1.0-alpha",
+	"description": "A library to provide data for script handles and the corresponding utility functions for Jetpack.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/script-data/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Script Data"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/script-data"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {},
+	"dependencies": {},
+	"devDependencies": {},
+	"exports": {
+		".": "./src/index.ts"
+	}
+}

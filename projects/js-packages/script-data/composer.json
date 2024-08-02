@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-initial-state",
-	"description": "A library to provide initial state and the corresponding utility functions for Jetpack.",
+	"name": "automattic/jetpack-script-data",
+	"description": "A library to provide data for script handles and the corresponding utility functions for Jetpack.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
@@ -25,9 +25,9 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"mirror-repo": "Automattic/jetpack-initial-state",
+		"mirror-repo": "Automattic/jetpack-script-data",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-initial-state/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-script-data/compare/v${old}...v${new}"
 		},
 		"autotagger": true
 	}

@@ -1,30 +1,30 @@
 /**
- * Get the initial state from the window object.
+ * Get the script data from the window object.
  *
- * @returns {import('./types').JetpackInitialState} The initial state.
+ * @returns {import('./types').JetpackScriptData} The script data.
  */
-export function getInitialState() {
-	return window.JetpackInitialState;
+export function getScriptData() {
+	return window.JetpackScriptData;
 }
 
 /**
- * Get the site data from the initial state.
+ * Get the site data from the script data.
  *
  * @returns {import('./types').SiteData} The site data.
  */
 export function getSiteData() {
-	return getInitialState().site;
+	return getScriptData().site;
 }
 
 /**
- * Get the admin URL from the initial state.
+ * Get the admin URL from the script data.
  *
  * @param {string} [path] - The path to append to the admin URL. e.g. `admin.php?page=jetpack`.
  *
  * @returns {string} The admin URL.
  */
 export function getAdminUrl( path = '' ) {
-	return `${ getInitialState().site.admin_url }${ path }`;
+	return `${ getScriptData().site.admin_url }${ path }`;
 }
 
 /**
@@ -50,10 +50,10 @@ export function getMyJetpackUrl( section = '' ) {
 }
 
 /**
- * Get the current user data from the initial state.
+ * Get active features from the site plan.
  *
  * @returns {import('./types').SitePlan['features']['active']} The active features.
  */
 export function getActiveFeatures() {
-	return getInitialState().site.plan?.features?.active ?? [];
+	return getScriptData().site.plan?.features?.active ?? [];
 }

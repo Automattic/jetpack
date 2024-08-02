@@ -37,13 +37,13 @@ export interface UserData {
 	current_user: CurrentUserData;
 }
 
-export interface JetpackInitialState {
+export interface JetpackScriptData {
 	site: SiteData;
 	user: UserData;
 }
 
 declare global {
 	interface Window {
-		JetpackInitialState: JetpackInitialState;
+		JetpackScriptData: JetpackScriptData;
 	}
 }
