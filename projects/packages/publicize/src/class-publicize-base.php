@@ -293,10 +293,10 @@ abstract class Publicize_Base {
 	 * Whether the site has the feature flag enabled.
 	 *
 	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
-	 * @param string $plan_name The plan name to check for for the Current_Plan check, without the social- prefix.
+	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
 	 * @return bool
 	 */
-	public function has_feature_flag( $flag_name, $plan_name ): bool {
+	public function has_feature_flag( $flag_name, $feature_name ): bool {
 		// If the option is set, use it.
 		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
 			return true;
@@ -306,7 +306,7 @@ abstract class Publicize_Base {
 			return true;
 		}
 
-		return Current_Plan::supports( 'social-' . $plan_name );
+		return Current_Plan::supports( 'social-' . $feature_name );
 	}
 
 	/**
