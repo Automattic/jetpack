@@ -174,9 +174,10 @@ class Help_Center {
 		}
 
 		if ( ! is_admin() ) {
-			$stylesheet = 'build/components/' . ( is_rtl() ? 'style-rtl.css' : 'style.css' );
+			$stylesheet = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
 			if ( function_exists( 'gutenberg_url' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
 				$stylesheet_url = gutenberg_url( $stylesheet );
 			}
 			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
