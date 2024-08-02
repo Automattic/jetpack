@@ -14,6 +14,7 @@ import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
+import { SocialPostModal } from '../social-post-modal/modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
@@ -59,11 +60,11 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
+					{ featureFlags.useEditorPreview ? <SocialPostModal /> : null }
 					<ShareCountInfo />
 					<BrokenConnectionsNotice />
 					<UnsupportedConnectionsNotice />
 					<MediaValidationNotices />
-					{ featureFlags.useEditorPreview ? <p>New modal trigger goes here</p> : null }
 				</>
 			) : null }
 			<PanelRow>
