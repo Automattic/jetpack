@@ -247,15 +247,10 @@ class JetpackNotices extends React.Component {
 				) }
 				{ this.props.showGoogleAnalyticsNotice && (
 					<SimpleNotice status="is-warning" showDismiss={ false }>
-						<div>
-							{ __(
-								"Jetpack's Google Analytics feature will be removed on August 6, 2024.",
-								'jetpack'
-							) }
-						</div>
+						<div>{ __( "Jetpack's Google Analytics has been removed.", 'jetpack' ) }</div>
 						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
 							{ __(
-								'Read this document for details and how to keep tracking visits with Google Analytics',
+								'To keep tracking visits and more information on this change, please refer to this document',
 								'jetpack'
 							) }
 						</ExternalLink>
