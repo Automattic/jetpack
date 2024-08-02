@@ -371,10 +371,15 @@ class Help_Center {
 	 */
 	public function enqueue_wp_admin_scripts() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 
-		// Don't show the help center icon on front end of site if user can't edit posts.
-		if ( ! is_admin() && ! $can_edit_posts ) {
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+
+		// We will show the help center icon in the admin bar when;
+		// 1. On wp-admin
+		// 2. On the front end of the site if the current user can edit posts
+		// 3. On the front end of the site and the theme is not P2
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
 			return;
 		}
 
