@@ -118,6 +118,8 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 					<div className="feature-checkboxes-container">
 						{ features.map( feature => (
 							<CheckboxControl
+								className={ isProofreadEnabled ? '' : 'is-disabled' }
+								disabled={ ! isProofreadEnabled }
 								data-type={ feature.config.name }
 								key={ feature.config.name }
 								label={ feature.config.title }

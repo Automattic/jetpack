@@ -97,7 +97,7 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 	if ( in_array( 'js', $asset_types, true ) ) {
 		$js_file = "build/$asset_name/$asset_name.js";
 		wp_enqueue_script(
-			"jetpack-mu-wpcom-$asset_name",
+			$asset_handle,
 			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			$asset_file['dependencies'] ?? array(),
 			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
@@ -109,7 +109,7 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
 		$css_file = "build/$asset_name/$asset_name.$css_ext";
 		wp_enqueue_style(
-			"jetpack-mu-wpcom-$asset_name",
+			$asset_handle,
 			plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
 			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $css_file )
