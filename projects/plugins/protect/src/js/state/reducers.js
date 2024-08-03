@@ -1,5 +1,6 @@
 import { combineReducers } from '@wordpress/data';
 import camelize from 'camelize';
+import { SCAN_STATUS_OPTIMISTICALLY_SCANNING } from '../constants';
 import {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
@@ -61,7 +62,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS_PROGRESS:
 			return { ...state, currentProgress: action.currentProgress };
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, currentProgress: 0, status: 'optimistically_scanning' };
+			return { ...state, currentProgress: 0, status: SCAN_STATUS_OPTIMISTICALLY_SCANNING };
 	}
 	return state;
 };

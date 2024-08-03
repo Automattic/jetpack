@@ -2,6 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 import API from '../api';
+import { SCAN_STATUS_UNAVAILABLE } from '../constants';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
@@ -84,7 +85,7 @@ const refreshStatus =
 			return fetchStatus( hardRefresh )
 				.then( checkStatus )
 				.then( status => {
-					dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
+					dispatch( setScanIsUnavailable( SCAN_STATUS_UNAVAILABLE === status.status ) );
 					dispatch( setStatus( camelize( status ) ) );
 					resolve( status );
 				} )
@@ -120,7 +121,7 @@ const refreshScanHistory = () => {
  */
 const checkStatus = ( currentStatus, attempts = 0 ) => {
 	return new Promise( ( resolve, reject ) => {
-		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
+		if ( SCAN_STATUS_UNAVAILABLE === currentStatus.status && attempts < 3 ) {
 			fetchStatus( true )
 				.then( newStatus => {
 					setTimeout( () => {
