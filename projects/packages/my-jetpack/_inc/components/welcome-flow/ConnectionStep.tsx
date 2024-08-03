@@ -39,13 +39,15 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 					'jetpack_my_jetpack_post_connection_flow_202408'
 				);
 
+				// For control or default, we redirect to the connection page
+				// as described in the experiment.
 				if ( variationName !== 'treatment' ) {
 					window.location.href = 'admin.php?page=my-jetpack#/connection';
 				}
-			} );
 
-			resetNotice();
-			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+				resetNotice();
+				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+			} );
 		} );
 	}, [ onActivateSite, recordEvent, resetNotice, setNotice ] );
 
