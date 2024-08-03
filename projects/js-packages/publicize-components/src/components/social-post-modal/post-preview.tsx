@@ -1,4 +1,5 @@
 import {
+	FacebookLinkPreview,
 	FacebookPostPreview,
 	InstagramPostPreview,
 	LinkedInPostPreview,
@@ -58,10 +59,21 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 		return decodeEntities( getUnstableBase()?.name );
 	}, [] );
 
+	const hasMedia = media?.some(
+		( { type } ) => type.startsWith( 'image/' ) || type.startsWith( 'video/' )
+	);
+
 	switch ( connection.service_name ) {
 		case 'facebook':
-			return (
+			return hasMedia ? (
 				<FacebookPostPreview
+					{ ...commonProps }
+					type="article"
+					customText={ message || excerpt || title }
+					user={ user }
+				/>
+			) : (
+				<FacebookLinkPreview
 					{ ...commonProps }
 					type="article"
 					customText={ message || excerpt || title }
@@ -70,10 +82,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 
 		case 'instagram-business': {
-			const hasMedia = media?.some(
-				( { type } ) => type.startsWith( 'image/' ) || type.startsWith( 'video/' )
-			);
-
 			const hasImage = Boolean( image );
 
 			return ! hasMedia && ! hasImage ? (
@@ -104,10 +112,14 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			const firstMediaItem = media?.[ 0 ];
 
 			const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
+			const desc = message
+				? message
+				: `${ title && excerpt ? `${ title }\n\n${ excerpt }` : title }`;
 
 			return (
 				<MastodonPostPreview
 					{ ...commonProps }
+					description={ desc }
 					siteName={ siteName }
 					user={ {
 						avatarUrl: user.profileImage,
