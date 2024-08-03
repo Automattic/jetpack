@@ -131,10 +131,6 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			let postCheckoutUrl = product?.postCheckoutUrl
-				? product?.postCheckoutUrl
-				: myJetpackCheckoutUri;
-
 			ctaCallback?.( { slug, product, tier } );
 
 			if ( product?.isBundle || directCheckout ) {
@@ -146,8 +142,8 @@ export default function ProductInterstitial( {
 			activate(
 				{ productId: slug },
 				{
-					onSettled: ( { productId: activatedProduct } ) => {
-						postCheckoutUrl = activatedProduct?.post_checkout_url
+					onSettled: activatedProduct => {
+						const postCheckoutUrl = activatedProduct?.post_checkout_url
 							? activatedProduct.post_checkout_url
 							: myJetpackCheckoutUri;
 						// there is a separate hasRequiredTier, but it is not implemented
