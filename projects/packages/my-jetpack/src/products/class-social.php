@@ -86,7 +86,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Auto-publish to social media', 'jetpack-my-jetpack' );
+		return __( 'Effortlessly share content across social media. Right from within WordPress', 'jetpack-my-jetpack' );
 	}
 
 	/**

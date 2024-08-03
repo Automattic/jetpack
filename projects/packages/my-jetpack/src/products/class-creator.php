@@ -80,7 +80,7 @@ class Creator extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Create, grow, and monetize your audience', 'jetpack-my-jetpack' );
+		return __( 'Get more subscribers and keep them engaged with our creator tools.', 'jetpack-my-jetpack' );
 	}
 
 	/**

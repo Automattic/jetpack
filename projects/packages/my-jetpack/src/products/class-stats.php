@@ -91,7 +91,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Simple, yet powerful analytics', 'jetpack-my-jetpack' );
+		return __( 'The simplest way to track visitor insights and unlock your site’s growth', 'jetpack-my-jetpack' );
 	}
 
 	/**

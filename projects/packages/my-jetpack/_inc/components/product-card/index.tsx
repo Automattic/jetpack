@@ -17,7 +17,6 @@ export type ProductCardProps = {
 	children?: ReactNode;
 	name: string;
 	Description: FC;
-	LongDescription: FC;
 	admin: boolean;
 	recommendation?: boolean;
 	isFetching?: boolean;
@@ -48,7 +47,6 @@ const ProductCard: FC< ProductCardProps > = props => {
 	const {
 		name,
 		Description,
-		LongDescription,
 		status,
 		onActivate,
 		isFetching,
@@ -159,7 +157,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 			onMouseLeave={ onMouseLeave }
 		>
 			{ recommendation && <PriceComponent slug={ slug } /> }
-			{ recommendation || ! isOwned ? <LongDescription /> : <Description /> }
+			<Description />
 
 			{ isDataLoading ? (
 				<span className={ styles.loading }>{ __( 'Loading…', 'jetpack-my-jetpack' ) }</span>

@@ -103,7 +103,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Custom instant site search', 'jetpack-my-jetpack' );
+		return __( 'Help your visitors find what they are looking for with instant search results', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -112,7 +112,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Help your visitors find what they are looking for with instant search results that actually make sense.', 'jetpack-my-jetpack' );
+		return __( 'Help your site visitors find answers instantly so they keep reading and buying. Great for sites with a lot of content.', 'jetpack-my-jetpack' );
 	}
 
 	/**
