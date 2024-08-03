@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import isJetpackUserNew from '../../data/utils/is-jetpack-user-new';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
@@ -30,9 +31,13 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
+	const [ isLoadingWelcomeFlowExperiment ] = useValueStore(
+		'isLoadingWelcomeFlowExperiment',
+		false
+	);
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered ) {
+		if ( ! siteIsRegistered || isLoadingWelcomeFlowExperiment ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
 			if ( ! isJetpackUserNew() ) {
@@ -43,7 +48,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		}
 
 		return 'evaluation-processing';
-	}, [ isProcessingEvaluation, siteIsRegistered ] );
+	}, [ isLoadingWelcomeFlowExperiment, isProcessingEvaluation, siteIsRegistered ] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
@@ -108,7 +113,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 						{ 'connection' === currentStep && (
 							<ConnectionStep
 								onActivateSite={ handleRegisterSite }
-								isActivating={ siteIsRegistering }
+								isActivating={ siteIsRegistering || isLoadingWelcomeFlowExperiment }
 							/>
 						) }
 						{ 'evaluation' === currentStep && (

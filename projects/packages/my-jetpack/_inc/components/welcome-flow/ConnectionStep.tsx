@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
+import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
@@ -24,11 +25,16 @@ type ConnectionStepProps = {
 const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
+	const [ , setIsLoadingWelcomeFlowExperiment ] = useValueStore(
+		'isLoadingWelcomeFlowExperiment',
+		false
+	);
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 
 	const onConnectSiteClick = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
+		setIsLoadingWelcomeFlowExperiment( true );
 		onActivateSite().then( () => {
 			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
@@ -47,9 +53,10 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 
 				resetNotice();
 				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+				setIsLoadingWelcomeFlowExperiment( false );
 			} );
 		} );
-	}, [ onActivateSite, recordEvent, resetNotice, setNotice ] );
+	}, [ onActivateSite, recordEvent, resetNotice, setIsLoadingWelcomeFlowExperiment, setNotice ] );
 
 	return (
 		<>
