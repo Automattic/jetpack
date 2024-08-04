@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -32,6 +33,8 @@ class REST_Controller {
 	 * @var string
 	 */
 	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
+
+	const SOCIAL_SHARES_POST_META_KEY = '_publicize_shares';
 
 	/**
 	 * Constructor
@@ -159,6 +162,30 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
 				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/sync-shares/post/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_post_shares' ),
+					'permission_callback' => array( $this, 'update_post_shares_permission_callback' ),
+					'args'                => array(
+						'meta' => array(
+							'type'       => 'object',
+							'required'   => true,
+							'properties' => array(
+								'_publicize_shares' => array(
+									'type'     => 'array',
+									'required' => true,
+								),
+							),
+						),
+					),
+				),
 			)
 		);
 	}
@@ -598,5 +625,45 @@ class REST_Controller {
 			'could_not_create_connection',
 			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
 		);
+	}
+
+	/**
+	 * Update the post with information about shares.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function update_post_shares( $request ) {
+		$request_body = $request->get_json_params();
+
+		$post_id   = $request->get_param( 'id' );
+		$post_meta = $request_body['meta'];
+		$post      = get_post( $post_id );
+
+		if ( $post && $post->post_status === 'publish' && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
+			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
+			return rest_ensure_response( new WP_REST_Response() );
+		}
+
+		return new WP_Error(
+			'rest_cannot_edit',
+			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Permissions callback.
+	 */
+	public function update_post_shares_permission_callback() {
+		if ( Rest_Authentication::is_signed_with_blog_token() ) {
+			return true;
+		}
+
+		$error_msg = esc_html__(
+			'You are not allowed to perform this action.',
+			'jetpack-publicize-pkg'
+		);
+
+		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 }
