@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: fixed
 
 VideoPress block: stop video overflowing containers on smaller screens
