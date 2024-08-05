@@ -44,11 +44,14 @@ class Protect extends Module {
 	 * @access private
 	 */
 	private function has_login_ability_fallback() {
+		// Fall back to the Brute Force Protection class if it is available.
 		if ( class_exists( 'Brute_Force_Protection' ) ) {
 			$brute_force_protection = Brute_Force_Protection::instance();
 			return $brute_force_protection->has_login_ability();
 		}
 
+		// If the login ability can not be determined, the feature is not active,
+		// or something is wrong, default to not syncing failed login attempts.
 		return false;
 	}
 
@@ -60,7 +63,18 @@ class Protect extends Module {
 	 * @param array $failed_attempt Failed attempt data.
 	 */
 	public function maybe_log_failed_login_attempt( $failed_attempt ) {
-		$has_login_ability = apply_filters( 'jpp_has_login_ability', $this->has_login_ability_fallback() );
+		/**
+		 * Filter which provides Jetpack's decision as to whether the current requestor can attempt logging in.
+		 *
+		 * Example: When Jetpack's Brute Force Login Protection is active, this filter will return false if the user is currently locked out.
+		 *
+		 * @since $next-version$
+		 *
+		 * @package sync
+		 *
+		 * @return bool True if the user should be allowed to attempt logging in, false otherwise.
+		 */
+		$has_login_ability = apply_filters( 'jetpack_has_login_ability', $this->has_login_ability_fallback() );
 
 		if ( $has_login_ability && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
