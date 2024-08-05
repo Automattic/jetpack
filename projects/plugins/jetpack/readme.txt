@@ -326,19 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.7-a.7 - 2024-07-29
+### 13.7-beta - 2024-08-05
 #### Enhancements
-- AI Assistant: Add feedback link to the sidebar.
-- AI Assistant: Breve UI enhancements.
-- AI Assistant: Disable first Breve hover on mobile.
-- AI Assistant: Disable long sentences Breve feature by default.
-- AI Assistant: Enable Breve for 10% of production sites.
-- AI Assistant: Enable Breve for 20% of production sites.
-- General: Losslessly optimized PNG images.
-- Site Editor: Remove extra site editor notices in favor of the ones provided by WordPress directly.
+- AI Assistant: Make Jetpack Breve available to general public.
+- Jetpack: Port additional Full Site Editing features from WP Cloud.
+- Jetpack AI: Enable the AI Logo generator extension.
+- Jetpack Newsletter: Add Jetpack Newsletter menu with preview option.
 
-#### Improved compatibility
-- Masterbar: Always show the notification bell.
+#### Bug fixes
+- Jetpack Comments: Fix replying to comments in Chrome when logged in to both WordPress.com and Jetpack.
+- Sharing: Do not include Gravatar images in Open Graph Meta tags.
 
 --------
 
