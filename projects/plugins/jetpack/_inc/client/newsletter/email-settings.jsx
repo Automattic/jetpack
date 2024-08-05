@@ -67,7 +67,8 @@ const EmailSettings = props => {
 		siteName,
 	} = props;
 
-	const disabled = ! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const disabled =
+		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
 	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
 	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
 	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
