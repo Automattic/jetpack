@@ -84,8 +84,7 @@ export default function () {
 		'jetpack-ai-product-page-content-feedback-link'
 	);
 
-	// TODO: switch this to a proper link when the page is ready
-	const jetpackAiLink = getRedirectUrl( 'org-ai' );
+	const videoLinkBreve = getRedirectUrl( 'jetpack-ai-product-page-breve' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -310,7 +309,7 @@ export default function () {
 										className={ styles[ 'product-interstitial__usage-videos-link' ] }
 										icon={ help }
 										target="_blank"
-										href={ jetpackAiLink }
+										href={ videoLinkBreve }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
 									</Button>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed TS types for Notice components by marking optional props as such
