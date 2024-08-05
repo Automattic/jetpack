@@ -34,7 +34,7 @@ import {
 	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
-import { getModule, isModuleActivated } from 'state/modules';
+import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
 import { isPluginActive } from 'state/site/plugins';
 import { StartFreshDeprecationWarning } from '../../writing/custom-css';
@@ -319,7 +319,7 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
 			showGoogleAnalyticsNotice:
-				isModuleActivated( state, 'google-analytics' ) &&
+				window.Initial_State?.isGoogleAnalyticsActive &&
 				! isWoASite( state ) &&
 				isPluginActive(
 					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
