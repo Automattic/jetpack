@@ -1,4 +1,5 @@
 Significance: patch
 Type: fixed
+Comment: Prevent PHP fatals
 
-Fix RTL admin bar
+

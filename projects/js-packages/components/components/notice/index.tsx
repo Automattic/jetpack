@@ -5,10 +5,10 @@ import styles from './style.module.scss';
 
 type NoticeProps = {
 	/** The severity of the alert. */
-	level: 'error' | 'warning' | 'info' | 'success';
+	level?: 'error' | 'warning' | 'info' | 'success';
 
 	/** The title of the notice */
-	title: string;
+	title?: string;
 
 	/** A list of action elements to show across the bottom */
 	actions?: React.ReactNode[];
