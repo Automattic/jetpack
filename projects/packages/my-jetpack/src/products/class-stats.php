@@ -91,7 +91,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Simple, yet powerful analytics', 'jetpack-my-jetpack' );
+		return __( 'The simplest way to track visitor insights and unlock your site’s growth', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class Stats extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.', 'jetpack-my-jetpack' );
+		return __( 'With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing, understand your visitors, and grow your site.', 'jetpack-my-jetpack' );
 	}
 
 	/**
