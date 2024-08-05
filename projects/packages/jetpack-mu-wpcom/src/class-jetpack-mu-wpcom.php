@@ -65,6 +65,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
 		// Load the Map block settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_jetpack_mu_wpcom_settings' ), 999 );
+
+		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
 
 		// Load the Newsletter category settings.
@@ -151,20 +154,27 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
+		if ( is_admin() && ! is_wpcom_user() ) {
+			return;
+		}
+
 		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
+		require_once __DIR__ . '/features/newspack-blocks/index.php';
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
 		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+		require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
 		require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
 		require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
 		require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
 		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
+		require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
 		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
 		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 	}
@@ -226,6 +236,35 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Adds a global variable containing the config of the plugin to the window object.
+	 */
+	public static function load_jetpack_mu_wpcom_settings() {
+		$handle = 'jetpack-mu-wpcom-settings';
+
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		wp_register_script(
+			$handle,
+			false,
+			array(),
+			true
+		);
+
+		$data = wp_json_encode(
+			array(
+				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
+			)
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var JETPACK_MU_WPCOM_SETTINGS = $data;",
+			'before'
+		);
+
+		wp_enqueue_script( $handle );
 	}
 
 	/**

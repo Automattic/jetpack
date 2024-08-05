@@ -42,7 +42,7 @@ const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps )
 				</Text>
 				<Text variant="body" mb={ 2 }>
 					{ __(
-						'Elevate your WordPress experience with Jetpack, the complete toolkit for enhancing your site’s security, speed, and reach.',
+						'Unlock the power of your WordPress site with Jetpack, the complete toolkit for enhancing your site’s security, speed, and growth.',
 						'jetpack-my-jetpack'
 					) }
 				</Text>

@@ -140,6 +140,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'unmapped_url',
 		'featured_images_enabled',
 		'theme_slug',
+		'theme_errors',
 		'header_image',
 		'background_color',
 		'image_default_link_type',
@@ -661,6 +662,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'theme_slug':
 					$options[ $key ] = $site->get_theme_slug();
+					break;
+				case 'theme_errors':
+					$options[ $key ] = $site->get_theme_errors();
 					break;
 				case 'header_image':
 					$options[ $key ] = $site->get_header_image();
