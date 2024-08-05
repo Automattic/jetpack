@@ -16,7 +16,7 @@ const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
 	'jetpack-ai-breve-disabled-features'
 );
 const initialConfiguration = {
-	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
+	enabled: enabledFromLocalStorage === 'true',
 	disabled:
 		disabledFeaturesFromLocalStorage !== null
 			? JSON.parse( disabledFeaturesFromLocalStorage )

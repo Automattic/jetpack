@@ -80,7 +80,7 @@ class Creator extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Create, grow, and monetize your audience', 'jetpack-my-jetpack' );
+		return __( 'Get more subscribers and keep them engaged with our creator tools', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Creator extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Create, grow, and monetize your audience with powerful tools for creators.', 'jetpack-my-jetpack' );
+		return __( 'Craft stunning content, boost your subscriber base, and monetize your audience with subscriptions.', 'jetpack-my-jetpack' );
 	}
 
 	/**
