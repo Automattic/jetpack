@@ -1,7 +1,7 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef } from 'react';
 
 /**
  * Wrapper around a textbox to restrict the number of characters and
@@ -23,15 +23,15 @@ export default function MessageBoxControl( {
 	analyticsData = null,
 } ) {
 	const { recordEvent } = useAnalytics();
-	const [ isFirstChange, setIsFirstChange ] = useState( true );
+	const isFirstChange = useRef( true );
 
 	const charactersRemaining = maxLength - message.length;
 
 	const handleChange = useCallback(
 		newMessage => {
-			if ( isFirstChange ) {
+			if ( isFirstChange.current ) {
 				recordEvent( 'jetpack_social_custom_message_changed', analyticsData );
-				setIsFirstChange( false );
+				isFirstChange.current = false;
 			}
 			onChange( newMessage );
 		},
