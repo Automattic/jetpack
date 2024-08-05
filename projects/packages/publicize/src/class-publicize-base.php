@@ -254,6 +254,10 @@ abstract class Publicize_Base {
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
 		add_action( 'init', __NAMESPACE__ . '\add_theme_post_thumbnails_support', 8 );
+
+		// Add a Fediverse Open Graph Tag when an author has connected their Mastodon account.
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_fediverse_creator_open_graph_tag' ), 10, 1 );
+		add_filter( 'jetpack_open_graph_output', array( $this, 'filter_fediverse_cards_output' ), 10, 1 );
 	}
 
 	/**
@@ -2172,11 +2176,16 @@ abstract class Publicize_Base {
 
 			// services can have multiple connections. Store them all in our array.
 			foreach ( $connections as $connection ) {
+				if ( ! is_array( $connection ) ) {
+					continue;
+				}
+
 				$connection_id   = $this->get_connection_id( $connection );
 				$connection_meta = $this->get_connection_meta( $connection );
-				$connection_data = $connection_meta['connection_data'];
 
-				$mastodon_handle = $connection_data['external_display'] ?? '';
+				$connection_data    = $connection_meta['connection_data'] ?? array();
+				$mastodon_handle    = $connection_meta['external_display'] ?? '';
+				$connection_user_id = $connection_data['user_id'] ?? 0;
 
 				if ( empty( $mastodon_handle ) ) {
 					continue;
@@ -2188,7 +2197,7 @@ abstract class Publicize_Base {
 				}
 
 				$post_mastodon_connections[] = array(
-					'user_id'       => (int) $connection_data['user_id'],
+					'user_id'       => (int) $connection_user_id,
 					'connection_id' => (int) $connection_id,
 					'handle'        => $mastodon_handle,
 					'global'        => $this->is_global_connection( $connection ),
