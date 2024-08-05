@@ -21,7 +21,7 @@ export const ConnectionsList: React.FC = () => {
 			toggleById( connectionId );
 			recordEvent( 'jetpack_social_connection_toggled', {
 				location: 'editor',
-				new_state: ! connection.enabled,
+				enabled: ! connection.enabled,
 				service_name: connection.service_name,
 			} );
 		},
