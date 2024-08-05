@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Add copy-pasted libraries in `projects/plugins/jetpack/modules/shortcodes/js/` to `.eslintignore`, we don't want to lint them.
-
-

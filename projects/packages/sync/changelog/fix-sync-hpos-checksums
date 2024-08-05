@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Jetpack Sync: Take order type into account when performing  HPOS Checksums
