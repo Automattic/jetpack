@@ -60,13 +60,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	/**
 	 * Get order types that we want to sync. Adding a new type here is not enough, we would also need to add its prop in filter_order_data method.
 	 *
-	 * @access private
-	 *
 	 * @param bool $prefixed Whether to return prefixed types with shop_ or not.
 	 *
 	 * @return array Order types to sync.
 	 */
-	private function get_order_types_to_sync( $prefixed = false ) {
+	public static function get_order_types_to_sync( $prefixed = false ) {
 		$types = array( 'order', 'order_refund' );
 		if ( $prefixed ) {
 			$types = array_map(
@@ -87,7 +85,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		foreach ( $this->get_order_types_to_sync() as $type ) {
+		foreach ( self::get_order_types_to_sync() as $type ) {
 			add_action( "woocommerce_after_{$type}_object_save", $callable );
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
@@ -167,7 +165,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		$orders = wc_get_orders(
 			array(
 				'post__in'    => $ids,
-				'type'        => $this->get_order_types_to_sync( true ),
+				'type'        => self::get_order_types_to_sync( true ),
 				'post_status' => $this->get_all_possible_order_status_keys(),
 				'limit'       => -1,
 			)
@@ -420,7 +418,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function get_where_sql( $config ) {
 		global $wpdb;
 		$parent_where           = parent::get_where_sql( $config );
-		$order_types            = $this->get_order_types_to_sync( true );
+		$order_types            = self::get_order_types_to_sync( true );
 		$order_type_placeholder = implode( ', ', array_fill( 0, count( $order_types ), '%s' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Query is prepared.
 		$where_sql = $wpdb->prepare( "type IN ( $order_type_placeholder )", $order_types );
