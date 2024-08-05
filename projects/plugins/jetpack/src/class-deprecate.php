@@ -79,7 +79,7 @@ class Deprecate {
 			$support_url = Redirect::get_url( 'jetpack-support-google-analytics' );
 
 			$this->render_notice(
-				'jetpack-ga-admin-notice',
+				'jetpack-ga-admin-removal-notice',
 				esc_html__( "Jetpack's Google Analytics has been removed.", 'jetpack' )
 				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To keep tracking visits and more information on this change, please refer to this document', 'jetpack' ) . '</a>.'
 			);
@@ -102,7 +102,7 @@ class Deprecate {
 						'label' => esc_html__( 'See documentation', 'jetpack' ),
 						'url'   => Redirect::get_url( 'jetpack-support-google-analytics' ),
 					),
-					'id'   => 'jetpack-ga-admin-notice',
+					'id'   => 'jetpack-ga-admin-removal-notice',
 				),
 			);
 		}
@@ -163,6 +163,6 @@ class Deprecate {
 		return ( new Modules() )->is_active( 'google-analytics', false )
 			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' )
 			&& ! ( new Host() )->is_woa_site()
-			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-ga-admin-notice'] );
+			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-ga-admin-removal-notice'] );
 	}
 }

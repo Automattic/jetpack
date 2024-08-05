@@ -7,6 +7,7 @@ import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import cookie from 'cookie';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -35,7 +36,7 @@ import {
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getModule, isModuleActivated } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
-import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
+import { isPluginActive } from 'state/site/plugins';
 import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
@@ -181,12 +182,43 @@ UserUnlinked.propTypes = {
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
+	constructor( props ) {
+		super( props );
+
+		const cookieParsed = cookie.parse( document.cookie );
+		this.state = {
+			isGoogleAnalyticsNoticeDismissed:
+				cookieParsed &&
+				cookieParsed.hasOwnProperty(
+					'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]'
+				) &&
+				'1' === cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]' ],
+		};
+
+		this.dismissGoogleAnalyticsNotice = this.dismissGoogleAnalyticsNotice.bind( this );
+	}
+
+	dismissGoogleAnalyticsNotice() {
+		document.cookie = cookie.serialize(
+			'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]',
+			'1',
+			{
+				path: '/',
+				maxAge: 365 * 24 * 60 * 60,
+				SameSite: 'None',
+			}
+		);
+		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
+	}
+
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			error.hasOwnProperty( 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
+		const showGoogleAnalyticsNotice =
+			this.props.showGoogleAnalyticsNotice && ! this.state.isGoogleAnalyticsNoticeDismissed;
 
 		return (
 			<div aria-live="polite">
@@ -245,8 +277,12 @@ class JetpackNotices extends React.Component {
 						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
 					</SimpleNotice>
 				) }
-				{ this.props.showGoogleAnalyticsNotice && (
-					<SimpleNotice status="is-warning" showDismiss={ false }>
+				{ showGoogleAnalyticsNotice && (
+					<SimpleNotice
+						status="is-warning"
+						dismissText={ __( 'Dismiss', 'jetpack' ) }
+						onDismissClick={ this.dismissGoogleAnalyticsNotice }
+					>
 						<div>{ __( "Jetpack's Google Analytics has been removed.", 'jetpack' ) }</div>
 						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
 							{ __(
@@ -285,7 +321,11 @@ export default connect(
 			showGoogleAnalyticsNotice:
 				isModuleActivated( state, 'google-analytics' ) &&
 				! isWoASite( state ) &&
-				! isFetchingPluginsData( state ) &&
+				isPluginActive(
+					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
+					state,
+					'jetpack/jetpack.php'
+				) &&
 				! isPluginActive(
 					state,
 					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
