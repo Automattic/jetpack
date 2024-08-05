@@ -26,7 +26,7 @@ import { ModuleToggle } from '../components/module-toggle';
 import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
 import { getSiteAdminUrl } from '../state/initial-state';
-import { isPluginInstalled } from '../state/site/plugins';
+import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -458,8 +458,8 @@ export const Waf = class extends Component {
 			</div>
 		);
 
-		// If the site has Jetpack Protect installed, redirect the user to the dedicated Protect settings screen.
-		if ( this.props.isProtectInstalled ) {
+		// If the site has Jetpack Protect activated, redirect the user to the dedicated Protect settings screen.
+		if ( this.props.isProtectActive ) {
 			return (
 				<SettingsCard { ...this.props } header={ moduleHeader } module="waf" hideButton={ true }>
 					<Card className="dops-banner has-call-to-action">
@@ -538,8 +538,8 @@ export default connect(
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			hasScan: siteHasFeature( state, 'scan' ),
 			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
-			isProtectInstalled: PROTECT_PLUGIN_FILES.some( pluginFile =>
-				isPluginInstalled( state, pluginFile )
+			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
+				isPluginActive( state, pluginFile )
 			),
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
