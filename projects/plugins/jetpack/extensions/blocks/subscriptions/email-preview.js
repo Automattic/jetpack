@@ -8,13 +8,20 @@ import {
 	Modal,
 	TextControl,
 	Icon,
+	SelectControl,
+	Dropdown,
+	MenuGroup,
+	MenuItem,
+	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { desktop, mobile, tablet, check } from '@wordpress/icons';
 import './email-preview.scss';
-import { check } from '@wordpress/icons';
+import { useCallback, useEffect } from 'react';
+import { accessOptions } from '../../shared/memberships/constants';
 import illustration from './email-preview-illustration.svg';
 
 export default function EmailPreview( { isModalOpen, closeModal } ) {
@@ -110,5 +117,158 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 				</Modal>
 			) }
 		</>
+	);
+}
+
+const devices = [
+	{ name: 'desktop', icon: desktop, label: __( 'Desktop', 'jetpack' ), width: '100%' },
+	{ name: 'tablet', icon: tablet, label: __( 'Tablet', 'jetpack' ), width: '768px' },
+	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px' },
+];
+
+const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
+	const selectedIcon = devices.find( device => device.name === selectedDevice ).icon;
+
+	return (
+		<Dropdown
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<Button icon={ selectedIcon } onClick={ onToggle } aria-expanded={ isOpen } isSmall />
+			) }
+			renderContent={ () => (
+				<MenuGroup>
+					{ devices.map( device => (
+						<MenuItem
+							key={ device.name }
+							icon={ device.icon }
+							isSelected={ selectedDevice === device.name }
+							onClick={ () => setSelectedDevice( device.name ) }
+						>
+							{ device.label }
+						</MenuItem>
+					) ) }
+				</MenuGroup>
+			) }
+		/>
+	);
+};
+
+const HeaderActions = ( {
+	selectedAccess,
+	setSelectedAccess,
+	selectedDevice,
+	setSelectedDevice,
+} ) => {
+	const accessOptionsList = Object.values( accessOptions ).map( option => ( {
+		label: option.label,
+		value: option.key,
+	} ) );
+
+	return (
+		<HStack alignment="center">
+			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
+			<SelectControl
+				prefix={ __( 'Access:', 'jetpack' ) }
+				value={ selectedAccess }
+				options={ accessOptionsList }
+				onChange={ value => setSelectedAccess( value ) }
+			/>
+		</HStack>
+	);
+};
+
+export function PreviewModal( { isOpen, onClose, postId } ) {
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ previewCache, setPreviewCache ] = useState( {} );
+	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.everybody.key );
+	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
+
+	const fetchPreview = useCallback(
+		async accessLevel => {
+			if ( ! postId ) {
+				return;
+			}
+
+			setIsLoading( true );
+
+			try {
+				const response = await apiFetch( {
+					path: `/wpcom/v2/email-preview/?post_id=${ postId }&access=${ accessLevel }`,
+					method: 'GET',
+				} );
+
+				if ( response && response.html ) {
+					setPreviewCache( prevCache => ( {
+						...prevCache,
+						[ accessLevel ]: response.html,
+					} ) );
+				} else {
+					throw new Error( 'Invalid response format' );
+				}
+			} catch ( error ) {
+				setPreviewCache( prevCache => ( {
+					...prevCache,
+					[ accessLevel ]: `<html><body>${ __(
+						'Error loading preview',
+						'jetpack'
+					) }</body></html>`,
+				} ) );
+			} finally {
+				setIsLoading( false );
+			}
+		},
+		[ postId ]
+	);
+
+	useEffect( () => {
+		if ( isOpen && ! previewCache[ selectedAccess ] ) {
+			fetchPreview( selectedAccess );
+		} else if ( isOpen ) {
+			setIsLoading( false );
+		}
+	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
+
+	const deviceWidth = devices.find( device => device.name === selectedDevice ).width;
+
+	return (
+		isOpen && (
+			<Modal
+				isFullScreen={ true }
+				title={ __( 'Preview email', 'jetpack' ) }
+				onRequestClose={ () => {
+					onClose();
+					setPreviewCache( {} );
+				} }
+				headerActions={
+					<HeaderActions
+						selectedAccess={ selectedAccess }
+						setSelectedAccess={ setSelectedAccess }
+						selectedDevice={ selectedDevice }
+						setSelectedDevice={ setSelectedDevice }
+					/>
+				}
+			>
+				<div
+					style={ {
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: 'calc(100vh - 60px)',
+					} }
+				>
+					{ isLoading ? (
+						<Spinner />
+					) : (
+						<iframe
+							srcDoc={ previewCache[ selectedAccess ] }
+							style={ {
+								width: deviceWidth,
+								height: '100%',
+							} }
+							title={ __( 'Email Preview', 'jetpack' ) }
+						/>
+					) }
+				</div>
+			</Modal>
+		)
 	);
 }
