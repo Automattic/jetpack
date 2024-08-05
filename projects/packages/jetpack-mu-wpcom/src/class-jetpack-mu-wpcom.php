@@ -157,12 +157,23 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
-		require_once __DIR__ . '/features/newspack-blocks/index.php';
+
+		/**
+		 * It has a conflict with newspack or newspack-blocks plugin. If it's active, don't load the newspack feature.
+		 */
+		if ( ! ( is_plugin_active( 'newspack-plugin/newspack.php' ) || is_plugin_active( 'newspack-blocks/newspack-blocks.php' ) ) ) {
+			require_once __DIR__ . '/features/newspack-blocks/index.php';
+		}
+
 		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 		require_once __DIR__ . '/features/tags-education/tags-education.php';
