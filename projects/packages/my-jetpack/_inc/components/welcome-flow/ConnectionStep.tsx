@@ -50,6 +50,11 @@ const ConnectionStep = ( {
 			'jetpack_my_jetpack_post_connection_flow_202408'
 		);
 
+		if ( variationName !== 'treatment' ) {
+			// For control or default, we redirect to the connection page as described in the experiment.
+			window.location.href = 'admin.php?page=my-jetpack#/connection';
+		}
+
 		onUpdateWelcomeFlowExperiment( state => ( {
 			...state,
 			variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'

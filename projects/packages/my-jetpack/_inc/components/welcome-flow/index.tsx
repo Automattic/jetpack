@@ -44,11 +44,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if ( welcomeFlowExperiment.variation !== 'treatment' ) {
-				// For control or default, we redirect to the connection page as described in the experiment.
-				window.location.href = 'admin.php?page=my-jetpack#/connection';
-			}
-			if ( ! isJetpackUserNew() ) {
+			if ( ! isJetpackUserNew() || welcomeFlowExperiment.variation !== 'treatment' ) {
 				// If the user is not new, we don't show the evaluation step
 				return null;
 			}
