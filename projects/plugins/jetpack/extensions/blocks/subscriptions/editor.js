@@ -1,5 +1,6 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
+import { select } from '@wordpress/data';
 import { addFilter } from '@wordpress/hooks';
 import { atSymbol } from '@wordpress/icons';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
@@ -64,16 +65,28 @@ registerJetpackBlockFromMetadata( metadata, {
 	deprecated,
 } );
 
+const shouldShowNewsletterMenu = () => {
+	const postType = select( 'core/editor' ).getCurrentPostType();
+	const isPost = postType === 'post';
+
+	const urlParams = new URLSearchParams( window.location.search );
+	const showNewsletterFeature = urlParams.get( 'showNewsletterMenu' ) === 'true';
+
+	return isPost && showNewsletterFeature;
+};
+
 // Registers slot/fill panels defined via settings.render and command palette commands
 registerJetpackPlugin( blockName, {
-	render: () => (
-		<>
-			<SubscribePanels />,
-			<NewsletterMenu />,
-			<CommandPalette />
-		</>
-	),
-	icon: atSymbol,
+	render: () => {
+		return (
+			<>
+				<SubscribePanels />
+				{ shouldShowNewsletterMenu() && <NewsletterMenu /> }
+				<CommandPalette />
+			</>
+		);
+	},
+	icon: shouldShowNewsletterMenu() ? atSymbol : undefined,
 } );
 
 // Allows block to be inserted inside core navigation block
