@@ -42,28 +42,30 @@ const ConnectionStep = ( {
 
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
-		await sideloadTracks();
+		try {
+			await sideloadTracks();
 
-		initializeExPlat();
+			initializeExPlat();
 
-		const { variationName } = await loadExperimentAssignment(
-			'jetpack_my_jetpack_post_connection_flow_202408'
-		);
+			const { variationName } = await loadExperimentAssignment(
+				'jetpack_my_jetpack_post_connection_flow_202408'
+			);
 
-		if ( variationName !== 'treatment' ) {
-			// For control or default, we redirect to the connection page as described in the experiment.
-			window.location.href = 'admin.php?page=my-jetpack#/connection';
+			if ( variationName !== 'treatment' ) {
+				// For control or default, we redirect to the connection page as described in the experiment.
+				window.location.href = 'admin.php?page=my-jetpack#/connection';
+			}
+
+			onUpdateWelcomeFlowExperiment( state => ( {
+				...state,
+				variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+			} ) );
+		} finally {
+			resetNotice();
+			setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+
+			onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 		}
-
-		onUpdateWelcomeFlowExperiment( state => ( {
-			...state,
-			variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
-		} ) );
-
-		resetNotice();
-		setNotice( NOTICE_SITE_CONNECTED, resetNotice );
-
-		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
 	}, [ onActivateSite, onUpdateWelcomeFlowExperiment, recordEvent, resetNotice, setNotice ] );
 
 	return (
