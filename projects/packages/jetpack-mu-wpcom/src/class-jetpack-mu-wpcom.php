@@ -111,6 +111,7 @@ class Jetpack_Mu_Wpcom {
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+		\Automattic\Jetpack\Classic_Theme_Helper\Social_Links::setup();
 	}
 
 	/**
