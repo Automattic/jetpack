@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.48.0] - 2024-08-05
+### Added
+- Added endpoint to sync shares post meta back to the self-hosted site. [#38702]
+- Added feature flag management for social [#38669]
+
+### Fixed
+- Cleaned-up publicize shares rest endpoint [#38709]
+
 ## [0.47.4] - 2024-08-01
 ### Removed
 - Removed Fediverse og filters to fix fatals [#38612]
@@ -632,6 +640,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.48.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.4...v0.48.0
 [0.47.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.3...v0.47.4
 [0.47.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.2...v0.47.3
 [0.47.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.47.1...v0.47.2
