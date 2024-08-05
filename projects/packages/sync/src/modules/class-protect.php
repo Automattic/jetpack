@@ -68,7 +68,7 @@ class Protect extends Module {
 		 *
 		 * Example: When Jetpack's Brute Force Login Protection is active, this filter will return false if the user is currently locked out.
 		 *
-		 * @since $next-version$
+		 * @since $$next-version$$
 		 *
 		 * @package sync
 		 *
