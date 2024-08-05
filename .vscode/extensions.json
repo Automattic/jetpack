@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"bmewburn.vscode-intelephense-client",
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"obliviousharmony.vscode-php-codesniffer"
+	]
+}
