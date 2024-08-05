@@ -98,7 +98,7 @@ class Boost extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Fast sites get more page visits, more conversions and better SEO rankings. Boost speeds up your site in seconds.', 'jetpack-my-jetpack' );
+		return __( 'Fast sites get more page visits, more conversions, and better SEO rankings. Boost speeds up your site in seconds.', 'jetpack-my-jetpack' );
 	}
 
 	/**
