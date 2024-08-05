@@ -15,7 +15,7 @@ const wpcom_profile_settings_disable_email_field = () => {
  * Add a link to the WordPress.com profile settings page.
  */
 const wpcom_profile_settings_add_links_to_wpcom = () => {
-	const emailDescription = document.getElementById( 'email-description' );
+	const emailSection = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
 	const newPasswordSection = document.getElementById( 'password' )?.querySelector( 'td' );
 	const userSessionSection = document.querySelector( '.user-sessions-wrap' );
 
@@ -28,12 +28,16 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 
 	const emailSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.email?.link;
 	const emailSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.email?.text;
-	if ( emailDescription && emailSettingsLink && emailSettingsLinkText ) {
+	if ( emailSection && emailSettingsLink && emailSettingsLinkText ) {
 		const link = document.createElement( 'a' );
 		link.href = emailSettingsLink;
 		link.textContent = emailSettingsLinkText;
-		emailDescription.appendChild( document.createElement( 'br' ) );
-		emailDescription.appendChild( link );
+
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+
+		notice.appendChild( link );
+		emailSection.appendChild( notice );
 	}
 
 	const passwordSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.password?.link;
@@ -42,11 +46,12 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 		const link = document.createElement( 'a' );
 		link.href = passwordSettingsLink;
 		link.textContent = passwordSettingsLinkText;
-		link.style.display = 'block';
-		if ( newPasswordSection.childElementCount > 0 ) {
-			link.style.marginTop = '14px';
-		}
-		newPasswordSection.appendChild( link );
+
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+
+		notice.appendChild( link );
+		newPasswordSection.appendChild( notice );
 	}
 };
 
