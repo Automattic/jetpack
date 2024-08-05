@@ -3,7 +3,6 @@ import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import isJetpackUserNew from '../../data/utils/is-jetpack-user-new';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
@@ -15,6 +14,11 @@ import EvaluationProcessingStep from './EvaluationProcessingStep';
 import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
 import styles from './style.module.scss';
 import type { FC, PropsWithChildren } from 'react';
+
+export type WelcomeFlowExperiment = {
+	isLoading: boolean;
+	variation: 'control' | 'treatment';
+};
 
 const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	const { recordEvent } = useAnalytics();
@@ -31,15 +35,19 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
-	const [ isLoadingWelcomeFlowExperiment ] = useValueStore(
-		'isLoadingWelcomeFlowExperiment',
-		false
-	);
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState< WelcomeFlowExperiment >( {
+		isLoading: false,
+		variation: 'control',
+	} );
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered || isLoadingWelcomeFlowExperiment ) {
+		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
+			if ( welcomeFlowExperiment.variation !== 'treatment' ) {
+				// For control or default, we redirect to the connection page as described in the experiment.
+				window.location.href = 'admin.php?page=my-jetpack#/connection';
+			}
 			if ( ! isJetpackUserNew() ) {
 				// If the user is not new, we don't show the evaluation step
 				return null;
@@ -48,7 +56,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		}
 
 		return 'evaluation-processing';
-	}, [ isLoadingWelcomeFlowExperiment, isProcessingEvaluation, siteIsRegistered ] );
+	}, [ isProcessingEvaluation, siteIsRegistered, welcomeFlowExperiment ] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
@@ -113,7 +121,8 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 						{ 'connection' === currentStep && (
 							<ConnectionStep
 								onActivateSite={ handleRegisterSite }
-								isActivating={ siteIsRegistering || isLoadingWelcomeFlowExperiment }
+								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>
 						) }
 						{ 'evaluation' === currentStep && (

@@ -32,15 +32,15 @@ function getCurrentYearAndWeek() {
  * and appends it to the document's head.
  *
  * @param {string} src - The URL of the script to load.
- * @param {Function} callback - The function to call once the script has loaded.
+ * @returns {Promise<void>} A promise that resolves once the script has loaded.
  */
-function loadScript( src: string, callback?: () => void ): void {
-	const script = document.createElement( 'script' );
-	script.src = src;
-	script.onload = () => {
-		callback();
-	};
-	document.head.appendChild( script );
+function loadScript( src: string ): Promise< void > {
+	return new Promise( resolve => {
+		const script = document.createElement( 'script' );
+		script.src = src;
+		script.onload = () => resolve();
+		document.head.appendChild( script );
+	} );
 }
 
 /**
@@ -50,10 +50,9 @@ function loadScript( src: string, callback?: () => void ): void {
  * and then loads the tracking script from the specified URL. Once the script has loaded,
  * the provided callback function is called.
  *
- * @param {Function} callback - The function to call once the script has loaded.
+ * @returns {Promise<void>} A promise that resolves once the Tracks has been side loaded.
  */
-export default function sideloadTracks( callback?: () => void ): void {
+export default function sideloadTracks(): Promise< void > {
 	window._tkq = window._tkq || [];
-
-	loadScript( `//stats.wp.com/w.js?${ getCurrentYearAndWeek() }`, callback );
+	return loadScript( `//stats.wp.com/w.js?${ getCurrentYearAndWeek() }` );
 }

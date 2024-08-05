@@ -4,13 +4,15 @@ import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
-import { useValueStore } from '../../context/value-store/valueStoreContext';
 import useAnalytics from '../../hooks/use-analytics';
 import sideloadTracks from '../../utils/side-load-tracks';
 import styles from './style.module.scss';
+import { WelcomeFlowExperiment } from '.';
+import type { Dispatch, SetStateAction } from 'react';
 
 type ConnectionStepProps = {
 	onActivateSite: ( e?: Event ) => Promise< void >;
+	onUpdateWelcomeFlowExperiment: Dispatch< SetStateAction< WelcomeFlowExperiment > >;
 	isActivating: boolean;
 };
 
@@ -19,44 +21,45 @@ type ConnectionStepProps = {
  *
  * @param {object} props - ConnectioStepProps
  * @param {Function} props.onActivateSite - Alias for handleRegisterSite
+ * @param {Function} props.onUpdateWelcomeFlowExperiment - Updating the welcomeFlowExperiment state
  * @param {boolean} props.isActivating - Alias for siteIsRegistering
  * @returns {object} The ConnectionStep component.
  */
-const ConnectionStep = ( { onActivateSite, isActivating }: ConnectionStepProps ) => {
+const ConnectionStep = ( {
+	onActivateSite,
+	onUpdateWelcomeFlowExperiment,
+	isActivating,
+}: ConnectionStepProps ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const [ , setIsLoadingWelcomeFlowExperiment ] = useValueStore(
-		'isLoadingWelcomeFlowExperiment',
-		false
-	);
 
 	const activationButtonLabel = __( 'Activate Jetpack in one click', 'jetpack-my-jetpack' );
 
-	const onConnectSiteClick = useCallback( () => {
+	const onConnectSiteClick = useCallback( async () => {
 		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_click' );
-		setIsLoadingWelcomeFlowExperiment( true );
-		onActivateSite().then( () => {
-			recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
+		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: true } ) );
+		await onActivateSite();
 
-			sideloadTracks( async () => {
-				initializeExPlat();
+		recordEvent( 'jetpack_myjetpack_welcome_banner_connect_site_success' );
 
-				const { variationName } = await loadExperimentAssignment(
-					'jetpack_my_jetpack_post_connection_flow_202408'
-				);
+		await sideloadTracks();
 
-				// For control or default, we redirect to the connection page
-				// as described in the experiment.
-				if ( variationName !== 'treatment' ) {
-					window.location.href = 'admin.php?page=my-jetpack#/connection';
-				}
+		initializeExPlat();
 
-				resetNotice();
-				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
-				setIsLoadingWelcomeFlowExperiment( false );
-			} );
-		} );
-	}, [ onActivateSite, recordEvent, resetNotice, setIsLoadingWelcomeFlowExperiment, setNotice ] );
+		const { variationName } = await loadExperimentAssignment(
+			'jetpack_my_jetpack_post_connection_flow_202408'
+		);
+
+		onUpdateWelcomeFlowExperiment( state => ( {
+			...state,
+			variation: variationName as WelcomeFlowExperiment[ 'variation' ], // casting to 'control' or 'treatment'
+		} ) );
+
+		resetNotice();
+		setNotice( NOTICE_SITE_CONNECTED, resetNotice );
+
+		onUpdateWelcomeFlowExperiment( state => ( { ...state, isLoading: false } ) );
+	}, [ onActivateSite, onUpdateWelcomeFlowExperiment, recordEvent, resetNotice, setNotice ] );
 
 	return (
 		<>
