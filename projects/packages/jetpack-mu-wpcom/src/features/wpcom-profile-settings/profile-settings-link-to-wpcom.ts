@@ -9,6 +9,9 @@ const wpcom_profile_settings_disable_email_field = () => {
 	if ( emailField ) {
 		emailField.disabled = true;
 	}
+
+	const emailDescription = document.getElementById( 'email-description' ) as HTMLInputElement;
+	emailDescription?.remove();
 };
 
 /**
