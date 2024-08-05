@@ -172,7 +172,7 @@ class REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_post_shares' ),
-					'permission_callback' => array( $this, 'update_post_shares_permission_callback' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_blog_token' ),
 					'args'                => array(
 						'meta' => array(
 							'type'       => 'object',
@@ -639,7 +639,7 @@ class REST_Controller {
 		$post_meta = $request_body['meta'];
 		$post      = get_post( $post_id );
 
-		if ( $post && $post->post_status === 'publish' && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
+		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
 			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
 			return rest_ensure_response( new WP_REST_Response() );
 		}
@@ -649,21 +649,5 @@ class REST_Controller {
 			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
 			array( 'status' => 500 )
 		);
-	}
-
-	/**
-	 * Permissions callback.
-	 */
-	public function update_post_shares_permission_callback() {
-		if ( Rest_Authentication::is_signed_with_blog_token() ) {
-			return true;
-		}
-
-		$error_msg = esc_html__(
-			'You are not allowed to perform this action.',
-			'jetpack-publicize-pkg'
-		);
-
-		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 }
