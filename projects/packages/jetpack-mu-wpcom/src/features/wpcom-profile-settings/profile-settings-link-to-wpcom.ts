@@ -29,28 +29,18 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 	const emailSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.email?.link;
 	const emailSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.email?.text;
 	if ( emailSection && emailSettingsLink && emailSettingsLinkText ) {
-		const link = document.createElement( 'a' );
-		link.href = emailSettingsLink;
-		link.textContent = emailSettingsLinkText;
-
 		const notice = document.createElement( 'p' );
 		notice.className = 'description';
-
-		notice.appendChild( link );
+		notice.innerHTML = `<a href="${ emailSettingsLink }">${ emailSettingsLinkText }</a>.`;
 		emailSection.appendChild( notice );
 	}
 
 	const passwordSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.password?.link;
 	const passwordSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.password?.text;
 	if ( newPasswordSection && passwordSettingsLink && passwordSettingsLinkText ) {
-		const link = document.createElement( 'a' );
-		link.href = passwordSettingsLink;
-		link.textContent = passwordSettingsLinkText;
-
 		const notice = document.createElement( 'p' );
 		notice.className = 'description';
-
-		notice.appendChild( link );
+		notice.innerHTML = `<a href="${ passwordSettingsLink }">${ passwordSettingsLinkText }</a>.`;
 		newPasswordSection.appendChild( notice );
 	}
 };

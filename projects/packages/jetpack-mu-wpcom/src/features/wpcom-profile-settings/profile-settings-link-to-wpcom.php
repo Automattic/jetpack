@@ -41,11 +41,11 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		array(
 			'email'         => array(
 				'link' => esc_url( 'https://wordpress.com/me/account' ),
-				'text' => __( 'Your WordPress.com email is managed on WordPress.com Account settings.', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Your WordPress.com email is managed on WordPress.com Account settings', 'jetpack-mu-wpcom' ),
 			),
 			'password'      => array(
 				'link' => esc_url( 'https://wordpress.com/me/security' ),
-				'text' => __( 'Your WordPress.com password is managed on WordPress.com Security settings.', 'jetpack-mu-wpcom' ),
+				'text' => __( 'Your WordPress.com password is managed on WordPress.com Security settings', 'jetpack-mu-wpcom' ),
 			),
 			'isWpcomSimple' => $is_wpcom_simple,
 		)
