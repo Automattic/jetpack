@@ -69,7 +69,7 @@ export function PreviewSection() {
 			toggleConnectionById( connectionId );
 			recordEvent( 'jetpack_social_connection_toggled', {
 				location: 'preview-modal',
-				new_state: ! connection.enabled,
+				enabled: ! connection.enabled,
 				service_name: connection.service_name,
 			} );
 		},
