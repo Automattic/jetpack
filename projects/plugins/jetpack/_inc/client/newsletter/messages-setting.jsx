@@ -14,6 +14,7 @@ const SUBSCRIPTION_OPTIONS = 'subscription_options';
 
 const MessagesSetting = props => {
 	const {
+		isSubscriptionsActive,
 		isSavingAnyOption,
 		subscriptionsModule,
 		onOptionChange,
@@ -33,6 +34,7 @@ const MessagesSetting = props => {
 	);
 
 	const disabled =
+		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		unavailableInSiteConnectionMode ||
 		isSavingAnyOption( [ SUBSCRIPTION_OPTIONS ] );
@@ -81,6 +83,7 @@ const MessagesSetting = props => {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			moduleName: ownProps.moduleName,

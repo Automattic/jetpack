@@ -92,7 +92,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
+		return __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Protect your site and scan for security vulnerabilities listed in our database.', 'jetpack-my-jetpack' );
+		return __( 'Protect your site from bad actors and malware 24/7. Clean up security vulnerabilities with one click.', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -41,6 +41,20 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Ensure that Gravatar images are not included in the list of images extracted from the post contents (html).
+	 *
+	 * @since $$next-version$$
+	 */
+	public function test_from_html_gravatar() {
+		$s = '<img class="jetpack-blogging-prompt__answers-gravatar wp-hovercard-attachment grav-hashed grav-hijack" aria-hidden="true" src="https://0.gravatar.com/avatar/89f071d1932fe8c204a3381e00bd6794ddc28bcdb0642f29c9f48beaa5e277af?s=96&d=identicon&r=G">';
+
+		$result = Jetpack_PostImages::from_html( $s );
+
+		$this->assertIsArray( $result );
+		$this->assertEmpty( $result );
+	}
+
+	/**
 	 * Test image size extract in src filename
 	 *
 	 * @covers Jetpack_PostImages::from_html

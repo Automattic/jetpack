@@ -105,7 +105,9 @@ export default function PublicizeForm() {
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ isPublicizeEnabled && hasEnabledConnections && <SharePostForm /> }
+					{ isPublicizeEnabled && hasEnabledConnections && (
+						<SharePostForm analyticsData={ { location: 'editor' } } />
+					) }
 					<AdvancedPlanNudge />
 				</Fragment>
 			) }

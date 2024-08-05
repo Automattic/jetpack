@@ -149,9 +149,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * @returns {boolean} True if the feature is available.
  */
 function isFeatureAvailable() {
-	const siteId = parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId );
-
-	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) || siteId % 10 === 0;
+	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
 }
 
 /**
