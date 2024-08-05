@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ButtonGroup, Modal, PanelBody, Path, SVG } from '@wordpress/components';
+import { Button, Modal, PanelBody, Path, SVG } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
@@ -95,20 +95,18 @@ const NewsletterMenu = () => {
 							'jetpack'
 						) }
 					</p>
-					<ButtonGroup>
-						<Button
-							onClick={ openModal }
-							style={ {
-								marginRight: '18px',
-							} }
-							variant="secondary"
-						>
-							{ __( 'Preview email', 'jetpack' ) }
-						</Button>
-						<Button onClick={ openModal } variant="secondary">
-							{ __( 'Send a test', 'jetpack' ) }
-						</Button>
-					</ButtonGroup>
+					<Button
+						onClick={ openModal }
+						style={ {
+							marginRight: '18px',
+						} }
+						variant="secondary"
+					>
+						{ __( 'Preview email', 'jetpack' ) }
+					</Button>
+					<Button onClick={ openModal } variant="secondary">
+						{ __( 'Send a test', 'jetpack' ) }
+					</Button>
 				</PanelBody>
 			</PluginSidebar>
 			{ isModalOpen && (
