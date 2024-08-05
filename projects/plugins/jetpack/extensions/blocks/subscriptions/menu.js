@@ -104,9 +104,6 @@ const NewsletterMenu = () => {
 					>
 						{ __( 'Preview email', 'jetpack' ) }
 					</Button>
-					<Button onClick={ openModal } variant="secondary">
-						{ __( 'Send a test', 'jetpack' ) }
-					</Button>
 				</PanelBody>
 			</PluginSidebar>
 			{ isModalOpen && (
