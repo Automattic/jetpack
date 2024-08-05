@@ -153,7 +153,7 @@ class Jetpack_Mu_Wpcom {
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
-		if ( ! is_wpcom_user() ) {
+		if ( is_admin() && ! is_wpcom_user() ) {
 			return;
 		}
 
