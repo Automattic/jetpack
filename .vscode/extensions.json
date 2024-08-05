@@ -1,8 +1,14 @@
 {
+	/**
+	 * List of recommended extensions to use for this workspace.
+	 * The identifier of an extension is always `${publisher}.${name}`,
+	 * which is a part of the URL, e.g. https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+	 * You can view these extensions using the command `Extensions: Show Recommended Extensions`.
+	 */
 	"recommendations": [
-		"bmewburn.vscode-intelephense-client",
-		"dbaeumer.vscode-eslint",
-		"esbenp.prettier-vscode",
-		"obliviousharmony.vscode-php-codesniffer"
+		"bmewburn.vscode-intelephense-client", // PHP Intelephense
+		"dbaeumer.vscode-eslint", // ESLint
+		"esbenp.prettier-vscode", // Prettier - Code formatter
+		"obliviousharmony.vscode-php-codesniffer" // PHP_CodeSniffer
 	]
 }
