@@ -2,9 +2,9 @@ import { Button } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { doAction, hasAction } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import draftPostImage from '../../../../assets/images/draft-post.svg';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
-import draftPostImage from './images/draft-post.svg';
 import './style.scss';
 
 const CLOSE_EDITOR_ACTION = 'a8c.wpcom-block-editor.closeEditor';

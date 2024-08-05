@@ -235,7 +235,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				/>
 				{ logoAccepted ? (
 					<div className="jetpack-ai-logo-generator__accept">
-						<VisitSiteBanner onVisitBlankTarget={ closeModal } />
+						<VisitSiteBanner />
 						<div className="jetpack-ai-logo-generator__accept-actions">
 							<Button variant="primary" onClick={ closeModal }>
 								{ __( 'Close', 'jetpack-ai-client' ) }

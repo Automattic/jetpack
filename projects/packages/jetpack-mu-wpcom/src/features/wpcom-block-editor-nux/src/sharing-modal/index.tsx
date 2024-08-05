@@ -6,6 +6,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { useI18n } from '@wordpress/react-i18n';
 import clsx from 'clsx';
 import React from 'react';
+import postPublishedImage from '../../../../assets/images/illo-share.svg';
 import {
 	START_WRITING_FLOW,
 	DESIGN_FIRST_FLOW,
@@ -18,7 +19,6 @@ import { wpcomTrackEvent } from '../../../../common/tracks';
 import ClipboardButton from './clipboard-button';
 import FormInputCheckbox from './form-checkbox';
 import FormLabel from './form-label';
-import postPublishedImage from './images/illo-share.svg';
 import InlineSocialLogo from './inline-social-logo';
 import InlineSocialLogosSprite from './inline-social-logos-sprite';
 import SuggestedTags from './suggested-tags';

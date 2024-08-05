@@ -2,6 +2,7 @@ import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import contentSubmittedImage from '../../../../assets/images/product-published.svg';
 import {
 	useSiteIntent,
 	useShouldShowSellerCelebrationModal,
@@ -9,7 +10,6 @@ import {
 } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
-import contentSubmittedImage from './images/product-published.svg';
 import './style.scss';
 
 /**

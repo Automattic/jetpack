@@ -13,7 +13,7 @@ export const FeatureFetchFailureScreen: React.FC< {
 	onRetry: () => void;
 } > = ( { onCancel, onRetry } ) => {
 	const errorMessage = __(
-		'We are sorry. There was an error loading your Jetpack AI account settings. Please, try again.',
+		'We are sorry. There was an error loading your Jetpack AI plan data. Please, try again.',
 		'jetpack-ai-client'
 	);
 

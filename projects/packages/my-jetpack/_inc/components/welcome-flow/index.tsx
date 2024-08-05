@@ -70,6 +70,11 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		dismissWelcomeBanner();
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
 
+	const onSkipClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_welcome_banner_skip_recommendations_click' );
+		dismissWelcomeBanner();
+	}, [ dismissWelcomeBanner, recordEvent ] );
+
 	const handleEvaluation = useCallback(
 		async ( values: { [ key in EvaluationAreas ]: boolean } ) => {
 			const goals = Object.keys( values ).filter( key => values[ key ] );
@@ -123,7 +128,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 						) }
 						{ 'evaluation' === currentStep && (
 							<EvaluationStep
-								onSkipOnboarding={ onDismissClick }
+								onSkipOnboarding={ onSkipClick }
 								onSubmitEvaluation={ handleEvaluation }
 							/>
 						) }

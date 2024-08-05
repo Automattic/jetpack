@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Podcast Player Block: Update component unmount method to be compatible with React 19.

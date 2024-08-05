@@ -17,7 +17,7 @@ import type React from 'react';
 
 export const VisitSiteBanner: React.FC< {
 	className?: string;
-	onVisitBlankTarget: () => void;
+	onVisitBlankTarget?: () => void;
 } > = ( { className = null, onVisitBlankTarget } ) => {
 	return (
 		<div className={ clsx( 'jetpack-ai-logo-generator-modal-visit-site-banner', className ) }>
@@ -42,7 +42,7 @@ export const VisitSiteBanner: React.FC< {
 						variant="link"
 						href="https://jetpack.com/redirect/?source=logo_generator_learn_more_about_jetpack_ai"
 						target="_blank"
-						onClick={ onVisitBlankTarget }
+						onClick={ onVisitBlankTarget ? onVisitBlankTarget : null }
 					>
 						{ __( 'Learn more about Jetpack AI', 'jetpack-ai-client' ) }
 						<Icon icon={ external } size={ 20 } />

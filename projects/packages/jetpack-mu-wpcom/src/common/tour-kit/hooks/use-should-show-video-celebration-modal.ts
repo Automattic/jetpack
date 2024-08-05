@@ -3,13 +3,6 @@ import request from 'wpcom-proxy-request';
 import { useHasSeenVideoCelebrationModal } from '../contexts/has-seen-video-celebration-modal-context';
 import useSiteIntent from './use-site-intent';
 
-declare global {
-	interface Window {
-		_currentSiteId: number;
-		_currentSiteType: string;
-	}
-}
-
 interface Site {
 	options?: {
 		launchpad_checklist_tasks_statuses?: {

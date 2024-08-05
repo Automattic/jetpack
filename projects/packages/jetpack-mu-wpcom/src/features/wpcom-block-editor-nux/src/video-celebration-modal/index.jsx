@@ -2,13 +2,13 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import videoSuccessImage from '../../../../assets/images/video-success.svg';
 import {
 	useShouldShowVideoCelebrationModal,
 	useSiteIntent,
 	useHasSeenVideoCelebrationModal,
 } from '../../../../common/tour-kit';
 import NuxModal from '../nux-modal';
-import videoSuccessImage from './video-success.svg';
 import './style.scss';
 
 // Shows a celebration modal after a video is first uploaded to a site and the editor is saved.

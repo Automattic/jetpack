@@ -46,8 +46,42 @@ class WPCOM_Block_Editor_NUX {
 	 * Enqueue block editor assets.
 	 */
 	public function enqueue_script_and_style() {
-		jetpack_mu_wpcom_enqueue_assets( 'wpcom-block-editor-nux', array( 'js', 'css' ) );
-		wp_set_script_translations( 'wpcom-block-editor-nux', 'jetpack-mu-wpcom' );
+		$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-block-editor-nux', array( 'js', 'css' ) );
+		wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
+
+		/**
+		 * Enqueue the launchpad options.
+		 */
+		$launchpad_options = wp_json_encode(
+			array(
+				'launchpadScreenOption' => get_option( 'launchpad_screen' ),
+				'siteUrlOption'         => get_option( 'siteurl' ),
+				'siteIntentOption'      => get_option( 'site_intent' ),
+			),
+			JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var launchpadOptions = $launchpad_options;",
+			'before'
+		);
+
+		/**
+		 * Enqueue the sharing modal options.
+		 */
+		$sharing_modal_options = wp_json_encode(
+			array(
+				'isDismissed' => WP_REST_WPCOM_Block_Editor_Sharing_Modal_Controller::get_wpcom_sharing_modal_dismissed(),
+			),
+			JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var sharingModalOptions = $sharing_modal_options;",
+			'before'
+		);
 	}
 
 	/**
