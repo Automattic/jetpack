@@ -65,9 +65,13 @@ export function PreviewSection() {
 	const { toggleConnectionById } = useDispatch( socialStore );
 
 	const toggleConnection = useCallback(
-		( connectionId: string ) => () => {
+		( connectionId: string, connection ) => () => {
 			toggleConnectionById( connectionId );
-			recordEvent( 'jetpack_social_connection_toggled', { location: 'preview-modal' } );
+			recordEvent( 'jetpack_social_connection_toggled', {
+				location: 'preview-modal',
+				new_state: ! connection.enabled,
+				service_name: connection.service_name,
+			} );
 		},
 		[ recordEvent, toggleConnectionById ]
 	);
@@ -82,7 +86,7 @@ export function PreviewSection() {
 							label={ __( 'Share to this account', 'jetpack' ) }
 							disabled={ shouldBeDisabled( tab ) }
 							checked={ canBeTurnedOn( tab ) && tab.enabled }
-							onChange={ toggleConnection( tab.connection_id ) }
+							onChange={ toggleConnection( tab.connection_id, tab ) }
 						/>
 					</div>
 				) }

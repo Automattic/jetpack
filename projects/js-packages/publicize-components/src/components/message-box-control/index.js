@@ -29,11 +29,11 @@ export default function MessageBoxControl( {
 
 	const handleChange = useCallback(
 		newMessage => {
+			onChange( newMessage );
 			if ( isFirstChange.current ) {
 				recordEvent( 'jetpack_social_custom_message_changed', analyticsData );
 				isFirstChange.current = false;
 			}
-			onChange( newMessage );
 		},
 		[ analyticsData, isFirstChange, onChange, recordEvent ]
 	);

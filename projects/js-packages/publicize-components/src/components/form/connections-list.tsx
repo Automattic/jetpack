@@ -12,15 +12,18 @@ export const ConnectionsList: React.FC = () => {
 	const { recordEvent } = useAnalytics();
 
 	const { connections, toggleById } = useSocialMediaConnections();
-
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	const { needsUserConnection } = usePublicizeConfig();
 
 	const toggleConnection = useCallback(
-		( connectionId: string ) => () => {
+		( connectionId: string, connection ) => () => {
 			toggleById( connectionId );
-			recordEvent( 'jetpack_social_connection_toggled', { location: 'editor' } );
+			recordEvent( 'jetpack_social_connection_toggled', {
+				location: 'editor',
+				new_state: ! connection.enabled,
+				service_name: connection.service_name,
+			} );
 		},
 		[ recordEvent, toggleById ]
 	);
@@ -40,7 +43,7 @@ export const ConnectionsList: React.FC = () => {
 							id={ currentId }
 							label={ display_name }
 							name={ service_name }
-							toggleConnection={ toggleConnection( currentId ) }
+							toggleConnection={ toggleConnection( currentId, conn ) }
 							profilePicture={ profile_picture }
 						/>
 					);
