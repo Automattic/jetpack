@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+MU WPCOM: Don't load the newspack-blocks feature is the newspack-blocks is active
