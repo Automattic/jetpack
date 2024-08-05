@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed Threads connections not having a profile_url

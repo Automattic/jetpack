@@ -36,7 +36,7 @@ const EvaluationRecommendations: React.FC = () => {
 						</Text>
 						<Text>
 							{ __(
-								'Here are the features that will best help you with your site:',
+								'Here are the tools that we think will help you reach your website goals:',
 								'jetpack-my-jetpack'
 							) }
 						</Text>
