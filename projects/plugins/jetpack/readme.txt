@@ -328,13 +328,42 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 13.7-beta - 2024-08-05
 #### Enhancements
+- AI Assistant: Add feedback link to the sidebar.
+- AI Assistant: Breve UI enhancements.
+- AI Assistant: Disable first Breve hover on mobile.
+- AI Assistant: Disable long sentences Breve feature by default.
+- AI Assistant: Enable Breve for 10% of production sites.
+- AI Assistant: Enable Breve for 20% of production sites.
 - AI Assistant: Make Jetpack Breve available to general public.
+- AI Assistant: The general purpose image generator is now available to all users.
+- Blocks: Add the EventCoutdown block.
+- Blocks: Add the Timeline block.
+- Dashboard: Add a dashboard card for AI Assistant.
+- General: Losslessly optimized PNG images.
 - Jetpack: Port additional Full Site Editing features from WP Cloud.
 - Jetpack AI: Enable the AI Logo generator extension.
 - Jetpack Newsletter: Add Jetpack Newsletter menu with preview option.
+- Newsletter: Improve the modal overlay.
+- Security: Add separate IP allow and block list toggles in Web Application Firewall settings.
+- Settings: Add a link to the AI assistant product page.
+- Site Editor: Remove extra site editor notices in favor of the ones provided by WordPress directly.
+- Social: Added recommendation steps for the Social plan.
+- Subscriptions: Add command palette commands for quickly changing post access.
+- Subscriptions: Implemented a more dynamic approach to displaying the modal.
+- Subscriptions: Improve the Subscribe block loading animation.
+
+#### Improved compatibility
+- Blocks: Changed the use of default parameters in the Map block for React 19 compatibility.
+- Contact Form: Ensure checkboxes are properly displayed when using the Twenty Twenty or the Twenty Twenty One theme.
+- General: Remove code for compatibility with WordPress versions before 6.5.
+- General: Update WordPress version requirements to WordPress 6.5.
+- Masterbar: Always show the notification bell.
 
 #### Bug fixes
+- Blocks: Check if the fontFamily block attribute is a string before trying to format.
+- Donations Block: Fix undefined array key warnings with old/malformed blocks.
 - Jetpack Comments: Fix replying to comments in Chrome when logged in to both WordPress.com and Jetpack.
+- Like block: Fix warning displayed when trying to load the Like block on unsupported pages.
 - Sharing: Do not include Gravatar images in Open Graph Meta tags.
 
 --------
