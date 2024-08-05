@@ -1,3 +1,5 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
@@ -7,11 +9,21 @@ import styles from './styles.module.scss';
 import { useConnectionState } from './use-connection-state';
 
 export const ConnectionsList: React.FC = () => {
+	const { recordEvent } = useAnalytics();
+
 	const { connections, toggleById } = useSocialMediaConnections();
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
 	const { needsUserConnection } = usePublicizeConfig();
+
+	const toggleConnection = useCallback(
+		( connectionId: string ) => () => {
+			toggleById( connectionId );
+			recordEvent( 'jetpack_social_connection_toggled', { location: 'editor' } );
+		},
+		[ recordEvent, toggleById ]
+	);
 
 	return (
 		<div>
@@ -28,7 +40,7 @@ export const ConnectionsList: React.FC = () => {
 							id={ currentId }
 							label={ display_name }
 							name={ service_name }
-							toggleConnection={ toggleById }
+							toggleConnection={ toggleConnection( currentId ) }
 							profilePicture={ profile_picture }
 						/>
 					);

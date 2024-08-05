@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -16,6 +17,8 @@ import styles from './styles.module.scss';
  * @returns {import('react').ReactNode} - Preview section of the social post modal.
  */
 export function PreviewSection() {
+	const { recordEvent } = useAnalytics();
+
 	const getService = useService();
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
@@ -64,8 +67,9 @@ export function PreviewSection() {
 	const toggleConnection = useCallback(
 		( connectionId: string ) => () => {
 			toggleConnectionById( connectionId );
+			recordEvent( 'jetpack_social_connection_toggled', { location: 'preview-modal' } );
 		},
-		[ toggleConnectionById ]
+		[ recordEvent, toggleConnectionById ]
 	);
 
 	return (
