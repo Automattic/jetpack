@@ -214,7 +214,7 @@ function is_wpcom() {
  */
 function register_newsletter_access_column( $columns ) {
 	$position   = array_search( 'title', array_keys( $columns ), true );
-	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Newsletter', 'jetpack' ) );
+	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Access', 'jetpack' ) );
 	return array_merge(
 		array_slice( $columns, 0, $position + 1, true ),
 		$new_column,
