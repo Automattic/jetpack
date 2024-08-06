@@ -49,17 +49,6 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				</div>
 			</div>
 
-			<Text mb={ 4 }>
-				{ createInterpolateElement(
-					__(
-						'By choosing to unignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
-						'jetpack-protect'
-					),
-					{
-						codeableLink: <Button variant="link" isExternalLink={ true } href={ codeableURL } />,
-					}
-				) }
-			</Text>
 			<div className={ styles.footer }>
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
