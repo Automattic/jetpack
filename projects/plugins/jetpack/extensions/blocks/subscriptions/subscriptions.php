@@ -161,12 +161,13 @@ function register_block() {
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
-	// Add a 'Newsletter' column to the Edit posts page
-	// We only display the "Newsletter" column if we have configured the paid newsletter plan
-	if ( defined( 'WP_ADMIN' ) && WP_ADMIN && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+	// Add a 'Access' and 'Newsletter' columns to the Edit posts page
+	if ( defined( 'WP_ADMIN' ) ) {
 		add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
 		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
-		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_access_column_styles' );
+		add_action( 'manage_post_posts_columns', __NAMESPACE__ . '\register_newsletter_email_column' );
+		add_action( 'manage_post_posts_custom_column', __NAMESPACE__ . '\render_newsletter_email_rows', 10, 2 );
+		add_action( 'admin_head', __NAMESPACE__ . '\newsletter_columns_styles' );
 	}
 
 	add_action( 'init', __NAMESPACE__ . '\maybe_prevent_super_cache_caching' );
@@ -207,22 +208,6 @@ function is_wpcom() {
 }
 
 /**
- * Adds a 'Newsletter' column after the 'Title' column in the post list
- *
- * @param array $columns An array of column names.
- * @return array An array of column names.
- */
-function register_newsletter_access_column( $columns ) {
-	$position   = array_search( 'title', array_keys( $columns ), true );
-	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Access', 'jetpack' ) );
-	return array_merge(
-		array_slice( $columns, 0, $position + 1, true ),
-		$new_column,
-		array_slice( $columns, $position, null, true )
-	);
-}
-
-/**
  * Add a meta to prevent publication on firehose, ES AI or Reader
  *
  * @param int      $post_id Post id being saved.
@@ -252,13 +237,63 @@ function add_paywalled_content_post_meta( int $post_id, \WP_Post $post ) {
 }
 
 /**
+ * Adds a 'Access' column after the 'Title' column in the post list
+ *
+ * @param array $columns An array of column names.
+ * @return array An array of column names.
+ */
+function register_newsletter_access_column( $columns ) {
+	$position   = array_search( 'title', array_keys( $columns ), true );
+	$new_column = array( ACCESS_COLUMN_ID => __( 'Access', 'jetpack' ) );
+	return array_merge(
+		array_slice( $columns, 0, $position + 1, true ),
+		$new_column,
+		array_slice( $columns, $position, null, true )
+	);
+}
+
+/**
+ * Adds a 'Email' column after the 'Access' column in the post list
+ *
+ * @param array $columns An array of column names.
+ * @return array An array of column names.
+ */
+function register_newsletter_email_column( $columns ) {
+	$position   = array_search( ACCESS_COLUMN_ID, array_keys( $columns ), true );
+	$new_column = array( NEWSLETTER_COLUMN_ID => __( 'Newsletter', 'jetpack' ) );
+	return array_merge(
+		array_slice( $columns, 0, $position + 1, true ),
+		$new_column,
+		array_slice( $columns, $position, null, true )
+	);
+}
+
+/**
+ * Displays the newsletter email sent status
+ *
+ * @param string $column_id The ID of the column to display.
+ * @param int    $post_id The current post ID.
+ */
+function render_newsletter_email_rows( $column_id, $post_id ) {
+	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
+		return;
+	}
+
+	$dont_email_to_subs = get_post_meta( $post_id, META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS, true );
+
+	echo $dont_email_to_subs
+		? esc_html__( 'Post only', 'jetpack' )
+		: esc_html__( 'Post & email', 'jetpack' );
+}
+
+/**
  * Displays the newsletter access level.
  *
  * @param string $column_id The ID of the column to display.
  * @param int    $post_id The current post ID.
  */
 function render_newsletter_access_rows( $column_id, $post_id ) {
-	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
+	if ( ACCESS_COLUMN_ID !== $column_id ) {
 		return;
 	}
 
@@ -275,18 +310,21 @@ function render_newsletter_access_rows( $column_id, $post_id ) {
 			echo esc_html__( 'Subscribers', 'jetpack' );
 			break;
 		case Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
-			echo esc_html__( 'Everybody', 'jetpack' );
+			echo esc_html__( 'Everyone', 'jetpack' );
 			break;
 		default:
-			echo '';
+			echo esc_html__( 'Everyone', 'jetpack' );
 	}
 }
 
 /**
  * Adds the Newsletter column styles
  */
-function newsletter_access_column_styles() {
-	echo '<style id="jetpack-newsletter-newsletter-access-column"> table.fixed .column-newsletter_access { width: 10%; } </style>';
+function newsletter_columns_styles() {
+	echo '<style id="jetpack-newsletter-columns">';
+	echo 'table.fixed .column-' . esc_attr( ACCESS_COLUMN_ID ) . ' { width: 10%; }';
+	echo 'table.fixed .column-' . esc_attr( NEWSLETTER_COLUMN_ID ) . ' { width: 5%; }';
+	echo '</style>';
 }
 
 /**
