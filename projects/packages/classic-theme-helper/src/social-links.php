@@ -240,7 +240,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		 * @param string $service The social service.
 		 * @return array An associative array with profile links and display names.
 		 */
-		private static function get_customize_select( $service ) {
+		public static function get_customize_select( $service ) {
 			$choices = array(
 				'' => __( '&mdash; Select &mdash;', 'jetpack-classic-theme-helper' ),
 			);
@@ -274,7 +274,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		/**
 		 * Back-compat function for versions prior to 4.0.
 		 */
-		private static function is_customize_preview() {
+		public static function is_customize_preview() {
 			global $wp_customize;
 			return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview();
 		}
