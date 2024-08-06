@@ -9,9 +9,7 @@ import {
 	TextControl,
 	Icon,
 	SelectControl,
-	Dropdown,
-	MenuGroup,
-	MenuItem,
+	ButtonGroup,
 	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -127,28 +125,18 @@ const devices = [
 ];
 
 const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
-	const selectedIcon = devices.find( device => device.name === selectedDevice ).icon;
-
 	return (
-		<Dropdown
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				<Button icon={ selectedIcon } onClick={ onToggle } aria-expanded={ isOpen } isSmall />
-			) }
-			renderContent={ () => (
-				<MenuGroup>
-					{ devices.map( device => (
-						<MenuItem
-							key={ device.name }
-							icon={ device.icon }
-							isSelected={ selectedDevice === device.name }
-							onClick={ () => setSelectedDevice( device.name ) }
-						>
-							{ device.label }
-						</MenuItem>
-					) ) }
-				</MenuGroup>
-			) }
-		/>
+		<ButtonGroup>
+			{ devices.map( device => (
+				<Button
+					key={ device.name }
+					icon={ device.icon }
+					isSmall
+					isSelected={ selectedDevice === device.name }
+					onClick={ () => setSelectedDevice( device.name ) }
+				/>
+			) ) }
+		</ButtonGroup>
 	);
 };
 
