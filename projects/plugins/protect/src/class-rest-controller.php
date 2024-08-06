@@ -57,6 +57,18 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
+			'unignore-threat',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_unignore_threat',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
 			'fix-threats',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
@@ -231,6 +243,27 @@ class REST_Controller {
 		}
 
 		return new WP_REST_Response( 'Threat ignored.' );
+	}
+
+	/**
+	 * Unignores a threat for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_unignore_threat( $request ) {
+		if ( ! $request['threat_id'] ) {
+			return new WP_REST_Response( 'Missing threat ID.', 400 );
+		}
+
+		$threat_ignored = Threats::unignore_threat( $request['threat_id'] );
+
+		if ( ! $threat_ignored ) {
+			return new WP_REST_Response( 'An error occured while attempting to unignore the threat.', 500 );
+		}
+
+		return new WP_REST_Response( 'Threat unignored.' );
 	}
 
 	/**

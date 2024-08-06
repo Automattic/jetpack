@@ -82,6 +82,17 @@ class Threats {
 	}
 
 	/**
+	 * Unignore Threat
+	 *
+	 * @param string $threat_id The threat ID.
+	 *
+	 * @return bool
+	 */
+	public static function unignore_threat( $threat_id ) {
+		return self::update_threat( $threat_id, array( 'unignore' => true ) );
+	}
+
+	/**
 	 * Fix Threats
 	 *
 	 * @param array<string> $threat_ids Threat IDs.
