@@ -26,6 +26,7 @@ function checkFilenameCollisions() {
 		{ maxBuffer: 4096 * 1024 }
 	)
 		.stdout.toString()
+		.trim()
 		.split( '\n' )
 		.sort( compare );
 
