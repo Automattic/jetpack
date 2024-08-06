@@ -100,6 +100,11 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
 
+		const reloadModal = useCallback( () => {
+			closeModal();
+			showModal();
+		}, [ closeModal, showModal ] );
+
 		const applyLogoHandler = useCallback(
 			( mediaId: number ) => {
 				if ( mediaId ) {
@@ -128,6 +133,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
+					onReload={ reloadModal }
 					context={ PLACEMENT_CONTEXT }
 					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
@@ -136,6 +142,15 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 	};
 }, 'SiteLogoEditWithAiComponents' );
+
+/**
+ * Function to check if the feature is available depending on the site ID.
+ *
+ * @returns {boolean} True if the feature is available.
+ */
+function isFeatureAvailable() {
+	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
+}
 
 /**
  * Function to check if the block can be extended.
@@ -156,7 +171,7 @@ function canExtendBlock( name: string ): boolean {
 	}
 
 	// Disable if the feature is not available.
-	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+	if ( ! isFeatureAvailable() ) {
 		return false;
 	}
 
