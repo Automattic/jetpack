@@ -2,6 +2,11 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import camelize from 'camelize';
 import { useEffect } from 'react';
+import {
+	SCAN_IN_PROGRESS_STATUSES,
+	SCAN_STATUS_IDLE,
+	SCAN_STATUS_UNAVAILABLE,
+} from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { STORE_ID } from '../../state/store';
 
@@ -20,11 +25,11 @@ const useStatusPolling = () => {
 		const pollDuration = 10000;
 
 		const statusIsInProgress = currentStatus =>
-			[ 'scheduled', 'scanning' ].indexOf( currentStatus ) >= 0;
+			SCAN_IN_PROGRESS_STATUSES.indexOf( currentStatus ) >= 0;
 
 		// if there has never been a scan, and the scan status is idle, then we must still be getting set up
 		const scanIsInitializing = ( currentStatus, lastChecked ) =>
-			! lastChecked && currentStatus === 'idle';
+			! lastChecked && SCAN_STATUS_IDLE === currentStatus;
 
 		const pollStatus = () => {
 			return new Promise( ( resolve, reject ) => {
@@ -74,7 +79,7 @@ const useStatusPolling = () => {
 			setStatusIsFetching( true );
 			pollStatus()
 				.then( newStatus => {
-					setScanIsUnavailable( 'unavailable' === newStatus.status );
+					setScanIsUnavailable( SCAN_STATUS_UNAVAILABLE === newStatus.status );
 					setStatus( camelize( newStatus ) );
 					recordEvent( 'jetpack_protect_scan_completed', {
 						scan_status: newStatus.status,
