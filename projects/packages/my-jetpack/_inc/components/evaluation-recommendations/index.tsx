@@ -4,13 +4,22 @@ import { Flex } from '@wordpress/components';
 import { FlexItem } from '@wordpress/components';
 import { __, _n } from '@wordpress/i18n';
 import { moreHorizontalMobile } from '@wordpress/icons';
+import { useEffect } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
+import useAnalytics from '../../hooks/use-analytics';
 import { JetpackModuleToProductCard } from '../product-cards-section/all';
 import styles from './style.module.scss';
 
 const EvaluationRecommendations: React.FC = () => {
+	const { recordEvent } = useAnalytics();
 	const { recommendedModules, redoEvaluation, removeEvaluationResult } =
 		useEvaluationRecommendations();
+
+	useEffect( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_view', {
+			modules: recommendedModules,
+		} );
+	}, [ recommendedModules, recordEvent ] );
 
 	return (
 		<Container horizontalGap={ 2 } horizontalSpacing={ 6 }>
@@ -27,7 +36,7 @@ const EvaluationRecommendations: React.FC = () => {
 						</Text>
 						<Text>
 							{ __(
-								'Here are the features that will best help you with your site:',
+								'Here are the tools that we think will help you reach your website goals:',
 								'jetpack-my-jetpack'
 							) }
 						</Text>
