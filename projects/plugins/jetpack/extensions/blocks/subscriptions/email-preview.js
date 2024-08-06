@@ -129,6 +129,7 @@ const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
 		{ devices.map( device => (
 			<Button
 				key={ device.name }
+				label={ device.label }
 				icon={ device.icon }
 				isSmall
 				isPressed={ selectedDevice === device.name }
