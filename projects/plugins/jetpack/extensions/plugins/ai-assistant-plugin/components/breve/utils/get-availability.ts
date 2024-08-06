@@ -7,11 +7,12 @@ import { select } from '@wordpress/data';
  */
 import { getFeatureAvailability } from '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 
-export function getBreveAvailability( isFreePlan: boolean ) {
-	// Breve is not available for free plans.
-	if ( isFreePlan ) {
-		return false;
-	}
+export function getBreveAvailability( _isFreePlan: boolean ) {
+	// Free plan users have access to Breve while it's in beta.
+	// TODO: Review this logic when Breve is out of beta.
+	// if ( _isFreePlan ) {
+	// 	return false;
+	// }
 
 	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
 	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will assume the block is not hidden if the function is undefined.
