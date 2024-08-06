@@ -8,7 +8,7 @@ import { SCAN_IN_PROGRESS_STATUSES, SCAN_STATUS_OPTIMISTICALLY_SCANNING } from '
  * @returns {boolean} Whether a scan is in progress.
  */
 const scanInProgress = state => {
-	const { status, error, lastChecked } = selectors.getStatus( state );
+	const { status, lastChecked, error } = selectors.getStatus( state );
 	const unavailable = selectors.getScanIsUnavailable( state );
 
 	// When "optimistically" scanning, ignore any other status or error.
@@ -16,13 +16,18 @@ const scanInProgress = state => {
 		return true;
 	}
 
-	// If there is an error or the scan is unavailable, scanning is not in progress.
-	if ( error || unavailable ) {
+	// If the scan is unavailable, scanning is not in progress.
+	if ( unavailable ) {
 		return false;
 	}
 
-	// If the status is one of the scanning statuses, or if we have never checked, we are scanning.
-	if ( SCAN_IN_PROGRESS_STATUSES.includes( status.status ) || ! lastChecked ) {
+	// If the status is one of the scanning statuses, we are scanning.
+	if ( SCAN_IN_PROGRESS_STATUSES.includes( status ) ) {
+		return true;
+	}
+
+	// If we have no record of a previous scan, we must be queueing up the initial scan.
+	if ( ! lastChecked && ! error ) {
 		return true;
 	}
 
@@ -45,16 +50,6 @@ const scanError = state => {
 	const unavailable = selectors.getScanIsUnavailable( state );
 	const isFetching = selectors.getStatusIsFetching( state );
 
-	// When "optimistically" scanning, ignore any errors.
-	if ( SCAN_STATUS_OPTIMISTICALLY_SCANNING === status ) {
-		return null;
-	}
-
-	// While still fetching the status, ignore any errors.
-	if ( isFetching ) {
-		return null;
-	}
-
 	// If the scan results include an error, return it.
 	if ( error ) {
 		return { code: errorCode, message: errorMessage };
@@ -62,6 +57,14 @@ const scanError = state => {
 
 	// If the scan is unavailable, return an error.
 	if ( unavailable ) {
+		return {
+			code: 'scan_unavailable',
+			message: __( 'We are having problems scanning your site.', 'jetpack-protect' ),
+		};
+	}
+
+	// If there is no status and we are not requesting it, return an error.
+	if ( ! status && ! isFetching ) {
 		return {
 			code: 'scan_unavailable',
 			message: __( 'We are having problems scanning your site.', 'jetpack-protect' ),

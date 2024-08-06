@@ -55,9 +55,11 @@ const flattenThreats = ( data, newData ) => {
  */
 const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } ) => {
 	const [ selected, setSelected ] = useState( 'all' );
-	const { plugins, themes, core, files, database } = useProtectData( {
+	const {
+		results: { plugins, themes, core, files, database },
+	} = useProtectData( {
 		sourceType: source,
-		statusFilter: status,
+		filter: { status, key: selected },
 	} );
 
 	const { unsortedList, item } = useMemo( () => {
@@ -66,19 +68,19 @@ const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } 
 			// Core, files, and database data threats are already grouped together,
 			// so we just need to flatten them and add the appropriate icon.
 			switch ( selected ) {
-				case 'wordpress':
+				case 'core':
 					return {
 						unsortedList: flattenThreats( core, { icon: coreIcon } ),
 						item: core,
 					};
 				case 'files':
 					return {
-						unsortedList: flattenThreats( files, { icon: filesIcon } ),
+						unsortedList: flattenThreats( { threats: files }, { icon: filesIcon } ),
 						item: files,
 					};
 				case 'database':
 					return {
-						unsortedList: flattenThreats( database, { icon: databaseIcon } ),
+						unsortedList: flattenThreats( { threats: database }, { icon: databaseIcon } ),
 						item: database,
 					};
 				default:
@@ -109,8 +111,8 @@ const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } 
 				...flattenThreats( core, { icon: coreIcon } ),
 				...flattenThreats( plugins, { icon: pluginsIcon } ),
 				...flattenThreats( themes, { icon: themesIcon } ),
-				...flattenThreats( files, { icon: filesIcon } ),
-				...flattenThreats( database, { icon: databaseIcon } ),
+				...flattenThreats( { threats: files }, { icon: filesIcon } ),
+				...flattenThreats( { threats: database }, { icon: databaseIcon } ),
 			],
 			item: null,
 		};

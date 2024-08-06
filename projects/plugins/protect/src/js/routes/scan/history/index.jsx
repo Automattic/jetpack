@@ -20,13 +20,29 @@ const ScanHistoryRoute = () => {
 	useAnalyticsTracks( { pageViewEventName: 'protect_scan_history' } );
 
 	const { filter = 'all' } = useParams();
-	const { numThreats, error, errorMessage, errorCode, hasRequiredPlan } = useProtectData( {
-		sourceType: 'history',
-	} );
+
 	const { item, list, selected, setSelected } = useThreatsList( {
 		source: 'history',
 		status: filter,
 	} );
+
+	const { counts, error, hasRequiredPlan } = useProtectData( {
+		sourceType: 'history',
+		filter: { status: filter },
+	} );
+	const { threats: numAllThreats } = counts.all;
+
+	const { counts: fixedCounts } = useProtectData( {
+		sourceType: 'history',
+		filter: { status: 'fixed', key: selected },
+	} );
+	const { threats: numFixed } = fixedCounts.current;
+
+	const { counts: ignoredCounts } = useProtectData( {
+		sourceType: 'history',
+		filter: { status: 'ignored', key: selected },
+	} );
+	const { threats: numIgnored } = ignoredCounts.current;
 
 	/**
 	 * Get the title for the threats list based on the selected filters and the amount of threats.
@@ -68,7 +84,7 @@ const ScanHistoryRoute = () => {
 							list.length
 						);
 				}
-			case 'wordpress':
+			case 'core':
 				switch ( filter ) {
 					case 'fixed':
 						return sprintf(
@@ -216,6 +232,11 @@ const ScanHistoryRoute = () => {
 		return <Navigate to="/scan" />;
 	}
 
+	// Remove the filter if there are no threats to show.
+	if ( list.length === 0 && filter !== 'all' ) {
+		return <Navigate to="/scan/history" />;
+	}
+
 	return (
 		<AdminPage>
 			<AdminSectionHero>
@@ -229,8 +250,8 @@ const ScanHistoryRoute = () => {
 									: sprintf(
 											/* translators: %s: Total number of threats  */
 											__( '%1$s previously active %2$s', 'jetpack-protect' ),
-											numThreats,
-											numThreats === 1 ? 'threat' : 'threats'
+											numAllThreats,
+											numAllThreats === 1 ? 'threat' : 'threats'
 									  )
 							}
 						/>
@@ -242,8 +263,8 @@ const ScanHistoryRoute = () => {
 									"An error occurred loading your site's threat history.",
 									'jetpack-protect'
 								) }
-								errorMessage={ errorMessage }
-								errorCode={ errorCode }
+								errorMessage={ error.message }
+								errorCode={ error.code }
 							/>
 						</Col>
 					) : (
@@ -263,7 +284,7 @@ const ScanHistoryRoute = () => {
 											<div className={ styles[ 'list-header' ] }>
 												<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
 												<div className={ styles[ 'list-header__controls' ] }>
-													<StatusFilters />
+													<StatusFilters numFixed={ numFixed } numIgnored={ numIgnored } />
 												</div>
 											</div>
 											<PaidList list={ list } />
