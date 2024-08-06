@@ -183,7 +183,11 @@ class Jetpack_Slideshow_Shortcode {
 			);
 		}
 
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+			&& class_exists( 'Automattic\Jetpack\Extensions\Slideshow' )
+		) {
 			// Load the styles and use the rendering method from the Slideshow block.
 			Jetpack_Gutenberg::load_styles_as_required( 'slideshow' );
 

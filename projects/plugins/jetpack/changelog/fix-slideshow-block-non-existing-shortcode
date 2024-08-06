@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+AMP: avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
