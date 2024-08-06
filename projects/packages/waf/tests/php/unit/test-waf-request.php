@@ -337,12 +337,14 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$request                 = $this->mock_request(
 			array(
 				'body' => (
-					http_build_query( array(
-						'str' => 'value',
-						'arr' => array( 'a', 'b', 'c' ),
-						'obj' => (object) array( 'foo' => 'bar' ),
-					) )
-				)
+					http_build_query(
+						array(
+							'str' => 'value',
+							'arr' => array( 'a', 'b', 'c' ),
+							'obj' => (object) array( 'foo' => 'bar' ),
+						)
+					)
+				),
 			)
 		);
 		$value                   = $request->get_post_vars();
