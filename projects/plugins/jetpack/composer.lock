@@ -1744,7 +1744,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/my-jetpack",
-				"reference": "3c69d96c6d73542a7d77b041215728b33746f58f"
+				"reference": "1c9e10232c6677601ae946cc31a124ffffe84675"
 			},
 			"require": {
 				"automattic/jetpack-admin-ui": "@dev",
@@ -1761,13 +1761,13 @@
 				"automattic/jetpack-redirect": "@dev",
 				"automattic/jetpack-status": "@dev",
 				"automattic/jetpack-sync": "@dev",
-				"automattic/jetpack-videopress": "@dev",
 				"automattic/jetpack-waf": "@dev",
 				"php": ">=7.0"
 			},
 			"require-dev": {
 				"automattic/jetpack-changelogger": "@dev",
 				"automattic/jetpack-search": "@dev",
+				"automattic/jetpack-videopress": "@dev",
 				"automattic/wordbless": "@dev",
 				"yoast/phpunit-polyfills": "1.1.0"
 			},
