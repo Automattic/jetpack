@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Parse request body when method used is not POST
