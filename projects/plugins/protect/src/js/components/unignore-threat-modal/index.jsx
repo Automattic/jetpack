@@ -1,6 +1,5 @@
-import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import { STORE_ID } from '../../state/store';
@@ -11,7 +10,6 @@ import styles from './styles.module.scss';
 const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	const { setModal, unignoreThreat } = useDispatch( STORE_ID );
 	const threatsUpdating = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
-	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
 
 	const handleCancelClick = () => {
 		return event => {
