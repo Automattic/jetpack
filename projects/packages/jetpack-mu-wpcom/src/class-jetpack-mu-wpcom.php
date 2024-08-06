@@ -160,6 +160,7 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		define( 'MU_WPCOM_COBLOCKS_GALLERY', true );
 		define( 'MU_WPCOM_CUSTOM_LINE_HEIGHT', true );
 		define( 'MU_WPCOM_BLOCK_INSERTER_MODIFICATIONS', true );
 		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
