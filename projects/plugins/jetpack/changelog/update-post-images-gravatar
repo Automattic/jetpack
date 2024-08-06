@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sharing: do not include Gravatar images in Open Graph Meta tags.

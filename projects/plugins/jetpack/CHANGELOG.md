@@ -2,6 +2,43 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.7-beta - 2024-08-05
+### Enhancements
+- AI Assistant: Make Jetpack Breve available to general public. [#38697]
+- Jetpack: Port additional Full Site Editing features from WP Cloud. [#38212]
+- Jetpack AI: Enable the AI Logo generator extension. [#38696]
+- Jetpack Newsletter: Add Jetpack Newsletter menu with preview option. [#38675]
+
+### Bug fixes
+- Jetpack Comments: Fix replying to comments in Chrome when logged in to both WordPress.com and Jetpack. [#38554]
+- Sharing: Do not include Gravatar images in Open Graph Meta tags. [#38692]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin bar: Help center and notification icons now follow color scheme. [#38672]
+- AI Assistant: Add ignore button for AI Proofread. [#38517]
+- AI Assistant: Change Breve readability score text. [#38620]
+- AI Assistant: Disable AI Proofread by default. [#38715]
+- AI Assistant: Release Breve for 50% of sites. [#38604]
+- AI Assistant: Remove slash highlights on Breve. [#38700]
+- AI Logo Generator: Fix the retry button when a feature request fails. [#38630]
+- AI Logo Generator: Only extend the logo block when the AI Assistant is available and not hidden on the editor. [#38603]
+- AI Logo Generator: Release site logo extension to 10% of sites. [#38646]
+- Fix suggestion invalidation on different features. [#38633]
+- Jetpack AI: Apply text-wrap: pretty to AI assistant sidebar sections. [#38653]
+- Jetpack AI: useExperiment note. [#38602]
+- Jetpack AI Breve: Disable feature toggles on main toggle. [#38678]
+- Jetpack Social: Added feature flag management. [#38669]
+- Jetpack Social: Removed the media auto-conversion UI. [#38497]
+- Jetpack Stats: Disable blog stats block for simple sites. [#38564]
+- General: Changing global JSX namespace to React.JSX. [#38585]
+- General: Changing ReactDOM.render usage to be via ReactDOM.createRoot. [#38649]
+- General: Modify the Google Analytics notice to notify of the feature removal. [#38701]
+- Newsletter: Add source for the paid importer. [#38679]
+- Newsletter: Set all settings on the page disabled when module is disabled. [#38716]
+- Jetpack Blocks: Update Podcast Player blockt to be compatible with React 19. [#38619]
+- Social Links: Adding a function_exists check within the social-links.php file, to prevent conflicts with package version. [#38593]
+- WP.com API: Include errors listed for broken themes. [#38642]
+
 ## 13.7-a.7 - 2024-07-29
 ### Enhancements
 - AI Assistant: Add feedback link to the sidebar. [#38528]

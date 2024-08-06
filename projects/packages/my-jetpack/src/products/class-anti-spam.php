@@ -81,7 +81,7 @@ class Anti_Spam extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Stop comment and form spam', 'jetpack-my-jetpack' );
+		return __( 'Keep your site free from spam and bots', 'jetpack-my-jetpack' );
 	}
 
 	/**

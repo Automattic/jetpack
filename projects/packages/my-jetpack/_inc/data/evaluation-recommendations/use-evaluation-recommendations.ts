@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useCallback, useMemo } from 'react';
 import { useValueStore } from '../../context/value-store/valueStoreContext';
+import useAnalytics from '../../hooks/use-analytics';
 import {
 	QUERY_EVALUATE_KEY,
 	QUERY_REMOVE_EVALUATION_KEY,
@@ -20,6 +21,7 @@ const getInitialRecommendedModules = (): JetpackModule[] | null => {
 };
 
 const useEvaluationRecommendations = () => {
+	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, showWelcomeBanner } = useWelcomeBanner();
 	const [ recommendedModules, setRecommendedModules ] = useValueStore(
 		'recommendedModules',
@@ -107,16 +109,18 @@ const useEvaluationRecommendations = () => {
 			{
 				onSuccess: () => {
 					setIsSectionVisible( false );
+					recordEvent( 'jetpack_myjetpack_evaluation_recommendations_dismiss_click' );
 				},
 			}
 		);
-	}, [ handleRemoveEvaluationResult, setIsSectionVisible ] );
+	}, [ handleRemoveEvaluationResult, recordEvent, setIsSectionVisible ] );
 
 	const redoEvaluation = useCallback( () => {
 		// It just happens locally - on reload we're back to recommendations view
 		setIsSectionVisible( false );
 		showWelcomeBanner();
-	}, [ setIsSectionVisible, showWelcomeBanner ] );
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_redo_click' );
+	}, [ recordEvent, setIsSectionVisible, showWelcomeBanner ] );
 
 	return {
 		submitEvaluation,
