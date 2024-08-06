@@ -113,8 +113,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				return;
 			}
 
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Function checked with function_exists - see https://github.com/phan/phan/issues/1204.
-			self::$publicize    = function_exists( 'publicize_init' ) ? publicize_init() : null;
+			self::$publicize    = publicize_init();
 			$publicize_services = self::$publicize->get_services( 'connected' );
 			self::$services     = array_intersect( array_keys( $publicize_services ), self::$theme_supported_services );
 
