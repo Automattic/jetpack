@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-07-31 20:54:03+0000\n"
+"PO-Revision-Date: 2024-08-06 13:06:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,216 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ar\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-notices.php:28
+msgid "The Toolbar is always visible on Atomic sites while connected to the Automattic proxy."
+msgstr "يكون شريط الأدوات مرئيًا دومًا على مواقع Atomic في أثناء البريد بوكيل Automattic."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:48
+msgid "Your WordPress.com password is managed on WordPress.com Security settings"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php:44
+msgid "Your WordPress.com email is managed on WordPress.com Account settings"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:149
+msgid "Footer"
+msgstr "تذييل"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template.php:147
+msgid "Header"
+msgstr "ترويسة"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:552
+msgid "Back to template part types"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:551
+msgid "No template part types found."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:550
+msgid "Search Template Part Types"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:549
+msgid "Parent Template Part Type:"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:548
+msgid "Parent Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:547
+msgid "New Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:546
+msgid "Add New Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:545
+msgid "Update Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:544
+msgid "View Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:543
+msgid "Edit Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:542
+msgid "All Template Part Types"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:541
+msgctxt "admin menu"
+msgid "Template Part Types"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:540
+msgctxt "taxonomy singular name"
+msgid "Template Part Type"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:539
+msgctxt "taxonomy general name"
+msgid "Template Part Types"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:504
+msgid "Template part updated."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:503
+msgid "Template part scheduled."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:502
+msgid "Template part reverted to draft."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:501
+msgid "Template part published privately."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:500
+msgid "Template part published."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:499
+msgid "Template parts list"
+msgstr "قائمة أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:498
+msgid "Template parts list navigation"
+msgstr "التنقل بين قائمة أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:497
+msgid "Filter template parts list"
+msgstr "تصفية قائمة أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:496
+msgid "No template parts found in Trash."
+msgstr "لم يتم العثور على أجزاء القالب في سلة المهملات."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:495
+msgid "No template parts found."
+msgstr "لم يتم العثور على أجزاء القالب."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:494
+msgid "Search Template Parts"
+msgstr "البحث في أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:493
+msgid "All Template Parts"
+msgstr "جميع أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:492
+msgid "View Template Part"
+msgstr "عرض جزء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:491
+msgid "Edit Template Part"
+msgstr "تحرير جزء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:490
+msgid "New Template Part"
+msgstr "جزء قالب جديد"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:489
+msgid "Add New Template Part"
+msgstr "إضافة جزء قالب جديد"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:488
+msgctxt "Template"
+msgid "Add New"
+msgstr "أضف نموذجا جديداً"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:487
+msgctxt "add new on admin bar"
+msgid "Template Part"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:486
+msgctxt "admin menu"
+msgid "Template Parts"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:485
+msgctxt "post type singular name"
+msgid "Template Part"
+msgstr "جزء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:484
+msgctxt "post type general name"
+msgid "Template Parts"
+msgstr "أجزاء القالب"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:447
+msgctxt "Default page title"
+msgid "Contact"
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/templates/class-wp-template-inserter.php:435
+msgctxt "Default page title"
+msgid "About"
+msgstr "نبذة عني"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:90
+msgid "collapsed"
+msgstr "مطوية"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:89
+msgid "expanded"
+msgstr "موسعة"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-legacy-fse/blocks/navigation-menu/index.php:86
+msgid "Menu"
+msgstr "القائمة"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-wp-rest-sideload-image-controller.php:77
+msgid "Invalid parent type."
+msgstr "النوع الأصل غير صالح."
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:240
+msgid "Current"
+msgstr "الحالي"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:235
+msgid "Blank"
+msgstr "فارغ"
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/starter-page-templates/class-starter-page-templates.php:225
+msgid "No templates available. Skipped showing modal window with template selection."
+msgstr ""
+
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
+msgid "Customize content with AI"
+msgstr "تخصيص المحتوى باستخدام الذكاء الاصطناعي"
 
 #: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-global-styles/index.php:549
 msgid "Upgrade required"
@@ -70,11 +280,11 @@ msgstr "إقرأ المزيد"
 msgid "Continue reading %s"
 msgstr "متابعة القراءة %s"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:127
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:196
 msgid "My Account"
 msgstr "حسابي"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:102
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:150
 msgid "Reader"
 msgstr "نظام القارئ"
 
@@ -419,20 +629,20 @@ msgstr "النمط الكلاسيكي"
 msgid "Admin Interface Style"
 msgstr "نمط واجهة المسؤول"
 
-#: wpcom-plugins/plugins.php:50
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:45
 msgid "Explore plugins"
 msgstr "استكشف الإضافات"
 
-#: wpcom-plugins/plugins.php:48
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:43
 msgid "Access a variety of free and paid plugins that can enhance your site's functionality and features."
 msgstr "يمكنك الوصول إلى مجموعة متنوعة من الإضافات المجانية والمدفوعة التي يمكنها تحسين وظائف موقعك وميزاته."
 
-#: wpcom-plugins/plugins.php:47
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-plugins/wpcom-plugins.php:42
 msgid "Flex your site's features with plugins"
 msgstr "تطوير ميزات موقعك باستخدام الإضافات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:62
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:63
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:66
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-themes/wpcom-themes.php:67
 msgid "Theme Showcase"
 msgstr "عرض القالب"
 
@@ -493,31 +703,31 @@ msgstr "فاتح"
 msgid "Transparent"
 msgstr "شفاف"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:801
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:810
 msgid "Launch your store"
 msgstr "أطلق متجرك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:791
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:800
 msgid "Add a domain"
 msgstr "إضافة نطاق"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:781
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:790
 msgid "Grow your business"
 msgstr "نمو أعمالك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:771
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:780
 msgid "Collect sales tax"
 msgstr "تحصيل ضريبة المبيعات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:761
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:770
 msgid "Get paid with WooPayments"
 msgstr "الحصول على المدفوعات من خلال WooPayments"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:751
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:760
 msgid "Add your products"
 msgstr "إضافة منتجاتك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:741
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:750
 msgid "Customize your store"
 msgstr "تخصيص متجرك"
 
@@ -577,8 +787,8 @@ msgid "Hosting"
 msgstr "الاستضافة"
 
 #. translators: Hidden accessibility text.
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:82
-#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:86
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:130
+#: vendor/automattic/jetpack-mu-wpcom/src/features/wpcom-admin-bar/wpcom-admin-bar.php:134
 msgid "All Sites"
 msgstr "جميع المواقع"
 
@@ -774,31 +984,31 @@ msgstr "تفضَّل بزيارة ⁦%1$s⁩إعدادات Jetpack⁦%2$s⁩ ل�
 msgid "Scheduled Updates"
 msgstr "تحديثات مجدولة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:729
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:738
 msgid "Verify the email address for your domains"
 msgstr "تحقق من عنوان البريد الإلكتروني للنطاقات الخاصة بك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:291
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:292
 msgid "Site setup"
 msgstr "إعداد الموقع"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:719
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:728
 msgid "Finish Sensei setup"
 msgstr "أكمل إعداد Sensei"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:709
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:718
 msgid "Finish store setup"
 msgstr "أكمل إعداد المتجر"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:692
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:701
 msgid "Update your site's design"
 msgstr "قم بتحديث تصميم موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:683
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:692
 msgid "Enable post sharing"
 msgstr "تمكين مشاركة المقالة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:674
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:683
 msgid "Install the mobile app"
 msgstr "تثبيت التطبيق للهاتف المحمول"
 
@@ -890,87 +1100,87 @@ msgstr "تم إلغاء استيراد النسخة الاحتياطية."
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:204
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:245
 #: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:261
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:276
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad.php:277
 msgid "Next steps for your site"
 msgstr "الخطوات التالية لموقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:664
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:673
 msgid "Add the Subscribe Block to your site"
 msgstr "إضافة مكوّن Subscribe إلى موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:650
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:659
 msgid "Import existing subscribers"
 msgstr "استورد المشتركين الحاليين"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:641
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:650
 msgid "View site metrics"
 msgstr "عرض مقاييس الموقع"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:632
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:641
 msgid "Set up ssh"
 msgstr "إعداد ssh"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:620
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:629
 msgid "Install a custom plugin"
 msgstr "ثبّت إضافة مخصصة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:608
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:617
 msgid "Choose a theme"
 msgstr "اختر قالباً"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:593
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:602
 msgid "Set up an offer for your supporters"
 msgstr "إعداد عرض لداعميك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:573
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:582
 msgid "Connect a Stripe account to collect payments"
 msgstr "ربط حساب Stripe لتحصيل المدفوعات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:558
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:567
 msgid "Add your About page"
 msgstr "إضافة صفحة \"نبذة عني\" الخاصة بك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:548
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:557
 msgid "Manage your paid Newsletter plan"
 msgstr "إدارة خطة الرسائل الإخبارية المدفوعة لديك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:540
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:549
 msgid "Connect your social media accounts"
 msgstr "توصيل حسابات وسائل التواصل الاجتماعي الخاصة بك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:526
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:535
 msgid "Manage your subscribers"
 msgstr "إدارة المشتركين لديك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:513
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:522
 msgid "Write 3 posts"
 msgstr "كتابة 3 تدوينات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:498
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:507
 msgid "Get your first 10 subscribers"
 msgstr "الحصول على أول 10 مشتركين"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:486
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:495
 msgid "Enable subscribers modal"
 msgstr "تمكين نموذج الاشتراكات"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:474
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:483
 msgid "Customize welcome message"
 msgstr "تخصيص رسالة الترحيب"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:464
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:473
 msgid "Earn money with your newsletter"
 msgstr "جني الأموال باستخدام خدمة الرسائل الإخبارية لديك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:407
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:416
 msgid "Update your About page"
 msgstr "تحديث صفحة \"نبذة عنك\""
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:245
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:254
 msgid "Migrate content"
 msgstr "ترحيل المحتوى"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:166
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:175
 msgid "Verify email address"
 msgstr "التحقق من عنوان البريد الإلكتروني"
 
@@ -1033,32 +1243,32 @@ msgstr "الملف غير موجود"
 msgid "Could not determine importer type."
 msgstr "يتعذر تحديد نوع أداة الاستيراد"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:456
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:465
 msgid "Share your site"
 msgstr "مشاركة موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:426
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:435
 msgid "Edit a page"
 msgstr "تحرير صفحة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1716
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1725
 msgid "Your site contains premium styles. Upgrade now to publish them and unlock tons of other features."
 msgstr "يحتوي موقعك على الأنماط المميزة. قم بالترقية الآن لنشرها وافتح أعدادًا كبيرة من الميزات الأخرى."
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:441
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:450
 msgid "Customize your domain"
 msgstr "خصّص نطاقك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:394
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:403
 msgid "Add a new page"
 msgstr "إضافة صفحة جديدة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:384
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:393
 msgid "Drive traffic to your site"
 msgstr "جذب حركة المرور إلى موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:145
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:370
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:154
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:379
 msgid "Give your site a name"
 msgstr "حدّد اسما لموقعك"
 
@@ -1081,16 +1291,16 @@ msgctxt "Share the post on social networks"
 msgid "Share"
 msgstr "مشاركة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1160
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1731
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1169
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1740
 msgid "Upgrade plan"
 msgstr "قم بترقية خطتك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:193
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:202
 msgid "Create paid Newsletter"
 msgstr "إنشاء خدمة الرسائل الإخبارية المدفوعة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:215
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:224
 msgid "Set up payment method"
 msgstr "إعداد طريقة الدفع"
 
@@ -1098,7 +1308,7 @@ msgstr "إعداد طريقة الدفع"
 msgid "Choose a domain"
 msgstr "اختر نطاقًا"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:327
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:336
 msgid "Launch your blog"
 msgstr "أطلق مدوّنتك"
 
@@ -1106,36 +1316,36 @@ msgstr "أطلق مدوّنتك"
 msgid "Edit site design"
 msgstr "تحرير تصميم الموقع"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:361
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:370
 msgid "Set up your site"
 msgstr "تهيئة موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:335
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:344
 msgid "Name your blog"
 msgstr "سمِّ مدونتك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:347
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:356
 msgid "Personalize your site"
 msgstr "خصّص موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:306
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:315
 msgid "Upload your first video"
 msgstr "ارفع أول مقطع فيديو لك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:299
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:308
 msgid "Set up your video site"
 msgstr "ابدأ بإعداد موقع الفيديو الخاص بك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:158
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:260
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:167
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:269
 msgid "Launch your site"
 msgstr "ابدأ تشغيل موقعك"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:268
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:277
 msgid "Add links"
 msgstr "إضافة روابط"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:280
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:289
 msgid "Personalize Link in Bio"
 msgstr "تخصيص Link in Bio"
 
@@ -1144,7 +1354,7 @@ msgstr "تخصيص Link in Bio"
 msgid "Select a design"
 msgstr "حدّد تصميمًا"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:179
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:188
 msgid "Start writing"
 msgstr "ابدأ الكتابة"
 
@@ -1152,16 +1362,16 @@ msgstr "ابدأ الكتابة"
 msgid "Write your first post"
 msgstr "أكتب مقالتك الأولى"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:232
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:241
 msgid "Add subscribers"
 msgstr "أضف مشتركين"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:122
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:134
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:131
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:143
 msgid "Choose a plan"
 msgstr "اختر خطة"
 
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:203
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:212
 msgid "Personalize newsletter"
 msgstr "تخصيص الرسائل الإخبارية"
 
@@ -1170,7 +1380,7 @@ msgid "Unable to load class %1$s. Please add the package that contains it using 
 msgstr "يتعذر تحميل الفئة %1$s. يرجى إضافة الحزمة التي تحتوي عليها باستخدام المؤلف والتأكُّد من أنَّك تحتاج إلى برنامج التحميل التلقائي من Jetpack"
 
 #. translators: 1: wp_default_scripts. 2: Name of the domain being aliased.
-#: vendor/automattic/jetpack-assets/src/class-assets.php:572
+#: vendor/automattic/jetpack-assets/src/class-assets.php:577
 msgid "Textdomain aliases should be registered before the %1$s hook. This notice was triggered by the %2$s domain."
 msgstr "ينبغي تسجيل الأسماء المستعارة لنطاق النص قبل موضع إضافة ⁦%1$s⁩. تم إرسال هذه الملحوظة بواسطة نطاق ⁦%2$s⁩."
 
@@ -1347,8 +1557,8 @@ msgstr "صغير جدًا"
 msgid "Default Theme Font"
 msgstr "خط القالب الافتراضي"
 
-#: vendor/automattic/custom-fonts/custom-fonts.php:146
-#: vendor/automattic/custom-fonts/custom-fonts.php:162
+#: vendor/automattic/custom-fonts/custom-fonts.php:147
+#: vendor/automattic/custom-fonts/custom-fonts.php:163
 #: vendor/automattic/jetpack-mu-wpcom/src/features/jetpack-global-styles/class-global-styles.php:277
 msgid "Fonts"
 msgstr "الخطوط"
@@ -1576,21 +1786,21 @@ msgstr "قم بإهداء المؤلف ترقية ووردبريس.كوم."
 msgid "This site's plan has expired."
 msgstr "انتهت صلاحية خطة الموقع هذه."
 
-#: notices/plan-notices.php:135
-msgid "The Entrepreneur plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "انتهت صلاحية خطة Entrepreneur لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة Entrepreneur، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+#: notices/plan-notices.php:130
+msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية خطة الأعمال الخاصة بـ <strong>⁦%3$s⁩</strong> في ⁦%2$s⁩. <a href=\"⁦%1$s⁩\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة الأعمال، مثل الإضافات والقوالب المخصصة وSFTP والوصول إلى phpMyAdmin."
 
 #: notices/plan-notices.php:109
 msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "تنتهي صلاحية الخطة الاحترافية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة الاحترافية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
-#: notices/plan-notices.php:104
-msgid "The Entrepreneur plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Entrepreneur plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "تنتهي صلاحية خطة Entrepreneur لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة Entrepreneur، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
-
 #: notices/plan-notices.php:99
-msgid "The Creator plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "تنتهي صلاحية خطة Creator لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة Creator، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية خطة الأعمال لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة الأعمال، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+
+#: notices/plan-notices.php:104
+msgid "The Commerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية خطة التجارة الإلكترونية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة التجارة الإلكترونية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -1632,20 +1842,20 @@ msgid "Update"
 msgstr "التحديث"
 
 #: notices/plan-notices.php:125
-msgid "The Explorer plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "انتهت صلاحية خطة Explorer لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة Explorer، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم تحليلات غوغل."
+msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "انتهت صلاحية الخطة المتميزة لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات الخطة المتميزة، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم Google Analytics."
 
 #: notices/plan-notices.php:120
-msgid "The Starter plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "انتهت صلاحية خطة Starter لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة Starter، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
+msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "انتهت صلاحية الخطة الشخصية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات الخطة الشخصية، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
 
 #: notices/plan-notices.php:94
-msgid "The Explorer plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Explorer plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "تنتهي صلاحية خطة Explorer لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة Starter، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم تحليلات غوغل."
+msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr "تنتهي صلاحية الخطة المتميزة لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة المتميزة، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم Google Analytics."
 
 #: notices/plan-notices.php:89
-msgid "The Starter plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Starter plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr "تنتهي صلاحية خطة Starter لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة Starter، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
+msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr "تنتهي صلاحية الخطة الشخصية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة الشخصية، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
@@ -1712,9 +1922,9 @@ msgstr "قدم ووردبريس.كوم وظائف وأدوات مثبتة مسب
 msgid "Updates managed by WordPress.com"
 msgstr "التحديثات المُدارة بواسطة ووردبريس.كوم"
 
-#: notices/plan-notices.php:130
-msgid "The Creator plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Creator plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr "انتهت صلاحية خطة Creator لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة Creator، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+#: notices/plan-notices.php:135
+msgid "The Commerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Commerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "انتهت صلاحية خطة التجارة الإلكترونية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة التجارة الإلكترونية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
 #: notices/plan-notices.php:140
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -1802,7 +2012,7 @@ msgid "Update visibility"
 msgstr "تحديث الرؤية"
 
 #: private-site/logged-in-banner.php:90
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:292
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:301
 msgid "Launch site"
 msgstr "بدء الموقع"
 
@@ -2004,11 +2214,11 @@ msgid "Display your about.me profile with thumbnail"
 msgstr "عرض ملفك الشخصي about.me مع صورة مصغَّرة"
 
 #: safeguard/utils.php:68
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1381
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1392
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1446
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1457
-#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1465
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1390
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1401
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1455
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1466
+#: vendor/automattic/jetpack-mu-wpcom/src/features/launchpad/launchpad-task-definitions.php:1474
 msgid "Unable to fetch the requested data."
 msgstr "يتعذَّر إحضار البيانات المطلوبة."
 
@@ -2024,7 +2234,6 @@ msgstr "إنشاء موقع مجاني على وردبرس.كوم"
 msgid "Powered by WordPress.com"
 msgstr "يعمل من خلال WordPress.com"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
 #: footer-credit/footer-credit/footer-credit.php:103
 #: footer-credit/theme-optimizations.php:55
 #: footer-credit/theme-optimizations.php:60
