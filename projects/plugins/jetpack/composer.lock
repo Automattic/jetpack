@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "1b276c075d1f6bd20c9e6d4195b000e9",
+	"content-hash": "e858d130b73fa61b69f1b6966de33d0c",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -2365,16 +2365,16 @@
 		},
 		{
 			"name": "automattic/jetpack-sync",
-			"version": "v3.4.1",
+			"version": "v3.5.0",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-sync.git",
-				"reference": "e78adf8f6fdf8ee013f99328bdba5ed8f8d2e8b1"
+				"reference": "e06f9672a71b7c0f4d91ba10585b970408e42153"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/e78adf8f6fdf8ee013f99328bdba5ed8f8d2e8b1",
-				"reference": "e78adf8f6fdf8ee013f99328bdba5ed8f8d2e8b1",
+				"url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/e06f9672a71b7c0f4d91ba10585b970408e42153",
+				"reference": "e06f9672a71b7c0f4d91ba10585b970408e42153",
 				"shasum": ""
 			},
 			"require": {
@@ -2408,7 +2408,7 @@
 					"link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
 				},
 				"branch-alias": {
-					"dev-trunk": "3.4.x-dev"
+					"dev-trunk": "3.5.x-dev"
 				},
 				"dependencies": {
 					"test-only": [
@@ -2428,9 +2428,9 @@
 			],
 			"description": "Everything needed to allow syncing to the WP.com infrastructure.",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.4.1"
+				"source": "https://github.com/Automattic/jetpack-sync/tree/v3.5.0"
 			},
-			"time": "2024-08-05T17:48:39+00:00"
+			"time": "2024-08-06T12:24:35+00:00"
 		},
 		{
 			"name": "automattic/jetpack-videopress",

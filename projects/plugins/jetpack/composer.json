@@ -45,7 +45,7 @@
 		"automattic/jetpack-stats": "^0.13.0",
 		"automattic/jetpack-stats-admin": "^0.21.0",
 		"automattic/jetpack-status": "^3.3.2",
-		"automattic/jetpack-sync": "^3.4.1",
+		"automattic/jetpack-sync": "^3.5.0",
 		"automattic/jetpack-videopress": "^0.23.30",
 		"automattic/jetpack-waf": "^0.18.0",
 		"automattic/jetpack-wordads": "^0.3.25",
