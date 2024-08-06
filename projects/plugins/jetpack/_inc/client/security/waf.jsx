@@ -501,7 +501,7 @@ export const Waf = class extends Component {
 					showDismiss={ false }
 					status="is-info"
 					text={ __(
-						'The settings for the Firewall will be moved to Jetpack Portect in Jetpack version 13.9.',
+						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.9.',
 						'jetpack'
 					) }
 				>
