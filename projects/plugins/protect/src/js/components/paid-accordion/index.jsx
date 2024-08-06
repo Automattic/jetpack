@@ -33,6 +33,14 @@ const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
 							</span>
 						</>
 					) }
+					{ 'ignored' === status && (
+						<>
+							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+							<span className={ styles[ 'is-ignored' ] }>
+								{ __( 'Threat ignored', 'jetpack-protect' ) }
+							</span>
+						</>
+					) }
 				</Text>
 			) }
 			{ ( 'fixed' === status || 'ignored' === status ) && (
