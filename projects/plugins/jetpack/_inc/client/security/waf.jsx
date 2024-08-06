@@ -8,6 +8,8 @@ import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
@@ -495,6 +497,18 @@ export const Waf = class extends Component {
 				hideButton={ true }
 			>
 				{ isWafActive && <QueryWafSettings /> }
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-info"
+					text={ __(
+						'The settings for the Firewall will be moved to Jetpack Portect in Jetpack version 13.9.',
+						'jetpack'
+					) }
+				>
+					<NoticeAction href={ this.props.getProtectUrl } external={ true }>
+						{ __( 'Get Jetpack Protect', 'jetpack' ) }
+					</NoticeAction>
+				</SimpleNotice>
 				<SettingsGroup
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }
@@ -541,6 +555,7 @@ export default connect(
 			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
 				isPluginActive( state, pluginFile )
 			),
+			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
