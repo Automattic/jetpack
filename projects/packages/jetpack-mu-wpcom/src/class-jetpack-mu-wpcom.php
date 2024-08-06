@@ -191,28 +191,40 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
-		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
-		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
-		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
-		// To avoid potential collisions with newspack-blocks plugin.
-		if ( ! class_exists( '\Newspack_Blocks' ) ) {
-			require_once __DIR__ . '/features/newspack-blocks/index.php';
+
+		/**
+		 * Load features for the editor and the frontend pages.
+		 *
+		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
+		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
+		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
+			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
+			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+			// To avoid potential collisions with newspack-blocks plugin.
+			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
+				require_once __DIR__ . '/features/newspack-blocks/index.php';
+			}
+			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
+			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
+			require_once __DIR__ . '/features/tags-education/tags-education.php';
+			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
+			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
+			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
+			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
+			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
+			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
+			require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 		}
-		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
-		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
-		require_once __DIR__ . '/features/tags-education/tags-education.php';
-		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
-		require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
-		require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
-		require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
-		require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
-		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
-		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
-		require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
-		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
-		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
 	}
 
 	/**
