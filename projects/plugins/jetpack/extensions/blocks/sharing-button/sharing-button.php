@@ -269,12 +269,6 @@ function add_block_to_single_posts_template( $hooked_block_types, $relative_posi
 		return $hooked_block_types;
 	}
 
-	$content = $context->content ?? '';
-	// Check if the block is already in the template. If so, abort.
-	if ( false !== strpos( $content, 'wp:' . PARENT_BLOCK_NAME ) ) {
-		return $hooked_block_types;
-	}
-
 	$hooked_block_types[] = PARENT_BLOCK_NAME;
 	return $hooked_block_types;
 }
