@@ -290,6 +290,26 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Whether the site has the feature flag enabled.
+	 *
+	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
+	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
+	 * @return bool
+	 */
+	public function has_feature_flag( $flag_name, $feature_name ): bool {
+		// If the option is set, use it.
+		if ( get_option( 'jetpack_social_has_' . $flag_name, false ) ) {
+			return true;
+		}
+		// If the constant is set, use it.
+		if ( defined( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) && constant( 'JETPACK_SOCIAL_HAS_' . strtoupper( $flag_name ) ) ) {
+			return true;
+		}
+
+		return Current_Plan::supports( 'social-' . $feature_name );
+	}
+
+	/**
 	 * Does the given user have a connection to the service on the given blog?
 	 *
 	 * @param string    $service_name 'facebook', 'twitter', etc.

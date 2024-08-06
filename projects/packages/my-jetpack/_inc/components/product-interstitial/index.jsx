@@ -121,7 +121,7 @@ export default function ProductInterstitial( {
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
-				ctaText,
+				cta_text: ctaText,
 			} );
 		},
 		[ recordEvent, slug, getProductSlugForTrackEvent, bundle ]

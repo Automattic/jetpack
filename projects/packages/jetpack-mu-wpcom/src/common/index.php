@@ -63,3 +63,20 @@ function wpcom_enqueue_tracking_scripts( string $handle ) {
 		Tracking::register_tracks_functions_scripts( true );
 	}
 }
+
+/**
+ * Record tracks event.
+ *
+ * @param mixed $event_name The event.
+ * @param mixed $event_properties The event property.
+ *
+ * @return void
+ */
+function wpcom_record_tracks_event( $event_name, $event_properties ) {
+	if ( function_exists( 'wpcomsh_record_tracks_event' ) ) {
+		wpcomsh_record_tracks_event( $event_name, $event_properties );
+	} elseif ( function_exists( 'require_lib' ) && function_exists( 'tracks_record_event' ) ) {
+		require_lib( 'tracks/client' );
+		tracks_record_event( get_current_user_id(), $event_name, $event_properties );
+	}
+}

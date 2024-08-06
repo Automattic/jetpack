@@ -180,7 +180,7 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'breve_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'breve_enabled', true ) ) {
 			\Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 		}
 	}

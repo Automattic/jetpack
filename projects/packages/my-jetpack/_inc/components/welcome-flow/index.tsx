@@ -15,6 +15,11 @@ import EvaluationStep, { EvaluationAreas } from './EvaluationStep';
 import styles from './style.module.scss';
 import type { FC, PropsWithChildren } from 'react';
 
+export type WelcomeFlowExperiment = {
+	isLoading: boolean;
+	variation: 'control' | 'treatment';
+};
+
 const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	const { recordEvent } = useAnalytics();
 	const { dismissWelcomeBanner } = useWelcomeBanner();
@@ -30,12 +35,16 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 	} );
 	const [ isProcessingEvaluation, setIsProcessingEvaluation ] = useState( false );
 	const [ prevStep, setPrevStep ] = useState( '' );
+	const [ welcomeFlowExperiment, setWelcomeFlowExperiment ] = useState< WelcomeFlowExperiment >( {
+		isLoading: false,
+		variation: 'control',
+	} );
 
 	const currentStep = useMemo( () => {
-		if ( ! siteIsRegistered ) {
+		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if ( ! isJetpackUserNew() ) {
+			if ( ! isJetpackUserNew() || welcomeFlowExperiment.variation !== 'treatment' ) {
 				// If the user is not new, we don't show the evaluation step
 				return null;
 			}
@@ -43,7 +52,7 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		}
 
 		return 'evaluation-processing';
-	}, [ isProcessingEvaluation, siteIsRegistered ] );
+	}, [ isProcessingEvaluation, siteIsRegistered, welcomeFlowExperiment ] );
 
 	useEffect( () => {
 		if ( prevStep !== currentStep ) {
@@ -60,6 +69,11 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		} );
 		dismissWelcomeBanner();
 	}, [ recordEvent, currentStep, isUserConnected, isSiteConnected, dismissWelcomeBanner ] );
+
+	const onSkipClick = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_welcome_banner_skip_recommendations_click' );
+		dismissWelcomeBanner();
+	}, [ dismissWelcomeBanner, recordEvent ] );
 
 	const handleEvaluation = useCallback(
 		async ( values: { [ key in EvaluationAreas ]: boolean } ) => {
@@ -108,12 +122,13 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 						{ 'connection' === currentStep && (
 							<ConnectionStep
 								onActivateSite={ handleRegisterSite }
-								isActivating={ siteIsRegistering }
+								onUpdateWelcomeFlowExperiment={ setWelcomeFlowExperiment }
+								isActivating={ siteIsRegistering || welcomeFlowExperiment.isLoading }
 							/>
 						) }
 						{ 'evaluation' === currentStep && (
 							<EvaluationStep
-								onSkipOnboarding={ onDismissClick }
+								onSkipOnboarding={ onSkipClick }
 								onSubmitEvaluation={ handleEvaluation }
 							/>
 						) }

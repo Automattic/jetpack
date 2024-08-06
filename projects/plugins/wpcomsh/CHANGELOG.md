@@ -1,5 +1,19 @@
 # Changelog
 
+## 5.2.1 - 2024-08-05
+### Changed
+- Internal updates.
+
+## 5.2.0 - 2024-08-05
+### Changed
+- Add target_blog_id prop to AIOWP tracks events [#38615]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- Plan names: Revert plan names to Personal/Premium/Business/Commerce [#38668]
+
+## 5.1.2 - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
 ## 5.1.1 - 2024-07-30
 ### Removed
 - Remove the old plugin banner code [#38605]
