@@ -161,10 +161,6 @@ const HeaderActions = ( {
 				value={ selectedAccess }
 				options={ accessOptionsList }
 				onChange={ value => setSelectedAccess( value ) }
-				style={ {
-					minHeight: '36px',
-					marginBottom: 0,
-				} }
 				className="jetpack-email-preview-select-control"
 				__nextHasNoMarginBottom
 			/>
