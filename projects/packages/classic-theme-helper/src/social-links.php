@@ -15,6 +15,10 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
+use Automattic\Jetpack\Publicize\Publicize;
+use Jetpack_Options;
+use WP_Customize_Manager;
+
 if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 	/**
@@ -35,13 +39,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		 * @var Publicize
 		 */
 		private static $publicize;
-
-		// /**
-		// * A constant to confirm whether the class has been initialized.
-		// *
-		// * @var boolean
-		// */
-		// const SOCIAL_LINKS_PACKAGE_INIT = true;
 
 		/**
 		 * An array with all services that are supported by both Publicize and the
@@ -91,7 +88,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 			}
 
 			self::$theme_supported_services = $theme_support[0];
-			self::$links                    = class_exists( \Jetpack_Options::class ) ? \Jetpack_Options::get_option( 'social_links', array() ) : '';
+			self::$links                    = class_exists( Jetpack_Options::class ) ? Jetpack_Options::get_option( 'social_links', array() ) : '';
 
 			self::admin_setup();
 
@@ -138,8 +135,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 			if ( $active_links !== self::$links ) {
 				self::$links = $active_links;
-				if ( class_exists( \Jetpack_Options::class ) ) {
-					\Jetpack_Options::update_option( 'social_links', $active_links );
+				if ( class_exists( Jetpack_Options::class ) ) {
+					Jetpack_Options::update_option( 'social_links', $active_links );
 				}
 			}
 		}
@@ -147,7 +144,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		/**
 		 * Add social link dropdown to the Customizer.
 		 *
-		 * @param \WP_Customize_Manager $wp_customize Theme Customizer object.
+		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public static function customize_register( $wp_customize ) {
 			$wp_customize->add_section(
@@ -158,7 +155,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				)
 			);
 
-			if ( class_exists( \Publicize::class ) ) {
+			if ( class_exists( Publicize::class ) ) {
 				foreach ( array_keys( self::$publicize->get_services( 'all' ) ) as $service ) {
 					$choices = self::get_customize_select( $service );
 
@@ -253,7 +250,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				$choices[ self::$links[ $service ] ] = self::$links[ $service ];
 			}
 
-			if ( class_exists( \Publicize::class ) ) {
+			if ( class_exists( Publicize::class ) ) {
 				$connected_services = self::$publicize->get_services( 'connected' );
 				if ( isset( $connected_services[ $service ] ) ) {
 					foreach ( $connected_services[ $service ] as $c ) {
