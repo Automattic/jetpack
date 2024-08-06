@@ -90,15 +90,13 @@
 		},
 		"dependencies": {
 			"test-only": [
-				"packages/search",
-				"packages/videopress"
+				"packages/search"
 			]
 		}
 	},
 	"config": {
 		"allow-plugins": {
-			"roots/wordpress-core-installer": true,
-			"automattic/jetpack-autoloader": true
+			"roots/wordpress-core-installer": true
 		}
 	}
 }
