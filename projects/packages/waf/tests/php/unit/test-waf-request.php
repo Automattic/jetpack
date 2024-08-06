@@ -336,12 +336,22 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		$_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
 		$request                 = $this->mock_request(
 			array(
-				'body' => 'value',
+				'body' => (
+					http_build_query( array(
+						'str' => 'value',
+						'arr' => array( 'a', 'b', 'c' ),
+						'obj' => (object) array( 'foo' => 'bar' ),
+					) )
+				)
 			)
 		);
 		$value                   = $request->get_post_vars();
 		$this->assertIsArray( $value );
-		$this->assertContains( array( 'value', '' ), $value );
+		$this->assertContains( array( 'str', 'value' ), $value );
+		$this->assertContains( array( 'arr[0]', 'a' ), $value );
+		$this->assertContains( array( 'arr[1]', 'b' ), $value );
+		$this->assertContains( array( 'arr[2]', 'c' ), $value );
+		$this->assertContains( array( 'obj[foo]', 'bar' ), $value );
 
 		unset( $_SERVER['CONTENT_TYPE'] );
 	}
