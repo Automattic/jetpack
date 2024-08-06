@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Gutenberg: Handle potential `null` return from `get_current_screen`
