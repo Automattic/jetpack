@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.2.1 - 2024-08-05
+### Changed
+- Internal updates.
+
 ## 5.2.0 - 2024-08-05
 ### Changed
 - Add target_blog_id prop to AIOWP tracks events [#38615]

@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -16,6 +17,8 @@ import styles from './styles.module.scss';
  * @returns {import('react').ReactNode} - Preview section of the social post modal.
  */
 export function PreviewSection() {
+	const { recordEvent } = useAnalytics();
+
 	const getService = useService();
 
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
@@ -62,10 +65,15 @@ export function PreviewSection() {
 	const { toggleConnectionById } = useDispatch( socialStore );
 
 	const toggleConnection = useCallback(
-		( connectionId: string ) => () => {
+		( connectionId: string, connection ) => () => {
 			toggleConnectionById( connectionId );
+			recordEvent( 'jetpack_social_connection_toggled', {
+				location: 'preview-modal',
+				enabled: ! connection.enabled,
+				service_name: connection.service_name,
+			} );
 		},
-		[ toggleConnectionById ]
+		[ recordEvent, toggleConnectionById ]
 	);
 
 	return (
@@ -78,7 +86,7 @@ export function PreviewSection() {
 							label={ __( 'Share to this account', 'jetpack' ) }
 							disabled={ shouldBeDisabled( tab ) }
 							checked={ canBeTurnedOn( tab ) && tab.enabled }
-							onChange={ toggleConnection( tab.connection_id ) }
+							onChange={ toggleConnection( tab.connection_id, tab ) }
 						/>
 					</div>
 				) }

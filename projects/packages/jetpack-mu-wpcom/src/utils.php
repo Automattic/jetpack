@@ -87,8 +87,6 @@ function wpcom_get_calypso_origin() {
  *
  * @param string $asset_name The name of the asset.
  * @param array  $asset_types The types of the asset.
- *
- * @return string
  */
 function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) {
 	$asset_handle = "jetpack-mu-wpcom-$asset_name";
