@@ -312,7 +312,8 @@ class Table_Checksum {
 				'table'                     => "{$wpdb->prefix}wc_orders",
 				'range_field'               => 'id',
 				'key_fields'                => array( 'id' ),
-				'checksum_text_fields'      => array( 'type', 'status', 'payment_method_title' ),
+				'checksum_fields'           => array( 'date_updated_gmt', 'total_amount' ),
+				'checksum_text_fields'      => array( 'type', 'status' ),
 				'filter_values'             => array(
 					'type' => array(
 						'operator' => 'IN',
@@ -336,7 +337,8 @@ class Table_Checksum {
 				'table'                     => "{$wpdb->prefix}wc_order_operational_data",
 				'range_field'               => 'order_id',
 				'key_fields'                => array( 'order_id' ),
-				'checksum_text_fields'      => array( 'order_key', 'cart_hash' ),
+				'checksum_fields'           => array( 'date_paid_gmt', 'date_completed_gmt' ),
+				'checksum_text_fields'      => array( 'order_key' ),
 				'parent_table'              => 'wc_orders',
 				'parent_join_field'         => 'id',
 				'table_join_field'          => 'order_id',
