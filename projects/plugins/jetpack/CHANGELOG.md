@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.7-beta2 - 2024-08-06
+## 13.7 - 2024-08-06
 ### Enhancements
 - AI Assistant: Add feedback link to the sidebar. [#38528]
 - AI Assistant: Breve UI enhancements. [#38545]
