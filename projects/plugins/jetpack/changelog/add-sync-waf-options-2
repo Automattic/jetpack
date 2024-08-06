@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Janitorial: Updated jetpack_waf_ip_allow_list_enabled options group from "waf" to "settings".
-
-

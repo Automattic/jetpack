@@ -86,6 +86,13 @@
 
 .preview-content {
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: 3rem;
     padding: 2rem;
+}
+
+.disabled-tab {
+    opacity: 0.5;
 }
