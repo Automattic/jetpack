@@ -3,9 +3,9 @@ import { useState, useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import ProductCard from '../../connected-product-card';
 import BoostSpeedScore from './boost-speed-score';
-import type { FC } from 'react';
+import type { ProductCardType } from '../types';
 
-const BoostCard: FC< { admin: boolean } > = props => {
+const BoostCard: ProductCardType = props => {
 	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
 	// Override the primary action button to read "Boost your site" instead
 	// of the default text, "Lern more".

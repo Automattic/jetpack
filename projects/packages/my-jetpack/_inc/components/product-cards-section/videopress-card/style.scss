@@ -1,0 +1,16 @@
+.videopress-card__video-count {
+    margin-top: calc( var( --spacing-base ) / 2 );
+    span {
+        font-size: calc( var( --font-headline-small ) - 4px );
+        color: var( --jp-gray-90 );
+        line-height: 1.125;
+
+        margin-top: 0.5rem;
+    }
+}
+
+p.description {
+    color: var( --jp-gray-70 );
+    font-size: var( --font-body-small );
+    margin: 0 0 1rem 0;
+}

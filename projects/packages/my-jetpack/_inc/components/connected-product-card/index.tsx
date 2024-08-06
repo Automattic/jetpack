@@ -15,15 +15,17 @@ import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import preventWidows from '../../utils/prevent-widows';
 import ProductCard from '../product-card';
 import type { AdditionalAction, SecondaryAction } from '../product-card/types';
 import type { FC, ReactNode } from 'react';
 
 interface ConnectedProductCardProps {
 	admin: boolean;
-	recommendation: boolean;
+	recommendation?: boolean;
+	showMenu?: boolean;
 	slug: JetpackModule;
-	children: ReactNode;
+	children?: ReactNode;
 	isDataLoading?: boolean;
 	Description?: FC;
 	additionalActions?: AdditionalAction[];
@@ -85,7 +87,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 
 	const DefaultDescription = () => {
 		// Replace the last space with a non-breaking space to prevent widows
-		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+		const cardDescription = preventWidows( defaultDescription );
 
 		return (
 			<Text variant="body-small" style={ { flexGrow: 1, marginBottom: '1rem' } }>

@@ -27,6 +27,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
@@ -277,6 +278,10 @@ class Initializer {
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
+				'videopress'             => array(
+					'featuredStats' => self::get_videopress_stats(),
+					'videoCount'    => array_sum( (array) wp_count_attachments( 'video' ) ),
+				),
 			)
 		);
 
@@ -299,6 +304,21 @@ class Initializer {
 	}
 
 	/**
+	 * Get stats for VideoPress
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_videopress_stats() {
+		if ( ! class_exists( 'VideoPress_Stats' ) ) {
+			return array();
+		}
+
+		$videopress_stats = new VideoPress_Stats();
+
+		return $videopress_stats->get_featured_stats();
+	}
+
+	/**
 	 * Get product slugs of the active purchases
 	 *
 	 * @return array
@@ -313,7 +333,7 @@ class Initializer {
 			function ( $purchase ) {
 				return $purchase->product_slug;
 			},
-			$purchases
+			(array) $purchases
 		);
 	}
 
@@ -606,7 +626,7 @@ class Initializer {
 			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
 		}
 
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -640,7 +660,7 @@ class Initializer {
 	/**
 	 * Returns whether a site has been determined "commercial" or not.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public static function is_commercial_site() {
 		if ( is_wp_error( self::$site_info ) ) {
@@ -666,7 +686,7 @@ class Initializer {
 	 */
 	public static function dismiss_welcome_banner() {
 		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
-		return rest_ensure_response( array( 'success' => true ), 200 );
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

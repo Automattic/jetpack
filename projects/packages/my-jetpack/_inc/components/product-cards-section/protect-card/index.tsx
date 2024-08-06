@@ -1,8 +1,8 @@
-import { type FC } from 'react';
 import ProductCard from '../../connected-product-card';
 import ProtectValueSection from './protect-value-section';
+import type { ProductCardType } from '../types';
 
-const ProtectCard: FC< { admin: boolean; recommendation?: boolean } > = props => {
+const ProtectCard: ProductCardType = props => {
 	const slug = 'protect';
 
 	return (
