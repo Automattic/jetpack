@@ -1,7 +1,7 @@
 import { Path, SVG } from '@wordpress/components';
 
 export const SendIcon = () => (
-	<SVG viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+	<SVG width="24" height="24" viewBox="0 0 24 24">
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
