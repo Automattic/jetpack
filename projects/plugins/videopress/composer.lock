@@ -1016,7 +1016,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "2c06449483ed175f949e69ba407e6e92363c3b84"
+                "reference": "3c69d96c6d73542a7d77b041215728b33746f58f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1033,13 +1033,13 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-videopress": "@dev",
                 "automattic/jetpack-waf": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-search": "@dev",
-                "automattic/jetpack-videopress": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
