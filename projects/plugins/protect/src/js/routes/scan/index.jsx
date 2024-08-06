@@ -12,6 +12,7 @@ import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
 import Summary from '../../components/summary';
 import ThreatsList from '../../components/threats-list';
+import { SCAN_STATUS_UNAVAILABLE } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
@@ -72,6 +73,7 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
 };
 
 const ScanningSection = ( { currentProgress } ) => {
+	const { hasRequiredPlan } = useProtectData();
 	const { stats } = useWafData();
 	const { globalStats } = stats;
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
@@ -105,7 +107,7 @@ const ScanningSection = ( { currentProgress } ) => {
 										<H3 style={ { textWrap: 'balance' } }>
 											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 										</H3>
-										{ currentProgress !== null && currentProgress >= 0 && (
+										{ hasRequiredPlan && currentProgress !== null && currentProgress >= 0 && (
 											<ProgressBar value={ currentProgress } />
 										) }
 										<Text>
@@ -152,16 +154,20 @@ const DefaultSection = () => {
 };
 
 const ScanPage = () => {
-	const { lastChecked, error, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
+	const { lastChecked, hasRequiredPlan } = useProtectData();
 	const { refreshStatus } = useDispatch( STORE_ID );
-	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
-		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
-		status: select( STORE_ID ).getStatus(),
-	} ) );
+	const { scanInProgress, statusIsFetching, scanIsUnavailable, status, scanError } = useSelect(
+		select => ( {
+			scanError: select( STORE_ID ).scanError(),
+			scanInProgress: select( STORE_ID ).scanInProgress(),
+			scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
+			status: select( STORE_ID ).getStatus(),
+			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		} )
+	);
 
 	let currentScanStatus;
-	if ( status.error || scanIsUnavailable ) {
+	if ( scanError ) {
 		currentScanStatus = 'error';
 	} else if ( ! lastChecked ) {
 		currentScanStatus = 'in_progress';
@@ -183,33 +189,22 @@ const ScanPage = () => {
 
 	// retry fetching status if it is not available
 	useEffect( () => {
-		if ( ! statusIsFetching && 'unavailable' === status.status && ! scanIsUnavailable ) {
+		if ( ! statusIsFetching && SCAN_STATUS_UNAVAILABLE === status.status && ! scanIsUnavailable ) {
 			refreshStatus( true );
 		}
 	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
 
 	const renderSection = useMemo( () => {
-		// Error
-		if ( error || scanIsUnavailable ) {
-			return <ErrorSection errorMessage={ errorMessage } errorCode={ errorCode } />;
-		}
-
-		// Scanning
-		const scanningStatuses = new Set( [ 'scheduled', 'scanning', 'optimistically_scanning' ] );
-		if ( scanningStatuses.has( status.status ) || ! lastChecked ) {
+		if ( scanInProgress ) {
 			return <ScanningSection currentProgress={ status.currentProgress } />;
 		}
 
+		if ( scanError ) {
+			return <ErrorSection errorMessage={ scanError.message } errorCode={ scanError.code } />;
+		}
+
 		return <DefaultSection />;
-	}, [
-		error,
-		errorMessage,
-		errorCode,
-		scanIsUnavailable,
-		status.status,
-		status.currentProgress,
-		lastChecked,
-	] );
+	}, [ scanInProgress, status.currentProgress, scanError ] );
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
