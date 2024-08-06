@@ -505,7 +505,7 @@ export const Waf = class extends Component {
 						'jetpack'
 					) }
 				>
-					<NoticeAction href={ this.props.getProtectUrl } external={ true }>
+					<NoticeAction href={ this.props.getProtectUrl }>
 						{ __( 'Get Jetpack Protect', 'jetpack' ) }
 					</NoticeAction>
 				</SimpleNotice>
