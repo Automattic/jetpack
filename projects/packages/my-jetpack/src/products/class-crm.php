@@ -84,7 +84,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Nurture your contacts to grow your business', 'jetpack-my-jetpack' );
+		return __( 'Strengthen customer relationships and grow your business', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'All of your contacts in one place. Build better relationships with your customers and clients.', 'jetpack-my-jetpack' );
+		return __( 'Build better relationships with your customers and grow your business.', 'jetpack-my-jetpack' );
 	}
 
 	/**

@@ -29,6 +29,15 @@
 }
 
 /**
+ * Hamburger menu
+ */
+#wpadminbar #wp-admin-bar-menu-toggle>.ab-item .ab-icon {
+	@media (max-width: 480px) {
+		width: 48px;
+	}
+}
+
+/**
  * WP logo menu
  */
 #wpadminbar #wp-admin-bar-wpcom-logo>.ab-item .ab-icon {
@@ -62,7 +71,7 @@
 	// Site admin on mobile viewport (the first child is the hamburger menu)
 	@media (max-width: 480px) {
 		>.ab-item .ab-icon:before {
-			margin: 0 7px 0 1px;
+			margin: 0 7px 0 5px;
 		}
 	}
 }
@@ -116,14 +125,19 @@
 	}
 }
 
-#wpadminbar #wp-admin-bar-site-name>.ab-item:before {
-	/**
-	 * Always show the House icon by the site name.
-	 */
-	content: "\f102" !important;
+#wpadminbar #wp-admin-bar-site-name {
+    > .ab-item:before {
+        /**
+    	 * Always show the House icon by the site name.
+    	 */
+	    content: "\f102" !important;
+    }
 
 	@media (max-width: 480px) {
-		max-width: 46px;
+        > a.ab-item,
+		> a.ab-item:before {
+    		width: 46px;
+		}
 	}
 }
 
@@ -161,7 +175,7 @@
 		}
 
 		@media (max-width: 782px) {
-			height: 31px;
+			height: 45px;
 
 			#wp-admin-bar-help-center {
 				display: block !important;
@@ -200,6 +214,9 @@
 			}
 		}
 		@media (max-width: 480px) {
+			#wp-admin-bar-help-center {
+				width: 46px !important;
+			}
 			#wp-admin-bar-notes {
 				width: 46px !important;
 			}

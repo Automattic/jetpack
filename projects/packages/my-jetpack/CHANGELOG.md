@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.32.0] - 2024-08-05
+### Added
+- Add Tracks events for Welcome Flow [#38641]
+
+### Changed
+- change Jetpack AI product page link redirect [#38691]
+- copy updates [#38648]
+- Modify the Google Analytics notice to notify of the feature removal. [#38701]
+
 ## [4.31.0] - 2024-08-01
 ### Added
 - Update Welcome Banner and set async site-only connection [#38534]
@@ -1607,6 +1616,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.31.0...4.32.0
 [4.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.30.0...4.31.0
 [4.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.29.0...4.30.0
 [4.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.28.0...4.29.0
