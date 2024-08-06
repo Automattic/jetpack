@@ -8,11 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2024-08-06 13:53+0300\n"
-=======
-"POT-Creation-Date: 2024-08-06 16:31+0300\n"
->>>>>>> 7d1a8339d7 (Update language files)
+"POT-Creation-Date: 2024-08-06 16:43+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
