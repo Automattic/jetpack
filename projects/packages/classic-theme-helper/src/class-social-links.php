@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Theme Tools: Social Links.
  *
@@ -113,6 +113,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				return;
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredFunction -- See init() for the condition that ensures this function exists.
 			self::$publicize    = publicize_init();
 			$publicize_services = self::$publicize->get_services( 'connected' );
 			self::$services     = array_intersect( array_keys( $publicize_services ), self::$theme_supported_services );
