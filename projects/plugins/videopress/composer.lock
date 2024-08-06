@@ -1016,7 +1016,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "1c9e10232c6677601ae946cc31a124ffffe84675"
+                "reference": "cc37642b529b78a1c27520c21b2725cbb2008e40"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1033,6 +1033,7 @@
                 "automattic/jetpack-redirect": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-videopress": "@dev",
                 "automattic/jetpack-waf": "@dev",
                 "php": ">=7.0"
             },
