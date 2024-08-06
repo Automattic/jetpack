@@ -309,7 +309,7 @@ class Initializer {
 	 * @return array|WP_Error
 	 */
 	public static function get_videopress_stats() {
-		if ( ! class_exists( 'VideoPress_Stats' ) ) {
+		if ( ! class_exists( 'Automattic\Jetpack\VideoPress\Stats' ) ) {
 			return array();
 		}
 
