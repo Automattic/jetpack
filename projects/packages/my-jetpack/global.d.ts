@@ -126,10 +126,12 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_free_offering: boolean;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
+					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
 					manage_url: string;
@@ -140,6 +142,7 @@ interface Window {
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
+						wpcom_free_product_slug?: string;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -153,6 +156,26 @@ interface Window {
 							should_prorate_when_offer_ends: boolean;
 							transition_after_renewal_count: number;
 							usage_limit?: number;
+						};
+						tiers?: {
+							[ key: string ]: {
+								available: boolean;
+								currencyCode: string;
+								discountPrice: number;
+								fullPrice: number;
+								introductoryOffer?: {
+									costPerInterval: number;
+									intervalCount: number;
+									intervalUnit: string;
+									shouldProrateWhenOfferEnds: boolean;
+									transitionAfterRenewalCount: number;
+									usageLimit?: number;
+								};
+								isIntroductoryOffer: boolean;
+								productTerm: string;
+								wpcomProductSlug: string;
+								quantity: number;
+							};
 						};
 					};
 					purchase_url?: string;
@@ -287,6 +310,10 @@ interface Window {
 					plugin: string;
 				};
 			};
+		};
+		recommendedModules: {
+			modules: JetpackModule[] | null;
+			dismissed: boolean;
 		};
 		themes: {
 			[ key: string ]: {

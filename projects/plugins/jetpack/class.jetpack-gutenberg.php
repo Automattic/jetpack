@@ -773,6 +773,8 @@ class Jetpack_Gutenberg {
 			}
 		}
 
+		$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
+
 		wp_localize_script(
 			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',

@@ -91,7 +91,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 						{ gradeLevel === null ? (
 							<p>
 								<em className="breve-help-text">
-									{ __( 'Write some words to see your grade level.', 'jetpack' ) }
+									{ __( 'Write to see your grade level.', 'jetpack' ) }
 								</em>
 							</p>
 						) : (
@@ -99,7 +99,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 								<p>
 									{ gradeLevel }
 									<span className="jetpack-ai-proofread__grade-label">
-										{ __( 'Readability score', 'jetpack' ) }
+										{ __( 'Reading grade score', 'jetpack' ) }
 									</span>
 								</p>
 							</Tooltip>
@@ -118,6 +118,8 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 					<div className="feature-checkboxes-container">
 						{ features.map( feature => (
 							<CheckboxControl
+								className={ isProofreadEnabled ? '' : 'is-disabled' }
+								disabled={ ! isProofreadEnabled }
 								data-type={ feature.config.name }
 								key={ feature.config.name }
 								label={ feature.config.title }

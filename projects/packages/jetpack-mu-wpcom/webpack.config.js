@@ -32,6 +32,7 @@ module.exports = [
 			'wpcom-blocks-timeline-editor': './src/features/wpcom-blocks/timeline/editor.js',
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
+			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
 			'wpcom-global-styles-frontend':
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
@@ -39,7 +40,10 @@ module.exports = [
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
 			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
 			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
+			'wpcom-profile-settings-link-to-wpcom':
+				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
 			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
+			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -62,6 +66,11 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+				DefinePlugin: {
+					// __i18n_text_domain__ is used in page-pattern-modal npm package, which is used only by starter-page-templates feature.
+					// Consider moving page-pattern-modal package to starter-page-templates and remove this.
+					__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
+				},
 			} ),
 		],
 		module: {

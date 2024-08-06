@@ -63,7 +63,7 @@ export const InfoTooltip: FC< Props > = ( {
 					focusOnMount={ 'container' }
 					onClose={ hideTooltip }
 				>
-					{ children }
+					<div className="info-tooltip__content">{ children }</div>
 				</Popover>
 			) }
 		</span>

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.55.5] - 2024-08-05
+### Fixed
+- Fixed TS types for Notice components by marking optional props as such [#38686]
+
+## [0.55.4] - 2024-08-01
+### Added
+- Update Welcome Banner and set async site-only connection [#38534]
+
 ## [0.55.3] - 2024-07-30
 ### Changed
 - React: Changing global JSX namespace to React.JSX [#38585]
@@ -1106,6 +1114,8 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.55.5]: https://github.com/Automattic/jetpack-components/compare/0.55.4...0.55.5
+[0.55.4]: https://github.com/Automattic/jetpack-components/compare/0.55.3...0.55.4
 [0.55.3]: https://github.com/Automattic/jetpack-components/compare/0.55.2...0.55.3
 [0.55.2]: https://github.com/Automattic/jetpack-components/compare/0.55.1...0.55.2
 [0.55.1]: https://github.com/Automattic/jetpack-components/compare/0.55.0...0.55.1

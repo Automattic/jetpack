@@ -16,7 +16,7 @@ const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
 	'jetpack-ai-breve-disabled-features'
 );
 const initialConfiguration = {
-	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
+	enabled: enabledFromLocalStorage === 'true',
 	disabled:
 		disabledFeaturesFromLocalStorage !== null
 			? JSON.parse( disabledFeaturesFromLocalStorage )
@@ -107,7 +107,7 @@ export function suggestions(
 	action: {
 		type: string;
 		id: string;
-		feature: string;
+		feature?: string;
 		blockId: string;
 		loading: boolean;
 		md5?: string;
@@ -119,17 +119,17 @@ export function suggestions(
 ) {
 	const { id, feature, blockId } = action ?? {};
 	const current = { ...state };
-	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
-	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+	const currentBlock = current?.[ blockId ] ?? {};
+	const currentItem = current?.[ blockId ]?.[ feature ]?.[ id ] || {};
 
 	switch ( action.type ) {
 		case 'SET_SUGGESTIONS_LOADING': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
 						[ id ]: {
 							...currentItem,
 							loading: action.loading,
@@ -142,10 +142,10 @@ export function suggestions(
 		case 'SET_SUGGESTIONS': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
 						[ id ]: {
 							...currentItem,
 							loading: false,
@@ -159,12 +159,9 @@ export function suggestions(
 		case 'SET_BLOCK_MD5': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
-						md5: action.md5,
-					},
+				[ blockId ]: {
+					md5: action.md5,
+					...currentBlock,
 				},
 			};
 		}
@@ -172,9 +169,16 @@ export function suggestions(
 		case 'INVALIDATE_SUGGESTIONS': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {},
+				[ blockId ]: {},
+			};
+		}
+
+		case 'IGNORE_SUGGESTION': {
+			return {
+				...current,
+				[ blockId ]: {
+					...currentBlock,
+					ignored: [ ...( currentBlock.ignored ?? [] ), id ],
 				},
 			};
 		}
