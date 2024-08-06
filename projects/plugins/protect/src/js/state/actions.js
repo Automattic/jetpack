@@ -242,6 +242,41 @@ const ignoreThreat =
 		} );
 	};
 
+const unignoreThreat =
+	( threatId, callback = () => {} ) =>
+	async ( { dispatch } ) => {
+		dispatch( setThreatIsUpdating( threatId, true ) );
+		return await new Promise( () => {
+			return apiFetch( {
+				path: `jetpack-protect/v1/unignore-threat?threat_id=${ threatId }`,
+				method: 'POST',
+			} )
+				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
+					return dispatch( refreshStatus() );
+				} )
+				.then( () => {
+					return dispatch(
+						setNotice( { type: 'success', message: __( 'Threat unignored', 'jetpack-protect' ) } )
+					);
+				} )
+				.catch( () => {
+					return dispatch(
+						setNotice( {
+							type: 'error',
+							message: __( 'An error ocurred unignoring the threat.', 'jetpack-protect' ),
+						} )
+					);
+				} )
+				.finally( () => {
+					dispatch( setThreatIsUpdating( threatId, false ) );
+					callback();
+				} );
+		} );
+	};
+
 const getFixThreatsStatus =
 	threatIds =>
 	async ( { dispatch } ) => {
@@ -455,6 +490,7 @@ const actions = {
 	setwpVersion,
 	setJetpackScan,
 	ignoreThreat,
+	unignoreThreat,
 	setModal,
 	setNotice,
 	clearNotice,
