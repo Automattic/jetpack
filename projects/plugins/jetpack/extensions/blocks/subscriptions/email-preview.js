@@ -124,21 +124,23 @@ const devices = [
 	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px' },
 ];
 
-const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
-	return (
-		<ButtonGroup>
-			{ devices.map( device => (
-				<Button
-					key={ device.name }
-					icon={ device.icon }
-					isSmall
-					isSelected={ selectedDevice === device.name }
-					onClick={ () => setSelectedDevice( device.name ) }
-				/>
-			) ) }
-		</ButtonGroup>
-	);
-};
+const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
+	<ButtonGroup>
+		{ devices.map( device => (
+			<Button
+				key={ device.name }
+				icon={ device.icon }
+				isSmall
+				isPressed={ selectedDevice === device.name }
+				onClick={ () => setSelectedDevice( device.name ) }
+				style={ {
+					width: '36px',
+					height: '36px',
+				} }
+			/>
+		) ) }
+	</ButtonGroup>
+);
 
 const HeaderActions = ( {
 	selectedAccess,
@@ -152,13 +154,19 @@ const HeaderActions = ( {
 	} ) );
 
 	return (
-		<HStack alignment="center">
+		<HStack alignment="center" spacing={ 6 }>
 			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
 			<SelectControl
 				prefix={ __( 'Access:', 'jetpack' ) }
 				value={ selectedAccess }
 				options={ accessOptionsList }
 				onChange={ value => setSelectedAccess( value ) }
+				style={ {
+					minHeight: '36px',
+					marginBottom: 0,
+				} }
+				className="jetpack-email-preview-select-control"
+				__nextHasNoMarginBottom
 			/>
 		</HStack>
 	);
@@ -234,6 +242,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						setSelectedDevice={ setSelectedDevice }
 					/>
 				}
+				overlayClassName="jetpack-preview-email-modal-overlay"
 			>
 				<div
 					style={ {
