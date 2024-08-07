@@ -15,6 +15,7 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Redirect;
@@ -1031,13 +1032,13 @@ class Jetpack_Subscriptions {
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Subscribers', 'jetpack' ),
+		Admin_Menu::add_menu(
+			__( 'Subscribers', 'jetpack' ),
 			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options',
 			esc_url( $link ),
-			null
+			null,
+			14
 		);
 	}
 

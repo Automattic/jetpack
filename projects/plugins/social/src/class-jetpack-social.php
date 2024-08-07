@@ -52,7 +52,8 @@ class Jetpack_Social {
 			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-social' ),
 			'manage_options',
 			'jetpack-social',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			7
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

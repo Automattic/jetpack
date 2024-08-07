@@ -153,7 +153,8 @@ class Jetpack_Protect {
 			$menu_label,
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			8
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
