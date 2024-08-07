@@ -17,6 +17,7 @@ export function usePostMeta() {
 		const isPublicizeEnabled = meta.jetpack_publicize_feature_enabled ?? true;
 		const jetpackSocialOptions = meta.jetpack_social_options || {};
 		const attachedMedia = jetpackSocialOptions.attached_media || [];
+		const retrievedMedia = jetpackSocialOptions.retrieved_media || {};
 		const imageGeneratorSettings = jetpackSocialOptions.image_generator_settings ?? {
 			enabled: false,
 		};
@@ -31,6 +32,7 @@ export function usePostMeta() {
 			isPublicizeEnabled,
 			jetpackSocialOptions,
 			attachedMedia,
+			retrievedMedia,
 			imageGeneratorSettings,
 			isPostAlreadyShared,
 			shareMessage,

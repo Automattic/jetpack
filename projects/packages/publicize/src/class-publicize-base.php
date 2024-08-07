@@ -1210,6 +1210,20 @@ abstract class Publicize_Base {
 								),
 							),
 						),
+						'retrieved_media'          => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'   => array(
+									'type' => 'number',
+								),
+								'url'  => array(
+									'type' => 'string',
+								),
+								'type' => array(
+									'type' => 'string',
+								),
+							),
+						),
 						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(

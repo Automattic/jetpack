@@ -8,9 +8,11 @@
 
 import { Disabled, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
+import useAttachedMedia from '../../hooks/use-attached-media';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
@@ -25,6 +27,25 @@ import { SharePostForm } from './share-post-form';
 import styles from './styles.module.scss';
 import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 
+const findPostMedia = content => {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString( content, 'text/html' );
+	const imgElements = Array.from( doc.querySelectorAll( 'img' ) );
+
+	if ( imgElements.length === 0 ) {
+		return null;
+	}
+
+	const imgElement = imgElements[ 0 ];
+	const classNames = imgElement.className.split( ' ' );
+	const imageClass = classNames.find( className => className.startsWith( 'wp-image-' ) );
+	if ( imageClass ) {
+		const mediaId = parseInt( imageClass.replace( 'wp-image-', '' ) );
+		const mediaUrl = imgElement?.src;
+		return { mediaId, mediaUrl };
+	}
+};
+
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -38,6 +59,14 @@ export default function PublicizeForm() {
 		needsUserConnection,
 		userConnectionUrl,
 	} = usePublicizeConfig();
+
+	const { getEditedPostContent } = useSelect( editorStore, [] );
+	const { retrievedMedia, updateRetrievedMedia } = useAttachedMedia();
+
+	const postMedia = findPostMedia( getEditedPostContent() );
+	if ( retrievedMedia?.id !== postMedia?.mediaId ) {
+		updateRetrievedMedia( { id: postMedia?.mediaId, url: postMedia?.mediaUrl } );
+	}
 
 	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );

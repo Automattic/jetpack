@@ -15,6 +15,7 @@ export type AttachedMedia = {
 
 export type JetpackSocialOptions = {
 	attached_media?: Array< AttachedMedia >;
+	retrieved_media?: AttachedMedia;
 	image_generator_settings?: SIGSettings;
 };
 

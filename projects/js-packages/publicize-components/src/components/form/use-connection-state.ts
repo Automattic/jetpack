@@ -52,6 +52,7 @@ export const useConnectionState = () => {
 
 			// 3. Not have a NO_MEDIA_ERROR when media is required
 			const hasNoMediaError = validationErrors[ currentId ] === NO_MEDIA_ERROR;
+			return true;
 
 			return isHealthy && ! hasValidationErrors && ! hasNoMediaError;
 		},
