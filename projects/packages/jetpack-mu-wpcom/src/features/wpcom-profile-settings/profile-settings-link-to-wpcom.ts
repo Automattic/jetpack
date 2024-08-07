@@ -7,7 +7,7 @@ const wpcom_profile_settings_disable_email_field = () => {
 	}
 	const emailField = document.getElementById( 'email' ) as HTMLInputElement;
 	if ( emailField ) {
-		emailField.disabled = true;
+		emailField.readOnly = true;
 	}
 
 	const emailDescription = document.getElementById( 'email-description' ) as HTMLInputElement;
