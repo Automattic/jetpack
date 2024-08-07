@@ -114,7 +114,7 @@ class REST_Product_Data {
 	 * This will collect a count of all the items that could be backed up
 	 * This is used to show what backup could be doing if it is not enabled
 	 *
-	 * @return WP_Error|array
+	 * @return array
 	 */
 	public static function count_things_that_can_be_backed_up() {
 		$image_mime_type = 'image';
