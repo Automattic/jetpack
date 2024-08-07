@@ -43,6 +43,9 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @covers Jetpack_Modules_Overrides::do_overrides_exist
 	 */
 	public function test_do_overrides_exist( $filter_name ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is irrelevant because there are already overrides on tested filters in Atomic.' );
+		}
 		$this->assertFalse( $this->instance->do_overrides_exist() );
 
 		add_filter( $filter_name, '__return_true' );
