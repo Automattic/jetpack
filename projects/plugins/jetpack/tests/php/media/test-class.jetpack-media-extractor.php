@@ -749,4 +749,69 @@ EOT;
 
 		$this->assertEquals( $expected, $result );
 	}
+
+	/**
+	 * Verify that audio shortcode URL is extracted.
+	 *
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 */
+	public function test_audio_shortcode() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Sed dapibus ut mauris imperdiet volutpat. [audio http://example.com/files/2011/02/audio-post.mp3|titles=Audio Post] Nullam [audio https://example.com/place/test/filename.flac] in dolor vel nulla pulvinar accumsan facilisis quis lorem. [audio="http://example.com/file.wav"]',
+			)
+		);
+
+		$expected = array(
+			'has'             => array( 'shortcode' => 3 ),
+			'shortcode'       => array(
+				'audio' => array(
+					'count' => 3,
+					'id'    => array(
+						'http://example.com/files/2011/02/audio-post.mp3',
+						'https://example.com/place/test/filename.flac',
+						'http://example.com/file.wav',
+					),
+				),
+			),
+			'shortcode_types' => array( 'audio' ),
+		);
+
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
+
+		$this->assertEquals( $expected, $result );
+	}
+
+	/**
+	 * Verify that video shortcode URL is extracted.
+	 *
+	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 */
+	public function test_video_shortcode() {
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => 'Lorem ipsum. [video wmv="http://example.com/video.wmv"][/video] Sed dapibus ut mauris imperdiet volutpat. [video width="1920" height="1080" mp4="https://example.files.wordpress.com/dir1/dir2/file.mp4"][/video] Nullam [video url="https://example.com/promo.mp4"] in dolor vel nulla pulvinar accumsan facilisis quis lorem. [video src="https://example.com/promo.m4v"] ',
+			)
+		);
+
+		$expected = array(
+			'has'             => array( 'shortcode' => 4 ),
+			'shortcode'       => array(
+				'video' => array(
+					'count' => 4,
+					'id'    => array(
+						'http://example.com/video.wmv',
+						'https://example.files.wordpress.com/dir1/dir2/file.mp4',
+						'https://example.com/promo.mp4',
+						'https://example.com/promo.m4v',
+					),
+				),
+			),
+			'shortcode_types' => array( 'video' ),
+		);
+
+		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id );
+
+		$this->assertEquals( $expected, $result );
+	}
 }
