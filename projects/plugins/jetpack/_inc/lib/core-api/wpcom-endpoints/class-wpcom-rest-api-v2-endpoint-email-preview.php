@@ -10,6 +10,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Email_Preview
@@ -135,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 				/**
 				* Filters the generated email preview HTML.
 				*
-				* @since $$next_version$$
+				* @since $$next-version$$
 				*
 				* @param string $html   The generated HTML for the email preview.
 				* @param WP_Post $post  The post object.
