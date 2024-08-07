@@ -142,7 +142,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_wpcom_fse' );
  * not aware of content sections outside of post_content yet.
  */
 function enqueue_coblocks_gallery_scripts() {
-	if ( ! function_exists( 'CoBlocks' ) || ! is_full_site_editing_active() ) {
+	if ( ! defined( 'COBLOCKS_VERSION' ) || ! function_exists( 'CoBlocks' ) || ! is_full_site_editing_active() ) {
 		return;
 	}
 
@@ -151,9 +151,11 @@ function enqueue_coblocks_gallery_scripts() {
 	$footer   = $template->get_template_content( 'footer' );
 
 	// Define where the asset is loaded from.
+	// @phan-suppress-next-line PhanUndeclaredFunction
 	$dir = CoBlocks()->asset_source( 'js' );
 
 	// Define where the vendor asset is loaded from.
+	// @phan-suppress-next-line PhanUndeclaredFunction
 	$vendors_dir = CoBlocks()->asset_source( 'js', 'vendors' );
 
 	// Masonry block.
