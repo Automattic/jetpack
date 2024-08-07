@@ -7,10 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Timeline;
 
-if ( ! defined( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK' ) ) {
-	define( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK', true );
-}
-
 require_once __DIR__ . '/../../../utils.php';
 
 /**
