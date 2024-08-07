@@ -4,22 +4,28 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "865135122fc93afe20ff360fce38e054",
+    "content-hash": "e19ac5c04805933e7ef818f611ddd8c9",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-trunk",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-assets.git",
+                "reference": "1f34d58dd924f2f0fb80beccb42e57e2fc2f1416"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/assets",
-                "reference": "f5fd9602849fa481571e1bb6c46b3460dad33095"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-assets/zipball/1f34d58dd924f2f0fb80beccb42e57e2fc2f1416",
+                "reference": "1f34d58dd924f2f0fb80beccb42e57e2fc2f1416",
+                "shasum": ""
             },
             "require": {
-                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-constants": "^2.0.3",
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^4.2.5",
                 "brain/monkey": "2.6.1",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
                 "yoast/phpunit-polyfills": "1.1.0"
@@ -47,45 +53,36 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-js": [
-                    "pnpm run test"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Asset management utilities for Jetpack ecosystem packages",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-assets/tree/v2.2.0"
+            },
+            "time": "2024-07-23T19:49:52+00:00"
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-trunk",
+            "version": "v3.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-autoloader.git",
+                "reference": "a571038214fc3e142e10f38d1bb97e470fa7b0ec"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/autoloader",
-                "reference": "6bb097db25b5b249079fcb03ff39d493f59076a6"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/a571038214fc3e142e10f38d1bb97e470fa7b0ec",
+                "reference": "a571038214fc3e142e10f38d1bb97e470fa7b0ec",
+                "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^4.2.5",
                 "composer/composer": "^1.1 || ^2.0",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -105,21 +102,14 @@
                 }
             },
             "autoload": {
-                "classmap": [
-                    "src/AutoloadGenerator.php"
-                ],
                 "psr-4": {
                     "Automattic\\Jetpack\\Autoloader\\": "src"
-                }
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
+                },
+                "classmap": [
+                    "src/AutoloadGenerator.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -132,24 +122,31 @@
                 "plugin",
                 "wordpress"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v3.0.9"
+            },
+            "time": "2024-07-10T07:51:07+00:00"
         },
         {
             "name": "automattic/jetpack-composer-plugin",
-            "version": "dev-trunk",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-composer-plugin.git",
+                "reference": "7f991850af6cdb10b5bf493cea9e09e5c8feae72"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/composer-plugin",
-                "reference": "9dd2a092b3de5ed00ee778f1f40704f7d913a836"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-composer-plugin/zipball/7f991850af6cdb10b5bf493cea9e09e5c8feae72",
+                "reference": "7f991850af6cdb10b5bf493cea9e09e5c8feae72",
+                "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^2.1.0",
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^4.2.4",
                 "composer/composer": "^2.2 || ^2.4",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -171,14 +168,7 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -189,23 +179,30 @@
                 "jetpack",
                 "plugin"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-composer-plugin/tree/v2.0.2"
+            },
+            "time": "2024-06-03T14:01:14+00:00"
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-trunk",
+            "version": "v2.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-constants.git",
+                "reference": "f5da87d3b7f80411b77aa58a7355733ea72295aa"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/constants",
-                "reference": "3fd2bf1d1ba0bb374918e6b7dd670735ce554c2b"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-constants/zipball/f5da87d3b7f80411b77aa58a7355733ea72295aa",
+                "reference": "f5da87d3b7f80411b77aa58a7355733ea72295aa",
+                "shasum": ""
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^4.2.4",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.1.0"
             },
@@ -228,21 +225,15 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "A wrapper for defining constants in a more testable way.",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-constants/tree/v2.0.3"
+            },
+            "time": "2024-05-29T09:44:58+00:00"
         },
         {
             "name": "automattic/woocommerce",
@@ -585,11 +576,17 @@
     "packages-dev": [
         {
             "name": "automattic/jetpack-changelogger",
-            "version": "dev-trunk",
+            "version": "v4.2.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-changelogger.git",
+                "reference": "72c219fa6e61bdcd760a68e8ff968a4365593f48"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/changelogger",
-                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-changelogger/zipball/72c219fa6e61bdcd760a68e8ff968a4365593f48",
+                "reference": "72c219fa6e61bdcd760a68e8ff968a4365593f48",
+                "shasum": ""
             },
             "require": {
                 "php": ">=7.0",
@@ -619,30 +616,11 @@
             },
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\Changelogger\\": "src",
-                    "Automattic\\Jetpack\\Changelog\\": "lib"
+                    "Automattic\\Jetpack\\Changelog\\": "lib",
+                    "Automattic\\Jetpack\\Changelogger\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Automattic\\Jetpack\\Changelogger\\Tests\\": "tests/php/includes/src",
-                    "Automattic\\Jetpack\\Changelog\\Tests\\": "tests/php/includes/lib"
-                }
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "post-install-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
-                ],
-                "post-update-cmd": [
-                    "[ -e vendor/bin/changelogger ] || { cd vendor/bin && ln -s ../../bin/changelogger; }"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
@@ -653,9 +631,10 @@
                 "dev",
                 "keepachangelog"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/jetpack-changelogger/tree/v4.2.5"
+            },
+            "time": "2024-06-27T12:55:08+00:00"
         },
         {
             "name": "behat/gherkin",
@@ -5237,12 +5216,7 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "automattic/jetpack-assets": 20,
-        "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-composer-plugin": 20,
-        "automattic/jetpack-changelogger": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
