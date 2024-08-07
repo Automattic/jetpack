@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Tests: Removed react-test-renderer as not in use.
