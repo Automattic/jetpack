@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
@@ -49,9 +50,25 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
-				'id' => array(
+				'id'     => array(
 					'description' => __( 'Unique identifier for the post.', 'jetpack' ),
 					'type'        => 'integer',
+				),
+				'access' => array(
+					'description'       => __( 'Access level.', 'jetpack' ),
+					'enum'              => array( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ),
+					'default'           => Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+					'validate_callback' => function ( $param ) {
+						return in_array(
+							$param,
+							array(
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS,
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS,
+							),
+							true
+						);
+					},
 				),
 			),
 		);
@@ -111,10 +128,11 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	 */
 	public function email_preview( $request ) {
 		$post_id = $request['post_id'];
+		$access  = $request['access'];
 		$post    = get_post( $post_id );
 		return rest_ensure_response(
 			array(
-				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post ),
+				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post, $access ),
 			)
 		);
 	}
