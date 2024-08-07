@@ -149,7 +149,11 @@ const HeaderActions = ( {
 	selectedDevice,
 	setSelectedDevice,
 } ) => {
-	const accessOptionsList = Object.values( accessOptions ).map( option => ( {
+	const filteredAccessOptions = {
+		subscribers: accessOptions.subscribers,
+		paid_subscribers: accessOptions.paid_subscribers,
+	};
+	const accessOptionsList = Object.values( filteredAccessOptions ).map( option => ( {
 		label: option.label,
 		value: option.key,
 	} ) );
