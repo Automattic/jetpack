@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Text } from '@automattic/jetpack-components';
+import { useCallback } from 'react';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -24,19 +25,20 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		videoCount: data.videoCount,
 	} );
 
-	const Description = () => (
-		<Text variant="body-small" className="description">
-			{ descriptionText }
-		</Text>
-	);
+	const Description = useCallback( () => {
+		if ( ! descriptionText ) {
+			return null;
+		}
+
+		return (
+			<Text variant="body-small" className="description">
+				{ descriptionText }
+			</Text>
+		);
+	}, [ descriptionText ] );
 
 	return (
-		<ProductCard
-			slug={ slug }
-			showMenu
-			admin={ admin }
-			Description={ descriptionText ? Description : null }
-		>
+		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
 			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
 		</ProductCard>
 	);
