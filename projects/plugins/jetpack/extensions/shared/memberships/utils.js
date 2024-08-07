@@ -1,3 +1,4 @@
+import { isSimpleSite, isAtomicSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
@@ -23,7 +24,14 @@ export const encodeValueForShortcodeAttribute = value => {
 };
 
 export const getPaidPlanLink = alreadyHasTierPlans => {
-	const link = 'https://wordpress.com/earn/payments/' + location.hostname;
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
+
+	const base = isJetpackSite
+		? 'https://cloud.jetpack.com/monetize/payments/'
+		: 'https://wordpress.com/earn/payments/';
+
+	const link = base + location.hostname;
+
 	// We force the "Newsletters plan" link only if there is no plans already created
 	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
 };
