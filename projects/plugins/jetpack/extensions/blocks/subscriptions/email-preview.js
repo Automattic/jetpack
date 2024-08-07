@@ -130,6 +130,7 @@ const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
 		__nextHasNoMarginBottom
 		onChange={ setSelectedDevice }
 		value={ selectedDevice }
+		isBlock
 	>
 		{ devices.map( device => (
 			<ToggleGroupControlOptionIcon
@@ -142,20 +143,23 @@ const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
 );
 
 const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
-	const filteredAccessOptions = {
-		subscribers: accessOptions.subscribers,
-		paid_subscribers: accessOptions.paid_subscribers,
-	};
-	const accessOptionsList = Object.values( filteredAccessOptions ).map( option => ( {
-		label: option.label,
-		value: option.key,
-	} ) );
+	const accessOptionsList = [
+		{
+			label: __( 'Subscribers', 'jetpack' ),
+			value: accessOptions.subscribers.key,
+		},
+		{
+			label: __( 'Paid Subscribers', 'jetpack' ),
+			value: accessOptions.paid_subscribers.key,
+		},
+	];
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
 			onChange={ setSelectedAccess }
 			value={ selectedAccess }
 			isBlock
+			isAdaptiveWidth
 		>
 			{ accessOptionsList.map( access => (
 				<ToggleGroupControlOption value={ access.value } label={ access.label } />
