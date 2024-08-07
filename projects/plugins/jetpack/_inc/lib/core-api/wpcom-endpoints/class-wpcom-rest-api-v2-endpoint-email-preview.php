@@ -132,6 +132,15 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 		$post    = get_post( $post_id );
 		return rest_ensure_response(
 			array(
+				/**
+				* Filters the generated email preview HTML.
+				*
+				* @since $$next_version$$
+				*
+				* @param string $html   The generated HTML for the email preview.
+				* @param WP_Post $post  The post object.
+				* @param string $access The access level.
+				*/
 				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post, $access ),
 			)
 		);
