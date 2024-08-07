@@ -13,12 +13,12 @@ export type InstallAction = UseMutateFunction<
 	unknown
 >;
 
-type InstallStandalonePlugin = ( productId: string ) => {
+type UseInstallStandalonePluginFunction = ( productId: string ) => {
 	install: InstallAction;
 	isPending: boolean;
 };
 
-const useInstallStandalonePlugin: InstallStandalonePlugin = productId => {
+const useInstallStandalonePlugin: UseInstallStandalonePluginFunction = productId => {
 	const { detail, refetch } = useProduct( productId );
 
 	const { mutate: install, isPending } = useSimpleMutation( {
