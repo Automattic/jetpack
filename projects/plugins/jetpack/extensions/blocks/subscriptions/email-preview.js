@@ -176,7 +176,7 @@ const HeaderActions = ( {
 export function PreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ previewCache, setPreviewCache ] = useState( {} );
-	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.everybody.key );
+	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
 
 	const fetchPreview = useCallback(
@@ -217,7 +217,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 	);
 
 	useEffect( () => {
-		if ( isOpen && ! previewCache[ selectedAccess ] ) {
+		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
 			fetchPreview( selectedAccess );
 		} else if ( isOpen ) {
 			setIsLoading( false );
@@ -257,7 +257,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						<Spinner />
 					) : (
 						<iframe
-							srcDoc={ previewCache[ selectedAccess ] }
+							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
 								width: deviceWidth,
 								height: '100%',
