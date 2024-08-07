@@ -26,10 +26,6 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	} );
 
 	const Description = useCallback( () => {
-		if ( ! descriptionText ) {
-			return null;
-		}
-
 		return (
 			<Text variant="body-small" className="description">
 				{ descriptionText }
@@ -38,7 +34,12 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	}, [ descriptionText ] );
 
 	return (
-		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
+		<ProductCard
+			slug={ slug }
+			showMenu
+			admin={ admin }
+			Description={ descriptionText ? Description : null }
+		>
 			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
 		</ProductCard>
 	);
