@@ -278,10 +278,7 @@ class Initializer {
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
-				'videopress'             => array(
-					'featuredStats' => self::get_videopress_stats(),
-					'videoCount'    => array_sum( (array) wp_count_attachments( 'video' ) ),
-				),
+				'videopress'             => self::get_videopress_stats(),
 			)
 		);
 
@@ -309,13 +306,20 @@ class Initializer {
 	 * @return array|WP_Error
 	 */
 	public static function get_videopress_stats() {
+		$video_count = array_sum( (array) wp_count_attachments( 'video' ) );
+
 		if ( ! class_exists( 'Automattic\Jetpack\VideoPress\Stats' ) ) {
-			return array();
+			return array(
+				'videoCount' => $video_count,
+			);
 		}
 
 		$videopress_stats = new VideoPress_Stats();
 
-		return $videopress_stats->get_featured_stats();
+		return array(
+			'featuredStats' => $videopress_stats->get_featured_stats(),
+			'videoCount'    => $video_count,
+		);
 	}
 
 	/**
