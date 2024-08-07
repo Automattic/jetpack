@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added jetpack-script-data package to consolidate the logic for Jetpack Initial state
