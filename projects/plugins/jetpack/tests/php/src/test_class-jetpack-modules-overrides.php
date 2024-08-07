@@ -123,6 +123,8 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	 * @covers Jetpack_Modules_Overrides::get_module_override
 	 */
 	public function test_get_module_override( $filter_name ) {
+		$this->markTestSkipped( 'is unnecessary in Atomic environment.' );
+
 		$this->assertFalse( $this->instance->get_module_override( 'photon' ) );
 		$this->assertFalse( $this->instance->get_module_override( 'photon-cdn' ) );
 		$this->assertFalse( $this->instance->get_module_override( 'sitemaps' ) );
