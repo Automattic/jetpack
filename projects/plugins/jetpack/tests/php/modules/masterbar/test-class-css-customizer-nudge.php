@@ -61,6 +61,10 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_it_enqueues_the_assets() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'skipping for Atomic because blocks are already defined.' );
+		}
+
 		$nudge      = new CSS_Customizer_Nudge( 'url', 'message' );
 		$reflection = new \ReflectionClass( $nudge );
 		$wrapper    = $reflection->getProperty( 'css_customizer_nudge_wrapper' );
@@ -88,6 +92,10 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_if_it_creates_a_css_nudge_control() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'skipping for Atomic because blocks are already defined.' );
+		}
+
 		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
