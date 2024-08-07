@@ -8,8 +8,9 @@ import {
 	Modal,
 	TextControl,
 	Icon,
-	SelectControl,
-	ButtonGroup,
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -125,30 +126,22 @@ const devices = [
 ];
 
 const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
-	<ButtonGroup>
+	<ToggleGroupControl
+		__nextHasNoMarginBottom
+		onChange={ setSelectedDevice }
+		value={ selectedDevice }
+	>
 		{ devices.map( device => (
-			<Button
-				key={ device.name }
-				label={ device.label }
+			<ToggleGroupControlOptionIcon
 				icon={ device.icon }
-				isSmall
-				isPressed={ selectedDevice === device.name }
-				onClick={ () => setSelectedDevice( device.name ) }
-				style={ {
-					width: '36px',
-					height: '36px',
-				} }
+				value={ device.name }
+				label={ device.label }
 			/>
 		) ) }
-	</ButtonGroup>
+	</ToggleGroupControl>
 );
 
-const HeaderActions = ( {
-	selectedAccess,
-	setSelectedAccess,
-	selectedDevice,
-	setSelectedDevice,
-} ) => {
+const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 	const filteredAccessOptions = {
 		subscribers: accessOptions.subscribers,
 		paid_subscribers: accessOptions.paid_subscribers,
@@ -157,18 +150,30 @@ const HeaderActions = ( {
 		label: option.label,
 		value: option.key,
 	} ) );
-
 	return (
-		<HStack alignment="center" spacing={ 6 }>
+		<ToggleGroupControl
+			__nextHasNoMarginBottom
+			onChange={ setSelectedAccess }
+			value={ selectedAccess }
+			isBlock
+		>
+			{ accessOptionsList.map( access => (
+				<ToggleGroupControlOption value={ access.value } label={ access.label } />
+			) ) }
+		</ToggleGroupControl>
+	);
+};
+
+const HeaderActions = ( {
+	selectedAccess,
+	setSelectedAccess,
+	selectedDevice,
+	setSelectedDevice,
+} ) => {
+	return (
+		<HStack alignment="center" spacing={ 6 } style={ { width: '100%' } }>
 			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
-			<SelectControl
-				prefix={ __( 'Access:', 'jetpack' ) }
-				value={ selectedAccess }
-				options={ accessOptionsList }
-				onChange={ value => setSelectedAccess( value ) }
-				className="jetpack-email-preview-select-control"
-				__nextHasNoMarginBottom
-			/>
+			<AccessPicker selectedAccess={ selectedAccess } setSelectedAccess={ setSelectedAccess } />
 		</HStack>
 	);
 };
