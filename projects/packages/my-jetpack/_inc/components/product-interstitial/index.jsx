@@ -82,7 +82,7 @@ export default function ProductInterstitial( {
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+		redirectUri: detail.postActivationUrl ?? null,
 	} );
 	const showBundledTOS = ! hideTOS && !! bundle;
 	const productName = detail?.title;
