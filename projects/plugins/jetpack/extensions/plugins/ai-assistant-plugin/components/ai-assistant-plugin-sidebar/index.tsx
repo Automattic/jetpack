@@ -20,7 +20,7 @@ import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-produ
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import isBreveAvailable from '../breve/utils/get-availability';
+import useBreveAvailability from '../breve/hooks/use-breve-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -58,6 +58,7 @@ const JetpackAndSettingsContent = ( {
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
+	const isBreveAvailable = useBreveAvailability();
 
 	return (
 		<>
@@ -119,6 +120,7 @@ export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
+	const isBreveAvailable = useBreveAvailability();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
@@ -207,4 +209,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-isBreveAvailable && registerBreveHighlights();
+registerBreveHighlights();

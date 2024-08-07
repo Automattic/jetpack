@@ -9,9 +9,6 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Global_Styles;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-// Turn off the feature on ETK plugin.
-define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
-
 /**
  * Class Global_Styles
  */

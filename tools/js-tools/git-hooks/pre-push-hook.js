@@ -20,14 +20,11 @@ function checkFilenameCollisions() {
 
 	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
 
-	const files = spawnSync( 'git', [
-		'-c',
-		'core.quotepath=off',
-		'ls-tree',
-		'-rt',
-		'--name-only',
-		'HEAD',
-	] )
+	const files = spawnSync(
+		'git',
+		[ '-c', 'core.quotepath=off', 'ls-tree', '-rt', '--name-only', 'HEAD' ],
+		{ maxBuffer: 4096 * 1024 }
+	)
 		.stdout.toString()
 		.trim()
 		.split( '\n' )

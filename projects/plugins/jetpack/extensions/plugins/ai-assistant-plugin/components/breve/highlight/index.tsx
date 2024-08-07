@@ -24,6 +24,7 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import registerEvents from '../features/events';
+import getBreveAvailability from '../utils/get-availability';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
@@ -284,9 +285,11 @@ export function registerBreveHighlights() {
 				const { getIgnoredSuggestions, isFeatureEnabled, isProofreadEnabled } = globalSelect(
 					'jetpack/ai-breve'
 				) as BreveSelect;
+				const { getAiAssistantFeature } = globalSelect( 'wordpress-com/plans' );
+				const isFreePlan = getAiAssistantFeature().currentTier?.value === 0;
 
 				return {
-					isProofreadEnabled: isProofreadEnabled(),
+					isProofreadEnabled: isProofreadEnabled() && getBreveAvailability( isFreePlan ),
 					isFeatureEnabled: isFeatureEnabled( config.name ),
 					ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				};
