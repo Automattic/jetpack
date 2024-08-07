@@ -111,6 +111,11 @@ class Jetpack_Mu_Wpcom {
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+
+		// Gets autoloaded from the Scheduled_Updates package.
+		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
+			Scheduled_Updates::init();
+		}
 	}
 
 	/**
@@ -142,10 +147,6 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
-		}
-		// Gets autoloaded from the Scheduled_Updates package.
-		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
-			Scheduled_Updates::init();
 		}
 	}
 
