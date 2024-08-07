@@ -1,8 +1,8 @@
 import ProductCard from '../../connected-product-card';
 import ProtectValueSection from './protect-value-section';
-import type { ProductCardType } from '../types';
+import type { ProductCardComponent } from '../types';
 
-const ProtectCard: ProductCardType = props => {
+const ProtectCard: ProductCardComponent = props => {
 	const slug = 'protect';
 
 	return (

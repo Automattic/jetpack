@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 
-export type ProductCardType = FC< {
+export type ProductCardComponent = FC< {
 	admin: boolean;
 	recommendation?: boolean;
 } >;

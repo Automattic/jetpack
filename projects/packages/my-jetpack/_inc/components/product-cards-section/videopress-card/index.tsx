@@ -7,11 +7,11 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import ProductCard from '../../connected-product-card';
 import useVideoPressCardDescription from './use-videopress-description';
 import VideoPressValueSection from './videopress-value-section';
-import type { ProductCardType } from '../types';
+import type { ProductCardComponent } from '../types';
 
 import './style.scss';
 
-const VideopressCard: ProductCardType = ( { admin } ) => {
+const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const slug = 'videopress';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
