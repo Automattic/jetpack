@@ -104,6 +104,10 @@ class Test_CSS_Customizer_Nudge extends \WP_UnitTestCase {
 	 * @expectedDeprecated Automattic\Jetpack\Dashboard_Customizations\CSS_Customizer_Nudge::customize_register_nudge
 	 */
 	public function test_if_the_url_and_message_are_passed_correctly() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'skipping for Atomic because blocks are already defined.' );
+		}
+
 		$nudge = new CSS_Customizer_Nudge( 'url', 'message' );
 
 		$nudge->customize_register_nudge( $this->wp_customize );
