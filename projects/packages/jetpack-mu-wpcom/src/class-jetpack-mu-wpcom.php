@@ -35,9 +35,11 @@ class Jetpack_Mu_Wpcom {
 
 		// Load features that only apply to WordPress.com-connected users.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
 
-		// Load ETK features that need higher priority than the ETK plugin.
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ), 0 );
+		// Load ETK features flag to turn off the features in the ETK plugin.
+		// It needs higher priority than the ETK plugin.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features_flags' ), 0 );
 
 		/*
 		 * Please double-check whether you really need to load your feature separately.
@@ -150,7 +152,39 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load ETK features that need higher priority than the ETK plugin.
+	 * Define the flags to turn off features in the ETK plugin.
+	 * Can be removed once the feature no longer exists in the ETK plugin.
+	 */
+	public static function load_etk_features_flags() {
+		if ( is_admin() && ! is_wpcom_user() ) {
+			return;
+		}
+
+		define( 'MU_WPCOM_CUSTOM_LINE_HEIGHT', true );
+		define( 'MU_WPCOM_BLOCK_INSERTER_MODIFICATIONS', true );
+		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
+		define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
+		define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
+		define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+		define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
+		define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
+		define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
+		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
+		define( 'MU_WPCOM_TAGS_EDUCATION', true );
+		define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
+		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
+		define( 'MU_WPCOM_POSTS_LIST_BLOCK', true );
+		define( 'MU_WPCOM_JETPACK_COUNTDOWN_BLOCK', true );
+		define( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK', true );
+		define( 'MU_WPCOM_DOCUMENTATION_LINKS', true );
+		define( 'MU_WPCOM_GLOBAL_STYLES', true );
+		define( 'MU_WPCOM_FSE', true );
+		define( 'MU_WPCOM_TEMPLATE_INSERTER', true );
+		define( 'MU_WPCOM_WHATS_NEW', true );
+	}
+
+	/**
+	 * Load ETK features.
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
@@ -158,24 +192,40 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
-		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
-		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
-		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
-		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
-		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
-		require_once __DIR__ . '/features/tags-education/tags-education.php';
-		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
-		require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
-		require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
-		require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
-		require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
-		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
-		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
-		require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
-		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
-		require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
+
+		/**
+		 * Load features for the editor and the frontend pages.
+		 *
+		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
+		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
+		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
+			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
+			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+			// To avoid potential collisions with newspack-blocks plugin.
+			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
+				require_once __DIR__ . '/features/newspack-blocks/index.php';
+			}
+			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
+			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
+			require_once __DIR__ . '/features/tags-education/tags-education.php';
+			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
+			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
+			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
+			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
+			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
+			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
+			require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
+		}
 	}
 
 	/**

@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Legacy_FSE;
 
-define( 'MU_WPCOM_FSE', true );
-define( 'MU_WPCOM_TEMPLATE_INSERTER', true );
-
 require_once __DIR__ . '/blocks/navigation-menu/index.php';
 require_once __DIR__ . '/blocks/post-content/index.php';
 require_once __DIR__ . '/blocks/site-description/index.php';
