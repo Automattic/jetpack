@@ -12,7 +12,7 @@ import SecondaryButton from './secondary-button';
 import Status from './status';
 import styles from './style.module.scss';
 import type { AdditionalAction, SecondaryAction } from './types';
-import type { InstallAction } from '../../data/products/use-install-standalone-plugin';
+import type { InstallCallback } from '../../data/products/use-install-standalone-plugin';
 import type { FC, MouseEventHandler, ReactNode } from 'react';
 
 export type ProductCardProps = {
@@ -31,7 +31,7 @@ export type ProductCardProps = {
 	upgradeInInterstitial?: boolean;
 	primaryActionOverride?: AdditionalAction;
 	secondaryAction?: SecondaryAction;
-	onInstallStandalone?: InstallAction;
+	onInstallStandalone?: InstallCallback;
 	onActivateStandalone?: () => void;
 	status: ProductStatus;
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;

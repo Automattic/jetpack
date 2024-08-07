@@ -6,7 +6,7 @@ import useProduct from './use-product';
 import type { APIFetchOptionsWithQueryParams } from '../use-simple-mutation';
 import type { UseMutateFunction } from '@tanstack/react-query';
 
-export type InstallAction = UseMutateFunction<
+export type InstallCallback = UseMutateFunction<
 	void,
 	Error,
 	APIFetchOptionsWithQueryParams,
@@ -14,7 +14,7 @@ export type InstallAction = UseMutateFunction<
 >;
 
 type UseInstallStandalonePluginFunction = ( productId: string ) => {
-	install: InstallAction;
+	install: InstallCallback;
 	isPending: boolean;
 };
 
