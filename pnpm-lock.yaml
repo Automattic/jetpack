@@ -505,9 +505,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-test-renderer:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
 
   projects/js-packages/critical-css-gen:
     dependencies:
@@ -12952,11 +12949,6 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
-  react-shallow-renderer@16.15.0:
-    resolution: {integrity: sha512-oScf2FqQ9LFVQgA73vr86xl2NaOIX73rh+YFqcOp68CWj56tSfgtGKrEbyhCj0rSijyG9M1CYprTh39fBi5hzA==}
-    peerDependencies:
-      react: ^16.0.0 || ^17.0.0 || ^18.0.0
-
   react-slider@2.0.5:
     resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
     peerDependencies:
@@ -12972,11 +12964,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-test-renderer@18.3.1:
-    resolution: {integrity: sha512-KkAgygexHUkQqtvvx/otwxtuFu5cVjfzTCtjXLH9boS19/Nbtg84zS7wIQn39G8IlrhThBpQsMKkq5ZHZIYFXA==}
-    peerDependencies:
-      react: ^18.3.1
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -26178,12 +26165,6 @@ snapshots:
       '@remix-run/router': 1.2.1
       react: 18.3.1
 
-  react-shallow-renderer@16.15.0(react@18.3.1):
-    dependencies:
-      object-assign: 4.1.1
-      react: 18.3.1
-      react-is: 18.3.1
-
   react-slider@2.0.5(@babel/runtime@7.24.7)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.24.7
@@ -26205,13 +26186,6 @@ snapshots:
       invariant: 2.2.4
       react: 18.3.1
       tslib: 2.5.0
-
-  react-test-renderer@18.3.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-is: 18.3.1
-      react-shallow-renderer: 16.15.0(react@18.3.1)
-      scheduler: 0.23.2
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
