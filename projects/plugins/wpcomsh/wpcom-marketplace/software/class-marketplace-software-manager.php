@@ -2,11 +2,10 @@
 /**
  * This class is responsible for installing the marketplace software.
  *
- * @since 5.1.3
+ * @since 5.2.0
  * @package WPCOM_Marketplace
  */
-
-require_once __DIR__ . '/class-marketplace-product-software-factory.php';
+require_once __DIR__ . '/class-marketplace-software-factory.php';
 
 /**
  * Class Marketplace_Software_Manager.
@@ -20,26 +19,29 @@ class Marketplace_Software_Manager {
 	 * Install the marketplace software by loading the software details from the atomic persistent data, generating
 	 * and executing the WP_CLI installation commands.
 	 *
-	 * @return WP_Error
+	 * @return WP_Error|bool
 	 */
-	public function install_marketplace_software(): WP_Error {
+	public function install_marketplace_software() {
 		$wpcom_marketplace_software = $this->get_apd_marketplace_software();
 		if ( is_wp_error( $wpcom_marketplace_software ) ) {
 			return $wpcom_marketplace_software;
 		}
 
 		foreach ( $wpcom_marketplace_software as $software ) {
-			$product_software = Marketplace_Product_Software_Factory::create( $software );
+			$product_software = Marketplace_Software_Factory::get_product_software( $software );
 			if ( is_wp_error( $product_software ) ) {
 				WPCOMSH_Log::unsafe_direct_log( $product_software->get_error_message() );
 				continue;
 			}
 
-			$installation = $product_software->install();
+			$installer    = Marketplace_Software_Factory::get_product_installer( $product_software );
+			$installation = $installer->install( $product_software );
 			if ( is_wp_error( $installation ) ) {
 				WPCOMSH_Log::unsafe_direct_log( $installation->get_error_message() );
 			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -48,7 +50,7 @@ class Marketplace_Software_Manager {
 	 *
 	 * @return array|WP_Error
 	 */
-	protected function get_apd_marketplace_software(): WP_Error|array {
+	protected function get_apd_marketplace_software() {
 		$atomic_persist_data = new Atomic_Persistent_Data();
 		if ( ! $atomic_persist_data ) {
 			return new WP_Error( 'atomic_persist_data_not_found', 'Atomic persist data not found.' );

@@ -2,16 +2,16 @@
 /**
  * Class that allows to install a marketplace theme.
  *
- * @since 5.1.3
+ * @since 5.2.0
  * @package WPCOM_Marketplace
  */
 
 /**
- * Marketplace_Theme_Software class.
+ * Marketplace theme software.
  *
- * Class that allows to install a marketplace theme by generating and running the installation commands.
+ * Class that represents the software of a marketplace theme.
  */
-class Marketplace_Theme_Software extends Marketplace_Product_Software implements Marketplace_Product_Installable {
+class Marketplace_Theme_Software extends Marketplace_Product_Software {
 
 	/**
 	 * Theme slug.
@@ -34,26 +34,11 @@ class Marketplace_Theme_Software extends Marketplace_Product_Software implements
 	}
 
 	/**
-	 * Install the theme.
+	 * Get the theme slug.
 	 *
-	 * @return WP_Error|bool
+	 * @return string
 	 */
-	public function install(): WP_Error|bool {
-		$commands = $this->generate_install_commands( null, $this->plugin_dependencies, $this->theme_dependencies, $this->theme_slug, $this->is_managed );
-		$command  = \implode( ' && ', $commands );
-
-		$result = WP_CLI::runcommand(
-			$command,
-			array(
-				'launch'     => false,
-				'exit_error' => false,
-			)
-		);
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return $this->verify_installation( $this->plugin_dependencies, array(), $this->theme_slug );
+	public function get_theme_slug(): string {
+		return $this->theme_slug;
 	}
 }
