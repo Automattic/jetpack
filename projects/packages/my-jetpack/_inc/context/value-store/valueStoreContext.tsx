@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from 'react';
 
 type ValueStoreType = {
 	isWelcomeBannerVisible: boolean;
+	isLoadingWelcomeFlowExperiment?: boolean;
 	recommendedModules: JetpackModule[] | null;
 	recommendedModulesVisible: boolean;
 };

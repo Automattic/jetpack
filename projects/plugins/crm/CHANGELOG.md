@@ -5,6 +5,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.4] - 2024-08-07
+
+### Removed
+- MailPoet: Remove unused MailPoet use statements. [#38453]
+
+### Fixed
+- WooSync: Fix a warning message on sync and fatal error when a fee value is not a number [#38570]
+
 ## [6.4.3] - 2024-05-23
 ### Added
 - Currency: Added several new currencies to the currency dropdown. [#36897]
@@ -328,10 +336,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WooSync: Change status only for contacts with the Lead status [#28908]
 
 ## 5.5.3 - 2023-01-26
+
 - Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
 - Fixed: HTML escaped code in contact list filters for segments
 
 ## 5.5.2 - 2023-01-25
+
 - Fixed: Custom profile images are now shown in the Latest Contacts dashboard
 - Fixed: Potential XSS in the Custom Fields setting page
 - Fixed: Custom profile pictures are no longer removed when updating contacts
@@ -348,11 +358,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: WooCommerce order status mapping to invoice status
 
 ## 5.5.1 - 2022-12-16
+
 - Fixed: Inline field editing no longer prevents listings from being displayed
 - Improved: Security around phone numbers viewing
 - Improved: Added a migration to remove outdated AKA lines
 
 ## 5.5.0 - 2022-12-13
+
 - Fixed: negative and zero-balance invoices now show tax subtotals when applicable
 - Fixed: Bug where core field conditions Status and Email didn't translate well between Advanced Segments and core Segments.
 - Fixed: WooSync removing contact fields while syncing
@@ -389,6 +401,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Migration to correct incorrect errors for custom field based Segment Conditions
 
 ## 5.4.4 - 2022-11-14
+
 - Fixed: prevent edge case where folder creation may overwrite file
 - Fixed: cleaned up unneeded files in plugin zip
 - Fixed: System Status sometimes didn't detect default font as installed
@@ -398,6 +411,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Segment condition inputs are now type-aware
 
 ## 5.4.3 - 2022-11-10
+
 - Fixed: uploaded files could not be accessed when using Apache
 - Fixed: 500 error visiting Client Portal invoices page if logged out and easy-access disabled
 - Fixed: transaction date fields properly show timezone offsets
@@ -409,6 +423,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: transaction editor now uses native browser date and time inputs
 
 ## 5.4.2 - 2022-11-02
+
 - Fixed: Bug in 5.4 which was giving PDF generation a hiccup
 - Fixed: Bug in WooSync where customer notes were not being added
 - Fixed: Added a workaround for varying encryption cipher support
@@ -416,10 +431,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Allow more common-sense HTML elements in Quote Templating
 
 ## 5.4.1 - 2022-10-27
+
 - Fixed: catch migration error when using PHP 8
 - Fixed: catch migration error when using non-default table prefixes
 
 ## 5.4.0 - 2022-10-26
+
 - Fixed: Bug in tax table management where duplications could be added
 - Fixed: Bug where WooSync would not make new invoices for orders where order id and Invoice id collided
 - Fixed: Bug where by WooSync duplicate customer note logs
@@ -460,12 +477,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Segment condition type: Date <=
 
 ## 5.3.1 - 2022-09-29
+
 - Fixed: PHP notice in WooSync syncing
 - Fixed: zbs_end_emails_ui hook sometimes fired twice
 - Fixed: error when listing contact or company files
 - Improved: Increased reliability of lost-connection notifications in WooSync
 
 ## 5.3.0 - 2022-09-28
+
 - Fixed: WooSync properly maps the "On hold" transaction status
 - Fixed: custom date fields now work correctly under WooCommerce My Account
 - Fixed: Client Portal is now properly aligned when using the Twenty Twenty theme
@@ -517,6 +536,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: "jpcrm_after_contact_update" and "jpcrm_after_contact_insert" hooks
 
 ## 5.2.0 - 2022-08-11
+
 - Fixed: bug in Segments which would sometimes block multi-field querying of the same field
 - Fixed: Custom CRM Header link was resulting in a broken link
 - Fixed: error while sending e-mails when the Client Portal module is disabled
@@ -548,6 +568,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: WooSync now has 'pause sync' mode per store connection
 
 ## 5.1.0 - 2022-06-30
+
 - Fixed: unpaid/uncompleted transactions imported from Woo now show a blank completed/paid date
 - Fixed: orders could be skipped if they didn't exist during partial order page retrieval
 - Fixed: domain field in WooSync settings no longer shows 0 if blank
@@ -571,6 +592,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: new _DATETIME_STR and _DATE_STR placeholders based on unix timestamp values
 
 ## 5.0.1 - 2022-06-05
+
 - Fixed: emails properly send when a quote is accepted
 - Fixed: catch Woo API headers when server maps them to lowercase keys
 - Fixed: catch division by zero error in Woo edge cases
@@ -580,6 +602,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: better handling of larger numbers in WooSync hub
 
 ## 5.0.0 - 2022-05-25
+
 - Fixed: Contact/company creation logs now show more useful data when created from external source.
 - Fixed: Bug where in some external site syncing situations external sources were duplicated in WooSync
 - Fixed: Segment date range outputs correctly when editing
@@ -622,6 +645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Support for WooCommerce refunds
 
 ## 4.11.0 - 2022-04-21
+
 - Fixed: WP users are now consistently created if "Generate WP User" is selected
 - Fixed: Client Portal width in the Twenty Twenty-Two theme
 - Fixed: Broken link on activating CRM API
@@ -643,21 +667,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Preparations for v5.0 major release
 
 ## 4.10.3 - 2022-03-30
+
 - Fixed: transaction list doesn't work on sites with unexpected table prefixes.
 - Fixed: Issue installing the plugin via XML-RPC request.
 - Improved: move welcome tour behind first use dashboard modal.
 
 ## 4.10.2 - 2022-03-28
+
 - Fixed: issue installing the plugin via WP-CLI command line
 - Fixed: updates now show consistently
 - Fixed: some menus did not load on white label installs
 
 ## 4.10.1 - 2022-03-25
+
 - Fixed: Error on new first use dashboard
 - Fixed: Incompatibility with PHP versions prior to 7.3
 - Improved: better compatibility with block-based themes
 
 ## 4.10.0 - 2022-03-24
+
 - Fixed: quotes can now be accepted in block-based themes
 - Fixed: prevent a JS error when TinyMCE is used by another plugin
 - Fixed: edit user-created logs when created in another language
@@ -682,9 +710,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Content to learn menus, including video guides
 
 ## 4.9.1 - 2022-02-22
+
 - Improved: Better compatibility with Jetpack plugin
 
 ## 4.9.0 - 2022-02-16
+
 - Fixed: Wording for Client Portal is now consistent
 - Fixed: error when creating WooCommerce orders with PHP 8.x
 - Fixed: catch PHP notice when adding a new contact
@@ -701,9 +731,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: better compatibility for installation via Jetpack
 
 ## 4.8.1 - 2022-01-20
+
 - Fixed segment compilation error if using a segment condition that was no longer available
 
 ## 4.8.0 - 2022-01-20
+
 - Fixed: bug when apostrophes are present in the business name while sending emails
 - Fixed: contact ownership wasn't properly set when creating or updating a contact via the API
 - Fixed: cron jobs were not being properly deleted on deactivation
@@ -720,6 +752,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: WP 5.9 compatibility
 
 ## 4.7.0 - 2021-12-16
+
 - Fixed: catch error if list view has no filter buttons
 - Fixed: pagination didn't update when changing listview settings
 - Fixed: second address fields in client portal now save properly
@@ -731,6 +764,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: pagination and bulk actions now show at the top of listviews
 
 ## 4.6.0 - 2021-11-18
+
 - Fixed: non-hidden fields can be blanked from the Client Portal
 - Fixed: hidden fields cannot be changed from the Client Portal
 - Fixed: all placeholders now work if WP is set to another language
@@ -750,6 +784,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: check for mb_internal_encoding support
 
 ## 4.5.0 - 2021-10-20
+
 - Fixed: Resolves occasional error when sending emails via Email Manager
 - Fixed: Sending emails sometimes had extra newlines
 - Fixed: reCaptcha on built-in forms wasn't properly working
@@ -771,6 +806,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Support for file templates for Invoices, Quotes, and Statements (PDFs)
 
 ## 4.4.0 - 2021-09-24
+
 - Fixed: Bug where email template test emails were being sent blank
 - Fixed: Cleaned up some PHP notices in the client portal
 - Fixed: removed obscure and long-broken setting
@@ -791,9 +827,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Placeholder map reference page
 
 ## 4.3.1 - 2021-09-03
+
 - Improved: Some promo banners
 
 ## 4.3.0 - 2021-08-25
+
 - Fixed: You are now able to load more than 100 calendar items per page load.
 - Fixed: Contact edit link icon.
 - Fixed: cleaned up PHP notice when exporting linked objects.
@@ -815,15 +853,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: the percent discount now shows on invoices when applicable.
 
 ## 4.2.3 - 2021-08-11
+
 - Fixed: Invoices and Invoice list not shown on my account unless assigned to you.
 
 ## 4.2.2 - 2021-08-09
+
 - Fixed: Hotfix for bug introduced in 4.2.0 with regards tag editing against contacts.
 
 ## 4.2.1 - 2021-08-05
+
 - Fixed: Invoices cannot be sent to the assignment contact email.
 
 ## 4.2.0 - 2021-08-04
+
 - Fixed: the welcome wizard respects which extensions were selected
 - Fixed: invoice lineitem descriptions have newlines preserved
 - Fixed: editing contacts assigned to another user is restricted if "Assign Ownership" setting is disabled
@@ -846,6 +888,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: navigation mode now applies to companies as well as contacts
 
 ## 4.1.0 - 2021-07-08
+
 - Fixed: Contact second address custom fields now show in View mode
 - Fixed: Display second address if first address is empty
 - Fixed: Company custom fields will now always show in View mode
@@ -869,16 +912,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Typeahead limit has been raised from 5 to 10
 
 ## 4.0.17 - 2021-06-24
+
 - Fixed: An internal variable naming for DAL version 2
 - Fixed: No break lines in PDF quotes.
 - Fixed: Country field is not showing on company address
 - Improved: all pages should have titles now
 
 ## 4.0.16 - 2021-05-25
+
 - Fixed: Updated PDF library that fixes some issues with the pdf of quotes and invoices using PHP 8
 - Improved: Some text banners and buttons
 
 ## 4.0.15 - 2021-04-09
+
 - Fixed: Invoice client portal was incorrectly saving the invoice total
 - Fixed: Country field is not showing on contact cards
 - Fixed: Item selector for invoicing, with long names have a UI issue
@@ -886,11 +932,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: A notice block for announcements.
 
 ## 4.0.14 - 2021-03-12
+
 - Fixed: An issue with the set_time_limit in some shared hosts.
 - Improved: The CRM dashboard view with date ranges.
 - Tested: Tested with WordPress 5.7
 
 ## 4.0.13 - 2021-02-25
+
 - Fixed: Added date column in the contact list is using UTC time.
 - Fixed: Add a link to the contact ID column in the contact list.
 - Fixed: WooCommerce <-> JPCRM conflict importing CSV file with products.
@@ -900,10 +948,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Now the transactions have available the hidden fields net, discount, fee.
 
 ## 4.0.12 - 2021-02-11
+
 - Fixed: The setting API menu is visible after activating the API core extension.
 - Improved: Move the EUR symbol to the top of the currencies selector
 
 ## 4.0.11 - 2021-02-01
+
 - Fixed: Company activity log now shows the right time regardless of WP installation timezone
 - Fixed: In some cases Invoice ID was lost when updating
 - Fixed: Custom label for invoice ID now properly used throughout
@@ -914,6 +964,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made menu adjustments for users using Jetpack and Jetpack CRM on the same install, for easier navigation
 
 ## 4.0.10 - 2020-12-17
+
 - Fixed: Duplicated title in the short description logs when creating quotes, invoices, transactions and tasks
 - Fixed: Custom field with auto-number broken with empty prefix
 - Fixed: PHP notice for some users from email tracking system
@@ -923,6 +974,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Custom field types numeric and numeric (decimal) are now reliably sortable via list views
 
 ## 4.0.9 - 2020-12-10
+
 - Fixed: Migration issues where Jetpack CRM is installed with wp-cli
 - Fixed: List views with 'Latest Contact' columns now load properly regardless of DB environment
 - Fixed: PHP notice around quotes on contact view
@@ -937,6 +989,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: New hook jpcrm_quote_accepted
 
 ## 4.0.8 - 2020-11-25
+
 - Fixed: Company label setting now respected throughout (e.g. Organisation)
 - Fixed: Typeahead contact->company assignment for new contacts now displays properly
 - Fixed: You can now have many filters without the view blocking access to them
@@ -956,6 +1009,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Migration to update event notification email template
 
 ## 4.0.7 - 2020-11-12
+
 - Fixed: Dompdf exception creating quotes with Preformatted option selected
 - Fixed: Style bug when displaying multi-option custom fields on the contact and company view page
 - Fixed: Bug where license system modal sometimes reloaded to an incorrect URL
@@ -994,6 +1048,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Last Updated column to contacts and companies
 
 ## 4.0.6 - 2020-10-29
+
 - Fixed: Duplicated tag with international characters when they are added to a contact
 - Fixed: Style issue with Second Address block in the Client Portal
 - Fixed: Invoice line items now able to be added to invoices (req invoicing pro v2.7.1)
@@ -1003,6 +1058,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Style issue mapping the fields in the CSV Importer section
 
 ## 4.0.5 - 2020-10-15
+
 - Fixed: Deleted segment shows as filter contact list view
 - Fixed: On export the contact or the transaction list, in the CSV file the owner ID was blank
 - Fixed: Wrong menu link showing task tags in CRM only mode
@@ -1012,6 +1068,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Core Extensions List updated with latest extensions
 
 ## 4.0.4 - 2020-10-02
+
 - Fixed: Issue related to contact and company bulk action deletion
 - Fixed: Old brand reference on CSV importer page
 - Fixed: New Company placeholder more specific to a real business
@@ -1032,6 +1089,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Beginning of internal refactor of the API
 
 ## 4.0.3 - 2020-09-17
+
 - Fixed: API docs link was incorrect
 - Fixed: Form widget now works as expected
 - Fixed: Restored user filter for tasks
@@ -1044,6 +1102,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Mail activity log type
 
 ## 4.0.2 - 2020-09-04
+
 - Fixed: Dashboard Revenue Chart was missing some transactions
 - Fixed: Customer pre-fill now pre-fills properly.
 - Fixed: Date paid and date completed now always filled
@@ -1057,6 +1116,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Dashboard Revenue Chart now shows 12 months
 
 ## 4.0.1 - 2020-08-20
+
 - Fixed: AJAX.php file was being detected as a virus by some AV scanners
 - Fixed: Removed unnecessary notification after plugin installation
 - Fixed: the Jetpack Forms extension name
@@ -1072,9 +1132,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Ability to hide prefix field
 
 ## 4.0.0 - 2020-07-20
+
 - Jetpack CRM branding
 
 ## 3.0.19 - 2020-07-10
+
 - Fixed: Fix for a migration bug where date custom fields were not yet translated to v3 data types
 - Fixed: A problem that meant no message was shown when a contact is added with a duplicate email address
 - Fixed: Bug preventing forms from loading
@@ -1095,18 +1157,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Brought more strings properly into internationalisation functions.
 
 ## 3.0.18 - 2020-06-29
+
 - Fixed: Migration bug for very few users when using advanced segments and woosync
 - Improved: Ahead of a potential XSS vulnerability, and for simplicity, we've removed Select2 js from the CRM
 - Improved: Added better catching to the custom field DAL check for multiple lines
 - Improved: Security surrounding storage of SMTP credentials
 
 ## 3.0.17 - 2020-05-20
+
 - Fixed: Bug where bulk-actions were reset if selecting multiples after the fact
 - Improved: Added support for fractional quantities in line items
 - Improved: Tidied up some old CPT usage in DAL3
 - Improved: Extension buy now links go to product pages
 
 ## 3.0.16 - 2020-05-07
+
 - Fixed: Bug where client portal custom fields of type Checkbox were not displayed properly
 - Fixed: "Show/Hide Countries" option now respected throughout
 - Fixed: Duplicate title text on Client Portal
@@ -1118,6 +1183,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Moved away from compact function use as it now throws notices in PHP 7.3.0+ (Mail delivery methods)
 
 ## 3.0.15 - 2020-04-21
+
 - Fixed: Migration bug for new installs
 - Fixed: CSV importer now shows localised field labels
 - Improved: Performance improvement by asserting autoload=no across non-critical options
@@ -1126,6 +1192,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Removed outdated comments
 
 ## 3.0.14 - 2020-04-06
+
 - Fixed: SQL compilation error
 - Fixed: Bug where quote dates were saving incorrectly
 - Fixed: Bug where transaction datetimes were saving incorrectly
@@ -1140,6 +1207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Forms refactored
 
 ## 3.0.13 - 2020-03-25
+
 - Fixed: Custom fields now support Chinese and all other Characters
 - Fixed: Chinese characters can now be used in Tags
 - Fixed: Quote Builder PHP Error
@@ -1153,6 +1221,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Contact & Company searches now include all social profile fields
 
 ## 3.0.12 - 2020-03-09
+
 - Fixed: Typo's in Alias DAL
 - Fixed: Tasks appearing complete on contact view, when incomplete
 - Fixed: PHP notice in migration
@@ -1186,6 +1255,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: If Database creation hits any snags, it'll now expose these directly to the user on the System Status page
 
 ## 3.0.11 - 2020-02-04
+
 - Fixed: Portal Access Denied now allows Admin, ZBS Admin
 - Fixed: Easy Access Links now allow entry
 - Fixed: Invoice PDF now shows correct Hours/Quantity
@@ -1204,12 +1274,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: PDF engine & PDF Fonts now ship with ZBS for greater server compatibility
 
 ## 3.0.10 - 2020-01-23
+
 - Fixed: Client Portal sub-page loading doesn't interrupt page loads when no client portal page is set
 
 ## 3.0.9 - 2020-01-22
+
 - Fixed: Missed reference causing error
 
 ## 3.0.8 - 2020-01-22
+
 - Fixed: Bug which meant link to Quote templates from New Quote page was broken
 - Fixed: Allow companies to be added without emails
 - Fixed: Mail Delivery 'Delete Method' no longer accidentally deletes the method when you click Cancel
@@ -1249,6 +1322,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: JS Hook for extra invoice functionality
 
 ## 3.0.7 - 2020-01-09
+
 - Fixed: Bug where tasks would be disabled if forms were turned off in certain menu modes
 - Fixed: Bug where client portal IDs may not have been assigned post v3.0
 - Fixed: Bug where by typeahead assignments were no longer saving down
@@ -1264,10 +1338,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Custom fields can now be exported along with other fields via Export Wizard
 
 ## 3.0.6 - 2019-12-20
+
 - Fixed: Bug where unmigrated v3 users may experience an error with WooSync contact generation
 - Improved: Migration routine extension reactivation - further checks
 
 ## 3.0.5 - 2019-12-19
+
 - Added: Factory Reset option
 - Fixed: Address and assigned to columns now show data properly on contact list view
 - Fixed: DAl3 Invoice Ownership bug
@@ -1287,11 +1363,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made default transaction total statuses 'Succeeded,Completed' rather than all statuses
 
 ## 3.0.4 - 2019-12-13
+
 - Fixed: DAL2 issue causing some migrations to derail
 - Fixed: DAL3 Log Obj issue causing some migrations to derail
 - Fixed: Missing language attribute in migrations JS
 
 ## 3.0.3 - 2019-12-12
+
 - Added: Task editor -> jump to assigned contact
 - Added: Task list to contact view
 - Added: Filter for metabox mods for external sources
@@ -1300,16 +1378,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Broken link (clear filters for quote list view)
 
 ## 3.0.2 - 2019-12-09
+
 - Fixed: Bug where by custom fields were not saving for some international users
 - Fixed: php notice causing some installs to fall over when producing PDF Invoices
 - Fixed: Bug where v3.0 was still showing 'ready for update' on plugins page
 - Improved: Allowed Contacts to be added without emails (allow blanks)
 
 ## 3.0.1 - 2019-12-06
+
 - Fixed: 3.0 Update message broken link
 - Improved: Removed non_blank requirement for contact email address (some users are adding contacts without emails)
 
 ## 3.0.0 - 2019-12-06
+
 - Fixed: Bug where contact managers could see but not edit list view columns
 - Fixed: Stopped welcome tour firing on homepage
 - Fixed: PHP notice on welcome wizard
@@ -1390,18 +1471,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made all custom fields provide a slug for use in templating throughout the CRM
 
 ## 2.99.15 - 2019-11-22
+
 - Fixed: PHP admin notice about missing parent menu slug
 - Fixed: Empty language string
 - Fixed: Checkboxes if more than 65 would error out. Made count dynamic.
 
 ## 2.99.14 - 2019-10-31
+
 - Fixed: Bug in listview search
 
 ## 2.99.13 - 2019-10-30
+
 - Improved: More proper-escaping of posted data
 - Improved: Moved all Forms Styles & Scripts to proper enqueuement & culled some comments
 
 ## 2.99.12 - 2019-10-29
+
 - Fixed: Removed assets which were already referenced in WPCore
 - Fixed: Task assignment drop down was hidden not allowing users to choose a CRM team member
 - Fixed: Alert on delete email if cancelled still deleted
@@ -1414,11 +1499,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Moved away from internal CURL functions and into WordPress native get functions
 
 ## 2.99.11 - 2019-10-23
+
 - Fixed: Made DAL1 objects all order by id descending, instead of date descending, by default
 - Improved: Tidied comments
 - Improved: Remedied missing subscription code
 
 ## 2.99.10 - 2019-10-22
+
 - Fixed: Custom fields unable to change type
 - Fixed: Bug where Italian users were unable to select dates in task scheduler
 - Fixed: Bug where task scheduler list view wasn't retaining owner-selection across page loads
@@ -1426,6 +1513,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Can now (optionally) search contacts based on custom fields
 
 ## 2.99.9.10 - 2019-10-16
+
 - Fixed: PHP Notice
 - Fixed: PHP Notice for pre-migration 2.7 users
 - Fixed: Migration 2.70 bug for some users with zero contacts
@@ -1438,6 +1526,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Added default for Client Portal Pro file mode
 
 ## 2.99.9.9 - 2019-10-10
+
 - Fixed: Emoji's can now be used safely in Logs
 - Fixed: Checkbox custom field type now properly saves for Quotes
 - Fixed: Bulk Tagger permissions bug & label errors
@@ -1446,25 +1535,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Strengthened contact edit pages to ensure all fields escaped properly
 
 ## 2.99.9.8 - 2019-10-01
+
 - Fixed: Bug where dashboard settings were not saving
 - Fixed: Broken references to two images since our CDN address changed
 - Improved: Removed legacy telemetry
 
 ## 2.99.9.7 - 2019-09-27
+
 - Fixed: Breaking bug in 2.99.9.6
 
 ## 2.99.9.6 - 2019-09-27
+
 - Improved: Deploy routine excludes unnecessary files
 
 ## 2.99.9.5 - 2019-09-27
+
 - Fixed: PHP Notice caused by outdated tool (removed rebuild titles)
 
 ## 2.99.9.4 - 2019-09-12
+
 - Improved: Moved Update API endpoints to new server endpoints
 - Improved: Removing Invoicing Pro Settings from CORE (moved into Sync extensions)
 - Improved: Removed "Dev Mode" notices from the ZBS admin pages.
 
 ## 2.99.9.3 - 2019-09-06
+
 - Improved: Hardened Dash settings AJAX
 - Improved: Hardened security around client portal details updates
 - Improved: Hardened security around settings pages
@@ -1472,18 +1567,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Hardened security around nonce usage
 
 ## 2.99.9.2 - 2019-08-27
+
 - Improved: Refined CRM reset procedure to prevent accidental data deletion from admin.
 
 ## 2.99.9.1 - 2019-08-23
+
 - Improved: Data deletion tool admin referrer check to prevent accidental data deletion
 
 ## 2.99.9 - 2019-07-23
+
 - Fixed: Custom fields table on contact view now has variable width for those with longer custom field labels
 - Fixed: Styles now properly display buttons when hosted on WordPress.com
 - Fixed: Stopped welcome tour showing up for non-menu-headed pages
 - Improved: Resolved some language usage
 
 ## 2.99.8 - 2019-07-02
+
 - Fixed: Bug which meant 0 logs shown on edit page
 - Fixed: Multi-line notes now save properly
 - Fixed: Client Portal no longer shows links to invoices, quotes, transactions if they're turned off in CORE
@@ -1500,6 +1599,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Hooks for Client Portal Pro to add to settings page
 
 ## 2.99.7 - 2019-06-18
+
 - Fixed: API bug when front end is disabled
 - Fixed: Edit contact/obj now won't load for non-existent ID's
 - Fixed: View contact/obj now won't load for non-existent ID's
@@ -1512,15 +1612,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: V3.0 Preparation notification
 
 ## 2.99.6 - 2019-06-13
+
 - Fixed: Second address country showing up when second addresses turned off (at high resolutions)
 - Fixed: Bug in CSV Importer Pro relating to company import
 
 ## 2.99.5 - 2019-05-29
+
 - Fixed: PHP notice in company view
 - Fixed: Case sensitivity in status quickfilter for contact list view
 - Improved: White Label CRM system improved
 
 ## 2.99.4 - 2019-05-17
+
 - Fixed: Returned Case insensitive search throughout (need to readdress accented character search in later release)
 - Fixed: PHP notice if HTTP_REFERRER not set
 - Fixed: Invoice Payment buttons now show if WooSync is not active, but Invoicing Pro is.
@@ -1530,6 +1633,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Address search support for Address Line 1 and City (contact search)
 
 ## 2.99.3 - 2019-05-01
+
 - Fixed: Portal Page now shows UK formatted dates correctly
 - Fixed: PHP notice when checking rewrite rules
 - Fixed: PHP version message now says v5.6 (not v5.4)
@@ -1541,6 +1645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: External source post-load hook so new external sources can be added on the fly pre-insert
 
 ## 2.99.2 - 2019-04-22
+
 - Fixed: Portal page check fatal error if Portal was disabled
 - Fixed: Bug where empty segment title input box disappeared on preview
 - Fixed: Bug where segment datetime before/after was not clear
@@ -1551,9 +1656,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Better capacity to deal with accented characters globally
 
 ## 2.99.1 - 2019-04-18
+
 - Fixed: Bug in previous deploy (Missing file)
 
 ## 2.99.0 - 2019-04-18
+
 - Fixed: Bug which caused company logs to show "invalid date"
 - Fixed: Home URL instead of Site URL on portal link (emails)
 - Fixed: Trying to add a contact with an email that already exists now returns error
@@ -1561,6 +1668,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: v3.0 pre-warning message to prep for v3.0 migration
 
 ## 2.98.9 - 2019-04-10
+
 - Fixed: Event notifications did not send out
 - Fixed: Event notification content was blank
 - Fixed: Team page now shows all ZBS CRM user roles
@@ -1575,12 +1683,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: New Internal Automator Recipe: "contact.email.update"
 
 ## 2.98.8 - 2019-04-01
+
 - Fixed: PHP Memory limit when getting list view pagination counts for transactions and invoices
 - Improved: Client Portal now uses portal slug not pagename var
 - Improved: Client Portal Pro can now handle page tabs
 - Improved: API settings page now has the endpoint clearly stated in the settings tab
 
 ## 2.98.7 - 2019-03-27
+
 - Fixed: Select2 library now included as the full.min.js version to avoid conflicts
 - Fixed: 4 fringe php notices from portal-fires on our host
 - Improved: Activity Log now managed as ZBS Metabox (Contacts and Companies)
@@ -1591,6 +1701,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Warning for emails entered as CSV lists
 
 ## 2.98.6 - 2019-03-18
+
 - Fixed: Issue where other SMTP plugins were overriding wp_mail in non-standard way, resulting in our text/html workaround causing send artifacts
 - Fixed: Proper respect is paid to main email template (previously was mis-linked in settings page) is now _responsivewrap.html & editable
 - Fixed: php notice
@@ -1598,6 +1709,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Refined main mail template formatting
 
 ## 2.98.5 - 2019-03-14
+
 - Fixed: Unnecessary email output in log when sending via SMTP
 - Fixed: Generate WP user from Contact View page now works
 - Fixed: Awesome Support connector display improved and check for WP user existence
@@ -1611,6 +1723,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Contact Update & Delete hooks
 
 ## 2.98.4 - 2019-03-11
+
 - Fixed: 3 php notices for feedback menu
 - Fixed: Centralised logo switch for ZBS / Whitelabel
 - Fixed: Bug where segment conditions were not saving
@@ -1627,10 +1740,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Support for "F j, Y" date format
 
 ## 2.98.3 - 2019-03-05
+
 - Fixed: PHP Notice for Whitelabel
 - Improved: Updated tested up to value
 
 ## 2.98.2 - 2019-03-05
+
 - Fixed: External source icons for CSV importer & Stripe Sync
 - Fixed: Leaks in datetime relative to local timezones in List View, Contact Card, Logs, and Human readable dates
 - Fixed: Re-added "download Quote as PDF"
@@ -1642,6 +1757,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Can now deactivate transactions core extension
 
 ## 2.98.1 - 2019-02-27
+
 - Fixed: A bug in SMTP mailer affecting ZBS CRM + AWS SES for mailing out
 - Fixed: Style bug on activity log types which are not recognised
 - Fixed: Bug in Contact DAL which was stopping custom-fields updating via API given the override blanks setting
@@ -1659,10 +1775,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Support for .mp4's showing on Client Portal / uploading generally
 
 ## 2.98.0 - 2019-02-18
+
 - Fixed: Hotfix for moment-not-enqueued bug
 - Improved: Added better old-version support for catching old PHP activations
 
 ## 2.97.9 - 2019-02-15
+
 - Fixed: Double backslash error in asset references
 - Fixed: Translation leaks in contact edit fields (placeholders)
 - Fixed: Several bugs in locale setup
@@ -1676,6 +1794,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Removed Beta messaging where features have now matured
 
 ## 2.97.8 - 2019-02-07
+
 - Fixed: Client Portal Quotes now respects the "show on portal" checkbox for "powered by ZBS CRM"
 - Fixed: PHP Notice for some edge cases (transactions on dash)
 - Fixed: Bug in PDF invoice outputting on portal & generally
@@ -1687,6 +1806,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Client Portal tools to Contact List View
 
 ## 2.97.7 - 2019-02-01
+
 - Fixed: Telephone links for contacts & companies now show proper labels
 - Fixed: Small bug when inserting contacts with custom fields in addresses
 - Fixed: Tweaked fix of external sources rate (300->1k) to affect perf in high-transaction installs
@@ -1700,6 +1820,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added settings link to custom fields tab in contact view
 
 ## 2.97.6 - 2019-01-22
+
 - Fixed: Bug where invoice files were not properly deleting
 - Fixed: PHP Notice on contact view
 - Fixed: Address custom fields now save properly
@@ -1709,9 +1830,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Address custom fields now added everywhere addresses are shown
 
 ## 2.97.5 - 2019-01-16
+
 - Fixed: Hotfix for install notice
 
 ## 2.97.4 - 2019-01-15
+
 - Fixed: Bug in settings pages, where extension had no settings page
 - Fixed: Bug in segments where column view was not correctly populated
 - Fixed: Stopped duplication of system email templates occurring
@@ -1731,11 +1854,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Replaced "mailto" link in list view with proper ZBS email out link
 
 ## 2.97.3 - 2019-01-08
+
 - Fixed: Bug in old DAL re: empty object counts
 - Fixed: PHP notice in no-column setups
 - Fixed: PHP on some fresh install activations
 
 ## 2.97.2 - 2019-01-07
+
 - Fixed: PHP notice left over from licensing
 - Fixed: PHP notice in licensing x 2
 - Fixed: Licensing nag paging error
@@ -1751,10 +1876,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Custom Fields contact view tab
 
 ## 2.97.1 - 2018-12-21
+
 - Added: Support for custom field auto-population by extensions
 - Improved: Added further support for out of date extensions running legacy templates
 
 ## 2.97.0 - 2018-12-20
+
 - Fixed: Issue where rebranded versions where showing welcome wizard
 - Fixed: Bug in CSV importer lite which was causing extra menu item in Whitelabel CRM
 - Added: Licensing & Automatic Updates for extensions
@@ -1766,6 +1893,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Fixed CSV white-label leaks
 
 ## 2.96.8 - 2018-12-10
+
 - Fixed: Desc typo in portal details template
 - Fixed: CSS Bug for some themes on Client Portal (box-sizing)
 - Fixed: Issue where rebranded versions where showing welcome wizard
@@ -1779,6 +1907,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made sure 'id' was not acceptable as custom field key
 
 ## 2.96.7 - 2018-11-23
+
 - Fixed: Debug removed from team page
 - Fixed: Made "do not show footer" more respectful
 - Fixed: Removed 404 to calendar pro
@@ -1794,6 +1923,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added block to stop user being able to add custom fields which are already base fields
 
 ## 2.96.6 - 2018-11-16
+
 - Fixed: Glitch where by uploads\ directory was being created for pdf inv gen
 - Fixed: Made it so you CAN unset company/contact on invoice
 - Fixed: Made it so you CAN unset company/contact on quote
@@ -1821,7 +1951,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Quick Nav - from invoice learn menu to contact & company
 - Added: Quick Nav - from quote learn menu to contact & company
 
-## 2.96.5 - 2018-11-7
+## 2.96.5 - 2018-11-07
+
 - Improved: Added class attributes to contact view
 - Added: Guide: How to Map CSV Importer Fields
 - Added: Guide: Can I map Custom Fields with CSV Importer?
@@ -1829,11 +1960,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Up-to-date formal German translations (Thanks Alvaro)
 
 ## 2.96.4 - 2018-10-30
+
 - Fixed: Bug in last version re: new template for pw reset (fixed)
 - Fixed: Mail Campaigns v2 beta support
 - Added: Support for menu filtering via Extensions directly
 
 ## 2.96.3 - 2018-10-25
+
 - Fixed: Avatar image bug in gravatar mode on contact view
 - Fixed: Bug in list views on empty later pages
 - Fixed: Language leak in settings page (affecting Italian)
@@ -1846,6 +1979,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Client Portal Password Reset email template
 
 ## 2.96.2 - 2018-10-19
+
 - Fixed: PHP Notices in format helpers and advanced segments
 - Fixed: PHP Version notice now much smarter
 - Fixed: Duplicate Welcome Wizard code removed
@@ -1867,6 +2001,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Contact List View: Company Column (Thank you for dev support Carlos)
 
 ## 2.96.1 - 2018-10-11
+
 - Fixed: Removed Settings Tabs for extensions with no settings
 - Fixed: Twilio Connect scripts re-included on edit page
 - Fixed: Give WP now uses first status for transaction default
@@ -1885,6 +2020,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Adding tag when empty list (via tag manager) now works
 
 ## 2.96.0 - 2018-10-05
+
 - Fixed: Send Test Invoice now sending fully again
 - Fixed: PHP notice on login screen
 - Fixed: Glitch with WooCommerce & Auto-generating portal users which was badly assigning ownership
@@ -1900,15 +2036,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Quotes & Invoices can now be emailed with/without their attached files
 
 ## 2.95.7 - 2018-09-28
+
 - Fixed: Hotfix for welcome tour getting 'stuck on'
 
 ## 2.95.6 - 2018-09-27
+
 - Fixed: PHP leak in invoice builder
 - Fixed: Restarting welcome tour now really does restart it reliably
 - Improved: Advanced Segments updated to v1.2
 - Improved: Welcome tour much more reliable now
 
 ## 2.95.5 - 2018-09-24
+
 - Fixed: PHP notice on edit files
 - Added: Acceptable upload file formats: jpeg & gif
 - Added: Support for Client Portal Pro feature: PDF Thumbnail generation
@@ -1916,11 +2055,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Support for Client Portal Pro feature: File Categories
 
 ## 2.95.4 - 2018-09-21
+
 - Added: New Extension: Advanced Segments
 - Added: Mail Delivery method support for mismatching SSL certificates (shared hosting)
 - Improved: Updated extensions to match up to date list
 
 ## 2.95.3 - 2018-09-17
+
 - Fixed: Bug in list view javascript for inline-editing
 - Fixed: Removed welcome tour icon
 - Fixed: Bug where user screen options where saving incorrectly
@@ -1944,6 +2085,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Invoices assigned to companies now auto-load email from company
 
 ## 2.95.2 - 2018-09-14
+
 - Fixed: Bug where our thanks footer-message was blanking out existing message
 - Fixed: Bug where people were getting wrongly redirected
 - Fixed: Bug in Rest API retrieval of company/contact lists
@@ -1959,9 +2101,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Advanced Segments (Beta) Extension (Contact Fields)
 
 ## 2.95.1 - 2018-09-06
+
 - Fixed: Email Scripts now properly include minified version
 
 ## 2.95.0 - 2018-09-05
+
 - Fixed: Returned Portal.php back to 2.94 version (pre-attempted-fixes-which-broke-links)
 - Fixed: Rebrandr leak in testing email & one in Events
 - Fixed: Emptied faulty German translations
@@ -1997,6 +2141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Business select for (assign contact/transaction/invoice to) now much more performant
 
 ## 2.94.2 - 2018-08-31
+
 - Fixed: PHP notice on contact view
 - Fixed: Bug in logs which was stopping proper deletion
 - Fixed: PHP notice in fields for a specific custom field config
@@ -2015,6 +2160,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Mail Delivery SMTP outbound now verified source
 
 ## 2.94.1 - 2018-08-24
+
 - Fixed: PHP notices for some settings configurations in Client Portal
 - Fixed: Australian translation had become corrupted, replaced
 - Fixed: Persistent Style bug
@@ -2028,9 +2174,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Task complete/incomplete
 
 ## 2.94.0 - 2018-08-18
+
 - Improved: Update checks system vastly improved
 
 ## 2.93.2 - 2018-08-16
+
 - Fixed: Bug where transactions assigned to companies didn't display customer in list view
 - Fixed: Bug via unescaped translation leak in list views
 - Fixed: Bug where forms were not displaying in drop down list in WYSIWYG editor (posts, pages)
@@ -2046,6 +2194,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CRM Features page released
 
 ## 2.93.1 - 2018-08-10
+
 - Fixed: Bug whereby contact list view was not properly sorting by last name
 - Fixed: Bug whereby portal tab permalinks not auto-flushing
 - Fixed: Bug where internal automator & autologging not firing for new invoice
@@ -2065,6 +2214,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made it impossible to enter wrong CSV format for settings like funnel status
 
 ## 2.93.0 - 2018-08-02
+
 - Fixed: Bug where invoices & quotes played up when Portal disabled
 - Fixed: Removed debug code in core
 - Added: Demo Data generating function for test emails (Mail Campaigns)
@@ -2075,6 +2225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Better Rebrandr coverage
 
 ## 2.92.0 - 2018-07-30
+
 - Fixed: Bug where transaction assigned to contact couldn't be unassigned via UI
 - Fixed: Bug where contact name was showing as -1 when no contact assigned to transaction
 - Added: Support for removing submenus
@@ -2083,6 +2234,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added Companies as possible transaction assignees in transaction view
 
 ## 2.91.0 - 2018-07-27
+
 - Fixed: PHP Warning for those jumping large versions (e.g. 1.2 -> 2.90)
 - Fixed: Glitch with learn menu on quote template page
 - Fixed: Preview link on invoice
@@ -2108,6 +2260,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Extension support to avoid errors when deactivating pre-core
 
 ## 2.90.0 - 2018-07-20
+
 - Fixed: Bug in new window code caused when pop-up suppressed by chrome
 - Fixed: Mistyped label id
 - Fixed: Bug in PDF invoicing for Companies
@@ -2125,6 +2278,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: "Add Log" quick action for contacts
 
 ## 2.89.0 - 2018-07-10
+
 - Fixed: PHP Notice on fresh install dash
 - Added: Optionally retrieve settings from db as well as cache when using getSetting
 - Added: Zero BS CRM API Connector
@@ -2145,6 +2299,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: 20+ small tweaks, documentation improvements to Client Portal and Client Portal Pro
 
 ## 2.88.0 - 2018-07-06
+
 - Fixed: Broken link on dashboard
 - Fixed: DateTime parsing bug
 - Fixed: PHP Notice on Invoice Builder
@@ -2157,6 +2312,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added first layer of support for multi-line fields in CSV importer
 
 ## 2.87.0 - 2018-06-29
+
 - Fixed: Complex bug in SQL Where builder
 - Fixed: Bug in Bulk Tools -> Delete where contacts weren't being deleted
 - Fixed: Sticky sidebar now lets you scroll through tags (list view)
@@ -2187,6 +2343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Refactored Segment DAL Code
 
 ## 2.86.0 - 2018-06-22
+
 - Fixed: Prefill details for Contact -> Add Invoice
 - Fixed: Three UK date reference PHP Warnings
 - Fixed: Permissions error for 'Manage Transactions' and CSV Importer PRO
@@ -2201,9 +2358,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Guide: Using Zero BS CRM with AWS SES for Email Delivery
 
 ## 2.85.0 - 2018-06-15
+
 - Fixed: Bug where some invoice dates where showing up as 01/01/1970 (after last update)
 
 ## 2.84.0 - 2018-06-13
+
 - Fixed: Show email instead of blank name in email history
 - Fixed: Issue with occasional format leaking in French ($9900 for $99)
 - Fixed: Months now translated on company record
@@ -2220,6 +2379,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Made JS Format currency function in-line with international formatting
 
 ## 2.83.0 - 2018-05-31
+
 - Fixed: Your Details tab not saving (Client Portal)
 - Fixed: Transaction date picker
 - Fixed: Making date formats global
@@ -2234,6 +2394,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: DAL2 delete tags now deletes tag links (cleaner database)
 
 ## 2.82.0 - 2018-05-29
+
 - Fixed: 2 bugs with dupe ID's
 - Fixed: Hook in contact view wasn't using proper object
 - Fixed: API Groove Bug
@@ -2243,6 +2404,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Hook for log type overrides
 
 ## 2.81.0 - 2018-05-24
+
 - Fixed: Bug in API sticky statuses where sticky status was not honoured
 - Fixed: Bug in build meta function (contacts)
 - Fixed: Bug causing contacts to be updated with empty fields (if updated via api/forms)
@@ -2280,6 +2442,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: AKA/Alias area now validates email pre-add
 
 ## 2.80.0 - 2018-05-16
+
 - Fixed: ' in custom fields causing output glitches
 - Fixed: Price & Date custom field types sometimes not saving down
 - Fixed: AKA input now clears when adding a new alias
@@ -2297,6 +2460,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Telephone numbers to search on contacts list view
 
 ## 2.79.1 - 2018-05-14
+
 - Fixed: Paging bug in new DAL (Contacts)
 - Fixed: Small bug in portal generation code
 - Fixed: Collation type bug in update routine
@@ -2322,14 +2486,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Mail Delivery setup (Support for SMTP & wp_mail for all outbound emails)
 
 ## 2.79.0 - 2018-05-03
+
 - Fixed: Bug for translated dates in Company List & Edit Contact
 - Fixed: Some html errors as advised by Mélanie
 - Update to translation files and translation support to match plugin slug (zero-bs-crm)
 
 ## 2.78.0 - 2018-05-01
+
 - Fixed: Backward compatibility for PHP 5 bug
 
 ## 2.77.0 - 2018-05-01
+
 - Fixed: Bug in tag manager causing some new tags not to save
 - Fixed: Bug where new users would hit issues with extension settings saving
 - Fixed: Typo 'Activity Log'
@@ -2349,6 +2516,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated: Semantic UI Icon Set
 
 ## 2.76.0 - 2018-04-25
+
 - Fixed: PHP Notice in cron
 - Fixed: Bug in pre-upgrade users - > dashboard
 - Fixed: Bug in DAL2 get Tags in specific cases
@@ -2360,6 +2528,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Formalised labels for dashboard activity
 
 ## 2.75.0 - 2018-04-23
+
 - Fixed: Recent activity on ZBS Dashboard
 - Fixed: Bug in internal automator (not firing for new contacts)
 - Fixed: Invoicing 'To' data not displaying properly on PDF files
@@ -2377,6 +2546,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility: Added support for Material Admin v3.5+
 
 ## 2.74.0 - 2018-04-20
+
 - Hotfix: Transactions duplication bug fix for WooSync and PayPalSync
 - Fixed: Extra checks for custom field unpacking
 - Fixed: Integrations AddorUpdateTransaction - bug fix
@@ -2386,12 +2556,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Company name to contact vitals (in b2b mode)
 
 ## 2.73.0 - 2018-04-19
+
 - Added: Function for csv importer 1.5 compatibility
 - Improved: Several DAL2 functions relating to add/update tag objects
 - Improved: Customisable tabs via code - added content via function passthrough
 - Several fixes for supporting CSV IMPORTER PRO
 
 ## 2.72.0 - 2018-04-18
+
 - Fixed: PHP notice on some versions when activating
 - Fixed: Bug in export tools where contact details were passing as blank
 - Fixed: Bug in export contacts where contact details were passing as blank
@@ -2409,6 +2581,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Guide: Adding Custom Contact Tabs with Code
 
 ## 2.71.0 - 2018-04-15
+
 - Fixed: Bug in translations where County/State was incorrectly displayed
 - Fixed: Bug causing Company Logs not to display
 - Fixed: Added back in Custom File slots for contacts
@@ -2423,6 +2596,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: 24 hour timestamp to activity log on contact view
 
 ## 2.70.0 - 2018-04-14
+
 - Added: DB Hook for database builds from within extensions
 - Added: System Admin Log (For CRM Admins)
 - Added: Began adding generic DB prep for DBv2
@@ -2486,6 +2660,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This update covers a major DB2 Update & Mail Campaigns v2 prep
 
 ## 2.63.0 - 2018-04-01
+
 - Fixed: PHP warning in Zero BS CRM Dashboard
 - Fixed: JS warning on Zero BS CRM Dashboard page
 - Fixed: Added protection against auto-draft's showing up in typeahead assignments
@@ -2498,6 +2673,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: If using 'Assignment' and no user is assigned to a contact, any Customer Manager can edit them
 
 ## 2.62.0 - 2018-03-30
+
 - Added: Link/Tab to customer page via filter
 - Fixed: Bug where additional file boxes would not save always
 - Fixed: Revenue on dashboard goes weird at end of the month
@@ -2507,6 +2683,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added support for WordPress.org translations proper (3rd Attempt)
 
 ## 2.61.0 - 2018-03-23
+
 - Added: File 'slots' (custom contact file boxes)
 - Added: Customizable Dash
 - Added: German Human Translation
@@ -2526,6 +2703,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Transactions now support prefill
 
 ## 2.54.0 - 2018-03-14
+
 - Fixed: Bug where multi-tabs were closing each other in contact single view
 - Fixed: PHP notice where no social details on contact single view
 - Fixed: Basic CSV Export now works even with unset fields
@@ -2538,6 +2716,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Removed iframe embedded feedback form (flagged some peoples security plugins up) - replaced with image
 
 ## 2.53.1 - 2018-03-09
+
 - Improved: List views all now have correct edit button options for columns
 - Improved: Consistency fix for "Calendar" => "Task Scheduler"
 - Improved: Contact Singular view (Added Addresses to Contact Vitals)
@@ -2552,6 +2731,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Contacts saying 'works for...address'
 
 ## 2.52.0 - 2018-02-25
+
 - Fixed: Invoice Status Box recovered
 - Fixed: Deprecated user info replaced
 - Fixed: Client Portal "Your Details" now updates data
@@ -2563,29 +2743,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Language leak moved into _e
 
 ## 2.51.2 - 2018-02-20
+
 - Fixed: Reseller Integration fixes
 - Improved: Language Integrations: de_DE, en_AU, es_ES, fa_IR, fr_CA, fr_FR, it_IT, nb_NO, nl_NL, nn_NO, pt_BR, ro_RO
 
 ## 2.51.1 - 2018-02-17
+
 - Fixed: Multi-site bug on permissions check for client portal
 
 ## 2.51.0 - 2018-02-16
+
 - Added: Support for wp filters in contact, quote, invoices, transactions menus
 - Added: Support for extension header bars
 - Added: Support for extension sub top menu bars
 - Fixed: Bug in client portal redirection
 
 ## 2.50.3 - 2018-02-15
+
 - Fix: Removed debug output
 
 ## 2.50.2 - 2018-02-15
+
 - Fix: Fix for list view warnings
 - Fix: For admin_init/init ordering
 
 ## 2.50.1 - 2018-02-15
+
 - Hotfix: Legacy support for extensions pre v2.0
 
 ## 2.50.0 - 2018-02-13
+
 - Added: New List views for Transactions
 - Added: zeroBS_getAllContactsForOwner to get the contact list for owner
 - Added: Transaction status to transaction edit page
@@ -2688,20 +2875,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Languages: Added Norwegian (nb_NO) pre-translation (machine translated)
 
 ## 2.28 - 2018-01-24
+
 - Improved: Language now reads "Contact" instead of "Customer" in custom fields settings page
 - Fixed: Can now have up to 64 custom fields (if really need that many!)
 
 ## 2.27.1 - 2017-01-13
+
 - Fixed: Hotfix for older PHP versions (<5.6)
 
 ## 2.27.0 - 2017-01-12
+
 - Added: First name and Last name to contact list view
 - Fixed: Several API bugs (from API v2)
 
 ## 2.26.3 - 2017-01-05
+
 - Fixed: Bug in Company Create API
 
 ## 2.26.2 - 2017-01-05
+
 - API: Create Customer added "assign to"
 - API: List Customers, filtered by owner
 - API: List Customers, added additional options (per page, page, owned by)
@@ -2715,17 +2907,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Automatic Linkifying for text fields on Company and Contact records!
 
 ## 2.26.1 - 2017-12-27
+
 - Fixed: Bug in Client Portal Settings
 - Fixed: Bug in Client Portal re: Customer ID
 
 ## 2.26.0 - 2017-12-04
+
 - Added: Ability to specify custom statuses for Companies (distinctly from Customers)
 
 ## 2.25.0 - 2017-12-04
+
 - Fix for DAL companies retrieval
 - Typo fix for settings page
 
 ## 2.24.0 - 2017-12-02
+
 - Fixed: Bug in task scheduler which forced assignment of an task event to a contact (not able to select none) (Thanks Gibby)
 - Fixed: Typos in company meta boxes
 - Improved: Made functions to allow extraMeta values for contact object
@@ -2733,6 +2929,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: "In Country" selector to DAL get Companies function
 
 ## 2.23.0 - 2017-11-26
+
 - Fixed: Bug in 2.22 which caused notice on some installs when adding new contact (Thanks Markus)
 - Fixed: Bug in JS which was not properly permifying log types
 - Added: (Optional) Automatic Logging of customer/contact status change
@@ -2748,10 +2945,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated: Font Awesome updated to 4.7.0
 
 ## 2.22.0 - 2017-11-25
+
 - Fixed: Bug in contact title rebuild routine, (Thanks Markus)
 - Fixed: Removed erroneous debug code
 
 ## 2.21.0 - 2017-11-24
+
 - Added: Log type "Feedback" to contact/customer
 - Added: Disable/Enable Customer Portal User
 - Added: Action hooks in preparation for Invoice Itemiser (requires invoicing pro)
@@ -2767,6 +2966,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New Extension: Twilio Extension available from this version of ZBS CRM Core onwards :-)
 
 ## 2.20.0 - 2017-11-21
+
 - Added: Bulk Actions to list view model
 - Added: Customer bulk action: Delete
 - Added: Customer bulk action: Add Tag(s)
@@ -2801,6 +3001,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mail Campaigns v2 prep
 
 ## 2.18.0 - 2017-11-14
+
 - Added: "Address to" option when in B2B mode for invoices (choose company or contact)
 - Added: Currency localisation formatting in list views
 - Added: Function in DAL to get assigned owner (different to post creator)
@@ -2830,13 +3031,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extension: Gravity Forms now has settings to send forms to externally hosted ZBS CRM (using API)
 
 ## 2.17.0 - 2017-10-24
+
 - Added: (Optional) Automatic Status Quick-filters
 
 ## 2.16.1~.6 - 2017-10-18
+
 - Fixed: Role / Permissions model now properly installs/resets as per updates
 - Fixed: Bug in client portal (dashboard link)
 
 ## 2.16.0 - 2017-10-12
+
 - Fixed: Bug causing company names to save as blank
 - Fixed: PDF invoice was showing ,,,, if no Address
 - Fixed: PDF invoice layout was skewed if P&P and Tax was shown
@@ -2860,6 +3064,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added: Function to create portal access from contactID
 
 ## 2.15.0 - 2017-10-07
+
 - Fixed: Bug in "Address line 3" (which should be ) "City"
 - Integrations: Prepared Core for Reseller CRM Integration
 - Improved: Centralised admin page slugs more globally
@@ -2867,15 +3072,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Languages: Spanish, Aus, Brazilian Portuguese
 
 ## 2.14.2 - 2017-09-26
+
 - Fixed: Client Portal UI New Bug
 
 ## 2.14.1 - 2017-09-26
+
 - Fixed: Client Portal UI Bug
 - Added: Prep for Zero BS CRM Automations (Workflows)
 - Improved: Automatic Extension update awareness, usage, and notifications
 - Improved: Update notifications now dismissible
 
 ## 2.14.0 - 2017-09-19
+
 - Fixed: Hot fix for bug in customer filters which affected Mail Campaigns
 - Fixed: Bug in DAL breaking default statuses
 - Fixed: Missing CSV Importer (Lite) link for slimline menus
@@ -2890,6 +3098,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full translation completed: Zero BS CRM has been fully processed for WordPress style translations
 
 ## 2.13.0 - 2017-09-07
+
 - Added: System status check - upload directory for asset store
 - Added: Precursor to private file systems for CRM users - file hashing
 - Added: File Store management to Invoice & Quote uploads
@@ -2906,6 +3115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated: Admin Global CSS
 
 ## 2.12.1 - 2017-08-24
+
 - Added: Skype Calling (Click to call option)
 - Added: Up-to-date Spanish CRM Transalations
 - Added: Improved an improved Install Extensions helper
@@ -2914,6 +3124,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: List view when customer has no name, now displays email (if present) as clickable edit link
 
 ## 2.12.0 - 2017-08-18
+
 - Added: CRM Dashboard now shows key metrics
 - Added: Funnels to track status distribution
 - Added: CRM Dashboard shows funnel visualisation
@@ -2935,12 +3146,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Settings UI improved to make settings page tidier
 
 ## 2.11.1 - 2017-08-14
+
 - Improved: Improved default column selection for new Customer List View
 - Fixed: Made Customer Name link to edit customer in new Customer List View
 - Fixed: Bug in company selection from Customer record in B2B
 - Fixed: Bug in company list view (in DAL)
 
 ## 2.11.0 - 2017-08-11
+
 - Added: Awesome new customer views (Customisable Columns, filters etc.)
 - Added: Semantic UI for custom views
 - Added: Per-user customer ownership/assignment (on/off via settings)
@@ -2964,6 +3177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Delayed: More Complex Quick Filters in future version
 
 ## 2.10.7 - 2017-07-25
+
 - Fixed: Removed the Calendar Tab functionality
 - Fixed: Added "Events" to the ZBS Navigation Dashboard
 - Fixed: Made the ZBS Navigation Dashboard Mobile Responsive
@@ -2971,6 +3185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: PHP Notices squished
 
 ## 2.10.6 - 2017-07-21
+
 - Added: Beta Calendar functionality
 - Added: Internal Automator recipe for new event
 - Added: Auto-logging for new event
@@ -2978,9 +3193,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Warning bugs in Calendar, slimline menu etc.
 
 ## 2.10.5 - 2017-07-12
+
 - Fix for ver 2.10.4 minor bug
 
 ## 2.10.4 - 2017-07-12
+
 - Added: Support for ConvertKit CRM Sync
 - Added: From and To on PDF Invoices to show customer information
 - Added: do_action for new customer creation added (do_action('zbs_new_customer'))
@@ -2991,6 +3208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Support links point to knowledgebase
 
 ## 2.10.3 - 2017-06-22
+
 - Added: Show/Hide option for customer ID (beginnings of improving customer fields + UI)
 - Added: Show/Hide option for all non-essential customer & company fields
 - Added: Company ID show/hide option
@@ -3001,12 +3219,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Client Portal UI improvements - tabs don't look so ugly!
 
 ## 2.10.2 - 2017-06-10
+
 - Fixed: Bug in PHP Short-tags issue in Admin Pages
 
 ## 2.10.1 - 2017-06-10
+
 - Fixed: Bug in activation for some hosts (Thanks for reporting Jeff & Christian)
 
 ## 2.10.0 - 2017-06-07
+
 - Added: Pre-cursor for API "add log"
 - Added: Ability to specify "default status" for new (uncategorised) customer additions
 - Fixed: Link to invoice settings in invoice builder
@@ -3021,6 +3242,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Added log date setting
 
 ## 2.0.7 - 2017-05-31
+
 - Added: Action hook zbs_new_customer for when a new customer is added in the admin panel
 - Fixed: hash_equals warning message removed
 - Fixed: Changing email doesn't lose the link to the WordPress user ID in the Client Portal
@@ -3033,6 +3255,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated readme file to include up to date blog features and customer reviews
 
 ## 2.0.6 - 2017-05-24
+
 - Added: Prerequisites for WorldPay Integration (WorldPay Sync)
 - Added: Improved support for localisation (added US to begin)
 - Added: Locale check to System Status
@@ -3042,9 +3265,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Improved explanation for WP Override mode and re-arranged options page so as is easier to see
 
 ## 2.0.5 - 2017-05-16
+
 - Urgent fix: Post title error fix (bug in 2.0.4)
 
 ## 2.0.4 - 2017-05-12
+
 - Added: Quotes, Transactions and Details page to the Client Portal
 - Fixed: Bug in quote builder not allowing you to use blank template
 - Fixed: Removal of special characters in Quote hashes
@@ -3061,21 +3286,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Attachments meta box now lower priority on the invoices page
 
 ## 2.0.3 - 2017-05-05
+
 - Re-ordered Zero BS CRM Menu for ease of use
 - Combined two welcome/home pages into one more-useful page
 - Fixed: Bug in Welcome Wizard (Subscriptions)
 - Improved: Welcome Wizard improvements generally
 
 ## 2.0.2 - 2017-04-29
+
 - Added: Compatibility for Invoicing Pro: Recurring billing via Stripe/PayPal
 - Added: Readme updated with several CRM reviews
 
 ## 2.0.1 - 2017-04-18
+
 - Added: PHP Version shown on System Status page
 - Fixed: Security vulnerabilities (Thank you Timothy Jacobs of ironbounddesigns.com)
 - Improved: Menu item "Extensions" was redirecting to the CRM Extensions Store when it should have pointed to the internal extension manager
 
 ## 2.0.0 - 2017-04-07
+
 - Added: Zero BS CRM API!
 - Improved: Welcome Wizard - added Entrepreneurs bundle option
 - Improved: Sured up API security
@@ -3086,6 +3315,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CRM Wide Improvements & Performance tweaks
 
 ## 1.5.0 - 2017-03-16
+
 - Added: Customer Portal (Let Customers sign in, view invoices, and pay for them with Invoicing PRO)
 - Added: FREE CSV Importer (Lite Version of CSV Importer Extension)
 - Added: Date and Time format support (uses WordPress settings)
@@ -3122,11 +3352,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - NEW TRANSLATION: Spanish! You can now manage your customers etc. in Spanish (Thank you @HenryGR!)
 
 ## 1.2.6 - 2017-01-24
+
 - Added: Support for Gravity Forms Integration
 - Improved: Extensions manager now properly shows installed pro extensions and help docs
 - Fixed: Slimline menu now displays forms
 
 ## 1.2.5 - 2017-01-19
+
 - Added: Ability to enable/disable Quotes/Quote Builder
 - Added: Ability to enable/disable Invoices/Invoice Builder
 - Added: Ability to choose simple Quote Logger (instead of proposal writing via Quote Builder)
@@ -3149,10 +3381,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Bug causing Welcome Wizard to not display
 
 ## 1.2.4 - 2016-12-29
+
 - Fixed: Bug in Invoicing status
 - Fixed: Front-end exposure of customer titles
 
 ## 1.2.3 - 2016-12-15
+
 - Added: Default invoice logo in settings
 - Added: Invoice Status drop down select UI
 - Added: Overdue styling for invoice admin
@@ -3172,12 +3406,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Bug in export which now properly outputs quote id's
 
 ## 1.2.2 - 2016-12-06
+
 - Small bugfix for invoice creation
 
 ## 1.2.1 - 2016-11-15
+
 - Small bugfix rolling over from 1.2 large update
 
 ## 1.2.0 - 2016-11-15
+
 - Added: New Menu Layout Options (1=Full, 2=Slimline, 3=CRM Only)
 - Added: New CRM Dashboard
 - Added: Country Code Support
@@ -3208,6 +3445,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extension update: Sales Dashboard now has improved checks against core
 
 ## 1.1.19 - 2016-10-25
+
 - Added: Sortable field orders (re-arrange your customer/company etc. edit pages!)
 - Added: BETA* Basic templating for addresses (via custom fields)
 - Added: System Status page (pre-cursor to better support and future features)
@@ -3235,6 +3473,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extension Update: WooCommerce Sync now supports companies!
 
 ## 1.1.18 - 2016-10-11
+
 - Added: PDF Invoicing!
 - Added: Extensions Hub
 - Added: Invoice - Transaction allocations (Part Payments!)
@@ -3277,6 +3516,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed: Customer Image repetition (showed up twice on page)
 
 ## 1.1.17 - 2016-09-13
+
 - Added: Customer Lead Forms
 - Added: reCaptcha to Lead Forms
 - Added: 3 x Form variants (simple, naked and content forms)
@@ -3286,6 +3526,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated: CSV Extension plugin (v1.1)
 
 ## 1.1.16 - 2016-08-30
+
 - Added: Itemised Invoice Creator (Create + Send Invoices!)
 - Added: First Fix Internal Automator
 - Added: Automatic Logging of: New Customer
@@ -3297,16 +3538,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed: Bug in Customer Editor which showed invoice numbers incorrectly
 
 ## 1.1.15 - 2016-08-25
+
 - Improved: Activity Logs: Corrected Label to show active count
 
 ## 1.1.14 - 2016-08-16
+
 - Added: Welcome Wizard
 
 ## 1.1.13 - 2016-08-09
+
 - Added: Logging/Notes: Delete a note (ajax)
 - Improved: Logging styles
 
 ## 1.1.12 - 2016-08-02
+
 - Added: Logging (Log calls, emails, quotes, invoices, purchases against customers)
 - Added: Logging Icons
 - Added: Logging of tweets & facebook posts
@@ -3315,6 +3560,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tidied up: Companies metabox code
 
 ## 1.1.10 - 2016-07-19
+
 - Added: Custom Fields for Companies/Organisations
 - Added: View Customers/Contacts by Company/Organisation
 - Added: View Contacts from Company page (Contact Cards)
@@ -3330,6 +3576,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed bug: Icon dimensions
 
 ## 1.1.7 - 2016-07-12
+
 - Optimised Second Address form for wide screens
 - Added "Second Address" against customers (Optional)
 - Added "Create Invoice from Quote" feature
@@ -3342,16 +3589,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved WordPress .org Description
 
 ## 1.1.6 - 2016-07-08
+
 - Improved WordPress .org Description
 - Fixed a bug with customer entry
 
 ## 1.0.0 - 2016-06-17
+
 - Initial Release
 - Fixed all bugs from Alpha 0.9
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[6.4.4]: https://github.com/Automattic/jetpack-crm/compare/6.4.3...6.4.4
 [6.4.3]: https://github.com/Automattic/jetpack-crm/compare/6.4.2...6.4.3
 [6.4.2]: https://github.com/Automattic/jetpack-crm/compare/6.4.1...6.4.2
 [6.4.1]: https://github.com/Automattic/jetpack-crm/compare/6.4.0...6.4.1
