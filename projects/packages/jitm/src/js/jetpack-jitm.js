@@ -28,6 +28,7 @@ jQuery( document ).ready( function ( $ ) {
 				'" data-stats_url="' +
 				envelope.jitm_stats_url +
 				'">';
+			html += '<div class="jitm-banner__background"></div>';
 			html += '<div class="jitm-banner__content">';
 			html += '<div class="jitm-banner__icon-plan">' + envelope.content.icon + '</div>';
 			html += '<div class="jitm-banner__info">';
