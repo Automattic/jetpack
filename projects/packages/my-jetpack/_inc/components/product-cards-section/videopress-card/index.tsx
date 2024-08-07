@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Text } from '@automattic/jetpack-components';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import ProductCard from '../../connected-product-card';
@@ -11,8 +12,9 @@ import type { ProductCardComponent } from '../types';
 
 import './style.scss';
 
+const slug = PRODUCT_SLUGS.VIDEOPRESS;
+
 const VideopressCard: ProductCardComponent = ( { admin } ) => {
-	const slug = 'videopress';
 	const { detail } = useProduct( slug );
 	const { isPluginActive = false } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();

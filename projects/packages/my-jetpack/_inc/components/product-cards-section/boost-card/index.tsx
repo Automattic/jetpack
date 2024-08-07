@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import ProductCard from '../../connected-product-card';
 import BoostSpeedScore from './boost-speed-score';
 import type { ProductCardComponent } from '../types';
@@ -25,7 +26,7 @@ const BoostCard: ProductCardComponent = props => {
 
 	return (
 		<ProductCard
-			slug="boost"
+			slug={ PRODUCT_SLUGS.BOOST }
 			primaryActionOverride={ primaryActionOverride }
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }

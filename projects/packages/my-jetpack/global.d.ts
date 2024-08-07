@@ -31,6 +31,7 @@ type JetpackModule =
 	| 'crm'
 	| 'creator'
 	| 'extras'
+	| 'ai'
 	| 'jetpack-ai'
 	| 'scan'
 	| 'search'

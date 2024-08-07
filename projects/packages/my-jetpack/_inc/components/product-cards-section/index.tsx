@@ -23,7 +23,7 @@ type DisplayItemsProps = {
 
 type DisplayItemType = Record<
 	// We don't have a card for Security or Extras, and scan is displayed as protect.
-	Exclude< JetpackModule, 'extras' | 'scan' | 'security' >,
+	Exclude< JetpackModule, 'extras' | 'scan' | 'security' | 'ai' >,
 	FC< { admin: boolean } >
 >;
 
