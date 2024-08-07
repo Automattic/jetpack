@@ -16,7 +16,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 		);
 	}
 
-	return <></>;
+	return null;
 };
 
 export default VideoPressValueSection;
