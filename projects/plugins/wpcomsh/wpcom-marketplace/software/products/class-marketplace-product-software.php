@@ -1,11 +1,18 @@
 <?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
- * Abstract class that allows to install a marketplace product.
+ * Abstract class that contains all the data required to install a product.
  *
  * @since 5.2.0
  * @package WPCOM_Marketplace
  */
 abstract class Marketplace_Product_Software {
+
+	/**
+	 * Product type (plugin, theme, etc).
+	 *
+	 * @var string
+	 */
+	protected string $product_type;
 
 	/**
 	 * Product software slug. Used to install the product.
@@ -102,5 +109,15 @@ abstract class Marketplace_Product_Software {
 	 */
 	public function is_managed() {
 		return $this->is_managed;
+	}
+
+	/**
+	 * Get the product slug or URL depending on whether the product is managed.
+	 * If the product is managed, the slug is returned. Otherwise, the download URL is returned.
+	 *
+	 * @return string
+	 */
+	public function get_product_slug_or_url() {
+		return $this->is_managed ? $this->software_slug : $this->download_url;
 	}
 }

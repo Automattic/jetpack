@@ -12,61 +12,55 @@
 class Marketplace_Theme_Installer extends Marketplace_Product_Installer {
 
 	/**
-	 * Install the product.
+	 * Install the theme.
 	 *
-	 * @param Marketplace_Product_Software $product_software The product to install.
+	 * @return WP_Error|bool
 	 */
-	public function install( Marketplace_Product_Software $product_software ) {
-		$commands = $this->command_helper->generate_install_commands(
-			null,
-			$product_software->get_plugin_dependencies(),
-			$product_software->get_theme_dependencies(),
-			$product_software->get_theme_slug(),
-			$product_software->is_managed()
-		);
-
-		foreach ( $commands as $command ) {
-			if ( str_contains( $command, '||' ) ) {
-				$conditional_commands = explode( '||', $command );
-
-				foreach ( $conditional_commands as $conditional_command ) {
-					$result = WP_CLI::runcommand(
-						$conditional_command,
-						array(
-							'return'     => 'all',
-							'parse'      => 'json',
-							'launch'     => true,
-							'exit_error' => false,
-						)
-					);
-
-					$this->results[] = $result;
-
-					// If the command was successful, the remaining commands are not executed.
-					if ( $result->return_code === 0 ) {
-						continue 2;
-					}
-				}
-
-				// If all conditional commands failed, return an error.
-				return new WP_Error( 'theme_installation_failed', 'Theme installation failed.', $this->results );
-			}
-
-			$result = WP_CLI::runcommand(
-				$command,
-				array(
-					'return'     => 'all',   // Return 'STDOUT'; use 'all' for full object.
-					'parse'      => 'json', // Parse captured STDOUT to JSON array.
-					'launch'     => true,  // Reuse the current process.
-					'exit_error' => false,  // Halt script execution on error.
-				)
-			);
-
-			if ( $result->return_code !== 0 ) {
-				return new WP_Error( 'theme_installation_failed', 'Theme installation failed.' );
-			}
+	public function install() {
+		if ( ! $this->product_software instanceof Marketplace_Theme_Software ) {
+			return new WP_Error( 'invalid_product_software', 'Invalid product software.' );
 		}
 
-		return $this->command_helper->verify_installation( $product_software->get_plugin_dependencies(), array(), $product_software->get_theme_slug() );
+		$install_dependencies = $this->install_dependencies();
+		if ( is_wp_error( $install_dependencies ) ) {
+			return $install_dependencies;
+		}
+
+		$skip_plugins = $this->get_skip_plugins();
+		if ( is_wp_error( $skip_plugins ) ) {
+			return $skip_plugins;
+		}
+
+		$skip_themes = $this->get_skip_themes();
+		if ( is_wp_error( $skip_themes ) ) {
+			return $skip_themes;
+		}
+
+		$theme_install_command = $this->command_helper->generate_theme_install_command(
+			$this->product_software->get_theme_slug(),
+			$this->product_software->is_managed(),
+			$skip_plugins,
+			$skip_themes
+		);
+
+		$theme_install = $this->run_command( $theme_install_command );
+		if ( is_wp_error( $theme_install ) ) {
+			return $theme_install;
+		}
+
+		$verify_theme_installation_command = $this->command_helper->generate_verify_theme_installation_command( $this->product_software->get_theme_slug() );
+		$verify_theme_installation         = $this->run_command( $verify_theme_installation_command );
+		if ( is_wp_error( $verify_theme_installation ) ) {
+			return $verify_theme_installation;
+		}
+
+		if ( $verify_theme_installation->stdout !== 'active' ) {
+			return new WP_Error(
+				'theme_installation_failed',
+				'Theme installation failed.'
+			);
+		}
+
+		return true;
 	}
 }

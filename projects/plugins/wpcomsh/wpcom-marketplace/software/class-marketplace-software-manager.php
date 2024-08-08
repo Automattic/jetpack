@@ -37,7 +37,7 @@ class Marketplace_Software_Manager {
 			$installer    = Marketplace_Software_Factory::get_product_installer( $product_software );
 			$installation = $installer->install( $product_software );
 			if ( is_wp_error( $installation ) ) {
-				WPCOMSH_Log::unsafe_direct_log( $installation->get_error_message() );
+				WPCOMSH_Log::unsafe_direct_log( $installation->get_error_message(), $installation->get_error_data() );
 			}
 		}
 
@@ -46,16 +46,12 @@ class Marketplace_Software_Manager {
 
 	/**
 	 * Get the marketplace software from Atomic Persist Data. This data is persisted by the
-	 * woa_post_transfer_wpcomsh_cli_flags_install_marketplace_software_filter.
+	 * woa_post_transfer_wpcomsh_cli_flags_install_marketplace_software_filter on WPCOM.
 	 *
 	 * @return array|WP_Error
 	 */
 	protected function get_apd_marketplace_software() {
 		$atomic_persist_data = new Atomic_Persistent_Data();
-		if ( ! $atomic_persist_data ) {
-			return new WP_Error( 'atomic_persist_data_not_found', 'Atomic persist data not found.' );
-		}
-
 		if ( empty( $atomic_persist_data->WPCOM_MARKETPLACE_SOFTWARE ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			return new WP_Error( 'marketplace_software_not_found', 'WPCOM_Marketplace_Software Atomic persist data is empty. No Marketplace Software installed.' );
 		}

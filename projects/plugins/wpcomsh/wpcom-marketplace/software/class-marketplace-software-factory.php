@@ -86,11 +86,11 @@ class Marketplace_Software_Factory {
 		$command_helper = new Marketplace_Command_Helper();
 
 		if ( $product_software instanceof Marketplace_Plugin_Software ) {
-			return new Marketplace_Plugin_Installer( $command_helper );
+			return new Marketplace_Plugin_Installer( $command_helper, $product_software );
 		}
 
 		if ( $product_software instanceof Marketplace_Theme_Software ) {
-			return new Marketplace_Theme_Installer( $command_helper );
+			return new Marketplace_Theme_Installer( $command_helper, $product_software );
 		}
 
 		return new WP_Error( 'invalid_product_type', 'Invalid product type.' );
