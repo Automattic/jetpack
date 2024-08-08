@@ -919,7 +919,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		if (
 			! is_multisite()
-				&& ( ! defined( 'IS_ATOMIC' ) && ! IS_ATOMIC )
+				&& ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC )
 		) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
