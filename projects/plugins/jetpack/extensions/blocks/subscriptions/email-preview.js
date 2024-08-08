@@ -8,8 +8,11 @@ import {
 	Modal,
 	TextControl,
 	Icon,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 	Spinner,
 } from '@wordpress/components';
