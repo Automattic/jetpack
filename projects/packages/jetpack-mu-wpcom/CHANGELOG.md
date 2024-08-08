@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.54.0] - 2024-08-08
+### Added
+- MU WPCOM: Port enqueue_coblocks_gallery_scripts from the ETK [#38731]
+- MU WPCOM: Port the newspack blocks from the ETK [#38724]
+- Point Edit Profile link to wpcalypso.* [#38775]
+- Show Help center in front end admin bar [#38651]
+- Show links back to WordPress.com for them to manage their WordPress.com profile [#38638]
+
+### Changed
+- Removed gating logic for wpcom_admin_interface_settings_field [#38774]
+- WordPress.com Features: Remove unused files for Calypso Locale Bidirectional Sync [#38773]
+
+### Fixed
+- Simple Classic: make Users -> Profile -> Email input readonly instead of disabled [#38752]
+
+## [5.53.1] - 2024-08-05
+### Changed
+- Internal updates.
+
+## [5.53.0] - 2024-08-05
+### Added
+- Added wpcom-block-editor-nux feature from calypso's ETK package. [#38674]
+- MU WPCOM: Port FSE feature from ETK [#38212]
+- MU WPCOM: Port the newspack blocks from the ETK [#38454]
+- MU WPCOM: Port the starter-page-templates feature from ETK [#38475]
+
+### Changed
+- Add description link to Subscriber Login block [#38629]
+- MU WPCOM: Only load ETK features for wpcom users [#38708]
+
+### Removed
+- Removed dead CSS code [#38659]
+
+### Fixed
+- Admin bar: fix icon alignment on small screen widths [#38684]
+- Adminbar: Fix profile menu colors [#38650]
+- Admin bar: help center and notification icons now follow color scheme [#38672]
+- Fix bug so Theme Showcase menu appears on Simple Classic sites [#38698]
+- Fix RTL admin bar [#38654]
+- Masterbar: Fix icon overlap issue at smaller resolutions [#38551]
+- MU WPCOM: Fix the option of the MailerLite widget is gone [#38640]
+
 ## [5.52.1] - 2024-07-30
 ### Changed
 - Fixup versions [#38612]
@@ -1074,6 +1116,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
+[5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
+[5.53.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.1...v5.53.0
 [5.52.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.0...v5.52.1
 [5.52.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.51.0...v5.52.0
 [5.51.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.50.0...v5.51.0

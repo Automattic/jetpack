@@ -8,8 +8,6 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
-define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
-
 /**
  * Enqueue assets
  */

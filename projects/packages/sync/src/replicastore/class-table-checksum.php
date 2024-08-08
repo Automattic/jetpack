@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Replicastore;
 
 use Automattic\Jetpack\Sync;
+use Automattic\Jetpack\Sync\Modules\WooCommerce_HPOS_Orders;
 use Exception;
 use WP_Error;
 
@@ -311,8 +312,14 @@ class Table_Checksum {
 				'table'                     => "{$wpdb->prefix}wc_orders",
 				'range_field'               => 'id',
 				'key_fields'                => array( 'id' ),
-				'checksum_text_fields'      => array( 'type', 'status', 'payment_method_title' ),
-				'filter_values'             => array(),
+				'checksum_fields'           => array( 'date_updated_gmt', 'total_amount' ),
+				'checksum_text_fields'      => array( 'type', 'status' ),
+				'filter_values'             => array(
+					'type' => array(
+						'operator' => 'IN',
+						'values'   => WooCommerce_HPOS_Orders::get_order_types_to_sync( true ),
+					),
+				),
 				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
 			'wc_order_addresses'         => array(
@@ -320,6 +327,9 @@ class Table_Checksum {
 				'range_field'               => 'order_id',
 				'key_fields'                => array( 'order_id', 'address_type' ),
 				'checksum_text_fields'      => array( 'address_type' ),
+				'parent_table'              => 'wc_orders',
+				'parent_join_field'         => 'id',
+				'table_join_field'          => 'order_id',
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),
@@ -327,7 +337,11 @@ class Table_Checksum {
 				'table'                     => "{$wpdb->prefix}wc_order_operational_data",
 				'range_field'               => 'order_id',
 				'key_fields'                => array( 'order_id' ),
-				'checksum_text_fields'      => array( 'order_key', 'cart_hash' ),
+				'checksum_fields'           => array( 'date_paid_gmt', 'date_completed_gmt' ),
+				'checksum_text_fields'      => array( 'order_key' ),
+				'parent_table'              => 'wc_orders',
+				'parent_join_field'         => 'id',
+				'table_join_field'          => 'order_id',
 				'filter_values'             => array(),
 				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',
 			),

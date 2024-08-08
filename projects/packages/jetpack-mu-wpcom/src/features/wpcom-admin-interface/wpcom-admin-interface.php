@@ -31,14 +31,7 @@ function wpcom_admin_interface_display() {
 	echo '<label><input type="radio" name="wpcom_admin_interface" value="calypso" ' . checked( 'calypso', $value, false ) . '/> <span>' . esc_html__( 'Default style', 'jetpack-mu-wpcom' ) . '</span></label><p>' . esc_html__( 'Use WordPress.com’s legacy dashboard to manage your site.', 'jetpack-mu-wpcom' ) . '</p><br>';
 	echo '</fieldset>';
 }
-
-if (
-	// The option should always be available on atomic sites.
-	! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ||
-	// The option will be shown if the simple site has already changed to Classic which means they should have already passed the experiment gate.
-	( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) ) {
-	add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
-}
+add_action( 'admin_init', 'wpcomsh_wpcom_admin_interface_settings_field' );
 
 /**
  * Track the wpcom_admin_interface_changed event.

@@ -88,7 +88,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
 
 		return (
-			<Text variant="body-small" style={ { flexGrow: 1 } }>
+			<Text variant="body-small" style={ { flexGrow: 1, marginBottom: '1rem' } }>
 				{ cardDescription }
 			</Text>
 		);
