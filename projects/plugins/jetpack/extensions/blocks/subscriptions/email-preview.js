@@ -20,7 +20,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { desktop, mobile, tablet, check } from '@wordpress/icons';
+import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpress/icons';
 import './email-preview.scss';
 import { useCallback, useEffect } from 'react';
 import { accessOptions } from '../../shared/memberships/constants';
@@ -123,39 +123,79 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 }
 
 const devices = [
-	{ name: 'desktop', icon: desktop, label: __( 'Desktop', 'jetpack' ), width: '100%' },
-	{ name: 'tablet', icon: tablet, label: __( 'Tablet', 'jetpack' ), width: '768px' },
-	{ name: 'mobile', icon: mobile, label: __( 'Mobile', 'jetpack' ), width: '360px' },
+	{
+		name: 'desktop',
+		icon: desktop,
+		label: __( 'Desktop', 'jetpack' ),
+		width: '100%',
+		size: 'lg',
+	},
+	{
+		name: 'tablet',
+		icon: tablet,
+		label: __( 'Tablet', 'jetpack' ),
+		width: '768px',
+		size: 'md',
+	},
+	{
+		name: 'mobile',
+		icon: mobile,
+		label: __( 'Mobile', 'jetpack' ),
+		width: '360px',
+		size: 'sm',
+	},
 ];
 
-const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
-	<ToggleGroupControl
-		__nextHasNoMarginBottom
-		onChange={ setSelectedDevice }
-		value={ selectedDevice }
-		isBlock
-	>
-		{ devices.map( device => (
-			<ToggleGroupControlOptionIcon
-				icon={ device.icon }
-				value={ device.name }
-				label={ device.label }
-			/>
-		) ) }
-	</ToggleGroupControl>
-);
+const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
+	const [ isMedium ] = useBreakpointMatch( 'md' );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	if ( isSmall ) {
+		return null;
+	}
+
+	const getAvailableDevices = () => {
+		if ( isMedium ) {
+			return devices.filter( device => device.size !== 'lg' );
+		}
+		return devices;
+	};
+
+	return (
+		<ToggleGroupControl
+			__nextHasNoMarginBottom
+			onChange={ setSelectedDevice }
+			value={ selectedDevice }
+			isBlock
+		>
+			{ getAvailableDevices().map( device => (
+				<ToggleGroupControlOptionIcon
+					key={ device.name }
+					icon={ device.icon }
+					value={ device.name }
+					label={ device.label }
+				/>
+			) ) }
+		</ToggleGroupControl>
+	);
+};
 
 const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
 	const accessOptionsList = [
 		{
-			label: __( 'Subscribers', 'jetpack' ),
+			label: accessOptions.subscribers.label,
 			value: accessOptions.subscribers.key,
+			icon: people,
 		},
 		{
-			label: __( 'Paid Subscribers', 'jetpack' ),
+			label: accessOptions.paid_subscribers.label,
 			value: accessOptions.paid_subscribers.key,
+			icon: currencyDollar,
 		},
 	];
+
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
@@ -164,9 +204,22 @@ const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 			isBlock
 			isAdaptiveWidth
 		>
-			{ accessOptionsList.map( access => (
-				<ToggleGroupControlOption value={ access.value } label={ access.label } />
-			) ) }
+			{ accessOptionsList.map( access =>
+				isSmall ? (
+					<ToggleGroupControlOptionIcon
+						key={ access.value }
+						value={ access.value }
+						icon={ access.icon }
+						label={ access.label }
+					/>
+				) : (
+					<ToggleGroupControlOption
+						key={ access.value }
+						value={ access.value }
+						label={ access.label }
+					/>
+				)
+			) }
 		</ToggleGroupControl>
 	);
 };
@@ -177,8 +230,10 @@ const HeaderActions = ( {
 	selectedDevice,
 	setSelectedDevice,
 } ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
 	return (
-		<HStack alignment="center" spacing={ 6 } style={ { width: '100%' } }>
+		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>
 			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
 			<AccessPicker selectedAccess={ selectedAccess } setSelectedAccess={ setSelectedAccess } />
 		</HStack>
@@ -255,14 +310,14 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						setSelectedDevice={ setSelectedDevice }
 					/>
 				}
-				overlayClassName="jetpack-preview-email-modal-overlay"
+				className="jetpack-email-preview-modal"
 			>
 				<div
 					style={ {
 						display: 'flex',
 						justifyContent: 'center',
 						alignItems: 'center',
-						height: 'calc(100vh - 60px)',
+						height: 'calc(100vh - 190px)',
 					} }
 				>
 					{ isLoading ? (
@@ -273,6 +328,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 							style={ {
 								width: deviceWidth,
 								height: '100%',
+								border: 'none',
 							} }
 							title={ __( 'Email Preview', 'jetpack' ) }
 						/>
