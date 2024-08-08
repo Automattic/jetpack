@@ -123,7 +123,7 @@ class Script_Data {
 		 * For example, the social (publicize) data is used only on Social admin page, Jetpack settings page and the post editor.
 		 * So, the social data should be added only on those pages.
 		 *
-		 * @since $$next-version$$
+		 * @since 2.3.0
 		 *
 		 * @param array $state The script data.
 		 */
@@ -149,7 +149,7 @@ class Script_Data {
 		 *
 		 * See the docs for `jetpack_admin_js_script_data` filter for more information.
 		 *
-		 * @since $$next-version$$
+		 * @since 2.3.0
 		 *
 		 * @param array $state The script data.
 		 */

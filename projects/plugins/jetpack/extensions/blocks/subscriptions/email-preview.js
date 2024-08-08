@@ -8,8 +8,12 @@ import {
 	Modal,
 	TextControl,
 	Icon,
-	SelectControl,
-	ButtonGroup,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
 	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -125,23 +129,47 @@ const devices = [
 ];
 
 const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
-	<ButtonGroup>
+	<ToggleGroupControl
+		__nextHasNoMarginBottom
+		onChange={ setSelectedDevice }
+		value={ selectedDevice }
+		isBlock
+	>
 		{ devices.map( device => (
-			<Button
-				key={ device.name }
-				label={ device.label }
+			<ToggleGroupControlOptionIcon
 				icon={ device.icon }
-				isSmall
-				isPressed={ selectedDevice === device.name }
-				onClick={ () => setSelectedDevice( device.name ) }
-				style={ {
-					width: '36px',
-					height: '36px',
-				} }
+				value={ device.name }
+				label={ device.label }
 			/>
 		) ) }
-	</ButtonGroup>
+	</ToggleGroupControl>
 );
+
+const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
+	const accessOptionsList = [
+		{
+			label: __( 'Subscribers', 'jetpack' ),
+			value: accessOptions.subscribers.key,
+		},
+		{
+			label: __( 'Paid Subscribers', 'jetpack' ),
+			value: accessOptions.paid_subscribers.key,
+		},
+	];
+	return (
+		<ToggleGroupControl
+			__nextHasNoMarginBottom
+			onChange={ setSelectedAccess }
+			value={ selectedAccess }
+			isBlock
+			isAdaptiveWidth
+		>
+			{ accessOptionsList.map( access => (
+				<ToggleGroupControlOption value={ access.value } label={ access.label } />
+			) ) }
+		</ToggleGroupControl>
+	);
+};
 
 const HeaderActions = ( {
 	selectedAccess,
@@ -149,22 +177,10 @@ const HeaderActions = ( {
 	selectedDevice,
 	setSelectedDevice,
 } ) => {
-	const accessOptionsList = Object.values( accessOptions ).map( option => ( {
-		label: option.label,
-		value: option.key,
-	} ) );
-
 	return (
-		<HStack alignment="center" spacing={ 6 }>
+		<HStack alignment="center" spacing={ 6 } style={ { width: '100%' } }>
 			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
-			<SelectControl
-				prefix={ __( 'Access:', 'jetpack' ) }
-				value={ selectedAccess }
-				options={ accessOptionsList }
-				onChange={ value => setSelectedAccess( value ) }
-				className="jetpack-email-preview-select-control"
-				__nextHasNoMarginBottom
-			/>
+			<AccessPicker selectedAccess={ selectedAccess } setSelectedAccess={ setSelectedAccess } />
 		</HStack>
 	);
 };
@@ -172,7 +188,7 @@ const HeaderActions = ( {
 export function PreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ previewCache, setPreviewCache ] = useState( {} );
-	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.everybody.key );
+	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
 
 	const fetchPreview = useCallback(
@@ -213,7 +229,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 	);
 
 	useEffect( () => {
-		if ( isOpen && ! previewCache[ selectedAccess ] ) {
+		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
 			fetchPreview( selectedAccess );
 		} else if ( isOpen ) {
 			setIsLoading( false );
@@ -253,7 +269,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						<Spinner />
 					) : (
 						<iframe
-							srcDoc={ previewCache[ selectedAccess ] }
+							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
 								width: deviceWidth,
 								height: '100%',
