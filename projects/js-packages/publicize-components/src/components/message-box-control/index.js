@@ -45,7 +45,10 @@ export default function MessageBoxControl( {
 			onChange={ handleChange }
 			disabled={ disabled }
 			maxLength={ maxLength }
-			placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
+			placeholder={ __(
+				'Write a custom message for your social audience here. This message will override your post content.',
+				'jetpack'
+			) }
 			rows={ 4 }
 			help={ sprintf(
 				/* translators: placeholder is a number. */
