@@ -21,21 +21,25 @@ class Marketplace_Theme_Installer extends Marketplace_Product_Installer {
 			return new WP_Error( 'invalid_product_software', 'Invalid product software.' );
 		}
 
+		// 1. Install the theme dependencies.
 		$install_dependencies = $this->install_dependencies();
 		if ( is_wp_error( $install_dependencies ) ) {
 			return $install_dependencies;
 		}
 
+		// 2. Get the list of plugins to skip when installing the theme.
 		$skip_plugins = $this->get_skip_plugins();
 		if ( is_wp_error( $skip_plugins ) ) {
 			return $skip_plugins;
 		}
 
+		// 3. Get the list of themes to skip when installing the theme.
 		$skip_themes = $this->get_skip_themes();
 		if ( is_wp_error( $skip_themes ) ) {
 			return $skip_themes;
 		}
 
+		// 4. Generate and run the theme installation command.
 		$theme_install_command = $this->command_helper->generate_theme_install_command(
 			$this->product_software->get_theme_slug(),
 			$this->product_software->is_managed(),
@@ -48,6 +52,7 @@ class Marketplace_Theme_Installer extends Marketplace_Product_Installer {
 			return $theme_install;
 		}
 
+		// 5. Verify the theme installation.
 		$verify_theme_installation_command = $this->command_helper->generate_verify_theme_installation_command( $this->product_software->get_theme_slug() );
 		$verify_theme_installation         = $this->run_command( $verify_theme_installation_command );
 		if ( is_wp_error( $verify_theme_installation ) ) {

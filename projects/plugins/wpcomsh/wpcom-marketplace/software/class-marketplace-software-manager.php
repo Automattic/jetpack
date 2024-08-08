@@ -27,6 +27,7 @@ class Marketplace_Software_Manager {
 			return $wpcom_marketplace_software;
 		}
 
+		// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach -- $wpcom_marketplace_software is an array.
 		foreach ( $wpcom_marketplace_software as $software ) {
 			$product_software = Marketplace_Software_Factory::get_product_software( $software );
 			if ( is_wp_error( $product_software ) ) {
@@ -35,9 +36,9 @@ class Marketplace_Software_Manager {
 			}
 
 			$installer    = Marketplace_Software_Factory::get_product_installer( $product_software );
-			$installation = $installer->install( $product_software );
+			$installation = $installer->install();
 			if ( is_wp_error( $installation ) ) {
-				WPCOMSH_Log::unsafe_direct_log( $installation->get_error_message(), $installation->get_error_data() );
+				WPCOMSH_Log::unsafe_direct_log( $installation->get_error_message(), $installer->get_results() );
 			}
 		}
 

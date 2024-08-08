@@ -17,21 +17,25 @@ class Marketplace_Plugin_Installer extends Marketplace_Product_Installer {
 	 * @return WP_Error|bool
 	 */
 	public function install() {
+		// 1. Install the plugin dependencies.
 		$install_dependencies = $this->install_dependencies();
 		if ( is_wp_error( $install_dependencies ) ) {
 			return $install_dependencies;
 		}
 
+		// 2. Get the list of plugins to skip when installing the plugin.
 		$skip_plugins = $this->get_skip_plugins();
 		if ( is_wp_error( $skip_plugins ) ) {
 			return $skip_plugins;
 		}
 
+		// 3. Get the list of themes to skip when installing the plugin.
 		$skip_themes = $this->get_skip_themes();
 		if ( is_wp_error( $skip_themes ) ) {
 			return $skip_themes;
 		}
 
+		// 4. Generate and run the plugin installation command.
 		$plugin_install_commands = $this->command_helper->generate_plugin_install_commands(
 			$this->product_software->get_product_slug_or_url(),
 			$this->product_software->is_managed(),
@@ -46,7 +50,11 @@ class Marketplace_Plugin_Installer extends Marketplace_Product_Installer {
 			}
 		}
 
-		$expected_plugins                    = array_filter( array( ...$this->product_software->get_plugin_dependencies(), $this->product_software->get_software_slug() ) );
+		// 5. Verify the plugin installation.
+		$expected_plugins = array_filter(
+			array( ...$this->product_software->get_plugin_dependencies(), $this->product_software->get_software_slug() )
+		);
+
 		$verify_plugin_installation_commands = $this->command_helper->generate_verify_plugin_installation_commands( $expected_plugins, $this->product_software->get_theme_dependencies() );
 
 		foreach ( $verify_plugin_installation_commands as $command ) {

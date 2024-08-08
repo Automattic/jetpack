@@ -132,13 +132,13 @@ class Marketplace_Command_Helper {
 	 * @param array $expected_plugins A list of plugins that will be checked.
 	 * @param array $expected_themes A list of themes that will be checked.
 	 *
-	 * @return bool|WP_Error
+	 * @return array
 	 */
 	public function generate_verify_plugin_installation_commands( array $expected_plugins, array $expected_themes ) {
 		$expected_plugins = \array_filter( $expected_plugins );
 
 		if ( empty( $expected_plugins ) ) {
-			return true;
+			return array();
 		}
 
 		$plugin_commands = \array_map(
@@ -147,7 +147,7 @@ class Marketplace_Command_Helper {
 		);
 
 		$theme_commands = \array_map(
-			fn( $plugin_slug ) => '--skip-themes --skip-plugins theme get ' . $plugin_slug . ' --field=status',
+			fn( $theme_slug ) => '--skip-themes --skip-plugins theme get ' . $theme_slug . ' --field=status',
 			$expected_themes
 		);
 

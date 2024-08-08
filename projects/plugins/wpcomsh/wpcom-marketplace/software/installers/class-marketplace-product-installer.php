@@ -45,6 +45,15 @@ abstract class Marketplace_Product_Installer {
 	}
 
 	/**
+	 * Get the list of command results.
+	 *
+	 * @return array
+	 */
+	public function get_results() {
+		return $this->results;
+	}
+
+	/**
 	 * Install the product.
 	 *
 	 * This method generates and run the installation commands depending on the product type.
@@ -58,7 +67,7 @@ abstract class Marketplace_Product_Installer {
 	 * To make sure that there are no 3rd party plugins that might interfere in the installation process,
 	 * this method gets the list of installed plugins and filters out the ones that are dependencies of the product.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function get_skip_plugins() {
 		if ( empty( $this->product_software->get_plugin_dependencies() ) ) {
@@ -85,7 +94,7 @@ abstract class Marketplace_Product_Installer {
 	 * To make sure that there are no 3rd party themes that might interfere in the installation process,
 	 * this method gets the list of installed themes and filters out the ones that are dependencies of the product.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	protected function get_skip_themes() {
 		if ( empty( $this->product_software->get_theme_dependencies() ) ) {
