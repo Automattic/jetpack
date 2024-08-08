@@ -605,6 +605,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_site_icon_url_returns_false_when_no_site_icon() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			remove_all_filters( 'get_site_icon_url' );
+		}
 		delete_option( 'jetpack_site_icon_url' );
 		$this->sender->do_sync();
 		$this->assertFalse( $this->server_replica_storage->get_callable( 'site_icon_url' ) );
@@ -629,6 +632,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			remove_all_filters( 'get_site_icon_url' );
+		}
 		delete_option( 'site_icon' );
 		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
 		$this->sender->do_sync();
@@ -911,7 +917,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
-		if ( ! is_multisite() ) {
+		if (
+			! is_multisite()
+				&& ( ! defined( 'IS_ATOMIC' ) && ! IS_ATOMIC )
+		) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 
