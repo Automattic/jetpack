@@ -337,7 +337,7 @@ class Initializer {
 			function ( $purchase ) {
 				return $purchase->product_slug;
 			},
-			(array) $purchases
+			$purchases
 		);
 	}
 

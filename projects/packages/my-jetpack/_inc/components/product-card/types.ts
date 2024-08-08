@@ -10,6 +10,7 @@ export type AdditionalAction = ProductButtonProps & {
 	label: string;
 	href?: string;
 	onClick?: () => void;
+	isExternalLink?: boolean;
 };
 
 export type SecondaryAction = ProductButtonProps & {
