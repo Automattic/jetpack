@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Brute Force Protection: Add `jetpack_has_login_ability` hook.

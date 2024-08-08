@@ -6,13 +6,13 @@ import styles from './style.module.scss';
 import type { FC } from 'react';
 
 interface StatusProps {
-	status: keyof typeof PRODUCT_STATUSES;
+	status: ProductStatus;
 	isFetching: boolean;
 	isInstallingStandalone: boolean;
 	isOwned: boolean;
 }
 
-type StatusStateFunction = ( status: keyof typeof PRODUCT_STATUSES, isOwned: boolean ) => string;
+type StatusStateFunction = ( status: ProductStatus, isOwned: boolean ) => string;
 
 const getStatusLabel: StatusStateFunction = ( status, isOwned ) => {
 	switch ( status ) {
