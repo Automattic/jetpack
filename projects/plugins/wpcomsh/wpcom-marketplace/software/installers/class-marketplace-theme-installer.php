@@ -2,7 +2,7 @@
 /**
  * Class that allows to install a marketplace theme.
  *
- * @since 5.2.0
+ * @since 5.4.0
  * @package WPCOM_Marketplace
  */
 

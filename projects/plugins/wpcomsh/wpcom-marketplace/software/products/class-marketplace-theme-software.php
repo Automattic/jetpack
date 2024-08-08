@@ -1,8 +1,8 @@
 <?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
- * Class that allows to install a marketplace theme.
+ * Class that contains all the data required to install a theme.
  *
- * @since 5.2.0
+ * @since 5.4.0
  * @package WPCOM_Marketplace
  */
 

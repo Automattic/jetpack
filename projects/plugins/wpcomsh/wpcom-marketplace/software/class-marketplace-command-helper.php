@@ -2,12 +2,12 @@
 /**
  * Helper class for marketplace commands.
  *
- * @since 5.2.0
+ * @since 5.4.0
  * @package WPCOM_Marketplace
  */
 
 /**
- * Helper class for marketplace commands.
+ * Helper class for generating WP CLI commands required to install marketplace product.
  */
 class Marketplace_Command_Helper {
 

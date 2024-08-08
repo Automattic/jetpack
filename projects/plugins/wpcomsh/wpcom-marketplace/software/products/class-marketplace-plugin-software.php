@@ -1,6 +1,6 @@
 <?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 /**
- * Class that allows to install a marketplace plugin..
+ * Class that contains all the data required to install a plugin.
  *
  * @since 5.2.0
  * @package WPCOM_Marketplace
