@@ -18,6 +18,22 @@ import { isModuleFound } from 'state/search';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
+		componentDidMount() {
+			document.addEventListener( 'click', this.handleAnchorClick );
+		}
+
+		componentWillUnmount() {
+			document.removeEventListener( 'click', this.handleAnchorClick );
+		}
+
+		handleAnchorClick = event => {
+			const anchor = event.target.closest( '.jp-searchable-banner a.dops-button[href="#"]' );
+
+			if ( anchor ) {
+				event.preventDefault();
+			}
+		};
+
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
 		};
@@ -68,7 +84,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 								key={ slug }
 								callToAction={ __( 'Activate', 'jetpack' ) }
 								description={ moduleData.description }
-								href="javascript:void( 0 )"
+								href="#"
 								icon="cog"
 								onClick={ this.handleBannerClick( moduleData.module ) }
 								title={ moduleData.name }
@@ -77,7 +93,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 					}
 				}
 			} );
-
+			//
 			return <div>{ results }</div>;
 		}
 	}
