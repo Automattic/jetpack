@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooSync: Fix a warning message on sync and fatal error when a fee value is not a number
