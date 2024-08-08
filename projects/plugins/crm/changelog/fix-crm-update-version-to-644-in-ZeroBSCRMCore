@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Fixed the version (to 6.4.4) in includes/ZeroBSCRM.Core.php
