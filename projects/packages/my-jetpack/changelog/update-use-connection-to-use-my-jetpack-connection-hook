@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update uses of useConnection to useMyJetpackConnection and improve typing in a few places
