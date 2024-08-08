@@ -148,11 +148,11 @@ const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => (
 const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 	const accessOptionsList = [
 		{
-			label: __( 'Subscribers', 'jetpack' ),
+			label: accessOptions.subscribers.label,
 			value: accessOptions.subscribers.key,
 		},
 		{
-			label: __( 'Paid Subscribers', 'jetpack' ),
+			label: accessOptions.paid_subscribers.label,
 			value: accessOptions.paid_subscribers.key,
 		},
 	];
