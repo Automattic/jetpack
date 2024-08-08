@@ -24,6 +24,7 @@ import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpre
 import './email-preview.scss';
 import { useCallback, useEffect } from 'react';
 import { accessOptions } from '../../shared/memberships/constants';
+import { useAccessLevel } from '../../shared/memberships/edit';
 import illustration from './email-preview-illustration.svg';
 
 export default function EmailPreview( { isModalOpen, closeModal } ) {
@@ -182,6 +183,10 @@ const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
 
 const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const accessLevel = useAccessLevel( postType );
+
+	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
 
 	const accessOptionsList = [
 		{
@@ -193,13 +198,24 @@ const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 			label: accessOptions.paid_subscribers.label,
 			value: accessOptions.paid_subscribers.key,
 			icon: currencyDollar,
+			disabled: isPaidOptionDisabled,
 		},
 	];
+
+	const handleChange = value => {
+		if ( ! isPaidOptionDisabled ) {
+			setSelectedAccess( value );
+		}
+	};
+
+	if ( isSmall && isPaidOptionDisabled ) {
+		return null;
+	}
 
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
-			onChange={ setSelectedAccess }
+			onChange={ handleChange }
 			value={ selectedAccess }
 			isBlock
 			isAdaptiveWidth
@@ -217,6 +233,7 @@ const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
 						key={ access.value }
 						value={ access.value }
 						label={ access.label }
+						disabled={ access.disabled }
 					/>
 				)
 			) }
