@@ -362,25 +362,11 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.4.3 - 2024-05-23
-#### Added
-- Currency: Added several new currencies to the currency dropdown.
-- Fonts: Updated core Noto Sans, and added new CJK fonts.
-- Readme: Adding information on how to contribute to Jetpack CRM.
-- WooSync: Added new status mapping to avoid creating invoices and transactions from WooCommerce to Jetpack CRM.
-
-#### Changed
-- General: use wp_admin_notice function introduced in WP 6.4 to display notices.
-- Updated package dependencies.
+### 6.4.4 - 2024-08-07
 
 #### Removed
-- Contact Form: Updated a comment reference to Grunion_Contact_Form_Plugin to be Contact_Form_Plugin.
+- MailPoet: Remove unused MailPoet use statements.
 
 #### Fixed
-- Companies: Increased city field size from 100 to 200.
-- Contacts: Increased city field size from 100 to 200.
-- Invoices: Fix "image not found" logo issue in PDF invoices.
-- Invoices: Remove the blank line below the contact name.
-- Listviews: Invoice quick filter status fix to prevent filters not working.
-- MailPoet Sync: Fix pending pages percentage calculation issue.
+- WooSync: Fix a warning message on sync and fatal error when a fee value is not a number
 

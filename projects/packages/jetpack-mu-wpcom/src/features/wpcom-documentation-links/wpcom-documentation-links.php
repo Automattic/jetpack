@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'MU_WPCOM_DOCUMENTATION_LINKS', true );
-
 /**
  * Enqueue assets
  */

@@ -8,8 +8,6 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
-define( 'MU_WPCOM_TAGS_EDUCATION', true );
-
 /**
  * Enqueue assets
  */
