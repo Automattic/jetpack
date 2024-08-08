@@ -171,10 +171,13 @@ function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 		//
 		// Then, the Edit Profile menu should point to /me, instead of the site's profile.php.
 		if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+
+			// Temporarily point to wpcalypso.wordpress.com for testing purposes.
 			$url = 'https://wordpress.com/me';
 			if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
 				$url = 'https://wpcalypso.wordpress.com/me';
 			}
+
 			$edit_profile_node->href = maybe_add_origin_site_id_to_url( $url );
 			$wp_admin_bar->add_node( (array) $edit_profile_node );
 		}
@@ -194,6 +197,7 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 		$wp_admin_bar->remove_node( 'logout' );
 	}
 
+	// Temporarily point to wpcalypso.wordpress.com for testing purposes.
 	$url = 'https://wordpress.com/me/account';
 	if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
 		$url = 'https://wpcalypso.wordpress.com/me/account';
