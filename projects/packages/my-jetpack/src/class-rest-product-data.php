@@ -107,7 +107,7 @@ class REST_Product_Data {
 			}
 		}
 
-		return rest_ensure_response( $undo_event );
+		return rest_ensure_response( $undo_event, 200 );
 	}
 
 	/**
@@ -142,6 +142,6 @@ class REST_Product_Data {
 		// Add all audio attachments together to get the total audio count
 		$data['total_audio_count'] = array_sum( (array) wp_count_attachments( $audio_mime_type ) );
 
-		return rest_ensure_response( $data );
+		return rest_ensure_response( $data, 200 );
 	}
 }

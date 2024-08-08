@@ -7,9 +7,9 @@ type ProductButtonProps = Pick<
 >;
 
 export type AdditionalAction = ProductButtonProps & {
-	href: string;
 	label: string;
-	onClick: () => void;
+	href?: string;
+	onClick?: () => void;
 };
 
 export type SecondaryAction = ProductButtonProps & {

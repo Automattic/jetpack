@@ -630,7 +630,7 @@ class Initializer {
 			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
 		}
 
-		return rest_ensure_response( $body );
+		return rest_ensure_response( $body, 200 );
 	}
 
 	/**
@@ -664,7 +664,7 @@ class Initializer {
 	/**
 	 * Returns whether a site has been determined "commercial" or not.
 	 *
-	 * @return bool|null
+	 * @return bool
 	 */
 	public static function is_commercial_site() {
 		if ( is_wp_error( self::$site_info ) ) {
@@ -690,7 +690,7 @@ class Initializer {
 	 */
 	public static function dismiss_welcome_banner() {
 		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
-		return rest_ensure_response( array( 'success' => true ) );
+		return rest_ensure_response( array( 'success' => true ), 200 );
 	}
 
 	/**

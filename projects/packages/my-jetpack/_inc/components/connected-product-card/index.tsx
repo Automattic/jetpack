@@ -31,7 +31,7 @@ interface ConnectedProductCardProps {
 	additionalActions?: AdditionalAction[];
 	secondaryAction?: SecondaryAction;
 	upgradeInInterstitial?: boolean;
-	primaryActionOverride?: AdditionalAction;
+	primaryActionOverride?: { [ key: string ]: AdditionalAction };
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 }

@@ -29,7 +29,7 @@ export type ProductCardProps = {
 	slug: JetpackModule;
 	additionalActions?: AdditionalAction[];
 	upgradeInInterstitial?: boolean;
-	primaryActionOverride?: AdditionalAction;
+	primaryActionOverride?: { [ key: string ]: AdditionalAction };
 	secondaryAction?: SecondaryAction;
 	onInstallStandalone?: InstallCallback;
 	onActivateStandalone?: () => void;
