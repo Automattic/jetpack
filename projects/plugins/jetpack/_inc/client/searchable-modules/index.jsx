@@ -93,7 +93,7 @@ export const SearchableModules = withModuleSettingsFormHelpers(
 					}
 				}
 			} );
-			//
+
 			return <div>{ results }</div>;
 		}
 	}
