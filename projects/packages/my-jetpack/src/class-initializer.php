@@ -315,6 +315,13 @@ class Initializer {
 		}
 
 		$videopress_stats = new VideoPress_Stats();
+		$featured_stats   = $videopress_stats->get_featured_stats( 60 );
+
+		if ( is_wp_error( $featured_stats ) ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
 
 		return array(
 			'featuredStats' => $videopress_stats->get_featured_stats( 60 ),
