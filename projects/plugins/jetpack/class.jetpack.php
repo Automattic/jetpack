@@ -908,12 +908,6 @@ class Jetpack {
 			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
-		// Assets should be configured regardless of connection status.
-		// TODO - Uncomment this when `jetpack-publicize-components` imports `jetpack-script-data`
-		// Which makes the latter to be a dependency for Jetpack.
-		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar
-		// \Automattic\Jetpack\Publicize\Publicize_Assets::configure();
-
 		$modules = new Automattic\Jetpack\Modules();
 		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
 			$config->ensure( 'publicize' );

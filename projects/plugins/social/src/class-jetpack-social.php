@@ -77,9 +77,6 @@ class Jetpack_Social {
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
 
-				// Assets should be registered configured of connection status.
-				\Automattic\Jetpack\Publicize\Publicize_Assets::configure();
-
 				if ( ! $this->is_connected() ) {
 					return;
 				}

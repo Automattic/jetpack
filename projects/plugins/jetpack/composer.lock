@@ -2223,7 +2223,7 @@
 			"dist": {
 				"type": "path",
 				"url": "../../packages/publicize",
-				"reference": "9648132e5383344b57b1b7921b0e624cfdecf657"
+				"reference": "9dbb115acd62d66dc4548594fc28442a298476d0"
 			},
 			"require": {
 				"automattic/jetpack-assets": "@dev",
@@ -2259,6 +2259,7 @@
 					"src/"
 				],
 				"files": [
+					"actions.php",
 					"src/social-image-generator/utilities.php"
 				]
 			},
