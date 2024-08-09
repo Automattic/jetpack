@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Delete relevant Protect options on deactivation 
