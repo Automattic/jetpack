@@ -174,7 +174,7 @@ class Jetpack_Mu_Wpcom {
 		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
 		define( 'MU_WPCOM_TAGS_EDUCATION', true );
 		define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
-		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
+		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', false );
 		define( 'MU_WPCOM_POSTS_LIST_BLOCK', true );
 		define( 'MU_WPCOM_JETPACK_COUNTDOWN_BLOCK', true );
 		define( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK', true );
@@ -218,7 +218,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
 			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
-			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
 			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
 			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
 			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
