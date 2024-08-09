@@ -5,7 +5,6 @@ import { dispatch, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { showAiAssistantSection } from '../utils/show-ai-assistant-section';
 import getContainer from './container';
 import features from './index';
 /**
@@ -16,35 +15,7 @@ import type { BreveDispatch, Anchor, BreveSelect } from '../types';
 let highlightTimeout: number;
 let anchorTimeout: number;
 
-let isFirstHover = ! localStorage.getItem( 'jetpack-ai-breve-first-hover' );
-
-function getHighlightEl( el: HTMLElement ) {
-	if ( el === document.body ) {
-		return null;
-	}
-
-	if ( el.getAttribute( 'data-type' ) === null ) {
-		return getHighlightEl( el.parentElement );
-	}
-
-	return el;
-}
-
-async function handleMouseEnter( e: MouseEvent ) {
-	if ( isFirstHover ) {
-		await showAiAssistantSection();
-
-		isFirstHover = false;
-		localStorage.setItem( 'jetpack-ai-breve-first-hover', 'false' );
-
-		const isSmall = window.innerWidth < 600;
-
-		// Do not show popover on small screens on first hover, as the sidebar will open
-		if ( isSmall ) {
-			return;
-		}
-	}
-
+function handleMouseEnter( e: MouseEvent ) {
 	clearTimeout( highlightTimeout );
 	clearTimeout( anchorTimeout );
 
@@ -57,7 +28,7 @@ async function handleMouseEnter( e: MouseEvent ) {
 			return;
 		}
 
-		const el = getHighlightEl( e.target as HTMLElement );
+		const el = e.target as HTMLElement;
 		let virtual = el;
 
 		const shouldPointToCursor = el.getAttribute( 'data-type' ) === 'long-sentences';
@@ -86,16 +57,16 @@ async function handleMouseEnter( e: MouseEvent ) {
 
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( true );
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setPopoverAnchor( {
-			target: el,
+			target: e.target as HTMLElement,
 			virtual: virtual,
 		} as Anchor );
-	}, 100 );
+	}, 100 ) as unknown as number;
 }
 
 function handleMouseLeave() {
 	highlightTimeout = setTimeout( () => {
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
-	}, 100 );
+	}, 100 ) as unknown as number;
 }
 
 export default function registerEvents( clientId: string ) {
