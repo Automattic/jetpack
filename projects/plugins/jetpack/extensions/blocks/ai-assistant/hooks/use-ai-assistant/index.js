@@ -60,7 +60,7 @@ const useAIAssistant = ( {
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	const updatedMessages = useRef( [] );
-	const lastUserPrompt = useRef();
+	const lastUserPrompt = useRef( undefined );
 
 	const onSuggestion = detail => {
 		// Remove the delimiter from the suggestion and update the block.
