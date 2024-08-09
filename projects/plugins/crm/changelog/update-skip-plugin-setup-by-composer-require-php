@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove obsolete PHP version check in `tests/action-skip-test-php.sh`. No change to the plugin itself.
