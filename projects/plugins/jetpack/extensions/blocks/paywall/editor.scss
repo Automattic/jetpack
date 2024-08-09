@@ -3,44 +3,36 @@
  */
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.wp-block-jetpack-paywall {
-	display: block;
-	text-align: center;
-	white-space: nowrap;
-
+.wp-block-jetpack-paywall-block {
+	display: flex;
+	align-items: center;
+	color: currentColor;
+	opacity: 0.8;
+  
 	// Label
 	span {
-		position: relative;
-		font-size: $default-font-size;
-		text-transform: uppercase;
-		font-family: $default-font;
-		color: $gray-700;
-		border: none;
-		box-shadow: none;
-		white-space: nowrap;
-		text-align: center;
-		margin: 0;
-		border-radius: 4px;
-		background: $white;
-		padding-left: 8px;
-		padding-right: 4px;
-		height: $button-size-small;
-		max-width: 100%;
+	  font-size: $default-font-size;
+	  text-transform: uppercase;
+	  font-family: $default-font;
+	  padding: 0 8px;
+	  white-space: nowrap;
+	  text-align: center;
+	  user-select: 'none';
 		svg {
 			vertical-align: text-top;
 			fill: currentColor;
 		}
 	}
 
-	// Line
-	&::before {
-		content: "";
-		position: absolute;
-		top: calc(50% + 1px);
-		left: 0;
-		right: 0;
-		height: 1px;
-		background-color: $gray-700;
+	// Lines
+	&::before,
+	&::after {
+	  content: "";
+	  flex: 1;
+	  margin: auto;
+	  height: 1px;  
+	  background: currentColor;
+	  opacity: 0.5;
 	}
 }
 
