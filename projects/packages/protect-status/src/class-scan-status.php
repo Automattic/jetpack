@@ -359,4 +359,13 @@ class Scan_Status extends Status {
 
 		return $new_list;
 	}
+
+	/**
+	 * Delete the cached status and its timestamp
+	 *
+	 * @return bool Whether all related status options were successfully deleted.
+	 */
+	public static function delete_option() {
+		return parent::delete_option();
+	}
 }
