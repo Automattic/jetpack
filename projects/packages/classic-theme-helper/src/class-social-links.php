@@ -99,7 +99,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				return;
 			}
 
-			// @phan-suppress-next-line PhanUndeclaredFunction -- See init() for the condition that ensures this function exists.
+			// @phan-suppress-next-line PhanUndeclaredFunction -- See __construct() for the condition that ensures this function exists.
 			$this->publicize    = publicize_init();
 			$publicize_services = $this->publicize->get_services( 'connected' );
 			$this->services     = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
