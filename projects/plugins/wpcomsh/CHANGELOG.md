@@ -1,5 +1,13 @@
 # Changelog
 
+## 5.3.0 - 2024-08-08
+### Changed
+- Plan name change: Add translations [#38726]
+- Update translation files [#38736]
+
+### Fixed
+- Update wpcomsh POT file [#38728]
+
 ## 5.2.1 - 2024-08-05
 ### Changed
 - Internal updates.
