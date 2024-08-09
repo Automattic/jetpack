@@ -8,9 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
-use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
-use Jetpack_Options;
 
 /**
  * Publicize_Script_Data class.
@@ -134,56 +132,5 @@ class Publicize_Script_Data {
 		}
 
 		return Current_Plan::supports( 'social-' . $feature );
-	}
-
-	/**
-	 * Get initial state for social store.
-	 *
-	 * @return array
-	 */
-	public static function get_store_script_data() {
-
-		$settings = ( new Settings() );
-
-		return array(
-			// TODO - Move this settings array to Settings class.
-			'settings'        => array(
-				// Since we are already in `settings`, we can remove the `settings` suffix.
-				'socialImageGenerator' => $settings->get_settings()['socialImageGeneratorSettings'],
-			),
-			'connectionsData' => array(
-				'connections' => self::publicize()->get_all_connections_for_user(),
-				// TODO - Move that `get_services` to the this class.
-				'services'    => $settings->get_services(),
-			),
-		);
-	}
-
-	/**
-	 * Get the shares data.
-	 *
-	 * @return ?array
-	 */
-	public static function get_shares_data() {
-		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
-	}
-
-	/**
-	 * Get the URLs need in the initial state.
-	 *
-	 * @return array
-	 */
-	public static function get_urls() {
-
-		$urls = array(
-			'socialSettingsPage' => self::publicize()->publicize_connections_url(
-				'jetpack-social-connections-admin-page'
-			),
-		);
-
-		// Escape the URLs.
-		array_walk( $urls, 'esc_url_raw' );
-
-		return $urls;
 	}
 }
