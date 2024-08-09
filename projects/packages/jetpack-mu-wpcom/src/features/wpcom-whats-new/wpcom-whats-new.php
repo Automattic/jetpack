@@ -2,10 +2,8 @@
 /**
  * WPCom Whats New support for WordPress.com sites.
  *
- * @package automattic/jetpack-mu-plugins
+ * @package automattic/jetpack-mu-wpcom
  */
-
-define( 'MU_WPCOM_WHATS_NEW', true );
 
 /**
  * Check if the WPCom Whats New should be loaded.

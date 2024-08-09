@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.54.1] - 2024-08-08
+### Fixed
+- Load Scheduled_Updates for non-wpcom users [#38772]
+
+## [5.54.0] - 2024-08-08
+### Added
+- MU WPCOM: Port enqueue_coblocks_gallery_scripts from the ETK [#38731]
+- MU WPCOM: Port the newspack blocks from the ETK [#38724]
+- Point Edit Profile link to wpcalypso.* [#38775]
+- Show Help center in front end admin bar [#38651]
+- Show links back to WordPress.com for them to manage their WordPress.com profile [#38638]
+
+### Changed
+- Removed gating logic for wpcom_admin_interface_settings_field [#38774]
+- WordPress.com Features: Remove unused files for Calypso Locale Bidirectional Sync [#38773]
+
+### Fixed
+- Simple Classic: make Users -> Profile -> Email input readonly instead of disabled [#38752]
+
+## [5.53.1] - 2024-08-05
+### Changed
+- Internal updates.
+
 ## [5.53.0] - 2024-08-05
 ### Added
 - Added wpcom-block-editor-nux feature from calypso's ETK package. [#38674]
@@ -1097,6 +1120,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.54.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.0...v5.54.1
+[5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
+[5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
 [5.53.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.1...v5.53.0
 [5.52.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.0...v5.52.1
 [5.52.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.51.0...v5.52.0

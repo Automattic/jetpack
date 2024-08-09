@@ -1237,6 +1237,8 @@ importers:
         specifier: 5.0.4
         version: 5.0.4
 
+  projects/js-packages/script-data: {}
+
   projects/js-packages/shared-extension-utils:
     dependencies:
       '@automattic/jetpack-analytics':
@@ -1668,6 +1670,9 @@ importers:
 
   projects/packages/assets:
     dependencies:
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       react:
         specifier: 18.3.1
         version: 18.3.1
