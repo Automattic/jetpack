@@ -35,7 +35,8 @@ export const useInit = init => {
 
 const Controls = ( { blocks, disabledFeatures } ) => {
 	const [ gradeLevel, setGradeLevel ] = useState( null );
-	const { toggleFeature, toggleProofread } = useDispatch( 'jetpack/ai-breve' );
+	const { toggleFeature, toggleProofread, setPopoverHover, setHighlightHover, setPopoverAnchor } =
+		useDispatch( 'jetpack/ai-breve' );
 	const { tracks } = useAnalytics();
 
 	const isProofreadEnabled = useSelect(
@@ -81,6 +82,19 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	// Update the grade level immediately on first load.
 	useInit( updateGradeLevel );
+
+	// Disable the popover when proofread or a feature is disabled.
+	useEffect( () => {
+		setPopoverHover( false );
+		setHighlightHover( false );
+		setPopoverAnchor( { target: null, virtual: null } );
+	}, [
+		setPopoverHover,
+		setHighlightHover,
+		setPopoverAnchor,
+		isProofreadEnabled,
+		disabledFeatures,
+	] );
 
 	return (
 		<div className="jetpack-ai-proofread">
