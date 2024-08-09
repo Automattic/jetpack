@@ -5,7 +5,9 @@
  * @package automattic/jetpack
  */
 
-require_once JETPACK__PLUGIN_DIR . 'modules/custom-css/csstidy/class.csstidy.php';
+if ( ! function_exists( 'safecss_class' ) ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/custom-css/csstidy/class.csstidy.php';
+}
 
 /**
  * Class WP_Test_Jetpack_CSSTidy

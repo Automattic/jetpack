@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added safeguards against erroneous WordPress hook invocations.
