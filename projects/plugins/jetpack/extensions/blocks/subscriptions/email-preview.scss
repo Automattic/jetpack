@@ -61,8 +61,8 @@
   align-items: center;
 }
 
-.jetpack-preview-email-modal-overlay {
-  .jetpack-email-preview-select-control .components-input-control__prefix {
-    margin-left: 18px;
+.jetpack-email-preview-modal {
+  h1 {
+    flex-shrink: 0;
   }
 }
