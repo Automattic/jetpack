@@ -38,7 +38,7 @@ class Tracking {
 	/**
 	 * Creates the Tracking object.
 	 *
-	 * @param String                                 $product_name the slug of the product that we are tracking.
+	 * @param string                                 $product_name the slug of the product that we are tracking.
 	 * @param \Automattic\Jetpack\Connection\Manager $connection   the connection manager object.
 	 */
 	public function __construct( $product_name = 'jetpack', $connection = null ) {

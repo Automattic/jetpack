@@ -107,14 +107,14 @@ class REST_Product_Data {
 			}
 		}
 
-		return rest_ensure_response( $undo_event, 200 );
+		return rest_ensure_response( $undo_event );
 	}
 
 	/**
 	 * This will collect a count of all the items that could be backed up
 	 * This is used to show what backup could be doing if it is not enabled
 	 *
-	 * @return array
+	 * @return WP_Error|\WP_REST_Response
 	 */
 	public static function count_things_that_can_be_backed_up() {
 		$image_mime_type = 'image';
@@ -142,6 +142,6 @@ class REST_Product_Data {
 		// Add all audio attachments together to get the total audio count
 		$data['total_audio_count'] = array_sum( (array) wp_count_attachments( $audio_mime_type ) );
 
-		return rest_ensure_response( $data, 200 );
+		return rest_ensure_response( $data );
 	}
 }
