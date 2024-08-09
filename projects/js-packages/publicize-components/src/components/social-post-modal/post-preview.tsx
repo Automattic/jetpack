@@ -15,8 +15,8 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { Connection } from '../../social-store/types';
+import { InstagramNoMediaNotice } from '../form/instagram-no-media-notice';
 import { usePostData } from '../social-previews/use-post-data';
-import { InstagramMediaNotice } from './instagram-media-notice';
 
 export type PostPreviewProps = {
 	connection: Connection;
@@ -85,7 +85,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			const hasImage = Boolean( image );
 
 			return ! hasMedia && ! hasImage ? (
-				<InstagramMediaNotice />
+				<InstagramNoMediaNotice />
 			) : (
 				<InstagramPostPreview
 					{ ...commonProps }
