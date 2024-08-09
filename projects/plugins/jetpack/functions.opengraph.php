@@ -543,6 +543,8 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  *
  * @see https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
  *
+ * @since $$next-version$$
+ *
  * @param array $tags Current tags.
  *
  * @return array
@@ -640,6 +642,8 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 /**
  * Update the markup for the Open Graph tag to match the expected output for Mastodon
  * (name instead of property).
+ *
+ * @since $$next-version$$
  *
  * @param string $og_tag A single OG tag.
  *
