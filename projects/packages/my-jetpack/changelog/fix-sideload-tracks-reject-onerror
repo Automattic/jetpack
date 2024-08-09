@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: fix a bug where a user would see and infinite loading spinner when trying to connect Jetpack with one click in the Welcome flow.
