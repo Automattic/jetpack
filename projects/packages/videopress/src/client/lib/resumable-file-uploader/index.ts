@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 import * as tus from 'tus-js-client';
 /**
  * Internal dependencies
@@ -9,6 +10,8 @@ import { VideoGUID } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../get-media-token';
 import { VideoMediaProps } from './types';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
+
+const debug = debugFactory( 'videopress:resumable-file-uploader' );
 
 const jwtsForKeys = {};
 
@@ -54,12 +57,12 @@ const resumableFileUploader = ( {
 	onError,
 }: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
-		onError: onError,
+		onError,
 		onProgress,
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
-		withCredentials: false,
-		autoRetry: true,
+		// withCredentials: false,
+		// autoRetry: true,
 		overridePatchMethod: false,
 		chunkSize: 10000000, // 10 Mb.
 		metadata: {
@@ -70,6 +73,8 @@ const resumableFileUploader = ( {
 		onBeforeRequest: function ( req ) {
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
+
+			debug( method );
 			if ( [ 'HEAD', 'OPTIONS' ].indexOf( method ) >= 0 ) {
 				req._method = 'GET';
 				req.setHeader( 'X-HTTP-Method-Override', method );
@@ -82,7 +87,7 @@ const resumableFileUploader = ( {
 
 			req._xhr.open( req._method, req._url, true );
 			// Set the headers again, reopening the xhr resets them.
-			Object.keys( req._headers ).map( function ( headerName ) {
+			Object.keys( req._headers ).forEach( function ( headerName ) {
 				req.setHeader( headerName, req._headers[ headerName ] );
 			} );
 
@@ -100,19 +105,24 @@ const resumableFileUploader = ( {
 				if ( jwtsForKeys[ maybeUploadkey ] ) {
 					req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 				} else if ( 'HEAD' === method ) {
-					return getMediaToken( 'upload-jwt' ).then( responseData => {
+					const responseData = await getMediaToken( 'upload-jwt' );
+					if ( responseData?.token ) {
+						debug( 'setting upload token', responseData.token );
 						jwtsForKeys[ maybeUploadkey ] = responseData.token;
 						req.setHeader( 'x-videopress-upload-token', responseData.token );
-						return req;
-					} );
+						return;
+					}
+					debug( 'no token, no url' );
 				}
 			}
-
-			return Promise.resolve( req );
 		},
-		onAfterResponse: function ( req, res ) {
+		onAfterResponse: async function ( req, res ) {
 			// Why is this not showing the x-headers?
 			if ( res.getStatus() >= 400 ) {
+				debug( 'error' );
+				if ( res.getHeader( 'x-videopress-upload-error' ) ) {
+					debug( 'upload error', res.getHeader( 'x-videopress-upload-error' ) );
+				}
 				return;
 			}
 
@@ -147,11 +157,13 @@ const resumableFileUploader = ( {
 			if ( _tokenData.key && _tokenData.token ) {
 				jwtsForKeys[ _tokenData.key ] = _tokenData.token;
 			}
+			debug( 'after response', _tokenData );
 		},
 	} );
 
 	upload.findPreviousUploads().then( function ( previousUploads ) {
 		if ( previousUploads.length ) {
+			debug( 'Resuming upload from previous upload', previousUploads );
 			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
 		}
 
