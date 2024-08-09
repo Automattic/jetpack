@@ -5,7 +5,9 @@
  * @package  automattic/jetpack-assets
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Assets;
+
+use Automattic\Jetpack\Assets;
 
 /**
  * Class script data
