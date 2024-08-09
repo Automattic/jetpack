@@ -9,6 +9,20 @@ declare module '@wordpress/components';
 declare module '@wordpress/compose';
 declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
+declare module '@wordpress/url';
+
+type ProductStatus =
+	| 'active'
+	| 'inactive'
+	| 'module_disabled'
+	| 'site_connection_error'
+	| 'plugin_absent'
+	| 'plugin_absent_with_plan'
+	| 'needs_plan'
+	| 'needs_activation'
+	| 'needs_first_site_connection'
+	| 'user_connection_error'
+	| 'can_upgrade';
 
 type JetpackModule =
 	| 'anti-spam'
@@ -186,7 +200,7 @@ interface Window {
 						is_standalone_installed: boolean;
 						is_standalone_active: boolean;
 					};
-					status: string;
+					status: ProductStatus;
 					supported_products: string[];
 					tiers: string[];
 					title: string;
