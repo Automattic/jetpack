@@ -17,7 +17,7 @@ export const ConnectionsList: React.FC = () => {
 	const { connections, toggleById } = useSocialMediaConnections();
 	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
 
-	const { needsUserConnection } = usePublicizeConfig();
+	const { needsUserConnection, isPublicizeEnabled } = usePublicizeConfig();
 
 	const toggleConnection = useCallback(
 		( connectionId: string, connection ) => () => {
@@ -52,10 +52,15 @@ export const ConnectionsList: React.FC = () => {
 					);
 				} ) }
 			</ul>
-			<MediaValidationNotices />
-			<BrokenConnectionsNotice />
-			<UnsupportedConnectionsNotice />
-			<EnabledConnectionsNotice />
+			{ isPublicizeEnabled ? (
+				<>
+					<MediaValidationNotices />
+					<BrokenConnectionsNotice />
+					<UnsupportedConnectionsNotice />
+					<EnabledConnectionsNotice />
+				</>
+			) : null }
+
 			{ ! needsUserConnection ? <SettingsButton variant="secondary" /> : null }
 		</div>
 	);

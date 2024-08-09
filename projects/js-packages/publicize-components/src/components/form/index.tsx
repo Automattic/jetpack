@@ -57,7 +57,7 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview ? <SocialPostModal /> : null }
+					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<ShareCountInfo />
 				</>
 			) : null }
