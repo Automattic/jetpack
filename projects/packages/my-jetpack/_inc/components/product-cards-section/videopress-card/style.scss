@@ -1,12 +1,9 @@
 .videopress-card__video-count {
-    margin-top: calc( var( --spacing-base ) / 2 );
-    span {
-        font-size: calc( var( --font-headline-small ) - 4px );
-        color: var( --jp-gray-90 );
-        line-height: 1.125;
+    font-size: calc( var( --font-headline-small ) - 4px );
+    color: var( --jp-gray-90 );
+    line-height: 1.125;
 
-        margin-top: 0.5rem;
-    }
+    margin-top: calc( var( --spacing-base ) / 2 );
 }
 
 p.description {

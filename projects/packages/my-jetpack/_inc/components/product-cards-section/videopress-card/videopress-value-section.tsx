@@ -9,11 +9,7 @@ interface VideoPressValueSectionProps {
 
 const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginActive, data } ) => {
 	if ( ! isPluginActive && data.videoCount ) {
-		return (
-			<div className="videopress-card__video-count">
-				<span>{ data.videoCount }</span>
-			</div>
-		);
+		return <span className="videopress-card__video-count">{ data.videoCount }</span>;
 	}
 
 	return null;
