@@ -30,7 +30,7 @@ type CoreNuxPlaceholder = {
  */
 export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 	const { setOpenState } = useDispatch( pageLayoutStore );
-	const { setUsedPageOrPatternsModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
+	//const { setUsedPageOrPatternsModal } = useDispatch( 'automattic/wpcom-welcome-guide' );
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { toggleFeature } = useDispatch( 'core/edit-post' );
@@ -118,8 +118,8 @@ export function PagePatternsPlugin( props: PagePatternsPluginProps ) {
 
 	const handleClose = useCallback( () => {
 		setOpenState( 'CLOSED' );
-		setUsedPageOrPatternsModal?.();
-	}, [ setOpenState, setUsedPageOrPatternsModal ] );
+		//setUsedPageOrPatternsModal?.();
+	}, [ setOpenState /*setUsedPageOrPatternsModal*/ ] );
 
 	return (
 		<PagePatternModal
