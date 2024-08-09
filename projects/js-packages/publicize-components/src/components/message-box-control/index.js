@@ -46,7 +46,7 @@ export default function MessageBoxControl( {
 			disabled={ disabled }
 			maxLength={ maxLength }
 			placeholder={ __(
-				'Write a custom message for your social audience here. This message will override your post content.',
+				'Write a custom message for your social audience here. This message will override your social post content.',
 				'jetpack'
 			) }
 			rows={ 4 }
