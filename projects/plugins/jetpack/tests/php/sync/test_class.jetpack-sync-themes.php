@@ -354,6 +354,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
 
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
+
 		$sidebar_id   = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
 

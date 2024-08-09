@@ -464,19 +464,4 @@ class REST_Controller {
 		$scan_history = Scan_History::get_scan_history( false );
 		return rest_ensure_response( $scan_history, 200 );
 	}
-
-	/**
-	 * Clear the Scan_History cache for the API endpoint
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_clear_scan_history_cache() {
-		$cache_cleared = Scan_History::delete_option();
-
-		if ( ! $cache_cleared ) {
-			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan history cache.', 500 );
-		}
-
-		return new WP_REST_Response( 'Jetpack Scan history cache cleared.' );
-	}
 }

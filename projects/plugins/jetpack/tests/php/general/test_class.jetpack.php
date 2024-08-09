@@ -447,17 +447,36 @@ EXPECTED;
 
 	public function test_is_dev_version_true_with_alpha() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
-		$this->assertTrue( Jetpack::is_development_version() );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_beta() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_true_with_rc() {
 		Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
-		$this->assertTrue( Jetpack::is_development_version() );
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+
+			// Atomic sites are not allowed to report Jetpack as development versions.
+			$this->assertFalse( Jetpack::is_development_version() );
+		} else {
+			$this->assertTrue( Jetpack::is_development_version() );
+		}
 	}
 
 	public function test_is_dev_version_false_with_number_dot_number() {
