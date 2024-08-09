@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.54.2] - 2024-08-09
+### Fixed
+- Block Editor Nux: Temporary stop load feature from MU WPCOM [#38802]
+- Fixed CSSTidy loading in the test. [#37859]
+
 ## [5.54.1] - 2024-08-08
 ### Fixed
 - Load Scheduled_Updates for non-wpcom users [#38772]
@@ -1120,6 +1125,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.54.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.1...v5.54.2
 [5.54.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.0...v5.54.1
 [5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
 [5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
