@@ -8,7 +8,13 @@ import OnboardingPopover from '../onboarding-popover';
 
 const Summary = () => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const { numThreats, lastChecked, hasRequiredPlan } = useProtectData();
+	const {
+		counts: {
+			current: { threats: numThreats },
+		},
+		lastChecked,
+		hasRequiredPlan,
+	} = useProtectData();
 
 	// Popover anchors
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );

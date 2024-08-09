@@ -189,7 +189,6 @@ const PaidList = ( { list } ) => {
 						firstDetected,
 						fixedIn,
 						fixedOn,
-						fixed_on,
 						icon,
 						fixable,
 						id,
@@ -210,7 +209,7 @@ const PaidList = ( { list } ) => {
 							filename={ filename }
 							firstDetected={ firstDetected }
 							fixedIn={ fixedIn }
-							fixedOn={ fixedOn ?? fixed_on }
+							fixedOn={ fixedOn }
 							icon={ icon }
 							fixable={ fixable }
 							id={ id }

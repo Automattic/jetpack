@@ -58,7 +58,7 @@ const ThreatsList = () => {
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);
-			case 'wordpress':
+			case 'core':
 				return sprintf(
 					/* translators: placeholder is the amount of WordPress threats found on the site. */
 					__( '%1$s WordPress %2$s', 'jetpack-protect' ),

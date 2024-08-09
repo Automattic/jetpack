@@ -15,14 +15,17 @@ import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
 const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
 	const {
-		plugins,
-		themes,
-		numThreats,
-		numCoreThreats,
-		numFilesThreats,
-		numDatabaseThreats,
+		results: { plugins, themes },
+		counts: {
+			current: {
+				threats: numThreats,
+				core: numCoreThreats,
+				files: numFilesThreats,
+				database: numDatabaseThreats,
+			},
+		},
 		hasRequiredPlan,
-	} = useProtectData( { sourceType, statusFilter } );
+	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
 
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
@@ -82,7 +85,7 @@ const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFil
 				checked={ true }
 			/>
 			<NavigationItem
-				id="wordpress"
+				id="core"
 				label={ __( 'WordPress', 'jetpack-protect' ) }
 				icon={ coreIcon }
 				badge={ numCoreThreats }
