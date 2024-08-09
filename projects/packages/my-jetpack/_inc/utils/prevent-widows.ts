@@ -6,6 +6,10 @@ type PreventWidowsInPartFunction = (
 
 const reverseSpaceRegex = /\s+(\S*)$/;
 
+// This implementation was copied and slighly modified from the Calypso codebase
+// Src: https://github.com/Automattic/wp-calypso/blob/trunk/client/lib/formatting/prevent-widows.js
+// The instances where the part is an array or a component have been removed as we don't use the
+// same translate function that Calypso does.
 const preventWidowsInPart: PreventWidowsInPartFunction = ( part, spacesToSubstitute ) => {
 	let substituted = 0;
 
