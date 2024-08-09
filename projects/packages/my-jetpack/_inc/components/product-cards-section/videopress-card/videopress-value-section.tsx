@@ -1,3 +1,7 @@
+import { __ } from '@wordpress/i18n';
+import formatNumber from '../../../utils/format-number';
+import formatTime from '../../../utils/format-time';
+import baseStyles from '../style.module.scss';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -8,8 +12,43 @@ interface VideoPressValueSectionProps {
 }
 
 const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginActive, data } ) => {
-	if ( ! isPluginActive && data.videoCount ) {
-		return <span className="videopress-card__video-count">{ data.videoCount }</span>;
+	const { videoCount, featuredStats } = data || {};
+	const shortenedNumberConfig: Intl.NumberFormatOptions = {
+		maximumFractionDigits: 1,
+		notation: 'compact',
+	};
+
+	if ( ! isPluginActive && videoCount ) {
+		return <span className="videopress-card__video-count">{ videoCount }</span>;
+	}
+
+	const currentViews = featuredStats?.data?.views?.current;
+	const currentWatchTime = featuredStats?.data?.watch_time?.current;
+
+	if ( isPluginActive && ( currentViews > 0 || currentWatchTime > 0 ) ) {
+		return (
+			<div className="videopress-card__value-section">
+				<div className="videopress-card__value-section__container">
+					<span className={ baseStyles.valueSectionHeading }>
+						{ __( 'Monthly views', 'jetpack-my-jetpack' ) }
+					</span>
+
+					<span className="videopress-card__value-section__value">
+						{ formatNumber( currentViews, shortenedNumberConfig ) }
+					</span>
+				</div>
+
+				<div className="videopress-card__value-section__container">
+					<span className={ baseStyles.valueSectionHeading }>
+						{ __( 'Total time watched', 'jetpack-my-jetpack' ) }
+					</span>
+
+					<span className="videopress-card__value-section__value">
+						{ formatTime( currentWatchTime ) }
+					</span>
+				</div>
+			</div>
+		);
 	}
 
 	return null;

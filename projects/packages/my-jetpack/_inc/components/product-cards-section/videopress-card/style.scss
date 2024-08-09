@@ -11,3 +11,21 @@ p.description {
     font-size: var( --font-body-small );
     margin: 0 0 1rem;
 }
+
+.videopress-card__value-section {
+    display: flex;
+
+    &__container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        width: 50%;
+    }
+
+    &__value {
+        font-size: calc( var( --font-headline-small ) - 4px );
+        color: var( --jp-gray-90 );
+        line-height: 1.125;       
+    }
+}

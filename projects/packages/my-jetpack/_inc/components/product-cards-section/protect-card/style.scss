@@ -8,15 +8,6 @@
         flex-direction: column;
     }
 
-    &__heading {
-        font-size: var(--font-body-extra-small);
-        color: var(--jp-gray-100);
-        font-weight: 500;
-        margin-bottom: calc(var(--spacing-base) + 2px);
-        line-height: var(--font-title-small);
-        text-align: center;
-    }
-
     &__last-scan {
         display: flex;
         align-items: center;

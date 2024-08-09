@@ -317,7 +317,7 @@ class Initializer {
 		$videopress_stats = new VideoPress_Stats();
 
 		return array(
-			'featuredStats' => $videopress_stats->get_featured_stats(),
+			'featuredStats' => $videopress_stats->get_featured_stats( 60 ),
 			'videoCount'    => $video_count,
 		);
 	}
