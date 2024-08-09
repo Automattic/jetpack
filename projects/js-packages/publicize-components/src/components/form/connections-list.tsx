@@ -3,9 +3,12 @@ import { useCallback } from 'react';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeConnection from '../connection';
+import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { EnabledConnectionsNotice } from './enabled-connections-notice';
+import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
+import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 import { useConnectionState } from './use-connection-state';
 
 export const ConnectionsList: React.FC = () => {
@@ -49,6 +52,9 @@ export const ConnectionsList: React.FC = () => {
 					);
 				} ) }
 			</ul>
+			<MediaValidationNotices />
+			<BrokenConnectionsNotice />
+			<UnsupportedConnectionsNotice />
 			<EnabledConnectionsNotice />
 			{ ! needsUserConnection ? <SettingsButton variant="secondary" /> : null }
 		</div>
