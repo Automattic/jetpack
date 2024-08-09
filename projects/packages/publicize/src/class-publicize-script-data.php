@@ -32,36 +32,36 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Configure initial state.
+	 * Configure script data.
 	 */
 	public static function configure() {
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_admin_script_data' ), 10, 1 );
 	}
 
 	/**
-	 * Set initial state.
+	 * Set script data.
 	 *
-	 * @param array $state Initial state.
+	 * @param array $data The script data.
 	 */
-	public static function set_admin_script_data( $state ) {
+	public static function set_admin_script_data( $data ) {
 
-		$state['social'] = self::get_admin_script_data();
+		$data['social'] = self::get_admin_script_data();
 
-		if ( empty( $state['site']['plan'] ) ) {
-			$state['site']['plan'] = Current_Plan::get();
+		if ( empty( $data['site']['plan'] ) ) {
+			$data['site']['plan'] = Current_Plan::get();
 		}
 
-		return $state;
+		return $data;
 	}
 
 	/**
-	 * Get initial state.
+	 * Get the script data for admin UI.
 	 *
 	 * @return array
 	 */
 	public static function get_admin_script_data() {
 
-		// Only set initial state on the social settings page,
+		// Only set script data on the social settings page,
 		// the Jetpack settings page, or the block editor.
 		$should_set_script_data = Utils::is_jetpack_settings_page()
 			|| Utils::is_social_settings_page()
@@ -71,17 +71,17 @@ class Publicize_Script_Data {
 			return array();
 		}
 
-		$basic_state = array(
+		$basic_data = array(
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 		);
 
 		if ( ! Utils::is_publicize_active() || ! Utils::is_connected() ) {
-			return $basic_state;
+			return $basic_data;
 		}
 
 		return array_merge(
-			$basic_state,
+			$basic_data,
 			array(
 				/**
 				 * 'store'       => self::get_store_script_data(),
