@@ -99,10 +99,15 @@ $matrix[] = array(
 	'with-woocommerce' => true,
 );
 
-/**
- * Here is the place where wpcomsh tests would be introduced by adding 'with-wpcomsh' property set to true.
- * This adds a new run into the matrix that would enable wpcomsh loading with unit tests.
- */
+// Add wpcomsh tests.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.1 WP latest with wpcomsh',
+	'script'       => 'test-php',
+	'php'          => '8.1',
+	'wp'           => 'latest',
+	'timeout'      => 20,
+	'with-wpcomsh' => true,
+);
 
 // Add JS tests.
 $matrix[] = array(

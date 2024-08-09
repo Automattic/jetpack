@@ -299,7 +299,7 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 
 		$this->assertSame( 'plugin-install.php', $submenu['plugins.php'][10][2] );
 
-		if ( ! is_multisite() ) {
+		if ( ! is_multisite() && ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) ) {
 			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::add_plugins_menu' );
 			$this->setexpectedDeprecated( 'Automattic\Jetpack\Dashboard_Customizations\Atomic_Admin_Menu::get_preferred_view' );
 			static::$admin_menu->add_plugins_menu();
