@@ -5,7 +5,7 @@ import { useFetchingErrorNotice } from './notices/use-fetching-error-notice';
 import type { UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
 import type { APIFetchOptions } from '@wordpress/api-fetch';
 
-type APIFetchOptionsWithQueryParams = APIFetchOptions & {
+export type APIFetchOptionsWithQueryParams = APIFetchOptions & {
 	queryParams?: Record< string, string | Array< string > | object >;
 };
 
