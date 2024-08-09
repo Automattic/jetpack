@@ -213,7 +213,7 @@ export default function Highlight() {
 				<Popover
 					anchor={ virtual }
 					placement="bottom"
-					className="highlight-popover"
+					className="jetpack-ai-breve__highlight-popover"
 					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
@@ -221,36 +221,40 @@ export default function Highlight() {
 					onMouseLeave={ handleMouseLeave }
 				>
 					<div
-						className={ clsx( 'highlight-content', {
-							'has-suggestions': hasSuggestions,
+						className={ clsx( 'jetpack-ai-breve__highlight-content', {
+							'jetpack-ai-breve__has-suggestions': hasSuggestions,
 						} ) }
 					>
-						<div className="header-container">
-							<div className="title">
-								<div className="color" data-type={ feature } />
+						<div className="jetpack-ai-breve__header-container">
+							<div className="jetpack-ai-breve__title">
+								<div className="jetpack-ai-breve__color" data-type={ feature } />
 								<div>{ title }</div>
 							</div>
 							{ ! hasSuggestions && (
-								<div className="action">
+								<div className="jetpack-ai-breve__action">
 									{ loading ? (
-										<div className="loading">
+										<div className="jetpack-ai-breve__loading">
 											<Spinner />
 										</div>
 									) : (
-										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
+										<Button
+											className="jetpack-ai-breve__suggest"
+											icon={ AiSVG }
+											onClick={ handleSuggestions }
+										>
 											{ __( 'Suggest', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
 							) }
 						</div>
-						<div className="bottom-container">
+						<div className="jetpack-ai-breve__bottom-container">
 							{ hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
 							) }
-							<div className="helper">
+							<div className="jetpack-ai-breve__helper">
 								{ hasSuggestions ? (
 									__( 'Click on the suggestion to insert it.', 'jetpack' )
 								) : (

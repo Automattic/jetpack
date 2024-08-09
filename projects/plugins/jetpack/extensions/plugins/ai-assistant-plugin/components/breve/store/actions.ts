@@ -90,7 +90,7 @@ export function setSuggestions( {
 	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
-		anchor?.classList?.add( 'is-loading' );
+		anchor?.classList?.add( 'jetpack-ai-breve__is-loading' );
 
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
@@ -113,7 +113,7 @@ export function setSuggestions( {
 			}
 		)
 			.then( response => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				try {
 					const suggestions = JSON.parse( response );
@@ -135,7 +135,7 @@ export function setSuggestions( {
 				}
 			} )
 			.catch( () => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',
