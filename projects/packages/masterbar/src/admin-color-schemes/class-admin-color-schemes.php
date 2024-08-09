@@ -31,11 +31,14 @@ class Admin_Color_Schemes {
 		if ( false === ( new Host() )->is_wpcom_simple() ) {
 			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
 		}
-
-		if ( ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) { // Classic sites.
-			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
+		// Disable CSS concatenation to fix issues
+		add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
+		// Enqueue scripts
+		if ( ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+			// Classic sites.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
-		} else { // Default and self-hosted sites.
+		} else {
+			// Default and self-hosted sites.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
 		}
 	}
@@ -229,6 +232,8 @@ class Admin_Color_Schemes {
 	/**
 	 * Currently, the selected color scheme CSS (with id = "colors") is concatenated (by Jetpack Boost / Page Optimize),
 	 * and is output before the default color scheme CSS, making it lose in specificity.
+	 *
+	 * Another issue is that color schemes like Blue get wrong SASS color variables from Coffee, which affects the previews.
 	 *
 	 * To prevent this, we disable CSS concatenation for color schemes.
 
