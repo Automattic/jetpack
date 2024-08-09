@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Open Graph Meta Tags: do not handle Fediverse tags from Publicize package.
