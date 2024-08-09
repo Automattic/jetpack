@@ -85,9 +85,11 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_state,
 			array(
-				'store'       => self::get_store_script_data(),
-				'urls'        => self::get_urls(),
-				'shares_data' => self::get_shares_data(),
+				/**
+				 * 'store'       => self::get_store_script_data(),
+				 * 'urls'        => self::get_urls(),
+				 * 'shares_data' => self::get_shares_data(),
+				 */
 			)
 		);
 	}
@@ -174,7 +176,6 @@ class Publicize_Script_Data {
 	public static function get_urls() {
 
 		$urls = array(
-			'userConnectionPage' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 			'socialSettingsPage' => self::publicize()->publicize_connections_url(
 				'jetpack-social-connections-admin-page'
 			),
