@@ -52,7 +52,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 			<Text mb={ 4 }>
 				{ createInterpolateElement(
 					__(
-						'By ignoring this threat you confirm that you have reviewed the detected code and assume the risks of keeping a potentially malicious or vulnerable file on your site. If you are unsure please request an estimate with <codeableLink>Codeable</codeableLink>.',
+						'By choosing to ignore this threat, you acknowledge that you have reviewed the detected code. You are accepting the risks of maintaining a potentially malicious or vulnerable file on your site. If you are unsure, please request an estimate with <codeableLink>Codeable</codeableLink>.',
 						'jetpack-protect'
 					),
 					{

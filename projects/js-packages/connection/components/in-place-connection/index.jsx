@@ -34,8 +34,8 @@ const InPlaceConnection = props => {
 	} = props;
 	let { height = '300' } = props;
 
-	const iframeWrapRef = useRef();
-	const iframeRef = useRef();
+	const iframeWrapRef = useRef( undefined );
+	const iframeRef = useRef( undefined );
 
 	/**
 	 * Handles messages received from inside the iframe.

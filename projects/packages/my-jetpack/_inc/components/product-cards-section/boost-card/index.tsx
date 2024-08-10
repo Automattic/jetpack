@@ -1,11 +1,12 @@
 import { __ } from '@wordpress/i18n';
 import { useState, useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import ProductCard from '../../connected-product-card';
 import BoostSpeedScore from './boost-speed-score';
-import type { FC } from 'react';
+import type { ProductCardComponent } from '../types';
 
-const BoostCard: FC< { admin: boolean } > = props => {
+const BoostCard: ProductCardComponent = props => {
 	const [ shouldShowTooltip, setShouldShowTooltip ] = useState( false );
 	// Override the primary action button to read "Boost your site" instead
 	// of the default text, "Lern more".
@@ -25,7 +26,7 @@ const BoostCard: FC< { admin: boolean } > = props => {
 
 	return (
 		<ProductCard
-			slug="boost"
+			slug={ PRODUCT_SLUGS.BOOST }
 			primaryActionOverride={ primaryActionOverride }
 			onMouseEnter={ handleMouseEnter }
 			onMouseLeave={ handleMouseLeave }

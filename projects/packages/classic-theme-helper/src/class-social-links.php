@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Theme Tools: Social Links.
  *
@@ -15,22 +15,9 @@
 
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
-// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
-
-// @todo Un-comment and possibly move initialization when requiring the file.
-// if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
-// **
-// * Init Social_Links if the theme declares support.
-// *
-// * @suppress PhanNoopNew
-// */
-// function jetpack_theme_supports_social_links() {
-// if ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) {
-// new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
-// }
-// }
-// add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
-// }
+use Automattic\Jetpack\Publicize\Publicize;
+use Jetpack_Options;
+use WP_Customize_Manager;
 
 if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
@@ -72,6 +59,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		 * Constructor.
 		 */
 		public function __construct() {
+			if ( ! ( ! wp_is_block_theme() && current_theme_supports( 'social-links' ) && function_exists( 'publicize_init' ) ) ) {
+				return;
+			}
+
 			$theme_support = get_theme_support( 'social-links' );
 
 			/*
@@ -83,7 +74,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 			}
 
 			$this->theme_supported_services = $theme_support[0];
-			$this->links                    = class_exists( \Jetpack_Options::class ) ? \Jetpack_Options::get_option( 'social_links', array() ) : '';
+			$this->links                    = class_exists( Jetpack_Options::class ) ? Jetpack_Options::get_option( 'social_links', array() ) : '';
 
 			$this->admin_setup();
 
@@ -108,8 +99,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				return;
 			}
 
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Function checked with function_exists - see https://github.com/phan/phan/issues/1204.
-			$this->publicize    = function_exists( 'publicize_init' ) ? publicize_init() : null;
+			// @phan-suppress-next-line PhanUndeclaredFunction -- See __construct() for the condition that ensures this function exists.
+			$this->publicize    = publicize_init();
 			$publicize_services = $this->publicize->get_services( 'connected' );
 			$this->services     = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
 
@@ -130,8 +121,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 			if ( $active_links !== $this->links ) {
 				$this->links = $active_links;
-				if ( class_exists( \Jetpack_Options::class ) ) {
-					\Jetpack_Options::update_option( 'social_links', $active_links );
+				if ( class_exists( Jetpack_Options::class ) ) {
+					Jetpack_Options::update_option( 'social_links', $active_links );
 				}
 			}
 		}
@@ -139,7 +130,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 		/**
 		 * Add social link dropdown to the Customizer.
 		 *
-		 * @param \WP_Customize_Manager $wp_customize Theme Customizer object.
+		 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 		 */
 		public function customize_register( $wp_customize ) {
 			$wp_customize->add_section(
@@ -150,7 +141,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				)
 			);
 
-			if ( class_exists( \Publicize::class ) ) {
+			if ( class_exists( Publicize::class ) ) {
 				foreach ( array_keys( $this->publicize->get_services( 'all' ) ) as $service ) {
 					$choices = $this->get_customize_select( $service );
 
@@ -245,7 +236,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 				$choices[ $this->links[ $service ] ] = $this->links[ $service ];
 			}
 
-			if ( class_exists( \Publicize::class ) ) {
+			if ( class_exists( Publicize::class ) ) {
 				$connected_services = $this->publicize->get_services( 'connected' );
 				if ( isset( $connected_services[ $service ] ) ) {
 					foreach ( $connected_services[ $service ] as $c ) {
