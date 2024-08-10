@@ -11,6 +11,7 @@ import {
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
 	QUERY_BACKUP_HISTORY_KEY,
 	QUERY_BACKUP_STATS_KEY,
+	PRODUCT_SLUGS,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
@@ -18,6 +19,8 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import styles from './style.module.scss';
+
+const productSlug = PRODUCT_SLUGS.BACKUP;
 
 const getIcon = slug => {
 	switch ( slug ) {
@@ -122,15 +125,14 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 };
 
 const BackupCard = props => {
-	const slug = 'backup';
-	const { detail } = useProduct( slug );
+	const { detail } = useProduct( productSlug );
 	const { status } = detail;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	return hasBackups ? (
-		<WithBackupsValueSection slug={ slug } { ...props } />
+		<WithBackupsValueSection slug={ productSlug } { ...props } />
 	) : (
-		<ProductCard slug={ slug } { ...props } />
+		<ProductCard slug={ productSlug } { ...props } />
 	);
 };
 

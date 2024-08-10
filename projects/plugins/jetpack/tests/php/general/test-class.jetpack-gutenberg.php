@@ -30,6 +30,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		add_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
 		delete_option( 'jetpack_excluded_extensions' );
 
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
+
 		// These action causing issues in tests in WPCOM context. Since we are not using any real block here,
 		// and we are testing block availability with block stubs - we are safe to remove these actions for these tests.
 		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
@@ -43,6 +47,10 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		Jetpack_Gutenberg::reset();
 		remove_filter( 'jetpack_set_available_extensions', array( __CLASS__, 'get_extensions_whitelist' ) );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
 
 		if ( $this->master_user_id ) {
 			Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );

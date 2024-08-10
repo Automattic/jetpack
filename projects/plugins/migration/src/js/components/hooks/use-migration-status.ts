@@ -12,7 +12,7 @@ export function useMigrationstatus( restApi: {
 	fetchMigrationStatus: () => Promise< MigrationStatus >;
 } ): MigrationStatus {
 	const FETCH_INTERVAL = 3000;
-	const activeIntervalId = useRef();
+	const activeIntervalId = useRef( undefined );
 	const [ migrationStatus, setMigrationStatus ] = useState();
 
 	const clearActiveInterval = () => {

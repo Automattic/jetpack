@@ -16,14 +16,11 @@ import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
-import { BrokenConnectionsNotice } from './broken-connections-notice';
 import { ConnectionsList } from './connections-list';
-import { MediaValidationNotices } from './media-validation-notices';
 import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
 import styles from './styles.module.scss';
-import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
@@ -60,11 +57,8 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview ? <SocialPostModal /> : null }
+					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<ShareCountInfo />
-					<BrokenConnectionsNotice />
-					<UnsupportedConnectionsNotice />
-					<MediaValidationNotices />
 				</>
 			) : null }
 			<PanelRow>

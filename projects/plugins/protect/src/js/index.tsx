@@ -1,11 +1,13 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Modal from './components/modal';
+import PaidPlanGate from './components/paid-plan-gate';
 import { OnboardingRenderedContextProvider } from './hooks/use-onboarding';
 import FirewallRoute from './routes/firewall';
 import ScanRoute from './routes/scan';
+import ScanHistoryRoute from './routes/scan/history';
 import { initStore } from './state/store';
 import './styles.module.scss';
 
@@ -40,8 +42,25 @@ function render() {
 				<HashRouter>
 					<ScrollToTop />
 					<Routes>
-						<Route path="/" element={ <ScanRoute /> } />
+						<Route path="/scan" element={ <ScanRoute /> } />
+						<Route
+							path="/scan/history"
+							element={
+								<PaidPlanGate>
+									<ScanHistoryRoute />
+								</PaidPlanGate>
+							}
+						/>
+						<Route
+							path="/scan/history/:filter"
+							element={
+								<PaidPlanGate>
+									<ScanHistoryRoute />
+								</PaidPlanGate>
+							}
+						/>
 						<Route path="/firewall" element={ <FirewallRoute /> } />
+						<Route path="*" element={ <Navigate to="/scan" replace /> } />
 					</Routes>
 				</HashRouter>
 				<Modal />

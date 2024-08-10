@@ -176,7 +176,10 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param string $video_id The expected video ID.
 	 */
 	public function test_replace_url_with_iframe_in_the_content( $url, $video_id ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if (
+			( defined( 'IS_WPCOM' ) && IS_WPCOM )
+				|| ( defined( 'IS_ATOMIC' ) && IS_ATOMIC )
+		) {
 			self::markTestSkipped( 'Embeds are handled by core on WordPress.com. See D27860-code' );
 			return; // @phan-suppress-current-line PhanPluginUnreachableCode
 		}

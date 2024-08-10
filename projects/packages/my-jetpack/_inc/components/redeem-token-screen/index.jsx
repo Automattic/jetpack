@@ -1,9 +1,8 @@
-import { useConnection } from '@automattic/jetpack-connection';
 import { GoldenTokenModal } from '@automattic/jetpack-licensing';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useSimpleQuery from '../../data/use-simple-query';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 
 /**
@@ -12,7 +11,7 @@ import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
  * @returns {object} The RedeemTokenScreen component.
  */
 export default function RedeemTokenScreen() {
-	const { userConnectionData } = useConnection();
+	const { userConnectionData } = useMyJetpackConnection();
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||

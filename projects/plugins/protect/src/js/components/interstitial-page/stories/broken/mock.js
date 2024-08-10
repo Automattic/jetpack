@@ -1,3 +1,5 @@
+import { SCAN_STATUS_SCHEDULED } from '../../../../constants';
+
 export const jetpackProtectInitialState = {
 	apiRoot: 'http://localhost/wp-json/',
 	apiNonce: 'f2d2d42e2a',
@@ -7,7 +9,7 @@ export const jetpackProtectInitialState = {
 		num_threats: 6,
 		num_plugins_threats: 3,
 		num_themes_threats: 3,
-		status: 'scheduled',
+		status: SCAN_STATUS_SCHEDULED,
 		wordpress: {
 			version: '5.9.3',
 			threats: [],
