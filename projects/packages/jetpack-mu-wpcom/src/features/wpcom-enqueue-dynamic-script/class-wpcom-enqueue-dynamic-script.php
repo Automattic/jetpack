@@ -5,8 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Automattic\Jetpack;
-
 /**
  * Class WPCOM_Enqueue_Dynamic_Script
  */
@@ -29,14 +27,14 @@ class WPCOM_Enqueue_Dynamic_Script {
 	 * Add the JS orchestration script to the footer.
 	 */
 	public static function init() {
-		add_action( 'wp_footer', array( 'WP_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
+		add_action( 'wp_footer', array( 'WPCOM_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
 	}
 
 	/**
 	 * Add the JS orchestration script to the footer for wp-admin pages.
 	 */
 	public static function init_admin() {
-		add_action( 'admin_footer', array( 'WP_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
+		add_action( 'admin_footer', array( 'WPCOM_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
 	}
 
 	/**
@@ -59,7 +57,7 @@ class WPCOM_Enqueue_Dynamic_Script {
 
 		if ( empty( $wp_scripts->registered[ $handle ] ) ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			wp_trigger_error( "WP_Enqueue_Dynamic_script: unknown script '{$handle}'.", E_USER_WARNING );
+			wp_trigger_error( "WPCOM_Enqueue_Dynamic_Script: unknown script '{$handle}'.", E_USER_WARNING );
 			return false;
 		}
 
@@ -88,8 +86,8 @@ class WPCOM_Enqueue_Dynamic_Script {
 	public static function reset() {
 		self::$dynamic_scripts = array();
 		self::$init_done       = false;
-		remove_action( 'wp_footer', array( 'WP_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
-		remove_action( 'admin_footer', array( 'WP_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
+		remove_action( 'wp_footer', array( 'WPCOM_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
+		remove_action( 'admin_footer', array( 'WPCOM_Enqueue_Dynamic_Script', 'inject_loader_scripts' ), 99999 );
 	}
 
 	/**
@@ -126,7 +124,7 @@ class WPCOM_Enqueue_Dynamic_Script {
 
 			if ( empty( $script ) ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				wp_trigger_error( "WP_Enqueue_Dynamic_script: unknown script '{$handle}'.", E_USER_WARNING );
+				wp_trigger_error( "WPCOM_Enqueue_Dynamic_Script: unknown script '{$handle}'.", E_USER_WARNING );
 				return;
 			}
 
@@ -442,10 +440,10 @@ class WPCOM_Enqueue_Dynamic_Script {
 				$extras_meta
 			};
 
-			window.WP_Enqueue_Dynamic_Script = {
+			window.WPCOM_Enqueue_Dynamic_Script = {
 				loadScript: (handle) => {
 					if (!loaders[handle]) {
-						console.error('WP_Enqueue_Dynamic_Script: unregistered script `' + handle + '`.');
+						console.error('WPCOM_Enqueue_Dynamic_Script: unregistered script `' + handle + '`.');
 					}
 					return loaders[handle]();
 				}
