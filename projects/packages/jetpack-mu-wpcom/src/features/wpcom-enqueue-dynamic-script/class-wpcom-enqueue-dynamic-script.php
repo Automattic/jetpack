@@ -57,7 +57,7 @@ class WPCOM_Enqueue_Dynamic_Script {
 
 		if ( empty( $wp_scripts->registered[ $handle ] ) ) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			wp_trigger_error( "WPCOM_Enqueue_Dynamic_Script: unknown script '{$handle}'.", E_USER_WARNING );
+			wp_trigger_error( 'WPCOM_Enqueue_Dynamic_Script::enqueue_script', "unknown script '{$handle}'.", E_USER_WARNING );
 			return false;
 		}
 
@@ -118,13 +118,11 @@ class WPCOM_Enqueue_Dynamic_Script {
 		// Handle a script and all its dependencies.
 		// This closure calls itself recursively.
 		$get_sub_deps = function ( $handle ) use ( &$list, &$wp_scripts, &$get_sub_deps ) {
-			$deps = array();
-
 			$script = $wp_scripts->query( $handle, 'registered' );
 
 			if ( empty( $script ) ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				wp_trigger_error( "WPCOM_Enqueue_Dynamic_Script: unknown script '{$handle}'.", E_USER_WARNING );
+				wp_trigger_error( 'WPCOM_Enqueue_Dynamic_Script::get_ordered_scripts', "unknown script '{$handle}'.", E_USER_WARNING );
 				return;
 			}
 

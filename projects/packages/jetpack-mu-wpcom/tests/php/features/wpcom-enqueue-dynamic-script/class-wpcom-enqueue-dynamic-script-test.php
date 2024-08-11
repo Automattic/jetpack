@@ -50,9 +50,9 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_simple_chain() {
 		// c <- b <- a
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
@@ -108,7 +108,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'my-dummy-script', false, array(), '0.1.0', true );
 		wp_add_inline_script( 'my-dummy-script', $script );
 
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'my-dummy-script' ), 100, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'my-dummy-script' ), '100', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-a' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
@@ -154,9 +154,9 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 * Test dynamically enqueueing a script with a dependency that is statically enqueued.
 	 */
 	public function test_before_after() {
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
 		$before_script = 'console.log("This is printed before test-script-a.");';
@@ -208,9 +208,9 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 * Test whether statically enqueued dependencies are skipped for dynamic loading.
 	 */
 	public function test_statically_enqueued_dependency() {
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		wp_enqueue_script( 'test-script-a' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
@@ -257,9 +257,9 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 * Test whether a statically enqueued top-level script is skipped entirely for dynamic loading.
 	 */
 	public function test_statically_enqueued_top_level_script() {
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 
 		$before_script = 'console.log("This is printed before test-script-c.");';
 		wp_add_inline_script( 'test-script-c', $before_script, 'before' );
@@ -305,9 +305,9 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 * Test the same script enqueued multiple times.
 	 */
 	public function test_multiple_enqueues() {
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
@@ -375,7 +375,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_unregistered_dep_enqueue() {
 		// This doesn't throw an exception; instead, the unknown dependency is removed.
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), 102, true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
@@ -415,10 +415,10 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	 * Tests script with diamond dependencies.
 	 */
 	public function test_diamond_deps() {
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), 100, true );
-		wp_register_script( 'test-script-b1', '/wp-includes/js/test-script-b1.js', array( 'test-script-a' ), 101, true );
-		wp_register_script( 'test-script-b2', '/wp-includes/js/test-script-b2.js', array( 'test-script-a' ), 102, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b1', 'test-script-b2' ), 103, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
+		wp_register_script( 'test-script-b1', '/wp-includes/js/test-script-b1.js', array( 'test-script-a' ), '101', true );
+		wp_register_script( 'test-script-b2', '/wp-includes/js/test-script-b2.js', array( 'test-script-a' ), '102', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b1', 'test-script-b2' ), '103', true );
 
 		$after_script = 'console.log("This is printed after test-script-a.");';
 		wp_add_inline_script( 'test-script-a', $after_script, 'after' );
@@ -507,12 +507,12 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		+++ b.js loaded
 		=== a.js loaded
 		*/
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'test-script-b', 'test-script-f' ), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-c', 'test-script-e' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-d' ), 102, true );
-		wp_register_script( 'test-script-d', '/wp-includes/js/test-script-d.js', array(), 103, true );
-		wp_register_script( 'test-script-e', '/wp-includes/js/test-script-e.js', array( 'test-script-d' ), 104, true );
-		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), 105, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'test-script-b', 'test-script-f' ), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-c', 'test-script-e' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-d' ), '102', true );
+		wp_register_script( 'test-script-d', '/wp-includes/js/test-script-d.js', array(), '103', true );
+		wp_register_script( 'test-script-e', '/wp-includes/js/test-script-e.js', array( 'test-script-d' ), '104', true );
+		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), '105', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-a' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
@@ -546,12 +546,12 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		### e.js loaded
 		+++ b.js loaded
 		*/
-		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'test-script-b', 'test-script-f' ), 100, true );
-		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-c', 'test-script-e' ), 101, true );
-		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-d' ), 102, true );
-		wp_register_script( 'test-script-d', '/wp-includes/js/test-script-d.js', array(), 103, true );
-		wp_register_script( 'test-script-e', '/wp-includes/js/test-script-e.js', array( 'test-script-d' ), 104, true );
-		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), 105, true );
+		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'test-script-b', 'test-script-f' ), '100', true );
+		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-c', 'test-script-e' ), '101', true );
+		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-d' ), '102', true );
+		wp_register_script( 'test-script-d', '/wp-includes/js/test-script-d.js', array(), '103', true );
+		wp_register_script( 'test-script-e', '/wp-includes/js/test-script-e.js', array( 'test-script-d' ), '104', true );
+		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), '105', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-b' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
