@@ -25,10 +25,12 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Runs the routine before each test is executed.
 	 */
-	public function setUp() {
-		parent::setUp();
+	public function set_up() {
+		parent::set_up();
+
 		global $wp_scripts;
 		$this->original_scripts = $wp_scripts;
+
 		// Start with a clean state.
 		$wp_scripts = new WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		WPCOM_Enqueue_Dynamic_Script::reset();
@@ -37,12 +39,13 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Runs the routine after each test is executed.
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		WPCOM_Enqueue_Dynamic_Script::reset();
 		global $wp_scripts;
+
 		// Reset to original state.
 		$wp_scripts = $this->original_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		parent::tearDown();
+		parent::tear_down();
 	}
 
 	/**
@@ -115,7 +118,6 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		// Urls
 		$expected_keys = array( 'my-dummy-script', 'test-script-a' );
-		$this->assertIsArray( $script_data['urls'] );
 		$this->assertEquals( $expected_keys, array_keys( $script_data['urls'] ) );
 		$this->assertStringContainsString( '/wp-includes/js/test-script-a.js', $script_data['urls']['test-script-a'] );
 		$this->assertEmpty( $script_data['urls']['my-dummy-script'] );
@@ -172,9 +174,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		$after_script = 'console.log("This is printed after test-script-c.");';
 		wp_add_inline_script( 'test-script-c', $after_script, 'after' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
-
-		$this->assertArrayHasKey( 'extras', $script_data );
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script::build_script_data();
 
 		// test-script-a should have both 'before' and 'after' extras.
 		$this->assertArrayHasKey( 'before', $script_data['extras']['test-script-a'] );
