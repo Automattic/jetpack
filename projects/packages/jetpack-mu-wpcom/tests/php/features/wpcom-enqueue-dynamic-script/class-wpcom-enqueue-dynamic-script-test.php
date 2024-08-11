@@ -311,8 +311,11 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array(), '100', true );
 		wp_register_script( 'test-script-b', '/wp-includes/js/test-script-b.js', array( 'test-script-a' ), '101', true );
 		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
+
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
 		$script_data = (array) WPCOM_Enqueue_Dynamic_Script::build_script_data();
@@ -369,7 +372,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( $result );
 
-		$script_data = (array) WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
 		$this->assertNull( $script_data );
 	}
 
