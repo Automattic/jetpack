@@ -18,6 +18,7 @@ declare module 'tus-js-client' {
 	}
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type VPUploadHttpRequest = tus.HttpRequest & {
 	_method: string;
 	_url: string;
