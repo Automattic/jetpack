@@ -58,7 +58,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-a', 'test-script-b', 'test-script-c' );
@@ -114,7 +114,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-a', '/wp-includes/js/test-script-a.js', array( 'my-dummy-script' ), '100', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-a' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Urls
 		$expected_keys = array( 'my-dummy-script', 'test-script-a' );
@@ -174,7 +174,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		$after_script = 'console.log("This is printed after test-script-c.");';
 		wp_add_inline_script( 'test-script-c', $after_script, 'after' );
 
-		$script_data = (array) WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// test-script-a should have both 'before' and 'after' extras.
 		$this->assertArrayHasKey( 'before', $script_data['extras']['test-script-a'] );
@@ -217,7 +217,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_enqueue_script( 'test-script-a' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-b', 'test-script-c' );
@@ -272,7 +272,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_enqueue_script( 'test-script-c' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-c' );
@@ -315,7 +315,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-a', 'test-script-b', 'test-script-c' );
@@ -369,7 +369,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertFalse( $result );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 		$this->assertNull( $script_data );
 	}
 
@@ -381,7 +381,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-c', '/wp-includes/js/test-script-c.js', array( 'test-script-b' ), '102', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-c' );
@@ -428,7 +428,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-c' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 
 		// Test URLs
 		$expected_keys = array( 'test-script-a', 'test-script-b1', 'test-script-b2', 'test-script-c' );
@@ -518,7 +518,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), '105', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-a' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 		$this->assertEquals(
 			array(
 				'test-script-a' => array(
@@ -557,7 +557,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'test-script-f', '/wp-includes/js/test-script-f.js', array( 'test-script-d' ), '105', true );
 		WPCOM_Enqueue_Dynamic_Script::enqueue_script( 'test-script-b' );
 
-		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+		$script_data = (array) WPCOM_Enqueue_Dynamic_Script;
 		$this->assertEquals(
 			array(
 				'test-script-b' => array(
