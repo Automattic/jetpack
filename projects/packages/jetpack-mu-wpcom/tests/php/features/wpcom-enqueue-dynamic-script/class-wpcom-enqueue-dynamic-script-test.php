@@ -115,6 +115,7 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 
 		// Urls
 		$expected_keys = array( 'my-dummy-script', 'test-script-a' );
+		$this->assertIsArray( $script_data['urls'] );
 		$this->assertEquals( $expected_keys, array_keys( $script_data['urls'] ) );
 		$this->assertStringContainsString( '/wp-includes/js/test-script-a.js', $script_data['urls']['test-script-a'] );
 		$this->assertEmpty( $script_data['urls']['my-dummy-script'] );
@@ -172,6 +173,8 @@ class WPCOM_Enqueue_Dynamic_Script_Test extends \WorDBless\BaseTestCase {
 		wp_add_inline_script( 'test-script-c', $after_script, 'after' );
 
 		$script_data = WPCOM_Enqueue_Dynamic_Script::build_script_data();
+
+		$this->assertArrayHasKey( 'extras', $script_data );
 
 		// test-script-a should have both 'before' and 'after' extras.
 		$this->assertArrayHasKey( 'before', $script_data['extras']['test-script-a'] );
