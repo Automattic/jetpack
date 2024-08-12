@@ -1,11 +1,15 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
+
 /**
  * Get the Calypso origin based on the development environment.
  *
  * @returns {string} The Calypso url origin.
  */
 export default function getCalypsoOrigin() {
-	const calypsoEnv =
-		typeof window !== 'undefined' && window?.JP_CONNECTION_INITIAL_STATE?.calypsoEnv;
+	const calypsoEnv = (
+		getScriptData()?.connection ||
+		( typeof window !== 'undefined' && window?.JP_CONNECTION_INITIAL_STATE )
+	)?.calypsoEnv;
 
 	switch ( calypsoEnv ) {
 		case 'development':

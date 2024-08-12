@@ -1,11 +1,12 @@
 import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { STORE_ID } from '../../state/store';
 
 const { apiRoot, apiNonce } = window?.JP_CONNECTION_INITIAL_STATE
 	? window.JP_CONNECTION_INITIAL_STATE
-	: {};
+	: getScriptData()?.connection || {};
 
 /**
  * Restore connection hook.

@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { getCalypsoOrigin } from '@automattic/jetpack-connection';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import debugFactory from 'debug';
 import { useEffect, useState, useMemo } from 'react';
@@ -13,7 +14,9 @@ const {
 	apiRoot,
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
-} = window?.JP_CONNECTION_INITIAL_STATE ? window.JP_CONNECTION_INITIAL_STATE : {};
+} = window?.JP_CONNECTION_INITIAL_STATE
+	? window.JP_CONNECTION_INITIAL_STATE
+	: getScriptData()?.connection || {};
 const defaultAdminUrl =
 	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
 
