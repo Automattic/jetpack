@@ -360,8 +360,19 @@ const EmailSettings = props => {
 				disableInSiteConnectionMode
 				module={ subscriptionsModule }
 				className="newsletter-group"
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'reply-to-email-address',
+					} ),
+					text: __(
+						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
+						'jetpack'
+					),
+				} }
 			>
-				<FormLegend className="jp-form-label-wide">{ __( 'Sender name', 'jetpack' ) }</FormLegend>
+				<FormLegend className="jp-form-label-wide">
+					{ __( 'Sender name and reply-to settings', 'jetpack' ) }
+				</FormLegend>
 				<p>
 					{ __(
 						"This is the name that appears in subscribers' inboxes. It's usually the name of your newsletter or the author.",
@@ -387,35 +398,8 @@ const EmailSettings = props => {
 							{ __( 'Save', 'jetpack' ) }
 						</Button>
 					</Col>
-					<Col className="sender-name-example">
-						{ sprintf(
-							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
-							__( 'Example: %1$s <%2$s>', 'jetpack' ),
-							fromNameState.value || siteName,
-							getExampleEmail( subscriptionReplyTo )
-						) }
-					</Col>
 				</Container>
-			</SettingsGroup>
-			<SettingsGroup
-				hasChild
-				disableInOfflineMode
-				disableInSiteConnectionMode
-				module={ subscriptionsModule }
-				support={ {
-					link: getRedirectUrl( 'jetpack-support-subscriptions', {
-						anchor: 'reply-to-email-address',
-					} ),
-					text: __(
-						"Sets the reply to email address for your newsletter emails. It's the email where subscribers send their replies.",
-						'jetpack'
-					),
-				} }
-			>
-				<FormLegend className="jp-form-label-wide">
-					{ __( 'Reply-to email', 'jetpack' ) }
-				</FormLegend>
-				<p>
+				<p class="reply-to">
 					{ __(
 						'Choose who receives emails when subscribers reply to your newsletter.',
 						'jetpack'
@@ -453,6 +437,17 @@ const EmailSettings = props => {
 					] }
 					onChange={ handleSubscriptionReplyToChange }
 				/>
+				<Container horizontalGap={ 0 } fluid className="sender-name">
+					<Col className="sender-name-example byline-preview">
+						Preview:
+						{ sprintf(
+							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
+							__( ' %1$s <%2$s>', 'jetpack' ),
+							fromNameState.value || siteName,
+							getExampleEmail( subscriptionReplyTo )
+						) }
+					</Col>
+				</Container>
 			</SettingsGroup>
 		</SettingsCard>
 	);
