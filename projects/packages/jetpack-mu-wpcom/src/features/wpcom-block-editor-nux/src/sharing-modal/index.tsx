@@ -1,9 +1,9 @@
 import { Modal, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { Icon, globe, link as linkIcon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
-import { useI18n } from '@wordpress/react-i18n';
 import clsx from 'clsx';
 import React from 'react';
 import postPublishedImage from '../../../../assets/images/illo-share.svg';
@@ -42,7 +42,6 @@ const SharingModalInner: React.FC = () => {
 	const isDismissedDefault = window?.sharingModalOptions?.isDismissed || false;
 	const { launchpadScreenOption } = window?.launchpadOptions || {};
 	const { isDismissed, updateIsDismissed } = useSharingModalDismissed( isDismissedDefault );
-	const { __ } = useI18n();
 	const isPrivateBlog = window?.wpcomGutenberg?.blogPublic === '-1';
 
 	const {
