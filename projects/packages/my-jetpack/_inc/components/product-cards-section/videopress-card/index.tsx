@@ -8,6 +8,8 @@ import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import ProductCard from '../../connected-product-card';
+import { InfoTooltip } from '../../info-tooltip';
+import useTooltipCopy from './use-tooltip-copy';
 import useVideoPressCardDescription from './use-videopress-description';
 import VideoPressValueSection from './videopress-value-section';
 import type { ProductCardComponent } from '../types';
@@ -20,30 +22,49 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( slug );
 	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
+	const { inactiveAndUninstalledCopy } = useTooltipCopy();
+	const videoCount = data?.videoCount || 0;
 
 	const isPluginActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	const descriptionText = useVideoPressCardDescription( {
 		isPluginActive,
-		videoCount: data.videoCount,
+		videoCount,
 	} );
 
 	const Description = useCallback( () => {
 		return (
 			<Text variant="body-small" className="description">
-				{ descriptionText }
+				{ descriptionText || detail.description }
+				{ isPluginActive && ! videoCount && (
+					<InfoTooltip
+						className="videopress-card__no-video-tooltip"
+						tracksEventName={ 'videopress_card_tooltip_open' }
+						tracksEventProps={ {
+							location: 'description',
+							feature: 'jetpack-videopress',
+							status,
+							video_count: videoCount,
+						} }
+					>
+						<h3 className="value-section__tooltip-heading">{ inactiveAndUninstalledCopy.title }</h3>
+						<p className="value-section__tooltip-content">{ inactiveAndUninstalledCopy.text }</p>
+					</InfoTooltip>
+				) }
 			</Text>
 		);
-	}, [ descriptionText ] );
+	}, [
+		descriptionText,
+		detail.description,
+		isPluginActive,
+		videoCount,
+		status,
+		inactiveAndUninstalledCopy,
+	] );
 
 	return (
-		<ProductCard
-			slug={ slug }
-			showMenu
-			admin={ admin }
-			Description={ descriptionText ? Description : null }
-		>
+		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
 			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
 		</ProductCard>
 	);

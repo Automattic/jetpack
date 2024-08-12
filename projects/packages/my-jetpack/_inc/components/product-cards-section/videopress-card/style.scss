@@ -29,3 +29,10 @@ p.description {
         line-height: 1.125;       
     }
 }
+
+.videopress-card__no-video-tooltip {
+    .info-tooltip__button {
+        display: inline;
+        vertical-align: middle;
+    }
+}

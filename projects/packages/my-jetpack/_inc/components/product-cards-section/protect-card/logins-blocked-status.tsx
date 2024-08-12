@@ -3,9 +3,9 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { InfoTooltip } from '../../info-tooltip';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
-import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { ReactElement, PropsWithChildren } from 'react';
 
@@ -74,6 +74,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventProps={ {
 						location: 'blocked-logins',
 						status: status,
+						feature: 'jetpack-protect',
 						message: 'no data yet',
 					} }
 				>
@@ -118,6 +119,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'blocked-logins',
+						feature: 'jetpack-protect',
 						status: status,
 					} }
 				>
