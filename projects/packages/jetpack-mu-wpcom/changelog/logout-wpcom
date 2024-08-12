@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Whem Atomic users log out of wp-admin they are also logged out of WPCOM
