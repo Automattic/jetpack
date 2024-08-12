@@ -57,6 +57,7 @@ const useTooltipCopy = () => {
 	};
 
 	const viewsWithPlan = {
+		title: __( '30-Day views', 'jetpack-my-jetpack' ),
 		text: _n(
 			'This metric represents the total number of views your video has received on our platform over the past 30 days.',
 			'This metric represents the total number of views your videos have received on our platform over the past 30 days.',
@@ -82,3 +83,5 @@ const useTooltipCopy = () => {
 		watchTime,
 	};
 };
+
+export default useTooltipCopy;
