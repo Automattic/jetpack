@@ -193,9 +193,17 @@ class JetpackNotices extends React.Component {
 					'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]'
 				) &&
 				'1' === cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]' ],
+			isMasterbarNoticeDismissed:
+				cookieParsed &&
+				cookieParsed.hasOwnProperty(
+					'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]'
+				) &&
+				'1' ===
+					cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]' ],
 		};
 
 		this.dismissGoogleAnalyticsNotice = this.dismissGoogleAnalyticsNotice.bind( this );
+		this.dismissMasterbarNotice = this.dismissMasterbarNotice.bind( this );
 	}
 
 	dismissGoogleAnalyticsNotice() {
@@ -211,6 +219,19 @@ class JetpackNotices extends React.Component {
 		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
 	}
 
+	dismissMasterbarNotice() {
+		document.cookie = cookie.serialize(
+			'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]',
+			'1',
+			{
+				path: '/',
+				maxAge: 365 * 24 * 60 * 60,
+				SameSite: 'None',
+			}
+		);
+		this.setState( { isMasterbarNoticeDismissed: true } );
+	}
+
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			error.hasOwnProperty( 'action' )
@@ -219,6 +240,9 @@ class JetpackNotices extends React.Component {
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 		const showGoogleAnalyticsNotice =
 			this.props.showGoogleAnalyticsNotice && ! this.state.isGoogleAnalyticsNoticeDismissed;
+
+		const showMasterbarNotice =
+			this.props.showMasterbarNotice && ! this.state.isMasterbarNoticeDismissed;
 
 		return (
 			<div aria-live="polite">
@@ -292,6 +316,23 @@ class JetpackNotices extends React.Component {
 						</ExternalLink>
 					</SimpleNotice>
 				) }
+				{ showMasterbarNotice && (
+					<SimpleNotice
+						status="is-warning"
+						dismissText={ __( 'Dismiss', 'jetpack' ) }
+						onDismissClick={ this.dismissMasterbarNotice }
+					>
+						<div>
+							{ __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ) }
+						</div>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-support-masterbar' ) }>
+							{ __(
+								'To find out more about what this means for you, please refer to this document',
+								'jetpack'
+							) }
+						</ExternalLink>
+					</SimpleNotice>
+				) }
 			</div>
 		);
 	}
@@ -330,6 +371,7 @@ export default connect(
 					state,
 					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
 				),
+			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},
 	dispatch => {

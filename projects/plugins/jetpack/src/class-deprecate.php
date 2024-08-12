@@ -70,7 +70,7 @@ class Deprecate {
 	}
 
 	/**
-	 * Render Google Analytics deprecation notice.
+	 * Render deprecation notices for relevant features.
 	 *
 	 * @return void
 	 */
@@ -82,6 +82,13 @@ class Deprecate {
 				'jetpack-ga-admin-removal-notice',
 				esc_html__( "Jetpack's Google Analytics has been removed.", 'jetpack' )
 				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To keep tracking visits and more information on this change, please refer to this document', 'jetpack' ) . '</a>.'
+			);
+		}
+		if ( $this->show_masterbar_notice() ) {
+
+			$this->render_notice(
+				'jetpack-masterbar-admin-removal-notice',
+				esc_html__( 'Bye Bye Masterbar again', 'jetpack' )
 			);
 		}
 	}
@@ -151,7 +158,7 @@ class Deprecate {
 	 * @return bool
 	 */
 	private function has_notices() {
-		return $this->show_ga_notice();
+		return ( $this->show_ga_notice() || $this->show_masterbar_notice() );
 	}
 
 	/**
@@ -164,5 +171,16 @@ class Deprecate {
 			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' )
 			&& ! ( new Host() )->is_woa_site()
 			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-ga-admin-removal-notice'] );
+	}
+
+	/**
+	 * Check if Masterbar notice should show up.
+	 *
+	 * @return bool
+	 */
+	private function show_masterbar_notice() {
+		return ( new Modules() )->is_active( 'masterbar', false )
+			&& ! ( new Host() )->is_woa_site()
+			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-masterbar-admin-removal-notice'] );
 	}
 }
