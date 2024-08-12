@@ -1,10 +1,19 @@
-import { Container, Col, Title, Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import {
+	Container,
+	Col,
+	Title,
+	Button,
+	useBreakpointMatch,
+	Text,
+} from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import OnboardingPopover from '../onboarding-popover';
+import ScanButton from '../scan-button';
 import EmptyList from './empty';
 import FreeList from './free-list';
 import ThreatsNavigation from './navigation';
@@ -18,14 +27,13 @@ const ThreatsList = () => {
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const { setModal } = useDispatch( STORE_ID );
-	const { scan } = useDispatch( STORE_ID );
-	const scanIsEnqueuing = useSelect( select => select( STORE_ID ).getScanIsEnqueuing() );
-
 	// Popover anchors
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
-	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
+
+	const { setModal } = useDispatch( STORE_ID );
+
+	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
 
@@ -39,13 +47,6 @@ const ThreatsList = () => {
 		};
 	};
 
-	const handleScanClick = () => {
-		return event => {
-			event.preventDefault();
-			scan();
-		};
-	};
-
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
 			case 'all':
@@ -56,6 +57,13 @@ const ThreatsList = () => {
 					/* translators: placeholder is the amount of threats found on the site. */
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
+				);
+			case 'core':
+				return sprintf(
+					/* translators: placeholder is the amount of WordPress threats found on the site. */
+					__( '%1$s WordPress %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
 				);
 			case 'files':
 				return sprintf(
@@ -74,7 +82,7 @@ const ThreatsList = () => {
 			default:
 				return sprintf(
 					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
-					__( '%1$s %2$s in your %3$s %4$s', 'jetpack-protect' ),
+					__( '%1$s %2$s in %3$s %4$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats',
 					item?.name,
@@ -101,13 +109,12 @@ const ThreatsList = () => {
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
 							{ hasRequiredPlan && (
-								<>
+								<div className={ styles[ 'list-header__controls' ] }>
 									{ fixableList.length > 0 && (
 										<>
 											<Button
 												ref={ setFixAllThreatsPopoverAnchor }
 												variant="primary"
-												className={ styles[ 'list-header-button' ] }
 												onClick={ handleFixAllThreatsClick( fixableList ) }
 											>
 												{ sprintf(
@@ -123,27 +130,32 @@ const ThreatsList = () => {
 											/>
 										</>
 									) }
-									<Button
-										ref={ setDailyAndManualScansPopoverAnchor }
-										variant="secondary"
-										className={ styles[ 'list-header-button' ] }
-										isLoading={ scanIsEnqueuing }
-										onClick={ handleScanClick() }
-									>
-										{ __( 'Scan now', 'jetpack-protect' ) }
-									</Button>
-									<OnboardingPopover
-										id="paid-daily-and-manual-scans"
-										position={ isSm ? 'bottom left' : 'middle left' }
-										anchor={ dailyAndManualScansPopoverAnchor }
-									/>
-								</>
+									<div>
+										<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
+										<OnboardingPopover
+											id="paid-daily-and-manual-scans"
+											position={ isSm ? 'bottom left' : 'middle left' }
+											anchor={ dailyAndManualScansPopoverAnchor }
+										/>
+									</div>
+								</div>
 							) }
 						</div>
 						{ hasRequiredPlan ? (
 							<>
 								<div ref={ setUnderstandSeverityPopoverAnchor }>
 									<PaidList list={ list } />
+									<Text className={ styles[ 'manual-scan' ] } variant="body-small">
+										{ createInterpolateElement(
+											__(
+												'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+												'jetpack-protect'
+											),
+											{
+												manualScanLink: <ScanButton variant="link" />,
+											}
+										) }
+									</Text>
 								</div>
 								<OnboardingPopover
 									id="paid-understand-severity"

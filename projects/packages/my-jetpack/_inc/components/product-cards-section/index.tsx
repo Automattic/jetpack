@@ -1,6 +1,7 @@
 import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
@@ -23,7 +24,9 @@ type DisplayItemsProps = {
 
 type DisplayItemType = Record<
 	// We don't have a card for Security or Extras, and scan is displayed as protect.
-	Exclude< JetpackModule, 'extras' | 'scan' | 'security' >,
+	// 'jetpack-ai' is the official slug for the AI module, so we also exclude 'ai'.
+	// The backend still supports the 'ai' slug, so it is part of the JetpackModule type.
+	Exclude< JetpackModule, 'extras' | 'scan' | 'security' | 'ai' >,
 	FC< { admin: boolean } >
 >;
 
@@ -46,7 +49,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs } ) => {
 	};
 
 	const filteredSlugs = slugs.filter( slug => {
-		if ( slug === 'stats' && showFullJetpackStatsCard ) {
+		if ( slug === PRODUCT_SLUGS.STATS && showFullJetpackStatsCard ) {
 			return false;
 		}
 

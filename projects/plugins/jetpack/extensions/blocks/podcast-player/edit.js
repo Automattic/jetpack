@@ -87,7 +87,7 @@ const PodcastPlayerEdit = ( {
 	const [ defaultMaxItems, setDefaultMaxItems ] = useState( 10 );
 
 	// State.
-	const cancellableFetch = useRef();
+	const cancellableFetch = useRef( undefined );
 	const [ { selectedGuid, checkUrl, ...state }, dispatch ] = useReducer( podcastPlayerReducer, {
 		editedUrl: url || '',
 		isEditing: ! url && ! exampleFeedData,

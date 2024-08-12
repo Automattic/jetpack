@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [0.34.2] - 2024-08-09
+### Added
+- React 19 compatibility: Making sure useRef includes an argument. [#38765]
+
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
 ## [0.34.1] - 2024-07-22
 ### Added
 - Display the proper error message for suspended sites on site registration. [#38359]
@@ -805,6 +812,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[0.34.2]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/Automattic/jetpack-connection-js/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.19...v0.34.0
 [0.33.19]: https://github.com/Automattic/jetpack-connection-js/compare/v0.33.18...v0.33.19

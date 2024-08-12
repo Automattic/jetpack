@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Misc: Fix PHP warning when generating critical css for some taxonomy pages.
