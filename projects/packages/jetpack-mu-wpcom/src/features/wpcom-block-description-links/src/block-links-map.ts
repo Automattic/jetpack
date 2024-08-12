@@ -361,9 +361,21 @@ export const blockInfoWithVariations: {
 		},
 	},
 	'core/embed': {
+		soundcloud: {
+			link: 'https://wordpress.com/support/soundcloud-audio-player/',
+			postId: 4213,
+		},
 		twitter: {
 			link: 'https://wordpress.com/support/wordpress-editor/blocks/twitter-block/',
 			postId: 150413,
+		},
+		vimeo: {
+			link: 'https://wordpress.com/support/videos/vimeo/',
+			postId: 1235,
+		},
+		youtube: {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/youtube-block/',
+			postId: 150414,
 		},
 	},
 };
