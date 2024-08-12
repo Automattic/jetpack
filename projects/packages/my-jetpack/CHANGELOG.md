@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.32.1] - 2024-08-09
+### Added
+- Add value to the inactive state on the VideoPress card in My Jetpack [#38748]
+
+### Changed
+- Update uses of useConnection to useMyJetpackConnection and improve typing in a few places [#38721]
+
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+### Fixed
+- My Jetpack: fix a bug where a user would see and infinite loading spinner when trying to connect Jetpack with one click in the Welcome flow. [#38813]
+
 ## [4.32.0] - 2024-08-05
 ### Added
 - Add Tracks events for Welcome Flow [#38641]
@@ -1616,6 +1629,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.32.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.0...4.32.1
 [4.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.31.0...4.32.0
 [4.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.30.0...4.31.0
 [4.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.29.0...4.30.0
