@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Updated the connection initial state to fallback on the new consolidated Jetpack script data
