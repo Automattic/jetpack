@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "4.32.1-alpha",
+	"version": "4.32.1",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -70,7 +70,6 @@
 		"jest-environment-jsdom": "29.7.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"react-test-renderer": "18.3.1",
 		"require-from-string": "2.0.2",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",

@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PRODUCT_SLUGS } from '../../data/constants';
 import ProductCard from '../connected-product-card';
 
 const CrmCard = props => {
-	return <ProductCard slug="crm" { ...props } />;
+	return <ProductCard slug={ PRODUCT_SLUGS.CRM } { ...props } />;
 };
 
 CrmCard.propTypes = {

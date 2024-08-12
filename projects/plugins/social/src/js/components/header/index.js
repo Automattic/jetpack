@@ -13,6 +13,7 @@ import {
 	store as socialStore,
 	useShareLimits,
 } from '@automattic/jetpack-publicize-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -29,7 +30,6 @@ const Header = () => {
 		postsCount,
 		totalShareCount,
 		showShareLimits,
-		useAdminUiV1,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -40,9 +40,11 @@ const Header = () => {
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
 			showShareLimits: store.showShareLimits(),
-			useAdminUiV1: store.useAdminUiV1(),
 		};
 	} );
+	// TODO - Replace this with a utility function like `getSocialFeatureFlags` when available
+	const { useAdminUiV1 } = getScriptData().social.feature_flags;
+
 	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {

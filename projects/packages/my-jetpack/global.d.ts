@@ -31,6 +31,7 @@ type JetpackModule =
 	| 'crm'
 	| 'creator'
 	| 'extras'
+	| 'ai'
 	| 'jetpack-ai'
 	| 'scan'
 	| 'search'
@@ -240,6 +241,26 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 			};
+		};
+		videopress: {
+			featuredStats: {
+				label: string;
+				data: {
+					views: {
+						current: number;
+						previous: number;
+					};
+					impressions: {
+						current: number;
+						previous: number;
+					};
+					watch_time: {
+						current: number;
+						previous: number;
+					};
+				};
+			};
+			videoCount: number;
 		};
 		purchases: {
 			items: Array< {
