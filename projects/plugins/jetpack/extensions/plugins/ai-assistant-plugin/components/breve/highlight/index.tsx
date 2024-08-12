@@ -255,16 +255,12 @@ export default function Highlight() {
 								</Button>
 							) }
 							<div className="jetpack-ai-breve__helper">
-								{ hasSuggestions ? (
-									__( 'Click on the suggestion to insert it.', 'jetpack' )
-								) : (
-									<>
-										{ description }
-										<Button variant="link" onClick={ handleIgnoreSuggestion }>
-											{ __( 'Dismiss', 'jetpack' ) }
-										</Button>
-									</>
-								) }
+								{ hasSuggestions
+									? __( 'Click on the suggestion to insert it.', 'jetpack' )
+									: description }
+								<Button variant="link" onClick={ handleIgnoreSuggestion }>
+									{ __( 'Dismiss', 'jetpack' ) }
+								</Button>
 							</div>
 						</div>
 					</div>
