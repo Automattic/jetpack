@@ -10,6 +10,13 @@ domReady( function () {
 	const expireTimeDate = new Date( Date.now() + expireDays * millisInDay );
 	const cookieName = 'eucookielaw';
 
+	/**
+	 * Hide the consent block if it's already dismissed.
+	 */
+	if ( container && document.cookie.includes( cookieName ) ) {
+		container.style.display = 'none';
+	}
+
 	const button = container.querySelector( '.wp-block-button a' );
 	button.setAttribute( 'role', 'button' );
 	button.setAttribute( 'href', 'javascript:void(0)' );
