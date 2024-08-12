@@ -31,8 +31,8 @@ const ProtectValueSection = () => {
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
+							<h3>{ pluginsThemesTooltip.title }</h3>
+							<p>{ pluginsThemesTooltip.text }</p>
 						</>
 					</InfoTooltip>
 				) }

@@ -140,8 +140,8 @@ function ThreatStatus( {
 									onClose={ hideTooltip }
 								>
 									<>
-										<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-										<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
+										<h3>{ scanThreatsTooltip.title }</h3>
+										<p>{ scanThreatsTooltip.text }</p>
 									</>
 								</Popover>
 							) }
@@ -223,8 +223,8 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
+							<h3>{ scanThreatsTooltip.title }</h3>
+							<p>{ scanThreatsTooltip.text }</p>
 						</>
 					</InfoTooltip>
 				</div>

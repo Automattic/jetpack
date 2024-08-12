@@ -22,7 +22,7 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( slug );
 	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
-	const { inactiveAndUninstalledCopy } = useTooltipCopy();
+	const { activeAndNoVideos } = useTooltipCopy();
 	const videoCount = data?.videoCount || 0;
 
 	const isPluginActive =
@@ -48,8 +48,8 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 							video_count: videoCount,
 						} }
 					>
-						<h3 className="value-section__tooltip-heading">{ inactiveAndUninstalledCopy.title }</h3>
-						<p className="value-section__tooltip-content">{ inactiveAndUninstalledCopy.text }</p>
+						<h3>{ activeAndNoVideos.title }</h3>
+						<p>{ activeAndNoVideos.text }</p>
 					</InfoTooltip>
 				) }
 			</Text>
@@ -60,12 +60,12 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		isPluginActive,
 		videoCount,
 		status,
-		inactiveAndUninstalledCopy,
+		activeAndNoVideos,
 	] );
 
 	return (
 		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
-			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
+			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } status={ status } />
 		</ProductCard>
 	);
 };

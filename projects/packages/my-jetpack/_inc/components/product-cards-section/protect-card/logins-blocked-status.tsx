@@ -79,8 +79,8 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ blockedLoginsTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ blockedLoginsTooltip.text }</p>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>
@@ -124,8 +124,8 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ blockedLoginsTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ blockedLoginsTooltip.text }</p>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>

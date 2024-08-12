@@ -80,8 +80,8 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
+						<h3>{ autoFirewallTooltip.title }</h3>
+						<p>{ autoFirewallTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>
