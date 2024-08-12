@@ -8,16 +8,17 @@
 	align-items: center;
 	color: currentColor;
 	opacity: 0.8;
-  
+
 	// Label
 	span {
-	  font-size: $default-font-size;
-	  text-transform: uppercase;
-	  font-family: $default-font;
-	  padding: 0 8px;
-	  white-space: nowrap;
-	  text-align: center;
-	  user-select: 'none';
+		font-size: $default-font-size;
+		text-transform: uppercase;
+		font-family: $default-font;
+		padding: 0 8px;
+		white-space: nowrap;
+		text-align: center;
+		user-select: 'none';
+
 		svg {
 			vertical-align: text-top;
 			fill: currentColor;
@@ -27,12 +28,12 @@
 	// Lines
 	&::before,
 	&::after {
-	  content: "";
-	  flex: 1;
-	  margin: auto;
-	  height: 1px;  
-	  background: currentColor;
-	  opacity: 0.5;
+		content: "";
+		flex: 1;
+		margin: auto;
+		height: 1px;
+		background: currentColor;
+		opacity: 0.5;
 	}
 }
 
