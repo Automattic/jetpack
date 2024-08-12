@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-script-data",
 	"version": "0.1.1-alpha",
 	"description": "A library to provide data for script handles and the corresponding utility functions for Jetpack.",
