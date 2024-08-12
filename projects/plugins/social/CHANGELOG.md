@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 5.1.0 - 2024-08-08
+### Added
+- Added feature flag management for social [#38669]
+
+### Fixed
+- Lossless image optimization of images in projects/plugins [subdirectories from a* through social] [#38573]
+
 ## 5.0.0 - 2024-08-01
 ### Changed
 - Social: Removed unnecessary feature checks for social connections [#38216]

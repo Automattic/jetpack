@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
-    // PhanUndeclaredClassMethod : 7 occurrences
+    // PhanUndeclaredClassMethod : 8 occurrences
     // PhanUndeclaredClassReference : 4 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanTypeMismatchArgument : 2 occurrences

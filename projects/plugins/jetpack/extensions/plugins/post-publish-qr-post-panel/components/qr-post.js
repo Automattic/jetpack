@@ -14,7 +14,7 @@ import useSiteLogo from '../hooks/use-site-logo.js';
  * @returns {Component} The react component.
  */
 export function QRPost() {
-	const wrapperElementRef = useRef();
+	const wrapperElementRef = useRef( undefined );
 
 	// Pick and convert Jetpack logo to data image.
 	const [ jetpackLogoUrl, setJetpackLogo ] = useState();
@@ -59,7 +59,7 @@ export function QRPost() {
 }
 
 export function QRPostButton() {
-	const qrCodeRef = useRef();
+	const qrCodeRef = useRef( undefined );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const switchModal = () => setIsModalOpen( v => ! v );
 	const closeModal = () => setIsModalOpen( false );

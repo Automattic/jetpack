@@ -16,7 +16,7 @@ import { formatFieldName, formatFieldValue, getDisplayName } from './util';
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
 
-	const ref = useRef();
+	const ref = useRef( undefined );
 
 	useEffect( () => {
 		if ( ! ref.current ) {

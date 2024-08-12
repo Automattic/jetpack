@@ -381,9 +381,6 @@ importers:
       '@types/react-slider':
         specifier: 1.3.6
         version: 1.3.6
-      '@types/react-test-renderer':
-        specifier: 18.3.0
-        version: 18.3.0
       '@types/testing-library__jest-dom':
         specifier: 5.14.9
         version: 5.14.9
@@ -397,9 +394,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-test-renderer:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       require-from-string:
@@ -509,9 +503,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-test-renderer:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
@@ -739,9 +730,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-test-renderer:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
 
   projects/js-packages/image-guide:
     devDependencies:
@@ -899,9 +887,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-test-renderer:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
 
   projects/js-packages/partner-coupon:
     dependencies:
@@ -961,9 +946,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-test-renderer:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
 
@@ -1236,6 +1218,8 @@ importers:
       typescript:
         specifier: 5.0.4
         version: 5.0.4
+
+  projects/js-packages/script-data: {}
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -1668,6 +1652,9 @@ importers:
 
   projects/packages/assets:
     dependencies:
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../../js-packages/script-data
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2281,6 +2268,12 @@ importers:
       redux:
         specifier: ^4.2.1
         version: 4.2.1
+      redux-saga:
+        specifier: ^1.3.0
+        version: 1.3.0
+      swiper:
+        specifier: ^8.4.5
+        version: 8.4.7
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.5
@@ -2319,6 +2312,9 @@ importers:
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.24.7)
+      pkg-dir:
+        specifier: ^5.0.0
+        version: 5.0.0
       sass:
         specifier: 1.64.1
         version: 1.64.1
@@ -2532,9 +2528,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
-      react-test-renderer:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       require-from-string:
@@ -2926,9 +2919,6 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
       '@types/react-dom':
-        specifier: 18.3.0
-        version: 18.3.0
-      '@types/react-test-renderer':
         specifier: 18.3.0
         version: 18.3.0
       '@types/testing-library__jest-dom':
@@ -3620,9 +3610,6 @@ importers:
       '@types/react-dom':
         specifier: 18.3.0
         version: 18.3.0
-      '@types/react-test-renderer':
-        specifier: 18.3.0
-        version: 18.3.0
       babel-jest:
         specifier: 29.3.1
         version: 29.3.1(@babel/core@7.24.7)
@@ -4055,9 +4042,6 @@ importers:
       postcss-loader:
         specifier: 6.2.0
         version: 6.2.0(postcss@8.4.31)(webpack@5.76.0(webpack-cli@4.9.1))
-      react-test-renderer:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       regenerator-runtime:
         specifier: 0.13.9
         version: 0.13.9
@@ -6666,6 +6650,24 @@ packages:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
 
+  '@redux-saga/core@1.3.0':
+    resolution: {integrity: sha512-L+i+qIGuyWn7CIg7k1MteHGfttKPmxwZR5E7OsGikCL2LzYA0RERlaUY00Y3P3ZV2EYgrsYlBrGs6cJP5OKKqA==}
+
+  '@redux-saga/deferred@1.2.1':
+    resolution: {integrity: sha512-cmin3IuuzMdfQjA0lG4B+jX+9HdTgHZZ+6u3jRAOwGUxy77GSlTi4Qp2d6PM1PUoTmQUR5aijlA39scWWPF31g==}
+
+  '@redux-saga/delay-p@1.2.1':
+    resolution: {integrity: sha512-MdiDxZdvb1m+Y0s4/hgdcAXntpUytr9g0hpcOO1XFVyyzkrDu3SKPgBFOtHn7lhu7n24ZKIAT1qtKyQjHqRd+w==}
+
+  '@redux-saga/is@1.1.3':
+    resolution: {integrity: sha512-naXrkETG1jLRfVfhOx/ZdLj0EyAzHYbgJWkXbB3qFliPcHKiWbv/ULQryOAEKyjrhiclmr6AMdgsXFyx7/yE6Q==}
+
+  '@redux-saga/symbols@1.1.3':
+    resolution: {integrity: sha512-hCx6ZvU4QAEUojETnX8EVg4ubNLBFl1Lps4j2tX7o45x/2qg37m3c6v+kSp8xjDJY+2tJw4QB3j8o8dsl1FDXg==}
+
+  '@redux-saga/types@1.2.1':
+    resolution: {integrity: sha512-1dgmkh+3so0+LlBWRhGA33ua4MYr7tUOj+a9Si28vUi0IUFNbff1T3sgpeDJI/LaC75bBYnQ0A3wXjn0OrRNBA==}
+
   '@remix-run/router@1.14.0':
     resolution: {integrity: sha512-WOHih+ClN7N8oHk9N4JUiMxQJmRVaOxcg8w7F/oHUXzJt920ekASLI/7cYX8XkntDWRhLZtsk6LbGrkgOAvi5A==}
     engines: {node: '>=14.0.0'}
@@ -7574,9 +7576,6 @@ packages:
 
   '@types/react-slider@1.3.6':
     resolution: {integrity: sha512-RS8XN5O159YQ6tu3tGZIQz1/9StMLTg/FCIPxwqh2gwVixJnlfIodtVx+fpXVMZHe7A58lAX1Q4XTgAGOQaCQg==}
-
-  '@types/react-test-renderer@18.3.0':
-    resolution: {integrity: sha512-HW4MuEYxfDbOHQsVlY/XtOvNHftCVEPhJF2pQXXwcUiUF+Oyb0usgp48HSgpK5rt8m9KZb22yqOeZm+rrVG8gw==}
 
   '@types/react@18.3.1':
     resolution: {integrity: sha512-V0kuGBX3+prX+DQ/7r2qsv1NsdfnCLnTgnRJ1pYnxykBhGMz+qj+box5lq7XsO5mtZsBqpjwwTu/7wszPfMBcw==}
@@ -9498,6 +9497,9 @@ packages:
 
   dom7@3.0.0:
     resolution: {integrity: sha512-oNlcUdHsC4zb7Msx7JN3K0Nro1dzJ48knvBOnDPKJ2GV9wl1i5vydJZUSyOfrkKFDZEud/jBsTk92S/VGSAe/g==}
+
+  dom7@4.0.6:
+    resolution: {integrity: sha512-emjdpPLhpNubapLFdjNL9tP06Sr+GZkrIHEXLWvOGsytACUrkbeIdjO5g77m00BrHTznnlcNqgmn7pCN192TBA==}
 
   domelementtype@1.3.1:
     resolution: {integrity: sha512-BSKB+TSpMpFI/HOxCNr1O8aMOTZ8hT3pM3GQ0w/mWRmkhEDSFJkkyzz4XQsBV44BChwGkrDfMyjVD0eA2aFV3w==}
@@ -12982,11 +12984,6 @@ packages:
     peerDependencies:
       react: '>=16.8'
 
-  react-shallow-renderer@16.15.0:
-    resolution: {integrity: sha512-oScf2FqQ9LFVQgA73vr86xl2NaOIX73rh+YFqcOp68CWj56tSfgtGKrEbyhCj0rSijyG9M1CYprTh39fBi5hzA==}
-    peerDependencies:
-      react: ^16.0.0 || ^17.0.0 || ^18.0.0
-
   react-slider@2.0.5:
     resolution: {integrity: sha512-MU5gaK1yYCKnbDDN3CMiVcgkKZwMvdqK2xUEW7fFU37NAzRgS1FZbF9N7vP08E3XXNVhiuZnwVzUa3PYQAZIMg==}
     peerDependencies:
@@ -13002,11 +12999,6 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
-
-  react-test-renderer@18.3.1:
-    resolution: {integrity: sha512-KkAgygexHUkQqtvvx/otwxtuFu5cVjfzTCtjXLH9boS19/Nbtg84zS7wIQn39G8IlrhThBpQsMKkq5ZHZIYFXA==}
-    peerDependencies:
-      react: ^18.3.1
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -13058,6 +13050,9 @@ packages:
   redent@3.0.0:
     resolution: {integrity: sha512-6tDA8g98We0zd0GvVeMT9arEOnTw9qM03L9cJXaCjrip1OO764RDBLBfrB4cwzNGDj5OA5ioymC9GkizgWJDUg==}
     engines: {node: '>=8'}
+
+  redux-saga@1.3.0:
+    resolution: {integrity: sha512-J9RvCeAZXSTAibFY0kGw6Iy4EdyDNW7k6Q+liwX+bsck7QVsU78zz8vpBRweEfANxnnlG/xGGeOvf6r8UXzNJQ==}
 
   redux-thunk@2.3.0:
     resolution: {integrity: sha512-km6dclyFnmcvxhAcrQV2AkZmPQjzPDjgVlQtR0EQjxZPyJ0BnMf3in1ryuR8A2qU0HldVRfxYXbFSKlI3N7Slw==}
@@ -13572,6 +13567,9 @@ packages:
   ssr-window@3.0.0:
     resolution: {integrity: sha512-q+8UfWDg9Itrg0yWK7oe5p/XRCJpJF9OBtXfOPgSJl+u3Xd5KI328RUEvUqSMVM9CiQUEf1QdBzJMkYGErj9QA==}
 
+  ssr-window@4.0.2:
+    resolution: {integrity: sha512-ISv/Ch+ig7SOtw7G2+qkwfVASzazUnvlDTwypdLoPoySv+6MqlOV10VwPSE6EWkGjhW50lUmghPmpYZXMu/+AQ==}
+
   stack-trace@0.0.10:
     resolution: {integrity: sha512-KGzahc7puUKkzyMt+IqAep+TVNbKP+k2Lmwhub39m1AsTSkaDutx56aDCo+HLDzf/D26BIHTJWNiTG1KAJiQCg==}
 
@@ -13841,6 +13839,10 @@ packages:
 
   swiper@6.7.0:
     resolution: {integrity: sha512-zCfvWn7H7mCq7jgVurckhAwkjPUeMCkdC4rA7lagvaD3mIrNhKiaYYo2+nkxMVpiaWuCQ38e44Mya/dKb7HpyQ==}
+    engines: {node: '>= 4.7.0'}
+
+  swiper@8.4.7:
+    resolution: {integrity: sha512-VwO/KU3i9IV2Sf+W2NqyzwWob4yX9Qdedq6vBtS0rFqJ6Fa5iLUJwxQkuD4I38w0WDJwmFl8ojkdcRFPHWD+2g==}
     engines: {node: '>= 4.7.0'}
 
   symbol-observable@1.2.0:
@@ -14122,6 +14124,15 @@ packages:
 
   typedarray-to-buffer@3.1.5:
     resolution: {integrity: sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==}
+
+  typescript-compare@0.0.2:
+    resolution: {integrity: sha512-8ja4j7pMHkfLJQO2/8tut7ub+J3Lw2S3061eJLFQcvs3tsmJKp8KG5NtpLn7KcY2w08edF74BSVN7qJS0U6oHA==}
+
+  typescript-logic@0.0.0:
+    resolution: {integrity: sha512-zXFars5LUkI3zP492ls0VskH3TtdeHCqu0i7/duGt60i5IGPIpAHE/DWo5FqJ6EjQ15YKXrt+AETjv60Dat34Q==}
+
+  typescript-tuple@2.2.1:
+    resolution: {integrity: sha512-Zcr0lbt8z5ZdEzERHAMAniTiIKerFCMgd7yjq1fPnDJ43et/k9twIFQMUYff9k5oXcsQ0WpvFcgzK2ZKASoW6Q==}
 
   typescript@5.0.4:
     resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
@@ -16969,6 +16980,31 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  '@redux-saga/core@1.3.0':
+    dependencies:
+      '@babel/runtime': 7.24.7
+      '@redux-saga/deferred': 1.2.1
+      '@redux-saga/delay-p': 1.2.1
+      '@redux-saga/is': 1.1.3
+      '@redux-saga/symbols': 1.1.3
+      '@redux-saga/types': 1.2.1
+      typescript-tuple: 2.2.1
+
+  '@redux-saga/deferred@1.2.1': {}
+
+  '@redux-saga/delay-p@1.2.1':
+    dependencies:
+      '@redux-saga/symbols': 1.1.3
+
+  '@redux-saga/is@1.1.3':
+    dependencies:
+      '@redux-saga/symbols': 1.1.3
+      '@redux-saga/types': 1.2.1
+
+  '@redux-saga/symbols@1.1.3': {}
+
+  '@redux-saga/types@1.2.1': {}
+
   '@remix-run/router@1.14.0': {}
 
   '@remix-run/router@1.2.1': {}
@@ -18683,10 +18719,6 @@ snapshots:
       '@types/react': 18.3.1
 
   '@types/react-slider@1.3.6':
-    dependencies:
-      '@types/react': 18.3.1
-
-  '@types/react-test-renderer@18.3.0':
     dependencies:
       '@types/react': 18.3.1
 
@@ -21948,6 +21980,10 @@ snapshots:
   dom7@3.0.0:
     dependencies:
       ssr-window: 3.0.0
+
+  dom7@4.0.6:
+    dependencies:
+      ssr-window: 4.0.2
 
   domelementtype@1.3.1: {}
 
@@ -26212,12 +26248,6 @@ snapshots:
       '@remix-run/router': 1.2.1
       react: 18.3.1
 
-  react-shallow-renderer@16.15.0(react@18.3.1):
-    dependencies:
-      object-assign: 4.1.1
-      react: 18.3.1
-      react-is: 18.3.1
-
   react-slider@2.0.5(@babel/runtime@7.24.7)(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.24.7
@@ -26239,13 +26269,6 @@ snapshots:
       invariant: 2.2.4
       react: 18.3.1
       tslib: 2.5.0
-
-  react-test-renderer@18.3.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
-      react-is: 18.3.1
-      react-shallow-renderer: 16.15.0(react@18.3.1)
-      scheduler: 0.23.2
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -26319,6 +26342,10 @@ snapshots:
     dependencies:
       indent-string: 4.0.0
       strip-indent: 3.0.0
+
+  redux-saga@1.3.0:
+    dependencies:
+      '@redux-saga/core': 1.3.0
 
   redux-thunk@2.3.0(redux@4.0.5):
     dependencies:
@@ -26902,6 +26929,8 @@ snapshots:
 
   ssr-window@3.0.0: {}
 
+  ssr-window@4.0.2: {}
+
   stack-trace@0.0.10: {}
 
   stack-utils@2.0.6:
@@ -27206,6 +27235,11 @@ snapshots:
       dom7: 3.0.0
       ssr-window: 3.0.0
 
+  swiper@8.4.7:
+    dependencies:
+      dom7: 4.0.6
+      ssr-window: 4.0.2
+
   symbol-observable@1.2.0: {}
 
   symbol-tree@3.2.4: {}
@@ -27495,6 +27529,16 @@ snapshots:
   typedarray-to-buffer@3.1.5:
     dependencies:
       is-typedarray: 1.0.0
+
+  typescript-compare@0.0.2:
+    dependencies:
+      typescript-logic: 0.0.0
+
+  typescript-logic@0.0.0: {}
+
+  typescript-tuple@2.2.1:
+    dependencies:
+      typescript-compare: 0.0.2
 
   typescript@5.0.4: {}
 

@@ -30,7 +30,7 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 		skipUserConnection: true,
 	} );
 
-	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
+	const { refreshPlan, refreshStatus, startScanOptimistically } = useDispatch( STORE_ID );
 
 	const [ getProtectFreeButtonIsLoading, setGetProtectFreeButtonIsLoading ] = useState( false );
 	const [ getScanButtonIsLoading, setGetScanButtonIsLoading ] = useState( false );
@@ -54,17 +54,26 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 		onScanAdd();
 	} );
 
-	const getProtectFree = useCallback( () => {
+	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
 		setGetProtectFreeButtonIsLoading( true );
-		handleRegisterSite()
-			.then( () => setGetProtectFreeButtonIsLoading( false ) )
-			.then( () => {
-				refreshPlan();
-				refreshWaf();
-				refreshStatus( true );
-			} );
-	}, [ handleRegisterSite, recordEvent, refreshWaf, refreshPlan, refreshStatus ] );
+		try {
+			await handleRegisterSite();
+			startScanOptimistically();
+			await refreshPlan();
+			await refreshWaf();
+			await refreshStatus( true );
+		} finally {
+			setGetProtectFreeButtonIsLoading( false );
+		}
+	}, [
+		handleRegisterSite,
+		recordEvent,
+		refreshWaf,
+		refreshPlan,
+		refreshStatus,
+		startScanOptimistically,
+	] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
