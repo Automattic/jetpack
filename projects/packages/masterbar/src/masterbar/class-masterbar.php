@@ -649,7 +649,7 @@ class Masterbar {
 						 <span class="screen-reader-text">' . esc_html__( 'Notifications', 'jetpack-masterbar' ) . '</span>
 						 <span class="noticon noticon-bell"></span>',
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="' . esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl ? 'rtl' : 'ltr' ) . '">' .
+					'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="de" dir="' . ( $this->is_rtl ? 'rtl' : 'ltr' ) . '">' .
 								'<div class="wpnt-notes-panel-header">' .
 								'<span class="wpnt-notes-header">' .
 								esc_html__( 'Notifications', 'jetpack-masterbar' ) .
