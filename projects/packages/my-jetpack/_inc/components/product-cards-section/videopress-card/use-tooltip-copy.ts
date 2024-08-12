@@ -51,9 +51,38 @@ const useTooltipCopy = () => {
 		),
 	};
 
+	const viewsWithoutPlan = {
+		title: __( 'High-quality video, wherever your audience is', 'jetpack-my-jetpack' ),
+		text: __( 'Success! 🌟 Your video is live and gathering views.', 'jetpack-my-jetpack' ),
+	};
+
+	const viewsWithPlan = {
+		title: __( '30-Day views', 'jetpack-my-jetpack' ),
+		text: _n(
+			'The ‘30-Day Views’ metric represents the total number of views your video has received on our platform over the past 30 days.',
+			'The ‘30-Day Views’ metric represents the total number of views your videos have received on our platform over the past 30 days.',
+			data.videoCount,
+			'jetpack-my-jetpack'
+		),
+	};
+
+	// todo: Add "comparing it with the performance of the previous 30 days." once we have the comparison in place.
+	const watchTime = {
+		title: __( '30-Day viewing time', 'jetpack-my-jetpack' ),
+		text: _n(
+			'This metric presents the total viewing duration of your video for the last 30 days.',
+			'This metric presents the total viewing duration of all your videos for the last 30 days.',
+			data.videoCount,
+			'jetpack-my-jetpack'
+		),
+	};
+
 	return {
 		inactiveWithVideos,
 		activeAndNoVideos,
+		viewsWithoutPlan,
+		viewsWithPlan,
+		watchTime,
 	};
 };
 
