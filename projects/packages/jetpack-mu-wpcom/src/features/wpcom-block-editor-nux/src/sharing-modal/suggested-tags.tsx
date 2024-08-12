@@ -3,8 +3,8 @@ import { Button, FormTokenField } from '@wordpress/components';
 import { TokenItem } from '@wordpress/components/build-types/form-token-field/types';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { __, _n } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { useI18n } from '@wordpress/react-i18n';
 import * as React from 'react';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import useAddTagsToPost from './use-add-tags-to-post';
@@ -37,7 +37,6 @@ type SuggestedTagsProps = {
  * @param props - The props of the component.
  */
 function SuggestedTags( props: SuggestedTagsProps ) {
-	const { __, _n } = useI18n();
 	const localeSlug = useLocale();
 	const { id: postId, meta: postMeta } = useSelect(
 		select => ( select( 'core/editor' ) as CoreEditorPlaceholder ).getCurrentPost(),
