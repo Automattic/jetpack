@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Components: React cleanup, removing implicit returns from ref callbacks, to ensure compatibility with React 19.
