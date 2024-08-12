@@ -1,8 +1,8 @@
 # WPCOM Enqueue Dynamic Script
 
 This plugin defines the `WPCOM_Enqueue_Dynamic_Script` class which allows for scripts and dependencies in PHP to be loaded dynamically via a JS callback.
-This handles not only the registered scripts but also their dependencies, before's, after's, and translations. Dependencies in be loaded in parallel, but executes them in the expected order. 
-The scripts are added inline scripts in the HTML statically in a disabled state until the main script that owns them is loaded.
+This handles not only the registered scripts but also their dependencies, before's, after's, and translations. Dependencies will be loaded in parallel, but executes them in the expected order. 
+Note that the scripts that are added inline (eg via `wp_add_inline_script`) are inlined in the HTML statically in a disabled state until the main script that owns them is loaded. Meaning they won't be loaded lazily like the main script.
 
 ## Methods
 

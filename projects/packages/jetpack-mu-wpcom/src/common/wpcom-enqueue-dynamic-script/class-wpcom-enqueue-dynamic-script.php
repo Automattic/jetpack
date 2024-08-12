@@ -2,6 +2,8 @@
 /**
  * WPCOM Enqueue Dynamic Script
  *
+ * @see ./README.md
+ *
  * @package automattic/jetpack-mu-wpcom
  */
 
