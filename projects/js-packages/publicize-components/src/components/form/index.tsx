@@ -61,12 +61,12 @@ export default function PublicizeForm() {
 					<ShareCountInfo />
 				</>
 			) : null }
-			<PanelRow>
-				{
-					// Use IIFE make it more readable and avoid nested ternary operators.
-					( () => {
-						if ( needsUserConnection ) {
-							return (
+			{
+				// Use IIFE make it more readable and avoid nested ternary operators.
+				( () => {
+					if ( needsUserConnection ) {
+						return (
+							<PanelRow>
 								<p>
 									{ __(
 										'You must connect your WordPress.com account to be able to add social media connections.',
@@ -75,11 +75,13 @@ export default function PublicizeForm() {
 									&nbsp;
 									<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
 								</p>
-							);
-						}
+							</PanelRow>
+						);
+					}
 
-						if ( ! hasConnections ) {
-							return (
+					if ( ! hasConnections ) {
+						return (
+							<PanelRow>
 								<p>
 									<span className={ styles[ 'no-connections-text' ] }>
 										{ __(
@@ -89,13 +91,13 @@ export default function PublicizeForm() {
 									</span>
 									<SettingsButton label={ __( 'Connect an account', 'jetpack' ) } />
 								</p>
-							);
-						}
+							</PanelRow>
+						);
+					}
 
-						return null;
-					} )()
-				}
-			</PanelRow>
+					return null;
+				} )()
+			}
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
