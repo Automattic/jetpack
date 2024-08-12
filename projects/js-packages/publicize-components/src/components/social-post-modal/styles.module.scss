@@ -12,6 +12,7 @@
 
     @include break-large {
         width: calc(#{$break-large} - 40px);
+        max-height: calc(100% - 120px);
     }
 
     :global(.components-modal__content.hide-header) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * PublicizeAssets.
+ * Publicize_Assets.
  *
  * @package automattic/jetpack-publicize
  */
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Assets;
 
 /**
- * PublicizeAssets class.
+ * Publicize_Assets class.
  */
 class Publicize_Assets {
 
@@ -19,6 +19,8 @@ class Publicize_Assets {
 	 */
 	public static function configure() {
 		add_action( 'wp_loaded', array( __CLASS__, 'register_assets' ) );
+
+		Publicize_Script_Data::configure();
 	}
 
 	/**
