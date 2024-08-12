@@ -149,7 +149,7 @@ const FirewallSubheading = ( {
 					/>
 				) }
 			</div>
-			{ ! hasRequiredPlan && <UpgradePrompt /> }
+			{ ! hasRequiredPlan && wafSupported && <UpgradePrompt /> }
 		</>
 	);
 };
