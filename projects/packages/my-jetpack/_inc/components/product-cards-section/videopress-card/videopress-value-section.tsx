@@ -18,40 +18,40 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 		notation: 'compact',
 	};
 
-	if ( ! isPluginActive && videoCount ) {
+	if ( ! videoCount ) {
+		return null;
+	}
+
+	if ( ! isPluginActive ) {
 		return <span className="videopress-card__video-count">{ videoCount }</span>;
 	}
 
-	if ( isPluginActive && videoCount ) {
-		const currentViews = featuredStats?.data?.views?.current;
-		const currentWatchTime = featuredStats?.data?.watch_time?.current;
+	const currentViews = featuredStats?.data?.views?.current;
+	const currentWatchTime = featuredStats?.data?.watch_time?.current;
 
-		return (
-			<div className="videopress-card__value-section">
-				<div className="videopress-card__value-section__container">
-					<span className={ baseStyles.valueSectionHeading }>
-						{ __( 'Monthly views', 'jetpack-my-jetpack' ) }
-					</span>
+	return (
+		<div className="videopress-card__value-section">
+			<div className="videopress-card__value-section__container">
+				<span className={ baseStyles.valueSectionHeading }>
+					{ __( 'Monthly views', 'jetpack-my-jetpack' ) }
+				</span>
 
-					<span className="videopress-card__value-section__value">
-						{ formatNumber( currentViews, shortenedNumberConfig ) }
-					</span>
-				</div>
-
-				<div className="videopress-card__value-section__container">
-					<span className={ baseStyles.valueSectionHeading }>
-						{ __( 'Total time watched', 'jetpack-my-jetpack' ) }
-					</span>
-
-					<span className="videopress-card__value-section__value">
-						{ formatTime( currentWatchTime ) }
-					</span>
-				</div>
+				<span className="videopress-card__value-section__value">
+					{ formatNumber( currentViews, shortenedNumberConfig ) }
+				</span>
 			</div>
-		);
-	}
 
-	return null;
+			<div className="videopress-card__value-section__container">
+				<span className={ baseStyles.valueSectionHeading }>
+					{ __( 'Total time watched', 'jetpack-my-jetpack' ) }
+				</span>
+
+				<span className="videopress-card__value-section__value">
+					{ formatTime( currentWatchTime ) }
+				</span>
+			</div>
+		</div>
+	);
 };
 
 export default VideoPressValueSection;
