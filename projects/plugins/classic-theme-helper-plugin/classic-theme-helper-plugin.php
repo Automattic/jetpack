@@ -52,19 +52,33 @@ add_filter(
 	}
 );
 
-	// Init Jetpack packages
-	add_action( 'plugins_loaded', 'init_packages', 1 );
+	// Init Jetpack packages that are hooked into plugins_loaded.
+	add_action( 'plugins_loaded', 'init_packages_plugins_loaded', 1 );
 
 	/**
-	 * Configure what Jetpack packages should get automatically initialized.
+	 * Configure what Jetpack packages should get automatically initialized, using the plugins_loaded hook.
 	 *
 	 * @return void
 	 */
-function init_packages() {
+function init_packages_plugins_loaded() {
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 	}
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Featured_Content' ) ) {
 		Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+	}
+}
+
+	// Init Jetpack packages that are hooked into init.
+	add_action( 'init', 'init_packages_init', 30 );
+
+	/**
+	 * Configure what Jetpack packages should get automatically initialized, using the init hook.
+	 *
+	 * @return void
+	 */
+function init_packages_init() {
+	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+		new Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 	}
 }
