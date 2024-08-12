@@ -14,6 +14,7 @@ import './style.scss';
 interface VideoPressValueSectionProps {
 	isPluginActive: boolean;
 	data: Window[ 'myJetpackInitialState' ][ 'videopress' ];
+	status: ProductStatus;
 }
 
 const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginActive, data } ) => {

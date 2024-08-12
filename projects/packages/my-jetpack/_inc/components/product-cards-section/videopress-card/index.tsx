@@ -65,7 +65,7 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 
 	return (
 		<ProductCard slug={ slug } showMenu admin={ admin } Description={ Description }>
-			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
+			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } status={ status } />
 		</ProductCard>
 	);
 };
