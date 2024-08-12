@@ -9,10 +9,15 @@ domReady( function () {
 	const expireDays = parseInt( expiryDaysContainer.textContent );
 	const expireTimeDate = new Date( Date.now() + expireDays * millisInDay );
 	const cookieName = 'eucookielaw';
-
 	const button = container.querySelector( '.wp-block-button a' );
 	button.setAttribute( 'role', 'button' );
-	button.setAttribute( 'href', 'javascript:void(0)' );
+	button.setAttribute( 'href', '#' );
+	button.addEventListener( 'click', event => {
+		if ( button.closest( '.wp-block-jetpack-cookie-consent' ) ) {
+			// This simply prevents adding a # to the URL after the click.
+			event.preventDefault();
+		}
+	} );
 	/**
 	 * Set cookie and trigger dismiss event
 	 */
