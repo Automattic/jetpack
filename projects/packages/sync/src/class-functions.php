@@ -721,4 +721,25 @@ class Functions {
 	public static function get_jetpack_connection_active_plugins() {
 		return ( new Manager() )->get_connected_plugins();
 	}
+
+	/**
+	 * Return the list of active sync modules.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_sync_active_modules() {
+		/**
+		 * Filters the list of class names of sync modules.
+		 * If you add to this list, make sure any classes implement the
+		 * Jetpack_Sync_Module interface.
+		 *
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 */
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$modules = array_unique( $modules );
+		return $modules;
+	}
 }
