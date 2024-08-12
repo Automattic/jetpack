@@ -33,7 +33,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 		<div className="videopress-card__value-section">
 			<div className="videopress-card__value-section__container">
 				<span className={ baseStyles.valueSectionHeading }>
-					{ __( 'Monthly views', 'jetpack-my-jetpack' ) }
+					{ __( '30-Day views', 'jetpack-my-jetpack' ) }
 				</span>
 
 				<span className="videopress-card__value-section__value">
