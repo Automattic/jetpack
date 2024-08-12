@@ -18,6 +18,7 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
+		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/base-styles": "5.2.0",
 		"@wordpress/browserslist-config": "6.2.0",
 		"@wordpress/components": "28.2.0",
