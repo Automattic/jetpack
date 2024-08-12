@@ -1,16 +1,12 @@
 <?php
 /**
- * Test class for Wpcom_Block_Patterns_Utils.
+ * Test class for WPCOM_Enqueue_Dynamic_Script.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-enqueue-dynamic-script/class-wpcom-enqueue-dynamic-script.php';
-
 /**
- * Test class for WPCOM_Enqueue_Dynamic_Script.
+ * Class for WPCOM_Enqueue_Dynamic_Script_Test.
  *
  * @covers WPCOM_Enqueue_Dynamic_Script.
  */
