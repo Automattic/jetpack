@@ -6,6 +6,8 @@
 
 	&__wrapper {
 		width: 100%;
+		border-radius: calc( var( --spacing-base ) * 3 ); // 24px
+		background-color: var( --jp-gray-5 );
 	}
 	
 	&__bar {
