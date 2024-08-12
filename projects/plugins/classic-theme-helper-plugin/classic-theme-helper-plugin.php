@@ -79,6 +79,7 @@ function init_packages_plugins_loaded() {
 	 */
 function init_packages_init() {
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+		// @phan-suppress-next-line PhanNoopNew
 		new Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 	}
 }
