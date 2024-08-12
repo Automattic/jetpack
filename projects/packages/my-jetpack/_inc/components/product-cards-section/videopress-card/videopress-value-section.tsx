@@ -22,10 +22,10 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 		return <span className="videopress-card__video-count">{ videoCount }</span>;
 	}
 
-	const currentViews = featuredStats?.data?.views?.current;
-	const currentWatchTime = featuredStats?.data?.watch_time?.current;
+	if ( isPluginActive && videoCount ) {
+		const currentViews = featuredStats?.data?.views?.current;
+		const currentWatchTime = featuredStats?.data?.watch_time?.current;
 
-	if ( isPluginActive && ( currentViews > 0 || currentWatchTime > 0 ) ) {
 		return (
 			<div className="videopress-card__value-section">
 				<div className="videopress-card__value-section__container">
