@@ -28,9 +28,6 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const isPluginActive =
 		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
-	const isPluginActive =
-		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
-
 	const descriptionText = useVideoPressCardDescription( {
 		isPluginActive,
 		videoCount,
