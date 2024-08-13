@@ -730,16 +730,11 @@ class Functions {
 	 * @return array
 	 */
 	public static function get_jetpack_sync_active_modules() {
-		/**
-		 * Filters the list of class names of sync modules.
-		 * If you add to this list, make sure any classes implement the
-		 * Jetpack_Sync_Module interface.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 */
+
+		/** This filter is documented in projects/packages/sync/src/class-modules.php */
 		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
 		$modules = array_unique( $modules );
+		$modules = array_map( 'wp_normalize_path', $modules );
 		return $modules;
 	}
 }
