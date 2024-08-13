@@ -51,6 +51,12 @@ function overrideCoreDocumentationLinksToWpcom( translation: string, text: strin
 		 */
 		'https://wordpress.org/documentation/article/styles-overview/':
 			'https://wordpress.com/support/using-styles/',
+
+		/**
+		 * Embed Block
+		 */
+		'https://wordpress.org/documentation/article/embeds/':
+			'https://wordpress.com/support/wordpress-editor/blocks/embed-block/',
 	};
 
 	const url = documentLinksMap[ text ] ?? '';
