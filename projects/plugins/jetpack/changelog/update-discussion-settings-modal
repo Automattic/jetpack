@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix: Saving discussion settings shouldn't turn on subscribe modal.
