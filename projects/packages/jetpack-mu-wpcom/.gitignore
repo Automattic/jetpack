@@ -1,4 +1,5 @@
 .cache/
+bin/
 src/build/
 vendor/
 node_modules/
