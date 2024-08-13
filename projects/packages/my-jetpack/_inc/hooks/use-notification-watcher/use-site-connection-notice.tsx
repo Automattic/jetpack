@@ -1,14 +1,14 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
+import { NOTICE_SITE_CONNECTED } from '../../context/notices/noticeTemplates';
 import { useAllProducts } from '../../data/products/use-product';
-import { getMyJetpackWindowRestState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../use-analytics';
+import useMyJetpackConnection from '../use-my-jetpack-connection';
 import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 import type { NoticeOptions } from '../../context/notices/types';
 
@@ -17,14 +17,8 @@ type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 	const { recordEvent } = useAnalytics();
 	const { setNotice, resetNotice } = useContext( NoticeContext );
-	const { apiRoot, apiNonce } = getMyJetpackWindowRestState();
-	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+	const { handleRegisterSite, siteIsRegistering } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		apiRoot,
-		apiNonce,
-		from: 'my-jetpack',
-		redirectUri: null,
-		autoTrigger: false,
 	} );
 	const products = useAllProducts();
 	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.Connection );
@@ -48,17 +42,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 
 			recordEvent( 'jetpack_my_jetpack_site_connection_notice_cta_click' );
 			handleRegisterSite().then( () => {
-				setNotice( {
-					message: __( 'Your site has been successfully connected.', 'jetpack-my-jetpack' ),
-					options: {
-						id: 'site-connection-success-notice',
-						level: 'success',
-						actions: [],
-						priority: NOTICE_PRIORITY_HIGH,
-						hideCloseButton: false,
-						onClose: resetNotice,
-					},
-				} );
+				setNotice( NOTICE_SITE_CONNECTED, resetNotice );
 				delete redBubbleAlerts[ redBubbleSlug ];
 				window.myJetpackInitialState.redBubbleAlerts = redBubbleAlerts;
 			} );
@@ -113,7 +97,7 @@ const useSiteConnectionNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			isRedBubble: true,
 			tracksArgs: {
 				type: connectionError.type,
-				isError: connectionError.is_error,
+				is_error: connectionError.is_error,
 			},
 		};
 

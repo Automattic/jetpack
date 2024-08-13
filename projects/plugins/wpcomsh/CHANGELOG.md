@@ -1,5 +1,76 @@
 # Changelog
 
+## 5.3.3 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.2 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.1 - 2024-08-09
+### Added
+- Added safeguards against erroneous WordPress hook invocations. [#37859]
+
+## 5.3.0 - 2024-08-08
+### Changed
+- Plan name change: Add translations [#38726]
+- Update translation files [#38736]
+
+### Fixed
+- Update wpcomsh POT file [#38728]
+
+## 5.2.1 - 2024-08-05
+### Changed
+- Internal updates.
+
+## 5.2.0 - 2024-08-05
+### Changed
+- Add target_blog_id prop to AIOWP tracks events [#38615]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- Plan names: Revert plan names to Personal/Premium/Business/Commerce [#38668]
+
+## 5.1.2 - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
+## 5.1.1 - 2024-07-30
+### Removed
+- Remove the old plugin banner code [#38605]
+
+## 5.1.0 - 2024-07-29
+### Changed
+- Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
+
+## 5.0.3 - 2024-07-26
+### Removed
+- Footer credit: Remove customizer option for block themes [#38559]
+
+## 5.0.2 - 2024-07-26
+### Fixed
+- Fix the "The parent theme is missing" issue [#38557]
+
+## 5.0.1 - 2024-07-25
+### Changed
+- WooCommerce Calypso Bridge version update to 2.5.5 [#38469]
+
+## 5.0.0 - 2024-07-23
+### Added
+- Added new feature for social editor preview. [#38425]
+- Added checks to remove WP.com items and links in WP Admin for users who are not connected to WP.com. [#38401]
+- i18n: Updated language files. [#38447]
+
+### Changed
+- Improve plugin-dance command. [#38423]
+- Updated package dependencies. [#38464]
+- Updated WooCommerce Calypso Brdige version to 2.5.4. [#38451]
+
+### Removed
+- Footer credit: Removed customizer option for block themes. [#38473]
+- Footer credit: Render default credit on block themes. [#38458]
+- Removed checks for Jetpack versions over a year old. [#38386]
+- Removed code for compatibility with WordPress before 6.5. [#38386]
+
 ## 4.0.0 - 2024-07-18
 ### Removed
 - General: update WordPress version requirements to WordPress 6.5. [#38382]

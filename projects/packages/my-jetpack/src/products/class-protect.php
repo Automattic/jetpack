@@ -92,7 +92,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Powerful, automated site security', 'jetpack-my-jetpack' );
+		return __( 'Guard against malware and bad actors 24/7', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Protect extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Protect your site and scan for security vulnerabilities listed in our database.', 'jetpack-my-jetpack' );
+		return __( 'Protect your site from bad actors and malware 24/7. Clean up security vulnerabilities with one click.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -267,19 +267,24 @@ class Protect extends Product {
 	 * @return boolean
 	 */
 	public static function has_paid_plan_for_product() {
+		$plans_with_scan = array(
+			'jetpack_scan',
+			'jetpack_security',
+			'jetpack_complete',
+			'jetpack_premium',
+			'jetpack_business',
+		);
+
 		$purchases_data = Wpcom_Products::get_site_current_purchases();
 		if ( is_wp_error( $purchases_data ) ) {
 			return false;
 		}
 		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
 			foreach ( $purchases_data as $purchase ) {
-				// Protect is available as jetpack_scan product and as part of the Security or Complete plan.
-				if (
-					strpos( $purchase->product_slug, 'jetpack_scan' ) !== false ||
-					str_starts_with( $purchase->product_slug, 'jetpack_security' ) ||
-					str_starts_with( $purchase->product_slug, 'jetpack_complete' )
-				) {
-					return true;
+				foreach ( $plans_with_scan as $plan ) {
+					if ( strpos( $purchase->product_slug, $plan ) !== false ) {
+						return true;
+					}
 				}
 			}
 		}

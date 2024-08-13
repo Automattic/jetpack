@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 4.1.0-alpha
+ * Version: 5.4.0-alpha
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '4.1.0-alpha' );
+define( 'WPCOMSH_VERSION', '5.4.0-alpha' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -28,7 +28,6 @@ require_once __DIR__ . '/lib/require-lib.php';
 require_once __DIR__ . '/plugin-hotfixes.php';
 
 require_once __DIR__ . '/footer-credit/footer-credit.php';
-require_once __DIR__ . '/block-theme-footer-credits/block-theme-footer-credits.php';
 require_once __DIR__ . '/storefront/storefront.php';
 require_once __DIR__ . '/custom-colors/colors.php';
 require_once __DIR__ . '/storage/storage.php';
@@ -139,8 +138,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 }
 
 require_once __DIR__ . '/wpcom-migration-helpers/site-migration-helpers.php';
-
-require_once __DIR__ . '/wpcom-plugins/plugins.php';
 
 // We include WPCom Themes results and installation on non-WP_CLI context.
 if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
@@ -525,13 +522,49 @@ function wpcomsh_footer_rum_js() {
 		}
 	}
 
+	$rum_kv = array();
+	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
+
+	if ( count( $rum_kv ) > 0 ) {
+		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
+		if ( is_string( $rum_kv ) ) {
+			$rum_kv = 'data-customproperties="' . esc_attr( $rum_kv ) . '"';
+		} else {
+			$rum_kv = '';
+		}
+	} else {
+		$rum_kv = '';
+	}
+
 	printf(
-		'<script defer id="bilmur" data-provider="wordpress.com" data-service="%1$s" %2$s src="%3$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
 		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
+
+/**
+ * Adds WooCommerce-related data to the Real User Monitoring (RUM) array.
+ *
+ * This function checks if WooCommerce is active on the site and adds
+ * this information to the provided RUM data array. It's designed to be
+ * used as part of the RUM data collection process for Atomic sites.
+ *
+ * @param array $rum_kv An array of existing RUM key-value pairs.
+ *                      If not provided, an empty array will be used.
+ *
+ * @return array The input array with added WooCommerce data.
+ *               The 'woo_active' key will be added with a boolean value
+ *               indicating whether WooCommerce is active.
+ */
+function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
+	$woo_active           = class_exists( 'WooCommerce' ) ? '1' : '0';
+	$rum_kv['woo_active'] = $woo_active;
+	return $rum_kv;
+}
+
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 

@@ -3,6 +3,8 @@
  */
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
+import { BREVE_FEATURE_NAME } from '../constants';
+import { Anchor } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -21,7 +23,7 @@ export function setPopoverHover( isHover: boolean ) {
 	};
 }
 
-export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
+export function setPopoverAnchor( anchor: Anchor ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
@@ -48,24 +50,31 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
-export function setBlockMd5( feature: string, blockId: string, md5: string ) {
+export function setBlockMd5( blockId: string, md5: string ) {
 	return {
 		type: 'SET_BLOCK_MD5',
-		feature,
 		blockId,
 		md5,
 	};
 }
 
-export function invalidateSuggestions( feature: string, blockId: string ) {
+export function invalidateSuggestions( blockId: string ) {
 	return {
 		type: 'INVALIDATE_SUGGESTIONS',
-		feature,
 		blockId,
 	};
 }
 
+export function ignoreSuggestion( blockId: string, id: string ) {
+	return {
+		type: 'IGNORE_SUGGESTION',
+		blockId,
+		id,
+	};
+}
+
 export function setSuggestions( {
+	anchor,
 	id,
 	feature,
 	target,
@@ -73,6 +82,7 @@ export function setSuggestions( {
 	blockId,
 	occurrence,
 }: {
+	anchor: HTMLElement;
 	id: string;
 	feature: string;
 	target: string;
@@ -81,6 +91,8 @@ export function setSuggestions( {
 	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
+		anchor?.classList?.add( 'jetpack-ai-breve__is-loading' );
+
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
 			id,
@@ -98,10 +110,12 @@ export function setSuggestions( {
 				occurrence,
 			} ),
 			{
-				feature: 'jetpack-ai-breve',
+				feature: BREVE_FEATURE_NAME,
 			}
 		)
 			.then( response => {
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
+
 				try {
 					const suggestions = JSON.parse( response );
 					dispatch( {
@@ -122,6 +136,8 @@ export function setSuggestions( {
 				}
 			} )
 			.catch( () => {
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
+
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',
 					id,

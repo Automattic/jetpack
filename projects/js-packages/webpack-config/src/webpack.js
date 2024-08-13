@@ -105,7 +105,32 @@ const DefinePlugin = defines => [
 	} ),
 ];
 
-const DependencyExtractionPlugin = options => [ new DependencyExtractionWebpackPlugin( options ) ];
+const defaultRequestMap = {
+	'@automattic/jetpack-script-data': {
+		external: 'JetpackScriptDataModule',
+		handle: 'jetpack-script-data',
+	},
+};
+
+const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {
+	const finalRequestMap = { ...defaultRequestMap, ...requestMap };
+
+	const requestToExternal = request => {
+		return finalRequestMap[ request ]?.external;
+	};
+
+	const requestToHandle = request => {
+		return finalRequestMap[ request ]?.handle;
+	};
+
+	return [
+		new DependencyExtractionWebpackPlugin( {
+			requestToExternal,
+			requestToHandle,
+			...options,
+		} ),
+	];
+};
 
 const DuplicatePackageCheckerPlugin = options => [
 	new DuplicatePackageCheckerWebpackPlugin( options ),
@@ -128,9 +153,26 @@ const ForkTSCheckerPlugin = options => [
 
 const I18nCheckPlugin = options => {
 	const opts = { filter: i18nFilterFunction, ...options };
+
+	// Default text domain.
 	if ( typeof opts.expectDomain === 'undefined' ) {
 		opts.expectDomain = loadTextDomainFromComposerJson();
 	}
+
+	// Default Babel options for extractor.
+	if ( typeof opts.extractorOptions?.babelOptions === 'undefined' ) {
+		const babelOptions = { babelrc: false };
+		const configFile = path.resolve( 'babel.config.js' );
+		if ( fs.existsSync( configFile ) ) {
+			babelOptions.configFile = configFile;
+		} else {
+			babelOptions.presets = [ require.resolve( './babel-preset.js' ) ];
+		}
+
+		opts.extractorOptions ??= {};
+		opts.extractorOptions.babelOptions = babelOptions;
+	}
+
 	return [ new I18nCheckWebpackPlugin( opts ) ];
 };
 I18nCheckPlugin.defaultFilter = i18nFilterFunction;

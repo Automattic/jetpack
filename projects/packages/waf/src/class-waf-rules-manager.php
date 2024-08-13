@@ -45,6 +45,33 @@ class Waf_Rules_Manager {
 	const IP_BLOCK_RULES_FILE   = '/rules/block-ip.php';
 
 	/**
+	 * Whether automatic rules are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function automatic_rules_enabled() {
+		return (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+	}
+
+	/**
+	 * Whether IP allow list is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function ip_allow_list_enabled() {
+		return (bool) get_option( self::IP_ALLOW_LIST_ENABLED_OPTION_NAME );
+	}
+
+	/**
+	 * Whether IP block list is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function ip_block_list_enabled() {
+		return (bool) get_option( self::IP_BLOCK_LIST_ENABLED_OPTION_NAME );
+	}
+
+	/**
 	 * Register WordPress hooks for the WAF rules.
 	 *
 	 * @return void
@@ -215,17 +242,17 @@ class Waf_Rules_Manager {
 		}
 
 		// Add IP allow list
-		if ( get_option( self::IP_ALLOW_LIST_ENABLED_OPTION_NAME ) ) {
+		if ( self::ip_allow_list_enabled() ) {
 			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
 		}
 
 		// Add IP block list
-		if ( get_option( self::IP_BLOCK_LIST_ENABLED_OPTION_NAME ) ) {
+		if ( self::ip_block_list_enabled() ) {
 			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 
 		// Add automatic rules
-		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
+		if ( self::automatic_rules_enabled() ) {
 			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) ) . "\n";
 		}
 

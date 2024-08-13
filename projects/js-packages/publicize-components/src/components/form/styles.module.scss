@@ -49,7 +49,7 @@
 
 .enabled-connections-notice {
 	color: var(--jp-gray-50);
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.25rem;
 }
 
 p.auto-share-title {
@@ -75,6 +75,14 @@ p.auto-share-title {
 		&:hover {
 			text-decoration: none;
 		}
+	}
+}
+
+.broken-connection-service {
+	.broken-connection {
+		font-weight: bold;
+		font-style: italic;
+		word-wrap: break-word;
 	}
 }
 

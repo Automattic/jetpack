@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.47.0-alpha';
+	const PACKAGE_VERSION = '5.56.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -35,9 +35,11 @@ class Jetpack_Mu_Wpcom {
 
 		// Load features that only apply to WordPress.com-connected users.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
 
-		// Load ETK features that need higher priority than the ETK plugin.
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ), 0 );
+		// Load ETK features flag to turn off the features in the ETK plugin.
+		// It needs higher priority than the ETK plugin.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features_flags' ), 0 );
 
 		/*
 		 * Please double-check whether you really need to load your feature separately.
@@ -63,6 +65,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
+
+		// Load the Map block settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_jetpack_mu_wpcom_settings' ), 999 );
 
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ), 999 );
@@ -92,6 +97,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
+		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
@@ -99,13 +105,19 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
-		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+
+		// Gets autoloaded from the Scheduled_Updates package.
+		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
+			Scheduled_Updates::init();
+		}
 	}
 
 	/**
@@ -127,6 +139,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
@@ -137,32 +150,84 @@ class Jetpack_Mu_Wpcom {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
 		}
-		// Gets autoloaded from the Scheduled_Updates package.
-		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
-			Scheduled_Updates::init();
-		}
 	}
 
 	/**
-	 * Laod ETK features that need higher priority than the ETK plugin.
+	 * Define the flags to turn off features in the ETK plugin.
+	 * Can be removed once the feature no longer exists in the ETK plugin.
+	 */
+	public static function load_etk_features_flags() {
+		if ( is_admin() && ! is_wpcom_user() ) {
+			return;
+		}
+
+		define( 'MU_WPCOM_COBLOCKS_GALLERY', true );
+		define( 'MU_WPCOM_CUSTOM_LINE_HEIGHT', true );
+		define( 'MU_WPCOM_BLOCK_INSERTER_MODIFICATIONS', true );
+		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
+		define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
+		define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
+		define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+		define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
+		define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
+		define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
+		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
+		define( 'MU_WPCOM_TAGS_EDUCATION', true );
+		define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
+		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
+		define( 'MU_WPCOM_POSTS_LIST_BLOCK', true );
+		define( 'MU_WPCOM_JETPACK_COUNTDOWN_BLOCK', true );
+		define( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK', true );
+		define( 'MU_WPCOM_DOCUMENTATION_LINKS', true );
+		define( 'MU_WPCOM_GLOBAL_STYLES', true );
+		define( 'MU_WPCOM_FSE', true );
+		define( 'MU_WPCOM_TEMPLATE_INSERTER', true );
+		define( 'MU_WPCOM_WHATS_NEW', true );
+	}
+
+	/**
+	 * Load ETK features.
 	 * Can be moved back to load_features() once the feature no longer exists in the ETK plugin.
 	 */
 	public static function load_etk_features() {
-		require_once __DIR__ . '/features/block-editor/custom-line-height.php';
-		require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
-		require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+		if ( is_admin() && ! is_wpcom_user() ) {
+			return;
+		}
+
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
-		require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
-		require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
-		require_once __DIR__ . '/features/tags-education/tags-education.php';
-		require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
-		require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
-		require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
-		require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
-		require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
-		require_once __DIR__ . '/features/wpcom-global-styles/index.php';
-		require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
+
+		/**
+		 * Load features for the editor and the frontend pages.
+		 *
+		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
+		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
+		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
+			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
+			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
+			// To avoid potential collisions with newspack-blocks plugin.
+			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
+				require_once __DIR__ . '/features/newspack-blocks/index.php';
+			}
+			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
+			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
+			require_once __DIR__ . '/features/tags-education/tags-education.php';
+			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
+			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
+			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
+			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
+			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
+			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+			require_once __DIR__ . '/features/wpcom-whats-new/wpcom-whats-new.php';
+			require_once __DIR__ . '/features/starter-page-templates/class-starter-page-templates.php';
+		}
 	}
 
 	/**
@@ -222,6 +287,35 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Adds a global variable containing the config of the plugin to the window object.
+	 */
+	public static function load_jetpack_mu_wpcom_settings() {
+		$handle = 'jetpack-mu-wpcom-settings';
+
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
+		wp_register_script(
+			$handle,
+			false,
+			array(),
+			true
+		);
+
+		$data = wp_json_encode(
+			array(
+				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
+			)
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var JETPACK_MU_WPCOM_SETTINGS = $data;",
+			'before'
+		);
+
+		wp_enqueue_script( $handle );
 	}
 
 	/**

@@ -11,6 +11,7 @@ import {
 	useBreakpointMatch,
 	ActionButton,
 } from '@automattic/jetpack-components';
+import { useExperiment } from '@automattic/jetpack-explat';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useState } from 'react';
 /*
@@ -23,17 +24,20 @@ import {
 	QUERY_CHAT_AVAILABILITY_KEY,
 	QUERY_CHAT_AUTHENTICATION_KEY,
 } from '../../data/constants';
+import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import ConnectionsSection from '../connections-section';
+import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import JetpackManageBanner from '../jetpack-manage-banner';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
-import WelcomeBanner from '../welcome-banner';
+import WelcomeFlow from '../welcome-flow';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, title, options } ) => {
@@ -43,7 +47,7 @@ const GlobalNotice = ( { message, title, options } ) => {
 		const tracksArgs = options?.tracksArgs || {};
 
 		recordEvent( 'jetpack_myjetpack_global_notice_view', {
-			noticeId: options.id,
+			notice_id: options.id,
 			...tracksArgs,
 		} );
 	}, [ options.id, recordEvent, options?.tracksArgs ] );
@@ -73,11 +77,14 @@ const GlobalNotice = ( { message, title, options } ) => {
  * @returns {object} The MyJetpackScreen component.
  */
 export default function MyJetpackScreen() {
+	useExperiment( 'explat_test_jetpack_implementation_aa_test' );
 	useNotificationWatcher();
 	const { redBubbleAlerts } = getMyJetpackWindowInitialState();
 	const { jetpackManage = {}, adminUrl } = getMyJetpackWindowInitialState();
 
 	const { isWelcomeBannerVisible } = useWelcomeBanner();
+	const { isSectionVisible } = useEvaluationRecommendations();
+	const { siteIsRegistered } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -135,20 +142,30 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			) }
-			<WelcomeBanner />
-			{ noticeMessage && ! isWelcomeBannerVisible && (
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						{
+			{ isWelcomeBannerVisible ? (
+				<WelcomeFlow>
+					{ noticeMessage && siteIsRegistered && (
+						<GlobalNotice
+							message={ noticeMessage }
+							title={ noticeTitle }
+							options={ noticeOptions }
+						/>
+					) }
+				</WelcomeFlow>
+			) : (
+				noticeMessage && (
+					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Col>
 							<GlobalNotice
 								message={ noticeMessage }
 								title={ noticeTitle }
 								options={ noticeOptions }
 							/>
-						}
-					</Col>
-				</Container>
+						</Col>
+					</Container>
+				)
 			) }
+			{ isSectionVisible && <EvaluationRecommendations /> }
 
 			<ProductCardsSection />
 

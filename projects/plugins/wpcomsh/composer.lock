@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9dedc290e93c633c02b3289fb40bcd2",
+    "content-hash": "a2b3dc7a7194b89327a123f9d4fe88fb",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -189,7 +189,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "d5648e0a4f0a8bffbbc805d0f6a5ed0f3cedd521"
+                "reference": "9a9e8b6703e074750408f276c14011262b388ddc"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -213,7 +213,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.1.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -631,7 +631,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "6d990be4aaded35f3ee203c976d16b9334419882"
+                "reference": "2e4a3b9a72cb4f590de3ffcbd5ea0146d584483e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -666,7 +666,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.11.x-dev"
+                    "dev-trunk": "2.12.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1063,7 +1063,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/masterbar",
-                "reference": "afde100c2bbad9a2e337db64b54ddc650efc9720"
+                "reference": "9f21b1d7607b21df7becfcdb49002d310d891440"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1091,7 +1091,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-masterbar/compare/v${old}...v${new}"
@@ -1142,7 +1142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "4a39c4961bf87d1d5d44ec9328a0a947034f37e3"
+                "reference": "363f23c725cd3277f91f195b90199a3100175441"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1176,7 +1176,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.47.x-dev"
+                    "dev-trunk": "5.56.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1705,7 +1705,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "9e674c384f72544b488e3af3d9348692d32cee54"
+                "reference": "e8ba4ea2e343876391215025258d0454d88bdddc"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1738,7 +1738,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "3.5.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1863,16 +1863,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.5.4",
+            "version": "v2.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "164752a01f038220202455c00844a80ee8e51ef0"
+                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/164752a01f038220202455c00844a80ee8e51ef0",
-                "reference": "164752a01f038220202455c00844a80ee8e51ef0",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/f7dc90d348ac82031f26dff6076e4cf492b09138",
+                "reference": "f7dc90d348ac82031f26dff6076e4cf492b09138",
                 "shasum": ""
             },
             "require": {
@@ -1913,7 +1913,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2024-07-22T10:08:33+00:00"
+            "time": "2024-07-23T22:02:25+00:00"
         },
         {
             "name": "composer/installers",

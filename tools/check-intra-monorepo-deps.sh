@@ -277,7 +277,7 @@ for SLUG in "${SLUGS[@]}"; do
 			if [[ -n "$CI" ]]; then
 				M="::error file=$FILE"
 				[[ -n "$LINE" ]] && M="$M,line=${LINE%%:*}"
-				echo "$M::Must depend on monorepo package $PKG version $VER%0AYou might use \`tools/check-intra-monorepo-deps.sh -u\` to fix this."
+				echo "$M::Must depend on monorepo package $PKG version $VER%0APlease run \`tools/check-intra-monorepo-deps.sh -u\`, commit, and push the generated changes to fix this."
 			else
 				M="$FILE"
 				[[ -n "$LINE" ]] && M="$M:${LINE%%:*}"
@@ -320,7 +320,7 @@ done
 spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
-	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'
+	jetpackGreen 'Please run `tools/check-intra-monorepo-deps.sh -u`, commit, and push the generated changes to fix these errors.'
 fi
 
 if $RELEASEBRANCH && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then

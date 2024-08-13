@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.3.0 - 2024-08-08
+### Added
+- Added jetpack-initial-state package to consolidate the logic for Initial state [#38430]
+
+## 3.2.11 - 2024-07-24
+### Added
+- Pass default Babel options to I18nCheckWebpackPlugin if none are supplied, as we already do for TranspileRule. [#38482]
+
 ## 3.2.10 - 2024-07-03
 ### Changed
 - Updated package dependencies. [#38132]

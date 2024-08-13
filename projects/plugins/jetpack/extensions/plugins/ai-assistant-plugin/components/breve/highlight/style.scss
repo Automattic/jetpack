@@ -1,11 +1,22 @@
 @import '../features/features.colors';
 
-[class^='has-proofread-highlight'] {
+[class^='jetpack-ai-breve__has-proofread-highlight'] {
+	transition: background-color;
+	transition-duration: 0.3s;
 	border-bottom: 3px solid;
+
 	@include features-colors( ( 'border-bottom-color' ) );
+
+	&.jetpack-ai-breve__is-loading {
+		@include pulse();
+	}
+
+	&.jetpack-ai-breve__highlight-hovered {
+		@include features-colors( ( 'background-color' ), 0.2 );
+	}
 }
 
-.highlight-popover {
+.jetpack-ai-breve__highlight-popover {
 	color: black;
 	cursor: default;
 	font-size: 13px;
@@ -14,71 +25,89 @@
 	line-height: 18px;
 	width: auto;
 
-	.highlight-content {
+	.jetpack-ai-breve__highlight-content {
 		align-items: center;
 		display: flex;
-		justify-content: space-between;
-		gap: 32px;
+		flex-direction: column;
 
-		&.has-suggestions {
+		&.jetpack-ai-breve__has-suggestions {
 			align-items: flex-start;
-			flex-direction: column;
 			padding-top: 8px;
 			gap: 8px;
 		}
 
-		.title,
-		.action {
-			padding: 8px 12px;
-		}
-
-		.title {
+		.jetpack-ai-breve__header-container {
 			display: flex;
-			align-items: center;
-			justify-content: flex-start;
-			gap: 8px;
-			font-size: 14px;
-			font-weight: 500;
-			white-space: nowrap;
+			width: 100%;
+			justify-content: space-between;
+			gap: 32px;
 
-			.color {
-				width: 24px;
-				height: 24px;
-				border-radius: 50%;
-				@include features-colors( ( 'background-color' ) );
+			.jetpack-ai-breve__title,
+			.jetpack-ai-breve__action {
+				padding: 8px 12px;
+			}
+
+			.jetpack-ai-breve__title {
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+				gap: 8px;
+				font-size: 14px;
+				font-weight: 500;
+				white-space: nowrap;
+
+				.jetpack-ai-breve__color {
+					width: 10px;
+					height: 10px;
+					border-radius: 50%;
+					@include features-colors( ( 'background-color' ) );
+				}
+			}
+
+			.jetpack-ai-breve__action {
+				font-size: 13px;
+				display: flex;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 4px;
+
+				.jetpack-ai-breve__suggest.components-button {
+					padding-top: 0px;
+					padding-bottom: 0px;
+					padding-right: 0px;
+					height: unset;
+
+					& > svg,
+					path {
+						fill: #0277a8;
+					}
+				}
 			}
 		}
 
-		.action {
-			font-size: 13px;
-			display: flex;
-			align-items: center;
-			justify-content: flex-end;
-			gap: 4px;
-
-			.components-button {
-				padding-top: 0px;
-				padding-bottom: 0px;
-				padding-right: 0px;
-				height: unset;
-			}
-
-			& > svg,
-			path {
-				fill: #0277a8;
-			}
-		}
-
-		.suggestion-container {
+		.jetpack-ai-breve__bottom-container {
 			display: flex;
 			flex-direction: column;
 			border-top: 1px solid #dcdcde;
+			width: 100%;
 
-			.helper {
-				padding: 8px;
+			.jetpack-ai-breve__helper {
+				padding: 4px 8px;
 				background-color: #f6f7f7;
 				white-space: nowrap;
 				color: #646970;
+				margin: 4px;
+				border-radius: 4px;
+				font-size: 12px;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 8px;
+
+				.components-button {
+					padding: 0px;
+					color: #646970;
+				}
 			}
 
 			.components-button.is-tertiary {
@@ -86,9 +115,11 @@
 				white-space: break-spaces;
 				min-height: 36px;
 				height: unset;
-				min-width: 300px;
-				justify-content: center;
+				min-width: 320px;
 				text-align: unset;
+				padding-top: 16px;
+				padding-bottom: 16px;
+				line-height: 20px;
 			}
 		}
 	}

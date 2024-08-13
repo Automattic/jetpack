@@ -14,6 +14,13 @@ export type HighlightProps = {
 	type: string;
 	indexes: Array< HighlightedText >;
 	attributes?: { [ key: string ]: string };
+	ignored: Array< string >;
+};
+
+type HighlightData = {
+	start: number;
+	end: number;
+	id: string;
 };
 
 const applyHighlightFormat = ( {
@@ -21,6 +28,7 @@ const applyHighlightFormat = ( {
 	type,
 	indexes,
 	attributes = {},
+	ignored = [],
 }: HighlightProps ): RichTextValue => {
 	let newContent = content;
 
@@ -28,10 +36,12 @@ const applyHighlightFormat = ( {
 		newContent = indexes
 			.map( highlightedText => {
 				const { startIndex, endIndex, text } = highlightedText;
-				return { start: startIndex, end: endIndex, text } as RichTextValue;
+				const id = md5( `${ text }-${ startIndex }-${ endIndex }` ).toString();
+				return { start: startIndex, end: endIndex, id } as HighlightData;
 			} )
-			.reduce( ( acc: RichTextValue, { start, end, text }: RichTextValue ) => {
-				const currentAttr = { ...attributes, 'data-id': md5( `${ text }-${ start }-${ end }` ) };
+			.filter( data => ! ignored.includes( data?.id ) )
+			.reduce( ( acc: RichTextValue, { start, end, id }: HighlightData ) => {
+				const currentAttr = { ...attributes, 'data-id': id };
 
 				const format = {
 					type,
@@ -45,6 +55,12 @@ const applyHighlightFormat = ( {
 	return newContent;
 };
 
-export default function highlight( { content, type, indexes, attributes }: HighlightProps ) {
-	return applyHighlightFormat( { indexes, content, type, attributes } );
+export default function highlight( {
+	content,
+	type,
+	indexes,
+	attributes,
+	ignored,
+}: HighlightProps ) {
+	return applyHighlightFormat( { indexes, content, type, attributes, ignored } );
 }

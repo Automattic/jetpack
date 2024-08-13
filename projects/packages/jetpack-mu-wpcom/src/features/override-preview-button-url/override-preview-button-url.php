@@ -7,9 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-// Turn off the feature on ETK plugin.
-define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
-
 /**
  * Check if the feature should be loaded.
  *

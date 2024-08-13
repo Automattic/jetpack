@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+React 19 compatibility: Making sure useRef includes an argument.

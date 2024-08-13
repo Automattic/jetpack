@@ -8,7 +8,7 @@ export default function useSubscriptions( { ignore_user_blogs } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ subscriptions, setSubscriptions ] = useState( [] );
-	const abortControllerRef = useRef();
+	const abortControllerRef = useRef( undefined );
 
 	useEffect( () => {
 		setIsLoading( true );

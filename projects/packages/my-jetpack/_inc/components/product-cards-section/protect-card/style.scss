@@ -52,6 +52,13 @@
         font-size: var(--font-body);
         line-height: var(--font-title-small);
         color: var(--jp-gray-70);
+        a {
+            color: var(--jp-black);
+            text-decoration: underline;
+        }
+        a:hover, a:focus {
+            text-decoration: none;
+        }
     }
 
     &__data {
@@ -110,5 +117,14 @@
         line-height: var(--font-title-large);
         font-weight: 400;
         color: var(--jp-black);
+    }
+}
+
+.info-tooltip {
+    &__content {
+        width: calc(100vw - 64px);
+        max-width: 340px;
+        min-height: 150px;
+        padding: 24px;
     }
 }

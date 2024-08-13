@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.60.0] - 2024-08-12
+### Changed
+- Hid most of the actions and notices when sharing is off [#38801]
+- Updated the position of connection notices in the editor [#38789]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Updated the custom message placeholder [#38784]
+
+### Fixed
+- Fixed a UI issue in the editor [#38829]
+- Fixed social post modal max-height [#38830]
+- Social post UI: Fix connection toggle and media notice [#38799]
+
+## [0.59.0] - 2024-08-05
+### Added
+- Added connection toggle to social post preview [#38686]
+- Added feature flag management for social [#38669]
+- Added preview section to the social post modal [#38686]
+- Added Social post UI modal and trigger [#38666]
+- Added tracking for the publicize settings changes [#38714]
+- Social: Added settings section to the social post modal [#38683]
+
+### Fixed
+- Fix the media validation notice for Instagram when SIG is enabled [#38689]
+
+## [0.58.0] - 2024-08-01
+### Changed
+- Fixup versions [#38612]
+
+### Removed
+- Removed the unused code for image auto-conversion from social store [#38609]
+- Social | Removed the media auto-conversion UI [#38497]
+
+### Fixed
+- Improved broken connection messaging for non-admins [#38639]
+- Social | Fixed and improved media auto conversion notices [#38499]
+
+## [0.57.0] - 2024-07-29
+### Added
+- Added mentioning of Manual Sharing [#38411]
+
+### Fixed
+- Fixed broken connection notices to make them more helpful [#38450]
+
+## [0.56.2] - 2024-07-22
+### Fixed
+- Fixed double request issue and simplifed refresh logic [#38350]
+- Social: Fixed parallel social connection requests messing up the UI state. [#38408]
+
 ## [0.56.1] - 2024-07-15
 ### Changed
 - Social: Removed unnecessary feature checks for social connections [#38216]
@@ -783,6 +831,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.60.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.59.0...v0.60.0
+[0.59.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.2...v0.57.0
+[0.56.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.1...v0.56.2
 [0.56.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.1...v0.56.0
 [0.55.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.55.0...v0.55.1

@@ -19,7 +19,7 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	let sizes = null;
 
 	const blockProps = useBlockProps();
-	const juxtaposeRef = useRef();
+	const juxtaposeRef = useRef( undefined );
 	if ( useResizeObserver ) {
 		// Let's look for resize so we can trigger the thing.
 		[ resizeListener, sizes ] = useResizeObserver();

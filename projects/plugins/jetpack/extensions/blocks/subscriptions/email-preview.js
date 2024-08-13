@@ -8,13 +8,23 @@ import {
 	Modal,
 	TextControl,
 	Icon,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon,
+	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpress/icons';
 import './email-preview.scss';
-import { check } from '@wordpress/icons';
+import { useCallback, useEffect } from 'react';
+import { accessOptions } from '../../shared/memberships/constants';
+import { useAccessLevel } from '../../shared/memberships/edit';
 import illustration from './email-preview-illustration.svg';
 
 export default function EmailPreview( { isModalOpen, closeModal } ) {
@@ -110,5 +120,238 @@ export default function EmailPreview( { isModalOpen, closeModal } ) {
 				</Modal>
 			) }
 		</>
+	);
+}
+
+const devices = [
+	{
+		name: 'desktop',
+		icon: desktop,
+		label: __( 'Desktop', 'jetpack' ),
+		width: '100%',
+		size: 'lg',
+	},
+	{
+		name: 'tablet',
+		icon: tablet,
+		label: __( 'Tablet', 'jetpack' ),
+		width: '768px',
+		size: 'md',
+	},
+	{
+		name: 'mobile',
+		icon: mobile,
+		label: __( 'Mobile', 'jetpack' ),
+		width: '360px',
+		size: 'sm',
+	},
+];
+
+const DevicePicker = ( { selectedDevice, setSelectedDevice } ) => {
+	const [ isMedium ] = useBreakpointMatch( 'md' );
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	if ( isSmall ) {
+		return null;
+	}
+
+	const getAvailableDevices = () => {
+		if ( isMedium ) {
+			return devices.filter( device => device.size !== 'lg' );
+		}
+		return devices;
+	};
+
+	return (
+		<ToggleGroupControl
+			__nextHasNoMarginBottom
+			onChange={ setSelectedDevice }
+			value={ selectedDevice }
+			isBlock
+		>
+			{ getAvailableDevices().map( device => (
+				<ToggleGroupControlOptionIcon
+					key={ device.name }
+					icon={ device.icon }
+					value={ device.name }
+					label={ device.label }
+				/>
+			) ) }
+		</ToggleGroupControl>
+	);
+};
+
+const AccessPicker = ( { selectedAccess, setSelectedAccess } ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const accessLevel = useAccessLevel( postType );
+
+	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
+
+	const accessOptionsList = [
+		{
+			label: accessOptions.subscribers.label,
+			value: accessOptions.subscribers.key,
+			icon: people,
+		},
+		{
+			label: accessOptions.paid_subscribers.label,
+			value: accessOptions.paid_subscribers.key,
+			icon: currencyDollar,
+			disabled: isPaidOptionDisabled,
+		},
+	];
+
+	const handleChange = value => {
+		if ( ! isPaidOptionDisabled ) {
+			setSelectedAccess( value );
+		}
+	};
+
+	if ( isSmall && isPaidOptionDisabled ) {
+		return null;
+	}
+
+	return (
+		<ToggleGroupControl
+			__nextHasNoMarginBottom
+			onChange={ handleChange }
+			value={ selectedAccess }
+			isBlock
+			isAdaptiveWidth
+		>
+			{ accessOptionsList.map( access =>
+				isSmall ? (
+					<ToggleGroupControlOptionIcon
+						key={ access.value }
+						value={ access.value }
+						icon={ access.icon }
+						label={ access.label }
+					/>
+				) : (
+					<ToggleGroupControlOption
+						key={ access.value }
+						value={ access.value }
+						label={ access.label }
+						disabled={ access.disabled }
+					/>
+				)
+			) }
+		</ToggleGroupControl>
+	);
+};
+
+const HeaderActions = ( {
+	selectedAccess,
+	setSelectedAccess,
+	selectedDevice,
+	setSelectedDevice,
+} ) => {
+	const [ isSmall ] = useBreakpointMatch( 'sm' );
+
+	return (
+		<HStack alignment="center" spacing={ isSmall ? 1 : 6 }>
+			<DevicePicker selectedDevice={ selectedDevice } setSelectedDevice={ setSelectedDevice } />
+			<AccessPicker selectedAccess={ selectedAccess } setSelectedAccess={ setSelectedAccess } />
+		</HStack>
+	);
+};
+
+export function PreviewModal( { isOpen, onClose, postId } ) {
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ previewCache, setPreviewCache ] = useState( {} );
+	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
+	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
+
+	const fetchPreview = useCallback(
+		async accessLevel => {
+			if ( ! postId ) {
+				return;
+			}
+
+			setIsLoading( true );
+
+			try {
+				const response = await apiFetch( {
+					path: `/wpcom/v2/email-preview/?post_id=${ postId }&access=${ accessLevel }`,
+					method: 'GET',
+				} );
+
+				if ( response && response.html ) {
+					setPreviewCache( prevCache => ( {
+						...prevCache,
+						[ accessLevel ]: response.html,
+					} ) );
+				} else {
+					throw new Error( 'Invalid response format' );
+				}
+			} catch ( error ) {
+				setPreviewCache( prevCache => ( {
+					...prevCache,
+					[ accessLevel ]: `<html><body>${ __(
+						'Error loading preview',
+						'jetpack'
+					) }</body></html>`,
+				} ) );
+			} finally {
+				setIsLoading( false );
+			}
+		},
+		[ postId ]
+	);
+
+	useEffect( () => {
+		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
+			fetchPreview( selectedAccess );
+		} else if ( isOpen ) {
+			setIsLoading( false );
+		}
+	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
+
+	const deviceWidth = devices.find( device => device.name === selectedDevice ).width;
+
+	return (
+		isOpen && (
+			<Modal
+				isFullScreen={ true }
+				title={ __( 'Preview email', 'jetpack' ) }
+				onRequestClose={ () => {
+					onClose();
+					setPreviewCache( {} );
+				} }
+				headerActions={
+					<HeaderActions
+						selectedAccess={ selectedAccess }
+						setSelectedAccess={ setSelectedAccess }
+						selectedDevice={ selectedDevice }
+						setSelectedDevice={ setSelectedDevice }
+					/>
+				}
+				className="jetpack-email-preview-modal"
+			>
+				<div
+					style={ {
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: 'calc(100vh - 190px)',
+					} }
+				>
+					{ isLoading ? (
+						<Spinner />
+					) : (
+						<iframe
+							srcDoc={ previewCache?.[ selectedAccess ] }
+							style={ {
+								width: deviceWidth,
+								height: '100%',
+								border: 'none',
+							} }
+							title={ __( 'Email Preview', 'jetpack' ) }
+						/>
+					) }
+				</div>
+			</Modal>
+		)
 	);
 }

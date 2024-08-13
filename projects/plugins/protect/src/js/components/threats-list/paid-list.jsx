@@ -1,6 +1,5 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -15,7 +14,9 @@ const ThreatAccordionItem = ( {
 	description,
 	diff,
 	filename,
+	firstDetected,
 	fixedIn,
+	fixedOn,
 	icon,
 	fixable,
 	id,
@@ -25,6 +26,7 @@ const ThreatAccordionItem = ( {
 	title,
 	type,
 	severity,
+	status,
 } ) => {
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 	const { setModal } = useDispatch( STORE_ID );
@@ -48,6 +50,16 @@ const ThreatAccordionItem = ( {
 		};
 	};
 
+	const handleUnignoreThreatClick = () => {
+		return event => {
+			event.preventDefault();
+			setModal( {
+				type: 'UNIGNORE_THREAT',
+				props: { id, label, title, icon, severity },
+			} );
+		};
+	};
+
 	const handleFixThreatClick = () => {
 		return event => {
 			event.preventDefault();
@@ -66,6 +78,9 @@ const ThreatAccordionItem = ( {
 			icon={ icon }
 			fixable={ fixable }
 			severity={ severity }
+			firstDetected={ firstDetected }
+			fixedOn={ fixedOn }
+			status={ status }
 			onOpen={ useCallback( () => {
 				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
@@ -76,7 +91,13 @@ const ThreatAccordionItem = ( {
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
-						{ __( 'What is the problem?', 'jetpack-protect' ) }
+						{ status !== 'fixed'
+							? __( 'What is the problem?', 'jetpack-protect' )
+							: __(
+									'What was the problem?',
+									'jetpack-protect',
+									/** dummy arg to avoid bad minification */ 0
+							  ) }
 					</Text>
 					<Text mb={ 2 }>{ description }</Text>
 					{ learnMoreButton }
@@ -100,7 +121,7 @@ const ThreatAccordionItem = ( {
 			) }
 			{ context && <MarkedLines context={ context } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
-			{ fixedIn && (
+			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
 					<Text variant="title-small" mb={ 2 }>
 						{ __( 'How to fix it?', 'jetpack-protect' ) }
@@ -115,18 +136,30 @@ const ThreatAccordionItem = ( {
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
 			<div className={ styles[ 'threat-footer' ] }>
-				<Button
-					isDestructive={ true }
-					variant="secondary"
-					disabled={ fixerInProgress }
-					onClick={ handleIgnoreThreatClick() }
-				>
-					{ __( 'Ignore threat', 'jetpack-protect' ) }
-				</Button>
-				{ fixable && (
-					<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
-						{ __( 'Fix threat', 'jetpack-protect' ) }
+				{ 'ignored' === status && (
+					<Button
+						isDestructive={ true }
+						variant="secondary"
+						onClick={ handleUnignoreThreatClick() }
+					>
+						{ __( 'Unignore threat', 'jetpack-protect' ) }
 					</Button>
+				) }
+				{ 'current' === status && (
+					<>
+						<Button
+							isDestructive={ true }
+							variant="secondary"
+							onClick={ handleIgnoreThreatClick() }
+						>
+							{ __( 'Ignore threat', 'jetpack-protect' ) }
+						</Button>
+						{ fixable && (
+							<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
+								{ __( 'Fix threat', 'jetpack-protect' ) }
+							</Button>
+						) }
+					</>
 				) }
 			</div>
 		</PaidAccordionItem>
@@ -134,25 +167,6 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list } ) => {
-	const { scan } = useDispatch( STORE_ID );
-
-	const handleScanClick = () => {
-		return event => {
-			event.preventDefault();
-			scan();
-		};
-	};
-
-	const manualScan = createInterpolateElement(
-		__(
-			'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
-			'jetpack-protect'
-		),
-		{
-			manualScanLink: <Button variant="link" onClick={ handleScanClick() } />,
-		}
-	);
-
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (
@@ -172,7 +186,9 @@ const PaidList = ( { list } ) => {
 						description,
 						diff,
 						filename,
+						firstDetected,
 						fixedIn,
+						fixedOn,
 						icon,
 						fixable,
 						id,
@@ -184,13 +200,16 @@ const PaidList = ( { list } ) => {
 						title,
 						type,
 						version,
+						status,
 					} ) => (
 						<ThreatAccordionItem
 							context={ context }
 							description={ description }
 							diff={ diff }
 							filename={ filename }
+							firstDetected={ firstDetected }
 							fixedIn={ fixedIn }
+							fixedOn={ fixedOn }
 							icon={ icon }
 							fixable={ fixable }
 							id={ id }
@@ -203,13 +222,11 @@ const PaidList = ( { list } ) => {
 							title={ title }
 							type={ type }
 							version={ version }
+							status={ status }
 						/>
 					)
 				) }
 			</PaidAccordion>
-			<Text className={ styles[ 'manual-scan' ] } variant="body-small">
-				{ manualScan }
-			</Text>
 		</>
 	);
 };

@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const pkgDir = require( 'pkg-dir' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 
 module.exports = [
@@ -20,6 +21,10 @@ module.exports = [
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 			'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
+			'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
+			'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
+			'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',
+			'newspack-blocks-carousel-view': './src/features/newspack-blocks/carousel/view.js',
 			'override-preview-button-url':
 				'./src/features/override-preview-button-url/override-preview-button-url.js',
 			'paragraph-block-placeholder':
@@ -32,12 +37,18 @@ module.exports = [
 			'wpcom-blocks-timeline-editor': './src/features/wpcom-blocks/timeline/editor.js',
 			'wpcom-blocks-timeline-view': './src/features/wpcom-blocks/timeline/view.js',
 			'wpcom-block-description-links': './src/features/wpcom-block-description-links/index.tsx',
+			'wpcom-block-editor-nux': './src/features/wpcom-block-editor-nux/index.js',
 			'wpcom-global-styles-editor': './src/features/wpcom-global-styles/index.js',
 			'wpcom-global-styles-frontend':
 				'./src/features/wpcom-global-styles/wpcom-global-styles-view.js',
 			'wpcom-documentation-links':
 				'./src/features/wpcom-documentation-links/wpcom-documentation-links.ts',
-			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.scss',
+			'wpcom-plugins-banner': './src/features/wpcom-plugins/js/banner.js',
+			'wpcom-plugins-banner-style': './src/features/wpcom-plugins/css/banner.css',
+			'wpcom-profile-settings-link-to-wpcom':
+				'./src/features/wpcom-profile-settings/profile-settings-link-to-wpcom.ts',
+			'wpcom-sidebar-notice': './src/features/wpcom-sidebar-notice/wpcom-sidebar-notice.js',
+			'starter-page-templates': './src/features/starter-page-templates/index.tsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -54,12 +65,19 @@ module.exports = [
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
+				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
+				classnames: findPackage( 'clsx' ),
 			},
 		},
 		node: false,
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				MiniCssExtractPlugin: { filename: '[name]/[name].css' },
+				DefinePlugin: {
+					// __i18n_text_domain__ is used in page-pattern-modal npm package, which is used only by starter-page-templates feature.
+					// Consider moving page-pattern-modal package to starter-page-templates and remove this.
+					__i18n_text_domain__: JSON.stringify( 'jetpack-mu-wpcom' ),
+				},
 			} ),
 		],
 		module: {
@@ -93,3 +111,22 @@ module.exports = [
 		},
 	},
 ];
+
+/**
+ * Given a package name, finds the absolute path for it.
+ *
+ * require.resolve() will resolve to the main file of the package, using Node's resolution algorithm to find
+ * a `package.json` and looking at the field `main`. This function will return the folder that contains `package.json`
+ * instead of trying to resolve the main file.
+ *
+ * Example: `@wordpress/data` may resolve to `/home/myUser/wp-calypso/node_modules/@wordpress/data`.
+ *
+ * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
+ * `node_modules`
+ * @param {string} pkgName - Name of the package to search for.
+ */
+function findPackage( pkgName ) {
+	const fullPath = require.resolve( pkgName );
+	const packagePath = pkgDir.sync( fullPath );
+	return packagePath;
+}

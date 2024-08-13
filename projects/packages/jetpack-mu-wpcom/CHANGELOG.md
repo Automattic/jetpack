@@ -5,6 +5,124 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.55.0] - 2024-08-12
+### Added
+- WPCOM MU Plugin: Add dynamic script loader [#38819]
+
+## [5.54.3] - 2024-08-12
+### Fixed
+- MU WPCOM: Fix the “page-patterns” plugin has encountered an error and cannot be rendered" [#38823]
+
+## [5.54.2] - 2024-08-09
+### Fixed
+- Block Editor Nux: Temporary stop load feature from MU WPCOM [#38802]
+- Fixed CSSTidy loading in the test [#37859]
+
+## [5.54.1] - 2024-08-08
+### Fixed
+- Load Scheduled_Updates for non-wpcom users [#38772]
+
+## [5.54.0] - 2024-08-08
+### Added
+- MU WPCOM: Port enqueue_coblocks_gallery_scripts from the ETK [#38731]
+- MU WPCOM: Port the newspack blocks from the ETK [#38724]
+- Point Edit Profile link to wpcalypso.* [#38775]
+- Show Help center in front end admin bar [#38651]
+- Show links back to WordPress.com for them to manage their WordPress.com profile [#38638]
+
+### Changed
+- Removed gating logic for wpcom_admin_interface_settings_field [#38774]
+- WordPress.com Features: Remove unused files for Calypso Locale Bidirectional Sync [#38773]
+
+### Fixed
+- Simple Classic: make Users -> Profile -> Email input readonly instead of disabled [#38752]
+
+## [5.53.1] - 2024-08-05
+### Changed
+- Internal updates.
+
+## [5.53.0] - 2024-08-05
+### Added
+- Added wpcom-block-editor-nux feature from calypso's ETK package. [#38674]
+- MU WPCOM: Port FSE feature from ETK [#38212]
+- MU WPCOM: Port the newspack blocks from the ETK [#38454]
+- MU WPCOM: Port the starter-page-templates feature from ETK [#38475]
+
+### Changed
+- Add description link to Subscriber Login block [#38629]
+- MU WPCOM: Only load ETK features for wpcom users [#38708]
+
+### Removed
+- Removed dead CSS code [#38659]
+
+### Fixed
+- Admin bar: fix icon alignment on small screen widths [#38684]
+- Adminbar: Fix profile menu colors [#38650]
+- Admin bar: help center and notification icons now follow color scheme [#38672]
+- Fix bug so Theme Showcase menu appears on Simple Classic sites [#38698]
+- Fix RTL admin bar [#38654]
+- Masterbar: Fix icon overlap issue at smaller resolutions [#38551]
+- MU WPCOM: Fix the option of the MailerLite widget is gone [#38640]
+
+## [5.52.1] - 2024-07-30
+### Changed
+- Fixup versions [#38612]
+
+## [5.52.0] - 2024-07-30
+### Added
+- Help Center: extended post fetch endpoint to accept URLs [#38445]
+
+### Changed
+- Admin bar: Force mobile viewport to have the same icon color as desktop [#38588]
+- Blog Privacy: Update Applebot-Extended disallow rule [#38599]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [5.51.0] - 2024-07-29
+### Changed
+- Hide the plugin banner on non-wpcom-connected users or agency-managed users [#38532]
+
+### Fixed
+- Admin Bar: Fix the order of the top-right items on Atomic sites [#38533]
+
+## [5.50.0] - 2024-07-26
+### Added
+- Added a new task to the readymade-template launchpad for generating content with AI [#38507]
+
+## [5.49.1] - 2024-07-26
+### Changed
+- Update dependencies.
+
+## [5.49.0] - 2024-07-25
+### Added
+- Add a12n notice about proxied toolbar [#38519]
+
+### Changed
+- Add query param to URL only for users with manage options permission [#38493]
+- Admin Bar: Point the (Profile) -> Edit Profile menu to /me when appropriate [#38530]
+
+### Fixed
+- Fix fatal error in admin bar [#38526]
+- MU WPCOM: Load built version of wpcom-sidebar-notice.js [#38479]
+
+## [5.48.0] - 2024-07-23
+### Changed
+- Always use house icon for site name in admin-bar. [#38457]
+
+## [5.47.0] - 2024-07-22
+### Added
+- Added origin_site_id param to the links on the masterbar. [#38401]
+- Added Random Redirect module for simple sites. [#38374]
+
+### Changed
+- Admin Bar: Replaced the wp-admin url with the calypso ones for the default interface. [#38377]
+- Nav Redesign: Use Core admin bar for Simple and Atomic Default-view sites. [#38419]
+- Show notifications and help icons on mobile. [#38438]
+- Updated Masterbar Reader icon. [#38437]
+
+### Fixed
+- Admin Bar: Adjust wpcom logo size on mobile. [#38448]
+- Set `#wp-admin-bar-top-secondary` absolutely positioned to the right to prevent it from floating ut of place when the window shrinks. [#38426]
+
 ## [5.46.0] - 2024-07-18
 ### Added
 - Limited Global Styles: Port feature from ETK [#38333]
@@ -1015,6 +1133,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
+[5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3
+[5.54.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.1...v5.54.2
+[5.54.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.0...v5.54.1
+[5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
+[5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
+[5.53.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.1...v5.53.0
+[5.52.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.0...v5.52.1
+[5.52.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.51.0...v5.52.0
+[5.51.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.50.0...v5.51.0
+[5.50.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.1...v5.50.0
+[5.49.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.49.0...v5.49.1
+[5.49.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.48.0...v5.49.0
+[5.48.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.47.0...v5.48.0
+[5.47.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.46.0...v5.47.0
 [5.46.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.45.0...v5.46.0
 [5.45.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.44.0...v5.45.0
 [5.44.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.43.0...v5.44.0

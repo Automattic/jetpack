@@ -1,3 +1,12 @@
+export interface FeatureFlags {
+	useAdminUiV1: boolean;
+}
+
+export interface SocialScriptData {
+	is_publicize_enabled: boolean;
+	feature_flags: FeatureFlags;
+}
+
 type JetpackSettingsSelectors = {
 	getJetpackSettings: () => {
 		publicize_active: boolean;
@@ -43,16 +52,6 @@ type SocialImageGeneratorSettingsSelectors = {
 	getSocialImageGeneratorDefaultTemplate: () => string;
 };
 
-type AutoConversionSettingsSelectors = {
-	getAutoConversionSettings: () => {
-		available: boolean;
-		image: boolean;
-	};
-	isAutoConversionAvailable: () => boolean;
-	isAutoConversionEnabled: () => boolean;
-	isAutoConversionSettingsUpdating: () => boolean;
-};
-
 /**
  * Types of the Social Store selectors.
  *
@@ -62,5 +61,4 @@ export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SharesDataSelectors &
 	SiteDataSelectors &
-	SocialImageGeneratorSettingsSelectors &
-	AutoConversionSettingsSelectors;
+	SocialImageGeneratorSettingsSelectors;

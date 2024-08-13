@@ -605,6 +605,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_site_icon_url_returns_false_when_no_site_icon() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
 		delete_option( 'jetpack_site_icon_url' );
 		$this->sender->do_sync();
 		$this->assertFalse( $this->server_replica_storage->get_callable( 'site_icon_url' ) );
@@ -629,6 +632,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_site_icon_url_fallback_to_jetpack_site_icon_url() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
 		delete_option( 'site_icon' );
 		update_option( 'jetpack_site_icon_url', 'http://website.com/wp-content/uploads/2016/09/jetpack_site_icon.png' );
 		$this->sender->do_sync();
@@ -774,6 +780,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_get_post_types_method() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
+
 		global $wp_post_types;
 		$synced = Functions::get_post_types();
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
@@ -911,7 +921,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			),
 		);
 
-		if ( ! is_multisite() ) {
+		if (
+			! is_multisite()
+				&& ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC )
+		) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 

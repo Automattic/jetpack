@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.32.1] - 2024-08-09
+### Added
+- Add value to the inactive state on the VideoPress card in My Jetpack [#38748]
+
+### Changed
+- Update uses of useConnection to useMyJetpackConnection and improve typing in a few places [#38721]
+
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
+### Fixed
+- My Jetpack: fix a bug where a user would see and infinite loading spinner when trying to connect Jetpack with one click in the Welcome flow. [#38813]
+
+## [4.32.0] - 2024-08-05
+### Added
+- Add Tracks events for Welcome Flow [#38641]
+
+### Changed
+- change Jetpack AI product page link redirect [#38691]
+- copy updates [#38648]
+- Modify the Google Analytics notice to notify of the feature removal. [#38701]
+
+## [4.31.0] - 2024-08-01
+### Added
+- Update Welcome Banner and set async site-only connection [#38534]
+
+### Changed
+- Fixup versions [#38612]
+- My Jetpack: modify Jetpack AI product class and interstitial links [#38602]
+- React: Changing global JSX namespace to React.JSX [#38585]
+
+## [4.30.0] - 2024-07-29
+### Added
+- Async card update after async site connection [#38549]
+- My Jetpack: add A/A experiment to test for correct random assignment and prevent bias in metric performance. [#38327]
+- Show View button on product card along with upgrade cta [#38550]
+
+### Changed
+- Final minor enhancements to the Protect product card in My Jetpack. [#38420]
+
+### Removed
+- Remove functionality that hid 1 value on the backup card for mid-sized screens [#38441]
+
+### Fixed
+- Include Jetpack Legacy plans when checking if user has social included with plan [#38516]
+- Update all tracks to snake case, camel case is not supported [#38576]
+
+## [4.29.0] - 2024-07-22
+### Added
+- Added the auto-firewall status to the Protect product  card in My Jetpack. [#38332]
+- Added the number of logins blocked to the Protect card in My Jetpack. [#38396]
+
+### Changed
+- Connection Screen: Removed mention of Stats from the list of available free features. [#38328]
+- Display My Jetpack products segemented by ownership. [#38283]
+- My Jetpack: Updated social icons in the connection screen. [#38334]
+- Updated statuses to make more sense in relation to ownership. [#38390]
+
 ## [4.28.0] - 2024-07-15
 ### Added
 - Add scan/threat info to the Protect card in My Jetpack. [#38165]
@@ -1571,6 +1629,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.32.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.0...4.32.1
+[4.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.31.0...4.32.0
+[4.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.30.0...4.31.0
+[4.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.29.0...4.30.0
+[4.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.28.0...4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.2...4.28.0
 [4.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.1...4.27.2
 [4.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.27.0...4.27.1

@@ -3,18 +3,26 @@
  */
 import { combineReducers } from '@wordpress/data';
 /**
+ * Internal dependencies
+ */
+import features from '../features';
+/**
  * Types
  */
-import type { BreveState } from '../types';
+import type { Anchor, BreveState } from '../types';
 
-const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-proofread-enabled' );
+const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
-	'jetpack-ai-proofread-disabled-features'
+	'jetpack-ai-breve-disabled-features'
 );
 const initialConfiguration = {
-	enabled: enabledFromLocalStorage === 'true' || enabledFromLocalStorage === null,
+	enabled: enabledFromLocalStorage === 'true',
 	disabled:
-		disabledFeaturesFromLocalStorage !== null ? JSON.parse( disabledFeaturesFromLocalStorage ) : [],
+		disabledFeaturesFromLocalStorage !== null
+			? JSON.parse( disabledFeaturesFromLocalStorage )
+			: features
+					.filter( feature => ! feature.config.defaultEnabled )
+					.map( feature => feature.config.name ),
 };
 
 export function configuration(
@@ -24,7 +32,7 @@ export function configuration(
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
 			const enabled = action?.enabled !== undefined ? action?.enabled : ! state?.enabled;
-			window.localStorage.setItem( 'jetpack-ai-proofread-enabled', String( enabled ) );
+			window.localStorage.setItem( 'jetpack-ai-breve-enabled', String( enabled ) );
 
 			return {
 				...state,
@@ -35,7 +43,7 @@ export function configuration(
 		case 'ENABLE_FEATURE': {
 			const disabled = ( state.disabled ?? [] ).filter( feature => feature !== action.feature );
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 
@@ -48,7 +56,7 @@ export function configuration(
 		case 'DISABLE_FEATURE': {
 			const disabled = [ ...( state.disabled ?? [] ), action.feature ];
 			window.localStorage.setItem(
-				'jetpack-ai-proofread-disabled-features',
+				'jetpack-ai-breve-disabled-features',
 				JSON.stringify( disabled )
 			);
 
@@ -62,18 +70,32 @@ export function configuration(
 	return state;
 }
 
+const HIGHLIGHT_HOVERED_CLASS = 'jetpack-ai-breve__highlight-hovered';
+
 export function popover(
 	state: BreveState[ 'popover' ] = {},
-	action: { type: string; isHover?: boolean; anchor?: HTMLElement | EventTarget }
+	action: { type: string; isHover?: boolean; anchor?: Anchor }
 ) {
+	const removeHoveredClass = () => {
+		state?.anchor?.target?.classList?.remove( HIGHLIGHT_HOVERED_CLASS );
+	};
+
 	switch ( action.type ) {
 		case 'SET_HIGHLIGHT_HOVER':
+			if ( ! state?.isPopoverHover && ! action?.isHover ) {
+				removeHoveredClass();
+			}
+
 			return {
 				...state,
 				isHighlightHover: action.isHover,
 			};
 
 		case 'SET_POPOVER_HOVER':
+			if ( ! state?.isHighlightHover && ! action?.isHover ) {
+				removeHoveredClass();
+			}
+
 			return {
 				...state,
 				isPopoverHover: action.isHover,
@@ -83,6 +105,16 @@ export function popover(
 			if ( ! action.anchor ) {
 				return state;
 			}
+
+			const current = state?.anchor?.target;
+			const next = action?.anchor?.target;
+
+			// Handle fast change of anchor
+			if ( current !== next ) {
+				removeHoveredClass();
+			}
+
+			next?.classList?.add( HIGHLIGHT_HOVERED_CLASS );
 
 			return {
 				...state,
@@ -99,7 +131,7 @@ export function suggestions(
 	action: {
 		type: string;
 		id: string;
-		feature: string;
+		feature?: string;
 		blockId: string;
 		loading: boolean;
 		md5?: string;
@@ -111,17 +143,17 @@ export function suggestions(
 ) {
 	const { id, feature, blockId } = action ?? {};
 	const current = { ...state };
-	const currentBlock = current?.[ feature ]?.[ blockId ] ?? {};
-	const currentItem = current?.[ feature ]?.[ blockId ]?.[ id ] || {};
+	const currentBlock = current?.[ blockId ] ?? {};
+	const currentItem = current?.[ blockId ]?.[ feature ]?.[ id ] || {};
 
 	switch ( action.type ) {
 		case 'SET_SUGGESTIONS_LOADING': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
 						[ id ]: {
 							...currentItem,
 							loading: action.loading,
@@ -134,10 +166,10 @@ export function suggestions(
 		case 'SET_SUGGESTIONS': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
 						[ id ]: {
 							...currentItem,
 							loading: false,
@@ -151,12 +183,9 @@ export function suggestions(
 		case 'SET_BLOCK_MD5': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {
-						...currentBlock,
-						md5: action.md5,
-					},
+				[ blockId ]: {
+					md5: action.md5,
+					...currentBlock,
 				},
 			};
 		}
@@ -164,9 +193,16 @@ export function suggestions(
 		case 'INVALIDATE_SUGGESTIONS': {
 			return {
 				...current,
-				[ feature ]: {
-					...( current[ feature ] ?? {} ),
-					[ blockId ]: {},
+				[ blockId ]: {},
+			};
+		}
+
+		case 'IGNORE_SUGGESTION': {
+			return {
+				...current,
+				[ blockId ]: {
+					...currentBlock,
+					ignored: [ ...( currentBlock.ignored ?? [] ), id ],
 				},
 			};
 		}

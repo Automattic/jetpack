@@ -1,5 +1,5 @@
+import { render } from '@testing-library/react';
 import React from 'react';
-import ShallowRenderer from 'react-test-renderer/shallow';
 import ConnectUser from '../index';
 
 describe( 'ConnectUser', () => {
@@ -13,8 +13,7 @@ describe( 'ConnectUser', () => {
 		let redirectUrl = null;
 		const redirectFunc = url => ( redirectUrl = url );
 
-		const renderer = new ShallowRenderer();
-		renderer.render(
+		render(
 			<ConnectUser
 				{ ...testProps }
 				forceCalypsoFlow={ true }

@@ -60,3 +60,9 @@
   justify-content: center;
   align-items: center;
 }
+
+.jetpack-email-preview-modal {
+  h1 {
+    flex-shrink: 0;
+  }
+}
