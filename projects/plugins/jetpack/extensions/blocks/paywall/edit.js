@@ -12,7 +12,7 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 
-function PaywallEdit( { className } ) {
+function PaywallEdit() {
 	const blockProps = useBlockProps();
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
@@ -65,11 +65,6 @@ function PaywallEdit( { className } ) {
 
 	const text = getText( accessLevel );
 
-	const style = {
-		width: `${ text.length + 1.2 }em`,
-		userSelect: 'none',
-	};
-
 	let _accessLevel = accessLevel ?? accessOptions.subscribers.key;
 	if ( _accessLevel === accessOptions.everybody.key ) {
 		_accessLevel = accessOptions.subscribers.key;
@@ -77,8 +72,8 @@ function PaywallEdit( { className } ) {
 
 	return (
 		<div { ...blockProps }>
-			<div className={ className }>
-				<span style={ style }>
+			<div className="wp-block-jetpack-paywall-block">
+				<span>
 					{ text }
 					<Icon icon={ arrowDown } size={ 16 } />
 				</span>
