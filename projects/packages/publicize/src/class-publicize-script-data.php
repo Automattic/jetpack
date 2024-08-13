@@ -84,6 +84,7 @@ class Publicize_Script_Data {
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
+			'urls'                 => array(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -102,6 +103,7 @@ class Publicize_Script_Data {
 			array(
 				'api_paths'          => self::get_api_paths(),
 				'supported_services' => self::get_supported_services(),
+				'urls'               => self::get_urls(),
 				/**
 				 * 'store'       => self::get_store_script_data(),
 				 * 'urls'        => self::get_urls(),
@@ -202,5 +204,24 @@ class Publicize_Script_Data {
 			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
 			'resharePost'        => '/jetpack/v4/publicize/{postId}',
 		);
+	}
+
+	/**
+	 * Get the URLs.
+	 *
+	 * @return array
+	 */
+	public static function get_urls() {
+
+		$urls = array(
+			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
+				'jetpack-social-connections-admin-page'
+			),
+		);
+
+		// Escape the URLs.
+		array_walk( $urls, 'esc_url_raw' );
+
+		return $urls;
 	}
 }
