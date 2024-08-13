@@ -74,7 +74,6 @@ const resumableFileUploader = ( {
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
 
-			debug( method );
 			if ( [ 'HEAD', 'OPTIONS' ].indexOf( method ) >= 0 ) {
 				req._method = 'GET';
 				req.setHeader( 'X-HTTP-Method-Override', method );
@@ -107,22 +106,17 @@ const resumableFileUploader = ( {
 				} else if ( 'HEAD' === method ) {
 					const responseData = await getMediaToken( 'upload-jwt' );
 					if ( responseData?.token ) {
-						debug( 'setting upload token', responseData.token );
 						jwtsForKeys[ maybeUploadkey ] = responseData.token;
 						req.setHeader( 'x-videopress-upload-token', responseData.token );
-						return;
 					}
-					debug( 'no token, no url' );
 				}
 			}
 		},
 		onAfterResponse: async function ( req, res ) {
 			// Why is this not showing the x-headers?
 			if ( res.getStatus() >= 400 ) {
-				debug( 'error' );
-				if ( res.getHeader( 'x-videopress-upload-error' ) ) {
-					debug( 'upload error', res.getHeader( 'x-videopress-upload-error' ) );
-				}
+				// Return, do nothing, it's handed to invoker's onError.
+				debug( 'upload error' );
 				return;
 			}
 
@@ -157,13 +151,11 @@ const resumableFileUploader = ( {
 			if ( _tokenData.key && _tokenData.token ) {
 				jwtsForKeys[ _tokenData.key ] = _tokenData.token;
 			}
-			debug( 'after response', _tokenData );
 		},
 	} );
 
 	upload.findPreviousUploads().then( function ( previousUploads ) {
 		if ( previousUploads.length ) {
-			debug( 'Resuming upload from previous upload', previousUploads );
 			upload.resumeFromPreviousUpload( previousUploads[ 0 ] );
 		}
 
