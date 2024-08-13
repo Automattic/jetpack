@@ -1,5 +1,17 @@
 # Changelog
 
+## 5.3.3 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.2 - 2024-08-12
+### Changed
+- Internal updates.
+
+## 5.3.1 - 2024-08-09
+### Added
+- Added safeguards against erroneous WordPress hook invocations. [#37859]
+
 ## 5.3.0 - 2024-08-08
 ### Changed
 - Plan name change: Add translations [#38726]

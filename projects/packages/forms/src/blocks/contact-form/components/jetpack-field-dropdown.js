@@ -14,7 +14,7 @@ import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
-	const optionsWrapper = useRef();
+	const optionsWrapper = useRef( undefined );
 	const formStyle = useFormStyle( clientId );
 
 	const classes = clsx( 'jetpack-field jetpack-field-dropdown', {

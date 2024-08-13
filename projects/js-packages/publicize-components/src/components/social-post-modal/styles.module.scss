@@ -12,6 +12,7 @@
 
     @include break-large {
         width: calc(#{$break-large} - 40px);
+        max-height: calc(100% - 120px);
     }
 
     :global(.components-modal__content.hide-header) {
@@ -89,8 +90,8 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3rem;
-    padding: 2rem;
+    gap: 1rem;
+    padding: 1rem 2rem;
 }
 
 .disabled-tab {

@@ -114,13 +114,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 
 			remove_action( 'customize_register', array( 'Jetpack_Fonts_Typekit', 'maybe_override_for_advanced_mode' ), 20 );
 
-			// TODO: Remove the conditional when we start using the package code on WPCOM.
 			if ( class_exists( 'Automattic\Jetpack\Masterbar' ) ) {
-				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );           } else {
-				remove_action( 'customize_register', 'Automattic\Jetpack\Dashboard_Customizations\register_css_nudge_control' );
-				}
+				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
+			}
 
-				remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
+			remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 		}
 	}
 

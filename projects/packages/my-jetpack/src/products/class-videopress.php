@@ -92,7 +92,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'High-quality, ad-free video built specifically for WordPress', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Videopress extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack-my-jetpack' );
+		return __( 'Stunning-quality, ad-free video in the WordPress Editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
