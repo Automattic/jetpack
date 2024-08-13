@@ -88,7 +88,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 				const buttonText = __( 'Install Plugin', 'jetpack-my-jetpack' );
 				return {
 					...buttonState,
-					href: '',
 					variant: 'primary',
 					label: buttonText,
 					onClick: onInstall,
@@ -182,7 +181,6 @@ const ActionButton: FC< ActionButtonProps > = ( {
 			case PRODUCT_STATUSES.NEEDS_ACTIVATION:
 				return {
 					...buttonState,
-					href: '',
 					variant: 'secondary',
 					label: __( 'Activate', 'jetpack-my-jetpack' ),
 					onClick: onActivate,
