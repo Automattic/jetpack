@@ -2,7 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -33,6 +35,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
 	SET_VIDEO_UPLOADING,
+	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
@@ -265,15 +268,14 @@ const uploadVideo =
 	async ( { dispatch } ) => {
 		const tempId = uid();
 
-		// @todo: implement progress and error handler
-		const noop = () => {};
-
+		debug( 'Uploading video' );
 		dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 		// @todo: this should be stored in the state
 		const tokenData = await getMediaToken( 'upload-jwt' );
 
 		const onSuccess = async data => {
+			debug( 'Video uploaded', data );
 			dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 			const video = await pollingUploadedVideoData( data );
 			dispatch( { type: SET_VIDEO_UPLOADED, video } );
@@ -283,10 +285,18 @@ const uploadVideo =
 			dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 		};
 
+		const onError = err => {
+			debug( 'Upload error', err );
+			const error =
+				err?.originalResponse?.getHeader( 'x-videopress-upload-error' ) ||
+				__( 'Upload error', 'jetpack-videopress-pkg' );
+			dispatch( { type: SET_VIDEO_UPLOADING_ERROR, id: tempId, error } );
+		};
+
 		fileUploader( {
 			tokenData,
 			file,
-			onError: noop,
+			onError,
 			onProgress,
 			onSuccess,
 		} );

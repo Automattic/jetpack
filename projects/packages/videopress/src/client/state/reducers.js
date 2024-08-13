@@ -20,6 +20,7 @@ import {
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
 	SET_VIDEO_UPLOADING,
+	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
@@ -418,6 +419,27 @@ const videos = ( state, action ) => {
 						[ id ]: {
 							title: sanitizedTitle,
 							uploading: true,
+						},
+					},
+				},
+			};
+		}
+
+		case SET_VIDEO_UPLOADING_ERROR: {
+			const { id, error } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: {
+						...currentMetaItems,
+						[ id ]: {
+							...currentMetaItems[ id ],
+							uploading: false,
+							error,
 						},
 					},
 				},
