@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.56.0] - 2024-08-13
+### Changed
+- WPCOM Block Description Links: add links for embed variations [#38834]
+- wpcom_admin_interface setting: update copy to match Calypso setting. [#38810]
+
 ## [5.55.0] - 2024-08-12
 ### Added
 - WPCOM MU Plugin: Add dynamic script loader [#38819]
@@ -1133,6 +1138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
 [5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
 [5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3
 [5.54.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.1...v5.54.2
