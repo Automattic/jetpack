@@ -11,8 +11,6 @@ import features from '../features';
  */
 import type { Anchor, BreveState } from '../types';
 
-let anchorBackgroundTimeout;
-
 const enabledFromLocalStorage = window.localStorage.getItem( 'jetpack-ai-breve-enabled' );
 const disabledFeaturesFromLocalStorage = window.localStorage.getItem(
 	'jetpack-ai-breve-disabled-features'
@@ -78,26 +76,14 @@ export function popover(
 	state: BreveState[ 'popover' ] = {},
 	action: { type: string; isHover?: boolean; anchor?: Anchor }
 ) {
-	const removeHoveredClass = ( timeout = true ) => {
-		clearTimeout( anchorBackgroundTimeout );
-
-		const removeAction = () => {
-			state?.anchor?.target?.classList?.remove( HIGHLIGHT_HOVERED_CLASS );
-		};
-
-		if ( timeout ) {
-			anchorBackgroundTimeout = setTimeout( removeAction, 300 );
-		} else {
-			removeAction();
-		}
+	const removeHoveredClass = () => {
+		state?.anchor?.target?.classList?.remove( HIGHLIGHT_HOVERED_CLASS );
 	};
 
 	switch ( action.type ) {
 		case 'SET_HIGHLIGHT_HOVER':
 			if ( ! state?.isPopoverHover && ! action?.isHover ) {
 				removeHoveredClass();
-			} else {
-				clearTimeout( anchorBackgroundTimeout );
 			}
 
 			return {
@@ -108,8 +94,6 @@ export function popover(
 		case 'SET_POPOVER_HOVER':
 			if ( ! state?.isHighlightHover && ! action?.isHover ) {
 				removeHoveredClass();
-			} else {
-				clearTimeout( anchorBackgroundTimeout );
 			}
 
 			return {
@@ -127,7 +111,7 @@ export function popover(
 
 			// Handle fast change of anchor
 			if ( current !== next ) {
-				removeHoveredClass( false );
+				removeHoveredClass();
 			}
 
 			next?.classList?.add( HIGHLIGHT_HOVERED_CLASS );

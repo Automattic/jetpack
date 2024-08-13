@@ -1,7 +1,10 @@
 @import '../features/features.colors';
 
 [class^='jetpack-ai-breve__has-proofread-highlight'] {
+	transition: background-color;
+	transition-duration: 0.3s;
 	border-bottom: 3px solid;
+
 	@include features-colors( ( 'border-bottom-color' ) );
 
 	&.jetpack-ai-breve__is-loading {
@@ -9,8 +12,6 @@
 	}
 
 	&.jetpack-ai-breve__highlight-hovered {
-		transition: background-color;
-		transition-duration: 0.3s;
 		@include features-colors( ( 'background-color' ), 0.2 );
 	}
 }
