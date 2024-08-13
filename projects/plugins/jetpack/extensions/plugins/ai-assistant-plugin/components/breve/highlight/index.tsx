@@ -24,6 +24,7 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import registerEvents from '../features/events';
+import { LONG_SENTENCES } from '../features/long-sentences';
 import getBreveAvailability from '../utils/get-availability';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
@@ -212,7 +213,7 @@ export default function Highlight() {
 			{ isPopoverOpen && (
 				<Popover
 					anchor={ virtual }
-					placement="bottom"
+					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
 					className="jetpack-ai-breve__highlight-popover"
 					variant="tooltip"
 					animate={ false }
