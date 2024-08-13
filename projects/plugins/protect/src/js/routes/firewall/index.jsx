@@ -715,11 +715,7 @@ const FirewallPage = () => {
 
 	const ipAllowListSettings = (
 		<>
-			<div
-				className={ `${ styles[ 'toggle-section' ] } ${
-					! bruteForceProtection && ! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
-				}` }
-			>
+			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_allow_list_enabled"
@@ -727,7 +723,7 @@ const FirewallPage = () => {
 							( isEnabled || bruteForceProtection ) && formState.jetpack_waf_ip_allow_list_enabled
 						}
 						onChange={ handleIpAllowListChange }
-						disabled={ formIsSubmitting || ( ! isEnabled && ! bruteForceProtection ) }
+						disabled={ formIsSubmitting }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>

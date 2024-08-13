@@ -118,7 +118,6 @@ const AllowList = class extends Component {
 		const wafUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' );
 		const baseInputDisabledCase =
-			( ! isWafActive && ! isProtectActive ) ||
 			( wafUnavailableInOfflineMode && protectUnavailableInOfflineMode ) ||
 			this.props.isFetchingWafSettings ||
 			this.props.isSavingAnyOption( [ 'waf' ] );
