@@ -66,6 +66,8 @@ export const SET_VIDEOPRESS_SETTINGS = 'SET_VIDEOPRESS_SETTINGS';
 
 export const UPDATE_VIDEO_IS_PRIVATE = 'UPDATE_VIDEO_IS_PRIVATE';
 
+export const DISMISS_ERRORED_VIDEO = 'DISMISS_ERRORED_VIDEO';
+
 /*
  * Accepted file extensions
  */

@@ -56,9 +56,12 @@ import {
 	UPDATE_PAGINATION_AFTER_DELETE,
 	FLUSH_DELETED_VIDEOS,
 	UPDATE_VIDEO_IS_PRIVATE,
+	DISMISS_ERRORED_VIDEO,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 import { videoIsPrivate } from './utils/video-is-private';
+
+const debug = debugFactory( 'videopress:actions' );
 
 /**
  * Utility function to pool the video data until poster is ready.
@@ -486,6 +489,10 @@ const dismissFirstVideoPopover = () => {
 	return { type: DISMISS_FIRST_VIDEO_POPOVER };
 };
 
+const dismissErroredVideo = id => {
+	return { type: DISMISS_ERRORED_VIDEO, id };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -531,6 +538,7 @@ const actions = {
 	updateVideoPressSettings,
 
 	updateVideoIsPrivate,
+	dismissErroredVideo,
 };
 
 export { actions as default };

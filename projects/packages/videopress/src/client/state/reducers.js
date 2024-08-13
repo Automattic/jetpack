@@ -45,6 +45,7 @@ import {
 	FLUSH_DELETED_VIDEOS,
 	UPDATE_PAGINATION_AFTER_DELETE,
 	UPDATE_VIDEO_IS_PRIVATE,
+	DISMISS_ERRORED_VIDEO,
 } from './constants';
 
 /**
@@ -442,6 +443,21 @@ const videos = ( state, action ) => {
 							error,
 						},
 					},
+				},
+			};
+		}
+
+		case DISMISS_ERRORED_VIDEO: {
+			const { id } = action;
+			const currentMeta = state?._meta || {};
+			const currentMetaItems = currentMeta?.items || {};
+			delete currentMetaItems[ id ];
+
+			return {
+				...state,
+				_meta: {
+					...currentMeta,
+					items: { ...currentMetaItems },
 				},
 			};
 		}
