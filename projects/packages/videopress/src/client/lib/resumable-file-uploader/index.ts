@@ -70,7 +70,19 @@ const resumableFileUploader = ( {
 			filetype: file.type,
 		},
 		retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
-		onBeforeRequest: function ( req ) {
+		onShouldRetry: function ( err: tus.DetailedError ) {
+			const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
+			// Do not retry if the status is a 400.
+			if ( status === 400 ) {
+				debug( 'cleanup retry due to 400 error' );
+				localStorage.removeItem( upload._urlStorageKey );
+				return false;
+			}
+
+			// For any other status code, we retry.
+			return true;
+		},
+		onBeforeRequest: async function ( req: VPUploadHttpRequest ) {
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
 
