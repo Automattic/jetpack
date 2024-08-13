@@ -82,4 +82,9 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	 * True if the thumbnail is used on a video row.
 	 */
 	isRow?: boolean;
+
+	/**
+	 * True if the video has an error.
+	 */
+	hasError?: boolean;
 };

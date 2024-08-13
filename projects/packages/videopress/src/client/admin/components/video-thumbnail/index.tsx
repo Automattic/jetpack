@@ -12,7 +12,7 @@ import {
 import { Dropdown } from '@wordpress/components';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video } from '@wordpress/icons';
+import { Icon, edit, cloud, image, media, video, warning } from '@wordpress/icons';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
@@ -153,6 +153,12 @@ const ProcessingThumbnail = ( { isRow = false }: { isRow?: boolean } ) => (
 	</div>
 );
 
+const ErrorThumbnail = ( { isRow } ) => (
+	<div className={ clsx( styles[ 'thumbnail-blank' ], styles[ 'thumbnail-error' ] ) }>
+		<Icon icon={ warning } size={ isRow ? 48 : 96 } />
+	</div>
+);
+
 /**
  * React component to display video thumbnail.
  *
@@ -177,6 +183,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			onUploadImage,
 			uploadProgress,
 			isRow = false,
+			hasError = false,
 		},
 		ref
 	) => {
@@ -185,6 +192,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 
 		// Mapping thumbnail (Ordered by priority)
 		let thumbnail = defaultThumbnail;
+
 		thumbnail = loading ? <LoadingPlaceholder /> : thumbnail;
 		thumbnail = uploading ? (
 			<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
@@ -192,6 +200,8 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			thumbnail
 		);
 		thumbnail = processing ? <ProcessingThumbnail isRow={ isRow } /> : thumbnail;
+
+		thumbnail = hasError ? <ErrorThumbnail isRow={ isRow } /> : thumbnail;
 
 		thumbnail =
 			typeof thumbnail === 'string' && thumbnail !== '' ? (
