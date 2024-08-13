@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.8] - 2024-08-12
+### Added
+- React 19 compatibility: Making sure useRef includes an argument. [#38765]
+
 ## [0.32.7] - 2024-08-05
 ### Changed
 - React compatibility: Changing ReactDOM.render usage to be via ReactDOM.createRoot. [#38649]
@@ -619,6 +623,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.32.8]: https://github.com/automattic/jetpack-forms/compare/v0.32.7...v0.32.8
 [0.32.7]: https://github.com/automattic/jetpack-forms/compare/v0.32.6...v0.32.7
 [0.32.6]: https://github.com/automattic/jetpack-forms/compare/v0.32.5...v0.32.6
 [0.32.5]: https://github.com/automattic/jetpack-forms/compare/v0.32.4...v0.32.5

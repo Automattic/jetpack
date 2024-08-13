@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.3.3 - 2024-08-12
+### Changed
+- Internal updates.
+
 ## 5.3.2 - 2024-08-12
 ### Changed
 - Internal updates.
