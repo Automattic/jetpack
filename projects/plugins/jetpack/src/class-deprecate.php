@@ -85,10 +85,12 @@ class Deprecate {
 			);
 		}
 		if ( $this->show_masterbar_notice() ) {
+			$support_url = Redirect::get_url( 'jetpack-support-masterbar' );
 
 			$this->render_notice(
 				'jetpack-masterbar-admin-removal-notice',
-				esc_html__( 'Bye Bye Masterbar again', 'jetpack' )
+				esc_html__( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' )
+				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To find out more about what this means for you, please refer to this document', 'jetpack' ) . '</a>.'
 			);
 		}
 	}
@@ -110,6 +112,18 @@ class Deprecate {
 						'url'   => Redirect::get_url( 'jetpack-support-google-analytics' ),
 					),
 					'id'   => 'jetpack-ga-admin-removal-notice',
+				),
+			);
+		}
+		if ( $this->show_masterbar_notice() ) {
+			$slugs['jetpack-masterbar-deprecate-feature'] = array(
+				'data' => array(
+					'text' => __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ),
+					'link' => array(
+						'label' => esc_html__( 'See documentation', 'jetpack' ),
+						'url'   => Redirect::get_url( 'jetpack-support-masterbar' ),
+					),
+					'id'   => 'jetpack-masterbar-admin-removal-notice',
 				),
 			);
 		}
