@@ -6,6 +6,7 @@ import { Container, Col } from '@automattic/jetpack-components';
  * Internal dependencies
  */
 import VideoCard from '../video-card';
+import VideoCardError from '../video-card/error';
 import styles from './style.module.scss';
 import { VideoGridProps } from './types';
 import type React from 'react';
@@ -29,15 +30,19 @@ const VideoGrid = ( { videos, count = 6, onVideoDetailsClick, loading }: VideoGr
 				{ gridVideos.map( ( video, index ) => {
 					return (
 						<Col key={ video?.guid ?? video?.id } sm={ 4 } md={ 4 } lg={ 4 }>
-							<VideoCard
-								id={ video?.id }
-								title={ video.title }
-								thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
-								duration={ video.duration }
-								plays={ video.plays }
-								onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
-								loading={ loading }
-							/>
+							{ video.error ? (
+								<VideoCardError id={ video?.id } title={ video.title } />
+							) : (
+								<VideoCard
+									id={ video?.id }
+									title={ video.title }
+									thumbnail={ video?.posterImage } // TODO: we should use thumbnail when the API is ready https://github.com/Automattic/jetpack/issues/26319
+									duration={ video.duration }
+									plays={ video.plays }
+									onVideoDetailsClick={ handleClickWithIndex( index, onVideoDetailsClick ) }
+									loading={ loading }
+								/>
+							) }
 						</Col>
 					);
 				} ) }

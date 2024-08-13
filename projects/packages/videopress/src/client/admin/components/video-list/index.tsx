@@ -19,6 +19,7 @@ import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
+import VideoRowError from '../video-row/error';
 import styles from './style.module.scss';
 /**
  * Types
@@ -74,7 +75,9 @@ const VideoList = ( {
 				const isPrivate =
 					VIDEO_PRIVACY_LEVELS[ video.privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE;
 
-				return (
+				return video.error ? (
+					<VideoRowError key={ video?.guid ?? video?.id } id={ video?.id } title={ video?.title } />
+				) : (
 					<ConnectVideoRow
 						key={ video?.guid ?? video?.id }
 						id={ video?.id }
