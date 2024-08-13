@@ -3,7 +3,7 @@
  * Settings class.
  * Flagged to be removed after deprecation.
  *
- * @deprecated $$next_version$$
+ * @deprecated 0.38.3
  *
  * @package automattic/jetpack-publicize
  */
