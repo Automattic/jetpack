@@ -174,6 +174,7 @@ class Jetpack_Notifications {
 		}
 
 		$wpcom_locale = get_locale();
+		$user_locale  = get_user_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
@@ -188,6 +189,8 @@ class Jetpack_Notifications {
 			}
 		}
 
+		$notifications_locale = 'wp-admin' === get_option( 'wpcom_admin_interface' ) || get_option( 'wpcom_site_level_user_profile' ) === '1' ? $user_locale : $wpcom_locale;
+
 		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
 
 		$title = self::get_notes_markup();
@@ -196,7 +199,7 @@ class Jetpack_Notifications {
 				'id'     => 'notes',
 				'title'  => $title,
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="es" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $notifications_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
