@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
 import { FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import React from 'react';
@@ -50,9 +49,7 @@ function CustomCss( props ) {
 		customCssActive,
 		customCssModule: { name, description, module },
 		isBlockThemeActive,
-		isSavingAnyOption,
 		siteAdminUrl,
-		toggleModuleNow,
 	} = props;
 
 	const recommendSiteEditor = () => {
@@ -98,7 +95,7 @@ function CustomCss( props ) {
 			<div>
 				{ createInterpolateElement(
 					__(
-						'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features. <a>Access the Customizer here.</a>',
+						'Additional CSS can be added from the Customizer. <a>Access the Customizer here.</a>',
 						'jetpack'
 					),
 					{
@@ -106,28 +103,6 @@ function CustomCss( props ) {
 					}
 				) }
 			</div>
-		);
-	};
-
-	const toggleModule = () => {
-		// If we're using a block theme and the feature is disabled, we don't want to show the toggle.
-		if ( isBlockThemeActive && ! customCssActive ) {
-			return null;
-		}
-
-		return (
-			<ModuleToggle
-				className="jp-custom-css__module-toggle"
-				slug="custom-css"
-				activated={ !! customCssActive }
-				toggling={ isSavingAnyOption( [ 'custom-css' ] ) }
-				disabled={ isSavingAnyOption( [ 'custom-css' ] ) }
-				toggleModule={ toggleModuleNow }
-			>
-				<span className="jp-form-toggle-explanation">
-					{ __( 'Enhance CSS customization panel', 'jetpack' ) }
-				</span>
-			</ModuleToggle>
 		);
 	};
 
@@ -148,7 +123,6 @@ function CustomCss( props ) {
 
 			{ isBlockThemeActive && recommendSiteEditor() }
 			{ ! isBlockThemeActive && customizerLink() }
-			{ toggleModule() }
 		</SettingsGroup>
 	);
 }
