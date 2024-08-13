@@ -1,9 +1,57 @@
 #!/usr/bin/env node
 
 /* eslint-disable no-console */
-const { spawnSync } = require( 'child_process' );
-const chalk = require( 'chalk' );
-const isJetpackDraftMode = require( './jetpack-draft' );
+import { spawn, spawnSync } from 'child_process';
+import { fileURLToPath } from 'url';
+import chalk from 'chalk';
+import isJetpackDraftMode from './jetpack-draft.js';
+
+/**
+ * Exec a command and collect the lines.
+ *
+ * @param {string} cmd - Command.
+ * @param {string[]} args - Arguments.
+ * @param {object} options - Options.
+ * @returns {string[]} Lines of output.
+ */
+async function spawnAndReadStdout( cmd, args, options = {} ) {
+	const lines = [];
+
+	await new Promise( ( resolve, reject ) => {
+		let buffer = '';
+
+		const proc = spawn( cmd, args, {
+			...options,
+			stdio: [ 'ignore', 'pipe', 'inherit' ],
+		} );
+
+		proc.stdout.on( 'data', data => {
+			buffer += data.toString();
+			let i;
+			while ( ( i = buffer.indexOf( '\n' ) ) >= 0 ) {
+				lines.push( buffer.substring( 0, i ) );
+				buffer = buffer.substring( i + 1 );
+			}
+		} );
+
+		proc.on( 'close', code => {
+			if ( buffer !== '' ) {
+				lines.push( buffer );
+			}
+			if ( code !== 0 ) {
+				reject( new Error( `Command failed with code ${ code }` ) );
+			} else {
+				resolve();
+			}
+		} );
+
+		proc.on( 'error', err => {
+			reject( err );
+		} );
+	} );
+
+	return lines;
+}
 
 /**
  * Checks for filename collsisions on case-insensitive file systems.
@@ -11,7 +59,7 @@ const isJetpackDraftMode = require( './jetpack-draft' );
  * This is probably impossible to get 100% right due to potential locale
  * differences in filesystem case folding, but this should be most of the way there.
  */
-function checkFilenameCollisions() {
+async function checkFilenameCollisions() {
 	if ( process.exitCode !== 0 ) {
 		return;
 	}
@@ -20,15 +68,16 @@ function checkFilenameCollisions() {
 
 	const compare = Intl.Collator( 'und', { sensitivity: 'accent' } ).compare;
 
-	const files = spawnSync(
-		'git',
-		[ '-c', 'core.quotepath=off', 'ls-tree', '-rt', '--name-only', 'HEAD' ],
-		{ maxBuffer: 4096 * 1024 }
-	)
-		.stdout.toString()
-		.trim()
-		.split( '\n' )
-		.sort( compare );
+	const files = (
+		await spawnAndReadStdout( 'git', [
+			'-c',
+			'core.quotepath=off',
+			'ls-tree',
+			'-rt',
+			'--name-only',
+			'HEAD',
+		] )
+	).sort( compare );
 
 	const collisions = new Set();
 	let prev = null;
@@ -71,7 +120,7 @@ function pushAgain() {
 /**
  * Checks if changelog files are required.
  */
-function checkChangelogFiles() {
+async function checkChangelogFiles() {
 	if ( process.exitCode !== 0 ) {
 		return;
 	}
@@ -97,7 +146,7 @@ function checkChangelogFiles() {
 		[ '--maybe-merge', 'origin/trunk', 'HEAD' ],
 		{
 			stdio: 'inherit',
-			cwd: __dirname + '/../../../',
+			cwd: fileURLToPath( new URL( '../../../', import.meta.url ) ),
 		}
 	);
 
@@ -128,17 +177,14 @@ function checkChangelogFiles() {
 			// If the autochangelogger worked, commit the changelog files.
 			if ( autoChangelog.status === 0 ) {
 				const filesToCommit = [];
-				const changelogFiles = spawnSync( 'git', [
+				const changelogFiles = await spawnAndReadStdout( 'git', [
 					'-c',
 					'core.quotepath=off',
 					'diff',
 					'--name-only',
 					'--diff-filter=A',
 					'--cached',
-				] )
-					.stdout.toString()
-					.trim()
-					.split( '\n' );
+				] );
 
 				for ( const file of changelogFiles ) {
 					const match = file.match( /^projects\/([^/]+\/[^/]+)\/changelog\// );
@@ -161,5 +207,5 @@ function checkChangelogFiles() {
 }
 
 process.exitCode = 0;
-checkFilenameCollisions();
-checkChangelogFiles();
+await checkFilenameCollisions();
+await checkChangelogFiles();
