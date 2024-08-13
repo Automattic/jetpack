@@ -14,9 +14,7 @@ const {
 	apiRoot,
 	apiNonce,
 	siteSuffix: defaultSiteSuffix,
-} = window?.JP_CONNECTION_INITIAL_STATE
-	? window.JP_CONNECTION_INITIAL_STATE
-	: getScriptData()?.connection || {};
+} = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 const defaultAdminUrl =
 	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
 

@@ -4,9 +4,8 @@ import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { STORE_ID } from '../../state/store';
 
-const { apiRoot, apiNonce } = window?.JP_CONNECTION_INITIAL_STATE
-	? window.JP_CONNECTION_INITIAL_STATE
-	: getScriptData()?.connection || {};
+const { apiRoot, apiNonce } =
+	window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
 /**
  * Restore connection hook.

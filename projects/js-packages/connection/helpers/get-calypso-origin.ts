@@ -7,8 +7,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
  */
 export default function getCalypsoOrigin() {
 	const calypsoEnv = (
-		getScriptData()?.connection ||
-		( typeof window !== 'undefined' && window?.JP_CONNECTION_INITIAL_STATE )
+		( typeof window !== 'undefined' && window?.JP_CONNECTION_INITIAL_STATE ) ||
+		getScriptData()?.connection
 	)?.calypsoEnv;
 
 	switch ( calypsoEnv ) {
