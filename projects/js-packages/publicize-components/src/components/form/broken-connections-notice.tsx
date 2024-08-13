@@ -25,7 +25,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		);
 	} );
 
-	const { connectionsAdminUrl } = usePublicizeConfig();
+	const { connectionsPageUrl } = usePublicizeConfig();
 
 	const useAdminUiV1 = useSelect( select => select( store ).useAdminUiV1(), [] );
 	const { openConnectionsModal } = useDispatch( store );
@@ -37,7 +37,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 			className={ styles[ 'broken-connection-btn' ] }
 		/>
 	) : (
-		<ExternalLink href={ connectionsAdminUrl } />
+		<ExternalLink href={ connectionsPageUrl } />
 	);
 
 	const getServiceLabel = useServiceLabel();

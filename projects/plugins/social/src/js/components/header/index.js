@@ -12,8 +12,9 @@ import {
 	ShareLimitsBar,
 	store as socialStore,
 	useShareLimits,
+	getSocialScriptData,
 } from '@automattic/jetpack-publicize-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -21,29 +22,28 @@ import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
-	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
-		connectionsAdminUrl,
+		// TODO replace some of these from script data (initial state)
 		hasConnections,
 		isModuleEnabled,
-		newPostUrl,
 		postsCount,
 		totalShareCount,
 		showShareLimits,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
-			connectionsAdminUrl: connectionData.adminUrl,
 			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
-			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
 			showShareLimits: store.showShareLimits(),
 		};
 	} );
-	// TODO - Replace this with a utility function like `getSocialFeatureFlags` when available
-	const { useAdminUiV1 } = getScriptData().social.feature_flags;
+
+	const {
+		feature_flags: { useAdminUiV1 },
+		urls,
+	} = getSocialScriptData();
 
 	const { hasConnectionError } = useConnectionErrorNotice();
 
@@ -79,13 +79,16 @@ const Header = () => {
 										{ __( 'Connect accounts', 'jetpack-social' ) }
 									</Button>
 								) : (
-									<Button href={ connectionsAdminUrl } isExternalLink={ true }>
+									<Button href={ urls.connectionsManagementPage } isExternalLink={ true }>
 										{ __( 'Connect accounts', 'jetpack-social' ) }
 									</Button>
 								) }
 							</>
 						) }
-						<Button href={ newPostUrl } variant={ hasConnections ? 'primary' : 'secondary' }>
+						<Button
+							href={ getAdminUrl( 'post-new.php' ) }
+							variant={ hasConnections ? 'primary' : 'secondary' }
+						>
 							{ __( 'Write a post', 'jetpack-social' ) }
 						</Button>
 					</div>

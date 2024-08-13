@@ -1,5 +1,6 @@
 import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink, SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -34,7 +35,7 @@ const SocialNotesToggle: React.FC< SocialNotesToggleProps > = ( { disabled } ) =
 		return {
 			isEnabled: store.isSocialNotesEnabled(),
 			notesConfig: store.getSocialNotesConfig(),
-			newNoteUrl: `${ store.getAdminUrl() }post-new.php?post_type=jetpack-social-note`,
+			newNoteUrl: getAdminUrl( 'post-new.php?post_type=jetpack-social-note' ),
 			// Temporarily we disable forever after action to wait for the page to reload.
 			// isUpdating: store.isSocialNotesSettingsUpdating(),
 		};
