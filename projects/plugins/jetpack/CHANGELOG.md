@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8-a.1 - 2024-08-12
+### Enhancements
+- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection. [#38809]
+
+### Improved compatibility
+- Performance: Optimize the size of included image files. [#38573]
+
+### Bug fixes
+- AI Assistant: Disable Breve for free plan users when AI Assistant block is disabled [#38743]
+- Subscriptions: Prevent saave discussion settings from turning on the subscribe modal. [#38805]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add namespace to Breve CSS classes. [#38795]
+- Code: Cleaning up usage of 'javascript:' in URLs. [#38783]
+- Code: Making sure useRef includes an argument. [#38765]
+- Components: React cleanup for React 19 compatibility. [#38762]
+- Contact Form: Remove deprecated functionality. [#38786]
+- Likes Block: Add keywords. [#38778]
+- Media: Support video and audio shortcodes in Media Extractor. [#38556]
+- Publicize: Fixed a warning with undefined variables. [#38781]
+- Security: Redirect to Protect dashboard for Firewall settings, when available. [#38655]
+- Social: Updated intial state logic to use the new consolidated initial state. [#38606]
+- Tests: Fixed CSSTidy loading in tests. [#37859]
+- Tests: Removed react-test-renderer as not in use. [#38755]
+
 ## 13.7-beta2 - 2024-08-06
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Internal updates.
