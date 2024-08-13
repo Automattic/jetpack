@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Only sync newspack-blocks on build, not on install, so everyone in the monorepo not working on mu-wpcom doesn't have to download it.
