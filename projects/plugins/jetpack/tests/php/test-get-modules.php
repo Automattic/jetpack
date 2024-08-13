@@ -38,6 +38,7 @@ class WP_Test_Get_Modules extends WP_UnitTestCase {
 			'contact-form',
 			'copy-post',
 			'custom-content-types',
+			'custom-css',
 			'google-analytics',
 			'gravatar-hovercards',
 			'infinite-scroll',
