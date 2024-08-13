@@ -13,6 +13,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
@@ -23,7 +25,9 @@ if ( ! function_exists( 'jetpack_theme_supports_social_links' ) ) {
 			// @phan-suppress-next-line PhanNoopNew
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 	}
-	add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
+	if ( ! ( new Host() )->is_wpcom_platform() ) {
+		add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
+	}
 }
 
 if ( ! class_exists( 'Social_Links' ) ) {
