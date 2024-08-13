@@ -86,7 +86,7 @@ export function popover(
 		};
 
 		if ( timeout ) {
-			anchorBackgroundTimeout = setTimeout( removeAction, 500 );
+			anchorBackgroundTimeout = setTimeout( removeAction, 300 );
 		} else {
 			removeAction();
 		}
