@@ -45,6 +45,14 @@ fi
 # Don't symlink, it breaks when copied later.
 export COMPOSER_MIRROR_PATH_REPOS=true
 
+# HACK: wpcomsh tests need the jetpack-mu-wpcom package built.
+# @todo Create a way to do this that's not a hack.
+if [[ "${CHANGED-<unset>}" == '<unset>' ]] || jq -e '.["plugins/wpcomsh"] // false' <<<"$CHANGED"; then
+	echo "::group::HACK: Build packages/jetpack-mu-wpcom for plugins/wpcomsh"
+	pnpm jetpack build -v packages/jetpack-mu-wpcom
+	echo "::endgroup::"
+fi
+
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
 EXIT=0
