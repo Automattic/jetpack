@@ -8,7 +8,7 @@ $features-colors: (
 );
 
 @mixin properties( $feature, $color, $properties, $opacity: false ) {
-	&[data-type='#{$feature}'] {
+	&[data-breve-type='#{$feature}'] {
 		@each $property in $properties {
 			@if $opacity {
 				#{$property}: rgba( $color, $opacity );
