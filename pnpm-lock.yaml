@@ -438,6 +438,9 @@ importers:
       '@automattic/jetpack-config':
         specifier: workspace:*
         version: link:../config
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@wordpress/base-styles':
         specifier: 5.2.0
         version: 5.2.0
