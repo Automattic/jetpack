@@ -201,12 +201,11 @@ class JetpackNotices extends React.Component {
 				'1' ===
 					cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]' ],
 		};
-
-		this.dismissGoogleAnalyticsNotice = this.dismissGoogleAnalyticsNotice.bind( this );
-		this.dismissMasterbarNotice = this.dismissMasterbarNotice.bind( this );
 	}
 
-	dismissGoogleAnalyticsNotice() {
+	dismissGoogleAnalyticsNotice = () => {
+		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
+
 		document.cookie = cookie.serialize(
 			'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]',
 			'1',
@@ -216,10 +215,11 @@ class JetpackNotices extends React.Component {
 				SameSite: 'None',
 			}
 		);
-		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
-	}
+	};
 
-	dismissMasterbarNotice() {
+	dismissMasterbarNotice = () => {
+		this.setState( { isMasterbarNoticeDismissed: true } );
+
 		document.cookie = cookie.serialize(
 			'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]',
 			'1',
@@ -229,8 +229,7 @@ class JetpackNotices extends React.Component {
 				SameSite: 'None',
 			}
 		);
-		this.setState( { isMasterbarNoticeDismissed: true } );
-	}
+	};
 
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
