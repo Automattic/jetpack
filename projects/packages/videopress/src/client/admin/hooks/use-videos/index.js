@@ -32,6 +32,7 @@ export default function useVideos() {
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
 	const filter = useSelect( select => select( STORE_ID ).getVideosFilter() );
+	const uploadErrors = useSelect( select => select( STORE_ID ).getUploadErrorVideos() );
 
 	return {
 		items,
@@ -48,6 +49,7 @@ export default function useVideos() {
 		...query,
 		...pagination,
 		...storageUsed,
+		uploadErrors,
 
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),

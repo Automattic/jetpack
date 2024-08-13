@@ -169,6 +169,7 @@ export type VideoPressVideo = {
 	thumbnail?: string;
 	uploading?: boolean;
 	plays?: number; // Not provided yet
+	error?: string;
 };
 
 export type LocalVideo = {

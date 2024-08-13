@@ -45,8 +45,17 @@ import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
-	const { items, uploading, uploadedVideoCount, isFetching, search, page, itemsPerPage, total } =
-		useVideos();
+	const {
+		items,
+		uploadErrors,
+		uploading,
+		uploadedVideoCount,
+		isFetching,
+		search,
+		page,
+		itemsPerPage,
+		total,
+	} = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
 
@@ -105,9 +114,10 @@ const useDashboardVideos = () => {
 	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
 	// Do not show uploading videos if not in the first page or searching
-	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
+	let videos = page > 1 || Boolean( search ) ? items : [ ...uploadErrors, ...uploading, ...items ];
 
-	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
+	const hasVideos =
+		uploadedVideoCount > 0 || isFetching || uploading?.length > 0 || uploadErrors?.length > 0;
 	const hasLocalVideos = uploadedLocalVideoCount > 0;
 
 	const handleFilesUpload = ( files: File[] ) => {
@@ -144,7 +154,7 @@ const useDashboardVideos = () => {
 		handleFilesUpload,
 		handleLocalVideoUpload,
 		loading: isFetching,
-		uploading: uploading?.length > 0,
+		uploading: uploading?.length > 0 || uploadErrors?.length > 0,
 		hasVideoPressPurchase,
 	};
 };
