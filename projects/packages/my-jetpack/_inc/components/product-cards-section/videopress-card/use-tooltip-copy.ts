@@ -66,11 +66,10 @@ const useTooltipCopy = () => {
 		),
 	};
 
-	// todo: Add "comparing it with the performance of the previous 30 days." once we have the comparison in place.
 	const watchTime = {
 		title: __( '30-Day viewing time', 'jetpack-my-jetpack' ),
 		text: __(
-			'This metric shows total video viewing time for the last 30 days.',
+			'This metric shows total video viewing time for the last 30 days, comparing it with the performance of the previous 30 days.',
 			'jetpack-my-jetpack'
 		),
 	};
