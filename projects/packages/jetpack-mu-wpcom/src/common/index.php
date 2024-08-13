@@ -14,6 +14,8 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 
+require_once __DIR__ . '/wpcom-enqueue-dynamic-script/class-wpcom-enqueue-dynamic-script.php';
+
 /**
  * Returns ISO 639 conforming locale string.
  *
