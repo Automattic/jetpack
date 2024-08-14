@@ -38,6 +38,7 @@
 	}
 
 	&__ips {
+		width: 100%;
 		margin-left: 64px;
 
 		&__button-container {
@@ -50,6 +51,7 @@
 	
 		&__save-button {
 			margin-top: 0.5rem;
+			float: right;
 		}
 	}
 
