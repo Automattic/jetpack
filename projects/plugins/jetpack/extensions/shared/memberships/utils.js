@@ -1,4 +1,9 @@
-import { isSimpleSite, isAtomicSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	getSiteFragment,
+	isSimpleSite,
+	isAtomicSite,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, __ } from '@wordpress/i18n';
@@ -25,15 +30,19 @@ export const encodeValueForShortcodeAttribute = value => {
 
 export const getPaidPlanLink = alreadyHasTierPlans => {
 	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
-
-	const base = isJetpackSite
-		? 'https://cloud.jetpack.com/monetize/payments/'
-		: 'https://wordpress.com/earn/payments/';
-
-	const link = base + location.hostname;
+	const site = getSiteFragment();
+	let redirectUrl = isJetpackSite ? 'jetpack-earn-payments' : 'wpcom-earn-payments';
 
 	// We force the "Newsletters plan" link only if there is no plans already created
-	return alreadyHasTierPlans ? link : link + '#add-tier-plan';
+	if ( alreadyHasTierPlans ) {
+		redirectUrl = isJetpackSite
+			? 'jetpack-earn-payments-add-tier-plan'
+			: 'wpcom-earn-payments-add-tier-plan';
+	}
+
+	return getRedirectUrl( redirectUrl, {
+		site,
+	} );
 };
 
 export const getShowMisconfigurationWarning = ( postVisibility, accessLevel ) => {

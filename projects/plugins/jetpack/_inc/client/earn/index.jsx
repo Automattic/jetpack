@@ -129,7 +129,7 @@ function Earn( props ) {
 					featureName="payments"
 					title={ __( 'Collect payments', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-payments-block' ) }
-					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
+					infoLink={ getRedirectUrl( 'jetpack-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
@@ -143,7 +143,7 @@ function Earn( props ) {
 					featureName="donations"
 					title={ __( 'Accept donations and tips', 'jetpack' ) }
 					supportLink={ getRedirectUrl( 'jetpack-support-jetpack-blocks-donations-block' ) }
-					infoLink={ getRedirectUrl( 'wpcom-earn-payments', {
+					infoLink={ getRedirectUrl( 'jetpack-earn-payments', {
 						site: blogID ?? siteRawUrl,
 					} ) }
 					infoDescription={ __(
