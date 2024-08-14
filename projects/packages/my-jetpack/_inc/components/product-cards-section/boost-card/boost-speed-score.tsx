@@ -163,16 +163,18 @@ const BoostSpeedScore: BoostSpeedScoreType = ( { shouldShowTooltip } ) => {
 								{ speedLetterGrade }
 								{ shouldShowTooltip && (
 									<Popover
-										placement={ isMobileViewport ? 'top-end' : 'right' }
+										placement={ isMobileViewport ? 'top-end' : 'top-start' }
 										noArrow={ false }
 										offset={ 10 }
 									>
-										<p className={ 'boost-score-tooltip__heading' }>
-											{ /* Add the `&nbsp;` at the end to prevent widows. */ }
-											{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
-											{ speedLetterGrade }
-										</p>
-										<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
+										<div className={ 'boost-score-tooltip__parent' }>
+											<p className={ 'boost-score-tooltip__heading' }>
+												{ /* Add the `&nbsp;` at the end to prevent widows. */ }
+												{ __( 'Site speed performance:', 'jetpack-my-jetpack' ) }&nbsp;
+												{ speedLetterGrade }
+											</p>
+											<p className={ 'boost-score-tooltip__content' }>{ tooltipCopy }</p>
+										</div>
 									</Popover>
 								) }
 							</span>

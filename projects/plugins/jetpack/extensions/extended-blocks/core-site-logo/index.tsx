@@ -3,8 +3,9 @@
  */
 import { GeneratorModal } from '@automattic/jetpack-ai-client';
 import { BlockControls } from '@wordpress/block-editor';
+import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect, select } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -12,7 +13,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import { getFeatureAvailability } from '../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import AiToolbarButton from './components/ai-toolbar-button.js';
-import { SITE_LOGO_BLOCK_AI_EXTENSION } from './constants.js';
+import { SITE_LOGO_BLOCK_AI_EXTENSION, TOOL_PLACEMENT, PLACEMENT_CONTEXT } from './constants.js';
 
 /**
  * Mininal type definition for the core select function.
@@ -69,8 +70,8 @@ const useSetLogo = () => {
 };
 
 const useSiteDetails = () => {
-	const siteSettings = useSelect( select => {
-		return ( select( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
+	const siteSettings = useSelect( selectData => {
+		return ( selectData( 'core' ) as CoreSelect ).getEntityRecord( 'root', 'site' );
 	}, [] );
 
 	return {
@@ -98,6 +99,11 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const closeModal = useCallback( () => {
 			setIsLogoGeneratorModalVisible( false );
 		}, [] );
+
+		const reloadModal = useCallback( () => {
+			closeModal();
+			showModal();
+		}, [ closeModal, showModal ] );
 
 		const applyLogoHandler = useCallback(
 			( mediaId: number ) => {
@@ -127,13 +133,63 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					isOpen={ isLogoGeneratorModalVisible }
 					onClose={ closeModal }
 					onApplyLogo={ applyLogoHandler }
-					context="block-editor"
+					onReload={ reloadModal }
+					context={ PLACEMENT_CONTEXT }
+					placement={ TOOL_PLACEMENT }
 					siteDetails={ siteDetails }
 				/>
 			</>
 		);
 	};
 }, 'SiteLogoEditWithAiComponents' );
+
+/**
+ * Function to check if the feature is available depending on the site ID.
+ *
+ * @return {boolean} True if the feature is available.
+ */
+function isFeatureAvailable() {
+	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
+}
+
+/**
+ * Function to check if the block can be extended.
+ *
+ * @param {string} name - The block name.
+ * @return {boolean} True if the block can be extended.
+ */
+function canExtendBlock( name: string ): boolean {
+	if ( name !== 'core/site-logo' ) {
+		return false;
+	}
+
+	// Check if the AI Assistant block is registered. If not, we understand that Jetpack AI is not active.
+	const isAIAssistantBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
+
+	if ( ! isAIAssistantBlockRegistered ) {
+		return false;
+	}
+
+	// Disable if the feature is not available.
+	if ( ! isFeatureAvailable() ) {
+		return false;
+	}
+
+	/*
+	 * Do not extend if the AI Assistant block is hidden,
+	 * as a way for the user to hide the extension.
+	 * TODO: the `editPostStore` is undefined for P2 sites.
+	 * Let's find a way to check if the block is hidden there.
+	 */
+	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
+	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined
+
+	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * Function to override the core Site Logo block edit settings.
@@ -144,13 +200,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * @return {object} The new block settings.
  */
 function jetpackSiteLogoWithAiSupport( settings, name: string ) {
-	// Only extend the core Site Logo block.
-	if ( name !== 'core/site-logo' ) {
-		return settings;
-	}
-
-	// Disable if the feature is not available.
-	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+	if ( ! canExtendBlock( name ) ) {
 		return settings;
 	}
 

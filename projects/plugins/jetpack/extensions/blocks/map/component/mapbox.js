@@ -243,7 +243,9 @@ export class MapBoxComponent extends Component {
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
-			} catch ( e ) {}
+			} catch ( e ) {
+				// Ok if control wasn't there to remove.
+			}
 			return;
 		}
 		// If there is only one point, center map around it.
@@ -358,7 +360,9 @@ export class MapBoxComponent extends Component {
 					// If there's an old map instance hanging around, try to
 					// clean it up.
 					prevMap?.remove();
-				} catch ( error ) {}
+				} catch ( error ) {
+					// Ok if there wasn't one to clean up.
+				}
 
 				return { map, zoomControl, fullscreenControl };
 			},

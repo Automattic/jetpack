@@ -1,5 +1,5 @@
 import type { NoticeAction } from '@wordpress/components/src/notice/types';
-import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import type { ReactNode } from 'react';
 
 export type NoticeButtonAction = NoticeAction & {
 	isLoading?: boolean;
@@ -26,6 +26,6 @@ export type NoticeOptions = {
 
 export type NoticeContextType< T = Notice > = {
 	currentNotice: T;
-	setNotice: Dispatch< SetStateAction< T > > | null;
+	setNotice: ( notice: T, onClose?: () => void ) => void | null;
 	resetNotice: () => void;
 };

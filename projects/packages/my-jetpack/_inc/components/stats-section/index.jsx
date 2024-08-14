@@ -53,7 +53,7 @@ const StatsSection = () => {
 		[ PRODUCT_STATUSES.ACTIVE ]: {
 			label: __( 'View detailed stats', 'jetpack-my-jetpack' ),
 		},
-		[ PRODUCT_STATUSES.ERROR ]: {
+		[ PRODUCT_STATUSES.SITE_CONNECTION_ERROR ]: {
 			label: __( 'Connect Jetpack to use Stats', 'jetpack-my-jetpack' ),
 		},
 		[ PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION ]: {

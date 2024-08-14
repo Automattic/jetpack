@@ -326,19 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.7-a.5 - 2024-07-22
+### 13.8-a.1 - 2024-08-12
 #### Enhancements
-- Dashboard: Add a dashboard card for AI Assistant.
-- Security: Add separate IP allow and block list toggles in Web Application Firewall settings.
-- Settings: Add a link to the AI assistant product page.
+- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection.
 
 #### Improved compatibility
-- Contact Form: Ensure checkboxes are properly displayed when using the Twenty Twenty or the Twenty Twenty One theme.
-- General: Remove code for compatibility with WordPress versions before 6.5.
-- General: Update WordPress version requirements to WordPress 6.5.
+- Performance: Optimize the size of included image files.
 
 #### Bug fixes
-- Blocks: Check if the fontFamily block attribute is a string before trying to format.
+- AI Assistant: Disable Breve for free plan users when AI Assistant block is disabled
+- Subscriptions: Prevent saave discussion settings from turning on the subscribe modal.
 
 --------
 

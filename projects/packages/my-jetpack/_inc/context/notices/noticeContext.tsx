@@ -1,5 +1,5 @@
 import { createContext, useCallback, useState } from 'react';
-import { NoticeContextType, Notice } from './types';
+import { NoticeContextType, Notice, NoticeOptions } from './types';
 
 const defaultNotice: Notice = {
 	message: '',
@@ -26,11 +26,18 @@ const NoticeContextProvider = ( { children } ) => {
 	}, [] );
 
 	const setNotice = useCallback(
-		( notice: Notice ) => {
+		// If onClose is not provided in the "notice", and close button is not hidden, use the custom onClose function
+		( notice: Notice, onClose?: NoticeOptions[ 'onClose' ] ) => {
 			// Only update notice if there is not already a notice or the new notice has a higher priority
 			if ( ! currentNotice.message || notice.options.priority > currentNotice.options.priority ) {
+				const newOptions = {
+					...notice.options,
+					onClose:
+						notice.options?.onClose || ( ! notice.options?.hideCloseButton ? onClose : undefined ),
+				};
+
 				resetNotice();
-				setCurrentNotice( notice );
+				setCurrentNotice( { ...notice, options: newOptions } );
 			}
 		},
 		[ currentNotice.message, currentNotice.options.priority, resetNotice ]

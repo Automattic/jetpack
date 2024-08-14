@@ -1,0 +1,14 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"include": [ "src/node.ts" ],
+	"exclude": [ "node_modules/**/*" ],
+	"compilerOptions": {
+		"outDir": "./build-node",
+		"target": "es2019",
+		"sourceMap": true,
+		"allowJs": false,
+		"allowSyntheticDefaultImports": true,
+		"typeRoots": [ "node_modules/@types" ],
+		"declaration": true
+	}
+}

@@ -1,25 +1,12 @@
-import { useCallback, type FC } from 'react';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import ProductCard from '../../connected-product-card';
 import ProtectValueSection from './protect-value-section';
+import type { ProductCardComponent } from '../types';
 
-const ProtectCard: FC< { admin: boolean } > = ( { admin } ) => {
-	const slug = 'protect';
-
-	// This is a workaround to remove the Description from the product card. However if we end
-	// up needing to remove the Description from additional cards in the future, we might consider
-	// extending <ProductCard /> functionality to support that.
-	const noDescription = useCallback( () => null, [] );
-
-	return (
-		<ProductCard
-			admin={ admin }
-			slug={ slug }
-			upgradeInInterstitial={ true }
-			Description={ noDescription }
-		>
-			<ProtectValueSection />
-		</ProductCard>
-	);
-};
+const ProtectCard: ProductCardComponent = props => (
+	<ProductCard { ...props } slug={ PRODUCT_SLUGS.PROTECT } upgradeInInterstitial>
+		<ProtectValueSection />
+	</ProductCard>
+);
 
 export default ProtectCard;

@@ -20,6 +20,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Jetpack_Manage;
 use Automattic\Jetpack\Partner;
@@ -247,6 +248,7 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme(),
+			'isGoogleAnalyticsActive'       => ( new Modules() )->is_active( 'google-analytics', false ),
 		);
 	}
 

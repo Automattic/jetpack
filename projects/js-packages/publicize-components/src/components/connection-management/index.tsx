@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
-import { SupportedService, useSupportedServices } from '../services/use-supported-services';
+import { useService } from '../services/use-service';
 import { ConnectionInfo } from './connection-info';
 import styles from './style.module.scss';
 
@@ -35,14 +35,7 @@ const ConnectionManagement = ( { className = null } ) => {
 		refresh();
 	}, [ refresh ] );
 
-	const supportedServices = useSupportedServices();
-	const servicesByName = supportedServices.reduce< Record< string, SupportedService > >(
-		( acc, service ) => {
-			acc[ service.ID ] = service;
-			return acc;
-		},
-		{}
-	);
+	const getService = useService();
 
 	const { openConnectionsModal } = useDispatch( store );
 
@@ -62,7 +55,7 @@ const ConnectionManagement = ( { className = null } ) => {
 									<Disabled isDisabled={ isUpdatingOrDeleting }>
 										<ConnectionInfo
 											connection={ connection }
-											service={ servicesByName[ connection.service_name ] }
+											service={ getService( connection.service_name ) }
 										/>
 									</Disabled>
 								</li>

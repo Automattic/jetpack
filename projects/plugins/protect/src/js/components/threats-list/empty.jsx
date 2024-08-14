@@ -1,8 +1,10 @@
 import { H3, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
+import OnboardingPopover from '../onboarding-popover';
+import ScanButton from '../scan-button';
 import styles from './styles.module.scss';
 
 const ProtectCheck = () => (
@@ -83,7 +85,10 @@ const timeSince = date => {
 };
 
 const EmptyList = () => {
-	const { lastChecked } = useProtectData();
+	const { lastChecked, hasRequiredPlan } = useProtectData();
+
+	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
+		useState( null );
 
 	const timeSinceLastScan = useMemo( () => {
 		return lastChecked ? timeSince( Date.parse( lastChecked ) ) : null;
@@ -95,7 +100,7 @@ const EmptyList = () => {
 			<H3 weight="bold" mt={ 8 }>
 				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
 			</H3>
-			<Text>
+			<Text mb={ 4 }>
 				{ createInterpolateElement(
 					sprintf(
 						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
@@ -110,6 +115,16 @@ const EmptyList = () => {
 					}
 				) }
 			</Text>
+			{ hasRequiredPlan && (
+				<>
+					<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
+					<OnboardingPopover
+						id="paid-daily-and-manual-scans"
+						position={ 'bottom middle' }
+						anchor={ dailyAndManualScansPopoverAnchor }
+					/>
+				</>
+			) }
 		</div>
 	);
 };

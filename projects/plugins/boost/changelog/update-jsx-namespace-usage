@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+React: Changing global JSX namespace to React.JSX

@@ -620,12 +620,14 @@ HTML;
 		// Bail if missing the Jetpack token.
 		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
-
 			return;
 		}
 
 		if ( empty( $post_array['jetpack_comments_nonce'] ) || ! wp_verify_nonce( $post_array['jetpack_comments_nonce'], "jetpack_comments_nonce-{$post_array['comment_post_ID']}" ) ) {
-				wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
+			if ( ! isset( $_GET['only_once'] ) ) {
+				self::retry_submit_comment_form_locally();
+			}
+			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
 		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
@@ -653,6 +655,56 @@ HTML;
 
 			wp_die( esc_html__( 'Comments are not allowed.', 'jetpack' ), 403 );
 		}
+	}
+
+	/**
+	 * Handle Jetpack Comments POST requests: process the comment form, then client-side POST the results to the self-hosted blog
+	 *
+	 * This function exists because when we submit the form via the jetpack.wordpress.com iframe
+	 * in Chrome the request comes in to Jetpack but for some reason the request doesn't have access to cookies yet.
+	 * By submitting the form again locally with the same data the process works as expected.
+	 *
+	 * @return never
+	 */
+	public function retry_submit_comment_form_locally() {
+		// We are not doing any validation here since all the validation will be done again by pre_comment_on_post().
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$comment_data = stripslashes_deep( $_POST );
+		?>
+		<!DOCTYPE html>
+		<html>
+		<head>
+		<link rel="preload" as="image" href="https://jetpack.wordpress.com/wp-admin/images/spinner.gif"> <!-- Preload the spinner image -->
+		<meta charset="utf-8">
+		<title><?php echo esc_html__( 'Submitting Comment', 'jetpack' ); ?></title>
+		<style type="text/css">
+			body {
+				display: table;
+				width: 100%;
+				height: 60%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				overflow: hidden;
+				color: #333;
+			}
+		</style>
+		</head>
+		<body>
+		<img src="https://jetpack.wordpress.com/wp-admin/images/spinner.gif" >
+		<form id="jetpack-remote-comment-post-form" action="<?php echo esc_url( get_site_url() ); ?>/wp-comments-post.php?for=jetpack&only_once=true" method="POST">
+			<?php foreach ( $comment_data as $key => $val ) : ?>
+				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $val ); ?>" />
+			<?php endforeach; ?>
+		</form>
+
+		<script type="text/javascript">
+			document.getElementById("jetpack-remote-comment-post-form").submit();
+		</script>
+		</body>
+		</html>
+		<?php
+		exit;
 	}
 
 	/** Capabilities **********************************************************/

@@ -1,0 +1,6 @@
+/* These rules are included in a media="print" link, and so should not be
+included in the end result, ever. */
+
+div.sir_not_appearing_in_this_film {
+	color: red;
+}

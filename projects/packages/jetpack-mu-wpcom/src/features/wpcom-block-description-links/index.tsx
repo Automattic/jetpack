@@ -2,6 +2,7 @@ import { localizeUrl } from '@automattic/i18n-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { JSXElementConstructor, ReactElement } from 'react';
+import React from 'react';
 import blockInfoMapping, {
 	blockInfoWithVariations,
 	childrenBlockInfoWithDifferentUrl,
@@ -89,10 +90,14 @@ const addBlockSupportLinks = (
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				description: string | ReactElement< string | JSXElementConstructor< any > >;
 			} ) => {
-				const link = blockInfoWithVariations[ name ][ variation.name ]?.link;
-				const postId = blockInfoWithVariations[ name ][ variation.name ]?.postId;
+				let link = blockInfoWithVariations[ name ][ variation.name ]?.link;
+				let postId = blockInfoWithVariations[ name ][ variation.name ]?.postId;
 
-				if ( ! link ) {
+				// Set the default link for all embed variations that don't have a specific guide.
+				if ( ! link && name === 'core/embed' ) {
+					link = 'https://wordpress.com/support/wordpress-editor/blocks/embed-block/';
+					postId = 150644;
+				} else if ( ! link ) {
 					return variation;
 				}
 

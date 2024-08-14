@@ -263,7 +263,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'verify_domain_email',
 				'design_selected',
-				'setup_free',
+				'setup_general',
 				'generate_content',
 				'plan_completed',
 				'domain_upsell',

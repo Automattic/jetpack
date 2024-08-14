@@ -206,6 +206,14 @@ class Defaults {
 		'jetpack_package_versions',
 		'jetpack_newsletters_publishing_default_frequency',
 		'jetpack_scheduled_plugins_update',
+		'jetpack_waf_automatic_rules',
+		'jetpack_waf_ip_allow_list',
+		'jetpack_waf_ip_allow_list_enabled',
+		'jetpack_waf_ip_block_list',
+		'jetpack_waf_ip_block_list_enabled',
+		'jetpack_waf_share_data',
+		'jetpack_waf_share_debug_data',
+		'jetpack_waf_automatic_rules_last_updated_timestamp',
 	);
 
 	/**

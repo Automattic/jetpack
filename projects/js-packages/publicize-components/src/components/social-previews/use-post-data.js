@@ -61,18 +61,24 @@ export function usePostData() {
 			}
 
 			return {
-				title:
+				title: (
 					getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title ||
-					getEditedPostAttribute( 'title' ),
-				description:
+					getEditedPostAttribute( 'title' ) ||
+					''
+				).trim(),
+				description: (
 					getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
 					getEditedPostAttribute( 'excerpt' ) ||
 					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-					__( 'Visit the post for more.', 'jetpack' ),
+					__( 'Visit the post for more.', 'jetpack' ) ||
+					''
+				).trim(),
 				url: getEditedPostAttribute( 'link' ),
-				excerpt:
+				excerpt: (
 					getEditedPostAttribute( 'excerpt' ) ||
-					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
+					getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+					''
+				).trim(),
 				image,
 				media,
 				initialTabName: null,

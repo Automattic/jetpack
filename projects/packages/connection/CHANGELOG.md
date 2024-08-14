@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2024-08-13
+### Added
+- Updated the connection initial state to fallback on the new consolidated Jetpack script data [#38825]
+
+## [2.11.4] - 2024-08-09
+### Fixed
+- Fix type for tracking product string [#38748]
+
+## [2.11.3] - 2024-08-01
+### Added
+- Added support for 'recommendations_evaluation' Jetpack option" [#38534]
+
 ## [2.11.2] - 2024-07-22
 ### Fixed
 - Fixed textdomain on i18n messages imported from the IDC package. [#38412]
@@ -1131,6 +1143,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[2.12.0]: https://github.com/Automattic/jetpack-connection/compare/v2.11.4...v2.12.0
+[2.11.4]: https://github.com/Automattic/jetpack-connection/compare/v2.11.3...v2.11.4
+[2.11.3]: https://github.com/Automattic/jetpack-connection/compare/v2.11.2...v2.11.3
 [2.11.2]: https://github.com/Automattic/jetpack-connection/compare/v2.11.1...v2.11.2
 [2.11.1]: https://github.com/Automattic/jetpack-connection/compare/v2.11.0...v2.11.1
 [2.11.0]: https://github.com/Automattic/jetpack-connection/compare/v2.10.2...v2.11.0

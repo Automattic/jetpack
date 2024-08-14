@@ -8,11 +8,12 @@ import {
 	Container,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import React from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
@@ -74,6 +75,12 @@ const ProductPromotion = () => {
 
 const FooterInfo = () => {
 	const { hasRequiredPlan } = useProtectData();
+	const { stats } = useWafData();
+	const { globalStats } = stats;
+	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
+	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
+		? '50,000'
+		: totalVulnerabilities.toLocaleString();
 
 	if ( hasRequiredPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
@@ -98,11 +105,21 @@ const FooterInfo = () => {
 
 	return (
 		<div className={ styles[ 'info-section' ] }>
-			<Title>{ __( 'Over 22,000 listed vulnerabilities', 'jetpack-protect' ) }</Title>
+			<Title>
+				{ sprintf(
+					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					__( 'Over %s listed vulnerabilities', 'jetpack-protect' ),
+					totalVulnerabilitiesFormatted
+				) }
+			</Title>
 			<Text mb={ 3 }>
-				{ __(
-					'Every day we check your plugin, theme, and WordPress versions against our 22,000 listed vulnerabilities powered by WPScan, an Automattic brand.',
-					'jetpack-protect'
+				{ sprintf(
+					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					__(
+						'Every day we check your plugin, theme, and WordPress versions against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
+						'jetpack-protect'
+					),
+					totalVulnerabilitiesFormatted
 				) }
 			</Text>
 

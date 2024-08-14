@@ -5,9 +5,6 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-// Turn off the feature on ETK plugin.
-define( 'MU_WPCOM_GLOBAL_STYLES', true );
-
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 use Automattic\Jetpack\Plans;

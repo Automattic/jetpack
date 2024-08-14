@@ -22,7 +22,7 @@ export const UpgradeScreen: React.FC< {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const upgradeMessageFeature = __(
-		'Upgrade your Jetpack AI for access to exclusive features, including logo generation. This upgrade will also increase the amount of requests you can use in all AI-powered features.',
+		'The logo generator requires a paid Jetpack AI plan. Upgrade your plan to access exclusive features, including logo generation. The upgrade will also increase the amount of requests you can use in all AI-powered features.',
 		'jetpack-ai-client'
 	);
 
@@ -46,7 +46,7 @@ export const UpgradeScreen: React.FC< {
 				</span>
 				&nbsp;
 				<Button variant="link" href="https://jetpack.com/ai/" target="_blank">
-					{ __( 'Learn more', 'jetpack-ai-client' ) }
+					{ __( 'Learn more about Jetpack AI.', 'jetpack-ai-client' ) }
 				</Button>
 			</div>
 			<div className="jetpack-ai-logo-generator-modal__notice-actions">

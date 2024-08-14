@@ -8,13 +8,19 @@
 /**
  * Saves shared post data.
  *
- * @param int     $target_post_id Post ID.
- * @param WP_Post $post           Post object.
- * @param bool    $update         Whether this is an update.
+ * @param int      $target_post_id Post ID.
+ * @param ?WP_Post $post           Post object.
+ * @param bool     $update         Whether this is an update.
  *
  * @return int|void|WP_Error
  */
-function wpcomsh_insert_shared_post_data( $target_post_id, $post, $update ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+function wpcomsh_insert_shared_post_data( $target_post_id, $post = null, $update = false ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
+
+	// There are cases when plugins trigger insert hooks without arguments, we just return in this case.
+	if ( null === $post ) {
+		return $target_post_id;
+	}
+
 	// This `$update` check avoids infinite loops of trying to update our updated post.
 	if ( $update ) {
 		return;

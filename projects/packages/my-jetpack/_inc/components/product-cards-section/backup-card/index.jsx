@@ -11,6 +11,7 @@ import {
 	REST_API_COUNT_BACKUP_ITEMS_ENDPOINT,
 	QUERY_BACKUP_HISTORY_KEY,
 	QUERY_BACKUP_STATS_KEY,
+	PRODUCT_SLUGS,
 } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
@@ -18,6 +19,8 @@ import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpa
 import useAnalytics from '../../../hooks/use-analytics';
 import ProductCard from '../../connected-product-card';
 import styles from './style.module.scss';
+
+const productSlug = PRODUCT_SLUGS.BACKUP;
 
 const getIcon = slug => {
 	switch ( slug ) {
@@ -121,20 +124,19 @@ const getTimeSinceLastRenewableEvent = lastRewindableEventTime => {
 	}
 };
 
-const BackupCard = ( { admin } ) => {
-	const slug = 'backup';
-	const { detail } = useProduct( slug );
+const BackupCard = props => {
+	const { detail } = useProduct( productSlug );
 	const { status } = detail;
 	const hasBackups = status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	return hasBackups ? (
-		<WithBackupsValueSection admin={ admin } slug={ slug } />
+		<WithBackupsValueSection slug={ productSlug } { ...props } />
 	) : (
-		<NoBackupsValueSection admin={ admin } slug={ slug } />
+		<ProductCard slug={ productSlug } { ...props } />
 	);
 };
 
-const WithBackupsValueSection = ( { admin, slug } ) => {
+const WithBackupsValueSection = props => {
 	const { data, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_HISTORY_KEY,
 		query: {
@@ -149,7 +151,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 	const handleUndoClick = () => {
 		recordEvent( 'jetpack_myjetpack_backup_card_undo_click', {
-			product: slug,
+			product: props.slug,
 			undo_backup_id: undoBackupId,
 		} );
 	};
@@ -178,8 +180,7 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 
 	return (
 		<ProductCard
-			admin={ admin }
-			slug={ slug }
+			{ ...props }
 			showMenu
 			isDataLoading={ isLoading }
 			Description={ lastRewindableEvent ? WithBackupsDescription : null }
@@ -195,7 +196,8 @@ const WithBackupsValueSection = ( { admin, slug } ) => {
 	);
 };
 
-const NoBackupsValueSection = ( { admin, slug } ) => {
+// DEPRECATED: this output was more confusing than helpful
+const NoBackupsValueSection = props => {
 	const { data: backupStats, isLoading } = useSimpleQuery( {
 		name: QUERY_BACKUP_STATS_KEY,
 		query: {
@@ -229,7 +231,7 @@ const NoBackupsValueSection = ( { admin, slug } ) => {
 	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
 
 	return (
-		<ProductCard admin={ admin } slug={ slug } showMenu isDataLoading={ isLoading }>
+		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
 				{ /* role="list" is required for VoiceOver on Safari */ }
 				{ /* eslint-disable-next-line jsx-a11y/no-redundant-roles */ }

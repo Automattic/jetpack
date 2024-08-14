@@ -14,6 +14,8 @@ try {
 	if ( globals?.es2022 ) {
 		flatBase.languageOptions.globals = globals.es2022;
 	}
-} catch ( e ) {}
+} catch ( e ) {
+	// `globals` is optional.
+}
 
 module.exports = flatBase;

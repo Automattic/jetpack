@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import debugFactory from 'debug';
 import { useCallback } from 'react';
 /**
@@ -9,6 +8,7 @@ import { useCallback } from 'react';
  */
 import ProductInterstitial from '../';
 import useProduct from '../../../data/products/use-product';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import jetpackAiImage from '../jetpack-ai.png';
 import styles from './style.module.scss';
 
@@ -23,7 +23,7 @@ export default function JetpackAiInterstitial() {
 	const { detail } = useProduct( slug );
 	debug( detail );
 
-	const { userConnectionData } = useConnection();
+	const { userConnectionData } = useMyJetpackConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
 	const userId = currentUser?.id || 0;

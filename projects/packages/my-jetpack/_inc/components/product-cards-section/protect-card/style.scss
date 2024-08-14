@@ -119,3 +119,12 @@
         color: var(--jp-black);
     }
 }
+
+.info-tooltip {
+    &__content {
+        width: calc(100vw - 64px);
+        max-width: 340px;
+        min-height: 150px;
+        padding: 24px;
+    }
+}

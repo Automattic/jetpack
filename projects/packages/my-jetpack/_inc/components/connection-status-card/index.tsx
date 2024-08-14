@@ -1,9 +1,5 @@
 import { Button, getRedirectUrl, H3, Text } from '@automattic/jetpack-components';
-import {
-	ManageConnectionDialog,
-	useConnection,
-	CONNECTION_STORE_ID,
-} from '@automattic/jetpack-connection';
+import { ManageConnectionDialog, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, info, check, lockOutline } from '@wordpress/icons';
@@ -13,6 +9,7 @@ import { useAllProducts } from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import cloud from './cloud.svg';
 import emptyAvatar from './empty-avatar.svg';
 import jetpackGray from './jetpack-gray.svg';
@@ -173,13 +170,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	context,
 	onConnectUser = null,
 } ) => {
-	const { isRegistered, isUserConnected, userConnectionData } = useConnection( {
-		apiRoot,
-		apiNonce,
+	const { isRegistered, isUserConnected, userConnectionData } = useMyJetpackConnection( {
 		redirectUri,
-		skipUserConnection: false,
-		autoTrigger: false,
-		from: 'my-jetpack',
 	} );
 
 	const { recordEvent } = useAnalytics();
@@ -196,8 +188,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const hasSiteConnectionBrokenModules = brokenModules?.needs_site_connection.length > 0;
 	const tracksEventData = useMemo( () => {
 		return {
-			userConnectionBrokenModules: brokenModules?.needs_user_connection.join( ', ' ),
-			siteConnectionBrokenModules: brokenModules?.needs_site_connection.join( ', ' ),
+			user_connection_broken_modules: brokenModules?.needs_user_connection.join( ', ' ),
+			site_connection_broken_modules: brokenModules?.needs_site_connection.join( ', ' ),
 		};
 	}, [ brokenModules ] );
 
@@ -209,7 +201,7 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 			e && e.preventDefault();
 			recordEvent( 'jetpack_myjetpack_connection_manage_dialog_click', {
 				...tracksEventData,
-				connectionType,
+				connection_type: connectionType,
 			} );
 			setIsManageConnectionDialogOpen( true );
 		},

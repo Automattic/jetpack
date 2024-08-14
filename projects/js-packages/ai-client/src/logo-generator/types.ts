@@ -16,7 +16,9 @@ export interface GeneratorModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	onApplyLogo: ( mediaId: number ) => void;
+	onReload: () => void;
 	context: string;
+	placement: string;
 }
 
 export interface LogoPresenterProps {

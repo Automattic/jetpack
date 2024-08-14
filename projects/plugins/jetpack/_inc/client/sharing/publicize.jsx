@@ -15,7 +15,6 @@ import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 import './style.scss';
 import { FormFieldset } from '../components/forms';
-import AutoConversionSection from './features/auto-conversion-section';
 import SocialImageGeneratorSection from './features/social-image-generator-section';
 
 export const Publicize = withModuleSettingsFormHelpers(
@@ -45,7 +44,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'publicize' ),
 				hasPaidFeatures = this.props.hasPaidFeatures,
 				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
-				hasAutoConversion = this.props.hasAutoConversion,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
 				userCanManageModules = this.props.userCanManageModules,
@@ -151,7 +149,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 							<RefreshJetpackSocialSettingsWrapper
 								shouldRefresh={ ! isActive && this.props.isSavingAnyOption( 'publicize' ) }
 							>
-								{ shouldShowChildElements && hasAutoConversion && <AutoConversionSection /> }
 								{ shouldShowChildElements && hasSocialImageGenerator && (
 									<SocialImageGeneratorSection />
 								) }

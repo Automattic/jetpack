@@ -25,6 +25,7 @@
 			"src/"
 		],
 		"files": [
+			"actions.php",
 			"src/social-image-generator/utilities.php"
 		]
 	},
@@ -67,7 +68,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.47.x-dev"
+			"dev-trunk": "0.49.x-dev"
 		}
 	},
 	"config": {

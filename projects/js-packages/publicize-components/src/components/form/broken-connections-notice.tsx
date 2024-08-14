@@ -8,7 +8,7 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { store } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import Notice from '../notice';
-import { SupportedService, useSupportedServices } from '../services/use-supported-services';
+import { useServiceLabel } from '../services/use-service-label';
 import styles from './styles.module.scss';
 import { checkConnectionCode } from './utils';
 
@@ -40,19 +40,11 @@ export const BrokenConnectionsNotice: React.FC = () => {
 		<ExternalLink href={ connectionsAdminUrl } />
 	);
 
-	const supportedServices = useSupportedServices();
+	const getServiceLabel = useServiceLabel();
 
 	if ( ! brokenConnections.length ) {
 		return null;
 	}
-
-	const servicesMap = supportedServices.reduce< Record< string, SupportedService > >(
-		( acc, service ) => {
-			acc[ service.ID ] = service;
-			return acc;
-		},
-		{}
-	);
 
 	// Group broken connections by service
 	// Since Object.groupBy is not supported widely yet, we use a manual grouping
@@ -73,12 +65,7 @@ export const BrokenConnectionsNotice: React.FC = () => {
 				{ __( 'Your following connections need to be reconnected:', 'jetpack' ) }
 				<ul>
 					{ Object.entries( brokenConnectionsList ).map( ( [ service_name, connectionsList ] ) => {
-						const serviceLabel =
-							// For Jetpack sites, we should have the service in the map
-							// But for WPCOM sites, we might not have the service in the map yet
-							servicesMap[ service_name ]?.label ||
-							// So we capitalize the service name
-							service_name[ 0 ].toUpperCase() + service_name.substring( 1 );
+						const serviceLabel = getServiceLabel( service_name );
 
 						return (
 							<li key={ service_name }>

@@ -2,6 +2,116 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8-a.1 - 2024-08-12
+### Enhancements
+- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection. [#38809]
+
+### Improved compatibility
+- Performance: Optimize the size of included image files. [#38573]
+
+### Bug fixes
+- AI Assistant: Disable Breve for free plan users when AI Assistant block is disabled [#38743]
+- Subscriptions: Prevent saave discussion settings from turning on the subscribe modal. [#38805]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add namespace to Breve CSS classes. [#38795]
+- Code: Cleaning up usage of 'javascript:' in URLs. [#38783]
+- Code: Making sure useRef includes an argument. [#38765]
+- Components: React cleanup for React 19 compatibility. [#38762]
+- Contact Form: Remove deprecated functionality. [#38786]
+- Likes Block: Add keywords. [#38778]
+- Media: Support video and audio shortcodes in Media Extractor. [#38556]
+- Publicize: Fixed a warning with undefined variables. [#38781]
+- Security: Redirect to Protect dashboard for Firewall settings, when available. [#38655]
+- Social: Updated intial state logic to use the new consolidated initial state. [#38606]
+- Tests: Fixed CSSTidy loading in tests. [#37859]
+- Tests: Removed react-test-renderer as not in use. [#38755]
+
+## 13.7-beta2 - 2024-08-06
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Internal updates.
+
+## 13.7-beta - 2024-08-05
+### Enhancements
+- AI Assistant: Make Jetpack Breve available to general public. [#38697]
+- Jetpack: Port additional Full Site Editing features from WP Cloud. [#38212]
+- Jetpack AI: Enable the AI Logo generator extension. [#38696]
+- Jetpack Newsletter: Add Jetpack Newsletter menu with preview option. [#38675]
+
+### Bug fixes
+- Jetpack Comments: Fix replying to comments in Chrome when logged in to both WordPress.com and Jetpack. [#38554]
+- Sharing: Do not include Gravatar images in Open Graph Meta tags. [#38692]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin bar: Help center and notification icons now follow color scheme. [#38672]
+- AI Assistant: Add ignore button for AI Proofread. [#38517]
+- AI Assistant: Change Breve readability score text. [#38620]
+- AI Assistant: Disable AI Proofread by default. [#38715]
+- AI Assistant: Release Breve for 50% of sites. [#38604]
+- AI Assistant: Remove slash highlights on Breve. [#38700]
+- AI Logo Generator: Fix the retry button when a feature request fails. [#38630]
+- AI Logo Generator: Only extend the logo block when the AI Assistant is available and not hidden on the editor. [#38603]
+- AI Logo Generator: Release site logo extension to 10% of sites. [#38646]
+- Fix suggestion invalidation on different features. [#38633]
+- Jetpack AI: Apply text-wrap: pretty to AI assistant sidebar sections. [#38653]
+- Jetpack AI: useExperiment note. [#38602]
+- Jetpack AI Breve: Disable feature toggles on main toggle. [#38678]
+- Jetpack Social: Added feature flag management. [#38669]
+- Jetpack Social: Removed the media auto-conversion UI. [#38497]
+- Jetpack Stats: Disable blog stats block for simple sites. [#38564]
+- General: Changing global JSX namespace to React.JSX. [#38585]
+- General: Changing ReactDOM.render usage to be via ReactDOM.createRoot. [#38649]
+- General: Modify the Google Analytics notice to notify of the feature removal. [#38701]
+- Newsletter: Add source for the paid importer. [#38679]
+- Newsletter: Set all settings on the page disabled when module is disabled. [#38716]
+- Jetpack Blocks: Update Podcast Player blockt to be compatible with React 19. [#38619]
+- Social Links: Adding a function_exists check within the social-links.php file, to prevent conflicts with package version. [#38593]
+- WP.com API: Include errors listed for broken themes. [#38642]
+
+## 13.7-a.7 - 2024-07-29
+### Enhancements
+- AI Assistant: Add feedback link to the sidebar. [#38528]
+- AI Assistant: Breve UI enhancements. [#38545]
+- AI Assistant: Disable first Breve hover on mobile. [#38527]
+- AI Assistant: Disable long sentences Breve feature by default. [#38508]
+- AI Assistant: Enable Breve for 10% of production sites. [#38465]
+- AI Assistant: Enable Breve for 20% of production sites. [#38572]
+- General: Losslessly optimized PNG images. [#38398]
+- Site Editor: Remove extra site editor notices in favor of the ones provided by WordPress directly. [#38459]
+
+### Improved compatibility
+- Masterbar: Always show the notification bell. [#38494]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin page: Remove propTypes and defaultProps from code due to React legacy code warnings. [#38546]
+- AI Assistant: Add animation on loading for AI Proofread. [#38541]
+- AI Assistant: Add events for Breve. [#38481]
+- AI Assistant: Breve UI and text enhancements. [#38553]
+- AI Assistant: Fix highlight not working on formatted texts. [#38540]
+- AI Assistant: Display AI sidebar on first highlight hover. [#38468]
+- AI Assistant: Fix block inserter behavior when Breve is enabled. [#38483]
+- AI Assistant: Remove Breve readability star. [#38524]
+- AI Assistant: Rename Breve and proofread entries on sidebar [#38456]
+- AI Logo Generator: Support saving the logo and the icon when an image is ready. [#38552]
+- Google Analytics: Remove the module and its remnants. [#37960]
+- Jetpack AI: Add action links on sidebar for feature discoverability. [#38531]
+- Jetpack AI: Connect the site logo block extension to AI Logo Generator modal. [#38491]
+- Jetpack AI: Fix event tracking of logo generator to inform the proper placement. [#38574]
+- Jetpack AI: Remove unused ai-assistant-panel component. [#38489]
+- Jetpack Editor State: Add is_my_jetpack_available to initial state. [#38500]
+- Newsletter: Byline settings return the correct default value. [#38435]
+- Popover: Refactor some code to use refs, adding in tests to future proof. [#38339]
+- Premium Content Block: Only show it as a transformation option if group or columns blocks are selected or if multiple blocks are selected. [#38569]
+- Remove Browse sites from sidebar as it's on WordPress logo in masterbar. [#38547]
+- Shortcode: Fix the test-class.gravatar.php tests. [#38582]
+- Social Menus: Requiring the feature from the Classic Theme Helper package. [#38297]
+- Tests: Removing test_sync_maybe_update_core test skip as core bug now fixed. [#38583]
+- Tests: Skipping test_sync_maybe_update_core test due to core bug. [#38476]
+- WPCOM API: Return actual value instead of bool for some settings after update. [#38498]
+- WPCOM API: Return list of newsletter category IDs after saving. [#38560]
+- WPCOM Connection test: use better ciphers than RC4, which is no longer available on many hosts. [#38393]
+- WPCOM Settings API: Add synced options from Jetpack WAF. [#37957]
+
 ## 13.7-a.5 - 2024-07-22
 ### Enhancements
 - Dashboard: Add a dashboard card for AI Assistant. [#38413]

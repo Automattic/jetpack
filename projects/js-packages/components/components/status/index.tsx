@@ -9,7 +9,7 @@ interface StatusProps {
 	className?: string;
 }
 
-const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
+const Status = ( { className, label, status = 'inactive' }: StatusProps ): React.JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack' ),
 		error: __( 'Error', 'jetpack' ),

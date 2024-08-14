@@ -3,6 +3,9 @@
 //store for the components, but at the moment they're tied.
 import './src/social-store';
 
+// Ensure that module augmentation is applied
+export type {} from './src/types';
+
 export { default as Connection } from './src/components/connection';
 export { default as Form } from './src/components/form';
 export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
@@ -10,7 +13,6 @@ export { default as SocialPreviewsPanel } from './src/components/social-previews
 export { default as SocialImageGeneratorPanel } from './src/components/social-image-generator/panel';
 export { default as SocialImageGeneratorTemplatePickerModal } from './src/components/social-image-generator/template-picker/modal';
 export { default as SocialImageGeneratorToggle } from './src/components/social-image-generator/toggle';
-export { default as AutoConversionToggle } from './src/components/auto-conversion/toggle';
 export { default as TemplatePickerButton } from './src/components/social-image-generator/template-picker/button';
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';

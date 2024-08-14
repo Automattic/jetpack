@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Admin page: Remove propTypes and defaultProps from code due to React legacy code warnings.

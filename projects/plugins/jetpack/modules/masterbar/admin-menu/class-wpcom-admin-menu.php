@@ -65,16 +65,6 @@ class WPcom_Admin_Menu extends Masterbar_WPcom_Admin_Menu {
 	}
 
 	/**
-	 * Adds the site switcher link if user has more than one site.
-	 *
-	 * @deprecated 13.7
-	 */
-	public function add_browse_sites_link() {
-		_deprecated_function( __METHOD__, 'jetpack-13.7', 'Automattic\\Jetpack\\Masterbar\\WPcom_Admin_Menu::add_browse_sites_link' );
-		parent::add_browse_sites_link();
-	}
-
-	/**
 	 * Adds a custom element class for Site Switcher menu item.
 	 *
 	 * @deprecated 13.7

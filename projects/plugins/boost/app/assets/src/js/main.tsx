@@ -117,7 +117,7 @@ function Main() {
  * @param props
  * @param props.children - The actual page to render
  */
-const Tracks = ( { children }: { children: JSX.Element } ) => {
+const Tracks = ( { children }: { children: React.JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {

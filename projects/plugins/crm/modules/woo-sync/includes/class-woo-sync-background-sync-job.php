@@ -1623,6 +1623,8 @@ class Woo_Sync_Background_Sync_Job {
 
 			$order_data['subtotal'] = 0.0;
 
+			$item_tax_rate_ids = null;
+
 			// cycle through order items to create crm line items
 			foreach ( $order_items as $item_key => $item ) {
 
@@ -1731,7 +1733,7 @@ class Woo_Sync_Background_Sync_Job {
 							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 						}
 
-						$order_data['subtotal'] += $new_line_item['price'];
+						$order_data['subtotal'] += floatval( $new_line_item['price'] );
 
 						// Add fee as an item to the invoice
 						$data['lineitems'][] = $new_line_item;

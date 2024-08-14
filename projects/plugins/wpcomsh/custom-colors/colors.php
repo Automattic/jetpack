@@ -1972,38 +1972,6 @@ function add_color_palette( $palette, $title = false ) {
 }
 
 /**
- * This is a quick and easy function to track usage of COLOURlovers patterns across Dotcom.
- * We intend to run it for a few weeks and then remove it.
- *
- * We also maintain a WPCOM version for Simple sites.
- *
- * @see pdKhl6-3qP-p2
- */
-function wpcomsh_temporarily_maybe_track_colourlovers_pattern_usage() {
-	$cache_key = 'stats_tmp_colourlovers_pattern';
-	$found     = false;
-	wp_cache_get( $cache_key, 'stats', false, $found );
-
-	// We don't need to track all page views, just once per site.
-	if ( $found ) {
-		return;
-	}
-
-	$bg = get_theme_mod( 'background_image' );
-	wp_cache_set( $cache_key, $bg, 'stats' );
-
-	if ( ! empty( $bg ) && str_contains( $bg, 'colourlovers' ) ) {
-		$event_properties = array(
-			'siteid'  => (int) Jetpack_Options::get_option( 'id' ),
-			'pattern' => pathinfo( $bg, PATHINFO_FILENAME ),
-			'theme'   => get_stylesheet(),
-		);
-		wpcomsh_record_tracks_event( 'wpcom_tmp_cl_pattern', $event_properties );
-	}
-}
-add_action( 'wp_footer', 'wpcomsh_temporarily_maybe_track_colourlovers_pattern_usage', 101 );
-
-/**
  * Gutenberg color manager.
  */
 class Colors_Manager_Gutenberg extends Colors_Manager_Common {

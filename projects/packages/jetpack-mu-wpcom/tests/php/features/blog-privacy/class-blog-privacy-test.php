@@ -37,6 +37,9 @@ Disallow: /
 User-agent: anthropic-ai
 Disallow: /
 
+User-agent: Applebot-Extended
+Disallow: /
+
 User-agent: Bytespider
 Disallow: /
 
@@ -69,9 +72,6 @@ Disallow: /
 
 User-agent: sentibot
 Disallow: /
-
-User-agent: Applebot-Extended
-Disallow: /private/
 
 AI_BLOCKS;
 

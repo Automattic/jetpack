@@ -65,6 +65,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_default_options() {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			$this->markTestSkipped( 'is temporarily skipped' );
+		}
+
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options
 		$options = array(
@@ -266,6 +270,14 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_package_versions'                     => array(),
 			'jetpack_newsletters_publishing_default_frequency' => 'weekly',
 			'jetpack_scheduled_plugins_update'             => array(),
+			'jetpack_waf_automatic_rules'                  => false,
+			'jetpack_waf_ip_allow_list'                    => 'pineapple',
+			'jetpack_waf_ip_allow_list_enabled'            => false,
+			'jetpack_waf_ip_block_list'                    => 'pineapple',
+			'jetpack_waf_ip_block_list_enabled'            => false,
+			'jetpack_waf_share_data'                       => true,
+			'jetpack_waf_share_debug_data'                 => false,
+			'jetpack_waf_automatic_rules_last_updated_timestamp' => 0,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

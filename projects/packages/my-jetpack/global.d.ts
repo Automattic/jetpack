@@ -9,6 +9,20 @@ declare module '@wordpress/components';
 declare module '@wordpress/compose';
 declare module '@wordpress/icons';
 declare module '@automattic/jetpack-connection';
+declare module '@wordpress/url';
+
+type ProductStatus =
+	| 'active'
+	| 'inactive'
+	| 'module_disabled'
+	| 'site_connection_error'
+	| 'plugin_absent'
+	| 'plugin_absent_with_plan'
+	| 'needs_plan'
+	| 'needs_activation'
+	| 'needs_first_site_connection'
+	| 'user_connection_error'
+	| 'can_upgrade';
 
 type JetpackModule =
 	| 'anti-spam'
@@ -17,6 +31,7 @@ type JetpackModule =
 	| 'crm'
 	| 'creator'
 	| 'extras'
+	| 'ai'
 	| 'jetpack-ai'
 	| 'scan'
 	| 'search'
@@ -126,10 +141,12 @@ interface Window {
 					description: string;
 					disclaimers: Array< string[] >;
 					features: string[];
+					has_free_offering: boolean;
 					has_paid_plan_for_product: boolean;
 					features_by_tier: Array< string >;
 					is_bundle: boolean;
 					is_plugin_active: boolean;
+					is_upgradable: boolean;
 					is_upgradable_by_bundle: string[];
 					long_description: string;
 					manage_url: string;
@@ -140,6 +157,7 @@ interface Window {
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
+						wpcom_free_product_slug?: string;
 						product_term: string;
 						currency_code: string;
 						full_price: number;
@@ -154,6 +172,26 @@ interface Window {
 							transition_after_renewal_count: number;
 							usage_limit?: number;
 						};
+						tiers?: {
+							[ key: string ]: {
+								available: boolean;
+								currencyCode: string;
+								discountPrice: number;
+								fullPrice: number;
+								introductoryOffer?: {
+									costPerInterval: number;
+									intervalCount: number;
+									intervalUnit: string;
+									shouldProrateWhenOfferEnds: boolean;
+									transitionAfterRenewalCount: number;
+									usageLimit?: number;
+								};
+								isIntroductoryOffer: boolean;
+								productTerm: string;
+								wpcomProductSlug: string;
+								quantity: number;
+							};
+						};
 					};
 					purchase_url?: string;
 					requires_user_connection: boolean;
@@ -163,7 +201,7 @@ interface Window {
 						is_standalone_installed: boolean;
 						is_standalone_active: boolean;
 					};
-					status: string;
+					status: ProductStatus;
 					supported_products: string[];
 					tiers: string[];
 					title: string;
@@ -203,6 +241,26 @@ interface Window {
 				jetpack_waf_share_debug_data: boolean;
 				standalone_mode: boolean;
 			};
+		};
+		videopress: {
+			featuredStats: {
+				label: string;
+				data: {
+					views: {
+						current: number;
+						previous: number;
+					};
+					impressions: {
+						current: number;
+						previous: number;
+					};
+					watch_time: {
+						current: number;
+						previous: number;
+					};
+				};
+			};
+			videoCount: number;
 		};
 		purchases: {
 			items: Array< {
@@ -287,6 +345,10 @@ interface Window {
 					plugin: string;
 				};
 			};
+		};
+		recommendedModules: {
+			modules: JetpackModule[] | null;
+			dismissed: boolean;
 		};
 		themes: {
 			[ key: string ]: {

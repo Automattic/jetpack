@@ -31,7 +31,7 @@ export default class JetpackSocialPage extends WpPage {
 	async isConnected() {
 		logger.step( 'Check if Jetpack Social is connected' );
 		return (
-			( await this.isElementVisible( 'text=Manage social media connections' ) ) &&
+			( await this.isElementVisible( 'text=Connect accounts' ) ) &&
 			( await this.isElementVisible( 'text=Write a post' ) )
 		);
 	}

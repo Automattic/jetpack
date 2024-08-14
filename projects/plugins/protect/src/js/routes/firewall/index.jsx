@@ -22,7 +22,11 @@ import ConnectedFirewallHeader from '../../components/firewall-header';
 import FormToggle from '../../components/form-toggle';
 import ScanFooter from '../../components/scan-footer';
 import Textarea from '../../components/textarea';
-import { JETPACK_SCAN_SLUG, PLUGIN_SUPPORT_URL } from '../../constants';
+import {
+	JETPACK_SCAN_SLUG,
+	FREE_PLUGIN_SUPPORT_URL,
+	PAID_PLUGIN_SUPPORT_URL,
+} from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
@@ -128,7 +132,11 @@ const FirewallPage = () => {
 			const supportMessage = createInterpolateElement(
 				__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack-protect' ),
 				{
-					supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+					supportLink: (
+						<ExternalLink
+							href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+						/>
+					),
 				}
 			);
 
@@ -141,7 +149,7 @@ const FirewallPage = () => {
 				),
 			} );
 		},
-		[ getCustomErrorMessage, setNotice ]
+		[ getCustomErrorMessage, setNotice, hasRequiredPlan ]
 	);
 
 	/**
@@ -595,7 +603,10 @@ const FirewallPage = () => {
 									{ __( 'Failed to update automatic firewall rules.', 'jetpack-protect' ) }{ ' ' }
 									{ getCustomErrorMessage( automaticRulesInstallationError ) }
 								</Text>
-								<Button variant={ 'link' } href={ PLUGIN_SUPPORT_URL }>
+								<Button
+									variant={ 'link' }
+									href={ hasRequiredPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+								>
 									<Text variant={ 'body-small' }>
 										{ __( 'Contact support', 'jetpack-protect' ) }
 									</Text>

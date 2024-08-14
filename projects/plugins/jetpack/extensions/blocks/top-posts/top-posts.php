@@ -12,7 +12,6 @@ namespace Automattic\Jetpack\Extensions\Top_Posts;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 use Jetpack_Top_Posts_Helper;
 
@@ -26,13 +25,7 @@ if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
-	if (
-		( new Host() )->is_wpcom_simple()
-		|| (
-			( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
-			&& ! ( new Status() )->is_offline_mode()
-		)
-	) {
+	if ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() ) {
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )

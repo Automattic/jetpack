@@ -212,7 +212,9 @@ class Products {
 					)
 				)
 			),
-			'unowned' => array_unique( $unowned_products ),
+			'unowned' => array_values(
+				array_unique( $unowned_products )
+			),
 		);
 
 		return $data[ $type ];

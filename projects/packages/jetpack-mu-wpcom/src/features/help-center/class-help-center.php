@@ -37,6 +37,7 @@ class Help_Center {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 	}
 
 	/**
@@ -83,12 +84,9 @@ class Help_Center {
 		$script_dependencies = $dependencies ?? array();
 
 		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
-			// Crazy high number to prevent Jetpack removing it
-			// https://github.com/Automattic/jetpack/blob/30213ee594cd06ca27199f73b2658236fda24622/projects/plugins/jetpack/modules/masterbar/masterbar/class-masterbar.php#L196.
 			add_action(
-				'wp_before_admin_bar_render',
-				function () {
-					global $wp_admin_bar;
+				'admin_bar_menu',
+				function ( $wp_admin_bar ) {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
@@ -102,8 +100,7 @@ class Help_Center {
 							),
 						)
 					);
-				},
-				100000
+				}
 			);
 		}
 
@@ -173,6 +170,22 @@ class Help_Center {
 					)
 				),
 				'before'
+			);
+		}
+
+		if ( ! is_admin() ) {
+			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
+			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
+			if ( function_exists( 'gutenberg_url' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				$stylesheet_url = gutenberg_url( $stylesheet );
+			}
+			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+			wp_enqueue_style(
+				'wp-components',
+				$stylesheet_url,
+				array( 'dashicons' ),
+				$version
 			);
 		}
 	}
@@ -287,7 +300,7 @@ class Help_Center {
 	public function is_block_editor() {
 		global $current_screen;
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -295,7 +308,7 @@ class Help_Center {
 	 */
 	private function is_wc_admin_home_page() {
 		global $current_screen;
-		return $current_screen->id === 'woocommerce_page_wc-admin';
+		return $current_screen && $current_screen->id === 'woocommerce_page_wc-admin';
 	}
 
 	/**
@@ -360,7 +373,14 @@ class Help_Center {
 	public function enqueue_wp_admin_scripts() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
-		if ( ! is_admin() ) {
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+
+		// We will show the help center icon in the admin bar when;
+		// 1. On wp-admin
+		// 2. On the front end of the site if the current user can edit posts
+		// 3. On the front end of the site and the theme is not P2
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
 			return;
 		}
 
@@ -372,7 +392,6 @@ class Help_Center {
 		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
 		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-
 		if ( ! $asset_file ) {
 			return;
 		}

@@ -6,6 +6,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -17,10 +18,10 @@ import styles from './styles.module.scss';
 
 const SocialModuleToggle: React.FC = () => {
 	const {
+		// TODO - replace some of these with values from initial state
 		connectionsAdminUrl,
 		isModuleEnabled,
 		isUpdating,
-		useAdminUiV1,
 		siteSuffix,
 		blogID,
 		hasPaidFeatures,
@@ -30,12 +31,13 @@ const SocialModuleToggle: React.FC = () => {
 			isModuleEnabled: store.isModuleEnabled(),
 			isUpdating: store.isUpdatingJetpackSettings(),
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			useAdminUiV1: store.useAdminUiV1(),
 			siteSuffix: store.getSiteSuffix(),
 			blogID: store.getBlogID(),
 			hasPaidFeatures: store.hasPaidFeatures(),
 		};
 	}, [] );
+
+	const { useAdminUiV1 } = getScriptData().social.feature_flags;
 
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 

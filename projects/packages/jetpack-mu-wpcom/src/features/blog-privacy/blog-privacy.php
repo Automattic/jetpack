@@ -37,6 +37,7 @@ function robots_txt( string $output, $public ): string {
 		$ai_bots = array(
 			'Amazonbot',
 			'anthropic-ai',
+			'Applebot-Extended',
 			'Bytespider',
 			'CCBot',
 			'ClaudeBot',
@@ -54,10 +55,6 @@ function robots_txt( string $output, $public ): string {
 			$output .= "\nUser-agent: {$ai_bot}\n";
 			$output .= "Disallow: /\n";
 		}
-
-		// https://support.apple.com/en-us/119829#datausage
-		$output .= "\nUser-agent: Applebot-Extended\n";
-		$output .= "Disallow: /private/\n";
 	}
 
 	return $output;

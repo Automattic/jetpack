@@ -38,7 +38,7 @@ function AudioPlayer( {
 	loadWhenReady = false,
 	preload = 'metadata',
 } ) {
-	const audioRef = useRef();
+	const audioRef = useRef( undefined );
 
 	/**
 	 * Play current audio.

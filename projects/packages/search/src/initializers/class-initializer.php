@@ -122,7 +122,7 @@ class Initializer {
 		/**
 		 * Filter whether classic search should be enabled. By this stage, search module would be enabled already.
 		 *
-		 * @since Jetpack $$next_version$$
+		 * @since 0.39.6
 		 * @param boolean initial value whether classic search is enabled.
 		 * @param boolean filtered result whether classic search is enabled.
 		 */

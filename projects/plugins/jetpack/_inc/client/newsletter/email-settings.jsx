@@ -7,6 +7,7 @@ import {
 	Chip,
 	Button as JetpackButton,
 } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -45,6 +46,7 @@ const FROM_NAME_OPTION = 'jetpack_subscriptions_from_name';
 
 const EmailSettings = props => {
 	const {
+		isSubscriptionsActive,
 		isSavingAnyOption,
 		subscriptionsModule,
 		unavailableInOfflineMode,
@@ -65,7 +67,8 @@ const EmailSettings = props => {
 		siteName,
 	} = props;
 
-	const disabled = unavailableInOfflineMode || unavailableInSiteConnectionMode;
+	const disabled =
+		! isSubscriptionsActive || unavailableInOfflineMode || unavailableInSiteConnectionMode;
 	const gravatarInputDisabled = disabled || isSavingAnyOption( [ GRAVATER_OPTION ] );
 	const authorInputDisabled = disabled || isSavingAnyOption( [ AUTHOR_OPTION ] );
 	const postDateInputDisabled = disabled || isSavingAnyOption( [ POST_DATE_OPTION ] );
@@ -194,7 +197,7 @@ const EmailSettings = props => {
 			>
 				<ToggleControl
 					disabled={ featuredImageInputDisabled }
-					checked={ isFeaturedImageInEmailEnabled }
+					checked={ isFeaturedImageInEmailEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ FEATURED_IMAGE_IN_EMAIL_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -232,7 +235,7 @@ const EmailSettings = props => {
 				<div className="email-settings__gravatar">
 					<ToggleControl
 						disabled={ gravatarInputDisabled }
-						checked={ isGravatarEnabled }
+						checked={ isGravatarEnabled && isSubscriptionsActive }
 						toogling={ isSavingAnyOption( [ GRAVATER_OPTION ] ) }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -278,7 +281,7 @@ const EmailSettings = props => {
 				</div>
 				<ToggleControl
 					disabled={ authorInputDisabled }
-					checked={ isAuthorEnabled }
+					checked={ isAuthorEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ AUTHOR_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -290,7 +293,7 @@ const EmailSettings = props => {
 
 				<ToggleControl
 					disabled={ postDateInputDisabled }
-					checked={ isPostDateEnabled }
+					checked={ isPostDateEnabled && isSubscriptionsActive }
 					toogling={ isSavingAnyOption( [ POST_DATE_OPTION ] ) }
 					label={
 						<span className="jp-form-toggle-explanation">
@@ -307,13 +310,7 @@ const EmailSettings = props => {
 								'jetpack'
 							),
 							{
-								settingsLink: (
-									<JetpackButton
-										variant="link"
-										isExternalLink={ true }
-										href={ adminUrl + 'options-general.php' }
-									/>
-								),
+								settingsLink: <ExternalLink href={ adminUrl + 'options-general.php' } />,
 							}
 						) }
 					</div>
@@ -466,6 +463,7 @@ export default withModuleSettingsFormHelpers(
 		return {
 			moduleName: ownProps.moduleName,
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			isSavingAnyOption: ownProps.isSavingAnyOption,
 			isFeaturedImageInEmailEnabled: ownProps.getOptionValue( FEATURED_IMAGE_IN_EMAIL_OPTION ),
 			isGravatarEnabled: ownProps.getOptionValue( GRAVATER_OPTION ),

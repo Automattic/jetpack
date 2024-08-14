@@ -5,3 +5,4 @@ node_modules/
 wordpress/
 playwright-report/
 src/features/help-center/languages/
+src/features/newspack-blocks/synced-newspack-blocks
