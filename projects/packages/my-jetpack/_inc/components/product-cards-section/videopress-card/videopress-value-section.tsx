@@ -29,6 +29,10 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const currentViews = featuredStats?.data?.views?.current;
 	const currentWatchTime = featuredStats?.data?.watch_time?.current;
 
+	if ( currentViews === undefined || currentWatchTime === undefined ) {
+		return null;
+	}
+
 	return (
 		<div className="videopress-card__value-section">
 			<div className="videopress-card__value-section__container">
