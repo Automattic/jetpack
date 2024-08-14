@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Updateed connection js to load its bundle via connection package
