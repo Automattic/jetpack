@@ -40,21 +40,6 @@ function atomic_masterbar_filter_jetpack_modules( $modules ) {
 add_filter( 'jetpack_get_available_modules', 'atomic_masterbar_filter_jetpack_modules' );
 
 /**
- * Remove Masterbar from the old Module list.
- * Available at wp-admin/admin.php?page=jetpack_modules
- *
- * @param array $items Array of Jetpack modules.
- * @return array
- */
-function wpcomsh_rm_masterbar_module_list( $items ) {
-	if ( isset( $items['masterbar'] ) ) {
-		unset( $items['masterbar'] );
-	}
-	return $items;
-}
-add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_masterbar_module_list' );
-
-/**
  * Check if the current request is an API request to the `wpcom/v2/admin-menu` endpoint.
  *
  * @return bool
