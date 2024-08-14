@@ -20,7 +20,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
 	const { status, hasPaidPlanForProduct } = detail || {};
 	const { videoCount, featuredStats } = data || {};
-	const { viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
+	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
 	const shortenedNumberConfig: Intl.NumberFormatOptions = {
 		maximumFractionDigits: 1,
 		notation: 'compact',
@@ -42,6 +42,19 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 				<div className="videopress-card__value-section__container">
 					<span className={ baseStyles.valueSectionHeading }>
 						{ __( 'Existing videos', 'jetpack-my-jetpack' ) }
+						<InfoTooltip
+							className="videopress-card__no-video-tooltip"
+							tracksEventName={ 'videopress_card_tooltip_open' }
+							tracksEventProps={ {
+								location: 'existing_videos',
+								feature: 'jetpack-videopress',
+								status,
+								video_count: videoCount,
+							} }
+						>
+							<h3>{ inactiveWithVideos.title }</h3>
+							<p>{ inactiveWithVideos.text }</p>
+						</InfoTooltip>
 					</span>
 					<span className="videopress-card__video-count">{ videoCount }</span>
 				</div>
