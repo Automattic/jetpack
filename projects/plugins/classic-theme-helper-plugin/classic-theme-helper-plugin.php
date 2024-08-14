@@ -41,44 +41,35 @@ define( 'CLASSIC_THEME_HELPER_PLUGIN_NAME', 'Classic Theme Helper Plugin' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_URI', 'https://jetpack.com' );
 define( 'CLASSIC_THEME_HELPER_PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
-// Add "Settings" link to plugins page.
-add_filter(
-	'plugin_action_links_' . CLASSIC_THEME_HELPER_PLUGIN_FOLDER . '/classic-theme-helper-plugin.php',
-	function ( $actions ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=classic-theme-helper-plugin' ) ) . '">' . __( 'Settings', 'classic-theme-helper-plugin' ) . '</a>';
-		array_unshift( $actions, $settings_link );
+// Init Jetpack packages that are hooked into plugins_loaded.
+add_action( 'plugins_loaded', 'init_packages_plugins_loaded', 1 );
 
-		return $actions;
-	}
-);
-
-	// Init Jetpack packages that are hooked into plugins_loaded.
-	add_action( 'plugins_loaded', 'init_packages_plugins_loaded', 1 );
-
-	/**
-	 * Configure what Jetpack packages should get automatically initialized, using the plugins_loaded hook.
-	 *
-	 * @return void
-	 */
+/**
+ * Configure what Jetpack packages should get automatically initialized, using the plugins_loaded hook.
+ *
+ * @return void
+ */
 function init_packages_plugins_loaded() {
+	$jp_plugin_version = Constants::get_constant( 'JETPACK__VERSION' );
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 	}
-	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Featured_Content' ) ) {
+	if ( $jp_plugin_version && version_compare( $jp_plugin_version, '13.6-a.2', '>=' ) && class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Featured_Content' ) ) {
 		Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 	}
 }
 
-	// Init Jetpack packages that are hooked into init.
-	add_action( 'init', 'init_packages_init', 30 );
+// Init Jetpack packages that are hooked into init.
+add_action( 'init', 'init_packages_init', 30 );
 
-	/**
-	 * Configure what Jetpack packages should get automatically initialized, using the init hook.
-	 *
-	 * @return void
-	 */
+/**
+ * Configure what Jetpack packages should get automatically initialized, using the init hook.
+ *
+ * @return void
+ */
 function init_packages_init() {
-	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+	$jp_plugin_version = Constants::get_constant( 'JETPACK__VERSION' );
+	if ( $jp_plugin_version && version_compare( $jp_plugin_version, '13.6-a.2', '>=' ) && class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 		// @phan-suppress-next-line PhanNoopNew
 		new Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 	}
