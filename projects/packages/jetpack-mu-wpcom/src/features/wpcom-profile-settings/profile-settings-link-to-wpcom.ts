@@ -59,19 +59,26 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 };
 
 /**
- * Remove the fields that are synced from /me.
+ * Hide the fields that are synced from /me.
  */
-const wpcom_profile_settings_remove_synced_fields = () => {
-	document.querySelector( '.user-first-name-wrap' )?.remove();
-	document.querySelector( '.user-last-name-wrap' )?.remove();
-	document.querySelector( '.user-nickname-wrap' )?.remove();
-	document.querySelector( '.user-display-name-wrap' )?.remove();
-	document.querySelector( '.user-url-wrap' )?.remove();
-	document.querySelector( '.user-description-wrap' )?.remove();
+const wpcom_profile_settings_hide_synced_fields = () => {
+	[
+		'.user-first-name-wrap',
+		'.user-last-name-wrap',
+		'.user-nickname-wrap',
+		'.user-display-name-wrap',
+		'.user-url-wrap',
+		'.user-description-wrap',
+	].forEach( selector => {
+		const field = document.querySelector( selector );
+		if ( field ) {
+			field.classList.add( 'hidden' );
+		}
+	} );
 };
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	wpcom_profile_settings_add_links_to_wpcom();
 	wpcom_profile_settings_disable_email_field();
-	wpcom_profile_settings_remove_synced_fields();
+	wpcom_profile_settings_hide_synced_fields();
 } );
