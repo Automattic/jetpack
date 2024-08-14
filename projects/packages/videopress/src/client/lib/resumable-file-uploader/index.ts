@@ -61,8 +61,6 @@ const resumableFileUploader = ( {
 		onProgress,
 		endpoint: tokenData.url,
 		removeFingerprintOnSuccess: true,
-		// withCredentials: false,
-		// autoRetry: true,
 		overridePatchMethod: false,
 		chunkSize: 10000000, // 10 Mb.
 		metadata: {
