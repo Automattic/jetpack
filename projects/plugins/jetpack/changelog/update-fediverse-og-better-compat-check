@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+OG Tags: check if the Open Graph integration in the ActivityPub plugin is active instead of checking for the class.
