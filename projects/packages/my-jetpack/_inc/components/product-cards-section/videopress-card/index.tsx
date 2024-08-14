@@ -73,13 +73,7 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		videoCount,
 		status,
 		activeAndNoVideos,
-<<<<<<< HEAD
 		isPluginActive,
-=======
-		inactiveWithVideos,
-		shouldShowTooltip,
-		isActiveWithNoVideos,
->>>>>>> b7511065a6 (Update tooltip location when videos are present but plugin is inactive)
 	] );
 
 	return (
