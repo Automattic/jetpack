@@ -1,4 +1,3 @@
-import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button, PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -42,12 +41,12 @@ const NewsletterMenu = () => {
 					<>
 						<SubscribersAffirmation accessLevel={ accessLevel } />
 						{ ! isPublished && (
-							<Text>
+							<p>
 								{ __(
 									'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
 									'jetpack'
 								) }
-							</Text>
+							</p>
 						) }
 						<Button
 							onClick={ openModal }
@@ -64,15 +63,12 @@ const NewsletterMenu = () => {
 					</>
 				) : (
 					<>
-						<Text variant="title-small" mb={ 2 }>
-							{ __( 'Newsletter', 'jetpack' ) }
-						</Text>
-						<Text mb={ 3 }>
+						<p>
 							{ __(
 								'To email your posts, build an audience, and use features like preview and test, connect to WordPress.com cloud.',
 								'jetpack'
 							) }
-						</Text>
+						</p>
 						<Button variant="primary" href={ connectUrl } style={ { marginTop: '10px' } }>
 							{ __( 'Connect WordPress.com account', 'jetpack' ) }
 						</Button>
