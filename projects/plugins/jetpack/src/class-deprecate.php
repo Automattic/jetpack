@@ -8,9 +8,6 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Place to properly deprecate Jetpack features.
@@ -28,9 +25,11 @@ class Deprecate {
 	 * Initialize the class.
 	 */
 	private function __construct() {
-		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
+		if ( $this->has_notices() ) {
+			add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
+		}
 	}
 
 	/**
@@ -70,20 +69,12 @@ class Deprecate {
 	}
 
 	/**
-	 * Render Google Analytics deprecation notice.
+	 * Render deprecation notices for non-Jetpack pages.
 	 *
 	 * @return void
 	 */
 	public function render_admin_notices() {
-		if ( $this->show_ga_notice() ) {
-			$support_url = Redirect::get_url( 'jetpack-support-google-analytics' );
-
-			$this->render_notice(
-				'jetpack-ga-admin-removal-notice',
-				esc_html__( "Jetpack's Google Analytics has been removed.", 'jetpack' )
-				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To keep tracking visits and more information on this change, please refer to this document', 'jetpack' ) . '</a>.'
-			);
-		}
+		// Initialize deprecation notices for non-Jetpack pages.
 	}
 
 	/**
@@ -91,22 +82,9 @@ class Deprecate {
 	 *
 	 * @param array $slugs Already added bubbles.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function add_my_jetpack_red_bubbles( $slugs ) {
-		if ( $this->show_ga_notice() ) {
-			$slugs['jetpack-google-analytics-deprecate-feature'] = array(
-				'data' => array(
-					'text' => __( "Jetpack's Google Analytics has been removed.", 'jetpack' ),
-					'link' => array(
-						'label' => esc_html__( 'See documentation', 'jetpack' ),
-						'url'   => Redirect::get_url( 'jetpack-support-google-analytics' ),
-					),
-					'id'   => 'jetpack-ga-admin-removal-notice',
-				),
-			);
-		}
-
 		return $slugs;
 	}
 
@@ -146,23 +124,11 @@ class Deprecate {
 	}
 
 	/**
-	 * Check if there are any notices to be displayed, so we wouldn't load unnecessary JS.
+	 * Check if there are any notices to be displayed, so we wouldn't load unnecessary JS and run excessive hooks.
 	 *
 	 * @return bool
 	 */
 	private function has_notices() {
-		return $this->show_ga_notice();
-	}
-
-	/**
-	 * Check if Google Analytics notice should show up.
-	 *
-	 * @return bool
-	 */
-	private function show_ga_notice() {
-		return ( new Modules() )->is_active( 'google-analytics', false )
-			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' )
-			&& ! ( new Host() )->is_woa_site()
-			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-ga-admin-removal-notice'] );
+		return false;
 	}
 }
