@@ -704,13 +704,24 @@ class VideoPress_Player {
 
 			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
+
+			$ratio = false;
+			if ( ! empty( $videopress_options['width'] ) &&
+				! empty( $videopress_options['height'] ) &&
+				$videopress_options['width'] > 0 &&
+				$videopress_options['height'] > 0
+			) {
+				$ratio = $videopress_options['width'] / $videopress_options['height'];
+			}
+
 			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' aria-label='" . __( 'VideoPress Video Player', 'jetpack' )
 				. "' width='100%"
 				. "' height='" . esc_attr( $videopress_options['height'] )
-				. "' style='max-width:" . esc_attr( $videopress_options['width'] )
-				. "px;' src='" . esc_attr( $iframe_url )
+				. "' style='max-width:" . esc_attr( $videopress_options['width'] ) . 'px;'
+				. $ratio ? ( '; aspect-ratio: ' . esc_attr( $ratio ) . ';' ) : ''
+				. "' src='" . esc_attr( $iframe_url )
 				. "' frameborder='0' allowfullscreen"
 				. $cover
 				. " allow='clipboard-write'></iframe>"
