@@ -1,83 +1,89 @@
 .brute-force__current-ip {
-    margin-bottom: 16px;
+	margin-bottom: 16px;
 }
 
 .waf__header {
-    align-items: center;
-    display: flex;
+	align-items: center;
+	display: flex;
 
-    .waf__standalone__mode {
-        margin-left: auto;
-    }
+	.waf__standalone__mode {
+		margin-left: auto;
+	}
 
 }
 
 .waf__settings {
-    margin-top: 24px;
-    margin-left: 64px;
+	margin-top: 24px;
+	margin-left: 64px;
 	margin-bottom: 24px;
 
-    &__toggle-setting {
-        flex-wrap: wrap;
-        display: flex;
-        margin-bottom: 16px;
+	&__toggle-setting {
+		flex-wrap: wrap;
+		display: flex;
+		margin-bottom: 16px;
 
-        &__label {
-            display: flex;
-            align-items: center;
-        }
+		&__label {
+			display: flex;
+			align-items: center;
+		}
 
-        &:last-child {
-            margin-bottom: 0;
-        }
-    }
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
 
-    .form-toggle__label {
-        margin-top: 0;
-        margin-bottom: 0;
-    }
+	.form-toggle__label {
+		margin-top: 0;
+		margin-bottom: 0;
+	}
 
-    &__ips {
-        width: 100%;
-        margin-left: 64px;
-    }
+	&__ips {
+		margin-left: 64px;
 
-    &__ips__save-button {
-        margin-top: 6px;
-        float: right;
-    }
+		&__button-container {
+			margin-left: 64px;
+			width: 100%;
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+		}
+	
+		&__save-button {
+			margin-top: 0.5rem;
+		}
+	}
 
-    &__share-data-popover {
-        margin-left: 8px;
-    }
+	&__share-data-popover {
+		margin-left: 8px;
+	}
 
-    &__upgrade-popover {
-        vertical-align: middle;
-        margin-left: 8px;
-    }
+	&__upgrade-popover {
+		vertical-align: middle;
+		margin-left: 8px;
+	}
 
 }
 
 .waf__enhanced-protection {
-    &, &.dops-card.is-expanded {
-        margin-bottom: 0;
-    }
+	&, &.dops-card.is-expanded {
+		margin-bottom: 0;
+	}
 
-    &.dops-foldable-card.is-expanded .dops-foldable-card__content {
-        border-top: none;
-        padding-top: 0;
-    }
+	&.dops-foldable-card.is-expanded .dops-foldable-card__content {
+		border-top: none;
+		padding-top: 0;
+	}
 
-    ul {
-        list-style: disc;
-        margin-top: 0;
-        margin-bottom: 0;
-        padding-left: 32px;
-    }
+	ul {
+		list-style: disc;
+		margin-top: 0;
+		margin-bottom: 0;
+		padding-left: 32px;
+	}
 
-    code {
-        white-space: nowrap;
-    }
+	code {
+		white-space: nowrap;
+	}
 }
 
 
@@ -177,12 +183,6 @@
 			}
 		}
 	}
-}
-
-.allow-list-button-container {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
 }
 
 .jp-form-settings-group p {
