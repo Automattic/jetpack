@@ -22,7 +22,7 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( slug );
 	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
-	const { activeAndNoVideos } = useTooltipCopy();
+	const { activeAndNoVideos, inactiveWithVideos } = useTooltipCopy();
 	const videoCount = data?.videoCount || 0;
 
 	const isPluginActive =
@@ -33,11 +33,15 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		videoCount,
 	} );
 
+	const isActiveWithNoVideos = isPluginActive && ! videoCount;
+	const isInactiveWithVideos = ! isPluginActive && videoCount;
+	const shouldShowTooltip = isActiveWithNoVideos || isInactiveWithVideos;
+
 	const Description = useCallback( () => {
 		return (
 			<Text variant="body-small" className="description">
 				{ descriptionText || detail.description }
-				{ isPluginActive && ! videoCount && (
+				{ shouldShowTooltip && (
 					<InfoTooltip
 						className="videopress-card__no-video-tooltip"
 						tracksEventName={ 'videopress_card_tooltip_open' }
@@ -48,8 +52,17 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 							video_count: videoCount,
 						} }
 					>
-						<h3>{ activeAndNoVideos.title }</h3>
-						<p>{ activeAndNoVideos.text }</p>
+						{ isActiveWithNoVideos ? (
+							<>
+								<h3>{ activeAndNoVideos.title }</h3>
+								<p>{ activeAndNoVideos.text }</p>
+							</>
+						) : (
+							<>
+								<h3>{ inactiveWithVideos.title }</h3>
+								<p>{ inactiveWithVideos.text }</p>
+							</>
+						) }
 					</InfoTooltip>
 				) }
 			</Text>
@@ -60,7 +73,13 @@ const VideopressCard: ProductCardComponent = ( { admin } ) => {
 		videoCount,
 		status,
 		activeAndNoVideos,
+<<<<<<< HEAD
 		isPluginActive,
+=======
+		inactiveWithVideos,
+		shouldShowTooltip,
+		isActiveWithNoVideos,
+>>>>>>> b7511065a6 (Update tooltip location when videos are present but plugin is inactive)
 	] );
 
 	return (
