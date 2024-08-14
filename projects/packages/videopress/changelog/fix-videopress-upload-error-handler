@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+VideoPress: fix upload error handler to be able to hint the user something's gone wrong
