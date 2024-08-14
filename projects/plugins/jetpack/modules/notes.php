@@ -173,7 +173,7 @@ class Jetpack_Notifications {
 			return;
 		}
 
-		$wpcom_locale = get_locale();
+		$user_locale = get_user_locale();
 
 		if ( ! class_exists( 'GP_Locales' ) ) {
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
@@ -182,9 +182,9 @@ class Jetpack_Notifications {
 		}
 
 		if ( class_exists( 'GP_Locales' ) ) {
-			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', $wpcom_locale );
-			if ( $wpcom_locale_object instanceof GP_Locale ) {
-				$wpcom_locale = $wpcom_locale_object->slug;
+			$jetpack_locale_object = GP_Locales::by_field( 'slug', $user_locale );
+			if ( $jetpack_locale_object instanceof GP_Locale ) {
+				$user_locale = $jetpack_locale_object->slug;
 			}
 		}
 
@@ -196,7 +196,7 @@ class Jetpack_Notifications {
 				'id'     => 'notes',
 				'title'  => $title,
 				'meta'   => array(
-					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $wpcom_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
+					'html'  => '<div id="wpnt-notes-panel2" class="intrinsic-ignore" style="display:none" lang="' . esc_attr( $user_locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __( 'Notifications', 'jetpack' ) . '</span><span class="wpnt-notes-panel-link"></span></div></div>' . $third_party_cookie_check_iframe,
 					'class' => 'menupop',
 				),
 				'parent' => 'top-secondary',
