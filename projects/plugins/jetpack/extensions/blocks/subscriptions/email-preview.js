@@ -335,6 +335,9 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						justifyContent: 'center',
 						alignItems: 'center',
 						height: 'calc(100vh - 190px)',
+						backgroundColor: '#ddd',
+						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
+						transition: 'padding 0.5s ease-in-out',
 					} }
 				>
 					{ isLoading ? (
@@ -344,8 +347,10 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 							srcDoc={ previewCache?.[ selectedAccess ] }
 							style={ {
 								width: deviceWidth,
+								maxWidth: '100%',
 								height: '100%',
 								border: 'none',
+								transition: 'width 0.5s ease-in-out',
 							} }
 							title={ __( 'Email Preview', 'jetpack' ) }
 						/>

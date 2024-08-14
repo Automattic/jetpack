@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+fix empty hrefs causing page reload
