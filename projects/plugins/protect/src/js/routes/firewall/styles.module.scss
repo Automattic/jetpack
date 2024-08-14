@@ -90,10 +90,6 @@
     }
 }
 
-.manual-rules-section {
-    margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
-}
-
 .badge {
     color: var( --jp-gray-30 );
     font-size: 12px;
@@ -153,12 +149,14 @@
 }
 
 .allow-list-button-container {
+    margin-top: calc( var( --spacing-base ) * 3 );
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
 .block-list-button-container {
+    margin-top: calc( var( --spacing-base ) * 3 );
     display: flex;
     justify-content: right;
 }
