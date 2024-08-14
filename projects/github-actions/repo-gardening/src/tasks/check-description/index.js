@@ -498,10 +498,10 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 
 1. Ensure all required checks appearing at the bottom of this PR are passing.
 2. Choose a review path based on your changes:
-    A. Team Review: add the https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Team%20Review label
+    A. Team Review: add the [ [Status] Needs Team Review](https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Team%20Review) label
       - For most changes, including minor cross-team impacts.
       - Example: Updating a team-specific component or a small change to a shared library.
-    B. Crew Review: add the "https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Review" label
+    B. Crew Review: add the [ [Status] Needs Review](https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Review) label
       - For significant changes to core functionality.
       - Example: Major updates to a shared library or complex features.
     C. Both: Start with Team, then request Crew
