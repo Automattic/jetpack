@@ -25,6 +25,7 @@
 			"src/"
 		],
 		"files": [
+			"actions.php",
 			"src/social-image-generator/utilities.php"
 		]
 	},

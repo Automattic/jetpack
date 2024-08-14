@@ -34,7 +34,7 @@ class Waf_Rules_Manager {
 	/**
 	 * IP Lists Enabled Option Name
 	 *
-	 * @deprecated $next-version$ Use Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME and Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME instead.
+	 * @deprecated 0.17.0 Use Waf_Rules_Manager::IP_ALLOW_LIST_ENABLED_OPTION_NAME and Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME instead.
 	 */
 	const IP_LISTS_ENABLED_OPTION_NAME = 'jetpack_waf_ip_list';
 

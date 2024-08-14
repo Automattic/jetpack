@@ -85,7 +85,7 @@ class REST_Controller {
 
 		// Dismiss a notice.
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$.
+		// @deprecated 0.47.2
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',

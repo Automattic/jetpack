@@ -112,14 +112,11 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			const firstMediaItem = media?.[ 0 ];
 
 			const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
-			const desc = message
-				? message
-				: `${ title && excerpt ? `${ title }\n\n${ excerpt }` : title }`;
 
 			return (
 				<MastodonPostPreview
 					{ ...commonProps }
-					description={ desc }
+					description={ excerpt }
 					siteName={ siteName }
 					user={ {
 						avatarUrl: user.profileImage,
