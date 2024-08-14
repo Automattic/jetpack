@@ -60,6 +60,8 @@ const JetpackAndSettingsContent = ( {
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = useBreveAvailability();
 
+	const titleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
+
 	return (
 		<>
 			{ isBreveAvailable && (
@@ -78,7 +80,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+					<BaseControl label={ titleOptimizationSectionLabel }>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>

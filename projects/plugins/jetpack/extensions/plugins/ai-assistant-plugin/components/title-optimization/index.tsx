@@ -26,6 +26,8 @@ export default function TitleOptimization( {
 	disabled: boolean;
 } ) {
 	const modalTitle = __( 'Optimize post title', 'jetpack' );
+	const sidebarDescription = __( 'Use AI to optimize key details of your post.', 'jetpack' );
+	const sidebarButtonLabel = __( 'Improve title', 'jetpack' );
 
 	const postContent = usePostContent();
 	const [ selected, setSelected ] = useState( null );
@@ -125,14 +127,14 @@ export default function TitleOptimization( {
 
 	return (
 		<div>
-			<p>{ __( 'Use AI to optimize key details of your post.', 'jetpack' ) }</p>
+			<p>{ sidebarDescription }</p>
 			<Button
 				isBusy={ busy }
 				disabled={ ! postContent || disabled }
 				onClick={ handleTitleOptimization }
 				variant="secondary"
 			>
-				{ __( 'Improve title', 'jetpack' ) }
+				{ sidebarButtonLabel }
 			</Button>
 			{ isTitleOptimizationModalVisible && (
 				<AiAssistantModal handleClose={ handleClose } title={ modalTitle } maxWidth={ 512 }>
