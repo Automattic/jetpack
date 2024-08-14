@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Masterbar: Removing function to remove masterbar listing on module page - now done via Jetpack.
