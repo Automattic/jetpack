@@ -1,16 +1,17 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button, PanelBody } from '@wordpress/components';
+import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
-import { PreviewModal } from './email-preview';
+import { PreviewModal, EmailPreview } from './email-preview';
 import { SendIcon } from './icons';
 
 const NewsletterMenu = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const [ isEmailPreviewOpen, setIsEmailPreviewOpen ] = useState( false );
 
 	const { postId, postType, postStatus } = useSelect(
 		select => ( {
@@ -29,6 +30,8 @@ const NewsletterMenu = () => {
 
 	const openModal = () => setIsModalOpen( true );
 	const closeModal = () => setIsModalOpen( false );
+	const openEmailPreview = () => setIsEmailPreviewOpen( true );
+	const closeEmailPreview = () => setIsEmailPreviewOpen( false );
 
 	return (
 		<PluginSidebar
@@ -39,7 +42,7 @@ const NewsletterMenu = () => {
 			<PanelBody>
 				{ isUserConnected ? (
 					<>
-						<SubscribersAffirmation accessLevel={ accessLevel } />
+						<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 						{ ! isPublished && (
 							<p>
 								{ __(
@@ -48,18 +51,16 @@ const NewsletterMenu = () => {
 								) }
 							</p>
 						) }
-						<Button
-							onClick={ openModal }
-							style={ {
-								marginRight: '18px',
-								marginTop: '10px',
-							} }
-							variant="secondary"
-							disabled={ isPublished }
-						>
-							{ __( 'Preview email', 'jetpack' ) }
-						</Button>
+						<HStack wrap={ true }>
+							<Button onClick={ openModal } variant="secondary" disabled={ isPublished }>
+								{ __( 'Preview email', 'jetpack' ) }
+							</Button>
+							<Button onClick={ openEmailPreview } variant="secondary" disabled={ isPublished }>
+								{ __( 'Send test email', 'jetpack' ) }
+							</Button>
+						</HStack>
 						<PreviewModal isOpen={ isModalOpen } onClose={ closeModal } postId={ postId } />
+						<EmailPreview isModalOpen={ isEmailPreviewOpen } closeModal={ closeEmailPreview } />
 					</>
 				) : (
 					<>
