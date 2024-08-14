@@ -160,3 +160,7 @@
     display: flex;
     justify-content: right;
 }
+
+.divider {
+    border-bottom: solid 2px var( --jp-gray-5 );
+}
