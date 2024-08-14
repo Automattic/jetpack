@@ -79,8 +79,8 @@ importers:
         specifier: 6.0.0
         version: 6.0.0
       '@slack/web-api':
-        specifier: 6.10.0
-        version: 6.10.0
+        specifier: 7.3.2
+        version: 7.3.2
       glob:
         specifier: 10.4.1
         version: 10.4.1
@@ -438,6 +438,9 @@ importers:
       '@automattic/jetpack-config':
         specifier: workspace:*
         version: link:../config
+      '@automattic/jetpack-script-data':
+        specifier: workspace:*
+        version: link:../script-data
       '@wordpress/base-styles':
         specifier: 5.2.0
         version: 5.2.0
@@ -4518,8 +4521,8 @@ importers:
         specifier: ^29.0.0
         version: 29.7.0
       axios:
-        specifier: 1.6.8
-        version: 1.6.8
+        specifier: 1.7.4
+        version: 1.7.4
       cheerio:
         specifier: 1.0.0-rc.12
         version: 1.0.0-rc.12
@@ -4727,14 +4730,14 @@ importers:
         specifier: 1.45.1
         version: 1.45.1
       '@slack/web-api':
-        specifier: 6.10.0
-        version: 6.10.0
+        specifier: 7.3.2
+        version: 7.3.2
       allure-playwright:
         specifier: 2.9.2
         version: 2.9.2
       axios:
-        specifier: 1.6.8
-        version: 1.6.8
+        specifier: 1.7.4
+        version: 1.7.4
       chalk:
         specifier: 5.0.1
         version: 5.0.1
@@ -6860,17 +6863,17 @@ packages:
     peerDependencies:
       size-limit: 11.1.4
 
-  '@slack/logger@3.0.0':
-    resolution: {integrity: sha512-DTuBFbqu4gGfajREEMrkq5jBhcnskinhr4+AnfJEk48zhVeEv3XnUKGIX98B74kxhYsIMfApGGySTn7V3b5yBA==}
-    engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
+  '@slack/logger@4.0.0':
+    resolution: {integrity: sha512-Wz7QYfPAlG/DR+DfABddUZeNgoeY7d1J39OCR2jR+v7VBsB8ezulDK5szTnDDPDwLH5IWhLvXIHlCFZV7MSKgA==}
+    engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@slack/types@2.12.0':
     resolution: {integrity: sha512-yFewzUomYZ2BYaGJidPuIgjoYj5wqPDmi7DLSaGIkf+rCi4YZ2Z3DaiYIbz7qb/PL2NmamWjCvB7e9ArI5HkKg==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@6.10.0':
-    resolution: {integrity: sha512-UTX7EKWEf1MQ6+p//4KX7tNTbvzS2W9dbhd2hYk4Lt0mfXf9khe6ZYRYPnV7QBycYcZ3t6FJRJAB55GTcccZ/A==}
-    engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
+  '@slack/web-api@7.3.2':
+    resolution: {integrity: sha512-hyxwSsUhpOEVN5ORB3ne7TAXQwXl0wxBAyNTCfp4Qc/o9rpEEvY4kfsx7mZF5AhYPcdEeI1XP2bSFrh3W/HGKQ==}
+    engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@storybook/addon-a11y@8.1.6':
     resolution: {integrity: sha512-qmXuquveulY2eEWZPbNBXbvR4CgktQ7ZfKzNY41Y9m7qHd6wdjuS4CpcDal2pFtGStuYNnmxEOSxNKKtA1Ftlw==}
@@ -7483,9 +7486,6 @@ packages:
 
   '@types/http-errors@2.0.4':
     resolution: {integrity: sha512-D0CFMMtydbJAegzOyHjtiKPLlvnm3iTZyZRSZoLq2mRhDdmLfIWOCYPfQJ4cu2erKghU++QvjcUjp/5h7hESpA==}
-
-  '@types/is-stream@1.1.0':
-    resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
 
   '@types/istanbul-lib-coverage@2.0.6':
     resolution: {integrity: sha512-2QF/t/auWm0lsy8XtKVPG19v3sSOQlJe/YHZgfjb/KBBHOGSV+J2q/S671rcq9uTBrLAXmZpqJiaQbMT+zNU1w==}
@@ -8487,8 +8487,8 @@ packages:
     resolution: {integrity: sha512-QbUdXJVTpvUTHU7871ppZkdOLBeGUKBQWHkHrvN2V9IQWGMt61zf3B45BtzjxEJzYuj0JBjBZP/hmYS/R9pmAw==}
     engines: {node: '>=4'}
 
-  axios@1.6.8:
-    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
+  axios@1.7.4:
+    resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
 
   axobject-query@3.2.4:
     resolution: {integrity: sha512-aPTElBrbifBU1krmZxGZOlBkslORe7Ll7+BDnI50Wy4LgOt69luMgevkDfTq1O/ZgprooPCtWpjCwKSZw/iZ4A==}
@@ -9981,11 +9981,11 @@ packages:
     resolution: {integrity: sha512-EzV94NYKoO09GLXGjXj9JIlXijVck4ONSr5wiCWDvhsvj5jxSrzTmRU/9C1DyB6uToszLs8aifA6NQ7lEQdvFw==}
     engines: {node: '>= 0.8'}
 
-  eventemitter3@3.1.2:
-    resolution: {integrity: sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==}
-
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
@@ -10206,10 +10206,6 @@ packages:
     peerDependencies:
       typescript: '>3.6.0'
       webpack: ^5.11.0
-
-  form-data@2.5.1:
-    resolution: {integrity: sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==}
-    engines: {node: '>= 0.12'}
 
   form-data@4.0.0:
     resolution: {integrity: sha512-ETEklSGi5t0QMZuiXoA/Q6vcnxcLQP5vdugSpuAyi6SVGi2clPPp+xgEhuMaHC+zGgn31Kd235W35f7Hykkaww==}
@@ -12654,11 +12650,6 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prettier@3.3.2:
-    resolution: {integrity: sha512-rAVeHYMcv8ATV5d508CFdn+8/pHPpXeIid1DdrPwXnaAdH7cqjVbpJaT5eq4yRAFU/lsbwYwSF/n5iNrdJHPQA==}
-    engines: {node: '>=14'}
-    hasBin: true
-
   prettier@3.3.3:
     resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
     engines: {node: '>=14'}
@@ -14800,7 +14791,7 @@ snapshots:
     dependencies:
       '@automattic/explat-client': 0.1.0
       react: 18.3.1
-      tslib: 2.6.3
+      tslib: 2.5.0
 
   '@automattic/explat-client@0.1.0':
     dependencies:
@@ -17216,25 +17207,26 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@slack/logger@3.0.0':
+  '@slack/logger@4.0.0':
     dependencies:
       '@types/node': 20.14.10
 
   '@slack/types@2.12.0': {}
 
-  '@slack/web-api@6.10.0':
+  '@slack/web-api@7.3.2':
     dependencies:
-      '@slack/logger': 3.0.0
+      '@slack/logger': 4.0.0
       '@slack/types': 2.12.0
-      '@types/is-stream': 1.1.0
       '@types/node': 20.14.10
-      axios: 1.6.8
-      eventemitter3: 3.1.2
-      form-data: 2.5.1
+      '@types/retry': 0.12.0
+      axios: 1.7.4
+      eventemitter3: 5.0.1
+      form-data: 4.0.0
       is-electron: 2.2.2
-      is-stream: 1.1.0
+      is-stream: 2.0.1
       p-queue: 6.6.2
       p-retry: 4.6.2
+      retry: 0.13.1
     transitivePeerDependencies:
       - debug
 
@@ -17468,10 +17460,10 @@ snapshots:
       - prettier
       - supports-color
 
-  '@storybook/builder-manager@8.1.6(prettier@3.3.2)':
+  '@storybook/builder-manager@8.1.6(prettier@3.3.3)':
     dependencies:
       '@fal-works/esbuild-plugin-global-externals': 2.1.2
-      '@storybook/core-common': 8.1.6(prettier@3.3.2)
+      '@storybook/core-common': 8.1.6(prettier@3.3.3)
       '@storybook/manager': 8.1.6
       '@storybook/node-logger': 8.1.6
       '@types/ejs': 3.1.5
@@ -17559,12 +17551,12 @@ snapshots:
       '@babel/types': 7.24.9
       '@ndelangen/get-tarball': 3.0.9
       '@storybook/codemod': 8.1.6
-      '@storybook/core-common': 8.1.6(prettier@3.3.2)
+      '@storybook/core-common': 8.1.6(prettier@3.3.3)
       '@storybook/core-events': 8.1.6
-      '@storybook/core-server': 8.1.6(prettier@3.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/core-server': 8.1.6(prettier@3.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/csf-tools': 8.1.6
       '@storybook/node-logger': 8.1.6
-      '@storybook/telemetry': 8.1.6(prettier@3.3.2)
+      '@storybook/telemetry': 8.1.6(prettier@3.3.3)
       '@storybook/types': 8.1.6
       '@types/semver': 7.5.8
       '@yarnpkg/fslib': 2.10.3
@@ -17583,7 +17575,7 @@ snapshots:
       jscodeshift: 0.15.2
       leven: 3.1.0
       ora: 5.4.1
-      prettier: 3.3.2
+      prettier: 3.3.3
       prompts: 2.4.2
       read-pkg-up: 7.0.1
       semver: 7.5.2
@@ -17622,7 +17614,7 @@ snapshots:
       globby: 14.0.2
       jscodeshift: 0.15.2(@babel/preset-env@7.24.7(@babel/core@7.24.7))
       lodash: 4.17.21
-      prettier: 3.3.2
+      prettier: 3.3.3
       recast: 0.23.9
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
@@ -17752,7 +17744,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@storybook/core-common@8.1.6(prettier@3.3.2)':
+  '@storybook/core-common@8.1.6(prettier@3.3.3)':
     dependencies:
       '@storybook/core-events': 8.1.6
       '@storybook/csf-tools': 8.1.6
@@ -17784,7 +17776,7 @@ snapshots:
       ts-dedent: 2.2.0
       util: 0.12.5
     optionalDependencies:
-      prettier: 3.3.2
+      prettier: 3.3.3
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -17836,15 +17828,15 @@ snapshots:
       '@storybook/csf': 0.1.11
       ts-dedent: 2.2.0
 
-  '@storybook/core-server@8.1.6(prettier@3.3.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/core-server@8.1.6(prettier@3.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@aw-web-design/x-default-browser': 1.4.126
       '@babel/core': 7.24.7
       '@babel/parser': 7.24.8
       '@discoveryjs/json-ext': 0.5.7
-      '@storybook/builder-manager': 8.1.6(prettier@3.3.2)
+      '@storybook/builder-manager': 8.1.6(prettier@3.3.3)
       '@storybook/channels': 8.1.6
-      '@storybook/core-common': 8.1.6(prettier@3.3.2)
+      '@storybook/core-common': 8.1.6(prettier@3.3.3)
       '@storybook/core-events': 8.1.6
       '@storybook/csf': 0.1.11
       '@storybook/csf-tools': 8.1.6
@@ -17854,7 +17846,7 @@ snapshots:
       '@storybook/manager-api': 8.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/node-logger': 8.1.6
       '@storybook/preview-api': 8.1.6
-      '@storybook/telemetry': 8.1.6(prettier@3.3.2)
+      '@storybook/telemetry': 8.1.6(prettier@3.3.3)
       '@storybook/types': 8.1.6
       '@types/detect-port': 1.3.5
       '@types/diff': 5.2.1
@@ -18174,12 +18166,12 @@ snapshots:
       '@storybook/types': 8.1.6
       estraverse: 5.3.0
       lodash: 4.17.21
-      prettier: 3.3.2
+      prettier: 3.3.3
 
-  '@storybook/telemetry@8.1.6(prettier@3.3.2)':
+  '@storybook/telemetry@8.1.6(prettier@3.3.3)':
     dependencies:
       '@storybook/client-logger': 8.1.6
-      '@storybook/core-common': 8.1.6(prettier@3.3.2)
+      '@storybook/core-common': 8.1.6(prettier@3.3.3)
       '@storybook/csf-tools': 8.1.6
       chalk: 4.1.2
       detect-package-manager: 2.0.1
@@ -18638,10 +18630,6 @@ snapshots:
   '@types/html-minifier-terser@6.1.0': {}
 
   '@types/http-errors@2.0.4': {}
-
-  '@types/is-stream@1.1.0':
-    dependencies:
-      '@types/node': 20.14.10
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -20828,7 +20816,7 @@ snapshots:
 
   axe-core@4.9.1: {}
 
-  axios@1.6.8:
+  axios@1.7.4:
     dependencies:
       follow-redirects: 1.15.6
       form-data: 4.0.0
@@ -20836,7 +20824,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  axios@1.6.8(debug@4.3.4):
+  axios@1.7.4(debug@4.3.4):
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.4)
       form-data: 4.0.0
@@ -22651,9 +22639,9 @@ snapshots:
       '@types/node': 20.14.10
       require-like: 0.1.2
 
-  eventemitter3@3.1.2: {}
-
   eventemitter3@4.0.7: {}
+
+  eventemitter3@5.0.1: {}
 
   events@3.3.0: {}
 
@@ -22969,12 +22957,6 @@ snapshots:
       tapable: 2.2.1
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
-
-  form-data@2.5.1:
-    dependencies:
-      asynckit: 0.4.0
-      combined-stream: 1.0.8
-      mime-types: 2.1.35
 
   form-data@4.0.0:
     dependencies:
@@ -24533,7 +24515,7 @@ snapshots:
 
   localtunnel@2.0.2:
     dependencies:
-      axios: 1.6.8(debug@4.3.4)
+      axios: 1.7.4(debug@4.3.4)
       debug: 4.3.4
       openurl: 1.1.1
       yargs: 17.6.2
@@ -25881,8 +25863,6 @@ snapshots:
       svelte: 4.2.18
 
   prettier@2.8.8: {}
-
-  prettier@3.3.2: {}
 
   prettier@3.3.3: {}
 
@@ -27826,7 +27806,7 @@ snapshots:
 
   wait-on@7.2.0:
     dependencies:
-      axios: 1.6.8
+      axios: 1.7.4
       joi: 17.13.3
       lodash: 4.17.21
       minimist: 1.2.8

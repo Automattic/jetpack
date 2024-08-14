@@ -635,4 +635,16 @@ if ! pnpm semver --range "$RANGE" "$PNPM_VERSION" &>/dev/null; then
 	echo "::error file=package.json,line=$LINE::Pnpm version $PNPM_VERSION in .github/versions.sh does not satisfy requirement $RANGE from package.json"
 fi
 
+# - Check for incorrect next-version tokens.
+debug "Checking for incorrect next-version tokens."
+RE='[^$]\$next[-_]version\$\|\$next[-_]version\$[^$]\|\$\$next_version\$\$'
+while IFS= read -r FILE; do
+	EXIT=1
+	while IFS=: read -r LINE COL X; do
+		X=${X/#[^$]/}
+		X=${X/%[^$]/}
+		echo "::error file=$FILE,line=$LINE,col=$COL::You probably mean \`\$\$next-version\$\$\` here rather than \`$X\`."
+	done < <( git grep -h --line-number --column -o "$RE" "$FILE" )
+done < <( git -c core.quotepath=off grep -l "$RE" )
+
 exit $EXIT

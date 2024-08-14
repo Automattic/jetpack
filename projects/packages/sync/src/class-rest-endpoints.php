@@ -764,7 +764,7 @@ class REST_Endpoints {
 	 * @see Actions::init
 	 * @see Sender::do_dedicated_sync_and_exit
 	 *
-	 * @since $$next_version$$
+	 * @since 1.34.0
 	 *
 	 * @return \WP_REST_Response
 	 */

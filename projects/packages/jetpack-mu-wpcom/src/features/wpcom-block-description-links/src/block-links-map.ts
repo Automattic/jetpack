@@ -187,6 +187,9 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/syntax-highlighter-code-block/',
 		postId: 4743,
 	},
+	/**
+	 * Automattic Blocks
+	 */
 	'crowdsignal-forms/vote': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/vote-block/',
 		postId: 174824,
@@ -215,6 +218,9 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/blog-posts-block/',
 		postId: 158419,
 	},
+	/**
+	 * Jetpack Blocks
+	 */
 	'jetpack/send-a-message': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/whatsapp-button-block/',
 		postId: 169728,
@@ -352,6 +358,24 @@ export const blockInfoWithVariations: {
 		'group-stack': {
 			link: 'https://wordpress.com/support/wordpress-editor/blocks/row-block/',
 			postId: 190036,
+		},
+	},
+	'core/embed': {
+		soundcloud: {
+			link: 'https://wordpress.com/support/soundcloud-audio-player/',
+			postId: 4213,
+		},
+		twitter: {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/twitter-block/',
+			postId: 150413,
+		},
+		vimeo: {
+			link: 'https://wordpress.com/support/videos/vimeo/',
+			postId: 1235,
+		},
+		youtube: {
+			link: 'https://wordpress.com/support/wordpress-editor/blocks/youtube-block/',
+			postId: 150414,
 		},
 	},
 };
