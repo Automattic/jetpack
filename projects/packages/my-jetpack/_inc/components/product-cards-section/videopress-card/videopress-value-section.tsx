@@ -20,7 +20,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
 	const { status, hasPaidPlanForProduct } = detail || {};
 	const { videoCount, featuredStats } = data || {};
-	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
+	const { viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
 	const shortenedNumberConfig: Intl.NumberFormatOptions = {
 		maximumFractionDigits: 1,
 		notation: 'compact',
@@ -38,21 +38,14 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 
 	if ( ! isPluginActive ) {
 		return (
-			<span className="videopress-card__video-count">
-				{ videoCount }
-				<InfoTooltip
-					className="videopress-card__tooltip"
-					tracksEventName="videopress_card_tooltip_open"
-					tracksEventProps={ {
-						location: 'video_count',
-						video_count: videoCount,
-						...tracksProps,
-					} }
-				>
-					<h3>{ inactiveWithVideos.title }</h3>
-					<p>{ inactiveWithVideos.text }</p>
-				</InfoTooltip>
-			</span>
+			<div className="videopress-card__value-section">
+				<div className="videopress-card__value-section__container">
+					<span className={ baseStyles.valueSectionHeading }>
+						{ __( 'Existing videos', 'jetpack-my-jetpack' ) }
+					</span>
+					<span className="videopress-card__video-count">{ videoCount }</span>
+				</div>
+			</div>
 		);
 	}
 
@@ -82,17 +75,17 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 							...tracksProps,
 						} }
 					>
-						<h3>
-							{ hasPaidPlanForProduct || currentViews === 0
-								? viewsWithPlan.title
-								: viewsWithoutPlan.title }
-						</h3>
-
-						<p>
-							{ hasPaidPlanForProduct || currentViews === 0
-								? viewsWithPlan.text
-								: viewsWithoutPlan.text }
-						</p>
+						{ hasPaidPlanForProduct || currentViews === 0 ? (
+							<>
+								<h3>{ viewsWithPlan.title }</h3>
+								<p>{ viewsWithPlan.text }</p>
+							</>
+						) : (
+							<>
+								<h3>{ viewsWithoutPlan.title }</h3>
+								<p>{ viewsWithoutPlan.text }</p>
+							</>
+						) }
 					</InfoTooltip>
 				</span>
 
