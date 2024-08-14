@@ -37,7 +37,7 @@ if ( ! class_exists( 'Jetpack_Color' ) ) {
 		 */
 		public function __construct( $color = null, $type = 'hex' ) {
 			_deprecated_function( 'Jetpack_Color::__construct', 'jetpack-$$next-version$$' );
-			
+
 			if ( $color ) {
 				switch ( $type ) {
 					case 'hex':

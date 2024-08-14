@@ -69,7 +69,7 @@ if ( ! class_exists( 'Tonesque' ) ) {
 		 */
 		public static function imagecreatefromurl( $image_url ) {
 			_deprecated_function( 'Tonesque::imagecreatefromurl', 'jetpack-$$next-version$$' );
-			
+
 			$data = null;
 
 			// If it's a URL.
