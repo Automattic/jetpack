@@ -439,10 +439,9 @@ const EmailSettings = props => {
 				/>
 				<Container horizontalGap={ 0 } fluid className="sender-name">
 					<Col className="sender-name-example byline-preview">
-						Preview:
 						{ sprintf(
-							/* translators: 1. placeholder is the user entered value for From Name, 2. is the example email */
-							__( ' %1$s <%2$s>', 'jetpack' ),
+							/* translators: 1. Site name or user entered replacement value 2. is the example email */
+							__( 'Preview: %1$s <%2$s>', 'jetpack' ),
 							fromNameState.value || siteName,
 							getExampleEmail( subscriptionReplyTo )
 						) }
