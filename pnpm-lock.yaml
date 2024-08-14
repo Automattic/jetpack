@@ -1410,8 +1410,8 @@ importers:
         specifier: 8.1.6
         version: 8.1.6
       '@storybook/test-runner':
-        specifier: 0.18.1
-        version: 0.18.1
+        specifier: 0.19.1
+        version: 0.19.1
       '@storybook/theming':
         specifier: 8.1.6
         version: 8.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -7172,8 +7172,8 @@ packages:
   '@storybook/telemetry@8.1.6':
     resolution: {integrity: sha512-qNWjQPF6ufRvLCAavulhNYoqldDIeBvioFuCjLlwbw3BZw3ck7pwh1vZg4AJ0SAfzbnpnXPGrHe31gnxV0D6tw==}
 
-  '@storybook/test-runner@0.18.1':
-    resolution: {integrity: sha512-lNbrdruC8v2RP6r0CYdUzfjLIFP/VllajqyX73adhlj8LrJ8vNMRNNTy3e29Ah8fCSCS+1rhjYO97V5tYl25vg==}
+  '@storybook/test-runner@0.19.1':
+    resolution: {integrity: sha512-Nc4djXw3Lv3AAXg6TJ7yVTeuMryjMsTDd8GCbE/PStU602rpe8syEqElz78GPoJqB1VYWQ3T9pcu93MKyHT+xQ==}
     engines: {node: ^16.10.0 || ^18.0.0 || >=20.0.0}
     hasBin: true
 
@@ -18465,7 +18465,7 @@ snapshots:
       - prettier
       - supports-color
 
-  '@storybook/test-runner@0.18.1':
+  '@storybook/test-runner@0.19.1':
     dependencies:
       '@babel/core': 7.24.7
       '@babel/generator': 7.25.0
