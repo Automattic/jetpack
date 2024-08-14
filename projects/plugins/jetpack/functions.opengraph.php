@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
@@ -550,6 +552,15 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  * @return array
  */
 function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
+	/*
+	 * Let's not do this on WordPress.com Simple for now,
+	 * because of its performance impact.
+	 * See p1723574138779019/1723572983.803009-slack-C01U2KGS2PQ
+	 */
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		return $tags;
+	}
+
 	/*
 	 * Let's not add any tags when the ActivityPub plugin already adds its own.
 	 * On WordPress.com simple, let's check if the plugin is active.
