@@ -38,7 +38,7 @@ p.description {
     &__value {
         font-size: calc( var( --font-headline-small ) - 4px );
         color: var( --jp-gray-90 );
-        line-height: 1.125;       
+        line-height: 1;
     }
 
     &__previous-value {
@@ -46,6 +46,7 @@ p.description {
         align-items: center;
 
         font-size: var( --font-body-extra-small );
+        line-height: 18px;
         font-weight: 600;
     }
 
