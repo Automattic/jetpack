@@ -113,8 +113,6 @@ const AllowList = class extends Component {
 	};
 
 	render() {
-		const isWafActive = this.props.getOptionValue( 'waf' );
-		const isProtectActive = this.props.getOptionValue( 'protect' );
 		const wafUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' );
 		const baseInputDisabledCase =
@@ -136,7 +134,7 @@ const AllowList = class extends Component {
 				onSubmit={ this.onSubmit }
 				hideButton={ true }
 			>
-				{ ( isWafActive || isProtectActive ) && <QueryWafSettings /> }
+				{ <QueryWafSettings /> }
 				<SettingsGroup
 					disableInOfflineMode
 					support={ {
@@ -147,9 +145,7 @@ const AllowList = class extends Component {
 					<FormFieldset>
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
-								checked={
-									( isWafActive || isProtectActive ) && this.props.settings?.ipAllowListEnabled
-								}
+								checked={ this.props.settings?.ipAllowListEnabled }
 								toggling={
 									this.props.isUpdatingWafSettings &&
 									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled

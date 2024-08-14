@@ -89,13 +89,13 @@ async function handleMouseEnter( e: MouseEvent ) {
 			target: el,
 			virtual: virtual,
 		} as Anchor );
-	}, 100 );
+	}, 100 ) as unknown as number;
 }
 
 function handleMouseLeave() {
 	highlightTimeout = setTimeout( () => {
 		( dispatch( 'jetpack/ai-breve' ) as BreveDispatch ).setHighlightHover( false );
-	}, 100 );
+	}, 100 ) as unknown as number;
 }
 
 export default function registerEvents( clientId: string ) {

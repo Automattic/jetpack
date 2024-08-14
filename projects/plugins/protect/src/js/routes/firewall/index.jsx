@@ -741,11 +741,7 @@ const FirewallPage = () => {
 							rows={ 3 }
 							value={ formState.jetpack_waf_ip_allow_list }
 							onChange={ handleChange }
-							disabled={
-								formIsSubmitting ||
-								( ! isEnabled && ! bruteForceProtection ) ||
-								! formState.jetpack_waf_ip_allow_list_enabled
-							}
+							disabled={ formIsSubmitting || ! formState.jetpack_waf_ip_allow_list_enabled }
 						/>
 					</div>
 					<div className={ styles[ 'allow-list-button-container' ] }>
