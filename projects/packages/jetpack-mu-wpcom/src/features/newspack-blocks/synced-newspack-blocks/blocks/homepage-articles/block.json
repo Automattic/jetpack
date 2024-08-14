@@ -1,6 +1,7 @@
 {
 	"name": "homepage-articles",
 	"category": "newspack",
+	"textdomain": "jetpack-mu-wpcom",
 	"attributes": {
 		"className": {
 			"type": "string",
