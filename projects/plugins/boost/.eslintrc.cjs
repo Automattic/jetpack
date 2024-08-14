@@ -50,5 +50,8 @@ module.exports = {
 		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
 		camelcase: 0,
+
+		// Boost should just use our standard eslint rulesets, that already does this.
+		'@typescript-eslint/no-unused-vars': [ 'warn', { argsIgnorePattern: '^_' } ],
 	},
 };
