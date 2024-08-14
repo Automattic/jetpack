@@ -494,9 +494,22 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 	if ( statusChecks.isFromContributor ) {
 		comment += `
 
-Once your PR is ready for review, check one last time that all required checks appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code. Once reviewed, it can then be merged.
-If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
+**Follow this PR Review Process:**
+
+1. Ensure all required checks appearing at the bottom of this PR are passing.
+2. Choose a review path based on your changes:
+    A. Team Review: add the https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Team%20Review label
+      - For most changes, including minor cross-team impacts.
+      - Example: Updating a team-specific component or a small change to a shared library.
+    B. Crew Review: add the "https://github.com/Automattic/jetpack/labels/%5BStatus%5D%20Needs%20Review" label
+      - For significant changes to core functionality.
+      - Example: Major updates to a shared library or complex features.
+    C. Both: Start with Team, then request Crew
+      - For complex changes or when you need extra confidence.
+      - Example: Refactor affecting multiple systems.
+3. Get at least one approval before merging.
+
+Still unsure? Reach out in #jetpack-developers for guidance!`;
 	}
 
 	// Gather info about the next release for that plugin.
