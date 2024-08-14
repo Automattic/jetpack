@@ -79,7 +79,7 @@ export default function Highlight() {
 		const defaultAnchor = { target: null, virtual: null };
 		const { target: anchorEl, virtual: virtualEl } =
 			breveSelect.getPopoverAnchor() ?? defaultAnchor;
-		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-breve-type' ) as string;
 		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
 		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
@@ -228,7 +228,7 @@ export default function Highlight() {
 					>
 						<div className="jetpack-ai-breve__header-container">
 							<div className="jetpack-ai-breve__title">
-								<div className="jetpack-ai-breve__color" data-type={ feature } />
+								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
 							{ ! hasSuggestions && (
@@ -335,7 +335,7 @@ export function registerBreveHighlights() {
 							type,
 							indexes: highlights,
 							attributes: {
-								'data-type': config.name,
+								'data-breve-type': config.name,
 								'data-identifier': richTextIdentifier ?? 'none',
 								'data-block': blockClientId,
 							},
