@@ -25,7 +25,7 @@ const useTooltipCopy = () => {
 			sprintf(
 				// translators: %d is the number of videos in the Media Library that could benefit from VideoPress.
 				_n(
-					'You have %d video in your Media Library that could benefit from VideoPress. Start <a>hosting</a> them today to unlock multiple benefits: enhanced quality add-free streaming, faster load times, customizable player controls.',
+					'You have %d video in your Media Library that could benefit from VideoPress. Start <a>hosting</a> it today to unlock multiple benefits: enhanced quality add-free streaming, faster load times, customizable player controls.',
 					'You have %d videos in your Media Library that could benefit from VideoPress. Start <a>hosting</a> them today to unlock multiple benefits: enhanced quality add-free streaming, faster load times, customizable player controls.',
 					data?.videoCount,
 					'jetpack-my-jetpack'
@@ -59,8 +59,8 @@ const useTooltipCopy = () => {
 	const viewsWithPlan = {
 		title: __( '30-Day views', 'jetpack-my-jetpack' ),
 		text: _n(
-			'The ‘30-Day Views’ metric represents the total number of views your video has received on our platform over the past 30 days.',
-			'The ‘30-Day Views’ metric represents the total number of views your videos have received on our platform over the past 30 days.',
+			'This metric represents the total number of views your video has received on our platform over the past 30 days.',
+			'This metric represents the total number of views your videos have received on our platform over the past 30 days.',
 			data.videoCount,
 			'jetpack-my-jetpack'
 		),
@@ -69,10 +69,8 @@ const useTooltipCopy = () => {
 	// todo: Add "comparing it with the performance of the previous 30 days." once we have the comparison in place.
 	const watchTime = {
 		title: __( '30-Day viewing time', 'jetpack-my-jetpack' ),
-		text: _n(
-			'This metric presents the total viewing duration of your video for the last 30 days.',
-			'This metric presents the total viewing duration of all your videos for the last 30 days.',
-			data.videoCount,
+		text: __(
+			'This metric shows total video viewing time for the last 30 days.',
 			'jetpack-my-jetpack'
 		),
 	};

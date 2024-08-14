@@ -82,9 +82,17 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 							...tracksProps,
 						} }
 					>
-						<h3>{ hasPaidPlanForProduct ? viewsWithPlan.title : viewsWithoutPlan.title }</h3>
+						<h3>
+							{ hasPaidPlanForProduct || currentViews === 0
+								? viewsWithPlan.title
+								: viewsWithoutPlan.title }
+						</h3>
 
-						<p>{ hasPaidPlanForProduct ? viewsWithPlan.text : viewsWithoutPlan.text }</p>
+						<p>
+							{ hasPaidPlanForProduct || currentViews === 0
+								? viewsWithPlan.text
+								: viewsWithoutPlan.text }
+						</p>
 					</InfoTooltip>
 				</span>
 
