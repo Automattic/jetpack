@@ -42,7 +42,7 @@ const NewsletterMenu = () => {
 			<PanelBody>
 				{ isUserConnected ? (
 					<>
-						<SubscribersAffirmation accessLevel={ accessLevel } />
+						<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 						{ ! isPublished && (
 							<p>
 								{ __(
@@ -51,7 +51,7 @@ const NewsletterMenu = () => {
 								) }
 							</p>
 						) }
-						<HStack>
+						<HStack wrap={ true }>
 							<Button onClick={ openModal } variant="secondary" disabled={ isPublished }>
 								{ __( 'Preview email', 'jetpack' ) }
 							</Button>
