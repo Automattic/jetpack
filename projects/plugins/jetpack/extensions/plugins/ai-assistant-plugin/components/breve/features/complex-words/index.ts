@@ -18,7 +18,7 @@ export const COMPLEX_WORDS: BreveFeatureConfig = {
 	name: 'complex-words',
 	title: __( 'Complex words', 'jetpack' ),
 	tagName: 'span',
-	className: 'has-proofread-highlight--complex-words',
+	className: 'jetpack-ai-breve__has-proofread-highlight--complex-words',
 	defaultEnabled: true,
 };
 

@@ -132,6 +132,7 @@ class Brute_Force_Protection {
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
+		add_filter( 'jetpack_has_login_ability', array( $this, 'has_login_ability' ) );
 		add_action( 'wp_login', array( $this, 'log_successful_login' ), 10, 2 );
 		add_action( 'wp_login_failed', array( $this, 'log_failed_attempt' ) );
 		add_action( 'admin_init', array( $this, 'maybe_update_headers' ) );

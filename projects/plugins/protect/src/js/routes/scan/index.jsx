@@ -3,128 +3,92 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import inProgressImage from '../../../../assets/images/in-progress.png';
 import AdminPage from '../../components/admin-page';
-import AlertSVGIcon from '../../components/alert-icon';
+import ErrorScreen from '../../components/error-section';
 import ProgressBar from '../../components/progress-bar';
 import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
 import Summary from '../../components/summary';
 import ThreatsList from '../../components/threats-list';
+import { SCAN_STATUS_UNAVAILABLE } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
-import inProgressImage from './in-progress.png';
 import onboardingSteps from './onboarding-steps';
+import ScanSectionHeader from './scan-section-header';
 import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
-const ScanPage = () => {
-	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
+const ConnectionErrorCol = () => {
+	const { hasConnectionError } = useConnectionErrorNotice();
+
+	return (
+		<>
+			{ hasConnectionError && (
+				<Col className={ styles[ 'connection-error-col' ] }>
+					<ConnectionError />
+				</Col>
+			) }
+			<Col>
+				<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+			</Col>
+		</>
+	);
+};
+
+const HeaderContainer = () => {
+	return (
+		<Container horizontalSpacing={ 0 }>
+			<ConnectionErrorCol />
+		</Container>
+	);
+};
+
+const ErrorSection = ( { errorMessage, errorCode } ) => {
+	return (
+		<>
+			<HeaderContainer />
+			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Col>
+					<ScanSectionHeader />
+				</Col>
+				<Col>
+					<ErrorScreen
+						baseErrorMessage={ __(
+							'We are having problems scanning your site.',
+							'jetpack-protect'
+						) }
+						errorMessage={ errorMessage }
+						errorCode={ errorCode }
+					/>
+				</Col>
+			</Container>
+		</>
+	);
+};
+
+const ScanningSection = ( { currentProgress } ) => {
+	const { hasRequiredPlan } = useProtectData();
 	const { stats } = useWafData();
 	const { globalStats } = stats;
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'
 		: totalVulnerabilities.toLocaleString();
-	const { hasConnectionError } = useConnectionErrorNotice();
-	const { refreshStatus } = useDispatch( STORE_ID );
-	const { statusIsFetching, scanIsUnavailable, status } = useSelect( select => ( {
-		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
-		status: select( STORE_ID ).getStatus(),
-	} ) );
-	const { currentProgress } = status;
-	let currentScanStatus;
-	if ( 'error' === currentStatus || scanIsUnavailable ) {
-		currentScanStatus = 'error';
-	} else if ( ! lastChecked ) {
-		currentScanStatus = 'in_progress';
-	} else {
-		currentScanStatus = 'active';
-	}
 
-	useStatusPolling();
-	useCredentials();
-
-	// retry fetching status if it is not available
-	useEffect( () => {
-		if ( ! statusIsFetching && 'unavailable' === status.status && ! scanIsUnavailable ) {
-			refreshStatus( true );
-		}
-	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
-
-	// Track view for Protect admin page.
-	useAnalyticsTracks( {
-		pageViewEventName: 'protect_admin',
-		pageViewEventProperties: {
-			check_status: currentScanStatus,
-			has_plan: hasRequiredPlan,
-		},
-	} );
-
-	// Error
-	if ( 'error' === currentStatus || scanIsUnavailable ) {
-		let displayErrorMessage = errorMessage
-			? `${ errorMessage } (${ errorCode }).`
-			: __( 'We are having problems scanning your site.', 'jetpack-protect' );
-		displayErrorMessage += ' ' + __( 'Try again in a few minutes.', 'jetpack-protect' );
-
-		return (
-			<AdminPage>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 0 }>
-						{ hasConnectionError && (
-							<Col className={ styles[ 'connection-error-col' ] }>
-								<ConnectionError />
-							</Col>
-						) }
-						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-						</Col>
-					</Container>
-					<SeventyFiveLayout
-						main={
-							<div className={ styles[ 'main-content' ] }>
-								<AlertSVGIcon className={ styles[ 'alert-icon-wrapper' ] } />
-								<H3>{ __( 'We’re having problems scanning your site', 'jetpack-protect' ) }</H3>
-								<Text>{ displayErrorMessage }</Text>
-							</div>
-						}
-						secondary={
-							<div className={ styles.illustration }>
-								<img src={ inProgressImage } alt="" />
-							</div>
-						}
-						preserveSecondaryOnMobile={ false }
-					/>
-				</AdminSectionHero>
-				<ScanFooter />
-			</AdminPage>
-		);
-	}
-
-	// When there's no information yet. Usually when the plugin was just activated
-	if (
-		[ 'scheduled', 'scanning', 'optimistically_scanning' ].indexOf( status.status ) >= 0 ||
-		! lastChecked
-	) {
-		return (
-			<AdminPage>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 0 }>
-						{ hasConnectionError && (
-							<Col className={ styles[ 'connection-error-col' ] }>
-								<ConnectionError />
-							</Col>
-						) }
-						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-						</Col>
-					</Container>
+	return (
+		<>
+			<HeaderContainer />
+			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Col>
+					<ScanSectionHeader />
+				</Col>
+				<Col>
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
@@ -143,7 +107,7 @@ const ScanPage = () => {
 										<H3 style={ { textWrap: 'balance' } }>
 											{ __( 'Your results will be ready soon', 'jetpack-protect' ) }
 										</H3>
-										{ currentProgress !== null && currentProgress >= 0 && (
+										{ hasRequiredPlan && currentProgress !== null && currentProgress >= 0 && (
 											<ProgressBar value={ currentProgress } />
 										) }
 										<Text>
@@ -167,35 +131,85 @@ const ScanPage = () => {
 						}
 						preserveSecondaryOnMobile={ false }
 					/>
-				</AdminSectionHero>
-				<ScanFooter />
-			</AdminPage>
-		);
+				</Col>
+			</Container>
+		</>
+	);
+};
+
+const DefaultSection = () => {
+	return (
+		<>
+			<HeaderContainer />
+			<Container horizontalSpacing={ 3 } horizontalGap={ 4 }>
+				<Col>
+					<Summary />
+				</Col>
+				<Col>
+					<ThreatsList />
+				</Col>
+			</Container>
+		</>
+	);
+};
+
+const ScanPage = () => {
+	const { lastChecked, hasRequiredPlan } = useProtectData();
+	const { refreshStatus } = useDispatch( STORE_ID );
+	const { scanInProgress, statusIsFetching, scanIsUnavailable, status, scanError } = useSelect(
+		select => ( {
+			scanError: select( STORE_ID ).scanError(),
+			scanInProgress: select( STORE_ID ).scanInProgress(),
+			scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
+			status: select( STORE_ID ).getStatus(),
+			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		} )
+	);
+
+	let currentScanStatus;
+	if ( scanError ) {
+		currentScanStatus = 'error';
+	} else if ( ! lastChecked ) {
+		currentScanStatus = 'in_progress';
+	} else {
+		currentScanStatus = 'active';
 	}
+
+	// Track view for Protect admin page.
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_admin',
+		pageViewEventProperties: {
+			check_status: currentScanStatus,
+			has_plan: hasRequiredPlan,
+		},
+	} );
+
+	useStatusPolling();
+	useCredentials();
+
+	// retry fetching status if it is not available
+	useEffect( () => {
+		if ( ! statusIsFetching && SCAN_STATUS_UNAVAILABLE === status.status && ! scanIsUnavailable ) {
+			refreshStatus( true );
+		}
+	}, [ statusIsFetching, status.status, refreshStatus, scanIsUnavailable ] );
+
+	const renderSection = useMemo( () => {
+		if ( scanInProgress ) {
+			return <ScanningSection currentProgress={ status.currentProgress } />;
+		}
+
+		if ( scanError ) {
+			return <ErrorSection errorMessage={ scanError.message } errorCode={ scanError.code } />;
+		}
+
+		return <DefaultSection />;
+	}, [ scanInProgress, status.currentProgress, scanError ] );
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>
 			<AdminPage>
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 0 }>
-						{ hasConnectionError && (
-							<Col className={ styles[ 'connection-error-col' ] }>
-								<ConnectionError />
-							</Col>
-						) }
-						<Col>
-							<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-						</Col>
-					</Container>
-					<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
-						<Col>
-							<Summary />
-						</Col>
-						<Col>
-							<ThreatsList />
-						</Col>
-					</Container>
-				</AdminSectionHero>
+				<AdminSectionHero>{ renderSection }</AdminSectionHero>
 				<ScanFooter />
 			</AdminPage>
 		</OnboardingContext.Provider>

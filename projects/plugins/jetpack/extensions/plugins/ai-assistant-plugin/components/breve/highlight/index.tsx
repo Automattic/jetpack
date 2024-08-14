@@ -24,6 +24,8 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import registerEvents from '../features/events';
+import { LONG_SENTENCES } from '../features/long-sentences';
+import getBreveAvailability from '../utils/get-availability';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
@@ -77,7 +79,7 @@ export default function Highlight() {
 		const defaultAnchor = { target: null, virtual: null };
 		const { target: anchorEl, virtual: virtualEl } =
 			breveSelect.getPopoverAnchor() ?? defaultAnchor;
-		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-breve-type' ) as string;
 		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
 		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
@@ -211,8 +213,8 @@ export default function Highlight() {
 			{ isPopoverOpen && (
 				<Popover
 					anchor={ virtual }
-					placement="bottom"
-					className="highlight-popover"
+					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
+					className="jetpack-ai-breve__highlight-popover"
 					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
@@ -220,46 +222,46 @@ export default function Highlight() {
 					onMouseLeave={ handleMouseLeave }
 				>
 					<div
-						className={ clsx( 'highlight-content', {
-							'has-suggestions': hasSuggestions,
+						className={ clsx( 'jetpack-ai-breve__highlight-content', {
+							'jetpack-ai-breve__has-suggestions': hasSuggestions,
 						} ) }
 					>
-						<div className="header-container">
-							<div className="title">
-								<div className="color" data-type={ feature } />
+						<div className="jetpack-ai-breve__header-container">
+							<div className="jetpack-ai-breve__title">
+								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
 							{ ! hasSuggestions && (
-								<div className="action">
+								<div className="jetpack-ai-breve__action">
 									{ loading ? (
-										<div className="loading">
+										<div className="jetpack-ai-breve__loading">
 											<Spinner />
 										</div>
 									) : (
-										<Button className="suggest" icon={ AiSVG } onClick={ handleSuggestions }>
+										<Button
+											className="jetpack-ai-breve__suggest"
+											icon={ AiSVG }
+											onClick={ handleSuggestions }
+										>
 											{ __( 'Suggest', 'jetpack' ) }
 										</Button>
 									) }
 								</div>
 							) }
 						</div>
-						<div className="bottom-container">
+						<div className="jetpack-ai-breve__bottom-container">
 							{ hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
 							) }
-							<div className="helper">
-								{ hasSuggestions ? (
-									__( 'Click on the suggestion to insert it.', 'jetpack' )
-								) : (
-									<>
-										{ description }
-										<Button variant="link" onClick={ handleIgnoreSuggestion }>
-											{ __( 'Dismiss', 'jetpack' ) }
-										</Button>
-									</>
-								) }
+							<div className="jetpack-ai-breve__helper">
+								{ hasSuggestions
+									? __( 'Click on the suggestion to insert it.', 'jetpack' )
+									: description }
+								<Button variant="link" onClick={ handleIgnoreSuggestion }>
+									{ __( 'Dismiss', 'jetpack' ) }
+								</Button>
 							</div>
 						</div>
 					</div>
@@ -284,9 +286,11 @@ export function registerBreveHighlights() {
 				const { getIgnoredSuggestions, isFeatureEnabled, isProofreadEnabled } = globalSelect(
 					'jetpack/ai-breve'
 				) as BreveSelect;
+				const { getAiAssistantFeature } = globalSelect( 'wordpress-com/plans' );
+				const isFreePlan = getAiAssistantFeature().currentTier?.value === 0;
 
 				return {
-					isProofreadEnabled: isProofreadEnabled(),
+					isProofreadEnabled: isProofreadEnabled() && getBreveAvailability( isFreePlan ),
 					isFeatureEnabled: isFeatureEnabled( config.name ),
 					ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				};
@@ -331,7 +335,7 @@ export function registerBreveHighlights() {
 							type,
 							indexes: highlights,
 							attributes: {
-								'data-type': config.name,
+								'data-breve-type': config.name,
 								'data-identifier': richTextIdentifier ?? 'none',
 								'data-block': blockClientId,
 							},

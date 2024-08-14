@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const pkgDir = require( 'pkg-dir' );
 const verbumConfig = require( './verbum.webpack.config.js' );
 
 module.exports = [
@@ -20,6 +21,10 @@ module.exports = [
 			'jetpack-global-styles-customizer-fonts':
 				'./src/features/jetpack-global-styles/customizer-fonts/index.js',
 			'mailerlite-subscriber-popup': './src/features/mailerlite/subscriber-popup.js',
+			'newspack-blocks-blog-posts-editor': './src/features/newspack-blocks/blog-posts/editor.js',
+			'newspack-blocks-blog-posts-view': './src/features/newspack-blocks/blog-posts/view.js',
+			'newspack-blocks-carousel-editor': './src/features/newspack-blocks/carousel/editor.js',
+			'newspack-blocks-carousel-view': './src/features/newspack-blocks/carousel/view.js',
 			'override-preview-button-url':
 				'./src/features/override-preview-button-url/override-preview-button-url.js',
 			'paragraph-block-placeholder':
@@ -60,6 +65,8 @@ module.exports = [
 			alias: {
 				...jetpackWebpackConfig.resolve.alias,
 				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
+				/** Replace the classnames used by @automattic/newspack-blocks with clsx because we changed to use clsx */
+				classnames: findPackage( 'clsx' ),
 			},
 		},
 		node: false,
@@ -104,3 +111,22 @@ module.exports = [
 		},
 	},
 ];
+
+/**
+ * Given a package name, finds the absolute path for it.
+ *
+ * require.resolve() will resolve to the main file of the package, using Node's resolution algorithm to find
+ * a `package.json` and looking at the field `main`. This function will return the folder that contains `package.json`
+ * instead of trying to resolve the main file.
+ *
+ * Example: `@wordpress/data` may resolve to `/home/myUser/wp-calypso/node_modules/@wordpress/data`.
+ *
+ * Note this is not the same as looking for `__dirname+'/node_modules/'+pkgName`, as the package may be in a parent
+ * `node_modules`
+ * @param {string} pkgName - Name of the package to search for.
+ */
+function findPackage( pkgName ) {
+	const fullPath = require.resolve( pkgName );
+	const packagePath = pkgDir.sync( fullPath );
+	return packagePath;
+}

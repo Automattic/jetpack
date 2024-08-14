@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs.

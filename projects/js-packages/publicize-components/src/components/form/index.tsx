@@ -9,21 +9,16 @@
 import { Disabled, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { AdvancedPlanNudge } from './advanced-plan-nudge';
-import { BrokenConnectionsNotice } from './broken-connections-notice';
+import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
-import { MediaValidationNotices } from './media-validation-notices';
-import { SettingsButton } from './settings-button';
 import { ShareCountInfo } from './share-count-info';
 import { SharePostForm } from './share-post-form';
-import styles from './styles.module.scss';
-import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
@@ -32,12 +27,7 @@ import { UnsupportedConnectionsNotice } from './unsupported-connections-notice';
  */
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const {
-		isPublicizeEnabled,
-		isPublicizeDisabledBySitePlan,
-		needsUserConnection,
-		userConnectionUrl,
-	} = usePublicizeConfig();
+	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
 
 	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
@@ -60,48 +50,11 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview ? <SocialPostModal /> : null }
+					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<ShareCountInfo />
-					<BrokenConnectionsNotice />
-					<UnsupportedConnectionsNotice />
-					<MediaValidationNotices />
 				</>
 			) : null }
-			<PanelRow>
-				{
-					// Use IIFE make it more readable and avoid nested ternary operators.
-					( () => {
-						if ( needsUserConnection ) {
-							return (
-								<p>
-									{ __(
-										'You must connect your WordPress.com account to be able to add social media connections.',
-										'jetpack'
-									) }
-									&nbsp;
-									<a href={ userConnectionUrl }>{ __( 'Connect now', 'jetpack' ) }</a>
-								</p>
-							);
-						}
-
-						if ( ! hasConnections ) {
-							return (
-								<p>
-									<span className={ styles[ 'no-connections-text' ] }>
-										{ __(
-											'Sharing is disabled because there are no social media accounts connected.',
-											'jetpack'
-										) }
-									</span>
-									<SettingsButton label={ __( 'Connect an account', 'jetpack' ) } />
-								</p>
-							);
-						}
-
-						return null;
-					} )()
-				}
-			</PanelRow>
+			<ConnectionNotice />
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>

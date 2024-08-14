@@ -667,7 +667,7 @@ class Functions {
 	/**
 	 * Return the list of active Jetpack modules.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.34.0
 	 *
 	 * @return array
 	 */
@@ -678,7 +678,7 @@ class Functions {
 	/**
 	 * Return a list of PHP modules that we want to track.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.50.0
 	 *
 	 * @return array
 	 */
@@ -714,7 +714,7 @@ class Functions {
 	/**
 	 * Return the list of active connected Jetpack plugins.
 	 *
-	 * @since $$next_version$$
+	 * @since 3.2.0
 	 *
 	 * @return array
 	 */

@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.56.0] - 2024-08-13
+### Changed
+- WPCOM Block Description Links: add links for embed variations [#38834]
+- wpcom_admin_interface setting: update copy to match Calypso setting. [#38810]
+
+## [5.55.0] - 2024-08-12
+### Added
+- WPCOM MU Plugin: Add dynamic script loader [#38819]
+
+## [5.54.3] - 2024-08-12
+### Fixed
+- MU WPCOM: Fix the “page-patterns” plugin has encountered an error and cannot be rendered" [#38823]
+
+## [5.54.2] - 2024-08-09
+### Fixed
+- Block Editor Nux: Temporary stop load feature from MU WPCOM [#38802]
+- Fixed CSSTidy loading in the test [#37859]
+
+## [5.54.1] - 2024-08-08
+### Fixed
+- Load Scheduled_Updates for non-wpcom users [#38772]
+
+## [5.54.0] - 2024-08-08
+### Added
+- MU WPCOM: Port enqueue_coblocks_gallery_scripts from the ETK [#38731]
+- MU WPCOM: Port the newspack blocks from the ETK [#38724]
+- Point Edit Profile link to wpcalypso.* [#38775]
+- Show Help center in front end admin bar [#38651]
+- Show links back to WordPress.com for them to manage their WordPress.com profile [#38638]
+
+### Changed
+- Removed gating logic for wpcom_admin_interface_settings_field [#38774]
+- WordPress.com Features: Remove unused files for Calypso Locale Bidirectional Sync [#38773]
+
+### Fixed
+- Simple Classic: make Users -> Profile -> Email input readonly instead of disabled [#38752]
+
 ## [5.53.1] - 2024-08-05
 ### Changed
 - Internal updates.
@@ -1101,6 +1138,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
+[5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
+[5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3
+[5.54.2]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.1...v5.54.2
+[5.54.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.0...v5.54.1
+[5.54.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.1...v5.54.0
 [5.53.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.53.0...v5.53.1
 [5.53.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.1...v5.53.0
 [5.52.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.52.0...v5.52.1

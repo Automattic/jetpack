@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import React, { useCallback, useState, useMemo } from 'react';
 /*
@@ -12,6 +11,7 @@ import { QUERY_LICENSES_KEY } from '../../data/constants';
 import useJetpackApiQuery from '../../data/use-jetpack-api-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import GoBackLink from '../go-back-link';
 
 /**
@@ -25,7 +25,7 @@ export default function AddLicenseScreen() {
 		name: QUERY_LICENSES_KEY,
 		queryFn: async api => ( await api.getUserLicenses() )?.items,
 	} );
-	const { userConnectionData } = useConnection();
+	const { userConnectionData } = useMyJetpackConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.

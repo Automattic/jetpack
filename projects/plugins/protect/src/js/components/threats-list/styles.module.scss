@@ -40,8 +40,9 @@
 	margin-bottom: 0;
 }
 
-.list-header-button {
-	margin-left: calc( var( --spacing-base ) * 2 ); // 16px
+.list-header__controls {
+	display: flex;
+	gap: calc( var( --spacing-base ) * 2 ); // 16px
 }
 
 .threat-footer {
@@ -102,14 +103,6 @@
 
 	.list-title {
 		display: none;
-	}
-
-	.list-header-button {
-		flex: 1;
-
-		&:first-of-type {
-			margin-left: 0;
-		}
 	}
 
 	.threat-footer {

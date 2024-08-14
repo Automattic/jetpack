@@ -81,13 +81,20 @@ export function PreviewSection() {
 			<TabPanel tabs={ connections }>
 				{ ( tab: ( typeof connections )[ number ] ) => (
 					<div className={ styles[ 'preview-content' ] }>
+						{
+							// If the connection should be disabled
+							// it means that there is some validation error
+							// or the connection is broken
+							// in that case we won't show the toggle
+							! shouldBeDisabled( tab ) ? (
+								<ToggleControl
+									label={ __( 'Connection enabled', 'jetpack' ) }
+									checked={ canBeTurnedOn( tab ) && tab.enabled }
+									onChange={ toggleConnection( tab.connection_id, tab ) }
+								/>
+							) : null
+						}
 						<PostPreview connection={ tab } />
-						<ToggleControl
-							label={ __( 'Share to this account', 'jetpack' ) }
-							disabled={ shouldBeDisabled( tab ) }
-							checked={ canBeTurnedOn( tab ) && tab.enabled }
-							onChange={ toggleConnection( tab.connection_id, tab ) }
-						/>
 					</div>
 				) }
 			</TabPanel>

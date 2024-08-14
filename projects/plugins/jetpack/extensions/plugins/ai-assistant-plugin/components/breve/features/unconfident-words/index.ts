@@ -16,7 +16,7 @@ export const UNCONFIDENT_WORDS: BreveFeatureConfig = {
 	name: 'unconfident-words',
 	title: __( 'Unconfident words', 'jetpack' ),
 	tagName: 'span',
-	className: 'has-proofread-highlight--unconfident-words',
+	className: 'jetpack-ai-breve__has-proofread-highlight--unconfident-words',
 	defaultEnabled: true,
 };
 

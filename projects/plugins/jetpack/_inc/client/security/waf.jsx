@@ -13,15 +13,20 @@ import SettingsGroup from 'components/settings-group';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
+	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
+import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
+import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
+import { getSiteAdminUrl } from '../state/initial-state';
+import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -29,6 +34,12 @@ import {
 	isFetchingWafSettings,
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
+
+const PROTECT_PLUGIN_FILES = [
+	'protect/jetpack-protect.php',
+	'jetpack-protect/jetpack-protect.php',
+	'jetpack-protect-dev/jetpack-protect.php',
+];
 
 export const Waf = class extends Component {
 	/**
@@ -447,6 +458,34 @@ export const Waf = class extends Component {
 			</div>
 		);
 
+		// If the site has Jetpack Protect activated, redirect the user to the dedicated Protect settings screen.
+		if ( this.props.isProtectActive ) {
+			return (
+				<SettingsCard { ...this.props } header={ moduleHeader } module="waf" hideButton={ true }>
+					<Card className="dops-banner has-call-to-action">
+						<div className="dops-banner__icon-plan">
+							<PlanIcon plan={ PLAN_JETPACK_SCAN } />
+						</div>
+						<div className="dops-banner__content">
+							<div className="dops-banner__info">
+								<div className="dops-banner__title">
+									{ __(
+										'Firewall settings have been moved to the Jetpack Protect plugin.',
+										'jetpack'
+									) }
+								</div>
+							</div>
+							<div className="dops-banner__action">
+								<Button rna={ true } compact href={ this.props.protectAdminUrl } primary>
+									{ __( 'View Firewall Settings', 'jetpack' ) }
+								</Button>
+							</div>
+						</div>
+					</Card>
+				</SettingsCard>
+			);
+		}
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -498,6 +537,10 @@ export default connect(
 		return {
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			hasScan: siteHasFeature( state, 'scan' ),
+			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
+			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
+				isPluginActive( state, pluginFile )
+			),
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),
