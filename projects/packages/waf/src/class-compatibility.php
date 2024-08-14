@@ -235,7 +235,7 @@ class Waf_Compatibility {
 	/**
 	 * Default the allow list enabled option to the value of the generic IP lists enabled option it replaced.
 	 *
-	 * @since $next-version$
+	 * @since 0.17.0
 	 *
 	 * @param mixed  $default         The default value to return if the option does not exist in the database.
 	 * @param string $option          Option name.
@@ -268,7 +268,7 @@ class Waf_Compatibility {
 	/**
 	 * Default the block list enabled option to the value of the generic IP lists enabled option it replaced.
 	 *
-	 * @since $next-version$
+	 * @since 0.17.0
 	 *
 	 * @param mixed  $default         The default value to return if the option does not exist in the database.
 	 * @param string $option          Option name.

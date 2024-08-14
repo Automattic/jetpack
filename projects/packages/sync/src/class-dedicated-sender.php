@@ -292,7 +292,7 @@ class Dedicated_Sender {
 	 * Test Sync spawning functionality by making a request to the
 	 * Sync spawning endpoint and storing the result (status code) in a transient.
 	 *
-	 * @since $$next_version$$
+	 * @since 1.34.0
 	 *
 	 * @return bool True if we got a successful response, false otherwise.
 	 */

@@ -176,7 +176,7 @@ class Waf_Runner {
 			 * Provide the deprecated IP lists options for backwards compatibility with older versions of the Jetpack and Protect plugins.
 			 * i.e. If one plugin is updated and the other is not, the latest version of this package will be used by both plugins.
 			 *
-			 * @deprecated $next-version$
+			 * @deprecated 0.17.0
 			 */
 			// @phan-suppress-next-line PhanDeprecatedClassConstant -- Needed for backwards compatibility.
 			Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME => Waf_Rules_Manager::ip_allow_list_enabled() || Waf_Rules_Manager::ip_block_list_enabled(),

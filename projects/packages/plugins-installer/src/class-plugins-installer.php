@@ -189,7 +189,7 @@ class Plugins_Installer {
 	/**
 	 * Safely checks if the plugin is active
 	 *
-	 * @since $next-version$
+	 * @since 0.1.0
 	 *
 	 * @param string $plugin_file The plugin file to check.
 	 * @return bool
@@ -202,7 +202,7 @@ class Plugins_Installer {
 	/**
 	 * Safely checks if the plugin is active for network
 	 *
-	 * @since $next-version$
+	 * @since 0.1.0
 	 *
 	 * @param string $plugin_file The plugin file to check.
 	 * @return bool
