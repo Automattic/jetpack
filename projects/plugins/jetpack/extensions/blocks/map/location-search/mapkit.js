@@ -7,8 +7,8 @@ import { useMapkit } from '../mapkit/hooks';
 const placeholderText = __( 'Add a marker…', 'jetpack' );
 
 const MapkitLocationSearch = ( { label, onAddPoint } ) => {
-	const containerRef = useRef();
-	const textRef = useRef();
+	const containerRef = useRef( undefined );
+	const textRef = useRef( undefined );
 	const { mapkit } = useMapkit();
 	const search = new mapkit.Search( {
 		includePointsOfInterest: false,

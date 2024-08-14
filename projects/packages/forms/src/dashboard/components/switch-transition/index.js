@@ -20,8 +20,8 @@ const SwitchTransition = ( { activeViewKey, children, duration, ...props }, ref 
 	const [ viewKey, setViewKey ] = useState( activeViewKey );
 	const [ activeView, setActiveView ] = useState( 0 );
 
-	const refA = useRef();
-	const refB = useRef();
+	const refA = useRef( undefined );
+	const refB = useRef( undefined );
 
 	useEffect( () => {
 		if ( viewKey === activeViewKey ) {

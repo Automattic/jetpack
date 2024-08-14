@@ -6,9 +6,11 @@
  */
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/trait-wpcom-rest-api-proxy-request-trait.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Email_Preview
@@ -49,9 +51,25 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
-				'id' => array(
+				'id'     => array(
 					'description' => __( 'Unique identifier for the post.', 'jetpack' ),
 					'type'        => 'integer',
+				),
+				'access' => array(
+					'description'       => __( 'Access level.', 'jetpack' ),
+					'enum'              => array( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ),
+					'default'           => Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+					'validate_callback' => function ( $param ) {
+						return in_array(
+							$param,
+							array(
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS,
+								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS,
+							),
+							true
+						);
+					},
 				),
 			),
 		);
@@ -111,10 +129,20 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	 */
 	public function email_preview( $request ) {
 		$post_id = $request['post_id'];
+		$access  = $request['access'];
 		$post    = get_post( $post_id );
 		return rest_ensure_response(
 			array(
-				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post ),
+				/**
+				* Filters the generated email preview HTML.
+				*
+				* @since 13.8
+				*
+				* @param string $html   The generated HTML for the email preview.
+				* @param WP_Post $post  The post object.
+				* @param string $access The access level.
+				*/
+				'html' => apply_filters( 'jetpack_generate_email_preview_html', '', $post, $access ),
 			)
 		);
 	}

@@ -4,6 +4,7 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
+import { Anchor } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -22,7 +23,7 @@ export function setPopoverHover( isHover: boolean ) {
 	};
 }
 
-export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
+export function setPopoverAnchor( anchor: Anchor ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
@@ -90,7 +91,7 @@ export function setSuggestions( {
 	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
-		anchor?.classList?.add( 'is-loading' );
+		anchor?.classList?.add( 'jetpack-ai-breve__is-loading' );
 
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
@@ -113,7 +114,7 @@ export function setSuggestions( {
 			}
 		)
 			.then( response => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				try {
 					const suggestions = JSON.parse( response );
@@ -135,7 +136,7 @@ export function setSuggestions( {
 				}
 			} )
 			.catch( () => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',

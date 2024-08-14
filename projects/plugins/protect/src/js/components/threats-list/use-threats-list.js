@@ -5,7 +5,7 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
 
 const sortThreats = ( a, b ) => b.severity - a.severity;
@@ -41,6 +41,10 @@ const flattenThreats = ( data, newData ) => {
 /**
  * Threats List Hook
  *
+ * @param {object} args        - Arguments for the hook.
+ * @param {string} args.source - "scan" or "history".
+ * @param {string} args.status - "all", "fixed", or "ignored".
+ * ---
  * @typedef {object} UseThreatsList
  * @property {object}   item        - The selected threat category.
  * @property {object[]} list        - The list of threats to display.
@@ -49,10 +53,14 @@ const flattenThreats = ( data, newData ) => {
  * ---
  * @returns {UseThreatsList} useThreatsList hook.
  */
-const useThreatsList = () => {
+const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } ) => {
 	const [ selected, setSelected ] = useState( 'all' );
-
-	const { plugins, themes, core, files, database } = useProtectData();
+	const {
+		results: { plugins, themes, core, files, database },
+	} = useProtectData( {
+		sourceType: source,
+		filter: { status, key: selected },
+	} );
 
 	const { unsortedList, item } = useMemo( () => {
 		// If a specific threat category is selected, filter for and flatten the category's threats.
@@ -60,19 +68,19 @@ const useThreatsList = () => {
 			// Core, files, and database data threats are already grouped together,
 			// so we just need to flatten them and add the appropriate icon.
 			switch ( selected ) {
-				case 'wordpress':
+				case 'core':
 					return {
 						unsortedList: flattenThreats( core, { icon: coreIcon } ),
 						item: core,
 					};
 				case 'files':
 					return {
-						unsortedList: flattenThreats( files, { icon: filesIcon } ),
+						unsortedList: flattenThreats( { threats: files }, { icon: filesIcon } ),
 						item: files,
 					};
 				case 'database':
 					return {
-						unsortedList: flattenThreats( database, { icon: databaseIcon } ),
+						unsortedList: flattenThreats( { threats: database }, { icon: databaseIcon } ),
 						item: database,
 					};
 				default:
@@ -103,8 +111,8 @@ const useThreatsList = () => {
 				...flattenThreats( core, { icon: coreIcon } ),
 				...flattenThreats( plugins, { icon: pluginsIcon } ),
 				...flattenThreats( themes, { icon: themesIcon } ),
-				...flattenThreats( files, { icon: filesIcon } ),
-				...flattenThreats( database, { icon: databaseIcon } ),
+				...flattenThreats( { threats: files }, { icon: filesIcon } ),
+				...flattenThreats( { threats: database }, { icon: databaseIcon } ),
 			],
 			item: null,
 		};
@@ -132,6 +140,12 @@ const useThreatsList = () => {
 			.sort( sortThreats )
 			.map( threat => ( { label: getLabel( threat ), ...threat } ) );
 	}, [ unsortedList ] );
+
+	useEffect( () => {
+		if ( selected !== 'all' && status !== 'all' && list.length === 0 ) {
+			setSelected( 'all' );
+		}
+	}, [ selected, status, item, list ] );
 
 	return {
 		item,

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5] - 2024-08-12
+### Changed
+- Social Links: Modified package file - new functions, modified function types, added imports [#38738]
+
 ## [0.4.4] - 2024-08-05
 ### Added
 - Social Links: Added feature to Classic Theme Helper package. [#38593]
@@ -58,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.4.5]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.4.1...v0.4.2

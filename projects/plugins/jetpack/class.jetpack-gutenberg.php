@@ -728,7 +728,7 @@ class Jetpack_Gutenberg {
 				 * @module publicize
 				 *
 				 * @since 10.3.0
-				 * @deprecated $$next_version$$ This is a feature flag that is no longer used.
+				 * @deprecated 11.5 This is a feature flag that is no longer used.
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
@@ -771,9 +771,9 @@ class Jetpack_Gutenberg {
 
 				$initial_state['social']['connectionRefreshPath'] = $social_initial_state['connectionRefreshPath'];
 			}
-		}
 
-		$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
+			$initial_state['social']['featureFlags'] = $social_initial_state['featureFlags'];
+		}
 
 		wp_localize_script(
 			'jetpack-blocks-editor',

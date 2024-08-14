@@ -54,7 +54,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
-	const previewCheckTimer = useRef();
+	const previewCheckTimer = useRef( undefined );
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {

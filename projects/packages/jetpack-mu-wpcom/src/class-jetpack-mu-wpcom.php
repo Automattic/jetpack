@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.54.0-alpha';
+	const PACKAGE_VERSION = '5.57.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -105,6 +105,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
@@ -113,6 +114,11 @@ class Jetpack_Mu_Wpcom {
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
+
+		// Gets autoloaded from the Scheduled_Updates package.
+		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
+			Scheduled_Updates::init();
+		}
 	}
 
 	/**
@@ -144,10 +150,6 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
-		}
-		// Gets autoloaded from the Scheduled_Updates package.
-		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
-			Scheduled_Updates::init();
 		}
 	}
 

@@ -1,11 +1,11 @@
 import { Container, Col, Button, Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { useEffect, useCallback, useState } from 'react';
 import { MyJetpackRoutes } from '../../constants';
 import useWelcomeBanner from '../../data/welcome-banner/use-welcome-banner';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { CardWrapper } from '../card';
 import styles from './style.module.scss';
@@ -18,7 +18,7 @@ import styles from './style.module.scss';
 const WelcomeBanner = () => {
 	const { recordEvent } = useAnalytics();
 	const { isWelcomeBannerVisible, dismissWelcomeBanner } = useWelcomeBanner();
-	const { isRegistered, isUserConnected } = useConnection();
+	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.Connection );
 	const [ bannerVisible, setBannerVisible ] = useState( isWelcomeBannerVisible );
 	const shouldDisplayConnectionButton = ! isRegistered || ! isUserConnected;

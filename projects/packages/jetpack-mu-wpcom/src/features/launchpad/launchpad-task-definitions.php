@@ -2049,10 +2049,15 @@ function wpcom_launchpad_is_domain_claim_completed() {
 /**
  * When a new page is added to the site, mark the add_new_page task complete as needed.
  *
- * @param int    $post_id The ID of the post being updated.
- * @param object $post    The post object.
+ * @param int     $post_id The ID of the post being updated.
+ * @param ?object $post    The post object.
  */
-function wpcom_launchpad_add_new_page_check( $post_id, $post ) {
+function wpcom_launchpad_add_new_page_check( $post_id, $post = null ) {
+	// There are cases when plugins trigger insert hooks without arguments, we just return in this case.
+	if ( null === $post ) {
+		return;
+	}
+
 	// Don't do anything if the task is already complete.
 	if ( wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_new_page' ) ) ) {
 		return;
@@ -2253,10 +2258,15 @@ function wpcom_launchpad_is_site_title_task_visible() {
 /**
  * Completion hook for the `add_about_page` task.
  *
- * @param int    $post_id The post ID.
- * @param object $post    The post object.
+ * @param int     $post_id The post ID.
+ * @param ?object $post    The post object.
  */
-function wpcom_launchpad_add_about_page_check( $post_id, $post ) {
+function wpcom_launchpad_add_about_page_check( $post_id, $post = null ) {
+	// There are cases when plugins trigger insert hooks without arguments, we just return in this case.
+	if ( null === $post ) {
+		return;
+	}
+
 	// Ensure that Headstart posts don't mark this as complete
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
@@ -2300,11 +2310,16 @@ add_action( 'wp_insert_post', 'wpcom_launchpad_add_about_page_check', 10, 3 );
 /**
  * Completion hook for the `front_page_updated` task.
  *
- * @param int    $post_id The post ID.
- * @param object $post    The post object.
+ * @param int     $post_id The post ID.
+ * @param ?object $post    The post object.
  * @return void
  */
-function wpcom_launchpad_front_page_updated_check( $post_id, $post ) {
+function wpcom_launchpad_front_page_updated_check( $post_id, $post = null ) {
+	// There are cases when plugins trigger insert hooks without arguments, we just return in this case.
+	if ( null === $post ) {
+		return;
+	}
+
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}

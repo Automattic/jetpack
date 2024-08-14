@@ -5,7 +5,9 @@
  * @package  automattic/jetpack-assets
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Assets;
+
+use Automattic\Jetpack\Assets;
 
 /**
  * Class script data
@@ -90,7 +92,7 @@ class Script_Data {
 
 		global $wp_version;
 
-		$state = array(
+		$data = array(
 			'site' => array(
 				'admin_url'    => esc_url_raw( admin_url() ),
 				'date_format'  => get_option( 'date_format' ),
@@ -123,11 +125,11 @@ class Script_Data {
 		 * For example, the social (publicize) data is used only on Social admin page, Jetpack settings page and the post editor.
 		 * So, the social data should be added only on those pages.
 		 *
-		 * @since $$next-version$$
+		 * @since 2.3.0
 		 *
-		 * @param array $state The script data.
+		 * @param array $data The script data.
 		 */
-		return apply_filters( 'jetpack_admin_js_script_data', $state );
+		return apply_filters( 'jetpack_admin_js_script_data', $data );
 	}
 
 	/**
@@ -137,7 +139,7 @@ class Script_Data {
 	 */
 	protected static function get_public_script_data() {
 
-		$state = array(
+		$data = array(
 			'site' => array(
 				'icon'  => self::get_site_icon(),
 				'title' => self::get_site_title(),
@@ -149,11 +151,11 @@ class Script_Data {
 		 *
 		 * See the docs for `jetpack_admin_js_script_data` filter for more information.
 		 *
-		 * @since $$next-version$$
+		 * @since 2.3.0
 		 *
-		 * @param array $state The script data.
+		 * @param array $data The script data.
 		 */
-		return apply_filters( 'jetpack_public_js_script_data', $state );
+		return apply_filters( 'jetpack_public_js_script_data', $data );
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
+import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
@@ -10,6 +11,53 @@ import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
+const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
+	return (
+		<>
+			{ detectedAt && (
+				<Text className={ styles[ 'accordion-header-status' ] }>
+					{ sprintf(
+						/* translators: %s: First detected date */
+						__( 'Threat found %s', 'jetpack-protect' ),
+						dateI18n( 'M j, Y', detectedAt )
+					) }
+					{ 'fixed' === status && (
+						<>
+							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+							<span className={ styles[ 'is-fixed' ] }>
+								{ sprintf(
+									/* translators: %s: Fixed on date */
+									__( 'Threat fixed %s', 'jetpack-protect' ),
+									dateI18n( 'M j, Y', fixedOn )
+								) }
+							</span>
+						</>
+					) }
+					{ 'ignored' === status && (
+						<>
+							<span className={ styles[ 'accordion-header-status-separator' ] }></span>
+							<span className={ styles[ 'is-ignored' ] }>
+								{ __( 'Threat ignored', 'jetpack-protect' ) }
+							</span>
+						</>
+					) }
+				</Text>
+			) }
+			{ ( 'fixed' === status || 'ignored' === status ) && (
+				<StatusBadge status={ 'fixed' === status ? 'fixed' : 'ignored' } />
+			) }
+		</>
+	);
+};
+
+const StatusBadge = ( { status } ) => (
+	<div className={ `${ styles[ 'status-badge' ] } ${ styles[ status ] }` }>
+		{ 'fixed' === status
+			? __( 'Fixed', 'jetpack-protect' )
+			: __( 'Ignored', 'jetpack-protect', /* dummy arg to avoid bad minification */ 0 ) }
+	</div>
+);
+
 export const PaidAccordionItem = ( {
 	id,
 	title,
@@ -18,7 +66,10 @@ export const PaidAccordionItem = ( {
 	fixable,
 	severity,
 	children,
+	firstDetected,
+	fixedOn,
 	onOpen,
+	status,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
@@ -55,6 +106,13 @@ export const PaidAccordionItem = ( {
 					>
 						{ title }
 					</Text>
+					{ ( 'fixed' === status || 'ignored' === status ) && (
+						<ScanHistoryDetails
+							detectedAt={ firstDetected }
+							status={ status }
+							fixedAt={ fixedOn }
+						/>
+					) }
 				</div>
 				<div>
 					<ThreatSeverityBadge severity={ severity } />

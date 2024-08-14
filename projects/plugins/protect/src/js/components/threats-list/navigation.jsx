@@ -8,21 +8,25 @@ import {
 	code as filesIcon,
 	grid as databaseIcon,
 } from '@wordpress/icons';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
 
-const ThreatsNavigation = ( { selected, onSelect } ) => {
+const ThreatsNavigation = ( { selected, onSelect, sourceType = 'scan', statusFilter = 'all' } ) => {
 	const {
-		plugins,
-		themes,
-		numThreats,
-		numCoreThreats,
-		numFilesThreats,
-		numDatabaseThreats,
+		results: { plugins, themes },
+		counts: {
+			current: {
+				threats: numThreats,
+				core: numCoreThreats,
+				files: numFilesThreats,
+				database: numDatabaseThreats,
+			},
+		},
 		hasRequiredPlan,
-	} = useProtectData();
+	} = useProtectData( { sourceType, filter: { status: statusFilter } } );
+
 	const { recordEvent } = useAnalyticsTracks();
 	const [ isSmallOrLarge ] = useBreakpointMatch( 'lg', '<' );
 
@@ -50,6 +54,20 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 		recordEvent( 'jetpack_protect_navigation_database_click' );
 	}, [ recordEvent ] );
 
+	const allLabel = useMemo( () => {
+		if ( statusFilter === 'fixed' ) {
+			return __( 'All fixed threats', 'jetpack-protect' );
+		}
+		if ( statusFilter === 'ignored' ) {
+			return __(
+				'All ignored threats',
+				'jetpack-protect',
+				/** dummy arg to avoid bad minification */ 0
+			);
+		}
+		return __( 'All threats', 'jetpack-protect' );
+	}, [ statusFilter ] );
+
 	return (
 		<Navigation
 			selected={ selected }
@@ -59,7 +77,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 			<NavigationItem
 				initial
 				id="all"
-				label={ __( 'All threats', 'jetpack-protect' ) }
+				label={ allLabel }
 				icon={ warningIcon }
 				badge={ numThreats }
 				disabled={ numThreats <= 0 }
@@ -67,7 +85,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				checked={ true }
 			/>
 			<NavigationItem
-				id="wordpress"
+				id="core"
 				label={ __( 'WordPress', 'jetpack-protect' ) }
 				icon={ coreIcon }
 				badge={ numCoreThreats }
