@@ -75,6 +75,9 @@ class Jetpack_Mu_Wpcom {
 		// Load the Newsletter category settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 
+		// Load the Social Links feature.
+		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -459,5 +462,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_random_redirect() {
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
+	}
+
+	/**
+	 * Load the Social Links feature.
+	 */
+	public static function load_social_links() {
+		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
+		}
 	}
 }
