@@ -4,6 +4,7 @@ import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
+import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterEmailDocumentSettings } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
@@ -14,19 +15,19 @@ const NewsletterMenu = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ isEmailPreviewOpen, setIsEmailPreviewOpen ] = useState( false );
 
-	const { postId, postType, postStatus, isSendEmailEnabled } = useSelect(
+	const { postId, postType, postStatus, meta } = useSelect(
 		select => ( {
 			postId: select( 'core/editor' ).getCurrentPostId(),
 			postType: select( 'core/editor' ).getCurrentPostType(),
 			postStatus: select( 'core/editor' ).getEditedPostAttribute( 'status' ),
-			isSendEmailEnabled:
-				! select( 'core/editor' ).getEditedPostAttribute( 'meta' )?.jetpack_dont_email_post_to_subs,
+			meta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
 		} ),
 		[]
 	);
 
 	const accessLevel = useAccessLevel( postType );
 	const isPublished = postStatus === 'publish';
+	const isSendEmailEnabled = ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 
 	const { isUserConnected } = useConnection();
 	const connectUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
@@ -43,7 +44,7 @@ const NewsletterMenu = () => {
 			icon={ <SendIcon /> }
 		>
 			<PanelBody>
-				<NewsletterEmailDocumentSettings />
+				{ ! isPublished && <NewsletterEmailDocumentSettings /> }
 				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
