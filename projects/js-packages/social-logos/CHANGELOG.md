@@ -1,3 +1,7 @@
+## [3.1.4] - 2024-08-15
+### Changed
+- Updated package dependencies. [#38665]
+
 ## [3.1.3] - 2024-06-26
 ### Added
 - Add: Substack logo [#38036]
@@ -133,6 +137,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.4]: https://github.com/Automattic/social-logos/compare/v3.1.3...v3.1.4
 [3.1.3]: https://github.com/Automattic/social-logos/compare/v3.1.2...v3.1.3
 [3.1.2]: https://github.com/Automattic/social-logos/compare/v3.1.1...v3.1.2
 [3.1.1]: https://github.com/Automattic/social-logos/compare/v3.1.0...v3.1.1
