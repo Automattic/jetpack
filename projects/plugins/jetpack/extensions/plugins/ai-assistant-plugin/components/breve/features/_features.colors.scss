@@ -26,7 +26,7 @@ $features-colors: (
 }
 
 @mixin pulse() {
-	$name: pulse-#{unique-id()};
+	$name: jetpack-ai-breve-loading-pulse;
 
 	@keyframes #{$name} {
 		0% {
