@@ -162,5 +162,6 @@
 }
 
 .divider {
+    margin-top: calc( var( --spacing-base ) * 7 ); // 56px
     border-bottom: solid 2px var( --jp-gray-5 );
 }

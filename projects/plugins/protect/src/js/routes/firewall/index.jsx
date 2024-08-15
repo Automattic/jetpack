@@ -825,7 +825,7 @@ const FirewallPage = () => {
 						{ wafSupported && (
 							<>
 								{ ipBlockListSettings }
-								<div className={ `${ styles[ 'toggle-section' ] } ${ styles.divider }` }></div>
+								<div className={ styles.divider }></div>
 							</>
 						) }
 						{ ipAllowListSettings }
