@@ -22,14 +22,7 @@ class Publicize_Script_Data {
 	 * @return Publicize
 	 */
 	public static function publicize() {
-		/**
-		 * Publicize instance.
-		 *
-		 * @var Publicize $publicize
-		 */
-		global $publicize;
-
-		return $publicize;
+		return publicize_init();
 	}
 
 	/**
