@@ -9,7 +9,7 @@ import { checkConnectionCode } from './utils';
 export const UnsupportedConnectionsNotice: React.FC = () => {
 	const { connections } = useSocialMediaConnections();
 
-	const { connectionsPageUrl } = usePublicizeConfig();
+	const { connectionsAdminUrl } = usePublicizeConfig();
 
 	const unsupportedConnections = connections.filter( connection =>
 		checkConnectionCode( connection, 'unsupported' )
@@ -24,7 +24,7 @@ export const UnsupportedConnectionsNotice: React.FC = () => {
 						'jetpack'
 					),
 					{
-						moreInfo: <ExternalLink href={ connectionsPageUrl } />,
+						moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
 					}
 				) }
 			</Notice>

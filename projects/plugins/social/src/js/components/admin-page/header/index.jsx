@@ -1,5 +1,4 @@
 import { SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,7 +11,7 @@ const AdminPageHeader = () => {
 
 		return {
 			showPricingPage: store.showPricingPage(),
-			activateLicenseUrl: getMyJetpackUrl( '#/add-license' ),
+			activateLicenseUrl: `${ store.getAdminUrl() }admin.php?page=my-jetpack#/add-license`,
 		};
 	} );
 

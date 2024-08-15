@@ -57,14 +57,3 @@ export function getMyJetpackUrl( section = '' ) {
 export function getActiveFeatures() {
 	return getScriptData().site.plan?.features?.active ?? [];
 }
-
-/**
- * Check if the site has a specific feature.
- *
- * @param {string} feature - The feature to check.
- *
- * @returns {boolean} Whether the site has the feature.
- */
-export function siteHasFeature( feature: string ) {
-	return getActiveFeatures().includes( feature );
-}
