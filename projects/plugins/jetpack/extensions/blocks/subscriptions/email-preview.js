@@ -27,7 +27,7 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import illustration from './email-preview-illustration.svg';
 
-export default function EmailPreview( { isModalOpen, closeModal } ) {
+export function EmailPreview( { isModalOpen, closeModal } ) {
 	const [ emailSent, setEmailSent ] = useState( false );
 	const [ emailSending, setEmailSending ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -360,3 +360,5 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 		)
 	);
 }
+
+export default EmailPreview;

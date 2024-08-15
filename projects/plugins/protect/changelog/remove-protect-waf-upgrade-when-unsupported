@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Firewall Dashboard: removed upgrade prompt when running in environments that does not support the feature.
+
+

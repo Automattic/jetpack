@@ -18,6 +18,7 @@ const wpcom_profile_settings_disable_email_field = () => {
  * Add a link to the WordPress.com profile settings page.
  */
 const wpcom_profile_settings_add_links_to_wpcom = () => {
+	const usernameSection = document.querySelector( '.user-user-login-wrap' )?.querySelector( 'td' );
 	const emailSection = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
 	const newPasswordSection = document.getElementById( 'password' )?.querySelector( 'td' );
 	const userSessionSection = document.querySelector( '.user-sessions-wrap' );
@@ -46,9 +47,38 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 		notice.innerHTML = `<a href="${ passwordSettingsLink }">${ passwordSettingsLinkText }</a>.`;
 		newPasswordSection.appendChild( notice );
 	}
+
+	const syncedSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.synced?.link;
+	const syncedSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.synced?.text;
+	if ( usernameSection && syncedSettingsLink && syncedSettingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ syncedSettingsLink }">${ syncedSettingsLinkText }</a>.`;
+		usernameSection.appendChild( notice );
+	}
+};
+
+/**
+ * Hide the fields that are synced from /me.
+ */
+const wpcom_profile_settings_hide_synced_fields = () => {
+	[
+		'.user-first-name-wrap',
+		'.user-last-name-wrap',
+		'.user-nickname-wrap',
+		'.user-display-name-wrap',
+		'.user-url-wrap',
+		'.user-description-wrap',
+	].forEach( selector => {
+		const field = document.querySelector( selector );
+		if ( field ) {
+			field.classList.add( 'hidden' );
+		}
+	} );
 };
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	wpcom_profile_settings_add_links_to_wpcom();
 	wpcom_profile_settings_disable_email_field();
+	wpcom_profile_settings_hide_synced_fields();
 } );
