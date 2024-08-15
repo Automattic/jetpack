@@ -47,7 +47,7 @@ class Publicize_Script_Data {
 
 		$data['social'] = self::get_admin_script_data();
 
-		if ( empty( $data['site']['plan']['product_slug'] ) ) {
+		if ( empty( $data['site']['plan'] ) ) {
 			$data['site']['plan'] = Current_Plan::get();
 		}
 
@@ -83,9 +83,9 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
-				'urls' => self::get_urls(),
 				/**
 				 * 'store'       => self::get_store_script_data(),
+				 * 'urls'        => self::get_urls(),
 				 * 'shares_data' => self::get_shares_data(),
 				 */
 			)
@@ -132,24 +132,5 @@ class Publicize_Script_Data {
 		}
 
 		return Current_Plan::supports( 'social-' . $feature );
-	}
-
-	/**
-	 * Get the URLs.
-	 *
-	 * @return array
-	 */
-	public static function get_urls() {
-
-		$urls = array(
-			'connectionsManagementPage' => self::publicize()->publicize_connections_url(
-				'jetpack-social-connections-admin-page'
-			),
-		);
-
-		// Escape the URLs.
-		array_walk( $urls, 'esc_url_raw' );
-
-		return $urls;
 	}
 }

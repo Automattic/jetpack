@@ -4,7 +4,9 @@ import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
+import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
+import { NewsletterEmailDocumentSettings } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
 import { PreviewModal, EmailPreview } from './email-preview';
 import { SendIcon } from './icons';
@@ -13,17 +15,19 @@ const NewsletterMenu = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ isEmailPreviewOpen, setIsEmailPreviewOpen ] = useState( false );
 
-	const { postId, postType, postStatus } = useSelect(
+	const { postId, postType, postStatus, meta } = useSelect(
 		select => ( {
 			postId: select( 'core/editor' ).getCurrentPostId(),
 			postType: select( 'core/editor' ).getCurrentPostType(),
 			postStatus: select( 'core/editor' ).getEditedPostAttribute( 'status' ),
+			meta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
 		} ),
 		[]
 	);
 
 	const accessLevel = useAccessLevel( postType );
 	const isPublished = postStatus === 'publish';
+	const isSendEmailEnabled = ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 
 	const { isUserConnected } = useConnection();
 	const connectUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
@@ -40,39 +44,42 @@ const NewsletterMenu = () => {
 			icon={ <SendIcon /> }
 		>
 			<PanelBody>
-				{ isUserConnected ? (
+				{ ! isPublished && <NewsletterEmailDocumentSettings /> }
+				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
+				{ isSendEmailEnabled && ! isPublished && (
 					<>
-						<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
-						{ ! isPublished && (
-							<p>
-								{ __(
-									'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
-									'jetpack'
-								) }
-							</p>
+						{ isUserConnected ? (
+							<>
+								<p>
+									{ __(
+										'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
+										'jetpack'
+									) }
+								</p>
+								<HStack wrap={ true }>
+									<Button onClick={ openModal } variant="secondary" disabled={ isPublished }>
+										{ __( 'Preview email', 'jetpack' ) }
+									</Button>
+									<Button onClick={ openEmailPreview } variant="secondary" disabled={ isPublished }>
+										{ __( 'Send test email', 'jetpack' ) }
+									</Button>
+								</HStack>
+								<PreviewModal isOpen={ isModalOpen } onClose={ closeModal } postId={ postId } />
+								<EmailPreview isModalOpen={ isEmailPreviewOpen } closeModal={ closeEmailPreview } />
+							</>
+						) : (
+							<>
+								<p>
+									{ __(
+										'To email your posts, build an audience, and use features like preview and test, connect to WordPress.com cloud.',
+										'jetpack'
+									) }
+								</p>
+								<Button variant="primary" href={ connectUrl } style={ { marginTop: '10px' } }>
+									{ __( 'Connect WordPress.com account', 'jetpack' ) }
+								</Button>
+							</>
 						) }
-						<HStack wrap={ true }>
-							<Button onClick={ openModal } variant="secondary" disabled={ isPublished }>
-								{ __( 'Preview email', 'jetpack' ) }
-							</Button>
-							<Button onClick={ openEmailPreview } variant="secondary" disabled={ isPublished }>
-								{ __( 'Send test email', 'jetpack' ) }
-							</Button>
-						</HStack>
-						<PreviewModal isOpen={ isModalOpen } onClose={ closeModal } postId={ postId } />
-						<EmailPreview isModalOpen={ isEmailPreviewOpen } closeModal={ closeEmailPreview } />
-					</>
-				) : (
-					<>
-						<p>
-							{ __(
-								'To email your posts, build an audience, and use features like preview and test, connect to WordPress.com cloud.',
-								'jetpack'
-							) }
-						</p>
-						<Button variant="primary" href={ connectUrl } style={ { marginTop: '10px' } }>
-							{ __( 'Connect WordPress.com account', 'jetpack' ) }
-						</Button>
 					</>
 				) }
 			</PanelBody>

@@ -1,5 +1,6 @@
 import {
 	getConnections,
+	getConnectionsAdminUrl,
 	hasConnections,
 	getFailedConnections,
 	getMustReauthConnections,
@@ -10,6 +11,7 @@ import {
 
 const state = {
 	connectionData: {
+		adminUrl: 'https://wordpress.com/some-url',
 		connections: [
 			{
 				id: '123456789',
@@ -59,6 +61,17 @@ describe( 'Social store selectors: connectionData', () => {
 		it( 'should return connections', () => {
 			const connections = getConnections( state );
 			expect( connections ).toEqual( state.connectionData.connections );
+		} );
+	} );
+
+	describe( 'getConnectionsAdminUrl', () => {
+		it( 'should return null if no adminUrl', () => {
+			expect( getConnectionsAdminUrl( {} ) ).toBeNull();
+		} );
+
+		it( 'should return adminUrl', () => {
+			const adminUrl = getConnectionsAdminUrl( state );
+			expect( adminUrl ).toEqual( state.connectionData.adminUrl );
 		} );
 	} );
 
