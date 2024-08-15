@@ -217,7 +217,7 @@ export default function TitleOptimization( {
 									{ isKeywordsFeatureAvailable && (
 										<TitleOptimizationKeywords
 											onGenerate={ handleGenerateWithKeywords }
-											disabled={ false }
+											disabled={ generating }
 										/>
 									) }
 									{ ! isKeywordsFeatureAvailable && (
