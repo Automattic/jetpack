@@ -152,10 +152,6 @@ export default function TitleOptimization( {
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
-	const handleGenerateWithKeywords = useCallback( () => {
-		handleRequest();
-	}, [ handleRequest ] );
-
 	return (
 		<div>
 			<p>{ sidebarDescription }</p>
@@ -196,7 +192,7 @@ export default function TitleOptimization( {
 								<>
 									{ isKeywordsFeatureAvailable && (
 										<TitleOptimizationKeywords
-											onGenerate={ handleGenerateWithKeywords }
+											onGenerate={ handleRequest }
 											onKeywordsChange={ setOptimizationKeywords }
 											disabled={ generating }
 											currentKeywords={ optimizationKeywords }
