@@ -131,6 +131,10 @@ export default function TitleOptimization( {
 		handleRequest( true ); // retry the generation
 	}, [ handleRequest ] );
 
+	const handleTitleOptimizationWithKeywords = useCallback( () => {
+		handleRequest();
+	}, [ handleRequest ] );
+
 	const handleAccept = useCallback(
 		( event: MouseEvent ) => {
 			// track the generated title acceptance
@@ -196,7 +200,7 @@ export default function TitleOptimization( {
 								<>
 									{ isKeywordsFeatureAvailable && (
 										<TitleOptimizationKeywords
-											onGenerate={ handleRequest }
+											onGenerate={ handleTitleOptimizationWithKeywords }
 											onKeywordsChange={ setOptimizationKeywords }
 											disabled={ generating }
 											currentKeywords={ optimizationKeywords }
