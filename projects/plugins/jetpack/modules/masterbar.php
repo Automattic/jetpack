@@ -22,11 +22,3 @@
  * @param array $items Array of Jetpack modules.
  * @return array
  */
-function remove_masterbar_module_list( $items ) {
-	if ( isset( $items['masterbar'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-		unset( $items['masterbar'] );
-	}
-	return $items;
-}
-
-add_filter( 'jetpack_modules_list_table_items', 'remove_masterbar_module_list' );

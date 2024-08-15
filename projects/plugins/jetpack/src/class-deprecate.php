@@ -31,6 +31,7 @@ class Deprecate {
 		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
+		add_filter( 'jetpack_modules_list_table_items', array( $this, 'remove_masterbar_module_list' ) );
 	}
 
 	/**
@@ -196,5 +197,20 @@ class Deprecate {
 		return ( new Modules() )->is_active( 'masterbar', false )
 			&& ! ( new Host() )->is_woa_site()
 			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-masterbar-admin-removal-notice'] );
+	}
+
+	/**
+	 * Remove Masterbar from the old Module list.
+	 * Available at wp-admin/admin.php?page=jetpack_modules
+	 * We only need this function until the Masterbar is fully removed from Jetpack (including notices).
+	 *
+	 * @param array $items Array of Jetpack modules.
+	 * @return array
+	 */
+	public function remove_masterbar_module_list( $items ) {
+		if ( isset( $items['masterbar'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			unset( $items['masterbar'] );
+		}
+		return $items;
 	}
 }
