@@ -16,7 +16,10 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef( undefined );
 	const formStyle = useFormStyle( clientId );
+<<<<<<< HEAD
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+=======
+>>>>>>> 923247bced (Forms: update child blocks to API v3)
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-dropdown', {
 			'is-selected': isSelected,
