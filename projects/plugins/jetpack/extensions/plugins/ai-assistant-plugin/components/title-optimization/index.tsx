@@ -10,11 +10,19 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
 import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
+
+/**
+ * Determine if the AI Title Optimization Keywords feature is available.
+ */
+const isKeywordsFeatureAvailable = getFeatureAvailability(
+	'ai-title-optimization-keywords-support'
+);
 
 export default function TitleOptimization( {
 	placement,
@@ -25,9 +33,24 @@ export default function TitleOptimization( {
 	busy: boolean;
 	disabled: boolean;
 } ) {
-	const modalTitle = __( 'Optimize post title', 'jetpack' );
-	const sidebarDescription = __( 'Use AI to optimize key details of your post.', 'jetpack' );
-	const sidebarButtonLabel = __( 'Improve title', 'jetpack' );
+	const currentModalTitle = __( 'Optimize post title', 'jetpack' );
+	const SEOModalTitle = __( 'Improve title for SEO', 'jetpack' );
+	const modalTitle = isKeywordsFeatureAvailable ? SEOModalTitle : currentModalTitle;
+
+	const currentSidebarDescription = __( 'Use AI to optimize key details of your post.', 'jetpack' );
+	const SEOSidebarDescription = __(
+		'AI suggested titles based on your content and keywords for better SEO results.',
+		'jetpack'
+	);
+	const sidebarDescription = isKeywordsFeatureAvailable
+		? SEOSidebarDescription
+		: currentSidebarDescription;
+
+	const currentSidebarButtonLabel = __( 'Improve title', 'jetpack' );
+	const SEOSidebarButtonLabel = __( 'Improve title for SEO', 'jetpack' );
+	const sidebarButtonLabel = isKeywordsFeatureAvailable
+		? SEOSidebarButtonLabel
+		: currentSidebarButtonLabel;
 
 	const postContent = usePostContent();
 	const [ selected, setSelected ] = useState( null );
