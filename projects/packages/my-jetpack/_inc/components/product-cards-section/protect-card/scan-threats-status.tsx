@@ -7,12 +7,13 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
 import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
-import type { ReactElement, PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactElement } from 'react';
 
 export const ScanAndThreatStatus = () => {
 	const slug = 'protect';
@@ -115,7 +116,9 @@ function ThreatStatus( {
 	if ( criticalThreatCount ) {
 		return (
 			<>
-				<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
+				<div className={ baseStyles.valueSectionHeading }>
+					{ __( 'Threats', 'jetpack-my-jetpack' ) }
+				</div>
 				<div className="value-section__data">
 					<div className="scan-threats__critical-threats">
 						<div className="scan-threats__threat-count">{ numThreats }</div>
@@ -151,7 +154,9 @@ function ThreatStatus( {
 
 	return (
 		<>
-			<div className="value-section__heading">{ __( 'Threats', 'jetpack-my-jetpack' ) }</div>
+			<div className={ baseStyles.valueSectionHeading }>
+				{ __( 'Threats', 'jetpack-my-jetpack' ) }
+			</div>
 			<div className="value-section__data">
 				<div className="scan-threats__threat-count">{ numThreats }</div>
 			</div>
@@ -174,7 +179,9 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	if ( status === 'success' ) {
 		return (
 			<>
-				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+				<div className={ baseStyles.valueSectionHeading }>
+					{ __( 'Scan', 'jetpack-my-jetpack' ) }
+				</div>
 				<div className="value-section__data">
 					<div>
 						<img
@@ -191,7 +198,9 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	if ( status === 'partial' ) {
 		return (
 			<>
-				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+				<div className={ baseStyles.valueSectionHeading }>
+					{ __( 'Scan', 'jetpack-my-jetpack' ) }
+				</div>
 				<div className="value-section__data">
 					<div>
 						<img
@@ -223,7 +232,7 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	}
 	return (
 		<>
-			<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+			<div className={ baseStyles.valueSectionHeading }>{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img
