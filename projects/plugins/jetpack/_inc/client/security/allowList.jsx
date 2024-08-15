@@ -134,7 +134,7 @@ const AllowList = class extends Component {
 				onSubmit={ this.onSubmit }
 				hideButton={ true }
 			>
-				{ <QueryWafSettings /> }
+				<QueryWafSettings />
 				<SettingsGroup
 					disableInOfflineMode
 					support={ {
