@@ -59,6 +59,7 @@ export default function TitleOptimization( {
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
 	const [ error, setError ] = useState( false );
+	const [ initialKeywords, setInitialKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
@@ -146,6 +147,7 @@ export default function TitleOptimization( {
 
 	const handleClose = useCallback( () => {
 		toggleTitleOptimizationModal();
+		setInitialKeywords( '' );
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
@@ -158,6 +160,7 @@ export default function TitleOptimization( {
 			} );
 
 			setGenerating( true );
+			setInitialKeywords( keywords );
 
 			// Message to request a backend prompt for this feature
 			const messages = [
@@ -218,6 +221,7 @@ export default function TitleOptimization( {
 										<TitleOptimizationKeywords
 											onGenerate={ handleGenerateWithKeywords }
 											disabled={ generating }
+											initialKeywords={ initialKeywords }
 										/>
 									) }
 									{ ! isKeywordsFeatureAvailable && (

@@ -8,11 +8,13 @@ import './title-optimization-keywords.scss';
 
 type TitleOptimizationKeywordsProps = {
 	onGenerate: ( keywords?: string ) => void;
+	initialKeywords: string;
 	disabled: boolean;
 };
 
 export default function TitleOptimizationKeywords( {
 	onGenerate,
+	initialKeywords,
 	disabled,
 }: TitleOptimizationKeywordsProps ) {
 	const [ keywords, setKeywords ] = useState( '' );
@@ -29,6 +31,7 @@ export default function TitleOptimizationKeywords( {
 		<div className="jetpack-ai-title-optimization__keywords">
 			<div className="jetpack-ai-title-optimization__keywords__textarea">
 				<textarea
+					value={ keywords ? keywords : initialKeywords }
 					disabled={ disabled }
 					maxLength={ 100 }
 					rows={ 1 }
