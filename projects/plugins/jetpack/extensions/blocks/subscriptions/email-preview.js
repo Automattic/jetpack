@@ -6,7 +6,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
-	TextControl,
+	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Icon,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -21,7 +21,7 @@ import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpre
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import illustration from './email-preview-illustration.svg';
+import { SendIcon } from './icons';
 
 export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const [ isEmailSent, setIsEmailSent ] = useState( false );
@@ -29,7 +29,6 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const { __unstableSaveForPreview } = useDispatch( editorStore );
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const { tracks } = useAnalytics();
 
 	const sendTestEmail = async () => {
@@ -55,54 +54,55 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 			} );
 	};
 
+	if ( ! isOpen ) {
+		return null;
+	}
+
 	return (
-		<>
-			{ isOpen && (
-				<Modal
-					className="jetpack-email-preview"
-					onRequestClose={ () => {
-						onClose();
-						setIsEmailSent( false );
-					} }
-					title={ __( 'Send a test email', 'jetpack' ) }
-				>
-					<HStack alignment="topLeft">
-						<VStack className="jetpack-email-preview__main" alignment="topLeft">
-							{ errorMessage && (
-								<HStack className="jetpack-email-preview__email-sent">{ errorMessage }</HStack>
-							) }
-							{ isEmailSent ? (
-								<HStack className="jetpack-email-preview__email-sent">
-									<Icon className="jetpack-email-preview__check" icon={ check } size={ 28 } />
-									<div className="jetpack-email-preview__sent_text">
-										{ __( 'Email sent successfully', 'jetpack' ) }
-									</div>
-								</HStack>
-							) : (
-								<HStack>
-									<TextControl
-										className="jetpack-email-preview__email"
-										value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
-										disabled
-									/>
-									<Button
-										className="jetpack-email-preview__button"
-										variant="primary"
-										onClick={ sendTestEmail }
-										isBusy={ isEmailSending }
-									>
-										{ __( 'Send', 'jetpack' ) }
-									</Button>
-								</HStack>
-							) }
-						</VStack>
-						{ ! isSmall && (
-							<img className="jetpack-email-preview__img" src={ illustration } alt="" />
-						) }
+		<Modal
+			onRequestClose={ () => {
+				onClose();
+				setIsEmailSent( false );
+			} }
+			title={ __( 'Send a test email', 'jetpack' ) }
+			size={ 'medium' }
+		>
+			<VStack>
+				{ errorMessage && <p>{ errorMessage } </p> }
+				{ isEmailSent ? (
+					<HStack alignment="left" className="jetpack-newsletter-test-email-modal__email-sent">
+						<Icon icon={ check } size={ 28 } />
+						<p>{ __( 'Email sent successfully', 'jetpack' ) }</p>
 					</HStack>
-				</Modal>
-			) }
-		</>
+				) : (
+					<>
+						<p>
+							{ __(
+								'This will send you an email, allowing you to see exactly what your subscribers receive in their inboxes.',
+								'jetpack'
+							) }
+						</p>
+						<HStack wrap={ true }>
+							<InputControl
+								value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
+								disabled
+								__next40pxDefaultSize={ true }
+								size="__unstable-large"
+							/>
+							<Button
+								variant="primary"
+								onClick={ sendTestEmail }
+								isBusy={ isEmailSending }
+								__next40pxDefaultSize={ true }
+							>
+								{ __( 'Send', 'jetpack' ) }
+								<Icon icon={ SendIcon } />
+							</Button>
+						</HStack>
+					</>
+				) }
+			</VStack>
+		</Modal>
 	);
 }
 
@@ -290,7 +290,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 						setSelectedDevice={ setSelectedDevice }
 					/>
 				}
-				className="jetpack-email-preview-modal"
+				className="jetpack-newsletter-preview-modal"
 			>
 				<div
 					style={ {
