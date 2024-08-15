@@ -9,11 +9,11 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentProbablyReal : 30+ occurrences
     // PhanTypeMismatchArgument : 15+ occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 8 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
-    // PhanNoopNew : 4 occurrences
+    // PhanNoopNew : 5 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanUndeclaredClassMethod : 3 occurrences

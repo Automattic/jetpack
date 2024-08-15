@@ -575,7 +575,7 @@ class Automation_Faker {
 	 * @return array
 	 * @throws Data_Type_Exception
 	 */
-	public function tag_list( array $additional_array = null ) {
+	public function tag_list( ?array $additional_array = null ) {
 		$data = array(
 			array(
 				'id'          => 1,

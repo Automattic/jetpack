@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+`Jetpack_Options::update_option()` now documents `$autoload` as `bool|null` to match the similar change in WordPress 6.6. String values are still accepted for as long as core's `update_option()` accepts them.
