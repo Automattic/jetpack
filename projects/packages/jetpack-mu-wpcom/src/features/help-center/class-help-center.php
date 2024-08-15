@@ -111,7 +111,7 @@ class Help_Center {
 				// Load translations directly from widgets.wp.com.
 				wp_enqueue_script(
 					'help-center-translations',
-					'https://widgets.wp.com/help-center/languages/' . Common\determine_iso_639_locale() . '-v1.js',
+					'https://widgets.wp.com/help-center/languages/' . $locale . '-v1.js',
 					array( 'wp-i18n' ),
 					$version,
 					true
