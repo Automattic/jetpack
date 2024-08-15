@@ -102,12 +102,13 @@ export default function TitleOptimization( {
 				context: {
 					type: 'title-optimization',
 					content: postContent,
+					keywords: optimizationKeywords,
 				},
 			},
 		];
 
 		request( messages, { feature: 'jetpack-ai-title-optimization' } );
-	}, [ postContent, request ] );
+	}, [ postContent, optimizationKeywords, request ] );
 
 	const handleTitleOptimization = useCallback( () => {
 		// track the generate title optimization options
@@ -159,21 +160,8 @@ export default function TitleOptimization( {
 		} );
 
 		setGenerating( true );
-
-		// Message to request a backend prompt for this feature
-		const messages = [
-			{
-				role: 'jetpack-ai' as const,
-				context: {
-					type: 'title-optimization',
-					content: postContent,
-					keywords: optimizationKeywords,
-				},
-			},
-		];
-
-		request( messages, { feature: 'jetpack-ai-title-optimization' } );
-	}, [ placement, recordEvent, request, postContent, optimizationKeywords ] );
+		handleRequest();
+	}, [ placement, recordEvent, handleRequest, optimizationKeywords ] );
 
 	return (
 		<div>
