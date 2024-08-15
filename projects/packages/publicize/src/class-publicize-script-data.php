@@ -75,6 +75,7 @@ class Publicize_Script_Data {
 		$basic_data = array(
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
+			'urls'                 => self::get_urls(),
 		);
 
 		$is_wpcom = ( new Host() )->is_wpcom_platform();
@@ -84,7 +85,6 @@ class Publicize_Script_Data {
 			return array_merge(
 				$basic_data,
 				array(
-					'urls' => self::get_urls(),
 					/**
 					 * 'store'       => self::get_store_script_data(),
 					 * 'shares_data' => self::get_shares_data(),
