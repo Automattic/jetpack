@@ -1,12 +1,8 @@
 @import "@automattic/color-studio/dist/color-variables";
 
-.jetpack-email-preview {
-  @media ( min-width: 660px ) {
-   width: 646px;
-  }
-
-  h1 {
-    margin-top: 10px;
+.jetpack-newsletter-email-preview {
+  @media (min-width: 660px) {
+    width: 646px;
   }
 
   .components-modal__content {
@@ -16,27 +12,27 @@
   }
 }
 
-.jetpack-email-preview__img {
+.jetpack-newsletter-email-preview__img {
   height: 110px;
   padding-inline-end: 30px;
   padding-inline-start: 80px;
   margin-inline-start: auto;
 }
 
-.jetpack-email-preview__email-sent {
+.jetpack-newsletter-email-preview__email-sent {
   color: $studio-jetpack-green-30;
-  .jetpack-email-preview__sent_text {
+
+  .jetpack-newsletter-email-preview__sent-text {
     font-size: 20px;
   }
 }
 
-.jetpack-email-preview__check {
+.jetpack-newsletter-email-preview__check {
   fill: currentColor;
 }
 
-.jetpack-email-preview__email {
-
-  > div {
+.jetpack-newsletter-email-preview__email {
+  >div {
     margin-bottom: 0;
   }
 
@@ -50,18 +46,18 @@
   }
 }
 
-.jetpack-email-preview__main {
+.jetpack-newsletter-email-preview__main {
   min-width: 462px;
 }
 
-.jetpack-email-preview__button {
+.jetpack-newsletter-email-preview__button {
   height: 44px;
   width: 80px;
   justify-content: center;
   align-items: center;
 }
 
-.jetpack-email-preview-modal {
+.jetpack-newsletter-preview-modal {
   h1 {
     flex-shrink: 0;
   }

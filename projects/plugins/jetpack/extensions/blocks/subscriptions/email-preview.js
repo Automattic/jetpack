@@ -64,12 +64,10 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 						onClose();
 						setIsEmailSent( false );
 					} }
+					title={ __( 'Send a test email', 'jetpack' ) }
 				>
 					<HStack alignment="topLeft">
 						<VStack className="jetpack-email-preview__main" alignment="topLeft">
-							<h1 className="jetpack-email-preview__title">
-								{ __( 'Send a test email', 'jetpack' ) }
-							</h1>
 							{ errorMessage && (
 								<HStack className="jetpack-email-preview__email-sent">{ errorMessage }</HStack>
 							) }
@@ -325,5 +323,3 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 		)
 	);
 }
-
-export { NewsletterTestEmailModal, NewsletterPreviewModal };
