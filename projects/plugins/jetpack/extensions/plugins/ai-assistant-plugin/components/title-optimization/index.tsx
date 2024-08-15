@@ -186,9 +186,11 @@ export default function TitleOptimization( {
 									{ isKeywordsFeatureAvailable && (
 										<TitleOptimizationKeywords onGenerate={ () => {} } disabled={ false } />
 									) }
-									<span className="jetpack-ai-title-optimization__intro">
-										{ __( 'Choose an optimized title below:', 'jetpack' ) }
-									</span>
+									{ ! isKeywordsFeatureAvailable && (
+										<span className="jetpack-ai-title-optimization__intro">
+											{ __( 'Choose an optimized title below:', 'jetpack' ) }
+										</span>
+									) }
 									<TitleOptimizationOptions
 										onChangeValue={ e => setSelected( e.target.value ) }
 										selected={ selected }
