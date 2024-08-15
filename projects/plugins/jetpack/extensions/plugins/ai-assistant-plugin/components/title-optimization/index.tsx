@@ -14,6 +14,7 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
+import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
 
@@ -182,6 +183,9 @@ export default function TitleOptimization( {
 								</div>
 							) : (
 								<>
+									{ isKeywordsFeatureAvailable && (
+										<TitleOptimizationKeywords onGenerate={ () => {} } disabled={ false } />
+									) }
 									<span className="jetpack-ai-title-optimization__intro">
 										{ __( 'Choose an optimized title below:', 'jetpack' ) }
 									</span>
