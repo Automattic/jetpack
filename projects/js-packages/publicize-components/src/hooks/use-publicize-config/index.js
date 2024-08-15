@@ -3,12 +3,11 @@ import {
 	getJetpackExtensionAvailability,
 	isUpgradable,
 	getJetpackData,
-	getSiteFragment,
 	isSimpleSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils';
 import { usePostMeta } from '../use-post-meta';
 
 const republicizeFeatureName = 'republicize';
@@ -22,7 +21,6 @@ const republicizeFeatureName = 'republicize';
  */
 export default function usePublicizeConfig() {
 	const sharesData = getJetpackData()?.social?.sharesData ?? {};
-	const blogID = getJetpackData()?.wpcomBlogId;
 	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
@@ -30,9 +28,7 @@ export default function usePublicizeConfig() {
 	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
 
-	const connectionsRootUrl =
-		getJetpackData()?.social?.publicizeConnectionsUrl ??
-		'https://wordpress.com/marketing/connections/';
+	const { urls } = getSocialScriptData();
 
 	/*
 	 * isPublicizeEnabledMeta:
@@ -105,8 +101,6 @@ export default function usePublicizeConfig() {
 
 	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
 
-	const userConnectionUrl = useSelect( select => select( socialStore ).userConnectionUrl(), [] );
-
 	return {
 		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
@@ -124,11 +118,8 @@ export default function usePublicizeConfig() {
 		isSocialImageGeneratorAvailable:
 			!! getJetpackData()?.social?.isSocialImageGeneratorAvailable && ! isJetpackSocialNote,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
-		connectionsAdminUrl: connectionsRootUrl + ( blogID ?? getSiteFragment() ),
-		adminUrl: getJetpackData()?.social?.adminUrl,
-		jetpackSharingSettingsUrl: getJetpackData()?.social?.jetpackSharingSettingsUrl,
+		connectionsPageUrl: urls.connectionsManagementPage,
 		isJetpackSocialNote,
 		needsUserConnection,
-		userConnectionUrl,
 	};
 }

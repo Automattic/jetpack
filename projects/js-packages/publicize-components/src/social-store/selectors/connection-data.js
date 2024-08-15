@@ -36,15 +36,6 @@ export function getConnectionsByService( state, serviceName ) {
 }
 
 /**
- * Returns the connections admin URL from the store.
- * @param {import("../types").SocialStoreState} state - State object.
- * @returns {string|null} The connections admin URL.
- */
-export function getConnectionsAdminUrl( state ) {
-	return state.connectionData?.adminUrl ?? null;
-}
-
-/**
  * Returns whether there are connections in the store.
  * @param {import("../types").SocialStoreState} state - State object.
  * @returns {boolean} Whether there are connections.

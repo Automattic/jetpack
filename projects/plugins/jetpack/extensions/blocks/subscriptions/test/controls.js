@@ -71,6 +71,12 @@ beforeEach( () => {
 	setGradient.mockClear();
 	setTextColor.mockClear();
 	setButtonBackgroundColor.mockClear();
+
+	global.JetpackScriptData = {
+		social: {
+			urls: {},
+		},
+	};
 } );
 
 describe( 'Inspector controls', () => {

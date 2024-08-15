@@ -5,8 +5,11 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { ConnectionManagement, SOCIAL_STORE_ID } from '@automattic/jetpack-publicize-components';
-import { getScriptData } from '@automattic/jetpack-script-data';
+import {
+	ConnectionManagement,
+	SOCIAL_STORE_ID,
+	getSocialScriptData,
+} from '@automattic/jetpack-publicize-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -19,7 +22,6 @@ import styles from './styles.module.scss';
 const SocialModuleToggle: React.FC = () => {
 	const {
 		// TODO - replace some of these with values from initial state
-		connectionsAdminUrl,
 		isModuleEnabled,
 		isUpdating,
 		siteSuffix,
@@ -30,14 +32,15 @@ const SocialModuleToggle: React.FC = () => {
 		return {
 			isModuleEnabled: store.isModuleEnabled(),
 			isUpdating: store.isUpdatingJetpackSettings(),
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
 			siteSuffix: store.getSiteSuffix(),
 			blogID: store.getBlogID(),
 			hasPaidFeatures: store.hasPaidFeatures(),
 		};
 	}, [] );
 
-	const { useAdminUiV1 } = getScriptData().social.feature_flags;
+	const { urls, feature_flags } = getSocialScriptData();
+
+	const useAdminUiV1 = feature_flags.useAdminUiV1;
 
 	const updateOptions = useDispatch( SOCIAL_STORE_ID ).updateJetpackSettings;
 
@@ -62,13 +65,13 @@ const SocialModuleToggle: React.FC = () => {
 			) : null;
 		}
 
-		return connectionsAdminUrl ? (
+		return urls.connectionsManagementPage ? (
 			<Button
 				fullWidth={ isSmall }
 				className={ styles.button }
 				variant="secondary"
 				isExternalLink={ true }
-				href={ connectionsAdminUrl }
+				href={ urls.connectionsManagementPage }
 				disabled={ isUpdating || ! isModuleEnabled }
 				target="_blank"
 			>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Migrated social URLs to use the new script data (initial state)
