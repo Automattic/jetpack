@@ -28,7 +28,7 @@ class Setup {
 		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
 
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated 0.38.3
 		add_action( 'rest_api_init', array( new REST_Settings_Controller(), 'register_routes' ) );
 	}
 

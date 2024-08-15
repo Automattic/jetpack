@@ -134,7 +134,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 							<CheckboxControl
 								className={ isProofreadEnabled ? '' : 'is-disabled' }
 								disabled={ ! isProofreadEnabled }
-								data-type={ feature.config.name }
+								data-breve-type={ feature.config.name }
 								key={ feature.config.name }
 								label={ feature.config.title }
 								checked={ ! disabledFeatures.includes( feature.config.name ) }
