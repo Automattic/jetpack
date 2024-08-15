@@ -78,10 +78,12 @@ class Publicize_Script_Data {
 			'urls'                 => array(),
 		);
 
-		$is_wpcom = ( new Host() )->is_wpcom_platform();
+		if ( ! Utils::is_publicize_active() ) {
+			return $basic_data;
+		}
 
-		// We don't need a user connection for WPCOM sites.
-		if ( $is_wpcom || ( Utils::is_publicize_active() && Utils::is_connected() ) ) {
+		// We don't need a user connection for Simple sites.
+		if ( ( new Host() )->is_wpcom_simple() || Utils::is_connected() ) {
 			return array_merge(
 				$basic_data,
 				array(
