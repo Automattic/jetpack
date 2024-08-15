@@ -94,28 +94,32 @@ export default function TitleOptimization( {
 		},
 	} );
 
-	const handleRequest = useCallback( () => {
-		// track the generate title optimization options
-		recordEvent( 'jetpack_ai_title_optimization_generate', {
-			placement,
-			has_keywords: !! optimizationKeywords,
-		} );
+	const handleRequest = useCallback(
+		( isRetry: boolean = false ) => {
+			// track the generate title optimization options
+			recordEvent( 'jetpack_ai_title_optimization_generate', {
+				placement,
+				has_keywords: !! optimizationKeywords,
+				is_retry: isRetry, // track if the user is retrying the generation
+			} );
 
-		setGenerating( true );
-		// Message to request a backend prompt for this feature
-		const messages = [
-			{
-				role: 'jetpack-ai' as const,
-				context: {
-					type: 'title-optimization',
-					content: postContent,
-					keywords: optimizationKeywords,
+			setGenerating( true );
+			// Message to request a backend prompt for this feature
+			const messages = [
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'title-optimization',
+						content: postContent,
+						keywords: optimizationKeywords,
+					},
 				},
-			},
-		];
+			];
 
-		request( messages, { feature: 'jetpack-ai-title-optimization' } );
-	}, [ recordEvent, placement, postContent, optimizationKeywords, request ] );
+			request( messages, { feature: 'jetpack-ai-title-optimization' } );
+		},
+		[ recordEvent, placement, postContent, optimizationKeywords, request ]
+	);
 
 	const handleTitleOptimization = useCallback( () => {
 		toggleTitleOptimizationModal();
@@ -124,7 +128,7 @@ export default function TitleOptimization( {
 
 	const handleTryAgain = useCallback( () => {
 		setError( false );
-		handleRequest();
+		handleRequest( true ); // retry the generation
 	}, [ handleRequest ] );
 
 	const handleAccept = useCallback(
