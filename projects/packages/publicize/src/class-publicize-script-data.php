@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Publicize_Script_Data class.
@@ -76,20 +77,23 @@ class Publicize_Script_Data {
 			'feature_flags'        => self::get_feature_flags(),
 		);
 
-		if ( ! Utils::is_publicize_active() || ! Utils::is_connected() ) {
-			return $basic_data;
+		$is_wpcom = ( new Host() )->is_wpcom_platform();
+
+		// We don't need a user connection for WPCOM sites.
+		if ( $is_wpcom || ( Utils::is_publicize_active() && Utils::is_connected() ) ) {
+			return array_merge(
+				$basic_data,
+				array(
+					'urls' => self::get_urls(),
+					/**
+					 * 'store'       => self::get_store_script_data(),
+					 * 'shares_data' => self::get_shares_data(),
+					 */
+				)
+			);
 		}
 
-		return array_merge(
-			$basic_data,
-			array(
-				'urls' => self::get_urls(),
-				/**
-				 * 'store'       => self::get_store_script_data(),
-				 * 'shares_data' => self::get_shares_data(),
-				 */
-			)
-		);
+		return $basic_data;
 	}
 
 	/**

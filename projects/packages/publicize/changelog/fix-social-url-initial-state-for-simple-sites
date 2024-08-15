@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed the initial state for simple sites that expected a user connection
