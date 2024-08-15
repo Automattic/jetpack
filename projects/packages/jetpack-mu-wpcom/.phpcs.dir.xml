@@ -23,4 +23,8 @@
 		</properties>
 	</rule>
 
+	<rule ref="MediaWiki.Usage.ForbiddenFunctions">
+		<exclude name="MediaWiki.Usage.ForbiddenFunctions.isset"/>
+	</rule>
+
 </ruleset>
