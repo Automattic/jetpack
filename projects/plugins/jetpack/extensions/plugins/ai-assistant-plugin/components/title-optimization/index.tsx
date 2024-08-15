@@ -161,7 +161,11 @@ export default function TitleOptimization( {
 				{ sidebarButtonLabel }
 			</Button>
 			{ isTitleOptimizationModalVisible && (
-				<AiAssistantModal handleClose={ handleClose } title={ modalTitle } maxWidth={ 512 }>
+				<AiAssistantModal
+					handleClose={ handleClose }
+					title={ modalTitle }
+					maxWidth={ isKeywordsFeatureAvailable ? 700 : 512 }
+				>
 					{ generating ? (
 						<div className="jetpack-ai-title-optimization__loading">
 							<Spinner
