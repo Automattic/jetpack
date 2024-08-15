@@ -47,7 +47,7 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		array(
 			'synced'        => array(
 				'link' => esc_url( $wpcom_host . '/me' ),
-				'text' => __( 'You can manage your profile information on WordPress.com Profile settings (e.g., First / Last / Display Names, Website, and Biographical Info)', 'jetpack-mu-wpcom' ),
+				'text' => __( 'You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)', 'jetpack-mu-wpcom' ),
 			),
 			'email'         => array(
 				'link' => esc_url( $wpcom_host . '/me/account' ),
