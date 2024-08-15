@@ -27,7 +27,7 @@ import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import illustration from './email-preview-illustration.svg';
 
-export default function EmailPreview( { isModalOpen, closeModal } ) {
+export function EmailPreview( { isModalOpen, closeModal } ) {
 	const [ emailSent, setEmailSent ] = useState( false );
 	const [ emailSending, setEmailSending ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -337,7 +337,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 						height: 'calc(100vh - 190px)',
 						backgroundColor: '#ddd',
 						paddingTop: selectedDevice !== 'desktop' ? '36px' : '0',
-						transition: 'padding 0.5s ease-in-out',
+						transition: 'padding 0.3s ease-in-out',
 					} }
 				>
 					{ isLoading ? (
@@ -350,7 +350,7 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 								maxWidth: '100%',
 								height: '100%',
 								border: 'none',
-								transition: 'width 0.5s ease-in-out',
+								transition: 'width 0.3s ease-in-out',
 							} }
 							title={ __( 'Email Preview', 'jetpack' ) }
 						/>
@@ -360,3 +360,5 @@ export function PreviewModal( { isOpen, onClose, postId } ) {
 		)
 	);
 }
+
+export default EmailPreview;
