@@ -226,3 +226,28 @@ function wpcomsh_woa_post_transfer_install_marketplace_software( $args, $assoc_a
 	}
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_install_marketplace_software', 10, 2 );
+
+/**
+ * Enables the WordAds Jetpack module if required.
+ *
+ * @param array $args Arguments.
+ * @param array $assoc_args Associated arguments.
+ *
+ * @return void
+ */
+function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
+
+	$wordads_enabled = WP_CLI\Utils\get_flag_value( $assoc_args, 'wordads-enabled', false );
+	if ( ! $wordads_enabled ) {
+		return;
+	}
+
+	WP_CLI::runcommand(
+		'jetpack module activate wordads',
+		array(
+			'launch'     => false,
+			'exit_error' => false,
+		)
+	);
+}
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_maybe_enable_wordads', 10, 2 );
