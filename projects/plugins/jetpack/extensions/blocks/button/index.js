@@ -8,6 +8,7 @@ import save from './save';
 export const name = 'button';
 
 export const settings = {
+	apiVersion: 3,
 	title: __( 'Button', 'jetpack' ),
 	icon,
 	category: getCategoryWithFallbacks( 'design', 'layout' ),
