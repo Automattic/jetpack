@@ -149,6 +149,33 @@ export default function TitleOptimization( {
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
+	const handleGenerateWithKeywords = useCallback(
+		( keywords: string ) => {
+			// track the generate title optimization options with keywords
+			recordEvent( 'jetpack_ai_title_optimization_generate', {
+				placement,
+				has_keywords: !! keywords,
+			} );
+
+			setGenerating( true );
+
+			// Message to request a backend prompt for this feature
+			const messages = [
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'title-optimization',
+						content: postContent,
+						keywords,
+					},
+				},
+			];
+
+			request( messages, { feature: 'jetpack-ai-title-optimization' } );
+		},
+		[ placement, recordEvent, request, postContent ]
+	);
+
 	return (
 		<div>
 			<p>{ sidebarDescription }</p>
@@ -188,7 +215,10 @@ export default function TitleOptimization( {
 							) : (
 								<>
 									{ isKeywordsFeatureAvailable && (
-										<TitleOptimizationKeywords onGenerate={ () => {} } disabled={ false } />
+										<TitleOptimizationKeywords
+											onGenerate={ handleGenerateWithKeywords }
+											disabled={ false }
+										/>
 									) }
 									{ ! isKeywordsFeatureAvailable && (
 										<span className="jetpack-ai-title-optimization__intro">
