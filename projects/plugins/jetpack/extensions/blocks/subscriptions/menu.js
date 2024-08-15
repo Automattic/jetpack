@@ -8,12 +8,12 @@ import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterEmailDocumentSettings } from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
-import { PreviewModal, EmailPreview } from './email-preview';
+import { NewsletterPreviewModal, NewsletterTestEmailModal } from './email-preview';
 import { SendIcon } from './icons';
 
 const NewsletterMenu = () => {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const [ isEmailPreviewOpen, setIsEmailPreviewOpen ] = useState( false );
+	const [ isPreviewModalOpen, setIsPreviewModalOpen ] = useState( false );
+	const [ isTestEmailModalOpen, setIsTestEmailModalOpen ] = useState( false );
 
 	const { postId, postType, postStatus, meta } = useSelect(
 		select => ( {
@@ -32,10 +32,10 @@ const NewsletterMenu = () => {
 	const { isUserConnected } = useConnection();
 	const connectUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
 
-	const openModal = () => setIsModalOpen( true );
-	const closeModal = () => setIsModalOpen( false );
-	const openEmailPreview = () => setIsEmailPreviewOpen( true );
-	const closeEmailPreview = () => setIsEmailPreviewOpen( false );
+	const openPreviewModal = () => setIsPreviewModalOpen( true );
+	const closePreviewModal = () => setIsPreviewModalOpen( false );
+	const openTestEmailModal = () => setIsTestEmailModalOpen( true );
+	const closeTestEmailModal = () => setIsTestEmailModalOpen( false );
 
 	return (
 		<PluginSidebar
@@ -57,15 +57,26 @@ const NewsletterMenu = () => {
 									) }
 								</p>
 								<HStack wrap={ true }>
-									<Button onClick={ openModal } variant="secondary" disabled={ isPublished }>
+									<Button onClick={ openPreviewModal } variant="secondary" disabled={ isPublished }>
 										{ __( 'Preview email', 'jetpack' ) }
 									</Button>
-									<Button onClick={ openEmailPreview } variant="secondary" disabled={ isPublished }>
+									<Button
+										onClick={ openTestEmailModal }
+										variant="secondary"
+										disabled={ isPublished }
+									>
 										{ __( 'Send test email', 'jetpack' ) }
 									</Button>
 								</HStack>
-								<PreviewModal isOpen={ isModalOpen } onClose={ closeModal } postId={ postId } />
-								<EmailPreview isModalOpen={ isEmailPreviewOpen } closeModal={ closeEmailPreview } />
+								<NewsletterPreviewModal
+									isOpen={ isPreviewModalOpen }
+									onClose={ closePreviewModal }
+									postId={ postId }
+								/>
+								<NewsletterTestEmailModal
+									isOpen={ isTestEmailModalOpen }
+									onClose={ closeTestEmailModal }
+								/>
 							</>
 						) : (
 							<>
