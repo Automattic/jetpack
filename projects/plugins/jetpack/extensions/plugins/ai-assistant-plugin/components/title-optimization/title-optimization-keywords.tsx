@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import './title-optimization-keywords.scss';
 
 type TitleOptimizationKeywordsProps = {
-	onGenerate: ( keywords?: string ) => void;
+	onGenerate: () => void;
 	onKeywordsChange: ( keywords: string ) => void;
 	currentKeywords: string;
 	disabled: boolean;
