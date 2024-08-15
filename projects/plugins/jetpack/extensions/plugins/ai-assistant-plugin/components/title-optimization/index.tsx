@@ -95,6 +95,7 @@ export default function TitleOptimization( {
 	} );
 
 	const handleRequest = useCallback( () => {
+		setGenerating( true );
 		// Message to request a backend prompt for this feature
 		const messages = [
 			{
@@ -116,14 +117,12 @@ export default function TitleOptimization( {
 			placement,
 		} );
 
-		setGenerating( true );
 		toggleTitleOptimizationModal();
 		handleRequest();
 	}, [ handleRequest, placement, recordEvent, toggleTitleOptimizationModal ] );
 
 	const handleTryAgain = useCallback( () => {
 		setError( false );
-		setGenerating( true );
 		handleRequest();
 	}, [ handleRequest ] );
 
@@ -159,7 +158,6 @@ export default function TitleOptimization( {
 			has_keywords: !! optimizationKeywords,
 		} );
 
-		setGenerating( true );
 		handleRequest();
 	}, [ placement, recordEvent, handleRequest, optimizationKeywords ] );
 
