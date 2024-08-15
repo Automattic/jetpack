@@ -151,33 +151,29 @@ export default function TitleOptimization( {
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
-	const handleGenerateWithKeywords = useCallback(
-		( keywords: string ) => {
-			// track the generate title optimization options with keywords
-			recordEvent( 'jetpack_ai_title_optimization_generate', {
-				placement,
-				has_keywords: !! keywords,
-			} );
+	const handleGenerateWithKeywords = useCallback( () => {
+		// track the generate title optimization options with keywords
+		recordEvent( 'jetpack_ai_title_optimization_generate', {
+			placement,
+			has_keywords: !! optimizationKeywords,
+		} );
 
-			setGenerating( true );
-			setOptimizationKeywords( keywords );
+		setGenerating( true );
 
-			// Message to request a backend prompt for this feature
-			const messages = [
-				{
-					role: 'jetpack-ai' as const,
-					context: {
-						type: 'title-optimization',
-						content: postContent,
-						keywords,
-					},
+		// Message to request a backend prompt for this feature
+		const messages = [
+			{
+				role: 'jetpack-ai' as const,
+				context: {
+					type: 'title-optimization',
+					content: postContent,
+					keywords: optimizationKeywords,
 				},
-			];
+			},
+		];
 
-			request( messages, { feature: 'jetpack-ai-title-optimization' } );
-		},
-		[ placement, recordEvent, request, postContent ]
-	);
+		request( messages, { feature: 'jetpack-ai-title-optimization' } );
+	}, [ placement, recordEvent, request, postContent, optimizationKeywords ] );
 
 	return (
 		<div>
@@ -220,8 +216,9 @@ export default function TitleOptimization( {
 									{ isKeywordsFeatureAvailable && (
 										<TitleOptimizationKeywords
 											onGenerate={ handleGenerateWithKeywords }
+											onKeywordsChange={ setOptimizationKeywords }
 											disabled={ generating }
-											initialKeywords={ optimizationKeywords }
+											currentKeywords={ optimizationKeywords }
 										/>
 									) }
 									{ ! isKeywordsFeatureAvailable && (

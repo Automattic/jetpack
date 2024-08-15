@@ -2,36 +2,31 @@
  * Internal dependencies
  */
 import { Button } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './title-optimization-keywords.scss';
 
 type TitleOptimizationKeywordsProps = {
 	onGenerate: ( keywords?: string ) => void;
-	initialKeywords: string;
+	onKeywordsChange: ( keywords: string ) => void;
+	currentKeywords: string;
 	disabled: boolean;
 };
 
 export default function TitleOptimizationKeywords( {
 	onGenerate,
-	initialKeywords,
+	onKeywordsChange,
+	currentKeywords,
 	disabled,
 }: TitleOptimizationKeywordsProps ) {
-	const [ keywords, setKeywords ] = useState( '' );
-
 	const handleKeywordChange = event => {
-		setKeywords( event.target.value );
+		onKeywordsChange( event.target.value );
 	};
-
-	const handleGenerateClick = useCallback( () => {
-		onGenerate( keywords );
-	}, [ onGenerate, keywords ] );
 
 	return (
 		<div className="jetpack-ai-title-optimization__keywords">
 			<div className="jetpack-ai-title-optimization__keywords__textarea">
 				<textarea
-					value={ keywords ? keywords : initialKeywords }
+					value={ currentKeywords }
 					disabled={ disabled }
 					maxLength={ 100 }
 					rows={ 1 }
@@ -43,7 +38,7 @@ export default function TitleOptimizationKeywords( {
 				></textarea>
 			</div>
 			<div className="jetpack-ai-title-optimization__keywords__button">
-				<Button onClick={ handleGenerateClick } variant="secondary" disabled={ disabled }>
+				<Button onClick={ onGenerate } variant="secondary" disabled={ disabled }>
 					{ __( 'Generate again', 'jetpack' ) }
 				</Button>
 			</div>
