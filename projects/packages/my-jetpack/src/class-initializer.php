@@ -63,7 +63,7 @@ class Initializer {
 	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
-	const VIDEOPRESS_STATS_KEY                           = 'videopress-stats';
+	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
