@@ -542,6 +542,7 @@ class Assets {
 		// @todo Remove this when we drop support for WordPress 6.5, as well as the script inclusion in test_wp_default_scripts_hook.
 		$jsx_url = self::normalize_path( plugins_url( '../build/react-jsx-runtime.js', __FILE__ ) );
 		$wp_scripts->add( 'react-jsx-runtime', $jsx_url, array( 'react' ), '18.3.1', true );
+		$wp_scripts->add_data( 'react-jsx-runtime', 'group', 1 );
 	}
 
 	// endregion .
