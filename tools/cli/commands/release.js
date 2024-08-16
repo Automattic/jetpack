@@ -50,6 +50,8 @@ export function releaseDefine( yargs ) {
 				.option( 'init-next-cycle', {
 					describe: 'For `version`, init the next release cycle',
 					type: 'boolean',
+					hidden: true,
+					deprecated: 'No longer functional',
 				} );
 		},
 		async argv => {
@@ -165,10 +167,16 @@ export async function scriptRouter( argv ) {
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
+			if ( argv.initNextCycle ) {
+				console.error(
+					'The --init-next-cycle option is no longer useful, since we no longer set alpha versions in trunk.'
+				);
+				process.exit( 1 );
+			}
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ argv.initNextCycle ? '-Cu' : '-u', argv.version, argv.project ];
+			argv.scriptArgs = [ '-u', argv.version, argv.project ];
 			argv.next =
 				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
