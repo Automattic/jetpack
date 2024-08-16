@@ -29,16 +29,6 @@ export type Connection = {
 	status: ConnectionStatus;
 };
 
-export type ConnectionService = {
-	ID: string;
-	label: string;
-	type: 'publicize' | 'other';
-	description: string;
-	connect_URL: string;
-	external_users_only?: boolean;
-	multiple_external_user_ID_support?: boolean;
-};
-
 export type ConnectionData = {
 	connections: Connection[];
 	deletingConnections?: Array< number | string >;
