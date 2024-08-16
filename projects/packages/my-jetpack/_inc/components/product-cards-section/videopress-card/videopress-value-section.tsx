@@ -125,7 +125,6 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 						} }
 					>
 						<h3>{ watchTime.title }</h3>
-
 						<p>{ watchTime.text }</p>
 					</InfoTooltip>
 				</span>
