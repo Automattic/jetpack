@@ -2,7 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
@@ -93,7 +93,7 @@ export function PreviewSection() {
 									<ToggleControl
 										label={
 											isEnabled
-												? __( 'Connection enabled', 'jetpack' )
+												? _x( 'Connection enabled', '', 'jetpack' )
 												: __( 'Connection disabled', 'jetpack' )
 										}
 										checked={ isEnabled }
