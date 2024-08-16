@@ -61,7 +61,7 @@ export default function longSentences( text: string ): Array< HighlightedText > 
 		return highlightedTexts;
 	}
 
-	words.forEach( ( word, index ) => {
+	words.forEach( ( word: string, index ) => {
 		if ( ! spellchecker.correct( word ) ) {
 			const suggestions = spellchecker.suggest( word );
 
