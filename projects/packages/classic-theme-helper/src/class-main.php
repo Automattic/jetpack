@@ -23,6 +23,7 @@ class Main {
 	 */
 	public $modules = array(
 		'responsive-videos.php',
+		'site-breadcrumbs.php',
 		'social-menu.php',
 		'jetpack-color.php',
 	);
