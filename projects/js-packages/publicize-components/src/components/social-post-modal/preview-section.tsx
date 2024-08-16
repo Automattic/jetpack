@@ -79,28 +79,32 @@ export function PreviewSection() {
 	return (
 		<div className={ styles[ 'preview-section' ] }>
 			<TabPanel tabs={ connections }>
-				{ ( tab: ( typeof connections )[ number ] ) => (
-					<div className={ styles[ 'preview-content' ] }>
-						{
-							// If the connection should be disabled
-							// it means that there is some validation error
-							// or the connection is broken
-							// in that case we won't show the toggle
-							! shouldBeDisabled( tab ) ? (
-								<ToggleControl
-									label={
-										tab.enabled
-											? __( 'Connection enabled', 'jetpack' )
-											: __( 'Connection disabled', 'jetpack' )
-									}
-									checked={ canBeTurnedOn( tab ) && tab.enabled }
-									onChange={ toggleConnection( tab.connection_id, tab ) }
-								/>
-							) : null
-						}
-						<PostPreview connection={ tab } />
-					</div>
-				) }
+				{ ( tab: ( typeof connections )[ number ] ) => {
+					const isEnabled = canBeTurnedOn( tab ) && tab.enabled;
+
+					return (
+						<div className={ styles[ 'preview-content' ] }>
+							{
+								// If the connection should be disabled
+								// it means that there is some validation error
+								// or the connection is broken
+								// in that case we won't show the toggle
+								! shouldBeDisabled( tab ) ? (
+									<ToggleControl
+										label={
+											isEnabled
+												? __( 'Connection enabled', 'jetpack' )
+												: __( 'Connection disabled', 'jetpack' )
+										}
+										checked={ isEnabled }
+										onChange={ toggleConnection( tab.connection_id, tab ) }
+									/>
+								) : null
+							}
+							<PostPreview connection={ tab } />
+						</div>
+					);
+				} }
 			</TabPanel>
 		</div>
 	);
