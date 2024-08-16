@@ -131,6 +131,13 @@ class Help_Center {
 			true
 		);
 
+		wp_enqueue_style(
+			'help-center-style',
+			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
+			array(),
+			$version
+		);
+
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
 			// Adds feature flags for development.
