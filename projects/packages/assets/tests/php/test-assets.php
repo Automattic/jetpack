@@ -785,6 +785,13 @@ class AssetsTest extends TestCase {
 					array( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' )
 				)
 			);
+		$mock->expects( $this->exactly( 2 ) )->method( 'add_data' )
+			->with(
+				...$with_consecutive(
+					array( 'wp-jp-i18n-loader', 'group', 1 ),
+					array( 'react-jsx-runtime', 'group', 1 )
+				)
+			);
 
 		// @phan-suppress-next-line PhanTypeMismatchArgument -- We don't have a WP_Scripts definition to create a mock from. 🤷
 		Assets::wp_default_scripts_hook( $mock );
