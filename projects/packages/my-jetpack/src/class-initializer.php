@@ -64,6 +64,7 @@ class Initializer {
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
+	const WAF_AUTOMATIC_RULES_ENABLED_OPTION_NAME        = 'jetpack_waf_automatic_rules';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -219,6 +220,11 @@ class Initializer {
 		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
+		$waf_config = new \stdClass();
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			$waf_config = Waf_Runner::get_config();
+		}
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -273,7 +279,7 @@ class Initializer {
 				'protect'                => array(
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
-						Waf_Runner::get_config(),
+						$waf_config,
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
