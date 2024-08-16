@@ -375,6 +375,10 @@ class Help_Center {
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
+		if ( $this->is_wc_admin_home_page() ) {
+			return;
+		}
+
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
 		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
@@ -384,16 +388,16 @@ class Help_Center {
 		// 1. On wp-admin
 		// 2. On the front end of the site if the current user can edit posts
 		// 3. On the front end of the site and the theme is not P2
+		// 4. If it is the frontend we show the disconnected version of the help center.
 		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
 			return;
+		} elseif ( is_admin && $can_edit_posts ) {
+			$variant = 'wp-admin-disconnected';
+		} elseif ( $this->is_block_editor() ) {
+			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		} else {
+			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		}
-
-		if ( $this->is_wc_admin_home_page() ) {
-			return;
-		}
-
-		$variant  = $this->is_block_editor() ? 'gutenberg' : 'wp-admin';
-		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
 
 		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
 		if ( ! $asset_file ) {
