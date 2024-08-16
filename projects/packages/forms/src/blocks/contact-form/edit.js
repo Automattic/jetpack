@@ -88,6 +88,7 @@ export const JetpackContactFormEdit = forwardRef(
 			variations,
 			defaultVariation,
 			canUserInstallPlugins,
+			style,
 		},
 		ref
 	) => {
@@ -341,7 +342,7 @@ export const JetpackContactFormEdit = forwardRef(
 						) }
 					</InspectorControls>
 
-					<div className={ formClassnames } ref={ ref }>
+					<div className={ formClassnames } style={ style } ref={ ref }>
 						<InnerBlocks
 							allowedBlocks={ ALLOWED_BLOCKS }
 							prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
