@@ -45,11 +45,11 @@ declare global {
 	};
 
 	const jpTracksAJAX: {
-		record_ajax_event(
+		record_ajax_event: (
 			eventName: string,
 			eventType: string,
 			eventProp: TracksEventProperites
-		): JQueryXHR;
+		) => JQueryXHR;
 	};
 
 	const jetpackBoostAnalytics: {

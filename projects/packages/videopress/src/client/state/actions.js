@@ -2,7 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -33,6 +35,7 @@ import {
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
 	SET_VIDEO_UPLOADING,
+	SET_VIDEO_UPLOADING_ERROR,
 	SET_VIDEO_PROCESSING,
 	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
@@ -53,9 +56,12 @@ import {
 	UPDATE_PAGINATION_AFTER_DELETE,
 	FLUSH_DELETED_VIDEOS,
 	UPDATE_VIDEO_IS_PRIVATE,
+	DISMISS_ERRORED_VIDEO,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 import { videoIsPrivate } from './utils/video-is-private';
+
+const debug = debugFactory( 'videopress:actions' );
 
 /**
  * Utility function to pool the video data until poster is ready.
@@ -265,15 +271,14 @@ const uploadVideo =
 	async ( { dispatch } ) => {
 		const tempId = uid();
 
-		// @todo: implement progress and error handler
-		const noop = () => {};
-
+		debug( 'Uploading video' );
 		dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 		// @todo: this should be stored in the state
 		const tokenData = await getMediaToken( 'upload-jwt' );
 
 		const onSuccess = async data => {
+			debug( 'Video uploaded', data );
 			dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 			const video = await pollingUploadedVideoData( data );
 			dispatch( { type: SET_VIDEO_UPLOADED, video } );
@@ -283,10 +288,18 @@ const uploadVideo =
 			dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 		};
 
+		const onError = err => {
+			debug( 'Upload error', err );
+			const error =
+				err?.originalResponse?.getHeader( 'x-videopress-upload-error' ) ||
+				__( 'Upload error', 'jetpack-videopress-pkg' );
+			dispatch( { type: SET_VIDEO_UPLOADING_ERROR, id: tempId, error } );
+		};
+
 		fileUploader( {
 			tokenData,
 			file,
-			onError: noop,
+			onError,
 			onProgress,
 			onSuccess,
 		} );
@@ -476,6 +489,10 @@ const dismissFirstVideoPopover = () => {
 	return { type: DISMISS_FIRST_VIDEO_POPOVER };
 };
 
+const dismissErroredVideo = id => {
+	return { type: DISMISS_ERRORED_VIDEO, id };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -521,6 +538,7 @@ const actions = {
 	updateVideoPressSettings,
 
 	updateVideoIsPrivate,
+	dismissErroredVideo,
 };
 
 export { actions as default };
