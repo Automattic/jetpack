@@ -88,7 +88,11 @@ export function PreviewSection() {
 							// in that case we won't show the toggle
 							! shouldBeDisabled( tab ) ? (
 								<ToggleControl
-									label={ __( 'Connection enabled', 'jetpack' ) }
+									label={
+										tab.enabled
+											? __( 'Connection enabled', 'jetpack' )
+											: __( 'Connection disabled', 'jetpack' )
+									}
 									checked={ canBeTurnedOn( tab ) && tab.enabled }
 									onChange={ toggleConnection( tab.connection_id, tab ) }
 								/>
