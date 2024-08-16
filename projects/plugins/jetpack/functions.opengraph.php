@@ -613,7 +613,7 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 				'user_id'       => (int) $connection_user_id,
 				'connection_id' => (int) $connection_id,
 				'handle'        => $mastodon_handle,
-				'global'        => 0 === $connection_user_id,
+				'global'        => 0 === (int) $connection_user_id,
 			);
 		}
 	}
