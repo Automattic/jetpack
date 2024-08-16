@@ -517,7 +517,6 @@ class Assets {
 
 		// Ensure the script is loaded in the footer and deferred.
 		$wp_scripts->add_data( $handle, 'group', 1 );
-		$wp_scripts->add_data( $handle, 'strategy', 'defer' );
 
 		if ( ! is_array( $data ) ||
 			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
