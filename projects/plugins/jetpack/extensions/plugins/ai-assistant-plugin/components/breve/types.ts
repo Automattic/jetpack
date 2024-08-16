@@ -105,6 +105,12 @@ export type BreveFeature = {
 export type HighlightedText = {
 	text: string;
 	suggestion?: string;
+	suggestions?: Array< string >;
 	startIndex: number;
 	endIndex: number;
+};
+
+export type SpellChecker = {
+	correct: ( word: string ) => boolean;
+	suggest: ( word: string ) => Array< string >;
 };
