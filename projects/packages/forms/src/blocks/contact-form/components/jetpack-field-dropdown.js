@@ -16,6 +16,7 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef( undefined );
 	const formStyle = useFormStyle( clientId );
+	const { blockStyle } = useJetpackFieldStyles( attributes );
 	const blockProps = useBlockProps( {
 		className: clsx( 'jetpack-field jetpack-field-dropdown', {
 			'is-selected': isSelected,
@@ -113,8 +114,6 @@ const JetpackDropdown = ( { attributes, clientId, isSelected, name, setAttribute
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
-
-	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<div { ...blockProps }>
