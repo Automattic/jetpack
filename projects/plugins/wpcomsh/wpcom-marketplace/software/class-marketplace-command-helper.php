@@ -2,7 +2,7 @@
 /**
  * Helper class for marketplace commands.
  *
- * @since 5.4.0
+ * @since 5.5.0
  * @package WPCOM_Marketplace
  */
 

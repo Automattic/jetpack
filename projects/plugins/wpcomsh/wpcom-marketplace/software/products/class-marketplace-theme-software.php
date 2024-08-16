@@ -2,7 +2,7 @@
 /**
  * Class that contains all the data required to install a theme.
  *
- * @since 5.4.0
+ * @since 5.5.0
  * @package WPCOM_Marketplace
  */
 

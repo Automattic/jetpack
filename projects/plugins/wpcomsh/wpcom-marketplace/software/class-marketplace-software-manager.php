@@ -2,7 +2,7 @@
 /**
  * This class is responsible for installing the marketplace software.
  *
- * @since 5.4.0
+ * @since 5.5.0
  * @package WPCOM_Marketplace
  */
 require_once __DIR__ . '/class-marketplace-software-factory.php';
