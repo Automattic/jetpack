@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-i18n loader script: load script in the footer and defer it.
+i18n loader script & React JSX runtime: load scripts in the footer.
