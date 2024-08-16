@@ -3,6 +3,7 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { useCallback } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
@@ -17,8 +18,11 @@ const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
 const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( slug );
-	const { isPluginActive = false } = detail || {};
+	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
+
+	const isPluginActive =
+		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	const descriptionText = useVideoPressCardDescription( {
 		isPluginActive,
