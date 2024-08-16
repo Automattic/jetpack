@@ -1183,34 +1183,25 @@ class Jetpack_Gutenberg {
 	public static function set_availability_for_plan( $slug ) {
 		$slug = self::remove_extension_prefix( $slug );
 
-		if ( Jetpack_Plan::supports( $slug ) ) {
+		$host = new Host();
+
+		/*
+		 * Check if the block is available for the current plan.
+		 * On WoA sites, we assume that all blocks are available.
+		 */
+		if ( Jetpack_Plan::supports( $slug ) || $host->is_woa_site() ) {
 			self::set_extension_available( $slug );
 			return;
 		}
 
 		// Check what's the minimum plan where the feature is available.
-		$plan           = '';
-		$features_data  = array();
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$is_atomic_site = ( new Host() )->is_woa_site();
-
-		if ( $is_simple_site || $is_atomic_site ) {
-			// Simple sites.
-			if ( $is_simple_site ) {
-				$features_data = self::get_site_specific_features();
-			} else {
-				// Atomic sites.
-				$option = get_option( 'jetpack_active_plan' );
-				if ( isset( $option['features'] ) ) {
-					$features_data = $option['features'];
-				}
-			}
-
+		$plan = '';
+		if ( $host->is_wpcom_simple() ) {
+			$features_data = self::get_site_specific_features();
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} else {
-			// Jetpack sites.
 			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
 		}
 
