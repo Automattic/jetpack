@@ -306,4 +306,32 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		$this->assertFalse( $validated_url );
 	}
+
+	public function test_enqueue_block_editor_assets_handles_null_current_screen() {
+		// Simulate a context with null current_screen.
+		global $current_screen;
+		$previous_current_screen = $current_screen;
+		$current_screen          = null;
+		// Ensure that the block editor scripts and styles are loaded.
+		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+
+		Jetpack_Gutenberg::enqueue_block_editor_assets();
+
+		// Check that the method did not throw an error.
+		$this->assertTrue( true );
+
+		$current_screen = $previous_current_screen;
+	}
+
+	public function test_enqueue_block_editor_assets_handles_defined_current_screen() {
+		// Simulate context with defined current_screen.
+		set_current_screen( 'edit-post' );
+		// Ensure that the block editor scripts and styles are loaded.
+		add_filter( 'should_load_block_editor_scripts_and_styles', '__return_true' );
+
+		Jetpack_Gutenberg::enqueue_block_editor_assets();
+
+		// Check that the method did not throw an error.
+		$this->assertTrue( true );
+	}
 }
