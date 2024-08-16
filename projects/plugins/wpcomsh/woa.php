@@ -228,7 +228,7 @@ function wpcomsh_woa_post_transfer_install_marketplace_software( $args, $assoc_a
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_install_marketplace_software', 10, 2 );
 
 /**
- * Enables the WordAds Jetpack module if required.
+ * Sets WordAds options and enables the WordAds Jetpack module if required.
  *
  * @param array $args Arguments.
  * @param array $assoc_args Associated arguments.
@@ -237,17 +237,29 @@ add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_install_mark
  */
 function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
 
-	$wordads_enabled = WP_CLI\Utils\get_flag_value( $assoc_args, 'wordads-enabled', false );
-	if ( ! $wordads_enabled ) {
+	// wordads-options is expected to be a JSON object with option name=>value pairs.
+	$wordads_options = WP_CLI\Utils\get_flag_value( $assoc_args, 'wordads-options', false );
+
+	if ( false === $wordads_options ) {
 		return;
 	}
 
-	WP_CLI::runcommand(
-		'jetpack module activate wordads',
-		array(
-			'launch'     => false,
-			'exit_error' => false,
-		)
-	);
+	$options_decoded = json_decode( $wordads_options );
+
+	if ( ! is_array( $options_decoded ) ) {
+		return;
+	}
+
+	foreach ( $options_decoded as $option => $value ) {
+		update_option( $option, $value );
+	}
+
+	if ( ! defined( 'JETPACK__VERSION' ) || ! class_exists( 'Jetpack' ) ) {
+		return;
+	}
+
+	if ( ! Jetpack::is_module_active( 'wordads' ) ) {
+		Jetpack::activate_module( 'wordads', false, false );
+	}
 }
 add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_maybe_enable_wordads', 10, 2 );
