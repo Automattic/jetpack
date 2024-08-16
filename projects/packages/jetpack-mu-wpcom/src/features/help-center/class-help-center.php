@@ -334,18 +334,34 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns true if...
+	 * 1. The current user can edit posts.
+	 * 2. The current user is a member of the blog.
+	 * 3. The current request is not in the admin.
+	 * 4. The current request is not in the block editor.
+	 *
+	 * @return bool True if the this is being loaded on the frontend.
+	 */
+	public function is_loading_on_frontend() {
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+
+		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+	}
+
+	/**
 	 * Returns the URL for the Help Center redirect.
 	 * Used for the Help Center when disconnected.
 	 */
 	public function get_help_center_url() {
-		$help_url = 'https://wordpress.com/help';
+		$help_url = 'https://wordpress.com/help?help-center=home';
 
-		if ( ! $this->is_jetpack_disconnected() ) {
-			return false;
+		if ( $this->is_jetpack_disconnected() || $this->is_loading_on_frontend() ) {
+			return $help_url;
 		}
 
-		return $help_url;
+		return false;
 	}
+
 	/**
 	 * Get the asset via file-system on wpcom and via network on Atomic sites.
 	 *
@@ -391,7 +407,7 @@ class Help_Center {
 		// 4. If it is the frontend we show the disconnected version of the help center.
 		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
 			return;
-		} elseif ( is_admin && $can_edit_posts ) {
+		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
 		} elseif ( $this->is_block_editor() ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
