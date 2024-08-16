@@ -510,24 +510,32 @@ class Assets {
 		}
 		$url = self::normalize_path( plugins_url( $path, __FILE__ ) );
 		$url = add_query_arg( 'minify', 'true', $url );
-		$wp_scripts->add( 'wp-jp-i18n-loader', $url, $asset['dependencies'], $asset['version'] );
+
+		$handle = 'wp-jp-i18n-loader';
+
+		$wp_scripts->add( $handle, $url, $asset['dependencies'], $asset['version'] );
+
+		// Ensure the script is loaded in the footer and deferred.
+		$wp_scripts->add_data( $handle, 'group', 1 );
+		$wp_scripts->add_data( $handle, 'strategy', 'defer' );
+
 		if ( ! is_array( $data ) ||
 			! isset( $data['baseUrl'] ) || ! ( is_string( $data['baseUrl'] ) || false === $data['baseUrl'] ) ||
 			! isset( $data['locale'] ) || ! is_string( $data['locale'] ) ||
 			! isset( $data['domainMap'] ) || ! is_array( $data['domainMap'] ) ||
 			! isset( $data['domainPaths'] ) || ! is_array( $data['domainPaths'] )
 		) {
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
+			$wp_scripts->add_inline_script( $handle, 'console.warn( "I18n state deleted by jetpack_i18n_state hook" );' );
 		} elseif ( ! $data['baseUrl'] ) {
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
+			$wp_scripts->add_inline_script( $handle, 'console.warn( "Failed to determine languages base URL. Is WP_LANG_DIR in the WordPress root?" );' );
 		} else {
 			$data['domainMap']   = (object) $data['domainMap']; // Ensure it becomes a json object.
 			$data['domainPaths'] = (object) $data['domainPaths']; // Ensure it becomes a json object.
-			$wp_scripts->add_inline_script( 'wp-jp-i18n-loader', 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
+			$wp_scripts->add_inline_script( $handle, 'wp.jpI18nLoader.state = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) . ';' );
 		}
 
 		// Deprecated state module: Depend on wp-i18n to ensure global `wp` exists and because anything needing this will need that too.
-		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', 'wp-jp-i18n-loader' ) );
+		$wp_scripts->add( 'wp-jp-i18n-state', false, array( 'wp-deprecated', $handle ) );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.deprecated( "wp-jp-i18n-state", { alternative: "wp-jp-i18n-loader" } );' );
 		$wp_scripts->add_inline_script( 'wp-jp-i18n-state', 'wp.jpI18nState = wp.jpI18nLoader.state;' );
 
