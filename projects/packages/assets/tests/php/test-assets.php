@@ -729,7 +729,7 @@ class AssetsTest extends TestCase {
 
 		// @phan-suppress-next-line PhanDeprecatedFunction -- Keep using setMethods until we drop PHP 7.0 support.
 		$mock = $this->getMockBuilder( \stdClass::class )
-			->setMethods( array( 'add', 'add_inline_script' ) )
+			->setMethods( array( 'add', 'add_inline_script', 'add_data' ) )
 			->getMock();
 
 		// Unfortunately PHPUnit deprecated withConsecutive with no replacement, so we have to roll our own version.
