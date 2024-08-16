@@ -19,7 +19,7 @@ const useVideoPressCardDescription = ( {
 	if ( isPluginActive && ! videoCount ) {
 		return preventWidows(
 			__(
-				'Stunning-quality, ad-free video in the WordPress Editor. Begin by uploading your first video',
+				'Stunning-quality, ad-free video in the WordPress Editor. Begin by uploading your first video.',
 				'jetpack-my-jetpack'
 			)
 		);

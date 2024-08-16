@@ -54,7 +54,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
 	const { status, hasPaidPlanForProduct } = detail || {};
 	const { videoCount, featuredStats } = data || {};
-	const { viewsWithoutPlan, viewsWithPlan, watchTime, inactiveWithVideos } = useTooltipCopy();
+	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
 	const shortenedNumberConfig: Intl.NumberFormatOptions = {
 		maximumFractionDigits: 1,
 		notation: 'compact',
