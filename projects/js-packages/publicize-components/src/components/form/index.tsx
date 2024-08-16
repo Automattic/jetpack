@@ -10,6 +10,7 @@ import { Disabled, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { usePublicizeConfig } from '../../..';
+import useAttachedMedia from '../../hooks/use-attached-media';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
@@ -28,6 +29,10 @@ import { SharePostForm } from './share-post-form';
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
+	const { attachedMedia } = useAttachedMedia();
+
+	const showSharePostForm =
+		isPublicizeEnabled && ( hasEnabledConnections || attachedMedia.length > 0 );
 
 	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
@@ -58,9 +63,7 @@ export default function PublicizeForm() {
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ isPublicizeEnabled && hasEnabledConnections && (
-						<SharePostForm analyticsData={ { location: 'editor' } } />
-					) }
+					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 					<AdvancedPlanNudge />
 				</Fragment>
 			) }
