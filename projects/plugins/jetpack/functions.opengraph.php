@@ -561,16 +561,9 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 		return $tags;
 	}
 
-	/*
-	 * Let's not add any tags when the ActivityPub plugin already adds its own.
-	 * On WordPress.com simple, let's check if the plugin is active.
-	 * On self-hosted, let's just check if the class exists.
-	 */
-	$is_activitypub_active = function_exists( 'wpcom_activitypub_is_active' )
-		? wpcom_activitypub_is_active()
-		: class_exists( '\Activitypub\Integration\Opengraph' );
-
-	if ( $is_activitypub_active ) {
+	// Let's not add any tags when the ActivityPub plugin already adds its own.
+	$is_activitypub_opengraph_integration_active = get_option( 'activitypub_use_opengraph' );
+	if ( $is_activitypub_opengraph_integration_active ) {
 		return $tags;
 	}
 
@@ -620,7 +613,7 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 				'user_id'       => (int) $connection_user_id,
 				'connection_id' => (int) $connection_id,
 				'handle'        => $mastodon_handle,
-				'global'        => 0 === $connection_user_id,
+				'global'        => 0 === (int) $connection_user_id,
 			);
 		}
 	}
