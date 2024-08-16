@@ -1189,7 +1189,7 @@ class Jetpack_Gutenberg {
 		 * Check if the block is available for the current plan.
 		 * On WoA sites, we assume that all blocks are available.
 		 */
-		if ( Jetpack_Plan::supports( $slug ) || $host->is_woa_site() ) {
+		if ( $host->is_woa_site() || Jetpack_Plan::supports( $slug ) ) {
 			self::set_extension_available( $slug );
 			return;
 		}
