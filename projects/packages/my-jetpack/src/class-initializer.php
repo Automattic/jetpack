@@ -220,7 +220,7 @@ class Initializer {
 		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
-		$waf_config = new \stdClass();
+		$waf_config = array();
 		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
 			$waf_config = Waf_Runner::get_config();
 		}
