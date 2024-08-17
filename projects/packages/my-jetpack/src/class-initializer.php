@@ -64,7 +64,6 @@ class Initializer {
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
 	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
 	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
-	const WAF_AUTOMATIC_RULES_ENABLED_OPTION_NAME        = 'jetpack_waf_automatic_rules';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
