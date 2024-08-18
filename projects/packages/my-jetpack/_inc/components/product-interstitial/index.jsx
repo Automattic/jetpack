@@ -143,9 +143,7 @@ export default function ProductInterstitial( {
 				{ productId: slug },
 				{
 					onSettled: activatedProduct => {
-						const postCheckoutUrl = activatedProduct?.post_checkout_url
-							? activatedProduct.post_checkout_url
-							: myJetpackCheckoutUri;
+						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
