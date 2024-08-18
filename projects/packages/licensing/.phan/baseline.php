@@ -9,15 +9,15 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 2 occurrences
     // PhanTypeMismatchReturnProbablyReal : 2 occurrences
+    // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeMismatchPropertyDefault : 1 occurrence
     // PhanTypeSuspiciousNonTraversableForeach : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-endpoints.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/class-endpoints.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-licensing.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchPropertyDefault', 'PhanTypeSuspiciousNonTraversableForeach'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

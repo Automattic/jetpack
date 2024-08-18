@@ -143,7 +143,8 @@ const ThreatAccordionItem = ( {
 						<Button
 							isDestructive={ true }
 							variant="secondary"
-							onClick={ handleUnignoreThreatClick() }
+							onClick={ handleIgnoreThreatClick() }
+							disabled={ fixerInProgress }
 						>
 							{ __( 'Unignore threat', 'jetpack-protect' ) }
 						</Button>
