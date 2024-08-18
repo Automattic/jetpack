@@ -90,7 +90,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		$this->assertSame( false, get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
 
 		// Ensure the rule files were generated.
-		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ) );
+		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Runner::ENTRYPOINT_FILE ) );
 		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::IP_ALLOW_RULES_FILE ) );
 		$this->assertFileExists( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::IP_BLOCK_RULES_FILE ) );
@@ -116,7 +116,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		$this->assertSame( false, get_option( Waf_Runner::MODE_OPTION_NAME ) );
 
 		// Ensure the rules entrypoint file was emptied.
-		$this->assertSame( "<?php\n", file_get_contents( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ) ) );
+		$this->assertSame( "<?php\n", file_get_contents( Waf_Runner::get_waf_file_path( Waf_Runner::ENTRYPOINT_FILE ) ) );
 	}
 
 	/**

@@ -39,10 +39,9 @@ class Waf_Rules_Manager {
 	const IP_LISTS_ENABLED_OPTION_NAME = 'jetpack_waf_ip_list';
 
 	// Rule Files
-	const RULES_ENTRYPOINT_FILE = '/rules/rules.php';
-	const AUTOMATIC_RULES_FILE  = '/rules/automatic-rules.php';
-	const IP_ALLOW_RULES_FILE   = '/rules/allow-ip.php';
-	const IP_BLOCK_RULES_FILE   = '/rules/block-ip.php';
+	const AUTOMATIC_RULES_FILE = '/rules/automatic-rules.php';
+	const IP_ALLOW_RULES_FILE  = '/rules/allow-ip.php';
+	const IP_BLOCK_RULES_FILE  = '/rules/block-ip.php';
 
 	/**
 	 * Whether automatic rules are enabled.
@@ -223,7 +222,7 @@ class Waf_Rules_Manager {
 		Waf_Runner::initialize_filesystem();
 
 		$rules                = "<?php\n";
-		$entrypoint_file_path = Waf_Runner::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
+		$entrypoint_file_path = Waf_Runner::get_waf_file_path( Waf_Runner::ENTRYPOINT_FILE );
 
 		// Ensure that the folder exists
 		if ( ! $wp_filesystem->is_dir( dirname( $entrypoint_file_path ) ) ) {
@@ -231,7 +230,7 @@ class Waf_Rules_Manager {
 		}
 
 		// Ensure all potentially required rule files exist
-		$rule_files = array( self::RULES_ENTRYPOINT_FILE, self::AUTOMATIC_RULES_FILE, self::IP_ALLOW_RULES_FILE, self::IP_BLOCK_RULES_FILE );
+		$rule_files = array( Waf_Runner::ENTRYPOINT_FILE, self::AUTOMATIC_RULES_FILE, self::IP_ALLOW_RULES_FILE, self::IP_BLOCK_RULES_FILE );
 		foreach ( $rule_files as $rule_file ) {
 			$rule_file = Waf_Runner::get_waf_file_path( $rule_file );
 			if ( ! $wp_filesystem->is_file( $rule_file ) ) {
