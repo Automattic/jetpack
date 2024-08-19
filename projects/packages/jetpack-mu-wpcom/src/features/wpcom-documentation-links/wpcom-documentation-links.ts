@@ -57,6 +57,12 @@ function overrideCoreDocumentationLinksToWpcom( translation: string, text: strin
 		 */
 		'https://wordpress.org/documentation/article/embeds/':
 			'https://wordpress.com/support/wordpress-editor/blocks/embed-block/',
+
+		/**
+		 * Styles CSS
+		 */
+		'https://developer.wordpress.org/advanced-administration/wordpress/css/':
+			'https://wordpress.com/support/editing-css/',
 	};
 
 	const url = documentLinksMap[ text ] ?? '';
