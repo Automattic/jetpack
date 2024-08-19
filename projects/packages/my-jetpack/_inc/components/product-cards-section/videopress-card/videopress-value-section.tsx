@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
@@ -15,6 +16,39 @@ interface VideoPressValueSectionProps {
 	isPluginActive: boolean;
 	data: Window[ 'myJetpackInitialState' ][ 'videopress' ];
 }
+
+interface ValueSectionProps {
+	value: number;
+	previousValue: number;
+	formattedValue: string;
+	formattedDifference: string;
+}
+
+const ValueSection: FC< ValueSectionProps > = ( {
+	value,
+	previousValue,
+	formattedValue,
+	formattedDifference,
+} ) => {
+	const hasValueIncreased = value > previousValue;
+	return (
+		<div className="videopress-card__value-section__value-container">
+			<span className="videopress-card__value-section__value">{ formattedValue }</span>
+
+			{ value !== previousValue && (
+				<div
+					className={ clsx(
+						'videopress-card__value-section__previous-value',
+						hasValueIncreased ? 'increase' : 'decrease'
+					) }
+				>
+					<Icon size={ 18 } icon={ hasValueIncreased ? arrowUp : arrowDown } />
+					<span>{ formattedDifference }</span>
+				</div>
+			) }
+		</div>
+	);
+};
 
 const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginActive, data } ) => {
 	const { detail } = useProduct( PRODUCT_SLUGS.VIDEOPRESS );
@@ -64,6 +98,11 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 
 	const currentViews = featuredStats?.data?.views?.current;
 	const currentWatchTime = featuredStats?.data?.watch_time?.current;
+	const previousViews = featuredStats?.data?.views?.previous;
+	const previousWatchTime = featuredStats?.data?.watch_time?.previous;
+
+	const viewsDifference = Math.abs( currentViews - previousViews );
+	const watchTimeDifference = Math.abs( currentWatchTime - previousWatchTime );
 
 	if ( currentViews === undefined || currentWatchTime === undefined ) {
 		return null;
@@ -85,6 +124,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 						tracksEventProps={ {
 							location: 'views',
 							current_views: currentViews,
+							previous_views: previousViews,
 							...tracksProps,
 						} }
 					>
@@ -102,9 +142,12 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					</InfoTooltip>
 				</span>
 
-				<span className="videopress-card__value-section__value">
-					{ formatNumber( currentViews, shortenedNumberConfig ) }
-				</span>
+				<ValueSection
+					value={ currentViews }
+					previousValue={ previousViews }
+					formattedValue={ formatNumber( currentViews, shortenedNumberConfig ) }
+					formattedDifference={ formatNumber( viewsDifference, shortenedNumberConfig ) }
+				/>
 			</div>
 
 			<div className="videopress-card__value-section__container">
@@ -121,6 +164,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 						tracksEventProps={ {
 							location: 'watch_time',
 							current_watch_time: currentWatchTime,
+							previous_watch_time: previousWatchTime,
 							...tracksProps,
 						} }
 					>
@@ -129,9 +173,12 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					</InfoTooltip>
 				</span>
 
-				<span className="videopress-card__value-section__value">
-					{ formatTime( currentWatchTime ) }
-				</span>
+				<ValueSection
+					value={ currentWatchTime }
+					previousValue={ previousWatchTime }
+					formattedValue={ formatTime( currentWatchTime ) }
+					formattedDifference={ formatTime( watchTimeDifference ) }
+				/>
 			</div>
 		</div>
 	);
