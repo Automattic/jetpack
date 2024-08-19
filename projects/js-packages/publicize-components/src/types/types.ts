@@ -1,5 +1,6 @@
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
+	useEditorPreview: boolean;
 }
 
 export interface SocialScriptData {

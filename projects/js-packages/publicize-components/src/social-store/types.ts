@@ -59,7 +59,6 @@ export type SocialStoreState = {
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
 	useAdminUiV1?: boolean;
-	featureFlags?: Record< string, boolean >;
 };
 
 export interface KeyringAdditionalUser {

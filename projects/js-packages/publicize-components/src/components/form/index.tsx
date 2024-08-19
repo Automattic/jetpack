@@ -12,6 +12,7 @@ import { Fragment } from '@wordpress/element';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
@@ -28,15 +29,16 @@ export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
 
-	const { useAdminUiV1, featureFlags } = useSelect( select => {
+	const { useAdminUiV1 } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			useAdminUiV1: store.useAdminUiV1(),
-			featureFlags: store.featureFlags(),
 		};
 	}, [] );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
+
+	const { feature_flags } = getSocialScriptData();
 
 	return (
 		<Wrapper>
@@ -49,7 +51,7 @@ export default function PublicizeForm() {
 					<PanelRow>
 						<ConnectionsList />
 					</PanelRow>
-					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					{ feature_flags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
 					<ShareCountInfo />
 				</>
 			) : null }
