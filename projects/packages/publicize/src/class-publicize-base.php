@@ -295,8 +295,6 @@ abstract class Publicize_Base {
 	 * @param string $flag_name The feature flag to check. Will be prefixed with 'jetpack_social_has_' for the option.
 	 * @param string $feature_name The feature name to check for for the Current_Plan check, without the social- prefix.
 	 * @return bool
-	 *
-	 * @deprecated
 	 */
 	public function has_feature_flag( $flag_name, $feature_name ): bool {
 		return Publicize_Script_Data::has_feature_flag( $feature_name );
