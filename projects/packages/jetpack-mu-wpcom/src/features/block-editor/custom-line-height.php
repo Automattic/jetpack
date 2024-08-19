@@ -5,8 +5,6 @@
  * @package jetpack-mu-wpcom
  */
 
-define( 'MU_WPCOM_CUSTOM_LINE_HEIGHT', true );
-
 /**
  * Prior to Gutenberg 8.6, line-height was always enabled, which meant that wpcom
  * users had been utilizing the feature. With the 8.6 release, though, line-height

@@ -287,6 +287,12 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$user_id = $this->{$type_user_id};
 		}
 
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Atomic's WPCOMSH_Require_Connection_Owner class filters the connection,
+			// we should intercept that and make sure the connection is reported correctly.
+			add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
+
 		$is_blog_subscriber = $user_id === $this->paid_subscriber_id || $user_id === $this->regular_subscriber_id;
 		$is_paid_subscriber = $user_id === $this->paid_subscriber_id;
 		$payload            = $this->get_payload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
@@ -329,6 +335,11 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$result,
 			$should_user_access_post ? 'user should be able to access the content' : 'user should not be able to access the content'
 		);
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Removing the filter.
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
 	}
 
 	/**
@@ -593,6 +604,12 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$gold_tier_plan_id          = 6000;
 		$gold_tier_annual_plan_id   = 7000;
 
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Atomic's WPCOMSH_Require_Connection_Owner class filters the connection,
+			// we should intercept that and make sure the connection is reported correctly.
+			add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
+
 		$this->setup_jetpack_tier( $bronze_tier_plan_id, $bronze_tier_annual_plan_id, 10, 100 );
 		$silver_tier_id = $this->setup_jetpack_tier( $silver_tier_plan_id, $silver_tier_annual_plan_id, 20, 200 );
 		$this->setup_jetpack_tier( $gold_tier_plan_id, $gold_tier_annual_plan_id, 30, 300 );
@@ -666,5 +683,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$this->get_payload( true, false, null, null, $gold_tier_annual_plan_id )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			// Removing filter.
+			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		}
 	}
 }

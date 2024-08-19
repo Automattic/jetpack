@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Text } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect } from 'react';
 /**
@@ -14,22 +13,25 @@ import useActivate from '../../data/products/use-activate';
 import useInstallStandalonePlugin from '../../data/products/use-install-standalone-plugin';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
+import preventWidows from '../../utils/prevent-widows';
 import ProductCard from '../product-card';
 import type { AdditionalAction, SecondaryAction } from '../product-card/types';
 import type { FC, ReactNode } from 'react';
 
 interface ConnectedProductCardProps {
 	admin: boolean;
-	recommendation: boolean;
-	slug: string;
-	children: ReactNode;
+	recommendation?: boolean;
+	showMenu?: boolean;
+	slug: JetpackModule;
+	children?: ReactNode;
 	isDataLoading?: boolean;
-	Description?: React.JSX.Element | ( () => null );
+	Description?: FC;
 	additionalActions?: AdditionalAction[];
 	secondaryAction?: SecondaryAction;
 	upgradeInInterstitial?: boolean;
-	primaryActionOverride?: AdditionalAction;
+	primaryActionOverride?: Record< string, AdditionalAction >;
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
 }
@@ -48,7 +50,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	onMouseEnter,
 	onMouseLeave,
 } ) => {
-	const { isRegistered, isUserConnected } = useConnection();
+	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
 
 	const { install: installStandalonePlugin, isPending: isInstalling } =
@@ -74,7 +76,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			return;
 		}
 
-		activate();
+		activate( {} );
 	}, [
 		activate,
 		isRegistered,
@@ -85,7 +87,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 
 	const DefaultDescription = () => {
 		// Replace the last space with a non-breaking space to prevent widows
-		const cardDescription = defaultDescription.replace( /\s(?=[^\s]*$)/, '\u00A0' );
+		const cardDescription = preventWidows( defaultDescription );
 
 		return (
 			<Text variant="body-small" style={ { flexGrow: 1, marginBottom: '1rem' } }>

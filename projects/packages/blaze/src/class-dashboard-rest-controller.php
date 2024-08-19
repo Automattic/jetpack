@@ -135,7 +135,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API Campaigns routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<api_version>v[0-9]+\.?[0-9]*)/campaigns(?P<sub_path>[a-zA-Z0-9-_\/]*)(\?.*)?', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_dsp_campaigns' ),
@@ -525,7 +525,8 @@ class Dashboard_REST_Controller {
 	 * @return array|WP_Error
 	 */
 	public function get_dsp_campaigns( $req ) {
-		return $this->get_dsp_generic( 'v1/campaigns', $req );
+		$version = $req->get_param( 'api_version' ) ?? 'v1';
+		return $this->get_dsp_generic( "{$version}/campaigns", $req );
 	}
 
 	/**

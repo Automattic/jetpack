@@ -47,10 +47,10 @@ const FirewallPage = () => {
 			jetpackWafIpBlockList,
 			jetpackWafIpAllowList,
 			automaticRulesAvailable,
-			bruteForceProtection,
+			bruteForceProtection: isBruteForceModuleEnabled,
 		},
 		currentIp,
-		isEnabled,
+		isEnabled: isWafModuleEnabled,
 		isSeen,
 		upgradeIsSeen,
 		displayUpgradeBadge,
@@ -72,8 +72,6 @@ const FirewallPage = () => {
 	} );
 	const { recordEventHandler, recordEvent } = useAnalyticsTracks();
 
-	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
-
 	/**
 	 * Automatic Rules Installation Error State
 	 *
@@ -92,15 +90,22 @@ const FirewallPage = () => {
 		jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-		brute_force_protection: bruteForceProtection,
+		brute_force_protection: isBruteForceModuleEnabled,
 	} );
 
 	const [ formIsSubmitting, setFormIsSubmitting ] = useState( false );
 	const [ ipAllowListIsUpdating, setIpAllowListIsUpdating ] = useState( false );
 	const [ ipBlockListIsUpdating, setIpBlockListIsUpdating ] = useState( false );
 
-	const ipAllowListHasChanges = formState.jetpack_waf_ip_allow_list !== jetpackWafIpAllowList;
+	const canEditFirewallSettings = isWafModuleEnabled && ! formIsSubmitting;
+	const canToggleAutomaticRules =
+		isWafModuleEnabled && ( hasRequiredPlan || automaticRulesAvailable );
+	const canEditIpAllowList = ! formIsSubmitting && !! formState.jetpack_waf_ip_allow_list_enabled;
 	const ipBlockListHasChanges = formState.jetpack_waf_ip_block_list !== jetpackWafIpBlockList;
+	const ipAllowListHasChanges = formState.jetpack_waf_ip_allow_list !== jetpackWafIpAllowList;
+	const ipBlockListHasContent = !! formState.jetpack_waf_ip_block_list;
+	const ipAllowListHasContent = !! formState.jetpack_waf_ip_allow_list;
+	const ipBlockListEnabled = isWafModuleEnabled && formState.jetpack_waf_ip_block_list_enabled;
 
 	/**
 	 * Get a custom error message based on the error code.
@@ -445,7 +450,7 @@ const FirewallPage = () => {
 				jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-				brute_force_protection: bruteForceProtection,
+				brute_force_protection: isBruteForceModuleEnabled,
 			} );
 		}
 	}, [
@@ -454,7 +459,7 @@ const FirewallPage = () => {
 		jetpackWafIpBlockList,
 		jetpackWafIpAllowList,
 		jetpackWafAutomaticRules,
-		bruteForceProtection,
+		isBruteForceModuleEnabled,
 		isUpdating,
 	] );
 
@@ -517,7 +522,7 @@ const FirewallPage = () => {
 					<FormToggle
 						checked={ canToggleAutomaticRules ? formState.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
-						disabled={ ! isEnabled || formIsSubmitting || ! canToggleAutomaticRules }
+						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules }
 					/>
 					{ hasRequiredPlan && upgradeIsSeen === false && (
 						<Popover noArrow={ false } offset={ 8 } position={ 'top right' } inline={ true }>
@@ -558,7 +563,7 @@ const FirewallPage = () => {
 				<div className={ styles[ 'toggle-section__content' ] }>
 					<div className={ styles[ 'toggle-section__title' ] }>
 						<Text variant="title-medium" mb={ 2 }>
-							{ __( 'Enable automatic firewall protection', 'jetpack-protect' ) }
+							{ __( 'Automatic firewall protection', 'jetpack-protect' ) }
 						</Text>
 						{ ! isSmall && hasRequiredPlan && displayUpgradeBadge && (
 							<span className={ styles.badge }>{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }</span>
@@ -566,7 +571,7 @@ const FirewallPage = () => {
 					</div>
 					<Text>
 						{ __(
-							'Block untrusted traffic sources by scanning every request made to your site. Jetpack’s advanced security rules are automatically kept up-to-date to protect your site from the latest threats.',
+							'Block untrusted traffic by scanning every request made to your site. Jetpack’s security rules are always up-to-date to protect against the latest threats.',
 							'jetpack-protect'
 						) }
 					</Text>
@@ -657,7 +662,7 @@ const FirewallPage = () => {
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Enable brute force protection', 'jetpack-protect' ) }
+					{ __( 'Brute force protection', 'jetpack-protect' ) }
 				</Text>
 				<Text>
 					{ __(
@@ -672,124 +677,126 @@ const FirewallPage = () => {
 	const ipBlockListSettings = (
 		<div
 			className={ `${ styles[ 'toggle-section' ] } ${
-				! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
+				! isWafModuleEnabled ? styles[ 'toggle-section--disabled' ] : ''
 			}` }
 		>
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<FormToggle
 					id="jetpack_waf_ip_block_list_enabled"
-					checked={ isEnabled && formState.jetpack_waf_ip_block_list_enabled }
+					checked={ ipBlockListEnabled }
 					onChange={ handleIpBlockListChange }
-					disabled={ formIsSubmitting || ! isEnabled }
+					disabled={ ! canEditFirewallSettings }
 				/>
 			</div>
 			<div className={ styles[ 'toggle-section__content' ] }>
 				<Text variant="title-medium" mb={ 2 }>
-					{ __( 'Block specific IP addresses from accessing your site', 'jetpack-protect' ) }
+					{ __( 'Block IP addresses', 'jetpack-protect' ) }
 				</Text>
-				<div className={ styles[ 'manual-rules-section' ] }>
-					<Textarea
-						id="jetpack_waf_ip_block_list"
-						placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
-						rows={ 3 }
-						value={ formState.jetpack_waf_ip_block_list }
-						onChange={ handleChange }
-						disabled={
-							formIsSubmitting || ! isEnabled || ! formState.jetpack_waf_ip_block_list_enabled
-						}
-					/>
-				</div>
-				<div className={ styles[ 'block-list-button-container' ] }>
-					<Button
-						onClick={ saveIpBlockListChanges }
-						size={ 'small' }
-						isLoading={ ipBlockListIsUpdating }
-						disabled={ formIsSubmitting || ! ipBlockListHasChanges }
-					>
-						{ __( 'Save block list', 'jetpack-protect' ) }
-					</Button>
-				</div>
+				<Text mb={ 1 }>
+					{ __(
+						'Stop specific visitors from accessing your site by their IP address.',
+						'jetpack-protect'
+					) }
+				</Text>
+				{ ( ipBlockListEnabled || ipBlockListHasContent ) && (
+					<div className={ styles[ 'manual-rules-section' ] }>
+						<Textarea
+							id="jetpack_waf_ip_block_list"
+							placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
+							rows={ 3 }
+							value={ formState.jetpack_waf_ip_block_list }
+							onChange={ handleChange }
+							disabled={ ! canEditFirewallSettings || ! ipBlockListEnabled }
+						/>
+					</div>
+				) }
+				{ ipBlockListEnabled && (
+					<div className={ styles[ 'block-list-button-container' ] }>
+						<Button
+							onClick={ saveIpBlockListChanges }
+							isLoading={ ipBlockListIsUpdating }
+							disabled={ ! canEditFirewallSettings || ! ipBlockListHasChanges }
+						>
+							{ __( 'Save block list', 'jetpack-protect' ) }
+						</Button>
+					</div>
+				) }
 			</div>
 		</div>
 	);
 
 	const ipAllowListSettings = (
 		<>
-			<div
-				className={ `${ styles[ 'toggle-section' ] } ${
-					! bruteForceProtection && ! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
-				}` }
-			>
+			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_allow_list_enabled"
-						checked={
-							( isEnabled || bruteForceProtection ) && formState.jetpack_waf_ip_allow_list_enabled
-						}
+						checked={ formState.jetpack_waf_ip_allow_list_enabled }
 						onChange={ handleIpAllowListChange }
-						disabled={ formIsSubmitting || ( ! isEnabled && ! bruteForceProtection ) }
+						disabled={ formIsSubmitting }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
 					<Text variant="title-medium" mb={ 2 }>
-						{ __( 'Always allow specific IP addresses', 'jetpack-protect' ) }
+						{ __( 'Trusted IP addresses', 'jetpack-protect' ) }
 					</Text>
 					<Text mb={ 1 }>
 						{ __(
-							"IP addresses added to this list will never be blocked by Jetpack's security features.",
+							'IP addresses added to this list are always allowed by Jetpack.',
 							'jetpack-protect'
 						) }
 					</Text>
-					<div className={ styles[ 'manual-rules-section' ] }>
-						<Textarea
-							id="jetpack_waf_ip_allow_list"
-							placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
-							rows={ 3 }
-							value={ formState.jetpack_waf_ip_allow_list }
-							onChange={ handleChange }
-							disabled={
-								formIsSubmitting ||
-								( ! isEnabled && ! bruteForceProtection ) ||
-								! formState.jetpack_waf_ip_allow_list_enabled
-							}
-						/>
-					</div>
-					<div className={ styles[ 'allow-list-button-container' ] }>
-						<div>
-							<Text variant="body-small" mb={ 1 }>
-								{ createInterpolateElement(
-									sprintf(
-										// translators: placeholder is the user's current IP address.
-										__( 'Your current IP: <strong>%s</strong>', 'jetpack-protect' ),
-										currentIp
-									),
-									{
-										strong: <strong />,
-									}
+					{ ( formState.jetpack_waf_ip_allow_list_enabled || ipAllowListHasContent ) && (
+						<div className={ styles[ 'manual-rules-section' ] }>
+							<Textarea
+								id="jetpack_waf_ip_allow_list"
+								placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
+								rows={ 3 }
+								value={ formState.jetpack_waf_ip_allow_list }
+								onChange={ handleChange }
+								disabled={ ! canEditIpAllowList }
+							/>
+							<Text variant="body-extra-small" mt={ 1 }>
+								{ __(
+									"Add IP addresses here to ensure they always have access to your site, regardless of Jetpack's security features.",
+									'jetpack-protect'
 								) }
 							</Text>
+						</div>
+					) }
+					{ formState.jetpack_waf_ip_allow_list_enabled && (
+						<div className={ styles[ 'allow-list-button-container' ] }>
+							<div>
+								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
+									{ createInterpolateElement(
+										sprintf(
+											// translators: placeholder is the user's current IP address.
+											__( 'Your current IP: <strong>%s</strong>', 'jetpack-protect' ),
+											currentIp
+										),
+										{
+											strong: <strong />,
+										}
+									) }
+								</Text>
+								<Button
+									variant={ 'secondary' }
+									size={ 'small' }
+									onClick={ addCurrentIpToAllowList }
+									disabled={ ! canEditIpAllowList || isCurrentIpAllowed || formIsSubmitting }
+								>
+									{ __( '+ Add to Allow List', 'jetpack-protect' ) }
+								</Button>
+							</div>
 							<Button
-								variant={ 'secondary' }
-								size={ 'small' }
-								onClick={ addCurrentIpToAllowList }
-								disabled={
-									formIsSubmitting ||
-									isCurrentIpAllowed ||
-									! formState.jetpack_waf_ip_allow_list_enabled
-								}
+								onClick={ saveIpAllowListChanges }
+								isLoading={ ipAllowListIsUpdating }
+								disabled={ formIsSubmitting || ! ipAllowListHasChanges }
 							>
-								{ __( '+ Add to Allow List', 'jetpack-protect' ) }
+								{ __( 'Save allow list', 'jetpack-protect' ) }
 							</Button>
 						</div>
-						<Button
-							onClick={ saveIpAllowListChanges }
-							size={ 'small' }
-							isLoading={ ipAllowListIsUpdating }
-							disabled={ formIsSubmitting || ! ipAllowListHasChanges }
-						>
-							{ __( 'Save allow list', 'jetpack-protect' ) }
-						</Button>
-					</div>
+					) }
 				</div>
 			</div>
 		</>
@@ -802,12 +809,17 @@ const FirewallPage = () => {
 		<AdminPage>
 			<ConnectedFirewallHeader />
 			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
-				{ wafSupported && ! isEnabled && <Col>{ moduleDisabledNotice } </Col> }
+				{ wafSupported && ! isWafModuleEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>
 					<div className={ styles[ 'toggle-wrapper' ] }>
 						{ wafSupported && automaticRulesSettings }
 						{ bruteForceProtectionSettings }
-						{ wafSupported && ipBlockListSettings }
+						{ wafSupported && (
+							<>
+								{ ipBlockListSettings }
+								<div className={ styles.divider }></div>
+							</>
+						) }
 						{ ipAllowListSettings }
 					</div>
 				</Col>

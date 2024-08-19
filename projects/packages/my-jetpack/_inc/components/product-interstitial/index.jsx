@@ -9,7 +9,6 @@ import {
 	Text,
 	TermsOfService,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -23,6 +22,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import { useGoBack } from '../../hooks/use-go-back';
+import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
@@ -80,9 +80,9 @@ export default function ProductInterstitial( {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug } );
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
-	const { siteIsRegistering, handleRegisterSite } = useConnection( {
+	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: detail.postActivationUrl ? detail.postActivationUrl : null,
+		redirectUri: detail.postActivationUrl ?? null,
 	} );
 	const showBundledTOS = ! hideTOS && !! bundle;
 	const productName = detail?.title;
@@ -131,10 +131,6 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			let postCheckoutUrl = product?.postCheckoutUrl
-				? product?.postCheckoutUrl
-				: myJetpackCheckoutUri;
-
 			ctaCallback?.( { slug, product, tier } );
 
 			if ( product?.isBundle || directCheckout ) {
@@ -146,10 +142,8 @@ export default function ProductInterstitial( {
 			activate(
 				{ productId: slug },
 				{
-					onSettled: ( { productId: activatedProduct } ) => {
-						postCheckoutUrl = activatedProduct?.post_checkout_url
-							? activatedProduct.post_checkout_url
-							: myJetpackCheckoutUri;
+					onSettled: activatedProduct => {
+						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier

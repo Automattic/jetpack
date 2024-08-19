@@ -424,39 +424,43 @@ export const Waf = class extends Component {
 						</span>
 					}
 				/>
-				<div className="waf__settings__ips">
-					<Textarea
-						disabled={
-							baseInputDisabledCase ||
-							this.props.isUpdatingWafSettings ||
-							! this.props.settings?.ipBlockListEnabled
-						}
-						name="ipBlockList"
-						placeholder={ sprintf(
-							/* translators: Placeholder is a list of example IP addresses. */
-							__( 'Example: %s', 'jetpack' ),
-							'\n12.12.12.1\n12.12.12.2'
+				{ ( this.state.ipBlockListEnabled || !! this.state.ipBlockList ) && (
+					<div className="waf__settings__ips">
+						<Textarea
+							disabled={
+								baseInputDisabledCase ||
+								this.props.isUpdatingWafSettings ||
+								! this.props.settings?.ipBlockListEnabled
+							}
+							name="ipBlockList"
+							placeholder={ sprintf(
+								/* translators: Placeholder is a list of example IP addresses. */
+								__( 'Example: %s', 'jetpack' ),
+								'\n12.12.12.1\n12.12.12.2'
+							) }
+							value={ this.state.ipBlockList }
+							onChange={ this.handleIpBlockListChange }
+						/>
+						{ this.state.ipBlockListEnabled && (
+							<Button
+								primary
+								rna
+								compact
+								type="button"
+								className="waf__settings__ips__save-button"
+								disabled={
+									baseInputDisabledCase ||
+									this.state.ipBlockList === this.props.settings?.ipBlockList ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
+								}
+								onClick={ this.onSubmit }
+							>
+								{ __( 'Save block list', 'jetpack' ) }
+							</Button>
 						) }
-						value={ this.state.ipBlockList }
-						onChange={ this.handleIpBlockListChange }
-					/>
-					<Button
-						primary
-						rna
-						compact
-						type="button"
-						className="waf__settings__ips__save-button"
-						disabled={
-							baseInputDisabledCase ||
-							this.state.ipBlockList === this.props.settings?.ipBlockList ||
-							( this.props.isUpdatingWafSettings &&
-								this.state.ipBlockList !== this.props.settings?.ipBlockList )
-						}
-						onClick={ this.onSubmit }
-					>
-						{ __( 'Save block list', 'jetpack' ) }
-					</Button>
-				</div>
+					</div>
+				) }
 			</div>
 		);
 
@@ -501,7 +505,7 @@ export const Waf = class extends Component {
 					showDismiss={ false }
 					status="is-info"
 					text={ __(
-						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.9.',
+						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.10.',
 						'jetpack'
 					) }
 				>

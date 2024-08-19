@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Pass bool to `update_option()` `$autoload`. No change to functionality.
+
+
