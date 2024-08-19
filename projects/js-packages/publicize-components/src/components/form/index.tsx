@@ -7,11 +7,9 @@
  */
 
 import { Disabled, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { usePublicizeConfig } from '../../..';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import { getSocialScriptData } from '../../utils/script-data';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
@@ -29,12 +27,7 @@ export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
 
-	const { useAdminUiV1 } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			useAdminUiV1: store.useAdminUiV1(),
-		};
-	}, [] );
+	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 

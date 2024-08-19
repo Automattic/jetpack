@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: Migrated feature flags to new script data

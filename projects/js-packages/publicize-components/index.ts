@@ -37,3 +37,4 @@ export * from './src/hooks/use-share-limits';
 export * from './src/hooks/use-post-meta';
 export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
+export * from './src/utils/script-data';
