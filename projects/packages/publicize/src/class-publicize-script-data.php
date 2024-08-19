@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 
@@ -83,6 +85,7 @@ class Publicize_Script_Data {
 		return array_merge(
 			$basic_data,
 			array(
+				'supported_services' => self::get_supported_services(),
 				/**
 				 * 'store'       => self::get_store_script_data(),
 				 * 'urls'        => self::get_urls(),
@@ -132,5 +135,34 @@ class Publicize_Script_Data {
 		}
 
 		return Current_Plan::supports( 'social-' . $feature );
+	}
+
+	/**
+	 * Get the list of supported Publicize services.
+	 *
+	 * @return array List of external services and their settings.
+	 */
+	public static function get_supported_services() {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return array();
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+		$services = $body->services ?? array();
+
+		return array_values(
+			array_filter(
+				(array) $services,
+				function ( $service ) {
+					return isset( $service->type ) && 'publicize' === $service->type;
+				}
+			)
+		);
 	}
 }
