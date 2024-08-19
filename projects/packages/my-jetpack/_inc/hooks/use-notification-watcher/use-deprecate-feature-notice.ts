@@ -6,7 +6,7 @@ import type { NoticeOptions } from '../../context/notices/types';
 type RedBubbleAlerts = Window[ 'myJetpackInitialState' ][ 'redBubbleAlerts' ];
 
 const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
-	const { setNotice } = useContext( NoticeContext );
+	const { setNotice, resetNotice } = useContext( NoticeContext );
 
 	useEffect( () => {
 		const deprecateAlerts = Object.keys( redBubbleAlerts ).filter( key =>
@@ -18,10 +18,16 @@ const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 		}
 
 		const alert = redBubbleAlerts[ deprecateAlerts[ 0 ] ];
-		const { text, link } = alert.data;
+		const { text, link, id } = alert.data;
 
 		const onCtaClick = () => {
 			window.open( link.url );
+		};
+
+		const onCloseClick = () => {
+			document.cookie = `jetpack_deprecate_dismissed[${ id }]=1; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=None;`;
+			delete redBubbleAlerts[ deprecateAlerts[ 0 ] ];
+			resetNotice();
 		};
 
 		const noticeOptions: NoticeOptions = {
@@ -34,6 +40,8 @@ const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 					noDefaultClasses: true,
 				},
 			],
+			hideCloseButton: false,
+			onClose: onCloseClick,
 			priority: NOTICE_PRIORITY_MEDIUM,
 		};
 
@@ -41,7 +49,7 @@ const useDeprecateFeatureNotice = ( redBubbleAlerts: RedBubbleAlerts ) => {
 			message: text,
 			options: noticeOptions,
 		} );
-	}, [ redBubbleAlerts, setNotice ] );
+	}, [ redBubbleAlerts, setNotice, resetNotice ] );
 };
 
 export default useDeprecateFeatureNotice;

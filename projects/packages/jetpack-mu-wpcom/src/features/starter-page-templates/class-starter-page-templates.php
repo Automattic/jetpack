@@ -9,9 +9,6 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once __DIR__ . '/../../utils.php';
 
-// Disable the feature in ETK plugin
-define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
-
 /**
  * Class Starter_Page_Templates
  */

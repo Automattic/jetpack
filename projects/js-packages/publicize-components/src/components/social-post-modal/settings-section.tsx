@@ -14,7 +14,7 @@ export function SettingsSection() {
 				<h2>{ __( 'Social Preview', 'jetpack' ) }</h2>
 			</div>
 			<div className={ styles[ 'settings-content' ] }>
-				<SharePostForm />
+				<SharePostForm analyticsData={ { location: 'preview-modal' } } />
 			</div>
 		</div>
 	);

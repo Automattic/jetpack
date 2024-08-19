@@ -379,7 +379,8 @@ class Assets {
 			);
 			$ver                         = $options['version'] ?? $asset['version'];
 		} else {
-			$ver = $options['version'] ?? filemtime( "$dir/$path" );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$ver = $options['version'] ?? @filemtime( "$dir/$path" );
 		}
 
 		if ( $options['async'] && '' === $options['strategy'] ) { // Handle the deprecated `async` option

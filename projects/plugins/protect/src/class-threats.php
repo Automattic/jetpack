@@ -65,6 +65,7 @@ class Threats {
 
 		// clear the now out-of-date cache
 		Scan_Status::delete_option();
+		Scan_History::delete_option();
 
 		return true;
 	}
@@ -78,6 +79,17 @@ class Threats {
 	 */
 	public static function ignore_threat( $threat_id ) {
 		return self::update_threat( $threat_id, array( 'ignore' => true ) );
+	}
+
+	/**
+	 * Unignore Threat
+	 *
+	 * @param string $threat_id The threat ID.
+	 *
+	 * @return bool
+	 */
+	public static function unignore_threat( $threat_id ) {
+		return self::update_threat( $threat_id, array( 'unignore' => true ) );
 	}
 
 	/**
@@ -113,6 +125,7 @@ class Threats {
 
 		// clear the now out-of-date cache
 		Scan_Status::delete_option();
+		Scan_History::delete_option();
 
 		$parsed_response = json_decode( $response['body'] );
 
@@ -158,6 +171,7 @@ class Threats {
 
 		// clear the potentially out-of-date cache
 		Scan_Status::delete_option();
+		Scan_History::delete_option();
 
 		return $parsed_response;
 	}
@@ -197,6 +211,7 @@ class Threats {
 
 		// clear the now out-of-date cache
 		Scan_Status::delete_option();
+		Scan_History::delete_option();
 
 		return true;
 	}

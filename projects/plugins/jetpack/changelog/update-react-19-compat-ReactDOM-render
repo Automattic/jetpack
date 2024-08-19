@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-React Compatibility: Changing ReactDOM.render usage to be via ReactDOM.createRoot.

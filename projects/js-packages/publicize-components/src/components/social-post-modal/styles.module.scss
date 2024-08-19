@@ -12,6 +12,7 @@
 
     @include break-large {
         width: calc(#{$break-large} - 40px);
+        max-height: calc(100% - 120px);
     }
 
     :global(.components-modal__content.hide-header) {
@@ -86,6 +87,13 @@
 
 .preview-content {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    padding: 2rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+}
+
+.disabled-tab {
+    opacity: 0.5;
 }

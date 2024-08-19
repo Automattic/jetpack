@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Social Links: Adding a function_exists check within the social-links.php file, to preventconflicts with package version.

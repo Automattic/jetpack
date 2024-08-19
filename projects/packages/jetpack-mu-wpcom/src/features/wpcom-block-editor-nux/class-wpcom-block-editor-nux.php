@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
-define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
-
 require_once __DIR__ . '/../../utils.php';
 
 /**

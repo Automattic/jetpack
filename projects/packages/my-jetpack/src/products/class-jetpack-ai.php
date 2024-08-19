@@ -216,7 +216,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'The most powerful AI tool for WordPress', 'jetpack-my-jetpack' );
+		return __( 'Enhance your writing and productivity with our AI suite', 'jetpack-my-jetpack' );
 	}
 
 	/**

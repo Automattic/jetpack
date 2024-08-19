@@ -204,7 +204,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		$projected_response = array(
 			'odie_chat_id'      => $response->odie_chat_id,
-			'odie_last_chat_id' => $response->odie_last_chat_id,
+			'odie_last_chat_id' => $response->odie_last_chat_id ?? null,
 		);
 
 		return rest_ensure_response( $projected_response );

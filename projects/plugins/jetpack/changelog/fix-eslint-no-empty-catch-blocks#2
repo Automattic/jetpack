@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: In webpack.config.extensions.js, remove a catch for JSON errors that would fail with "Cannot read properties of undefined (reading 'replace')" on the next line anyway.
-
-

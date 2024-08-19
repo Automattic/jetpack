@@ -1,5 +1,6 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, PanelRow, Button } from '@wordpress/components';
-import { useReducer } from '@wordpress/element';
+import { useCallback, useReducer } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { PreviewSection } from './preview-section';
@@ -13,6 +14,14 @@ import styles from './styles.module.scss';
  */
 export function SocialPostModal() {
 	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+	const { recordEvent } = useAnalytics();
+
+	const handleOpenModal = useCallback( () => {
+		if ( ! isModalOpen ) {
+			recordEvent( 'jetpack_social_preview_modal_opened' );
+		}
+		toggleModal();
+	}, [ isModalOpen, recordEvent ] );
 
 	return (
 		<PanelRow className={ styles.panel }>
@@ -35,7 +44,7 @@ export function SocialPostModal() {
 					/>
 				</Modal>
 			) }
-			<Button variant="secondary" onClick={ toggleModal }>
+			<Button variant="secondary" onClick={ handleOpenModal }>
 				{ __( 'Preview social posts', 'jetpack' ) }
 			</Button>
 		</PanelRow>

@@ -1,3 +1,12 @@
+export interface FeatureFlags {
+	useAdminUiV1: boolean;
+}
+
+export interface SocialScriptData {
+	is_publicize_enabled: boolean;
+	feature_flags: FeatureFlags;
+}
+
 type JetpackSettingsSelectors = {
 	getJetpackSettings: () => {
 		publicize_active: boolean;

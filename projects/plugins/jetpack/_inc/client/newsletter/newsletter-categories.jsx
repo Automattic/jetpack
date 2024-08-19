@@ -39,6 +39,7 @@ const mapCategoriesIds = category => {
 function NewsletterCategories( props ) {
 	const {
 		updateFormStateModuleOption,
+		isSubscriptionsActive,
 		isNewsletterCategoriesEnabled,
 		newsletterCategories,
 		categories,
@@ -81,6 +82,7 @@ function NewsletterCategories( props ) {
 	);
 
 	const disabled =
+		! isSubscriptionsActive ||
 		unavailableInOfflineMode ||
 		unavailableInSiteConnectionMode ||
 		isSavingAnyOption( [ NEWSLETTER_CATEGORIES_ENABLED_OPTION, NEWSLETTER_CATEGORIES_OPTION ] );
@@ -114,7 +116,7 @@ function NewsletterCategories( props ) {
 				<div className="newsletter-categories-toggle-wrapper">
 					<ToggleControl
 						disabled={ disabled }
-						checked={ isNewsletterCategoriesEnabled }
+						checked={ isNewsletterCategoriesEnabled && isSubscriptionsActive }
 						onChange={ handleEnableNewsletterCategoriesToggleChange }
 						label={
 							<span className="jp-form-toggle-explanation">
@@ -125,7 +127,7 @@ function NewsletterCategories( props ) {
 				</div>
 				<div
 					className={ clsx( 'newsletter-colapsable', {
-						hide: ! isNewsletterCategoriesEnabled,
+						hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 					} ) }
 				>
 					<TreeDropdown
@@ -138,7 +140,7 @@ function NewsletterCategories( props ) {
 			</SettingsGroup>
 			<div
 				className={ clsx( 'newsletter-card-colapsable', {
-					hide: ! isNewsletterCategoriesEnabled,
+					hide: ! isNewsletterCategoriesEnabled || ! isSubscriptionsActive,
 				} ) }
 			>
 				<Card
@@ -157,6 +159,7 @@ function NewsletterCategories( props ) {
 export default withModuleSettingsFormHelpers(
 	connect( ( state, ownProps ) => {
 		return {
+			isSubscriptionsActive: ownProps.getOptionValue( SUBSCRIPTIONS_MODULE_NAME ),
 			subscriptionsModule: getModule( state, SUBSCRIPTIONS_MODULE_NAME ),
 			isNewsletterCategoriesEnabled: ownProps.getOptionValue(
 				NEWSLETTER_CATEGORIES_ENABLED_OPTION

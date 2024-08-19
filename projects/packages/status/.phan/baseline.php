@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentInternal : 4 occurrences
+    // PhanTypeMismatchArgumentInternal : 3 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
     // PhanPluginSimplifyExpressionBool : 2 occurrences

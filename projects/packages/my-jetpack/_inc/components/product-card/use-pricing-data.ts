@@ -6,6 +6,7 @@ import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
@@ -80,6 +81,7 @@ const getSecondaryAction = ( detail: ProductCamelCase, onActivate: () => void ) 
 };
 
 const usePricingData = ( slug: string ) => {
+	const { recordEvent } = useAnalytics();
 	const { detail } = useProduct( slug );
 	const { wpcomProductSlug, wpcomFreeProductSlug, ...data } = parsePricingData(
 		detail.pricingForUi
@@ -112,13 +114,14 @@ const usePricingData = ( slug: string ) => {
 	}, [ activate, runFreeCheckout, wpcomFreeProductSlug ] );
 
 	const handleCheckout = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_evaluation_recommendations_checkout_click', { slug } );
 		if ( slug === 'crm' ) {
 			activate( {} );
 			window.open( 'https://jetpackcrm.com/pricing/', '_blank' );
 			return;
 		}
 		runCheckout();
-	}, [ activate, runCheckout, slug ] );
+	}, [ activate, recordEvent, runCheckout, slug ] );
 
 	return {
 		secondaryAction: getSecondaryAction( detail, handleActivate ),

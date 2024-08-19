@@ -17,10 +17,11 @@ import React from 'react';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
+import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import isBreveAvailable from '../breve/utils/get-availability';
+import useBreveAvailability from '../breve/hooks/use-breve-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -38,6 +39,9 @@ import type { CoreSelect, JetpackSettingsContentProps } from './types';
 import type * as EditorSelectors from '@wordpress/editor/store/selectors';
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
+/**
+ * TODO: use getFeatureAvailability for all the checks below.
+ */
 // Determine if the usage panel is enabled or not
 const isUsagePanelAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-assistant-usage-panel' ]
@@ -50,6 +54,10 @@ const isAIFeaturedImageAvailable =
 const isAITitleOptimizationAvailable =
 	window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'ai-title-optimization' ]?.available ||
 	false;
+// Determine if the AI Title Optimization Keywords feature is available
+const isAITitleOptimizationKeywordsFeatureAvailable = getFeatureAvailability(
+	'ai-title-optimization-keywords-support'
+);
 
 const JetpackAndSettingsContent = ( {
 	placement,
@@ -58,6 +66,13 @@ const JetpackAndSettingsContent = ( {
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
+	const isBreveAvailable = useBreveAvailability();
+
+	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
+	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
+	const titleOptimizationSectionLabel = isAITitleOptimizationKeywordsFeatureAvailable
+		? SEOTitleOptimizationSectionLabel
+		: currentTitleOptimizationSectionLabel;
 
 	return (
 		<>
@@ -77,7 +92,7 @@ const JetpackAndSettingsContent = ( {
 
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
-					<BaseControl label={ __( 'Optimize Publishing', 'jetpack' ) }>
+					<BaseControl label={ titleOptimizationSectionLabel }>
 						<TitleOptimization placement={ placement } busy={ false } disabled={ requireUpgrade } />
 					</BaseControl>
 				</PanelRow>
@@ -119,6 +134,7 @@ export default function AiAssistantPluginSidebar() {
 	const { requireUpgrade, upgradeType, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
+	const isBreveAvailable = useBreveAvailability();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
@@ -207,4 +223,4 @@ export default function AiAssistantPluginSidebar() {
 }
 
 // Register the highlight format type from the Breve component
-isBreveAvailable && registerBreveHighlights();
+registerBreveHighlights();
