@@ -549,8 +549,8 @@ class WooCommerce extends Module {
 		'_date_completed',
 		'_date_paid',
 		'_payment_tokens',
-		'_billing_address_index',
-		'_shipping_address_index',
+		// '_billing_address_index', do not sync these as they contain personal data.
+		// '_shipping_address_index',
 		'_recorded_sales',
 		'_recorded_coupon_usage_counts',
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L539 .

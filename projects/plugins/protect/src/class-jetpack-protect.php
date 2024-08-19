@@ -235,6 +235,7 @@ class Jetpack_Protect {
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 				'stats'               => self::get_waf_stats(),
+				'globalStats'         => Waf_Stats::get_global_stats(),
 			),
 		);
 
@@ -459,7 +460,6 @@ class Jetpack_Protect {
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
-			'globalStats'               => Waf_Stats::get_global_stats(),
 		);
 	}
 }

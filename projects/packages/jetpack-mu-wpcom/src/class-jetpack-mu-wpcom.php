@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.54.2';
+	const PACKAGE_VERSION = '5.57.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -75,6 +75,9 @@ class Jetpack_Mu_Wpcom {
 		// Load the Newsletter category settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 
+		// Load the Social Links feature.
+		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -105,6 +108,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
@@ -174,7 +178,7 @@ class Jetpack_Mu_Wpcom {
 		define( 'MU_WPCOM_STARTER_PAGE_TEMPLATES', true );
 		define( 'MU_WPCOM_TAGS_EDUCATION', true );
 		define( 'MU_WPCOM_BLOCK_DESCRIPTION_LINKS', true );
-		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', false );
+		define( 'MU_WPCOM_BLOCK_EDITOR_NUX', true );
 		define( 'MU_WPCOM_POSTS_LIST_BLOCK', true );
 		define( 'MU_WPCOM_JETPACK_COUNTDOWN_BLOCK', true );
 		define( 'MU_WPCOM_JETPACK_TIMELINE_BLOCK', true );
@@ -218,6 +222,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
 			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
+			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
 			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
 			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
 			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';
@@ -457,5 +462,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_random_redirect() {
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
+	}
+
+	/**
+	 * Load the Social Links feature.
+	 */
+	public static function load_social_links() {
+		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
+		}
 	}
 }

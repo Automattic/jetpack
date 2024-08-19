@@ -109,7 +109,7 @@ class REST_Controller {
 		/**
 		 * IP Lists Enabled
 		 *
-		 * @deprecated $next-version$ This is a legacy option maintained here for backwards compatibility.
+		 * @deprecated 0.17.0 This is a legacy option maintained here for backwards compatibility.
 		 */
 		if ( isset( $request['jetpack_waf_ip_list'] ) ) {
 			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_ENABLED_OPTION_NAME, $request['jetpack_waf_ip_list'] ? '1' : '' );

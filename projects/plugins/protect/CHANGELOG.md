@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.0.0-beta - 2024-08-09
+### Added
+- Firewall: add dedicated WAF allow and block list toggles [#38265]
+- General: add "contact support" links [#38416]
+- Security Scanning: add threats history view [#38117]
+
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6. [#37962]
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5. [#38382]
+
+### Fixed
+- Fix an issue where the connection error hook was always resetting the notice [#38120]
+- Fix image optimization [#38573]
+- Fix in-progress threat fixer loading indicator [#38051]
+- Fix threat fix modal title [#38312]
+
 ## 2.2.0 - 2024-05-24
 ### Added
 - Add data to WAF logs and a toggle for users to opt-in to share more data with us if needed. [#36377]

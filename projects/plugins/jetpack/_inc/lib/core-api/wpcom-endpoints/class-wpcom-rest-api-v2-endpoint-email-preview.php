@@ -136,7 +136,7 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 				/**
 				* Filters the generated email preview HTML.
 				*
-				* @since $$next-version$$
+				* @since 13.8
 				*
 				* @param string $html   The generated HTML for the email preview.
 				* @param WP_Post $post  The post object.
