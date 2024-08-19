@@ -2,9 +2,9 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 
 /**
- * Expose the `connectionStatus` state object and `BackupConnectionScreen` to show a component used for connection.
+ * Expose the `connectionStatus` state object from the Jetpack connection store.
  *
- * @returns {Array} connectionStatus, BackupConnectionScreen
+ * @returns {object} connectionStatus The connection status object.
  */
 export default function useConnection() {
 	const connectionStatus = useSelect(
