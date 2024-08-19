@@ -224,7 +224,7 @@ function wpcomsh_woa_post_process_maybe_enable_wordads( $args, $assoc_args ) {
 		return;
 	}
 
-	$options_decoded = json_decode( $wordads_options );
+	$options_decoded = json_decode( $wordads_options, true );
 
 	if ( ! is_array( $options_decoded ) ) {
 		return;
