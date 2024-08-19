@@ -16,6 +16,7 @@ import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-conn
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
+import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { SharePostForm } from './share-post-form';
 
 /**
@@ -49,6 +50,7 @@ export default function PublicizeForm() {
 						<ConnectionsList />
 					</PanelRow>
 					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
+					<EnhancedFeaturesNudge />
 				</>
 			) : null }
 			<ConnectionNotice />
