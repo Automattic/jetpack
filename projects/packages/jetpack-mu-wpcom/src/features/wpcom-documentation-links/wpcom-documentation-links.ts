@@ -52,6 +52,9 @@ function overrideCoreDocumentationLinksToWpcom( translation: string, text: strin
 		'https://wordpress.org/documentation/article/styles-overview/':
 			'https://wordpress.com/support/using-styles/',
 
+		'https://developer.wordpress.org/advanced-administration/wordpress/css/':
+			'https://wordpress.com/support/editing-css/',
+
 		/**
 		 * Embed Block
 		 */
