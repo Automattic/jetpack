@@ -2,21 +2,23 @@ import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useState, useCallback, useRef } from 'react';
-import useAnalytics from '../../../../hooks/use-analytics';
+import useAnalytics from '../../hooks/use-analytics';
 import type { FC, ReactNode } from 'react';
 
 import './style.scss';
 
 type Props = {
 	children: ReactNode;
+	className?: string;
 	icon?: string;
 	iconSize?: number;
 	tracksEventName?: string;
-	tracksEventProps?: { [ key: string ]: string | boolean | number };
+	tracksEventProps?: Record< Lowercase< string >, unknown >;
 };
 
 export const InfoTooltip: FC< Props > = ( {
 	children,
+	className,
 	icon = 'info-outline',
 	iconSize = 14,
 	tracksEventName,
@@ -33,7 +35,6 @@ export const InfoTooltip: FC< Props > = ( {
 				if ( ! prevState === true && tracksEventName ) {
 					recordEvent( `jetpack_${ tracksEventName }`, {
 						page: 'my-jetpack',
-						feature: 'jetpack-protect',
 						...tracksEventProps,
 					} );
 				}
@@ -51,7 +52,7 @@ export const InfoTooltip: FC< Props > = ( {
 	}, [ setIsPopoverVisible, useTooltipRef ] );
 
 	return (
-		<span>
+		<span className={ className }>
 			<button className="info-tooltip__button" onClick={ toggleTooltip } ref={ useTooltipRef }>
 				<Gridicon icon={ icon } size={ iconSize } />
 			</button>

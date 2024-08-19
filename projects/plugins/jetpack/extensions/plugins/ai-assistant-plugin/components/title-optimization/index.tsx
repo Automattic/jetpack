@@ -14,6 +14,7 @@ import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/util
 import useAutoSaveAndRedirect from '../../../../shared/use-autosave-and-redirect';
 import usePostContent from '../../hooks/use-post-content';
 import AiAssistantModal from '../modal';
+import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
 import './style.scss';
 
@@ -58,6 +59,7 @@ export default function TitleOptimization( {
 	const [ generating, setGenerating ] = useState( false );
 	const [ options, setOptions ] = useState( [] );
 	const [ error, setError ] = useState( false );
+	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
 	const { autosave } = useAutoSaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
@@ -92,35 +94,44 @@ export default function TitleOptimization( {
 		},
 	} );
 
-	const handleRequest = useCallback( () => {
-		// Message to request a backend prompt for this feature
-		const messages = [
-			{
-				role: 'jetpack-ai' as const,
-				context: {
-					type: 'title-optimization',
-					content: postContent,
-				},
-			},
-		];
+	const handleRequest = useCallback(
+		( isRetry: boolean = false ) => {
+			// track the generate title optimization options
+			recordEvent( 'jetpack_ai_title_optimization_generate', {
+				placement,
+				has_keywords: !! optimizationKeywords,
+				is_retry: isRetry, // track if the user is retrying the generation
+			} );
 
-		request( messages, { feature: 'jetpack-ai-title-optimization' } );
-	}, [ postContent, request ] );
+			setGenerating( true );
+			// Message to request a backend prompt for this feature
+			const messages = [
+				{
+					role: 'jetpack-ai' as const,
+					context: {
+						type: 'title-optimization',
+						content: postContent,
+						keywords: optimizationKeywords,
+					},
+				},
+			];
+
+			request( messages, { feature: 'jetpack-ai-title-optimization' } );
+		},
+		[ recordEvent, placement, postContent, optimizationKeywords, request ]
+	);
 
 	const handleTitleOptimization = useCallback( () => {
-		// track the generate title optimization options
-		recordEvent( 'jetpack_ai_title_optimization_generate', {
-			placement,
-		} );
-
-		setGenerating( true );
 		toggleTitleOptimizationModal();
 		handleRequest();
-	}, [ handleRequest, placement, recordEvent, toggleTitleOptimizationModal ] );
+	}, [ handleRequest, toggleTitleOptimizationModal ] );
 
 	const handleTryAgain = useCallback( () => {
 		setError( false );
-		setGenerating( true );
+		handleRequest( true ); // retry the generation
+	}, [ handleRequest ] );
+
+	const handleTitleOptimizationWithKeywords = useCallback( () => {
 		handleRequest();
 	}, [ handleRequest ] );
 
@@ -145,6 +156,7 @@ export default function TitleOptimization( {
 
 	const handleClose = useCallback( () => {
 		toggleTitleOptimizationModal();
+		setOptimizationKeywords( '' );
 		stopSuggestion();
 	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
 
@@ -160,7 +172,11 @@ export default function TitleOptimization( {
 				{ sidebarButtonLabel }
 			</Button>
 			{ isTitleOptimizationModalVisible && (
-				<AiAssistantModal handleClose={ handleClose } title={ modalTitle } maxWidth={ 512 }>
+				<AiAssistantModal
+					handleClose={ handleClose }
+					title={ modalTitle }
+					maxWidth={ isKeywordsFeatureAvailable ? 700 : 512 }
+				>
 					{ generating ? (
 						<div className="jetpack-ai-title-optimization__loading">
 							<Spinner
@@ -182,9 +198,19 @@ export default function TitleOptimization( {
 								</div>
 							) : (
 								<>
-									<span className="jetpack-ai-title-optimization__intro">
-										{ __( 'Choose an optimized title below:', 'jetpack' ) }
-									</span>
+									{ isKeywordsFeatureAvailable && (
+										<TitleOptimizationKeywords
+											onGenerate={ handleTitleOptimizationWithKeywords }
+											onKeywordsChange={ setOptimizationKeywords }
+											disabled={ generating }
+											currentKeywords={ optimizationKeywords }
+										/>
+									) }
+									{ ! isKeywordsFeatureAvailable && (
+										<span className="jetpack-ai-title-optimization__intro">
+											{ __( 'Choose an optimized title below:', 'jetpack' ) }
+										</span>
+									) }
 									<TitleOptimizationOptions
 										onChangeValue={ e => setSelected( e.target.value ) }
 										selected={ selected }
