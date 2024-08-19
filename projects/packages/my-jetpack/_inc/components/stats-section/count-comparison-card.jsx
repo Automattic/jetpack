@@ -1,18 +1,10 @@
-import { numberFormat } from '@automattic/jetpack-components';
 import { Card } from '@wordpress/components';
 import { arrowDown, arrowUp, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import React from 'react';
+import formatNumber from '../../utils/format-number';
 import styles from './style.module.scss';
-
-const formatNumber = ( number, config = {} ) => {
-	if ( number === null || ! Number.isFinite( number ) ) {
-		return '-';
-	}
-
-	return numberFormat( number, config );
-};
 
 const subtract = ( a, b ) => {
 	if ( typeof a !== 'number' || typeof b !== 'number' ) {

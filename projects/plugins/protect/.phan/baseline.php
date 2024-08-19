@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanParamTooMany : 2 occurrences
+    // PhanParamTooMany : 3 occurrences
     // PhanNoopNew : 1 occurrence
     // PhanPluginDuplicateConditionalNullCoalescing : 1 occurrence
     // PhanTypeMismatchReturnProbablyReal : 1 occurrence

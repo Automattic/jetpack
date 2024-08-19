@@ -721,4 +721,20 @@ class Functions {
 	public static function get_jetpack_connection_active_plugins() {
 		return ( new Manager() )->get_connected_plugins();
 	}
+
+	/**
+	 * Return the list of active sync modules.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @return array
+	 */
+	public static function get_jetpack_sync_active_modules() {
+
+		/** This filter is documented in projects/packages/sync/src/class-modules.php */
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$modules = array_unique( $modules );
+		$modules = array_map( 'wp_normalize_path', $modules );
+		return $modules;
+	}
 }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Add /wpcom/v2/profile endpoint that returns user profile: admin color and locale
