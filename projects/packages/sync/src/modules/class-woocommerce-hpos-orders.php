@@ -303,7 +303,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		}
 		$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 
-		return $filtered_order_data;
+		return apply_filters( 'jetpack_sync_filtered_order_data', $filtered_order_data, $order_object );
 	}
 
 	/**
