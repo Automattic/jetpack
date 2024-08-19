@@ -97,6 +97,7 @@
 		"mapbox-gl": "1.13.0",
 		"markdown-it": "14.0.0",
 		"markdown-it-footnote": "3.0.3",
+		"nspell": "2.1.5",
 		"photon": "4.0.0",
 		"postcss-custom-properties": "12.1.7",
 		"prop-types": "15.7.2",
