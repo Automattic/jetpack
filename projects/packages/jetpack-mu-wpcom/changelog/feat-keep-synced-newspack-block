@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+MU WPCOM: Keep the synced-newspack-blocks folder instead of pulling on every install

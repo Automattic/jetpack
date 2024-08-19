@@ -1,0 +1,40 @@
+@use '../../shared/sass/placeholder';
+
+.wp-block-newspack-blocks-carousel {
+	.swiper-wrapper {
+		height: auto;
+		pointer-events: none;
+	}
+	.entry-title {
+		color: white;
+	}
+	a {
+		color: inherit;
+
+		&:active,
+		&:focus,
+		&:hover {
+			color: rgba( 255, 255, 255, 0.75 );
+		}
+	}
+	.post-thumbnail img {
+		display: block;
+	}
+	&__placeholder {
+		height: 100%;
+	}
+	.swiper-pagination-bullet.swiper-pagination-bullet-active {
+		opacity: 1;
+		width: 24px;
+	}
+	&.hide-controls {
+		button {
+			display: none;
+			visibility: hidden;
+		}
+	}
+}
+.editor-block-list__layout .editor-block-list__block .wpnbpc .entry-title a,
+.editor-block-list__layout .editor-block-list__block .wpnbpc .entry-meta .byline a {
+	color: inherit;
+}

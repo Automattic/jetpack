@@ -3,7 +3,6 @@ export type SharesData = {
 	to_be_publicized_count: number;
 	share_limit: number;
 	publicized_count: number;
-	show_advanced_plan_upgrade_nudge: boolean;
 	shared_posts_count: number;
 };
 
@@ -27,16 +26,6 @@ export type Connection = {
 	profile_link: string;
 	shared: boolean;
 	status: ConnectionStatus;
-};
-
-export type ConnectionService = {
-	ID: string;
-	label: string;
-	type: 'publicize' | 'other';
-	description: string;
-	connect_URL: string;
-	external_users_only?: boolean;
-	multiple_external_user_ID_support?: boolean;
 };
 
 export type ConnectionData = {

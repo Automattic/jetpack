@@ -7,7 +7,6 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
 import useProtectData from '../../hooks/use-protect-data';
@@ -145,17 +144,15 @@ const ThreatsList = () => {
 							<>
 								<div ref={ setUnderstandSeverityPopoverAnchor }>
 									<PaidList list={ list } />
-									<Text className={ styles[ 'manual-scan' ] } variant="body-small">
-										{ createInterpolateElement(
-											__(
-												'If you have manually fixed any of the threats listed above, <manualScanLink>you can run a manual scan now</manualScanLink> or wait for Jetpack to scan your site later today.',
+									<div className={ styles[ 'manual-scan' ] }>
+										<Text variant="body-small" mb={ 4 }>
+											{ __(
+												'If you have manually fixed any of the threats listed above, you can run a manual scan now or wait for Jetpack to scan your site later today.',
 												'jetpack-protect'
-											),
-											{
-												manualScanLink: <ScanButton variant="link" />,
-											}
-										) }
-									</Text>
+											) }
+										</Text>
+										<ScanButton />
+									</div>
 								</div>
 								<OnboardingPopover
 									id="paid-understand-severity"

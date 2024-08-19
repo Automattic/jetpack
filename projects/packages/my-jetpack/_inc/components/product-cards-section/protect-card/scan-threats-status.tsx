@@ -7,11 +7,11 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
-import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { PropsWithChildren, ReactElement } from 'react';
 
@@ -140,8 +140,8 @@ function ThreatStatus( {
 									onClose={ hideTooltip }
 								>
 									<>
-										<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-										<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
+										<h3>{ scanThreatsTooltip.title }</h3>
+										<p>{ scanThreatsTooltip.text }</p>
 									</>
 								</Popover>
 							) }
@@ -217,13 +217,14 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 						tracksEventProps={ {
 							location: 'scan',
 							status: status,
+							feature: 'jetpack-protect',
 							has_paid_plan: false,
 							threats: 0,
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
+							<h3>{ scanThreatsTooltip.title }</h3>
+							<p>{ scanThreatsTooltip.text }</p>
 						</>
 					</InfoTooltip>
 				</div>

@@ -45,7 +45,6 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 			to_be_publicized_count: 0,
 			share_limit: 30,
 			publicized_count: 0,
-			show_advanced_plan_upgrade_nudge: false,
 			shared_posts_count: 0,
 			...data.sharesData,
 		},

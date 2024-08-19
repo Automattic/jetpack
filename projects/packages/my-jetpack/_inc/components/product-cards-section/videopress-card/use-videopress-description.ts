@@ -12,7 +12,7 @@ const useVideoPressCardDescription = ( {
 }: useVideoPressCardDescriptionProps ) => {
 	if ( ! isPluginActive && videoCount ) {
 		return preventWidows(
-			__( 'Existing videos you could load faster without ads:', 'jetpack-my-jetpack' )
+			__( 'Load your existing videos faster and without ads.', 'jetpack-my-jetpack' )
 		);
 	}
 

@@ -40,7 +40,7 @@ export default [
 			<Text>
 				{ createInterpolateElement(
 					__(
-						'We run daily automated scans. Do you want ot be able to scan manually? <upgradeLink>Upgrade</upgradeLink>',
+						'We run daily automated scans. Do you want to be able to scan manually? <upgradeLink>Upgrade</upgradeLink>',
 						'jetpack-protect'
 					),
 					{

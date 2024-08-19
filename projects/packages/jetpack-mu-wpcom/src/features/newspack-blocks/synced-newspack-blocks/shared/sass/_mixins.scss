@@ -1,0 +1,42 @@
+@use './variables';
+
+@mixin media( $res ) {
+	@if mobile == $res {
+		@media only screen and ( min-width: variables.$mobile_width ) {
+			@content;
+		}
+	}
+
+	@if tabletonly == $res {
+		@media only screen and ( max-width: #{ variables.$tablet_width - 1 } ) {
+			@content;
+		}
+	}
+
+	@if tablet == $res {
+		@media only screen and ( min-width: variables.$tablet_width ) {
+			@content;
+		}
+	}
+
+	@if desktop == $res {
+		@media only screen and ( min-width: variables.$desktop_width ) {
+			@content;
+		}
+	}
+
+	@if wide == $res {
+		@media only screen and ( min-width: variables.$wide_width ) {
+			@content;
+		}
+	}
+}
+
+@mixin visuallyHidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}

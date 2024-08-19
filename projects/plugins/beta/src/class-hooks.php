@@ -517,8 +517,15 @@ class Hooks {
 			return;
 		}
 
-		$site_title = get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : get_site_url();
-		// translators: %s: The site title.
+		$site_title = get_bloginfo( 'name' );
+		$site_url   = get_site_url();
+
+		// Check if the site title is empty or literally 'Site Title', then use the site URL instead.
+		if ( empty( $site_title ) || $site_title === 'Site Title' ) {
+			$site_title = $site_url;
+		}
+
+		// translators: %s: The site title or URL.
 		$subject = sprintf( __( '[%s] Jetpack Beta Tester auto-updates', 'jetpack-beta' ), $site_title );
 
 		$message = sprintf(

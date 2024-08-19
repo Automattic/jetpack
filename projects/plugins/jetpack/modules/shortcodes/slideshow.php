@@ -183,7 +183,10 @@ class Jetpack_Slideshow_Shortcode {
 			);
 		}
 
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			// Load the styles and use the rendering method from the Slideshow block.
 			Jetpack_Gutenberg::load_styles_as_required( 'slideshow' );
 
@@ -193,6 +196,14 @@ class Jetpack_Slideshow_Shortcode {
 
 			if ( 'true' == $autostart ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- attribute can be stored as boolean or string.
 				$amp_args['autoplay'] = true;
+			}
+
+			/*
+			 * Blocks can be disabled in Jetpack Settings.
+			 * If that's the case, we need to include the slideshow block manually.
+			 */
+			if ( ! class_exists( 'Automattic\Jetpack\Extensions\Slideshow' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 			}
 
 			return Slideshow\render_amp( $amp_args );

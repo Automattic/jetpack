@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fixed connection services list crash on simple sites
