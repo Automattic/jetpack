@@ -105,16 +105,20 @@ class Help_Center {
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			// Load translations directly from widgets.wp.com.
-			wp_enqueue_script(
-				'help-center-translations',
-				'https://widgets.wp.com/help-center/languages/' . Common\determine_iso_639_locale() . '-v1.js',
-				array( 'wp-i18n' ),
-				$version,
-				true
-			);
+			$locale = Common\determine_iso_639_locale();
 
-			$script_dependencies[] = 'help-center-translations';
+			if ( 'en' !== $locale ) {
+				// Load translations directly from widgets.wp.com.
+				wp_enqueue_script(
+					'help-center-translations',
+					'https://widgets.wp.com/help-center/languages/' . $locale . '-v1.js',
+					array( 'wp-i18n' ),
+					$version,
+					true
+				);
+
+				$script_dependencies[] = 'help-center-translations';
+			}
 		}
 
 		// If the user is not connected, the Help Center icon will link to the support page.

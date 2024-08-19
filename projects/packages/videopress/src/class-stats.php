@@ -87,13 +87,15 @@ class Stats {
 	/**
 	 * Returns the featured stats for VideoPress.
 	 *
+	 * @param int $days (optional) The number of days to consider.
+	 *
 	 * @return array|WP_Error a list of stats, or WP_Error on failure.
 	 */
-	public static function get_featured_stats() {
+	public static function get_featured_stats( $days = 14 ) {
 		$response = self::fetch_video_plays(
 			array(
 				'period'         => 'day',
-				'num'            => 14,
+				'num'            => $days,
 				'complete_stats' => true,
 			)
 		);
@@ -115,16 +117,17 @@ class Stats {
 		$dates = $data['days'];
 
 		// Organize the data into the planned stats
-		return self::prepare_featured_stats( $dates );
+		return self::prepare_featured_stats( $dates, $days );
 	}
 
 	/**
 	 * Prepares the featured stats for VideoPress.
 	 *
 	 * @param array $dates The list of dates returned by the API.
+	 * @param int   $total_days The total number of days to consider.
 	 * @return array a list of stats.
 	 */
-	public static function prepare_featured_stats( $dates ) {
+	public static function prepare_featured_stats( $dates, $total_days ) {
 		/**
 		 * Ensure the sorting of the dates, recent ones first.
 		 * This way, the first 7 positions are from the last 7 days,
@@ -134,7 +137,8 @@ class Stats {
 
 		// template for the response
 		$featured_stats = array(
-			'label' => __( 'last 7 days', 'jetpack-videopress-pkg' ),
+			// translators: %d is the number of days
+			'label' => sprintf( __( 'last %d days', 'jetpack-videopress-pkg' ), floor( $total_days / 2 ) ),
 			'data'  => array(
 				'views'       => array(
 					'current'  => 0,
@@ -156,7 +160,7 @@ class Stats {
 		foreach ( $dates as $date_info ) {
 			$date_totals = $date_info['total'];
 
-			if ( $counter < 7 ) {
+			if ( $counter < floor( $total_days / 2 ) ) {
 
 				// the first 7 elements are for the current period
 				$featured_stats['data']['views']['current']       += $date_totals['views'];

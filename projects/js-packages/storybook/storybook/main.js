@@ -138,13 +138,13 @@ const sbconfig = {
 	typescript: {
 		reactDocgen: 'react-docgen-typescript',
 	},
-	babel: {
+	babel: async () => ( {
 		presets: [
 			[
 				require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ),
 				{ presetReact: { runtime: 'automatic' } },
 			],
 		],
-	},
+	} ),
 };
 export default sbconfig;

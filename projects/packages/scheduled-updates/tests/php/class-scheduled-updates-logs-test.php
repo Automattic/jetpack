@@ -51,7 +51,7 @@ class Scheduled_Updates_Logs_Test extends \WorDBless\BaseTestCase {
 
 		// Be sure wordbless cron is reset before each test.
 		delete_option( 'cron' );
-		update_option( 'cron', array( 'version' => 2 ), 'yes' );
+		update_option( 'cron', array( 'version' => 2 ), true );
 
 		// Initialize the admin.
 		$this->admin_id = wp_insert_user(
