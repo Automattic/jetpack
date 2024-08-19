@@ -83,17 +83,6 @@ export function getSharedPostsCount( state: SocialStoreState ) {
 	return state.sharesData?.shared_posts_count ?? 0;
 }
 
-/**
- * Whether to show the advanced plan nudge.
- *
- * @param {SocialStoreState} state - Global state tree
- *
- * @return {boolean} Whether to show the advanced plan nudge
- */
-export function shouldShowAdvancedPlanNudge( state ) {
-	return state.sharesData?.show_advanced_plan_upgrade_nudge ?? false;
-}
-
 export type NumberOfSharesRemainingOptions = {
 	/**
 	 * Whether to include scheduled shares

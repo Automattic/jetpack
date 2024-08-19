@@ -1,6 +1,7 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, createElement, type ReactElement } from 'react';
+import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
@@ -24,7 +25,7 @@ export type TooltipContent = {
  * @return {TooltipContent} An object containing each tooltip's title and text content.
  */
 export function useProtectTooltipCopy(): TooltipContent {
-	const slug = 'protect';
+	const slug = PRODUCT_SLUGS.PROTECT;
 	const { detail } = useProduct( slug );
 	const { isPluginActive: isProtectPluginActive, hasPaidPlanForProduct: hasProtectPaidPlan } =
 		detail || {};

@@ -113,12 +113,9 @@ const AllowList = class extends Component {
 	};
 
 	render() {
-		const isWafActive = this.props.getOptionValue( 'waf' );
-		const isProtectActive = this.props.getOptionValue( 'protect' );
 		const wafUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
 		const protectUnavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'protect' );
 		const baseInputDisabledCase =
-			( ! isWafActive && ! isProtectActive ) ||
 			( wafUnavailableInOfflineMode && protectUnavailableInOfflineMode ) ||
 			this.props.isFetchingWafSettings ||
 			this.props.isSavingAnyOption( [ 'waf' ] );
@@ -137,7 +134,7 @@ const AllowList = class extends Component {
 				onSubmit={ this.onSubmit }
 				hideButton={ true }
 			>
-				{ ( isWafActive || isProtectActive ) && <QueryWafSettings /> }
+				<QueryWafSettings />
 				<SettingsGroup
 					disableInOfflineMode
 					support={ {
@@ -148,9 +145,7 @@ const AllowList = class extends Component {
 					<FormFieldset>
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
-								checked={
-									( isWafActive || isProtectActive ) && this.props.settings?.ipAllowListEnabled
-								}
+								checked={ this.props.settings?.ipAllowListEnabled }
 								toggling={
 									this.props.isUpdatingWafSettings &&
 									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
@@ -166,8 +161,9 @@ const AllowList = class extends Component {
 									</span>
 								}
 							/>
-							<div className="waf__settings__ips">
+							{ ( this.state.ipAllowListEnabled || !! this.state.ipAllowList ) && (
 								<Textarea
+									className="waf__settings__ips"
 									disabled={
 										baseInputDisabledCase ||
 										this.props.isUpdatingWafSettings ||
@@ -178,7 +174,9 @@ const AllowList = class extends Component {
 									value={ this.state.ipAllowList }
 									onChange={ this.handleIpAllowListChange }
 								/>
-								<div className="allow-list-button-container">
+							) }
+							{ this.state.ipAllowListEnabled && (
+								<div className="waf__settings__ips__button-container">
 									{ this.props.currentIp && (
 										<div className="current-ip">
 											<div className="jp-form-label-wide">
@@ -221,7 +219,7 @@ const AllowList = class extends Component {
 										{ __( 'Save allow list', 'jetpack' ) }
 									</Button>
 								</div>
-							</div>
+							) }
 						</div>
 					</FormFieldset>
 				</SettingsGroup>
