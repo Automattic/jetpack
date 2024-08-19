@@ -76,6 +76,7 @@ class Publicize_Script_Data {
 		$basic_data = array(
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
+			'supported_services'   => array(),
 		);
 
 		if ( ! Utils::is_publicize_active() || ! Utils::is_connected() ) {
