@@ -758,7 +758,7 @@ const FirewallPage = () => {
 							/>
 							<Text variant="body-extra-small" mt={ 1 }>
 								{ __(
-									"Add IP addresses here to ensure they always have access your site, regardless of Jetpack's security features.",
+									"Add IP addresses here to ensure they always have access to your site, regardless of Jetpack's security features.",
 									'jetpack-protect'
 								) }
 							</Text>
