@@ -103,7 +103,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Custom instant site search', 'jetpack-my-jetpack' );
+		return __( 'Help your visitors find what they are looking for with instant search results', 'jetpack-my-jetpack' );
 	}
 
 	/**

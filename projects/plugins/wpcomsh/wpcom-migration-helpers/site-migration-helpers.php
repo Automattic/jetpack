@@ -67,14 +67,17 @@ function aiowp_migration_logging_helper() {
 		return;
 	}
 
+	$target_blog_id = _wpcom_get_current_blog_id();
+
 	// Filter that gets called when import starts
 	add_filter(
 		'ai1wm_import',
-		function ( $params = array() ) {
+		function ( $params = array() ) use ( $target_blog_id ) {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_start',
 				array(
 					'migration_tool' => 'aiowp',
+					'target_blog_id' => $target_blog_id,
 				)
 			);
 			return $params;
@@ -85,11 +88,12 @@ function aiowp_migration_logging_helper() {
 	// Filter that gets called when import finishes or is cancelled by the user
 	add_filter(
 		'ai1wm_import',
-		function ( $params = array() ) {
+		function ( $params = array() ) use ( $target_blog_id ) {
 			wpcomsh_record_tracks_event(
 				'wpcom_site_migration_done',
 				array(
 					'migration_tool' => 'aiowp',
+					'target_blog_id' => $target_blog_id,
 				)
 			);
 			return $params;

@@ -44,6 +44,8 @@ function DashJetpackAi( props ) {
 		}
 	);
 
+	// TODO: useExperiment to switch upgradeUrl between add-jetpack-ai (default from getProductDescriptionUrl) and jetpack-ai
+
 	const showConnectBanner = ! hasConnectedOwner && ! isOffline;
 	const showUpgradeBanner =
 		hasConnectedOwner && isMyJetpackReachable && ! isOffline && ! hasFeature;

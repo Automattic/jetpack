@@ -144,6 +144,15 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 }, 'SiteLogoEditWithAiComponents' );
 
 /**
+ * Function to check if the feature is available depending on the site ID.
+ *
+ * @returns {boolean} True if the feature is available.
+ */
+function isFeatureAvailable() {
+	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
+}
+
+/**
  * Function to check if the block can be extended.
  *
  * @param {string} name - The block name.
@@ -162,7 +171,7 @@ function canExtendBlock( name: string ): boolean {
 	}
 
 	// Disable if the feature is not available.
-	if ( ! getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION ) ) {
+	if ( ! isFeatureAvailable() ) {
 		return false;
 	}
 

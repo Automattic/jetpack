@@ -9,14 +9,14 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-	return;
-}
-
 /**
  * Displays a banner before the theme browser that links to the WP.com Theme Showcase.
  */
 function wpcom_themes_show_banner() {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		return;
+	}
+
 	$site_slug        = wp_parse_url( home_url(), PHP_URL_HOST );
 	$wpcom_logo       = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 	$background_image = plugins_url( 'images/banner-background.webp', __FILE__ );
@@ -56,6 +56,10 @@ add_action( 'load-theme-install.php', 'wpcom_themes_show_banner' );
  * Registers an "Appearance > Theme Showcase" menu.
  */
 function wpcom_themes_add_theme_showcase_menu() {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		return;
+	}
+
 	$site_slug = wp_parse_url( home_url(), PHP_URL_HOST );
 	add_submenu_page(
 		'themes.php',

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.23 - 2024-08-15
+### Changed
+- Updated package dependencies. [#38662]
+
+## 0.12.22 - 2024-08-09
+### Removed
+- Tests: Removed react-test-renderer. [#38755]
+
 ## 0.12.21 - 2024-07-29
 ### Fixed
 - Updated package dependencies. [#38464]

@@ -84,13 +84,14 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.8 - 2024-05-22
-#### Added
-- Trigger a red bubble notification when a bad plugin install is detected.
-
+### 1.9 - 2024-08-15
 #### Changed
-- Updated WordPRess tested version to 6.5.
-- Updated minimum WordPress version requirement to WordPress 6.4.
-- Switched to wp_admin_notice function to display notices.
-- Updated to show installation errors only on the plugins page.
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
+
+#### Removed
+- General: update WordPress version requirements to WordPress 6.5.
+
+#### Fixed
+- Updated package dependencies.
 

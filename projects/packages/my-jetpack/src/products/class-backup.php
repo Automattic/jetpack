@@ -93,7 +93,7 @@ class Backup extends Hybrid_Product {
 			return __( 'Save every change', 'jetpack-my-jetpack' );
 		}
 
-		return __( 'Your site is not backed up', 'jetpack-my-jetpack' );
+		return __( 'Secure your site with automatic backups and one-click restores', 'jetpack-my-jetpack' );
 	}
 
 	/**

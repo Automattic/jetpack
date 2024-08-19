@@ -30,7 +30,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules_Logs_Test extends \WorDBless\B
 
 		// Be sure wordbless cron is reset before each test.
 		delete_option( 'cron' );
-		update_option( 'cron', array( 'version' => 2 ), 'yes' );
+		update_option( 'cron', array( 'version' => 2 ), true );
 
 		$this->admin_id = wp_insert_user(
 			array(

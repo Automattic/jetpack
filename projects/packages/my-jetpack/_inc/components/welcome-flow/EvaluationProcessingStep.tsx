@@ -10,11 +10,11 @@ const EvaluationProcessingStep = () => {
 				<Spinner />
 			</div>
 			<Text variant="title-medium" mb={ 1 }>
-				{ __( 'Initiating site evaluation', 'jetpack-my-jetpack' ) }
+				{ __( 'Finding the best Jetpack tools', 'jetpack-my-jetpack' ) }
 			</Text>
 			<Text variant="body-small">
 				{ __(
-					'Starting the process to provide personalized plugin suggestions…',
+					'We‘re crunching the numbers to find the Jetpack tools that are the best match for your site.',
 					'jetpack-my-jetpack'
 				) }
 			</Text>

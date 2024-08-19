@@ -190,8 +190,8 @@ class Admin {
 		$grunion     = Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
-		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$fields    = is_array( $export_data ) ? array_keys( $export_data ) : array();
+		$row_count = ! is_array( $export_data ) || empty( $export_data ) ? 0 : count( reset( $export_data ) );
 
 		$sheet_data = array( $fields );
 

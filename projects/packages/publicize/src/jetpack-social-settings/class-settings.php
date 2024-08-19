@@ -39,6 +39,22 @@ class Settings {
 	);
 
 	/**
+	 * Feature flags. Each item has 3 keys because of the naming conventions:
+	 * - flag_name: The name of the feature flag for the option check.
+	 * - feature_name: The name of the feature that enables the feature. Will be checked with Current_Plan.
+	 * - variable_name: The name of the variable that will be used in the front-end.
+	 *
+	 * @var array
+	 */
+	const FEATURE_FLAGS = array(
+		array(
+			'flag_name'     => 'editor_preview',
+			'feature_name'  => 'editor-preview',
+			'variable_name' => 'useEditorPreview',
+		),
+	);
+
+	/**
 	 * Migrate old options to the new settings. Previously SIG settings were stored in the
 	 * jetpack_social_image_generator_settings option. Now they are stored in the jetpack_social_settings
 	 * together with the auto conversion settings.
@@ -183,6 +199,7 @@ class Settings {
 		$settings = $this->get_settings( true );
 
 		$settings['useAdminUiV1'] = false;
+		$settings['featureFlags'] = array();
 
 		$settings['is_publicize_enabled'] = false;
 		$settings['hasPaidFeatures']      = false;
@@ -199,6 +216,10 @@ class Settings {
 
 			$settings['is_publicize_enabled'] = true;
 			$settings['hasPaidFeatures']      = $publicize->has_paid_features();
+
+			foreach ( self::FEATURE_FLAGS as $feature_flag ) {
+				$settings['featureFlags'][ $feature_flag['variable_name'] ] = $publicize->has_feature_flag( $feature_flag['flag_name'], $feature_flag['feature_name'] );
+			}
 		} else {
 			$settings['connectionData'] = array(
 				'connections' => array(),

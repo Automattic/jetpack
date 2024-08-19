@@ -32,3 +32,21 @@ export const QUERY_PURCHASES_KEY = 'purchases';
 export const QUERY_EVALUATE_KEY = 'evaluate site recommendations';
 export const QUERY_SAVE_EVALUATION_KEY = 'save site evaluation result';
 export const QUERY_REMOVE_EVALUATION_KEY = 'remove site evaluation result';
+
+// Product Slugs
+export const PRODUCT_SLUGS = {
+	ANTI_SPAM: 'anti-spam',
+	BACKUP: 'backup',
+	BOOST: 'boost',
+	CRM: 'crm',
+	CREATOR: 'creator',
+	EXTRAS: 'extras',
+	JETPACK_AI: 'jetpack-ai',
+	SCAN: 'scan',
+	SEARCH: 'search',
+	SOCIAL: 'social',
+	SECURITY: 'security',
+	PROTECT: 'protect',
+	VIDEOPRESS: 'videopress',
+	STATS: 'stats',
+} satisfies Record< string, JetpackModule >;

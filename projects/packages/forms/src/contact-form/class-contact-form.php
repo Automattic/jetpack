@@ -310,7 +310,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 				"</h4>\n\n";
 
 			// Don't show the feedback details unless the nonce matches
-			if ( $feedback_id && isset( $_GET['_wpnonce'] ) && wp_verify_nonce( stripslashes( $_GET['_wpnonce'] ), "contact-form-sent-{$feedback_id}" ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if (
+				$feedback_id
+				&& isset( $_GET['_wpnonce'] )
+				&& wp_verify_nonce( sanitize_key( wp_unslash( $_GET['_wpnonce'] ) ), "contact-form-sent-{$feedback_id}" )
+			) {
 				$r_success_message .= self::success_message( $feedback_id, $form );
 			}
 
@@ -1050,35 +1054,50 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		// For each of the "standard" fields, grab their field label and value.
 		if ( isset( $field_ids['name'] ) ) {
-			$field          = $this->fields[ $field_ids['name'] ];
-			$comment_author = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
-				)
-			);
+			$field = $this->fields[ $field_ids['name'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_name', addslashes( $field->value ) )
+					)
+				);
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['email'] ) ) {
-			$field                = $this->fields[ $field_ids['email'] ];
-			$comment_author_email = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
-				)
-			);
+			$field = $this->fields[ $field_ids['email'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author_email = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_email', addslashes( $field->value ) )
+					)
+				);
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['url'] ) ) {
-			$field              = $this->fields[ $field_ids['url'] ];
-			$comment_author_url = Contact_Form_Plugin::strip_tags(
-				stripslashes(
-					/** This filter is already documented in core/wp-includes/comment-functions.php */
-					apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
-				)
-			);
-			if ( 'http://' === $comment_author_url ) {
-				$comment_author_url = '';
+			$field = $this->fields[ $field_ids['url'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_author_url = Contact_Form_Plugin::strip_tags(
+					stripslashes(
+						/** This filter is already documented in core/wp-includes/comment-functions.php */
+						apply_filters( 'pre_comment_author_url', addslashes( $field->value ) )
+					)
+				);
+				if ( 'http://' === $comment_author_url ) {
+					$comment_author_url = '';
+				}
+			} elseif ( is_array( $field->value ) ) {
+				$field->value = '';
 			}
 		}
 

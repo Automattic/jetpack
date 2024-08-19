@@ -27,6 +27,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Jetpack;
 use WP_Error;
@@ -41,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.30.1-alpha';
+	const PACKAGE_VERSION = '4.32.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -59,11 +60,10 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
-
+	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-
-	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
+	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -277,6 +277,7 @@ class Initializer {
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
+				'videopress'             => self::get_videopress_stats(),
 			)
 		);
 
@@ -299,6 +300,41 @@ class Initializer {
 	}
 
 	/**
+	 * Get stats for VideoPress
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function get_videopress_stats() {
+		$video_count = array_sum( (array) wp_count_attachments( 'video' ) );
+
+		if ( ! class_exists( 'Automattic\Jetpack\VideoPress\Stats' ) ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
+
+		if ( ! $featured_stats ) {
+			$videopress_stats = new VideoPress_Stats();
+			$featured_stats   = $videopress_stats->get_featured_stats( 60 );
+		}
+
+		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, HOUR_IN_SECONDS );
+
+		return array(
+			'featuredStats' => $featured_stats,
+			'videoCount'    => $video_count,
+		);
+	}
+
+	/**
 	 * Get product slugs of the active purchases
 	 *
 	 * @return array
@@ -313,7 +349,7 @@ class Initializer {
 			function ( $purchase ) {
 				return $purchase->product_slug;
 			},
-			$purchases
+			(array) $purchases
 		);
 	}
 
@@ -606,7 +642,7 @@ class Initializer {
 			return new WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
 		}
 
-		return rest_ensure_response( $body, 200 );
+		return rest_ensure_response( $body );
 	}
 
 	/**
@@ -640,7 +676,7 @@ class Initializer {
 	/**
 	 * Returns whether a site has been determined "commercial" or not.
 	 *
-	 * @return bool
+	 * @return bool|null
 	 */
 	public static function is_commercial_site() {
 		if ( is_wp_error( self::$site_info ) ) {
@@ -666,7 +702,7 @@ class Initializer {
 	 */
 	public static function dismiss_welcome_banner() {
 		\Jetpack_Options::update_option( 'dismissed_welcome_banner', true );
-		return rest_ensure_response( array( 'success' => true ), 200 );
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

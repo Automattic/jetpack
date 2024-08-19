@@ -250,7 +250,6 @@ const phrases = {
 	'with the exception of': 'except for',
 	witnessed: 'saw',
 	'x and/or y': 'x, y, or both',
-	'/': 'or',
 };
 
 export default phrases;

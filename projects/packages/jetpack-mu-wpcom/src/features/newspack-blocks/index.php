@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Newspack_Blocks;
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
 define( 'NEWSPACK_BLOCKS__BLOCKS_DIRECTORY', Jetpack_Mu_Wpcom::BASE_DIR . 'build/' );
 define( 'NEWSPACK_BLOCKS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
