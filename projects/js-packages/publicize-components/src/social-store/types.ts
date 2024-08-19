@@ -3,7 +3,6 @@ export type SharesData = {
 	to_be_publicized_count: number;
 	share_limit: number;
 	publicized_count: number;
-	show_advanced_plan_upgrade_nudge: boolean;
 	shared_posts_count: number;
 };
 
