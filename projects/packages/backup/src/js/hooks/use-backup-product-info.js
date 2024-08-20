@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 /**
  * Custom hook to fetch and manage backup product pricing information.
  *
- * @returns {object} An object containing the current product price and the price after any introductory offer.
+ * @return {object} An object containing the current product price and the price after any introductory offer.
  */
 export function useBackupProductInfo() {
 	const [ price, setPrice ] = useState( 0 );
