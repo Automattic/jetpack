@@ -70,6 +70,7 @@ export const PaidAccordionItem = ( {
 	fixedOn,
 	onOpen,
 	status,
+	hideAutoFixColumn = false,
 } ) => {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
@@ -117,18 +118,20 @@ export const PaidAccordionItem = ( {
 				<div>
 					<ThreatSeverityBadge severity={ severity } />
 				</div>
-				<div>
-					{ fixable && (
-						<>
-							{ threatsAreFixing.indexOf( id ) >= 0 ? (
-								<Spinner color="black" />
-							) : (
-								<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
-							) }
-							{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
-						</>
-					) }
-				</div>
+				{ ! hideAutoFixColumn && (
+					<div>
+						{ fixable && (
+							<>
+								{ threatsAreFixing.indexOf( id ) >= 0 ? (
+									<Spinner color="black" />
+								) : (
+									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+								) }
+								{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
+							</>
+						) }
+					</div>
+				) }
 				<div className={ styles[ 'accordion-header-button' ] }>
 					<Icon icon={ open ? chevronUp : chevronDown } size={ 38 } />
 				</div>

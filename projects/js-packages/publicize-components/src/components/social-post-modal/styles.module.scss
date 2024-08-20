@@ -62,7 +62,7 @@
 }
 
 .settings-content {
-    padding: 2rem;
+    padding: 1rem 2rem;
 
     @include break-medium {
         border-inline-end: 1px solid var(--studio-gray-5);
@@ -96,4 +96,9 @@
 
 .disabled-tab {
     opacity: 0.5;
+}
+
+.modal-description {
+	color: var(--jp-gray-40);
+	margin-top: 0;
 }
