@@ -2,6 +2,7 @@ import { H3, Text } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { useMemo, useState } from 'react';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
@@ -85,7 +86,8 @@ const timeSince = date => {
 };
 
 const EmptyList = () => {
-	const { lastChecked, hasRequiredPlan } = useProtectData();
+	const { lastChecked } = useProtectData();
+	const { hasPlan } = usePlan();
 
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
 		useState( null );
@@ -115,7 +117,7 @@ const EmptyList = () => {
 					}
 				) }
 			</Text>
-			{ hasRequiredPlan && (
+			{ hasPlan && (
 				<>
 					<ScanButton ref={ setDailyAndManualScansPopoverAnchor } />
 					<OnboardingPopover
