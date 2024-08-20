@@ -311,7 +311,7 @@ class WooCommerce_HPOS_Orders extends Module {
 		 * @param array              $filtered_order_data The Filtered order data.
 		 * @param \WC_Abstract_Order $order_object        The Order object.
 		 */
-		return apply_filters( 'jetpack_sync_filtered_order_data', $filtered_order_data, $order_object );
+		return apply_filters( 'jetpack_sync_filtered_hpos_order_data', $filtered_order_data, $order_object );
 	}
 
 	/**
