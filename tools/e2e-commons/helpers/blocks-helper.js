@@ -26,7 +26,7 @@ export async function waitForBlock( blockSlug, page ) {
 }
 
 /**
- * Find available block slug by substring.
+ * Find an available block slug by substring.
  *
  * @param {string} blockSlug - Block slug substring to search for.
  * @param {page}   page      - Playwright page instance.
