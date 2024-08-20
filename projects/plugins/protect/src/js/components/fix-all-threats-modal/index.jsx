@@ -1,18 +1,18 @@
 import { Button, Text } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import { STORE_ID } from '../../state/store';
+import useFixersMutation from '../../data/scan/use-fixers-mutation';
+import useModal from '../../hooks/use-modal';
 import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
 import UserConnectionGate from '../user-connection-gate';
 import styles from './styles.module.scss';
 
 const FixAllThreatsModal = ( { threatList = [] } ) => {
-	const { setModal, fixThreats } = useDispatch( STORE_ID );
-	const { threatsUpdating } = useSelect( select => select( STORE_ID ).getThreatsUpdating() );
+	const { setModal } = useModal();
+	const fixersMutation = useFixersMutation();
 
-	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => id ) );
+	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => parseInt( id ) ) );
 
 	const handleCancelClick = () => {
 		return event => {
@@ -24,9 +24,9 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 	const handleFixClick = () => {
 		return async event => {
 			event.preventDefault();
-			fixThreats( threatIds, () => {
-				setModal( { type: null } );
-			} );
+
+			await fixersMutation.mutateAsync( threatIds );
+			setModal( { type: null } );
 		};
 	};
 
@@ -67,7 +67,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 						{ __( 'Cancel', 'jetpack-protect' ) }
 					</Button>
 					<Button
-						isLoading={ Boolean( threatsUpdating ) && threatsUpdating[ threatIds[ 0 ] ] }
+						isLoading={ fixersMutation.isLoading }
 						onClick={ handleFixClick() }
 						disabled={ ! threatIds.length }
 					>

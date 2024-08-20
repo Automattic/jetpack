@@ -18,11 +18,9 @@ const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 /**
  * Interstitial Page
  *
- * @param {object}   props           - Component props
- * @param {Function} props.onScanAdd - Callback when adding paid protect product successfully
- * @return {React.Component}              Interstitial react component.
+ * @return {React.Component} Interstitial react component.
  */
-const InterstitialPage = ( { onScanAdd } ) => {
+const InterstitialPage = () => {
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_interstitial',
@@ -51,7 +49,7 @@ const InterstitialPage = ( { onScanAdd } ) => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<ConnectedPricingTable onScanAdd={ onScanAdd } />
+						<ConnectedPricingTable />
 					</Col>
 				</Container>
 			</AdminSectionHero>
