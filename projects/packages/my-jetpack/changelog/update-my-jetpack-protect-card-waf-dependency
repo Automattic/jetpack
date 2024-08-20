@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed unnecessary WAF dependency in My Jetpack.
