@@ -44,6 +44,6 @@ export default function ErrorScreen( {
 				</div>
 			}
 			preserveSecondaryOnMobile={ false }
-		/>
+		></SeventyFiveLayout>
 	);
 }
