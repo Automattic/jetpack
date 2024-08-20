@@ -4,10 +4,10 @@ import path from 'path';
 /**
  * Search and replace strings inside all files in a folder.
  *
- * @param {string} folder - The folder.
- * @param {string} search - String to search for.
+ * @param {string} folder  - The folder.
+ * @param {string} search  - String to search for.
  * @param {string} replace - String to replace with.
- * @returns {Promise} Promise that resolves once all replacements are done
+ * @return {Promise} Promise that resolves once all replacements are done
  */
 export default function searchReplaceInFolder( folder, search, replace ) {
 	const files = fs.readdirSync( folder );

@@ -41,12 +41,12 @@ return [
     // PhanTypeMismatchDimFetch : 40+ occurrences
     // PhanUndeclaredMethod : 40+ occurrences
     // PhanUndeclaredTypeParameter : 40+ occurrences
-    // PhanUnreferencedUseNormal : 40+ occurrences
     // PhanPluginDuplicateAdjacentStatement : 35+ occurrences
     // PhanPluginSimplifyExpressionBool : 35+ occurrences
     // PhanTypeMismatchForeach : 35+ occurrences
     // PhanTypeSuspiciousStringExpression : 30+ occurrences
     // PhanUndeclaredVariableDim : 30+ occurrences
+    // PhanUnreferencedUseNormal : 30+ occurrences
     // PhanCommentParamWithoutRealParam : 25+ occurrences
     // PhanParamSignatureMismatch : 25+ occurrences
     // PhanRedundantConditionInGlobalScope : 25+ occurrences

@@ -12,7 +12,7 @@
 		/**
 		 * Refresh custom_css partial, using selective refresh if pre-processor and direct DOM manipulation if otherwise.
 		 *
-		 * @returns {jQuery.promise} Promise
+		 * @return {jQuery.promise} Promise
 		 */
 		refresh: function () {
 			const partial = this,

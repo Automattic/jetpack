@@ -6,8 +6,8 @@ import { find } from 'lodash';
  *
  * From @link https://github.com/WordPress/gutenberg/blob/ddac4f3cf8fd311169c7e125411343a437bdbb5a/packages/editor/src/components/block-styles/index.js#L20-L42
  *
- * @param {Array} styles Block style variations.
- * @param {string} className  Class name
+ * @param {Array}  styles    Block style variations.
+ * @param {string} className Class name
  *
  * @return {Object?} The active style.
  */

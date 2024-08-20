@@ -6,7 +6,7 @@ const extras = require( './extra-context' );
 /**
  * Returns a list o Slack channel ids, based on context and rules configuration.
  *
- * @returns {string[]} an array of channels ids
+ * @return {string[]} an array of channels ids
  */
 function getChannels() {
 	const channels = [];

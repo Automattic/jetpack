@@ -57,7 +57,7 @@ export const StartFreshDeprecationWarning = ( { siteAdminUrl } ) =>
  * Custom CSS settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Custom CSS settings component.
+ * @return {React.Component} Custom CSS settings component.
  */
 function CustomCss( props ) {
 	const {

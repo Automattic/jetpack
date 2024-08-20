@@ -29,7 +29,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * to the checkout page or the Jetpack AI interstitial page.
  *
  * @param {UpgradePromptProps} props - Component props.
- * @returns {ReactElement} the Nudge component with the prompt.
+ * @return {ReactElement} the Nudge component with the prompt.
  */
 const DefaultUpgradePrompt = ( {
 	placement = null,
@@ -170,10 +170,10 @@ const DefaultUpgradePrompt = ( {
  * The VIP upgrade prompt, with a single text message recommending that the user reach
  * out to their VIP account team.
  *
- * @param {object} props - Component props.
- * @param {string} props.description - The description to display in the prompt.
+ * @param {object}  props               - Component props.
+ * @param {string}  props.description   - The description to display in the prompt.
  * @param {boolean} props.useLightNudge - Wheter to use the light variant of the nudge, or the standard one.
- * @returns {ReactElement} the Nudge component with the prompt.
+ * @return {ReactElement} the Nudge component with the prompt.
  */
 const VIPUpgradePrompt = ( {
 	description = null,

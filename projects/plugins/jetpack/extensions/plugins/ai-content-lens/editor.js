@@ -20,7 +20,7 @@ const isAiAssistantSupportExtensionEnabled =
  *
  * @param {object} settings - Block settings.
  * @param {string} name     - Block name.
- * @returns {object}          Block settings.
+ * @return {object}          Block settings.
  */
 function extendAiContentLensFeatures( settings, name ) {
 	// Bail early when the block is not the AI Assistant.

@@ -8,7 +8,7 @@ import SurveyChoice from './survey-choice';
  * Handles showing the disconnect survey.
  *
  * @param {object} props - The component props.
- * @returns {React.Component} - DisconnectSurvey component.
+ * @return {React.Component} - DisconnectSurvey component.
  */
 const DisconnectSurvey = props => {
 	const { onSubmit, isSubmittingFeedback } = props;
@@ -68,8 +68,8 @@ const DisconnectSurvey = props => {
 	/**
 	 * Checks to see if an option is the currently selected option, returns a css class name if it matches.
 	 *
-	 * @param {string} optionId   - ID of the option to check for.
-	 * @returns {string} - The "selected" class if this option is currently selected.
+	 * @param {string} optionId - ID of the option to check for.
+	 * @return {string} - The "selected" class if this option is currently selected.
 	 */
 	const selectedClass = optionId => {
 		if ( optionId === selectedAnswer ) {
@@ -83,7 +83,7 @@ const DisconnectSurvey = props => {
 	 * Event handler for keyboard events on the answer blocks.
 	 *
 	 * @param {string} answerId - The slug of the answer that has been selected.
-	 * @param {object} e - Keydown event.
+	 * @param {object} e        - Keydown event.
 	 */
 	const handleAnswerKeyDown = useCallback(
 		( answerId, e ) => {
@@ -102,7 +102,7 @@ const DisconnectSurvey = props => {
 	/**
 	 * Show all the survey options from the options array.
 	 *
-	 * @returns {React.ElementType []} - Mapped array of rendered survey options.
+	 * @return {React.ElementType []} - Mapped array of rendered survey options.
 	 */
 	const renderOptions = () => {
 		return options.map( option => {
@@ -123,7 +123,7 @@ const DisconnectSurvey = props => {
 	 * Show the custom input survey option.
 	 * Contains an input field for a custom response.
 	 *
-	 * @returns {React.ElementType} - The custom survey option with an input field.
+	 * @return {React.ElementType} - The custom survey option with an input field.
 	 */
 	const renderCustomOption = () => {
 		return (

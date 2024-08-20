@@ -34,10 +34,10 @@ import type {
 /**
  * Helper to determine the state of the transcription.
  *
- * @param {boolean} isCreatingTranscription - The transcription creation state
- * @param {boolean} isValidatingAudio - The audio validation state
- * @param {RecordingState} recordingState - The recording state
- * @returns {TranscriptionState} - The transcription state
+ * @param {boolean}        isCreatingTranscription - The transcription creation state
+ * @param {boolean}        isValidatingAudio       - The audio validation state
+ * @param {RecordingState} recordingState          - The recording state
+ * @return {TranscriptionState} - The transcription state
  */
 const transcriptionStateHelper = (
 	isCreatingTranscription: boolean,

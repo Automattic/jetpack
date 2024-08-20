@@ -25,6 +25,7 @@ import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import registerEvents from '../features/events';
 import { LONG_SENTENCES } from '../features/long-sentences';
+import { SPELLING_MISTAKES } from '../features/spelling-mistakes';
 import getBreveAvailability from '../utils/get-availability';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
@@ -79,7 +80,7 @@ export default function Highlight() {
 		const defaultAnchor = { target: null, virtual: null };
 		const { target: anchorEl, virtual: virtualEl } =
 			breveSelect.getPopoverAnchor() ?? defaultAnchor;
-		const anchorFeature = anchorEl?.getAttribute?.( 'data-type' ) as string;
+		const anchorFeature = anchorEl?.getAttribute?.( 'data-breve-type' ) as string;
 		const anchorId = anchorEl?.getAttribute?.( 'data-id' ) as string;
 		const anchorBlockId = anchorEl?.getAttribute?.( 'data-block' ) as string;
 
@@ -228,10 +229,10 @@ export default function Highlight() {
 					>
 						<div className="jetpack-ai-breve__header-container">
 							<div className="jetpack-ai-breve__title">
-								<div className="jetpack-ai-breve__color" data-type={ feature } />
+								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
-							{ ! hasSuggestions && (
+							{ ! hasSuggestions && feature !== SPELLING_MISTAKES.name && (
 								<div className="jetpack-ai-breve__action">
 									{ loading ? (
 										<div className="jetpack-ai-breve__loading">
@@ -335,7 +336,7 @@ export function registerBreveHighlights() {
 							type,
 							indexes: highlights,
 							attributes: {
-								'data-type': config.name,
+								'data-breve-type': config.name,
 								'data-identifier': richTextIdentifier ?? 'none',
 								'data-block': blockClientId,
 							},

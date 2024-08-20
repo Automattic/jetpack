@@ -12,7 +12,7 @@ import './style.scss';
  * The Contextualized Connection component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ContextualizedConnection` component.
+ * @return {React.Component} The `ContextualizedConnection` component.
  */
 const ContextualizedConnection = props => {
 	const {

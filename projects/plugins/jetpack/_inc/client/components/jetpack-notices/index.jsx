@@ -1,11 +1,13 @@
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import cookie from 'cookie';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -34,7 +36,6 @@ import {
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
-import { isPluginActive } from 'state/site/plugins';
 import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
@@ -180,12 +181,44 @@ UserUnlinked.propTypes = {
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
+	constructor( props ) {
+		super( props );
+
+		const cookieParsed = cookie.parse( document.cookie );
+		this.state = {
+			isMasterbarNoticeDismissed:
+				cookieParsed &&
+				cookieParsed.hasOwnProperty(
+					'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]'
+				) &&
+				'1' ===
+					cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]' ],
+		};
+	}
+
+	dismissMasterbarNotice = () => {
+		this.setState( { isMasterbarNoticeDismissed: true } );
+
+		document.cookie = cookie.serialize(
+			'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]',
+			'1',
+			{
+				path: '/',
+				maxAge: 365 * 24 * 60 * 60,
+				SameSite: 'None',
+			}
+		);
+	};
+
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
 			error.hasOwnProperty( 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
+
+		const showMasterbarNotice =
+			this.props.showMasterbarNotice && ! this.state.isMasterbarNoticeDismissed;
 
 		return (
 			<div aria-live="polite">
@@ -244,6 +277,23 @@ class JetpackNotices extends React.Component {
 						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
 					</SimpleNotice>
 				) }
+				{ showMasterbarNotice && (
+					<SimpleNotice
+						status="is-warning"
+						dismissText={ __( 'Dismiss', 'jetpack' ) }
+						onDismissClick={ this.dismissMasterbarNotice }
+					>
+						<div>
+							{ __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ) }
+						</div>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-support-masterbar' ) }>
+							{ __(
+								'To find out more about what this means for you, please refer to this document',
+								'jetpack'
+							) }
+						</ExternalLink>
+					</SimpleNotice>
+				) }
 			</div>
 		);
 	}
@@ -270,18 +320,7 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
-			showGoogleAnalyticsNotice:
-				window.Initial_State?.isGoogleAnalyticsActive &&
-				! isWoASite( state ) &&
-				isPluginActive(
-					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
-					state,
-					'jetpack/jetpack.php'
-				) &&
-				! isPluginActive(
-					state,
-					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
-				),
+			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},
 	dispatch => {

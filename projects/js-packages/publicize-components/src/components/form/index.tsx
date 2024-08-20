@@ -14,7 +14,6 @@ import useSocialMediaConnections from '../../hooks/use-social-media-connections'
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
 import { SocialPostModal } from '../social-post-modal/modal';
-import { AdvancedPlanNudge } from './advanced-plan-nudge';
 import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
 import { ShareCountInfo } from './share-count-info';
@@ -23,7 +22,7 @@ import { SharePostForm } from './share-post-form';
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @returns {object} - Publicize form component.
+ * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
@@ -61,7 +60,6 @@ export default function PublicizeForm() {
 					{ isPublicizeEnabled && hasEnabledConnections && (
 						<SharePostForm analyticsData={ { location: 'editor' } } />
 					) }
-					<AdvancedPlanNudge />
 				</Fragment>
 			) }
 		</Wrapper>
