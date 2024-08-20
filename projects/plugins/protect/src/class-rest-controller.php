@@ -10,8 +10,10 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Protect_Status\REST_Controller as Protect_Status_REST_Controller;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Stats;
 use Jetpack_Protect;
 use WP_Error;
 use WP_REST_Request;
@@ -380,10 +382,15 @@ class REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'is_seen'    => Jetpack_Protect::get_waf_seen_status(),
-				'is_enabled' => Waf_Runner::is_enabled(),
-				'config'     => Waf_Runner::get_config(),
-				'stats'      => Jetpack_Protect::get_waf_stats(),
+				'wafSupported'        => Waf_Runner::is_supported_environment(),
+				'currentIp'           => IP_Utils::get_ip(),
+				'isSeen'              => Jetpack_Protect::get_waf_seen_status(),
+				'upgradeIsSeen'       => Jetpack_Protect::get_waf_upgrade_seen_status(),
+				'displayUpgradeBadge' => Jetpack_Protect::get_waf_upgrade_badge_display_status(),
+				'isEnabled'           => Waf_Runner::is_enabled(),
+				'config'              => Waf_Runner::get_config(),
+				'stats'               => Jetpack_Protect::get_waf_stats(),
+				'globalStats'         => Waf_Stats::get_global_stats(),
 			)
 		);
 	}
