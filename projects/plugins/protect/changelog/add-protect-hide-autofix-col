@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Protect Threat History: remove auto-fix column as it is not applicable to history.
+
+

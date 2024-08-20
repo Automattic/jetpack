@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.32.2-alpha';
+	const PACKAGE_VERSION = '4.32.3-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -60,11 +60,10 @@ class Initializer {
 		'jetpack-search',
 	);
 
-	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY = 'my-jetpack-site-info';
-
+	const MY_JETPACK_SITE_INFO_TRANSIENT_KEY             = 'my-jetpack-site-info';
 	const UPDATE_HISTORICALLY_ACTIVE_JETPACK_MODULES_KEY = 'update-historically-active-jetpack-modules';
-
-	const MISSING_CONNECTION_NOTIFICATION_KEY = 'missing-connection';
+	const MISSING_CONNECTION_NOTIFICATION_KEY            = 'missing-connection';
+	const VIDEOPRESS_STATS_KEY                           = 'my-jetpack-videopress-stats';
 
 	/**
 	 * Holds info/data about the site (from the /sites/%d endpoint)
@@ -220,6 +219,11 @@ class Initializer {
 		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
+		$waf_config = array();
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			$waf_config = Waf_Runner::get_config();
+		}
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -274,7 +278,7 @@ class Initializer {
 				'protect'                => array(
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
-						Waf_Runner::get_config(),
+						$waf_config,
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
@@ -314,10 +318,23 @@ class Initializer {
 			);
 		}
 
-		$videopress_stats = new VideoPress_Stats();
+		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
+
+		if ( ! $featured_stats ) {
+			$videopress_stats = new VideoPress_Stats();
+			$featured_stats   = $videopress_stats->get_featured_stats( 60 );
+		}
+
+		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
+			return array(
+				'videoCount' => $video_count,
+			);
+		}
+
+		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, HOUR_IN_SECONDS );
 
 		return array(
-			'featuredStats' => $videopress_stats->get_featured_stats(),
+			'featuredStats' => $featured_stats,
 			'videoCount'    => $video_count,
 		);
 	}
@@ -756,7 +773,7 @@ class Initializer {
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
 				// We don't want to show silent alerts
-				return ! $alert['is_silent'];
+				return empty( $alert['is_silent'] );
 			}
 		);
 

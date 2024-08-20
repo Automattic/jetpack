@@ -20,6 +20,7 @@ return [
     // PhanRedefineFunction : 4 occurrences
     // PhanTypeMismatchArgumentInternal : 4 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
+    // PhanParamTooMany : 2 occurrences
     // PhanPluginRedundantAssignment : 2 occurrences
     // PhanStaticCallToNonStatic : 2 occurrences
     // PhanTypeArraySuspiciousNullable : 2 occurrences
@@ -27,7 +28,6 @@ return [
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanImpossibleTypeComparison : 1 occurrence
     // PhanNonClassMethodCall : 1 occurrence
-    // PhanParamTooMany : 1 occurrence
     // PhanPluginInvalidPregRegex : 1 occurrence
     // PhanTypeComparisonToArray : 1 occurrence
     // PhanTypeExpectedObjectPropAccess : 1 occurrence
