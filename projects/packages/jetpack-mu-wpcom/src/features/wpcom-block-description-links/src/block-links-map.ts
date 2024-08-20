@@ -341,6 +341,18 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/subscriber-login-block/',
 		postId: 380451,
 	},
+	'jetpack/blog-stats': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/blog-stats-block/',
+		postId: 382010,
+	},
+	'jetpack/top-posts': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/top-posts-pages-block/',
+		postId: 381536,
+	},
+	'jetpack/goodreads': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/goodreads-block/',
+		postId: 382051,
+	},
 };
 
 export const blockInfoWithVariations: {
