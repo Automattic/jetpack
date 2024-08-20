@@ -15,7 +15,7 @@ export const DISMISS_LS_ITEM_MAX_AGE = 3 * 24 * 60 * 60; // 3 days
 /**
  * Is partner coupon redeem CTA dismissed?
  *
- * @returns {boolean} Is the redeem CTA dismissed?
+ * @return {boolean} Is the redeem CTA dismissed?
  */
 function isDismissed() {
 	const dismissedAt = localStorage.getItem( DISMISS_LS_ITEM_NAME );
@@ -33,7 +33,7 @@ function isDismissed() {
 /**
  * Dismiss partner coupon redeem CTA.
  *
- * @returns {void}
+ * @return {void}
  */
 function dismiss() {
 	localStorage.setItem( DISMISS_LS_ITEM_NAME, new Date().getTime() );

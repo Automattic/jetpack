@@ -19,7 +19,7 @@ export type ShareButtonsProps = {
  *
  * @param {ShareButtonsProps} props - Component props
  *
- * @returns {React.JSX.Element} - Rendered component
+ * @return {React.JSX.Element} - Rendered component
  */
 export function ShareButtons( { buttonStyle = 'icon', buttonVariant }: ShareButtonsProps ) {
 	const prepareText = useShareButtonText();

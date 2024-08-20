@@ -16,7 +16,7 @@ export const describe = 'Installs a monorepo project';
  * Options definition for the install subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the install commands defined.
+ * @return {object} Yargs with the install commands defined.
  */
 export function builder( yargs ) {
 	return yargs
