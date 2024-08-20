@@ -1,11 +1,10 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
-import { STORE_ID } from '../../state/store';
+import useFixers from '../../hooks/use-fixers';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
@@ -75,12 +74,13 @@ export const PaidAccordionItem = ( {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );
+
+	const { fixersStatus } = useFixers();
 
 	const handleClick = useCallback( () => {
 		if ( ! open ) {
@@ -122,7 +122,7 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ threatsAreFixing.indexOf( id ) >= 0 ? (
+								{ fixersStatus?.[ id ]?.status === 'in_progress' ? (
 									<Spinner color="black" />
 								) : (
 									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
