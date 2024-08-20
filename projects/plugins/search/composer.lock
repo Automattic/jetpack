@@ -1016,7 +1016,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "50ec17690d0b787c2ba6b4219fb697ab0e0ca9aa"
+                "reference": "6b23d8933ae1026ffd3d3015bc60afba30a45930"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
