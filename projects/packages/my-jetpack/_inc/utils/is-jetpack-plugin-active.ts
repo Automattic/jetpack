@@ -3,7 +3,7 @@ import { getMyJetpackWindowInitialState } from '../data/utils/get-my-jetpack-win
 /**
  * Check if the Jetpack plugin is active or not.
  *
- * @returns {boolean} Returns true if the Jetpack plugin is active, otherwise false.
+ * @return {boolean} Returns true if the Jetpack plugin is active, otherwise false.
  */
 export const isJetpackPluginActive = () => {
 	const { plugins } = getMyJetpackWindowInitialState() || {};

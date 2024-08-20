@@ -1,9 +1,9 @@
 /**
  * Update message hooks.
  *
- * @param {jQuery}  $ - jQuery object.
- * @param {object}  wp - WP object.
- * @param {object}  i18n - I18n data.
+ * @param {jQuery} $    - jQuery object.
+ * @param {object} wp   - WP object.
+ * @param {object} i18n - I18n data.
  */
 ( function ( $, wp, i18n ) {
 	const $updateNotices = $( '.jetpack-beta__update-needed' ),

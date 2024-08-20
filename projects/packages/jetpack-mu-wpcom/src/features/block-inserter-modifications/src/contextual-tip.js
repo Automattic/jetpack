@@ -7,9 +7,9 @@ import tipsList from './list';
 /**
  * Create the contextual tip.
  *
- * @param {object} props                 - The function props.
- * @param {string} props.searchTerm      - Search term text.
- * @param {boolean} props.random         - Whether to choose a random tooltip on multiple matches.
+ * @param {object}   props               - The function props.
+ * @param {string}   props.searchTerm    - Search term text.
+ * @param {boolean}  props.random        - Whether to choose a random tooltip on multiple matches.
  * @param {Function} props.canUserCreate - Function to check user permission.
  */
 function ContextualTip( { searchTerm, random = false, canUserCreate } ) {

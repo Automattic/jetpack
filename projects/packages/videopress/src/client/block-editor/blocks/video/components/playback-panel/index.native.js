@@ -11,10 +11,10 @@ import { Text } from 'react-native';
 /**
  * Sidebar Control component.
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
+ * @param {object}   props               - Component props.
+ * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set attributes.
- * @returns {import('react').ReactElement} - Playback block sidebar panel
+ * @return {import('react').ReactElement} - Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes } ) {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );

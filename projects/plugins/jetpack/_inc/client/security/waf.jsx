@@ -47,7 +47,7 @@ export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	state = {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
@@ -80,7 +80,7 @@ export const Waf = class extends Component {
 	 * Get a custom error message based on the error code.
 	 *
 	 * @param {object} error - Error object.
-	 * @returns {string|boolean} Custom error message or false if no custom message exists.
+	 * @return {string|boolean} Custom error message or false if no custom message exists.
 	 */
 	getCustomErrorMessage = error => {
 		switch ( error.code ) {
@@ -96,7 +96,7 @@ export const Waf = class extends Component {
 	/**
 	 * Handle settings updates.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	onSubmit = () => {
 		this.props.removeNotice( 'module-setting-update' );

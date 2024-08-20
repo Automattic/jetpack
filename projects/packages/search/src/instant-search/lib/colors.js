@@ -2,7 +2,7 @@
  * Extracts hex code from a string. Normalizes 3 digit hex into 6 digit hex.
  *
  * @param {string} input - String containing hex code, usually prepended with #.
- * @returns {string} - Hex code.
+ * @return {string} - Hex code.
  */
 function extractHexCode( input ) {
 	let output;
@@ -22,7 +22,7 @@ function extractHexCode( input ) {
  * Generates a constrasting color hex code given a color hex code.
  *
  * @param {string} input - String containing a hex color code.
- * @returns {string} - Hex code for a contrasting color.
+ * @return {string} - Hex code for a contrasting color.
  */
 export function getConstrastingColor( input ) {
 	// https://gomakethings.com/dynamically-changing-the-text-color-based-on-background-color-contrast-with-vanilla-js/

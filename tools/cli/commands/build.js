@@ -28,7 +28,7 @@ export const describe = 'Builds one or more monorepo projects';
  * Options definition for the build subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function builder( yargs ) {
 	return yargs
@@ -222,11 +222,11 @@ export async function handler( argv ) {
 /**
  * Create a build task.
  *
- * @param {string} project - Project slug.
- * @param {object} argv - Command line arguments.
- * @param {string} title - Task title.
- * @param {Function} build - Build function.
- * @returns {object} Listr task.
+ * @param {string}   project - Project slug.
+ * @param {object}   argv    - Command line arguments.
+ * @param {string}   title   - Task title.
+ * @param {Function} build   - Build function.
+ * @return {object} Listr task.
  */
 function createBuildTask( project, argv, title, build ) {
 	return {
@@ -401,7 +401,7 @@ function createBuildTask( project, argv, title, build ) {
  * Prompt for whether dependencies should be built too.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 async function promptForDeps( options ) {
 	if ( typeof options.deps !== 'undefined' ) {
@@ -426,7 +426,7 @@ async function promptForDeps( options ) {
  * Set up the environment for building for mirrors.
  *
  * @param {object} argv - Arguments. Will be modified in place.
- * @returns {boolean} Whether to proceed.
+ * @return {boolean} Whether to proceed.
  */
 async function setupForMirroring( argv ) {
 	if ( ! argv.forMirrors ) {
@@ -488,7 +488,7 @@ async function setupForMirroring( argv ) {
  * Test if a given path exists.
  *
  * @param {string|Buffer|URL} path - Path to check.
- * @returns {boolean} Whether it exists.
+ * @return {boolean} Whether it exists.
  */
 async function fsExists( path ) {
 	return fs.access( path ).then(
@@ -500,7 +500,7 @@ async function fsExists( path ) {
 /**
  * Copy directories recursively.
  *
- * @param {string} src - Directory to copy from.
+ * @param {string} src  - Directory to copy from.
  * @param {string} dest - Directory to copy to.
  */
 async function copyDirectory( src, dest ) {
@@ -521,8 +521,8 @@ async function copyDirectory( src, dest ) {
  *
  * Writes to a temporary file then renames, on the assumption that the latter is an atomic operation.
  *
- * @param {string} file - File name.
- * @param {string} data - Contents to write.
+ * @param {string} file    - File name.
+ * @param {string} data    - Contents to write.
  * @param {object} options - Options.
  */
 async function writeFileAtomic( file, data, options = {} ) {
@@ -543,7 +543,7 @@ async function writeFileAtomic( file, data, options = {} ) {
  *
  * Copies to a temporary file then renames, on the assumption that the latter is an atomic operation.
  *
- * @param {string} src - Source file.
+ * @param {string} src  - Source file.
  * @param {string} dest - Dest file.
  */
 async function copyFileAtomic( src, dest ) {
@@ -563,7 +563,7 @@ async function copyFileAtomic( src, dest ) {
  * Check for filename collisions.
  *
  * @param {string} basedir - Base directory.
- * @returns {string[]} Colliding file names.
+ * @return {string[]} Colliding file names.
  */
 async function checkCollisions( basedir ) {
 	const files = await fs.readdir( basedir, { recursive: true } );

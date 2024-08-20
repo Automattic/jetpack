@@ -11,7 +11,7 @@ const getFiles = require( '../../utils/get-files' );
  * - Capitalize.
  *
  * @param {string} name - Feature name.
- * @returns {string} Cleaned up feature name.
+ * @return {string} Cleaned up feature name.
  */
 function cleanName( name ) {
 	const name_exceptions = {
@@ -51,13 +51,13 @@ function cleanName( name ) {
 /**
  * Build a list of labels to add to the issue, based off our file list.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {GitHub}  octokit  - Initialized Octokit REST client.
+ * @param {string}  owner    - Repository owner.
+ * @param {string}  repo     - Repository name.
+ * @param {string}  number   - PR number.
  * @param {boolean} isDraft  - Whether the pull request is a draft.
- * @param {boolean} isRevert  - Whether the pull request is a revert.
- * @returns {Promise<Array>} Promise resolving to an array of keywords we'll search for.
+ * @param {boolean} isRevert - Whether the pull request is a revert.
+ * @return {Promise<Array>} Promise resolving to an array of keywords we'll search for.
  */
 async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert ) {
 	const keywords = new Set();

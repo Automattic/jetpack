@@ -20,7 +20,7 @@ const { automatticAssignments } = require( './automattic-label-team-assignments'
  * @param {string} number     - Issue number.
  * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
  * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<boolean>} Promise resolving to true if the issue has a "Triaged" label.
+ * @return {Promise<boolean>} Promise resolving to true if the issue has a "Triaged" label.
  */
 async function hasTriagedLabel( octokit, owner, repo, number, action, eventLabel ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -46,7 +46,7 @@ async function hasTriagedLabel( octokit, owner, repo, number, action, eventLabel
  * @param {string} number     - Issue number.
  * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
  * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<boolean>} Promise resolving to true if the issue needs a third-party fix.
+ * @return {Promise<boolean>} Promise resolving to true if the issue needs a third-party fix.
  */
 async function needsThirdPartyFix( octokit, owner, repo, number, action, eventLabel ) {
 	const labels = await getLabels( octokit, owner, repo, number );
@@ -62,7 +62,7 @@ async function needsThirdPartyFix( octokit, owner, repo, number, action, eventLa
  *
  * @param {GitHub} octokit          - Initialized Octokit REST client.
  * @param {string} projectBoardLink - The link to the project board.
- * @returns {Promise<Object>} - Project board information.
+ * @return {Promise<Object>} - Project board information.
  */
 async function getProjectDetails( octokit, projectBoardLink ) {
 	const projectRegex =
@@ -158,7 +158,7 @@ async function getProjectDetails( octokit, projectBoardLink ) {
  * @param {object} projectInfo - Info about our project board.
  * @param {string} repoName    - The name of the repository.
  * @param {string} issueId     - The ID of the issue.
- * @returns {Promise<string>}  - The ID of the project item, or an empty string if not found.
+ * @return {Promise<string>}  - The ID of the project item, or an empty string if not found.
  */
 async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) {
 	const { ownerName, projectNumber } = projectInfo;
@@ -204,7 +204,7 @@ async function getIssueProjectItemId( octokit, projectInfo, repoName, issueId ) 
  * @param {GitHub} octokit     - Initialized Octokit REST client.
  * @param {object} projectInfo - Info about our project board.
  * @param {string} node_id     - The node_id of the Issue.
- * @returns {Promise<string>} - Info about the project item id that was created.
+ * @return {Promise<string>} - Info about the project item id that was created.
  */
 async function addIssueToBoard( octokit, projectInfo, node_id ) {
 	const { projectNodeId } = projectInfo;
@@ -244,7 +244,7 @@ async function addIssueToBoard( octokit, projectInfo, node_id ) {
  * @param {object} projectInfo   - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
  * @param {string} priorityText  - Priority of our issue (must match an existing column in the project board).
- * @returns {Promise<string>} - The new project item id.
+ * @return {Promise<string>} - The new project item id.
  */
 async function setPriorityField( octokit, projectInfo, projectItemId, priorityText ) {
 	const {
@@ -304,7 +304,7 @@ async function setPriorityField( octokit, projectInfo, projectItemId, priorityTe
  * @param {object} projectInfo   - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
  * @param {string} statusText    - Status of our issue (must match an existing column in the project board).
- * @returns {Promise<string>} - The new project item id.
+ * @return {Promise<string>} - The new project item id.
  */
 async function setStatusField( octokit, projectInfo, projectItemId, statusText ) {
 	const {
@@ -364,7 +364,7 @@ async function setStatusField( octokit, projectInfo, projectItemId, statusText )
  * @param {object} projectInfo   - Info about our project board.
  * @param {string} projectItemId - The ID of the project item.
  * @param {string} team          - Team that should be assigned to our issue (must match an existing column in the project board).
- * @returns {Promise<string>} - The new project item id.
+ * @return {Promise<string>} - The new project item id.
  */
 async function setTeamField( octokit, projectInfo, projectItemId, team ) {
 	const {
@@ -420,7 +420,7 @@ async function setTeamField( octokit, projectInfo, projectItemId, team ) {
  *
  * @param {string} ownerLogin - Repository owner login.
  *
- * @returns {Promise<Object>} - Mapping of teams <> labels.
+ * @return {Promise<Object>} - Mapping of teams <> labels.
  */
 async function loadTeamAssignments( ownerLogin ) {
 	// If we're in an Automattic repo, we can use the team assignments file that ships with this action.
@@ -460,12 +460,12 @@ async function loadTeamAssignments( ownerLogin ) {
  * It could be an existing label,
  * or it could be that it's being added as part of the event that triggers this action.
  *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {object} payload    - Issue event payload.
- * @param {object} projectInfo - Info about our project board.
- * @param {string} projectItemId - The ID of the project item.
- * @param {Array} priorityLabels - Array of priority labels.
- * @returns {Promise<string>} - The new project item id.
+ * @param {GitHub} octokit        - Initialized Octokit REST client.
+ * @param {object} payload        - Issue event payload.
+ * @param {object} projectInfo    - Info about our project board.
+ * @param {string} projectItemId  - The ID of the project item.
+ * @param {Array}  priorityLabels - Array of priority labels.
+ * @return {Promise<string>} - The new project item id.
  */
 async function assignTeam( octokit, payload, projectInfo, projectItemId, priorityLabels ) {
 	const {

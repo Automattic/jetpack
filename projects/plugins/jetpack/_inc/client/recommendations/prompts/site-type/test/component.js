@@ -9,7 +9,7 @@ import { SiteTypeQuestion } from '../index';
 /**
  * Build initial state.
  *
- * @returns {object} State.
+ * @return {object} State.
  */
 function buildInitialState() {
 	return {

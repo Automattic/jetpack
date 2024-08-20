@@ -228,7 +228,7 @@ class SimplePaymentsEdit extends Component {
 	 * This method does not include validation UI. Currency selection should not allow for invalid
 	 * values. It is primarily to ensure that the currency is valid to save.
 	 *
-	 * @returns  {boolean} True if currency is valid
+	 * @return  {boolean} True if currency is valid
 	 */
 	validateCurrency = () => {
 		const { currency } = this.props.attributes;
@@ -240,7 +240,7 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldPriceError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validatePrice = () => {
 		const { currency, price } = this.props.attributes;
@@ -311,7 +311,7 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldEmailError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validateEmail = () => {
 		const { email } = this.props.attributes;
@@ -348,7 +348,7 @@ class SimplePaymentsEdit extends Component {
 	 *
 	 * Stores error message in state.fieldTitleError
 	 *
-	 * @returns {boolean} True when valid, false when invalid
+	 * @return {boolean} True when valid, false when invalid
 	 */
 	validateTitle = () => {
 		const { title } = this.props.attributes;

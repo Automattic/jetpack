@@ -5,8 +5,8 @@ import effects from './effects';
 /**
  * Applies the custom middlewares used specifically for the Story Player.
  *
- * @param {object} store  - Store Object.
- * @returns {object} Update Store Object.
+ * @param {object} store - Store Object.
+ * @return {object} Update Store Object.
  */
 export default function applyMiddlewares( store ) {
 	const middlewares = [ refx( effects ) ];

@@ -17,7 +17,7 @@ const debug = debugFactory( 'videopress:use-video-player' );
  * given the iframe's ref.
  *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
- * @returns {Window | null}	                                     Window object of the iframe
+ * @return {Window | null} Window object of the iframe
  */
 export const getIframeWindowFromRef = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >
@@ -31,10 +31,10 @@ export const getIframeWindowFromRef = (
 /**
  * Custom hook to set the player ready to use:
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
- * @param {boolean} isRequestingPreview                        - Whether the preview is being requested.
- * @param {UseVideoPlayerOptions} options                      - Options object.
- * @returns {UseVideoPlayer}                                     playerIsReady and playerState
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef           - useRef of the sandbox wrapper.
+ * @param {boolean}                                  isRequestingPreview - Whether the preview is being requested.
+ * @param {UseVideoPlayerOptions}                    options             - Options object.
+ * @return {UseVideoPlayer}                                     playerIsReady and playerState
  */
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,

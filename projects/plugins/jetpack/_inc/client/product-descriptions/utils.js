@@ -7,7 +7,7 @@ import { productDescriptionRoutes, myJetpackRoutes } from './constants';
  *
  * Todo: Make it return true once we fully ship and enable new search pricing.
  *
- * @returns {boolean} Whether new search pricing and free plan is forced by URL parameter.
+ * @return {boolean} Whether new search pricing and free plan is forced by URL parameter.
  */
 export const isSearchNewPricingLaunched202208 = () =>
 	URLSearchParams && !! new URLSearchParams( window.location?.search ).get( 'new_pricing_202208' );
@@ -18,9 +18,9 @@ export const isSearchNewPricingLaunched202208 = () =>
  * A product key differs from slugs since "jetpack-backup-daily" => "backups".
  * We follow these to keep support for existing redirects / tracks.
  *
- * @param {object} state - The site state
+ * @param {object} state      - The site state
  * @param {string} productKey - Product key to redirect to.
- * @returns {string} URL for a product or the .
+ * @return {string} URL for a product or the .
  */
 export const getProductDescriptionUrl = ( state, productKey ) => {
 	const baseUrl = `${ getSiteAdminUrl( state ) }admin.php?page=jetpack#`;

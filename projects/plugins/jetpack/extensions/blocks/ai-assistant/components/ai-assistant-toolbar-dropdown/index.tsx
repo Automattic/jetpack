@@ -35,7 +35,7 @@ type AiAssistantBlockToolbarDropdownContentProps = {
 /**
  * The dropdown component with logic for the AI Assistant block.
  * @param {AiAssistantBlockToolbarDropdownContentProps} props - The props.
- * @returns {ReactElement} The React content of the dropdown.
+ * @return {ReactElement} The React content of the dropdown.
  */
 function AiAssistantBlockToolbarDropdownContent( {
 	onClose,
@@ -162,7 +162,7 @@ type AiAssistantBlockToolbarDropdownProps = {
 /**
  * The AI Assistant dropdown component.
  * @param {AiAssistantBlockToolbarDropdownProps} props - The props.
- * @returns {ReactElement} The AI Assistant dropdown component.
+ * @return {ReactElement} The AI Assistant dropdown component.
  */
 export default function AiAssistantBlockToolbarDropdown( {
 	blockType,

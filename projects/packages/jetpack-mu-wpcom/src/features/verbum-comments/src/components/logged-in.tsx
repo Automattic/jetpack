@@ -10,7 +10,7 @@ import { NewPostsNotifications } from './new-posts-notifications';
 
 /**
  * Replace the first occurrence of %s in a string with a parameter.
- * @param s - string to replace
+ * @param s     - string to replace
  * @param param - parameter to replace with
  */
 function sprintf( s: string, param: string ) {

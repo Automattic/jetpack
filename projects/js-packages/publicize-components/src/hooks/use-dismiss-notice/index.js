@@ -4,9 +4,9 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 
 /**
  * @typedef {object} NoticeTypes
- * @property {string} instagram - The name of the Instagram notice.
+ * @property {string} instagram             - The name of the Instagram notice.
  * @property {string} advancedUpgradeEditor - The name of the advanced upgrade nudge in the editor.
- * @property {string} advancedUpgradeAdmin - The name of the advanced upgrade nudge in the admin page.
+ * @property {string} advancedUpgradeAdmin  - The name of the advanced upgrade nudge in the admin page.
  */
 
 const NOTICES = {
@@ -23,16 +23,16 @@ const calculateReappearanceTime = seconds => {
 
 /**
  * @typedef {object} DismissNoticeHook
- * @property {Array} dismissedNotices - Array of names of dismissed notices.
- * @property {Function} dismissNotice - Callback used to dismiss a notice.
- * @property {Function} shouldShowNotice - Callback used to check if a notice should be shown.
- * @property {NoticeTypes} NOTICES - Object containing the names of the supported notices.
+ * @property {Array}       dismissedNotices - Array of names of dismissed notices.
+ * @property {Function}    dismissNotice    - Callback used to dismiss a notice.
+ * @property {Function}    shouldShowNotice - Callback used to check if a notice should be shown.
+ * @property {NoticeTypes} NOTICES          - Object containing the names of the supported notices.
  */
 
 /**
  * Hook to handle retrieving dismissed notices and dismissing a notice.
  *
- * @returns {DismissNoticeHook} - An object with the dismissed notice hook properties set.
+ * @return {DismissNoticeHook} - An object with the dismissed notice hook properties set.
  */
 export default function useDismissNotice() {
 	const [ dismissedNotices, setDismissedNotices ] = useState( () => {
@@ -46,7 +46,7 @@ export default function useDismissNotice() {
 	/**
 	 * Dismiss a notice for a given time.
 	 *
-	 * @param {string} notice - The name of the notice to dismiss.
+	 * @param {string} notice               - The name of the notice to dismiss.
 	 * @param {number} [dismissDuration=-1] - The number of seconds to dismiss the notice for. -1 means forever.
 	 */
 	const dismissNotice = useCallback( ( notice, dismissDuration = -1 ) => {
@@ -65,7 +65,7 @@ export default function useDismissNotice() {
 	 * Check if a notice should be shown.
 	 *
 	 * @param {string} notice - The name of the notice to check.
-	 * @returns {boolean} - Whether the notice should be shown.
+	 * @return {boolean} - Whether the notice should be shown.
 	 */
 	const shouldShowNotice = useCallback(
 		notice => {

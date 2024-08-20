@@ -27,9 +27,9 @@ export const FILTER_KEYS = Object.freeze( [
 /**
  * Returns an array of valid filter key strings.
  *
- * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
+ * @param {object[]} widgets               - Array of Jetpack Search widget objects inside the overlay sidebar.
  * @param {object[]} widgetsOutsideOverlay - Array of Jetpack Search widget objects outside the overlay sidebar.
- * @returns {string[]} filterKeys
+ * @return {string[]} filterKeys
  */
 export function getFilterKeys(
 	widgets = window[ SERVER_OBJECT_NAME ]?.widgets,
@@ -51,7 +51,7 @@ export function getFilterKeys(
  * Get a list of provided static filters.
  *
  * @param {'sidebar'|'tabbed'|undefined} variation - the filter variation to get (tabbed or sidebar), defaults to none (returns every variation).
- * @returns {Array} list of available static filters.
+ * @return {Array} list of available static filters.
  */
 export function getAvailableStaticFilters( variation ) {
 	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
@@ -76,7 +76,7 @@ export function getAvailableStaticFilters( variation ) {
 /**
  * Get static filter keys.
  *
- * @returns {Array} list of available static filters keys.
+ * @return {Array} list of available static filters keys.
  */
 export function getStaticFilterKeys() {
 	const staticFilters = getAvailableStaticFilters();
@@ -90,7 +90,7 @@ export function getStaticFilterKeys() {
  * Returns an array of filter keys selectable from within the overlay.
  *
  * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
- * @returns {string[]} filterKeys
+ * @return {string[]} filterKeys
  */
 export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
 	return (
@@ -104,7 +104,7 @@ export function getSelectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?
  * In other words, they were either selected via filters outside the search sidebar or entered manually.
  *
  * @param {object[]} widgets - Array of Jetpack Search widget objects inside the overlay sidebar.
- * @returns {string[]} filterKeys
+ * @return {string[]} filterKeys
  */
 export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME ]?.widgets ) {
 	const selectable = getSelectableFilterKeys( widgets );
@@ -115,7 +115,7 @@ export function getUnselectableFilterKeys( widgets = window[ SERVER_OBJECT_NAME 
  * Returns an array of filter keys from a given widget.
  *
  * @param {object} widget - a Jetpack Search widget object
- * @returns {string[]} filterKeys
+ * @return {string[]} filterKeys
  */
 function extractFilterKeys( widget ) {
 	return widget.filters
@@ -127,7 +127,7 @@ function extractFilterKeys( widget ) {
  * Returns a filter key given a filter object.
  *
  * @param {object} filter - a Jetpack Search filter object
- * @returns {string} filterKeys
+ * @return {string} filterKeys
  */
 export function mapFilterToFilterKey( filter ) {
 	if ( filter.type === 'date_histogram' ) {
@@ -151,7 +151,7 @@ export function mapFilterToFilterKey( filter ) {
  * Inverse of `mapFilterToFilterKey`.
  *
  * @param {string} filterKey - filter key string to be mapped.
- * @returns {object} filterObject
+ * @return {object} filterObject
  */
 export function mapFilterKeyToFilter( filterKey ) {
 	if ( filterKey.includes( 'month' ) ) {
@@ -194,7 +194,7 @@ export function mapFilterKeyToFilter( filterKey ) {
  * Returns the type of the inputted filter object.
  *
  * @param {object} filter - filter key string to be mapped.
- * @returns {string|undefined} output
+ * @return {string|undefined} output
  */
 export function mapFilterToType( filter ) {
 	if ( filter.type === 'date_histogram' ) {

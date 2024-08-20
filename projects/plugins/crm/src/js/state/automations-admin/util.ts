@@ -4,7 +4,7 @@ import { Workflow, ServerPreparedWorkflow } from 'crm/state/automations-admin/ty
  * Gets a workflow which has been prepared for sending to the server.
  *
  * @param {Workflow} workflow - The workflow to prepare
- * @returns {ServerPreparedWorkflow} The prepared workflow
+ * @return {ServerPreparedWorkflow} The prepared workflow
  */
 export const getServerPreparedWorkflow = ( workflow: Workflow ) => {
 	return {

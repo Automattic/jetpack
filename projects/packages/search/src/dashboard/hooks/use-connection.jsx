@@ -5,7 +5,7 @@ import { STORE_ID as SEARCH_STORE_ID } from 'store';
 /**
  * Expose the `connectionStatus`, `isFullyConnected` state object
  *
- * @returns {object} connectionStatus, isFullyConnected
+ * @return {object} connectionStatus, isFullyConnected
  */
 export default function useConnection() {
 	const connectionStatus = useSelect( select => ( {

@@ -5,7 +5,7 @@ const debug = require( '../debug' );
  * Logic follows this priority matrix: pciE2j-oG-p2
  *
  * @param {string} body - The issue content.
- * @returns {string} Priority of issue.
+ * @return {string} Priority of issue.
  */
 function findPriority( body ) {
 	// Look for priority indicators in body.

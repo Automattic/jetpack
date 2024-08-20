@@ -21,7 +21,7 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 	 * Get the path for a chunk.
 	 *
 	 * @param {webpack.Chunk} chunk - Chunk.
-	 * @returns {string} Chunk path
+	 * @return {string} Chunk path
 	 */
 	getChunkPath( chunk ) {
 		const compilation = this.compilation;
@@ -44,7 +44,7 @@ class I18nLoaderRuntimeModule extends webpack.RuntimeModule {
 	/**
 	 * Get set of chunks we need to care about.
 	 *
-	 * @returns {Set} Chunk IDs.
+	 * @return {Set} Chunk IDs.
 	 */
 	getChunks() {
 		const ret = new Set();

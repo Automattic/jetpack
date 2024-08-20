@@ -22,7 +22,7 @@ const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
 /**
  * Customization/configuration tab for the sidebar.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function SidebarOptions() {
 	// Initializes default values used for FormToggle in order to avoid changing

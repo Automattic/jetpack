@@ -19,7 +19,7 @@ import './style.scss';
  * The RNA Manage Connection Dialog component.
  *
  * @param {object} props -- The properties.
- * @returns {React.JSX} The `ManageConnectionDialog` component.
+ * @return {React.JSX} The `ManageConnectionDialog` component.
  */
 const ManageConnectionDialog = props => {
 	const {

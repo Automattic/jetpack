@@ -45,9 +45,9 @@ type ExtensionAIControlProps = {
 /**
  * ExtensionAIControl component. Used by the AI Assistant inline extensions, adding logic and components to the base AIControl component.
  *
- * @param {ExtensionAIControlProps} props  - Component props
- * @param {React.MutableRefObject} ref     - Ref to the component
- * @returns {ReactElement}                 Rendered component
+ * @param {ExtensionAIControlProps} props - Component props
+ * @param {React.MutableRefObject}  ref   - Ref to the component
+ * @return {ReactElement}                 Rendered component
  */
 export function ExtensionAIControl(
 	{

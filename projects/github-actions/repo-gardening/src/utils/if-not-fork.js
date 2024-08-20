@@ -8,7 +8,7 @@ const debug = require( './debug' );
  * pull request event which did not originate from a forked repository.
  *
  * @param {WPAutomationTask} handler - Original task.
- * @returns {WPAutomationTask} Enhanced task.
+ * @return {WPAutomationTask} Enhanced task.
  */
 function ifNotFork( handler ) {
 	const newHandler = ( payload, octokit ) => {

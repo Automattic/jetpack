@@ -29,7 +29,7 @@ import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
  * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
- * @returns {object} - ProductDetailTableColumn component.
+ * @return {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
 	cantInstallPlugin,
@@ -235,7 +235,7 @@ ProductDetailTableColumn.propTypes = {
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @param {boolean}  props.isFetching              - True if there is a pending request to load the product.
  * @param {boolean}  props.preferProductName       - Whether to show the product name instead of the title.
- * @returns {object} - ProductDetailTable react component.
+ * @return {object} - ProductDetailTable react component.
  */
 const ProductDetailTable = ( {
 	slug,

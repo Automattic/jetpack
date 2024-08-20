@@ -7,7 +7,7 @@ const originalFetch = window.fetch;
 /**
  * Mock return value for a successful fetch JSON return value.
  *
- * @returns {Promise} Mock return value.
+ * @return {Promise} Mock return value.
  */
 const RESOLVED_FETCH_PROMISE = Promise.resolve( {
 	interest_categories: [

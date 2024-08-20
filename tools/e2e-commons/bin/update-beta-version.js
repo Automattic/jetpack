@@ -9,7 +9,7 @@ const { resolveSiteUrl, getSiteCredentials } = await import( '../helpers/utils-h
 
 /**
  * Get HTTP Authentication header value
- * @returns {string} header value
+ * @return {string} header value
  */
 function getAuthHeader() {
 	const credentials = getSiteCredentials();
@@ -21,7 +21,7 @@ function getAuthHeader() {
 
 /**
  * Get Jetpack version from site
- * @returns {string} Version
+ * @return {string} Version
  */
 async function getJetpackVersionFromSite() {
 	let response;
@@ -65,7 +65,7 @@ async function forcePluginUpdates() {
 
 /**
  * Get latest version
- * @returns {string} Version
+ * @return {string} Version
  */
 async function getLatestVersion() {
 	const type = getVersionType();
@@ -105,7 +105,7 @@ async function waitForPluginUpdate() {
 
 /**
  * Get version type
- * @returns {string} 'trunk' or 'rc'
+ * @return {string} 'trunk' or 'rc'
  */
 function getVersionType() {
 	const refType = process.argv[ 2 ];

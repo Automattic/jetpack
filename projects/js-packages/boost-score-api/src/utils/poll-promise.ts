@@ -22,7 +22,7 @@ type PollPromiseArgs< RetType = void > = {
  * @param {number}   obj.timeout      - Milliseconds before rejecting w/ a timeout
  * @param {Function} obj.callback     - Callback to call every <interval> ms.
  * @param {string}   obj.timeoutError - Message to throw on timeout.
- * @returns {Promise< RetType >} - A promise which resolves to the value resolved() inside callback.
+ * @return {Promise< RetType >} - A promise which resolves to the value resolved() inside callback.
  */
 export default async function pollPromise< RetType = void >( {
 	interval,

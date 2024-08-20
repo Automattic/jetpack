@@ -37,8 +37,8 @@ const useAnalytics = () => {
 	/**
 	 * Like tracks.recordEvent but provides specifics to My Jetpack
 	 *
-	 * @param {string} event       - event name
-	 * @param {object} properties  - event propeties
+	 * @param {string} event      - event name
+	 * @param {object} properties - event propeties
 	 */
 	const recordEvent = useCallback< TracksRecordEvent >( ( event, properties ) => {
 		jetpackAnalytics.tracks.recordEvent( event, {

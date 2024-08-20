@@ -26,7 +26,7 @@ import type React from 'react';
  * Fallback implementation of useBaseControlProps.
  *
  * @param {object} props - The component props.
- * @returns {object}     - The computed control props.
+ * @return {object}     - The computed control props.
  */
 function useBaseControlPropsFallback( props: Record< string, unknown > ): {
 	baseControlProps: Record< string, unknown >;
@@ -112,10 +112,10 @@ type TimeDataProps = {
 /**
  * Return the time data based on the given value.
  *
- * @param {number} value                    - The value to be converted.
+ * @param {number}            value         - The value to be converted.
  * @param {DecimalPlacesProp} decimalPlaces - The number of decimal places to be used.
- * @param {number} max                      - The maximum value.
- * @returns {TimeDataProps}                   The time data.
+ * @param {number}            max           - The maximum value.
+ * @return {TimeDataProps}                   The time data.
  */
 function getTimeDataByValue(
 	value: number,
@@ -287,7 +287,7 @@ export const TimestampInput = ( {
  * TimestampControl component
  *
  * @param {TimestampControlProps} props - Component props.
- * @returns {React.ReactElement}          TimestampControl react component.
+ * @return {React.ReactElement}          TimestampControl react component.
  */
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {

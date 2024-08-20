@@ -29,7 +29,7 @@ import { PromptLayout } from '../prompt-layout';
  *
  * @param {object} props - Component props.
  * @function Object() { [native code] }
- * @returns {Element} - A react component.
+ * @return {Element} - A react component.
  */
 const ResourcePromptComponent = props => {
 	const {

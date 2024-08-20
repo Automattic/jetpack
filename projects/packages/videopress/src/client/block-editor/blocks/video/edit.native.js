@@ -35,14 +35,14 @@ import style from './style.scss';
 /**
  * VideoPress block Edit react components
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
- * @param {object} props.clientId - Block client Id.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected - Whether block is selected.
- * @param {Function} props.onFocus - Callback to notify when block should gain focus.
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.attributes        - Block attributes.
+ * @param {object}   props.clientId          - Block client Id.
+ * @param {Function} props.setAttributes     - Function to set block attributes.
+ * @param {boolean}  props.isSelected        - Whether block is selected.
+ * @param {Function} props.onFocus           - Callback to notify when block should gain focus.
  * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
- * @returns {import('react').ReactNode} - React component.
+ * @return {import('react').ReactNode} - React component.
  */
 export default function VideoPressEdit( {
 	attributes,

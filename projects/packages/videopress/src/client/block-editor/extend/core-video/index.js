@@ -60,7 +60,7 @@ addFilter(
  *
  * @param {object} attributes        - core/video block attributes
  * @param {object} defaultAttributes - default core/video block attributes
- * @returns {object}                   The new attributes
+ * @return {object}                   The new attributes
  */
 function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	const attrs = attributes || defaultAttributes;
@@ -84,7 +84,7 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
  *
  * @param {object} props                - component props
  * @param {object} props.BlockListBlock - BlockListBlock
- * @returns {React.ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
+ * @return {React.ReactNode}             BlockListBlock if the block is valid, or the recovery warning.
  */
 function JetpackCoreVideoDeprecation( { BlockListBlock, ...props } ) {
 	const { block } = props;

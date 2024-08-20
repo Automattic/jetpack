@@ -17,9 +17,9 @@ import './style.scss';
 /**
  * Render the "Stay safe" button.
  *
- * @param {Function} callback - Button click callback.
- * @param {boolean} isDisabled - Whether the button should be disabled.
- * @returns {React.Component} - The rendered output.
+ * @param {Function} callback   - Button click callback.
+ * @param {boolean}  isDisabled - Whether the button should be disabled.
+ * @return {React.Component} - The rendered output.
  */
 
 const renderStaySafeButton = ( callback, isDisabled ) => {
@@ -41,7 +41,7 @@ const renderStaySafeButton = ( callback, isDisabled ) => {
 /**
  * Render the "staying safe" line.
  *
- * @returns {React.Component} - The rendered output.
+ * @return {React.Component} - The rendered output.
  */
 const renderStayingSafe = () => {
 	return (
@@ -56,7 +56,7 @@ const renderStayingSafe = () => {
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (

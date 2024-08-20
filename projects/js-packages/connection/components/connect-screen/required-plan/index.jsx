@@ -9,7 +9,7 @@ import ConnectScreenRequiredPlanVisual from './visual';
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenForRequiredPlan` component.
+ * @return {React.Component} The `ConnectScreenForRequiredPlan` component.
  */
 const ConnectScreenRequiredPlan = props => {
 	const {

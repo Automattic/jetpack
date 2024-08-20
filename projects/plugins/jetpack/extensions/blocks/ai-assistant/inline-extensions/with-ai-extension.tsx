@@ -543,7 +543,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * Populates the block edit component with the AI Assistant bar and button.
  * @param {object} settings - The block settings.
  * @param {string} name     - The block name.
- * @returns {object}          The extended block settings.
+ * @return {object}          The extended block settings.
  */
 function blockWithInlineExtension( settings, name: ExtendedInlineBlockProp ) {
 	// Only extend the allowed block types and when AI is enabled

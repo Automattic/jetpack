@@ -12,12 +12,12 @@ import './style.scss';
 /**
  * The Activation Screen Controls component.
  *
- * @param {object} props -- The properties.
+ * @param {object}   props           -- The properties.
  * @param {Function} props.className -- class name of the input control.
- * @param {boolean} props.disabled -- determines if input control is disabled.
- * @param {string} props.value -- the license code to edit or submit
- * @param {Function} props.onChange -- function to handle changes to the value.
- * @returns {React.Component} The `ManualLicenseKeyInput` component.
+ * @param {boolean}  props.disabled  -- determines if input control is disabled.
+ * @param {string}   props.value     -- the license code to edit or submit
+ * @param {Function} props.onChange  -- function to handle changes to the value.
+ * @return {React.Component} The `ManualLicenseKeyInput` component.
  */
 const ManualLicenseKeyInput = props => {
 	const { className, disabled, onChange, value } = props;
@@ -36,13 +36,13 @@ const ManualLicenseKeyInput = props => {
 /**
  * The Activation Screen Controls component.
  *
- * @param {object} props -- The properties.
- * @param {Function} props.className -- class name of the input control.
- * @param {Array} props.availableLicenses -- list of available license keys for activation.
- * @param {boolean} props.disabled -- determines if input control is disabled.
- * @param {string} props.value -- the license code to edit or submit
- * @param {Function} props.onChange -- function to handle changes to the value.
- * @returns {React.Component} The `SelectableLicenseKeyInput` component.
+ * @param {object}   props                   -- The properties.
+ * @param {Function} props.className         -- class name of the input control.
+ * @param {Array}    props.availableLicenses -- list of available license keys for activation.
+ * @param {boolean}  props.disabled          -- determines if input control is disabled.
+ * @param {string}   props.value             -- the license code to edit or submit
+ * @param {Function} props.onChange          -- function to handle changes to the value.
+ * @return {React.Component} The `SelectableLicenseKeyInput` component.
  */
 const SelectableLicenseKeyInput = props => {
 	const { className, availableLicenses, disabled, onChange, value } = props;
@@ -121,16 +121,16 @@ const SelectableLicenseKeyInput = props => {
 /**
  * The Activation Screen Controls component.
  *
- * @param {object} props -- The properties.
- * @param {Function} props.activateLicense -- function to handle submitting a license
- * @param {Array} props.availableLicenses -- list of available license keys for activation.
- * @param {boolean} props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
- * @param {boolean} props.isActivating -- should the controls be disabled
- * @param {string} props.license -- the license code to edit or submit
- * @param {?string} props.licenseError -- any error that occurred while activating a license
- * @param {Function} props.onLicenseChange -- function to handle changes to license
- * @param {string} props.siteUrl -- the url of the site
- * @returns {React.Component} The `ActivationScreenControls` component.
+ * @param {object}   props                           -- The properties.
+ * @param {Function} props.activateLicense           -- function to handle submitting a license
+ * @param {Array}    props.availableLicenses         -- list of available license keys for activation.
+ * @param {boolean}  props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
+ * @param {boolean}  props.isActivating              -- should the controls be disabled
+ * @param {string}   props.license                   -- the license code to edit or submit
+ * @param {?string}  props.licenseError              -- any error that occurred while activating a license
+ * @param {Function} props.onLicenseChange           -- function to handle changes to license
+ * @param {string}   props.siteUrl                   -- the url of the site
+ * @return {React.Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
 	const {

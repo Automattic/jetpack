@@ -17,7 +17,7 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @return { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {

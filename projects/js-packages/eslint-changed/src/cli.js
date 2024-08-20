@@ -14,7 +14,7 @@ const APP_VERSION = '2.0.9-alpha';
  * Call `.parseAsync()` to run.
  *
  * @param {object} [process] - Process object. Needs at least a `cwd()` method and an `env` property.
- * @returns {Command} Commander instance.
+ * @return {Command} Commander instance.
  */
 export function createProgram( process = global.process ) {
 	const program = new Command();
@@ -72,8 +72,8 @@ export function createProgram( process = global.process ) {
 /**
  * Main method.
  *
- * @param {object} process - Process object.
- * @param {object} argv - Command line options.
+ * @param {object}  process - Process object.
+ * @param {object}  argv    - Command line options.
  * @param {Command} program - Commander instance.
  */
 async function main( process, argv, program ) {
@@ -108,7 +108,7 @@ async function main( process, argv, program ) {
 	 * Get files from a diff.
 	 *
 	 * @param {Array} diff - Diff array from `parse-diff`.
-	 * @returns {string[]} File name strings.
+	 * @return {string[]} File name strings.
 	 */
 	function getFilesFromDiff( diff ) {
 		let files = diff.map( x => x.to );
@@ -128,9 +128,9 @@ async function main( process, argv, program ) {
 	/**
 	 * Spawn a command, exiting if it fails.
 	 *
-	 * @param {string} cmd - Command to execute.
+	 * @param {string}   cmd     - Command to execute.
 	 * @param {string[]} cmdArgs - Arguments to the command.
-	 * @returns {string} Command output.
+	 * @return {string} Command output.
 	 */
 	function doCmd( cmd, cmdArgs ) {
 		const res = spawnSync( cmd, cmdArgs, spawnOpt );

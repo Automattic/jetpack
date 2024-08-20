@@ -40,28 +40,28 @@ import type { SiteDetails } from '../types.js';
 /**
  * Reducer for the Logo Generator store.
  *
- * @param {LogoGeneratorStateProp} state - The current state
- * @param {object} action - The action to apply, as described by the properties below
- * @param {string} action.type - The action type
- * @param {AiFeatureStateProps} action.feature - The AI Assistant feature state
- * @param {number} action.count - The number of requests to increase the counter by
- * @param {boolean} action.requireUpgrade - Whether an upgrade is required
- * @param {boolean} action.tierPlansEnabled - Whether tier plans are enabled
- * @param {SiteDetails} action.siteDetails - The site details
- * @param {number} action.selectedLogoIndex - The selected logo index
- * @param {boolean} action.isSavingLogoToLibrary - Whether a logo is being saved to the library
- * @param {boolean} action.isApplyingLogo - Whether a logo is being applied
- * @param {object} action.logo - The logo to save, as described by the properties below
- * @param {string} action.logo.url - The logo URL
- * @param {string} action.logo.description - The logo description
- * @param {number} action.mediaId - The media ID from backend
- * @param {string} action.url - The URL to save
- * @param {boolean} action.isRequestingImage - Whether an image is being requested
- * @param {boolean} action.isEnhancingPrompt - Whether a prompt enhancement is being requested
- * @param {Array< { url: string; description: string; mediaId?: number } >} action.history - The logo history
- * @param {RequestError} action.error - The error to set
- * @param {string} action.context - The context where the tool is being used
- * @returns {LogoGeneratorStateProp} The new state
+ * @param {LogoGeneratorStateProp}                                          state                        - The current state
+ * @param {object}                                                          action                       - The action to apply, as described by the properties below
+ * @param {string}                                                          action.type                  - The action type
+ * @param {AiFeatureStateProps}                                             action.feature               - The AI Assistant feature state
+ * @param {number}                                                          action.count                 - The number of requests to increase the counter by
+ * @param {boolean}                                                         action.requireUpgrade        - Whether an upgrade is required
+ * @param {boolean}                                                         action.tierPlansEnabled      - Whether tier plans are enabled
+ * @param {SiteDetails}                                                     action.siteDetails           - The site details
+ * @param {number}                                                          action.selectedLogoIndex     - The selected logo index
+ * @param {boolean}                                                         action.isSavingLogoToLibrary - Whether a logo is being saved to the library
+ * @param {boolean}                                                         action.isApplyingLogo        - Whether a logo is being applied
+ * @param {object}                                                          action.logo                  - The logo to save, as described by the properties below
+ * @param {string}                                                          action.logo.url              - The logo URL
+ * @param {string}                                                          action.logo.description      - The logo description
+ * @param {number}                                                          action.mediaId               - The media ID from backend
+ * @param {string}                                                          action.url                   - The URL to save
+ * @param {boolean}                                                         action.isRequestingImage     - Whether an image is being requested
+ * @param {boolean}                                                         action.isEnhancingPrompt     - Whether a prompt enhancement is being requested
+ * @param {Array< { url: string; description: string; mediaId?: number } >} action.history               - The logo history
+ * @param {RequestError}                                                    action.error                 - The error to set
+ * @param {string}                                                          action.context               - The context where the tool is being used
+ * @return {LogoGeneratorStateProp} The new state
  */
 export default function reducer(
 	state = INITIAL_STATE,

@@ -30,7 +30,7 @@ const SUBJECT_DEFAULT = null;
  * system prompt.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @returns {PromptItemProps} The initial message.
+ * @return {PromptItemProps} The initial message.
  */
 export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp ): PromptItemProps {
 	// The basic template for the message.
@@ -47,8 +47,8 @@ export function buildInitialMessageForBackendPrompt( promptType: PromptTypeProp 
  * Builds the relevant content message, if applicable.
  *
  * @param {boolean} isContentGenerated - Whether the current content was generated.
- * @param {string} relevantContent - The relevant content.
- * @returns {PromptItemProps} The initial message.
+ * @param {string}  relevantContent    - The relevant content.
+ * @return {PromptItemProps} The initial message.
  */
 export function buildRelevantContentMessageForBackendPrompt(
 	isContentGenerated?: boolean,
@@ -72,7 +72,7 @@ export function buildRelevantContentMessageForBackendPrompt(
  * based on the type of prompt.
  *
  * @param {BuildPromptProps} options - The prompt options.
- * @returns {Array< PromptItemProps >} The prompt.
+ * @return {Array< PromptItemProps >} The prompt.
  */
 export function buildMessagesForBackendPrompt( {
 	generatedContent,
@@ -145,10 +145,10 @@ export function buildMessagesForBackendPrompt( {
 /**
  * Gets the subject of the prompt.
  *
- * @param {boolean} isGeneratingTitle - Whether the action is to generate a title.
+ * @param {boolean} isGeneratingTitle  - Whether the action is to generate a title.
  * @param {boolean} isContentGenerated - Whether the current content was generated.
- * @param {boolean} isFromExtension - Whether the content is from the extension.
- * @returns {string} The subject.
+ * @param {boolean} isFromExtension    - Whether the content is from the extension.
+ * @return {string} The subject.
  */
 function getSubject(
 	isGeneratingTitle?: boolean,
@@ -170,7 +170,7 @@ function getSubject(
  * and the options of the prompt.
  *
  * @param {BuildPromptProps} options - The prompt options.
- * @returns {object} The context.
+ * @return {object} The context.
  */
 export function buildMessageContextForUserPrompt( {
 	options,
@@ -205,8 +205,8 @@ export function buildMessageContextForUserPrompt( {
  * Maps the internal prompt type to the backend prompt type.
  *
  * @param {PromptTypeProp} promptType - The internal type of the prompt.
- * @param {string} extension          - The extension of the prompt, if any.
- * @returns {string}                    The backend type of the prompt.
+ * @param {string}         extension  - The extension of the prompt, if any.
+ * @return {string}                    The backend type of the prompt.
  */
 export function mapInternalPromptTypeToBackendPromptType(
 	promptType: PromptTypeProp,

@@ -22,7 +22,7 @@ export type TooltipContent = {
 /**
  * Gets the translated tooltip copy based on Protect Scan details.
  *
- * @returns {TooltipContent} An object containing each tooltip's title and text content.
+ * @return {TooltipContent} An object containing each tooltip's title and text content.
  */
 export function useProtectTooltipCopy(): TooltipContent {
 	const slug = PRODUCT_SLUGS.PROTECT;

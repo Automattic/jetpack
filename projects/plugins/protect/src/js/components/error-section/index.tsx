@@ -19,7 +19,7 @@ type ErrorScreenProps = {
  * @param {string} props.baseErrorMessage - Base error message.
  * @param {string} props.errorMessage     - Error message.
  * @param {string} props.errorCode        - Error code.
- * @returns {React.ReactElement}   Component template
+ * @return {React.ReactElement}   Component template
  */
 export default function ErrorScreen( {
 	baseErrorMessage = '',

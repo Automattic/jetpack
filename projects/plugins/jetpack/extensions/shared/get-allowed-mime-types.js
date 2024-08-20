@@ -7,7 +7,7 @@ import { get, pickBy, startsWith, flatten, map, keys, values } from 'lodash';
  * It allows `video, `audio`, ...
  *
  * @param {string} mimeType - File mime type.
- * @returns {object} Filtered allowed mime types.
+ * @return {object} Filtered allowed mime types.
  */
 export function getAllowedVideoTypesByType( mimeType ) {
 	if ( ! mimeType ) {
@@ -24,7 +24,7 @@ export function getAllowedVideoTypesByType( mimeType ) {
  * pick up both extensions `3g2` and `3gp2` and populate the returned array.
  *
  * @param {object} mimeTypesObject - Object mime types.
- * @returns {Array} File extensions.
+ * @return {Array} File extensions.
  */
 export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
 	if ( ! mimeTypesObject ) {
@@ -36,7 +36,7 @@ export function pickFileExtensionsFromMimeTypes( mimeTypesObject ) {
 /**
  * Return the allowed file mime types for the site.
  *
- * @returns {object} Allowed Mime Types.
+ * @return {object} Allowed Mime Types.
  */
 export default function getAllowedMimeTypesBySite() {
 	return get( getJetpackData(), [ 'allowedMimeTypes' ], [] );
@@ -45,9 +45,9 @@ export default function getAllowedMimeTypesBySite() {
 /**
  * Check if the given file matches with the file type.
  *
- * @param   {string|object} file - File to check.
- * @param   {string}        type - File type used to check the file.
- * @returns {boolean}       True if file type matches with the given type. Otherwise, False.
+ * @param {string|object} file - File to check.
+ * @param {string}        type - File type used to check the file.
+ * @return {boolean}       True if file type matches with the given type. Otherwise, False.
  */
 export function isFileOfType( file, type ) {
 	if ( ! file || ! type ) {

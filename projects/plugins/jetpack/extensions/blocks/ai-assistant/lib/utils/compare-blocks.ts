@@ -21,7 +21,7 @@ const copyBlockWithoutClientId = ( block: Block ) => omitClientId( copyBlock( bl
  *
  * @param {Block} blockA - The first block to compare.
  * @param {Block} blockB - The second block to compare.
- * @returns {boolean} Whether the two blocks are equal.
+ * @return {boolean} Whether the two blocks are equal.
  */
 export function compareBlocks( blockA: Block, blockB: Block ): boolean {
 	const aCopy = copyBlockWithoutClientId( blockA );

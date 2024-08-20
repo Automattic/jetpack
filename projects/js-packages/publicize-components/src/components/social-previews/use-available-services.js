@@ -16,7 +16,7 @@ import Twitter from './twitter';
 /**
  * Returns the list of available services.
  *
- * @returns {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
+ * @return {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
 	const additionalConnections = getSupportedAdditionalConnections();

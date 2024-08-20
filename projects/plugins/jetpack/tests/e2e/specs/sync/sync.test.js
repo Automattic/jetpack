@@ -132,7 +132,7 @@ test.describe( 'Sync', () => {
 	/**
 	 * Publish a new post.
 	 * @param {string} title - Post title.
-	 * @param {page} page - Playwright page instance.
+	 * @param {page}   page  - Playwright page instance.
 	 */
 	async function publishPost( title, page ) {
 		logger.sync( 'Publishing new post' );

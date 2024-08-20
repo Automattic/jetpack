@@ -24,7 +24,7 @@ const placementsToPositions = ( placement: Placement ): Position => {
  * Generate Icon Tooltip
  *
  * @param {IconTooltipProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const IconTooltip: React.FC< IconTooltipProps > = ( {
 	className = '',

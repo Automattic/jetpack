@@ -12,7 +12,7 @@ export default class PostFrontendPage extends WpPage {
 	 *
 	 * @param {object} BlockClass - Block class that has a static `isRendered` method
 	 * @param {object} args       - An object of any additional instance values required by the class `isRendered` method
-	 * @returns {boolean} Always true.
+	 * @return {boolean} Always true.
 	 */
 	async isRenderedBlockPresent( BlockClass, args ) {
 		await BlockClass.isRendered( this.page, args );

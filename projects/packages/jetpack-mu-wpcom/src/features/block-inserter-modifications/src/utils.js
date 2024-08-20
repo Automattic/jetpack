@@ -1,6 +1,6 @@
 /**
  * Detect if the editor is already iFramed.
- * @returns {boolean} `True` is the editor is iFramed. Otherwise, `False`.
+ * @return {boolean} `True` is the editor is iFramed. Otherwise, `False`.
  */
 export const inIframe = () => {
 	try {

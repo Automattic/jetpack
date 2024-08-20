@@ -17,7 +17,7 @@ import './style.scss';
  * Newsletter Section.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Newsletter settings component.
+ * @return {React.Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;

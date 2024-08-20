@@ -12,7 +12,7 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
  * React custom hook to get the the video's playback token.
  *
  * @param {VideoPressVideo} video - The VideoPress video
- * @returns {object} Playback token
+ * @return {object} Playback token
  */
 export default function usePlaybackToken( video: VideoPressVideo ) {
 	const videoNeedsPlaybackToken = video.needsPlaybackToken;

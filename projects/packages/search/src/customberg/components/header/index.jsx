@@ -7,9 +7,9 @@ import './styles.scss';
 /**
  * Component for showing the Gutenberg-style header.
  *
- * @param {object} props - component properties.
+ * @param {object}   props               - component properties.
  * @param {Function} props.enableSidebar - Enables the sidebar upon invocation.
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 function Header( { enableSidebar } ) {
 	// translators: Product name 'Jetpack Search' should not be translated

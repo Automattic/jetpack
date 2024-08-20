@@ -22,12 +22,12 @@ class GettextEntry {
 	/**
 	 * Constructor.
 	 *
-	 * @param {object} data - Entry data.
-	 * @param {string} data.msgid - Message string.
-	 * @param {string} data.plural - Plural string.
-	 * @param {string} data.context - Context.
-	 * @param {string} data.domain - Text domain.
-	 * @param {Iterable<string>} data.comments - Comments.
+	 * @param {object}           data           - Entry data.
+	 * @param {string}           data.msgid     - Message string.
+	 * @param {string}           data.plural    - Plural string.
+	 * @param {string}           data.context   - Context.
+	 * @param {string}           data.domain    - Text domain.
+	 * @param {Iterable<string>} data.comments  - Comments.
 	 * @param {Iterable<string>} data.locations - Locations.
 	 */
 	constructor( data ) {

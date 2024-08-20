@@ -36,8 +36,8 @@ import { isPluginInstalled } from 'state/site/plugins';
 /**
  * Displays a card for Security Scan based on the props given.
  *
- * @param   {object} props - Settings to render the card.
- * @returns {object}       Security Scan card
+ * @param {object} props - Settings to render the card.
+ * @return {object}       Security Scan card
  */
 const renderCard = props => (
 	<DashItem

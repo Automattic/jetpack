@@ -25,7 +25,7 @@ import type { UsageBarProps, UsageControlProps } from './types';
  * UsageBar component
  *
  * @param {UsageBarProps} props - Component props.
- * @returns {React.ReactNode}     UsageBar react component.
+ * @return {React.ReactNode}     UsageBar react component.
  */
 export const UsageBar = ( { usage }: UsageBarProps ): React.JSX.Element => {
 	if ( usage == null ) {

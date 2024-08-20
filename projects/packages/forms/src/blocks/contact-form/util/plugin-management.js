@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Returns a list of all active plugins on the site.
  *
- * @returns {Promise} Resolves to a list of plugins, or reject if not retrievable (like on a wpcom simple site or a site running an older version of WP)
+ * @return {Promise} Resolves to a list of plugins, or reject if not retrievable (like on a wpcom simple site or a site running an older version of WP)
  */
 export async function getPlugins() {
 	// Bail early on WordPress.com Simple sites.
@@ -26,7 +26,7 @@ export async function getPlugins() {
  * Install and activate a plugin from the WordPress.org plugin directory.
  *
  * @param {string} slug - The slug of the plugin we want to activate.
- * @returns {Promise} Resolves to true if the plugin has been successfully activated, or reject.
+ * @return {Promise} Resolves to true if the plugin has been successfully activated, or reject.
  */
 export async function installAndActivatePlugin( slug ) {
 	// Bail early on WordPress.com Simple sites.
@@ -54,7 +54,7 @@ export async function installAndActivatePlugin( slug ) {
  * Activate a plugin from the WordPress.org plugin directory.
  *
  * @param {string} pluginFile - The plugin long slug (slug/index-file, without the .php suffix) we want to activate.
- * @returns {Promise} Resolves to true if the plugin has been successfully activated, or reject.
+ * @return {Promise} Resolves to true if the plugin has been successfully activated, or reject.
  */
 export async function activatePlugin( pluginFile ) {
 	// Bail early on WordPress.com Simple sites.

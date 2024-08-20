@@ -68,7 +68,7 @@ function WpcomNux() {
 
 /**
  * This function returns a collection of NUX slide data
- * @returns { Array } a collection of <NuxPage /> props
+ * @return { Array } a collection of <NuxPage /> props
  */
 function getWpcomNuxPages() {
 	return [
@@ -113,13 +113,13 @@ function getWpcomNuxPages() {
 /**
  * Display the Nux page
  *
- * @param props - The props of the component.
- * @param props.pageNumber - The number of page.
- * @param props.isLastPage - Whether the current page is the last one.
+ * @param props             - The props of the component.
+ * @param props.pageNumber  - The number of page.
+ * @param props.isLastPage  - Whether the current page is the last one.
  * @param props.alignBottom - Whether to align bottom.
- * @param props.heading - The text of heading.
+ * @param props.heading     - The text of heading.
  * @param props.description - The text of description.
- * @param props.imgSrc - The src of image.
+ * @param props.imgSrc      - The src of image.
  */
 function NuxPage( { pageNumber, isLastPage, alignBottom = false, heading, description, imgSrc } ) {
 	useEffect( () => {

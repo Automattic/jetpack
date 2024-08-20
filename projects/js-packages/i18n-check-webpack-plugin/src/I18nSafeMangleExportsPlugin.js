@@ -26,7 +26,7 @@ const { assignDeterministicIds } = require( 'webpack/lib/ids/IdHelpers' );
 /**
  * Determine if we can mangle.
  * @param {ExportsInfo} exportsInfo - exports info
- * @returns {boolean} mangle is possible
+ * @return {boolean} mangle is possible
  */
 const canMangle = exportsInfo => {
 	if ( exportsInfo.otherExportsInfo.getUsed( undefined ) !== UsageState.Unused ) {
@@ -45,10 +45,10 @@ const canMangle = exportsInfo => {
 const comparator = compareSelect( e => e.name, compareStringsNumeric );
 /**
  * Mangle exports.
- * @param {boolean} deterministic - use deterministic names
- * @param {ExportsInfo} exportsInfo - exports info
- * @param {boolean | undefined} isNamespace - is namespace object
- * @returns {void}
+ * @param {boolean}             deterministic - use deterministic names
+ * @param {ExportsInfo}         exportsInfo   - exports info
+ * @param {boolean | undefined} isNamespace   - is namespace object
+ * @return {void}
  */
 const mangleExportsInfo = ( deterministic, exportsInfo, isNamespace ) => {
 	if ( ! canMangle( exportsInfo ) ) {
@@ -153,7 +153,7 @@ class MangleExportsPlugin {
 	/**
 	 * Apply the plugin
 	 * @param {Compiler} compiler - the compiler instance
-	 * @returns {void}
+	 * @return {void}
 	 */
 	apply( compiler ) {
 		const { _deterministic: deterministic } = this;

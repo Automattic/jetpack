@@ -163,7 +163,7 @@ const ErrorThumbnail = ( { isRow } ) => (
  * React component to display video thumbnail.
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @returns {React.ReactNode} - VideoThumbnail react component.
+ * @return {React.ReactNode} - VideoThumbnail react component.
  */
 const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 	(

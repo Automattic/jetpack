@@ -183,10 +183,10 @@ const MapEdit = ( {
 	 * Event handler for the ResizableBox component. Updates both the height attribute,
 	 * and the map component's height in the DOM.
 	 *
-	 * @param {Event} event - The event object.
-	 * @param {string} direction - A string representing which resize handler was used.
-	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
-	 * @param {object} delta - Information about how far the element was resized.
+	 * @param {Event}       event     - The event object.
+	 * @param {string}      direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt       - A ref to the ResizeableBox's container element.
+	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
 	const onMapResize = ( event, direction, elt, delta ) => {
 		onResizeStop();

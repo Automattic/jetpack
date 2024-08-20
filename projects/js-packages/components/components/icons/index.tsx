@@ -9,7 +9,7 @@ import type React from 'react';
  * Icon Wrapper component.
  *
  * @param {BaseIconProps} props - Component props.
- * @returns {React.ReactNode} Icon Wrapper component.
+ * @return {React.ReactNode} Icon Wrapper component.
  */
 const IconWrapper: React.FC< BaseIconProps > = ( {
 	className,
@@ -264,8 +264,8 @@ export type IconSlug = keyof IconsMap;
 /**
  * Return icon component by slug.
  *
- * @param {string} slug       - Icon slug.
- * @returns {React.ComponentType<BaseIconProps>}   Icon component.
+ * @param {string} slug - Icon slug.
+ * @return {React.ComponentType<BaseIconProps>}   Icon component.
  */
 export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ Slug ] {
 	if ( ! iconsMap[ slug ] ) {

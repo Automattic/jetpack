@@ -17,7 +17,7 @@ import './style.scss';
  * attachLicenses has a particular result, which we reduce to the parts we care about here
  *
  * @param {(object|Array)} result -- the result from the attachLicenses request
- * @returns {number} The activatedProductId from the result
+ * @return {number} The activatedProductId from the result
  * @throws Errors either from the API response or from any issues parsing the response
  */
 const parseAttachLicensesResult = result => {
@@ -45,14 +45,14 @@ const parseAttachLicensesResult = result => {
 /**
  * The Activation Screen component.
  *
- * @param {object} props -- The properties.
- * @param {Function?} props.onActivationSuccess -- A function to call on success.
- * @param {string} props.siteRawUrl -- url of the Jetpack Site
- * @param {string?} props.startingLicense -- pre-fill the license value
- * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
- * @param {string} props.currentRecommendationsStep -- The current recommendation step.
- * @param {string} props.currentUser -- Current wpcom user info.
- * @returns {React.Component} The `ActivationScreen` component.
+ * @param {object}    props                            -- The properties.
+ * @param {Function?} props.onActivationSuccess        -- A function to call on success.
+ * @param {string}    props.siteRawUrl                 -- url of the Jetpack Site
+ * @param {string?}   props.startingLicense            -- pre-fill the license value
+ * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
+ * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
+ * @param {string}    props.currentUser                -- Current wpcom user info.
+ * @return {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {

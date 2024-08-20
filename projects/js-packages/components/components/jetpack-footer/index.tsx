@@ -32,7 +32,7 @@ const ExternalIcon: React.FC = () => (
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
  * @param {JetpackFooterProps} props - Component properties.
- * @returns {React.ReactNode} JetpackFooter component.
+ * @return {React.ReactNode} JetpackFooter component.
  */
 const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	moduleName = __( 'Jetpack', 'jetpack' ),

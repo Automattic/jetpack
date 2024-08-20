@@ -53,7 +53,7 @@ export async function generateCli( argv ) {
  * Command definition for the generate subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the generate commands defined.
+ * @return {object} Yargs with the generate commands defined.
  */
 export function generateDefine( yargs ) {
 	yargs.command(
@@ -85,7 +85,7 @@ export function generateDefine( yargs ) {
  * If no project is passed via `options`, then it will prompt for the type of project and the project itself.
  *
  * @param {object} options - Passthrough of the argv object.
- * @returns {object} argv object with the project property.
+ * @return {object} argv object with the project property.
  */
 async function promptForGenerate( options ) {
 	let typeAnswer = options.type ? { type: options.type } : '';
@@ -148,7 +148,7 @@ async function promptForGenerate( options ) {
  * Returns the appropriate list of questions.
  *
  * @param {string} type - The project type. Must be one of projectTypes
- * @returns {Array} - Array of questions to ask.
+ * @return {Array} - Array of questions to ask.
  */
 export function getQuestions( type ) {
 	const defaultQuestions = [
@@ -300,7 +300,7 @@ export function getQuestions( type ) {
  * Generate a project based on questions passed to it.
  *
  * @param {object} answers - Answers from questions.
- * @returns {void}
+ * @return {void}
  */
 export async function generateProject(
 	answers = { name: 'test', description: 'n/a', buildScripts: [] }
@@ -363,7 +363,7 @@ export async function generateProject(
  *
  * @param {string} projDir - The project dir path.
  * @param {object} answers - Answers from the CLI prompt.
- * @returns {void}
+ * @return {void}
  */
 async function generatePluginFromStarter( projDir, answers ) {
 	const starterDir = fileURLToPath(
@@ -446,7 +446,7 @@ async function generatePluginFromStarter( projDir, answers ) {
 /**
  * Generate a plugin based on questions passed to it.
  *
- * @param {object} answers - Answers from questions.
+ * @param {object} answers   - Answers from questions.
  * @param {string} pluginDir - Plugin directory path.
  */
 function generatePlugin( answers, pluginDir ) {
@@ -467,7 +467,7 @@ function generatePlugin( answers, pluginDir ) {
  * Generate js-package files
  *
  * @param {object} answers - Answers from questions.
- * @param {string} pkgDir - Github action directory path.
+ * @param {string} pkgDir  - Github action directory path.
  */
 function generateJsPackage( answers, pkgDir ) {
 	const ts = answers.typescript.startsWith( 'ts' );
@@ -571,7 +571,7 @@ function generateJsPackage( answers, pkgDir ) {
  * Generate github action files
  *
  * @param {object} answers - Answers from questions.
- * @param {string} actDir - Github action directory path.
+ * @param {string} actDir  - Github action directory path.
  */
 function generateAction( answers, actDir ) {
 	// Create the YAML file
@@ -583,7 +583,7 @@ function generateAction( answers, actDir ) {
  * Create skeleton files for project
  *
  * @param {string} type - Type of project.
- * @param {string} dir - Directory of new project.
+ * @param {string} dir  - Directory of new project.
  * @param {string} name - Name of new project.
  */
 function createSkeleton( type, dir, name ) {
@@ -602,7 +602,7 @@ function createSkeleton( type, dir, name ) {
  * Create package.json for project
  *
  * @param {object} packageJson - The parsed skeleton JSON package file for the project.
- * @param {object} answers - Answers returned for project creation.
+ * @param {object} answers     - Answers returned for project creation.
  */
 function createPackageJson( packageJson, answers ) {
 	packageJson.description = answers.description;
@@ -687,7 +687,7 @@ function createPackageJson( packageJson, answers ) {
  * Create composer.json for project
  *
  * @param {object} composerJson - The parsed skeleton JSON composer file for the project.
- * @param {object} answers - Answers returned for project creation.
+ * @param {object} answers      - Answers returned for project creation.
  */
 async function createComposerJson( composerJson, answers ) {
 	composerJson.description = answers.description;
@@ -780,7 +780,7 @@ async function createComposerJson( composerJson, answers ) {
  * Renames the class-example.php file to use the new project name.
  *
  * @param {string} projDir - the new project directory.
- * @param {string} name - the name of the new project.
+ * @param {string} name    - the name of the new project.
  */
 async function renameClassFile( projDir, name ) {
 	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
@@ -794,9 +794,9 @@ async function renameClassFile( projDir, name ) {
  * Processes mirror repo
  *
  * @param {object} composerJson - the composer.json object being developed by the generator.
- * @param {string} name - The name of the project.
- * @param {string} type - The tyope of project that's being generated.
- * @param {string} org - The GitHub owner for the project.
+ * @param {string} name         - The name of the project.
+ * @param {string} type         - The tyope of project that's being generated.
+ * @param {string} org          - The GitHub owner for the project.
  */
 async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 	const repo = org + '/' + name;
@@ -863,10 +863,10 @@ async function mirrorRepo( composerJson, name, type, org = 'Automattic' ) {
 /**
  * Add mirror repo to the composer.json
  *
- * @param {object} composerJson - composer.json object.
- * @param {string} name - Repo name.
- * @param {string} org - Repo owner.
- * @param {boolean} autotagger - if we want autotagger enabled.
+ * @param {object}  composerJson - composer.json object.
+ * @param {string}  name         - Repo name.
+ * @param {string}  org          - Repo owner.
+ * @param {boolean} autotagger   - if we want autotagger enabled.
  */
 function addMirrorRepo( composerJson, name, org, autotagger ) {
 	composerJson.extra = composerJson.extra || {};
@@ -887,7 +887,7 @@ function addMirrorRepo( composerJson, name, org, autotagger ) {
  * Creates custom readme.md content.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the readme.txt file.
+ * @return {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeMd( answers ) {
 	const content =
@@ -922,7 +922,7 @@ function createReadMeMd( answers ) {
  * Creates header for main plugin file.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the main plugin file.
+ * @return {string} content - The content we're writing to the main plugin file.
  */
 function createPluginHeader( answers ) {
 	const content =
@@ -949,7 +949,7 @@ function createPluginHeader( answers ) {
  * Creates custom readme.txt content for plugins.
  *
  * @param {object} answers - Answers returned for project creation.
- * @returns {string} content - The content we're writing to the readme.txt file.
+ * @return {string} content - The content we're writing to the readme.txt file.
  */
 function createReadMeTxt( answers ) {
 	const content =
@@ -971,9 +971,9 @@ function createReadMeTxt( answers ) {
 /**
  * Creates YAML file skeleton for github actions.
  *
- * @param {string} dir - file path we're writing to.
+ * @param {string} dir     - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string|null} yamlFile - the YAML file we've created.
+ * @return {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -990,7 +990,7 @@ function createYaml( dir, answers ) {
 /**
  * Writes to files.
  *
- * @param {string} file - file path we're writing to.
+ * @param {string} file    - file path we're writing to.
  * @param {string} content - the content we're writing.
  */
 function writeToFile( file, content ) {
@@ -1005,7 +1005,7 @@ function writeToFile( file, content ) {
  * Find JS package version from pnpm-lock.
  *
  * @param {string} pkg - package we're looking for.
- * @returns {string} Version number or '*'
+ * @return {string} Version number or '*'
  */
 function findVersionFromPnpmLock( pkg ) {
 	if ( ! findVersionFromPnpmLock.packages ) {
@@ -1028,7 +1028,7 @@ function findVersionFromPnpmLock( pkg ) {
  * Sort a JS object by key.
  *
  * @param {object} obj - input object
- * @returns {object} sorted object
+ * @return {object} sorted object
  */
 function sortByKey( obj ) {
 	const ret = {};

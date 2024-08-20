@@ -11,7 +11,7 @@ import { STORE_ID } from 'store';
 /**
  * Return appropriate components.
  *
- * @returns {React.Component} WrappedDashboard component.
+ * @return {React.Component} WrappedDashboard component.
  */
 export default function WrappedDashboard() {
 	const { isFullyConnected } = useConnection();
@@ -53,7 +53,7 @@ export default function WrappedDashboard() {
 /**
  * Returns AfterConnectionPage component if site is fully connected otherwise UpsellPage component.
  *
- * @returns {React.Component} NewWrappedDashboard component.
+ * @return {React.Component} NewWrappedDashboard component.
  */
 function WrappedDashboard202208() {
 	const { isFullyConnected } = useConnection();
@@ -69,7 +69,7 @@ function WrappedDashboard202208() {
 /**
  * Returns SearchDashboardPage component if supports search otherwise UpsellPage component
  *
- * @returns {React.Component} AfterConnectionPage component.
+ * @return {React.Component} AfterConnectionPage component.
  */
 function AfterConnectionPage() {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );

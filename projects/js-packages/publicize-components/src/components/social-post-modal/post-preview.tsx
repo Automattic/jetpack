@@ -27,7 +27,7 @@ export type PostPreviewProps = {
  *
  * @param {PostPreviewProps} props - PostPreview component props.
  *
- * @returns {import('react').ReactNode} - Post preview component.
+ * @return {import('react').ReactNode} - Post preview component.
  */
 export function PostPreview( { connection }: PostPreviewProps ) {
 	const user = useMemo(

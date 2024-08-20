@@ -32,7 +32,7 @@ type TokenBrigeEventProps = {
 
 /**
  * Quick docReady implementation.
- * @returns {Promise} promise.
+ * @return {Promise} promise.
  */
 function ready(): Promise< void > {
 	return new Promise( function ( resolve ) {
@@ -49,7 +49,7 @@ function ready(): Promise< void > {
  * Check if the guid has an associated subscriptionPlanId.
  *
  * @param {VideoGUID} guid - The guid.
- * @returns {Promise} promise.
+ * @return {Promise} promise.
  */
 async function getSubscriberPlanIdIfExists( guid: VideoGUID ): Promise< number > {
 	await ready();

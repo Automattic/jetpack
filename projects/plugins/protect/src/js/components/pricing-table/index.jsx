@@ -21,9 +21,9 @@ import { STORE_ID } from '../../state/store';
 /**
  * Product Detail component.
  *
- * @param {object} props                 - Component props
- * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @returns {object}                ConnectedPricingTable react component.
+ * @param {object}   props           - Component props
+ * @param {Function} props.onScanAdd - Callback when adding paid protect product successfully
+ * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = ( { onScanAdd } ) => {
 	const { handleRegisterSite, registrationError } = useConnection( {

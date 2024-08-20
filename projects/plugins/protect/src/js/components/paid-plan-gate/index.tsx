@@ -10,7 +10,7 @@ import useProtectData from '../../hooks/use-protect-data';
  * @param {JSX.Element} props.children - The component to render if the user has a paid plan.
  * @param {string}      props.redirect - The alternate route to redirect to if the user does not have a paid plan.
  *
- * @returns {JSX.Element} The PaidPlanRoute component.
+ * @return {JSX.Element} The PaidPlanRoute component.
  */
 export default function PaidPlanGate( {
 	children,

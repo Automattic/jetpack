@@ -34,8 +34,8 @@ export const calculateImageUrl = ( imageType, customImageId, featuredImageId, ge
  * Fetches the preview of the generated image based on the post info
  *
  * @param {{shouldDebounce:boolean, customText: string, imageType: string, imageId: number, template: string}} props -
- * The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
- * @returns {React.ReactNode} The generated image preview.
+ *                                                                                                                   The props to pass to the generator config. Contains the imageType, imageId, template and customText. Also contains boolean shouldDebounce.
+ * @return {React.ReactNode} The generated image preview.
  */
 export default function GeneratedImagePreview( {
 	shouldDebounce = true,

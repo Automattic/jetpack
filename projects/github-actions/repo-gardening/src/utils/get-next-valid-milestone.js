@@ -12,7 +12,7 @@ const cache = {};
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
- * @returns {Promise<Array>} Promise resolving to an array of all open milestones.
+ * @return {Promise<Array>} Promise resolving to an array of all open milestones.
  */
 async function getOpenMilestones( octokit, owner, repo ) {
 	const milestones = [];
@@ -45,7 +45,7 @@ async function getOpenMilestones( octokit, owner, repo ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} plugin  - Plugin slug.
- * @returns {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
+ * @return {Promise<OktokitIssuesListMilestonesForRepoResponseItem|void>} Promise resolving to milestone, if exists.
  */
 async function getNextValidMilestone( octokit, owner, repo, plugin = 'jetpack' ) {
 	// Find all valid milestones for the specified plugin.

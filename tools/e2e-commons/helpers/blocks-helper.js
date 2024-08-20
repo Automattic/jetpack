@@ -7,7 +7,7 @@ import logger from '../logger.js';
  * Returns even if unsuccessful.
  *
  * @param {string} blockSlug - Block slug substring to search for.
- * @param {page} page - Playwright page instance.
+ * @param {page}   page      - Playwright page instance.
  */
 export async function waitForBlock( blockSlug, page ) {
 	let block = await findAvailableBlock( blockSlug, page );
@@ -29,8 +29,8 @@ export async function waitForBlock( blockSlug, page ) {
  * Find available block slug by substring.
  *
  * @param {string} blockSlug - Block slug substring to search for.
- * @param {page} page - Playwright page instance.
- * @returns {string|undefined} Found slug.
+ * @param {page}   page      - Playwright page instance.
+ * @return {string|undefined} Found slug.
  */
 async function findAvailableBlock( blockSlug, page ) {
 	const allBlocks = await getAllAvailableBlocks( page );
@@ -41,7 +41,7 @@ async function findAvailableBlock( blockSlug, page ) {
  * Get all available blocks
  *
  * @param {page} page - Playwright page instance.
- * @returns {string[]} Block slugs.
+ * @return {string[]} Block slugs.
  */
 async function getAllAvailableBlocks( page ) {
 	return await page.page.evaluate( () =>

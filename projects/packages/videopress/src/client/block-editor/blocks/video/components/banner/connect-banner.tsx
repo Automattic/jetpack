@@ -23,7 +23,7 @@ type ConnectBannerProps = {
  * Connect Banner component
  *
  * @param {ConnectBannerProps} props - component props
- * @returns {React.ReactElement}       Connect banner component.
+ * @return {React.ReactElement}       Connect banner component.
  */
 export default function ConnectBanner( {
 	onConnect,

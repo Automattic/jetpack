@@ -19,11 +19,11 @@ type ConnectionStepProps = {
 /**
  * Component that renders the Welcome banner on My Jetpack.
  *
- * @param {object} props - ConnectioStepProps
- * @param {Function} props.onActivateSite - Alias for handleRegisterSite
+ * @param {object}   props                               - ConnectioStepProps
+ * @param {Function} props.onActivateSite                - Alias for handleRegisterSite
  * @param {Function} props.onUpdateWelcomeFlowExperiment - Updating the welcomeFlowExperiment state
- * @param {boolean} props.isActivating - Alias for siteIsRegistering
- * @returns {object} The ConnectionStep component.
+ * @param {boolean}  props.isActivating                  - Alias for siteIsRegistering
+ * @return {object} The ConnectionStep component.
  */
 const ConnectionStep = ( {
 	onActivateSite,

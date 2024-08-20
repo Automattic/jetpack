@@ -13,7 +13,7 @@ import useMyJetpackNavigate from '../use-my-jetpack-navigate';
  * Custom React hook to handle back link click with analytics.
  *
  * @param {string} slug - My Jetpack product slug.
- * @returns {object}      Object with back link click handler with analytics.
+ * @return {object}      Object with back link click handler with analytics.
  */
 export function useGoBack( { slug }: { slug: string } ) {
 	const { recordEvent } = useAnalytics();

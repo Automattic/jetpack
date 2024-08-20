@@ -34,7 +34,7 @@ const mapCategoriesIds = category => {
  * NewsletterCategories settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Subscription settings component.
+ * @return {React.Component} Subscription settings component.
  */
 function NewsletterCategories( props ) {
 	const {

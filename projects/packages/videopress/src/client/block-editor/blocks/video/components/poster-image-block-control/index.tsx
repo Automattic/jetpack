@@ -23,7 +23,7 @@ import type React from 'react';
  * Simple component that renders info about video poster.
  *
  * @param {VideoPosterCardProps} props - Component props.
- * @returns {React.ReactElement}         VideoPosterCard component
+ * @return {React.ReactElement}         VideoPosterCard component
  */
 export function VideoPosterCard( { poster, className }: VideoPosterCardProps ): React.ReactElement {
 	const notes = createInterpolateElement(
@@ -53,7 +53,7 @@ export function VideoPosterCard( { poster, className }: VideoPosterCardProps ): 
  * Poster image control react component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}      PosterImageBlockControl block control
+ * @return {React.ReactElement}      PosterImageBlockControl block control
  */
 export default function PosterImageBlockControl( {
 	attributes,

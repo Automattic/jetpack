@@ -72,7 +72,7 @@ const getAdaptiveType = ( percentage: number ) => {
  * Generate record meter donut bar
  *
  * @param {DonutMeterProps} props - Props
- * @returns {React.ReactElement} - JSX element
+ * @return {React.ReactElement} - JSX element
  */
 const DonutMeter: React.FC< DonutMeterProps > = ( {
 	className = '',

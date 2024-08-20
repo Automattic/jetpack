@@ -11,8 +11,8 @@ import type { StoryFn, Meta } from '@storybook/react';
  * (c) 2019 Chris Ferdinandi, MIT License, https://gomakethings.com
  * Derived from work by Brian Suda, https://24ways.org/2010/calculating-color-contrast/
  *
- * @param   {string} hexcolor - hexcolor value
- * @returns {string}            The contrasting color (black or white)
+ * @param {string} hexcolor - hexcolor value
+ * @return {string}            The contrasting color (black or white)
  */
 function getContrast( hexcolor ) {
 	// If a leading # is provided, remove it

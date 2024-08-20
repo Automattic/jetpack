@@ -11,7 +11,7 @@ import { BarChartProps } from './types';
  * and comments
  *
  * @param {BarChartProps} props - Props
- * @returns {React.ReactElement} - JSX Element
+ * @return {React.ReactElement} - JSX Element
  */
 export const BarChart: React.FC< BarChartProps > = ( {
 	comments,

@@ -4,8 +4,8 @@ import PaidSymbol from './paid-symbol';
 /**
  * Enhance the default block icon with a paid indicator
  *
- * @param {object}  icon - The block default icon.
- * @returns {object} The default icon enhanced with the PaidSymbol
+ * @param {object} icon - The block default icon.
+ * @return {object} The default icon enhanced with the PaidSymbol
  */
 const renderPaidIcon = icon => {
 	const paidSymbol = <PaidSymbol key="paid-symbol" />;
@@ -38,7 +38,7 @@ export default renderPaidIcon;
  *
  * @param {string} name - Block name to check if it's upgradable.
  * @param {object} icon - Icon to extend, or not.
- * @returns {object} Block Icon.
+ * @return {object} Block Icon.
  */
 export function extendWithPaidIcon( name, icon ) {
 	if ( ! isUpgradable( name ) ) {

@@ -6,7 +6,7 @@ import ButtonGroup from '../../components/button-group';
 /**
  * Navigation for scan sections.
  *
- * @returns {React.Element} The React Component.
+ * @return {React.Element} The React Component.
  */
 export default function ScanSectionNavigation() {
 	const navigate = useNavigate();

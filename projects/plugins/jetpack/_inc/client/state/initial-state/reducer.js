@@ -22,7 +22,7 @@ export const initialState = ( state = window.Initial_State, action ) => {
  * Returns bool if current version is Dev version
  * Which means -alpha, -beta, etc...
  *
- * @param  {Object}  state  Global state tree
+ * @param {Object} state Global state tree
  * @return {bool} true if dev version
  */
 export function isDevVersion( state ) {
@@ -33,7 +33,7 @@ export function isDevVersion( state ) {
  * Returns a string of the current Jetpack version defined
  * by JETPACK__VERSION
  *
- * @param  {Object}  state  Global state tree
+ * @param {Object} state Global state tree
  * @return {string}         Version number. Empty string if the data is not yet available.
  */
 export function getCurrentVersion( state ) {
@@ -51,8 +51,8 @@ export function getInitialStateStatsData( state ) {
 /**
  * Returns an object of plugins that are using the Jetpack connection.
  *
- * @param   {object}  state - Global state tree
- * @returns {object}         Plugins that are using the Jetpack connection.
+ * @param {object} state - Global state tree
+ * @return {object}         Plugins that are using the Jetpack connection.
  */
 export function getInitialStateConnectedPlugins( state ) {
 	return get( state.jetpack.initialState, 'connectedPlugins', {} );
@@ -61,8 +61,8 @@ export function getInitialStateConnectedPlugins( state ) {
 /**
  * Returns the email address of the connected user if they are the current user.
  *
- * @param   {object}  state - Global state tree
- * @returns {string}  The email address of the current user.       .
+ * @param {object} state - Global state tree
+ * @return {string}  The email address of the current user.       .
  */
 export function getAdminEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'wpcomUser', 'email' ] );
@@ -71,8 +71,8 @@ export function getAdminEmailAddress( state ) {
 /**
  * Returns the current users email address.
  *
- * @param   {object}  state - Global state tree
- * @returns {string}  The email address of the current user.       .
+ * @param {object} state - Global state tree
+ * @return {string}  The email address of the current user.       .
  */
 export function getCurrenUserEmailAddress( state ) {
 	return get( state.jetpack.initialState, [ 'userData', 'currentUser', 'email' ] );
@@ -161,7 +161,7 @@ export function userCanConnectSite( state ) {
  *
  * @param {object} state - Global state tree
  *
- * @returns {boolean} Whether current user can connect their WordPress.com account.
+ * @return {boolean} Whether current user can connect their WordPress.com account.
  */
 export function userCanConnectAccount( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect_user', false );
@@ -170,7 +170,7 @@ export function userCanConnectAccount( state ) {
 /**
  * Returns true if current user is connection owner.
  *
- * @param  {Object} state Global state tree
+ * @param {Object} state Global state tree
  * @return {bool} true if the current user is connection owner, false otherwise
  *
  * @deprecated 9.3.0
@@ -187,7 +187,7 @@ export function getUserWpComLogin( state ) {
  * Returns the WPCOM ID of the connected user.
  *
  * @param {object} state - Global state tree
- * @returns {number}        the ID of the user
+ * @return {number}        the ID of the user
  */
 export function getUserWpComId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'ID' ], '' );
@@ -211,7 +211,7 @@ export function getUsername( state ) {
 /**
  * Gets the current user display name.
  * @param {object} state - Global state tree
- * @returns {string} The user display name.
+ * @return {string} The user display name.
  */
 export function getDisplayName( state ) {
 	const displayName = get( state.jetpack.initialState.userData.currentUser, [ 'displayName' ] );
@@ -224,7 +224,7 @@ export function getDisplayName( state ) {
 /**
  * Gets the current wp-admin user id
  * @param {Object} state Global state tree
- * @returns {int} The user id in wp-admin
+ * @return {int} The user id in wp-admin
  */
 export function getUserId( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'id', '' );
@@ -238,7 +238,7 @@ export function userCanViewStats( state ) {
  * Returns the WPCOM ID of a connected site.
  *
  * @param {object} state - Global state tree
- * @returns {number}        the ID of the site
+ * @return {number}        the ID of the site
  */
 export function getSiteId( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'blog_id' ] );
@@ -270,7 +270,7 @@ export function isSiteVisibleToSearchEngines( state ) {
  * Returns the site's boost speed scores from the last time it was checked
  *
  * @param {object} state - Global state tree
- * @returns {object}        the boost speed scores and timestamp
+ * @return {object}        the boost speed scores and timestamp
  */
 export function getLatestBoostSpeedScores( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
@@ -288,7 +288,7 @@ export function getApiRootUrl( state ) {
  * Returns the registration nonce.
  *
  * @param {object} state - Global state tree
- * @returns {string} The registration nonce
+ * @return {string} The registration nonce
  */
 export function getRegistrationNonce( state ) {
 	return get( state.jetpack.initialState, 'registrationNonce' );
@@ -298,7 +298,7 @@ export function getRegistrationNonce( state ) {
  * Returns the plugin base URL.
  *
  * @param {object} state - Global state tree
- * @returns {string} The registration nonce
+ * @return {string} The registration nonce
  */
 export function getPluginBaseUrl( state ) {
 	return get( state.jetpack.initialState, 'pluginBaseUrl' );
@@ -309,7 +309,7 @@ export function getPluginBaseUrl( state ) {
  *
  * @param {object} state - Global state tree
  *
- * @returns {string|boolean} purchase token or false if not the connection owner.
+ * @return {string|boolean} purchase token or false if not the connection owner.
  */
 export function getPurchaseToken( state ) {
 	return get( state.jetpack.initialState, 'purchaseToken' );
@@ -320,7 +320,7 @@ export function getPurchaseToken( state ) {
  *
  * @param {object} state - Global state tree
  *
- * @returns {string} Calypso environment name.
+ * @return {string} Calypso environment name.
  */
 export function getCalypsoEnv( state ) {
 	return get( state.jetpack.initialState, 'calypsoEnv' );
@@ -362,7 +362,7 @@ export function arePromotionsActive( state ) {
  * @todo Deprecated soon for isWoASite();
  * @param {object} state - Global state tree.
  *
- * @returns {boolean} True if this is an WoA site, false otherwise.
+ * @return {boolean} True if this is an WoA site, false otherwise.
  */
 export function isAtomicSite( state ) {
 	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
@@ -372,7 +372,7 @@ export function isAtomicSite( state ) {
  * Check if the site is a WordPress.com-on-Atomic site.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if this is an WoA site, false otherwise.
+ * @return {boolean} True if this is an WoA site, false otherwise.
  */
 export function isWoASite( state ) {
 	return get( state.jetpack.initialState.siteData, 'isWoASite', false );
@@ -382,7 +382,7 @@ export function isWoASite( state ) {
  * Check if the site is an Atomic-hosted site.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if this is an Atomic-hosted site, false otherwise.
+ * @return {boolean} True if this is an Atomic-hosted site, false otherwise.
  */
 export function isAtomicPlatform( state ) {
 	return get( state.jetpack.initialState.siteData, 'isAtomicPlatform', false );
@@ -392,7 +392,7 @@ export function isAtomicPlatform( state ) {
  * Get the current theme's stylesheet (slug).
  *
  * @param {object} state - Global state tree.
- * @returns {string} theme stylesheet, e.g. twentytwentythree.
+ * @return {string} theme stylesheet, e.g. twentytwentythree.
  */
 export function currentThemeStylesheet( state ) {
 	return get( state.jetpack.initialState.themeData, 'stylesheet' );
@@ -414,7 +414,7 @@ export function currentThemeSupports( state, feature ) {
  * Check that the current theme is a block theme.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if the current theme is a block theme, false otherwise.
+ * @return {boolean} True if the current theme is a block theme, false otherwise.
  */
 export function currentThemeIsBlockTheme( state ) {
 	return get( state.jetpack.initialState.themeData, [ 'isBlockTheme' ], false );
@@ -436,7 +436,7 @@ export function showBackups( state ) {
  *
  * @param {object} state - Global state tree
  *
- * @returns {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
+ * @return {boolean} True if the Jetpack Recommendations should be displayed, false otherwise.
  */
 export function showRecommendations( state ) {
 	return get( state.jetpack.initialState.siteData, 'showRecommendations', false );
@@ -446,7 +446,7 @@ export function showRecommendations( state ) {
  * Determines if My Jetpack should be referenced.
  *
  * @param {object} state - Global state tree
- * @returns {boolean} True if the My Jetpack should be referenced, false otherwise.
+ * @return {boolean} True if the My Jetpack should be referenced, false otherwise.
  */
 export function showMyJetpack( state ) {
 	return get( state.jetpack.initialState.siteData, 'showMyJetpack', true );
@@ -456,7 +456,7 @@ export function showMyJetpack( state ) {
  * Get an array of new recommendations for this site
  *
  * @param {object} state - Global state tree
- * @returns {Array} - Array of recommendation slugs
+ * @return {Array} - Array of recommendation slugs
  */
 export function getNewRecommendations( state ) {
 	return get( state.jetpack.initialState, 'newRecommendations', [] );
@@ -466,7 +466,7 @@ export function getNewRecommendations( state ) {
  * Get a count of new recommendations for this site
  *
  * @param {object} state - Global state tree
- * @returns {number} - Count of recommendations
+ * @return {number} - Count of recommendations
  */
 export function getNewRecommendationsCount( state ) {
 	return getNewRecommendations( state ).length;
@@ -477,7 +477,7 @@ export function getNewRecommendationsCount( state ) {
  *
  * @param {object} state - Global state tree
  *
- * @returns {boolean} True if the Jetpack Licensing UI should be displayed, false otherwise.
+ * @return {boolean} True if the Jetpack Licensing UI should be displayed, false otherwise.
  */
 export function showLicensingUi( state ) {
 	return get( state.jetpack.initialState.licensing, 'showLicensingUi', false );
@@ -531,7 +531,7 @@ export function getPartnerSubsidiaryId( state ) {
  * Returns the partner coupon associated with this site, if any.
  *
  * @param {object} state - Global state tree
- * @returns {object|boolean} partner coupon if exists or false.
+ * @return {object|boolean} partner coupon if exists or false.
  */
 export function getPartnerCoupon( state ) {
 	return get( state.jetpack.initialState, 'partnerCoupon' );
@@ -540,9 +540,9 @@ export function getPartnerCoupon( state ) {
 /**
  * Return an upgrade URL
  *
- * @param {object} state - Global state tree
- * @param {string} source - Context where this URL is clicked.
- * @param {string} userId - Current user id.
+ * @param {object}  state        - Global state tree
+ * @param {string}  source       - Context where this URL is clicked.
+ * @param {string}  userId       - Current user id.
  * @param {boolean} planDuration - Add plan duration to the URL.
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
@@ -592,7 +592,7 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  * Returns the list of products that are available for purchase in the initial state.
  *
  * @param {object} state - Global state tree
- * @returns {Array} - Array of Products that you can purchase.
+ * @return {Array} - Array of Products that you can purchase.
  */
 export function getStaticProductsForPurchase( state ) {
 	return get( state.jetpack.initialState, 'products', {} );
@@ -638,7 +638,7 @@ export function getProductsForPurchase( state ) {
  *
  * @param {*} state - Global state tree.
  *
- * @returns {string} The current Recommendations step.
+ * @return {string} The current Recommendations step.
  */
 export function getInitialRecommendationsStep( state ) {
 	return get( state.jetpack.initialState, 'recommendationsStep', '' );
@@ -647,8 +647,8 @@ export function getInitialRecommendationsStep( state ) {
 /**
  * Get the connection errors.
  *
- * @param  {Object} state Global state tree.
- * @returns {Array} Connection errors.
+ * @param {Object} state Global state tree.
+ * @return {Array} Connection errors.
  */
 export function getConnectionErrors( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
@@ -659,7 +659,7 @@ export function getConnectionErrors( state ) {
 /**
  * Check if the user is on Safari browser.
  *
- * @param {Object} state   Global state tree.
+ * @param {Object} state Global state tree.
  *
  * @return {boolean} True the user is on Safari browser.
  */
@@ -670,7 +670,7 @@ export function isSafari( state ) {
 /**
  * Check if the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
  *
- * @param {Object} state   Global state tree.
+ * @param {Object} state Global state tree.
  *
  * @return {boolean} True, the `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME` constant is true.
  */
@@ -682,7 +682,7 @@ export function doNotUseConnectionIframe( state ) {
  * Check if WooCommerce is currently installed and active
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True, the plugin is installed and active
+ * @return {boolean} True, the plugin is installed and active
  */
 export function isWooCommerceActive( state ) {
 	return !! state.jetpack.initialState.isWooCommerceActive;
@@ -692,8 +692,8 @@ export function isWooCommerceActive( state ) {
  * Returns the Jetpack Cloud URL for the specified resource for the current site.
  *
  * @param {object} state - Global state tree.
- * @param {string} slug - Jetpack Cloud resource slug.
- * @returns {string} The valid Jetpack Cloud URL
+ * @param {string} slug  - Jetpack Cloud resource slug.
+ * @return {string} The valid Jetpack Cloud URL
  */
 export function getJetpackCloudUrl( state, slug ) {
 	return `https://cloud.jetpack.com/${ slug }/${ getSiteRawUrl( state ) }`;
@@ -703,7 +703,7 @@ export function getJetpackCloudUrl( state, slug ) {
  * Returns if the new Stats experience is enabled.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if the new Stats experience is enabled.
+ * @return {boolean} True if the new Stats experience is enabled.
  */
 export function isOdysseyStatsEnabled( state ) {
 	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
@@ -713,7 +713,7 @@ export function isOdysseyStatsEnabled( state ) {
  * Returns true if Blaze can be used on the site.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if Blaze is available on the site.
+ * @return {boolean} True if Blaze is available on the site.
  */
 export function shouldInitializeBlaze( state ) {
 	return !! state.jetpack.initialState.shouldInitializeBlaze;
@@ -723,7 +723,7 @@ export function shouldInitializeBlaze( state ) {
  * Returns true if the wp-admin Blaze dashboard is enabled.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if the Blaze dashboard is enabled.
+ * @return {boolean} True if the Blaze dashboard is enabled.
  */
 export function isBlazeDashboardEnabled( state ) {
 	return !! state.jetpack.initialState.isBlazeDashboardEnabled;
@@ -733,7 +733,7 @@ export function isBlazeDashboardEnabled( state ) {
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if the Sharing block is available on the site.
+ * @return {boolean} True if the Sharing block is available on the site.
  */
 export function isSharingBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
@@ -743,7 +743,7 @@ export function isSharingBlockAvailable( state ) {
  * Get the Jetpack Manage info
  *
  * @param {object} state - Global state tree.
- * @returns {object} Jetpack Manage info
+ * @return {object} Jetpack Manage info
  */
 export function getJetpackManageInfo( state ) {
 	return state.jetpack.initialState.jetpackManage;
@@ -753,7 +753,7 @@ export function getJetpackManageInfo( state ) {
  * Returns true if Subscription Site feature is enabled on the site.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if Subscription Site feature is enabled on the site.
+ * @return {boolean} True if Subscription Site feature is enabled on the site.
  */
 export function isSubscriptionSiteEnabled( state ) {
 	return !! state.jetpack.initialState.isSubscriptionSiteEnabled;
@@ -763,7 +763,7 @@ export function isSubscriptionSiteEnabled( state ) {
  * returns the newletter date example.
  *
  * @param {object} state - Global state tree.
- * @returns {string} Newsletter date example.
+ * @return {string} Newsletter date example.
  */
 export function getNewsetterDateExample( state ) {
 	return state.jetpack.initialState.newsletterDateExample;
@@ -773,7 +773,7 @@ export function getNewsetterDateExample( state ) {
  * Returns true if Subscription Site editing feature is supported.
  *
  * @param {object} state - Global state tree.
- * @returns {boolean} True if Subscription Site editing feature is supported.
+ * @return {boolean} True if Subscription Site editing feature is supported.
  */
 export function subscriptionSiteEditSupported( state ) {
 	return !! state.jetpack.initialState.subscriptionSiteEditSupported;
@@ -783,7 +783,7 @@ export function subscriptionSiteEditSupported( state ) {
  * Get the Jetpack Social Initial State
  *
  * @param {object} state - Global state tree.
- * @returns {object} Jetpack Social Initial State
+ * @return {object} Jetpack Social Initial State
  */
 export function getSocialInitiaState( state ) {
 	return state.jetpack.initialState.socialInitialState ?? {};

@@ -24,7 +24,7 @@ const trackDashboardClick = () => {
  * Blaze settings component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Blaze settings component.
+ * @return {React.Component} Blaze settings component.
  */
 function Blaze( props ) {
 	const {

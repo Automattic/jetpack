@@ -4,7 +4,7 @@ import { sprintf, _n, __ } from '@wordpress/i18n';
  * Time Since
  *
  * @param {number} date - The past date (timestamp) to compare to the current date.
- * @returns {string} - A description of the amount of time between a date and now, i.e. "5 minutes ago".
+ * @return {string} - A description of the amount of time between a date and now, i.e. "5 minutes ago".
  */
 export function timeSince( date: number ) {
 	const now = new Date();

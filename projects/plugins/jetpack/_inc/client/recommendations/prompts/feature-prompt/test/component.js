@@ -10,9 +10,9 @@ import { FeaturePrompt } from '../index';
 /**
  * Build initial state.
  *
- * @param {object} _ - Dummy positional parameter.
+ * @param {object} _                     - Dummy positional parameter.
  * @param {string} _.recommendationsStep - Value for jetpack.recommendations.step.
- * @returns {object} - State.
+ * @return {object} - State.
  */
 function buildInitialState( { recommendationsStep } = {} ) {
 	return {

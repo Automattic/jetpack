@@ -58,7 +58,7 @@ type AiDataContextProviderProps = {
 /**
  * AI Data Context
  *
- * @returns {AiDataContextProps} Context.
+ * @return {AiDataContextProps} Context.
  */
 export const AiDataContext = createContext< AiDataContextProps | object >( {} );
 
@@ -66,7 +66,7 @@ export const AiDataContext = createContext< AiDataContextProps | object >( {} );
  * AI Data Context Provider
  *
  * @param {AiDataContextProviderProps} props - Component props.
- * @returns {React.ReactElement}                           Context provider.
+ * @return {React.ReactElement}                           Context provider.
  * @example
  * <AiDataContextProvider value={ value }>
  * 	{ children }

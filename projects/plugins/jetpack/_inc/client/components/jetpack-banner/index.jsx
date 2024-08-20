@@ -55,7 +55,7 @@ export class JetpackBanner extends Banner {
  * Redux-connect a JetpackBanner or subclass.
  *
  * @param {JetpackBanner} Component - Component to connect.
- * @returns {Component} Wrapped component.
+ * @return {Component} Wrapped component.
  */
 export function connect( Component ) {
 	return reduxConnect( ( state, ownProps ) => {

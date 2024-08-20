@@ -27,7 +27,7 @@ export class Security extends Component {
 	/**
 	 * Check if Akismet plugin is being searched and matched.
 	 *
-	 * @returns {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
+	 * @return {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
 	 */
 	isAkismetFound = () => {
 		if ( ! this.props.isPluginActive( 'akismet/akismet.php' ) ) {

@@ -271,7 +271,7 @@ class Popover extends Component {
 	 * Computes the position of the Popover in function
 	 * of its main container and the target.
 	 *
-	 * @returns {object} reposition parameters
+	 * @return {object} reposition parameters
 	 */
 	computePosition() {
 		if ( ! this.props.isVisible ) {

@@ -34,8 +34,8 @@ export const reducer = combineReducers( {
 /**
  * Returns true if currently requesting site intro offers. Otherwise false.
  *
- * @param  {object} state - Global state tree
- * @returns {boolean} Whether intro offers are being requested
+ * @param {object} state - Global state tree
+ * @return {boolean} Whether intro offers are being requested
  */
 export function isFetchingIntroOffers( state ) {
 	return !! state.jetpack.introOffers.requests.isFetching;
@@ -44,8 +44,8 @@ export function isFetchingIntroOffers( state ) {
 /**
  * Returns intro offers.
  *
- * @param  {object} state - Global state tree
- * @returns {object} Intro offers
+ * @param {object} state - Global state tree
+ * @return {object} Intro offers
  */
 export function getIntroOffers( state ) {
 	return state.jetpack.introOffers.data;

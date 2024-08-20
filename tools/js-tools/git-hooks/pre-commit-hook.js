@@ -17,7 +17,7 @@ let exitCode = 0;
 /**
  * Load the phpcs exclude list.
  *
- * @returns {Array} Files to exclude.
+ * @return {Array} Files to exclude.
  */
 function loadPhpcsExcludeList() {
 	if ( null === phpcsExcludelist ) {
@@ -31,7 +31,7 @@ function loadPhpcsExcludeList() {
 /**
  * Load the eslint exclude list.
  *
- * @returns {Array} Files to exclude.
+ * @return {Array} Files to exclude.
  */
 function loadEslintExcludeList() {
 	if ( null === eslintExcludelist ) {
@@ -46,7 +46,7 @@ function loadEslintExcludeList() {
  * Apply .eslintignore to a list of files.
  *
  * @param {Array} files - List of files.
- * @returns {Array} Files with ignored files removed.
+ * @return {Array} Files with ignored files removed.
  */
 function applyEslintIgnore( files ) {
 	if ( files.length <= 0 ) {
@@ -64,7 +64,7 @@ function applyEslintIgnore( files ) {
  * Runs, effectively, `git diff --name-only ${ args }`.
  *
  * @param {string[]} args - Arguments to `git diff`.
- * @returns {Array} Paths output from git command
+ * @return {Array} Paths output from git command
  */
 function parseGitDiffToPathArray( args ) {
 	return spawnSync( 'git', [ '-c', 'core.quotepath=off', 'diff', '--name-only', ...args ], {
@@ -80,7 +80,7 @@ function parseGitDiffToPathArray( args ) {
  * Provides filter to determine which PHP files to run through phpcs.
  *
  * @param {string} file - File name of php file modified.
- * @returns {boolean} If the file matches the requirelist.
+ * @return {boolean} If the file matches the requirelist.
  */
 function phpcsFilesToFilter( file ) {
 	if ( -1 === loadPhpcsExcludeList().findIndex( filePath => file === filePath ) ) {
@@ -94,7 +94,7 @@ function phpcsFilesToFilter( file ) {
  * Provides filter to determine which JS files to run through Prettify and linting.
  *
  * @param {string} file - File name of js file modified.
- * @returns {boolean} If the file matches the requirelist.
+ * @return {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
 	return [ '.js', '.json', '.json5', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some(
@@ -106,7 +106,7 @@ function filterJsFiles( file ) {
  * Filter callback for JS files
  *
  * @param {string} file - dirty file
- * @returns {boolean} whether file needs to be linted
+ * @return {boolean} whether file needs to be linted
  */
 function filterEslintFiles( file ) {
 	return (
@@ -120,7 +120,7 @@ function filterEslintFiles( file ) {
  * Logging function that is used when check is failed
  *
  * @param {string} before - Text before "no-verify" block
- * @param {string} after - Text after "no-verify" block
+ * @param {string} after  - Text after "no-verify" block
  */
 function checkFailed( before = 'The linter reported some problems. ', after = '' ) {
 	console.log(
@@ -160,9 +160,9 @@ const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
- * @param {string} file - File name to check against the dirty list.
- * @param {Array} filesList - Dirty files list.
- * @returns {boolean} If the file should be checked.
+ * @param {string} file      - File name to check against the dirty list.
+ * @param {Array}  filesList - Dirty files list.
+ * @return {boolean} If the file should be checked.
  */
 function checkFileAgainstDirtyList( file, filesList ) {
 	return -1 === filesList.indexOf( file );
@@ -172,8 +172,8 @@ function checkFileAgainstDirtyList( file, filesList ) {
  * Given a path, and a config filename, returns the "closest" config file in parent directories of the path.
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
- * @param {string} searchPath - The path to search for the closest config file.
- * @returns {string} - The path to the closest config file.
+ * @param {string} searchPath     - The path to search for the closest config file.
+ * @return {string} - The path to the closest config file.
  */
 function findClosestConfigFile( configFileName, searchPath ) {
 	const pathPieces = searchPath.split( '/' );
@@ -193,8 +193,8 @@ function findClosestConfigFile( configFileName, searchPath ) {
  * whose values are an array of paths which should use the config file.
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
- * @param {Array} files - The set of files to divide by relevant config file.
- * @returns {object} - An object mapping config files to the files which should use them.
+ * @param {Array}  files          - The set of files to divide by relevant config file.
+ * @return {object} - An object mapping config files to the files which should use them.
  */
 function groupByClosestConfig( configFileName, files ) {
 	return files.reduce( ( groupedFiles, file ) => {

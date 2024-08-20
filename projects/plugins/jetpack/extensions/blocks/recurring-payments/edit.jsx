@@ -74,10 +74,10 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 	/**
 	 * Filters the editor settings of the Payment Button block (`jetpack/recurring-payments`).
 	 *
-	 * @param {object} editorSettings - An object with the block settings.
+	 * @param {object}  editorSettings                               - An object with the block settings.
 	 * @param {boolean} editorSettings.showProductManagementControls - Whether the product management block controls should be shown.
-	 * @param {boolean} editorSettings.showStripeNudge - Whether the action to connect to Stripe should be shown.
-	 * @param {string} clientId - Block ID.
+	 * @param {boolean} editorSettings.showStripeNudge               - Whether the action to connect to Stripe should be shown.
+	 * @param {string}  clientId                                     - Block ID.
 	 */
 	const { showProductManagementControls, showStripeNudge } = applyFilters(
 		'jetpack.recurringPayments.editorSettings',

@@ -28,7 +28,7 @@ const useOnboarding = () => {
 	/**
 	 * Current Step
 	 *
-	 * @returns {null|object}
+	 * @return {null|object}
 	 */
 	const { currentStep, currentStepCount, stepsCount } = useMemo( () => {
 		return steps.reduce(

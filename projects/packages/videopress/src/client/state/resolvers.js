@@ -35,7 +35,7 @@ const { apiRoot } = window?.jetpackVideoPressInitialState || {};
  * @param {object} video         - Video object.
  * @param {object} resolveSelect - Containing the store’s selectors pre-bound to state
  * @param {object} dispatch      - Containing the store’s actions pre-bound to state
- * @returns {object}               Tokenized video data object.
+ * @return {object}               Tokenized video data object.
  */
 async function populateVideoDataWithToken( video, resolveSelect, dispatch ) {
 	if ( ! video.needsPlaybackToken ) {

@@ -17,9 +17,9 @@ import {
 /**
  * Connection data reducer
  *
- * @param {import('../types').ConnectionData} state - Current state.
- * @param {object} action - Action object.
- * @returns {import('../types').ConnectionData} The new state.
+ * @param {import('../types').ConnectionData} state  - Current state.
+ * @param {object}                            action - Action object.
+ * @return {import('../types').ConnectionData} The new state.
  */
 const connectionData = ( state = {}, action ) => {
 	switch ( action.type ) {

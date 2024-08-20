@@ -21,7 +21,7 @@ const trackViewSubsClick = () => {
  * Newsletter component.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Newsletter component.
+ * @return {React.Component} Newsletter component.
  */
 function Newsletter( props ) {
 	const {

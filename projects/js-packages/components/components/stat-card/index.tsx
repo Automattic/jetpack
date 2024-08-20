@@ -16,7 +16,7 @@ import type React from 'react';
  * StatCard component
  *
  * @param {StatCardProps} props - Component props.
- * @returns {React.ReactNode} - StatCard react component.
+ * @return {React.ReactNode} - StatCard react component.
  */
 const StatCard = ( { className, icon, label, value, variant = 'square' }: StatCardProps ) => {
 	const formattedValue = numberFormat( value );

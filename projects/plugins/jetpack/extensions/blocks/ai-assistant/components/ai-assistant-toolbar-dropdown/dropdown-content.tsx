@@ -181,7 +181,7 @@ type AiAssistantToolbarDropdownContentProps = {
 /**
  * The React UI content of the dropdown.
  * @param {AiAssistantToolbarDropdownContentProps} props - The props.
- * @returns {ReactElement} The React content of the dropdown.
+ * @return {ReactElement} The React content of the dropdown.
  */
 export default function AiAssistantToolbarDropdownContent( {
 	blockType,

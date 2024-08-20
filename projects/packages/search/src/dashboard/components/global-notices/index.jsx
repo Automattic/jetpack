@@ -8,7 +8,7 @@ import './style.scss';
  * NoticesList component
  *
  * @param {*} props - Props
- * @returns {React.Component}	- NoticesList component
+ * @return {React.Component} - NoticesList component
  */
 export default function NoticesList(
 	props = { handleLocalNoticeDismissClick: null, notices: Object.freeze( [] ) }

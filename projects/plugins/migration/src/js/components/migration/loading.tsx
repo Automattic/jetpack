@@ -8,7 +8,7 @@ import './styles.module.scss';
 /**
  * Migration loading screen
  *
- * @returns {React.ReactElement} JSX Element
+ * @return {React.ReactElement} JSX Element
  */
 export function MigrationLoading() {
 	return (

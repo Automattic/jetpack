@@ -3,7 +3,7 @@
  *
  * @param {any[]} a1 - First array.
  * @param {any[]} a2 - Second array.
- * @returns {any[]} An array containing only overlaps/intersections.
+ * @return {any[]} An array containing only overlaps/intersections.
  */
 export default function arrayOverlap( a1, a2 ) {
 	if ( ! Array.isArray( a1 ) ) {

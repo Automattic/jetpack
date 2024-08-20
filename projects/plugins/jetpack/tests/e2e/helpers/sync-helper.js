@@ -3,7 +3,7 @@ import logger from 'jetpack-e2e-commons/logger.js';
 
 /**
  * Enable sync
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function enableSync() {
 	logger.sync( 'Enabling sync' );
@@ -12,7 +12,7 @@ export async function enableSync() {
 
 /**
  * Disable sync
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function disableSync() {
 	logger.sync( 'Disabling sync' );
@@ -21,7 +21,7 @@ export async function disableSync() {
 
 /**
  * Reset sync
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function resetSync() {
 	logger.sync( 'Resetting sync' );
@@ -30,7 +30,7 @@ export async function resetSync() {
 
 /**
  * Get sync status
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function getSyncStatus() {
 	logger.sync( 'Checking sync status' );
@@ -39,7 +39,7 @@ export async function getSyncStatus() {
 
 /**
  * Enable dedicated sync
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function enableDedicatedSync() {
 	logger.sync( 'Enabling dedicated sync' );
@@ -48,7 +48,7 @@ export async function enableDedicatedSync() {
 
 /**
  * Disable dedicated sync
- * @returns {string} wp-cli command output
+ * @return {string} wp-cli command output
  */
 export async function disableDedicatedSync() {
 	logger.sync( 'Disabling dedicated sync' );
@@ -57,7 +57,7 @@ export async function disableDedicatedSync() {
 
 /**
  * Test if sync queue is empty
- * @returns {boolean} Whether it's empty
+ * @return {boolean} Whether it's empty
  */
 export async function isSyncQueueEmpty() {
 	try {

@@ -49,7 +49,7 @@ const BREAKPOINTS = {
  * Return the serialized content from the childrens block.
  *
  * @param {string} clientId - The block client ID.
- * @returns {string}          The serialized content.
+ * @return {string}          The serialized content.
  */
 function getSerializedContentFromBlock( clientId: string ): string {
 	if ( ! clientId?.length ) {

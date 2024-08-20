@@ -18,7 +18,7 @@ export type ReconnectProps = {
  *
  * @param {ReconnectProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function Reconnect( { connection, service, variant = 'link' }: ReconnectProps ) {
 	const { deleteConnectionById, setKeyringResult, openConnectionsModal, setReconnectingAccount } =

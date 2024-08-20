@@ -8,7 +8,7 @@ import useConnection from '../use-connection';
  * The RNA connection component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The RNA connection component.
+ * @return {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
 	const {

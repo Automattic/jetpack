@@ -10,7 +10,7 @@ import handleDownloadQRCode from '../utils/handle-download-qrcode.js';
  *
  * @param {object} props           - The component props.
  * @param {string} props.qrCodeRef - The reference to the QR Code image.
- * @returns {object} The component.
+ * @return {object} The component.
  */
 export default function QRCodeImageActionsPanelRow( { qrCodeRef } ) {
 	const slug = useSelect( select => select( editorStore ).getEditedPostSlug(), [] );

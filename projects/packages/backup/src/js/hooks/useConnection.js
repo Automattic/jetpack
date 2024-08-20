@@ -42,7 +42,7 @@ const testimonials = [
 /**
  * Expose the `connectionStatus` state object and `BackupConnectionScreen` to show a component used for connection.
  *
- * @returns {Array} connectionStatus, BackupConnectionScreen
+ * @return {Array} connectionStatus, BackupConnectionScreen
  */
 export default function useConnection() {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );

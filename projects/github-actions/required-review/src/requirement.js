@@ -9,10 +9,10 @@ class RequirementError extends SError {}
 /**
  * Prints a result set, then returns it.
  *
- * @param {string} label - Label for the set.
+ * @param {string}   label         - Label for the set.
  * @param {string[]} teamReviewers - Team members that have reviewed the file. If an empty array, will print `<empty set>` instead.
- * @param {string[]} neededTeams - Teams that have no reviews from it's members.
- * @returns {{teamReviewers, neededTeams}} `{teamReviewers, neededTeams}`.
+ * @param {string[]} neededTeams   - Teams that have no reviews from it's members.
+ * @return {{teamReviewers, neededTeams}} `{teamReviewers, neededTeams}`.
  */
 function printSet( label, teamReviewers, neededTeams ) {
 	core.info( label + ' ' + ( teamReviewers.length ? teamReviewers.join( ', ' ) : '<empty set>' ) );
@@ -22,10 +22,10 @@ function printSet( label, teamReviewers, neededTeams ) {
 /**
  * Build a reviewer team membership filter.
  *
- * @param {object} config - Requirements configuration object being processed.
+ * @param {object}              config     - Requirements configuration object being processed.
  * @param {Array|string|object} teamConfig - Team name, or single-key object with a list of teams/objects, or array of such.
- * @param {string} indent - String for indentation.
- * @returns {Function} Function to filter an array of reviewers by membership in the team(s).
+ * @param {string}              indent     - String for indentation.
+ * @return {Function} Function to filter an array of reviewers by membership in the team(s).
  */
 function buildReviewerFilter( config, teamConfig, indent ) {
 	if ( typeof teamConfig === 'string' ) {
@@ -140,10 +140,10 @@ class Requirement {
 	/**
 	 * Constructor.
 	 *
-	 * @param {object} config - Object config
-	 * @param {string[]|string} config.paths - Paths this requirement applies to. Either an array of picomatch globs, or the string "unmatched".
-	 * @param {Array} config.teams - Team reviews requirements.
-	 * @param {boolean} config.consume - Whether matched paths should be ignored by later rules.
+	 * @param {object}          config         - Object config
+	 * @param {string[]|string} config.paths   - Paths this requirement applies to. Either an array of picomatch globs, or the string "unmatched".
+	 * @param {Array}           config.teams   - Team reviews requirements.
+	 * @param {boolean}         config.consume - Whether matched paths should be ignored by later rules.
 	 */
 	constructor( config ) {
 		this.name = config.name || 'Unnamed requirement';
@@ -197,12 +197,12 @@ class Requirement {
 	/**
 	 * Test whether this requirement applies to the passed paths.
 	 *
-	 * @param {string[]} paths - Paths to test against.
+	 * @param {string[]} paths        - Paths to test against.
 	 * @param {string[]} matchedPaths - Paths that have already been matched.
-	 * @returns {object} _ Results object.
-	 * @returns {boolean} _.applies Whether the requirement applies.
-	 * @returns {string[]} _.matchedPaths New value for `matchedPaths`.
-	 * @returns {string[]} _.paths New value for `paths`.
+	 * @return {object} _ Results object.
+	 * @return {boolean} _.applies Whether the requirement applies.
+	 * @return {string[]} _.matchedPaths New value for `matchedPaths`.
+	 * @return {string[]} _.paths New value for `paths`.
 	 */
 	appliesToPaths( paths, matchedPaths ) {
 		let matches;
@@ -239,7 +239,7 @@ class Requirement {
 	 * Test whether this requirement is satisfied.
 	 *
 	 * @param {string[]} reviewers - Reviewers to test against.
-	 * @returns {boolean} Whether the requirement is satisfied.
+	 * @return {boolean} Whether the requirement is satisfied.
 	 */
 	async needsReviewsFrom( reviewers ) {
 		core.info( 'Checking reviewers...' );

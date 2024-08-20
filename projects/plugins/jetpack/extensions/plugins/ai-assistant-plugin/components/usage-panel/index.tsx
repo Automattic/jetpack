@@ -31,7 +31,7 @@ import type { UsagePanelProps, InternalUsagePanelProps } from './types';
  * Simple hook to get the days until the next reset
  *
  * @param {string} nextStartDate - the next start date from the AI Feature data
- * @returns {string} an string with the the next reset date
+ * @return {string} an string with the the next reset date
  */
 const useNextResetDate = ( nextStartDate: string ): string => {
 	// Bail early if we don't have a next start date
@@ -45,9 +45,9 @@ const useNextResetDate = ( nextStartDate: string ): string => {
 /**
  * Handle the upgrade button text.
  *
- * @param {PlanType} planType - the type of the current plan
- * @param {number} nextTierRequestLimit - the request limit of the next tier, or null if there is no next tier
- * @returns {string} the proper upgrade button text
+ * @param {PlanType} planType             - the type of the current plan
+ * @param {number}   nextTierRequestLimit - the request limit of the next tier, or null if there is no next tier
+ * @return {string} the proper upgrade button text
  */
 const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number ): string => {
 	// If the current plan is free, the upgrade button text is just "Upgrade"
@@ -70,7 +70,7 @@ const useUpgradeButtonText = ( planType: PlanType, nextTierRequestLimit: number 
 
 /**
  * Helper to get the Contact Us URL
- * @returns {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
+ * @return {object} an object with the Contact Us URL, the autosaveAndRedirect function and a boolean indicating if we are redirecting
  */
 const useContactUsLink = (): {
 	contactUsURL: string;

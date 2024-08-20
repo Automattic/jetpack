@@ -44,14 +44,14 @@ const usageInfoMessage = ( current, limit ) => {
 /**
  * Returns a DonutMeterContainer describing resource usage.
  *
- * @param {object} props - Props
- * @param {number} props.current - totalCount to the DonutMeter
- * @param {number} props.limit - segmentCount to the DonutMeter
- * @param {string} props.title - title to the DonutMeter
+ * @param {object}   props                     - Props
+ * @param {number}   props.current             - totalCount to the DonutMeter
+ * @param {number}   props.limit               - segmentCount to the DonutMeter
+ * @param {string}   props.title               - title to the DonutMeter
  * @param {Function} props.iconClickedCallback - handler for click on "info" icon
  * @param {Function} props.linkClickedCallback - handler for click on "details" link
- * @param {object} props.tooltip - tooltip data
- * @returns {React.Component} DonutMeterContainer component
+ * @param {object}   props.tooltip             - tooltip data
+ * @return {React.Component} DonutMeterContainer component
  */
 const DonutMeterContainer = ( {
 	current = 0,

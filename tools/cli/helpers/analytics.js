@@ -11,7 +11,7 @@ const baseEventName = 'jetpack_cli_'; // Please use 'jetpack_test_cli_' when tes
  * - the user has enabled or disabled analytics tracking.
  * - the user has a UUID set.
  *
- * @returns {boolean} Whether analytics tracking is enabled.
+ * @return {boolean} Whether analytics tracking is enabled.
  */
 export async function checkAnalyticsEnabled() {
 	if ( process.env.CI ) {

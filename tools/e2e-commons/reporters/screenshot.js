@@ -10,7 +10,7 @@ import logger from '../logger.js';
  * @param {page}   page     - Playwright page instance
  * @param {string} fileName - screenshot file name
  * @param {object} allure   - instance of allure reporter
- * @returns {Promise<void>}
+ * @return {Promise<void>}
  */
 export async function takeScreenshot( page, fileName, allure ) {
 	let filePath;

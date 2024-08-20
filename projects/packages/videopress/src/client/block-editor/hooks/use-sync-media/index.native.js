@@ -63,9 +63,9 @@ const invalidateEmbedResolutionFields = [
  * React hook to keep the data in-sync
  * between the media item and the block attributes.
  *
- * @param {object} attributes		- Block attributes.
- * @param {Function} setAttributes	- Block attributes setter.
- * @returns {object}				- Hook API object.
+ * @param {object}   attributes    - Block attributes.
+ * @param {Function} setAttributes - Block attributes setter.
+ * @return {object} - Hook API object.
  */
 export function useSyncMedia( attributes, setAttributes ) {
 	const { id, guid, isPrivate } = attributes;

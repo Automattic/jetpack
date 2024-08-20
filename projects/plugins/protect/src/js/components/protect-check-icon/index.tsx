@@ -3,7 +3,7 @@ import { type JSX } from 'react';
 /**
  * Protect Shield and Checkmark SVG Icon
  *
- * @returns {JSX.Element} Protect Shield and Checkmark SVG Icon
+ * @return {JSX.Element} Protect Shield and Checkmark SVG Icon
  */
 export default function ProtectCheck(): JSX.Element {
 	return (

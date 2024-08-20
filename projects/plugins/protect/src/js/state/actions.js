@@ -63,7 +63,7 @@ const refreshPlan =
  * Fetch Status
  *
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
- * @returns {Promise} - Promise which resolves with the status request results.
+ * @return {Promise} - Promise which resolves with the status request results.
  */
 const fetchStatus = hardRefresh =>
 	apiFetch( {
@@ -75,7 +75,7 @@ const fetchStatus = hardRefresh =>
  * Side effect action which will fetch the status from the server
  *
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
- * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ * @return {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
 const refreshStatus =
 	( hardRefresh = false ) =>
@@ -100,7 +100,7 @@ const refreshStatus =
 
 /**
  * Refresh Scan History
- * @returns {Promise} - Promise which resolves with the scan history once it has been fetched.
+ * @return {Promise} - Promise which resolves with the scan history once it has been fetched.
  */
 const refreshScanHistory = () => {
 	return async ( { dispatch } ) => {
@@ -116,8 +116,8 @@ const refreshScanHistory = () => {
  * Check Status
  *
  * @param {object} currentStatus - The status.
- * @param {number} attempts - The amount of recursive attempts that have already been made.
- * @returns {Promise} - Promise which resolves with the status once it has been checked.
+ * @param {number} attempts      - The amount of recursive attempts that have already been made.
+ * @return {Promise} - Promise which resolves with the status once it has been checked.
  */
 const checkStatus = ( currentStatus, attempts = 0 ) => {
 	return new Promise( ( resolve, reject ) => {
@@ -140,7 +140,7 @@ const checkStatus = ( currentStatus, attempts = 0 ) => {
 /**
  * Side effect action which will fetch the credential status from the server
  *
- * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ * @return {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
 const checkCredentials =
 	() =>
@@ -424,7 +424,7 @@ const scan =
  * @param {object}      modal       - The modal payload to set in state.
  * @param {null|string} modal.type  - The modal slug, or null to display no modal.
  * @param {object}      modal.props - The props to pass to the modal component.
- * @returns {object} The modal action object.
+ * @return {object} The modal action object.
  */
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };

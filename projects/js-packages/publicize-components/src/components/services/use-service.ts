@@ -13,7 +13,7 @@ export type SupportedServicesMap = Record< string, SupportedService >;
 /**
  * Returns the service object for a service name.
  *
- * @returns {GetService} - The service object.
+ * @return {GetService} - The service object.
  */
 export function useService() {
 	const supportedServices = useSupportedServices();

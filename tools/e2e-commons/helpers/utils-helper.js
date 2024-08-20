@@ -11,7 +11,7 @@ export const BASE_DOCKER_CMD = 'pnpm jetpack docker --type e2e --name t1';
  * Executes a shell command and return it as a Promise.
  *
  * @param {string} cmd - shell command
- * @returns {Promise<string>} output
+ * @return {Promise<string>} output
  */
 export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
@@ -39,7 +39,7 @@ export async function execShellCommand( cmd ) {
  * Execute shell command synchronously
  *
  * @param {string} cmd - shell command
- * @returns {string} output
+ * @return {string} output
  */
 export function execSyncShellCommand( cmd ) {
 	return execSync( cmd ).toString();
@@ -69,7 +69,7 @@ async function cancelPartnerPlan() {
  *
  * @param {page}   page   - Playwright page object
  * @param {string} module - Jetpack module name
- * @returns {boolean} Always true.
+ * @return {boolean} Always true.
  */
 export async function activateModule( page, module ) {
 	const cliCmd = `jetpack module activate ${ module }`;
@@ -88,9 +88,9 @@ export async function activateModule( page, module ) {
 /**
  * Exec wp cli command.
  *
- * @param {string} wpCmd - command
+ * @param {string}  wpCmd   - command
  * @param {boolean} sendUrl - Whether to add a `--url` argument
- * @returns {Promise<string>} output
+ * @return {Promise<string>} output
  */
 export async function execWpCommand( wpCmd, sendUrl = true ) {
 	const urlArgument = sendUrl ? `--url="${ resolveSiteUrl() }"` : '';
@@ -115,7 +115,7 @@ export async function execWpCommand( wpCmd, sendUrl = true ) {
  * Exec shell command in container.
  *
  * @param {string} cmd - shell command
- * @returns {Promise<string>} output
+ * @return {Promise<string>} output
  */
 export async function execContainerShellCommand( cmd ) {
 	return execShellCommand( `${ BASE_DOCKER_CMD } -v exec-silent ${ cmd }` );
@@ -170,7 +170,7 @@ export async function logAccessLog() {
  *
  * @param {string}  filePath         - the file path. can be absolute file path, file name only, with or without extension
  * @param {boolean} includeTimestamp - if true, the current timestamp will be added as a prefix
- * @returns {string} the formatted file path
+ * @return {string} the formatted file path
  */
 export function fileNameFormatter( filePath, includeTimestamp = true ) {
 	const parts = path.parse( path.normalize( filePath ) );
@@ -190,7 +190,7 @@ export function fileNameFormatter( filePath, includeTimestamp = true ) {
 /**
  * Get test site config.
  *
- * @returns {object} Site config
+ * @return {object} Site config
  */
 function getConfigTestSite() {
 	const testSite = process.env.TEST_SITE ? process.env.TEST_SITE : 'default';
@@ -201,7 +201,7 @@ function getConfigTestSite() {
 /**
  * Get site credentials.
  *
- * @returns {object} Credentials.
+ * @return {object} Credentials.
  */
 export function getSiteCredentials() {
 	const site = getConfigTestSite();
@@ -211,7 +211,7 @@ export function getSiteCredentials() {
 /**
  * Get DotCom credentials.
  *
- * @returns {object} Credentials.
+ * @return {object} Credentials.
  */
 export function getDotComCredentials() {
 	const site = getConfigTestSite();
@@ -226,7 +226,7 @@ export function getDotComCredentials() {
 /**
  * Get Mailchimp credentials.
  *
- * @returns {object} Credentials.
+ * @return {object} Credentials.
  */
 export function getMailchimpCredentials() {
 	const site = getConfigTestSite();
@@ -241,7 +241,7 @@ export function getMailchimpCredentials() {
  * The file path is stored in config.
  * No validation is done on the file content, so an invalid URL can be returned.
  *
- * @returns {string} the file content, or undefined in file doesn't exist or cannot be read
+ * @return {string} the file content, or undefined in file doesn't exist or cannot be read
  */
 export function getReusableUrlFromFile() {
 	let urlFromFile;
@@ -266,7 +266,7 @@ export function getReusableUrlFromFile() {
  * 2. Configure a test site in local config and use a TEST_SITE env variable with the config property name. This overrides any value written in file
  * If none of the above is valid we throw an error
  *
- * @returns {string} URL.
+ * @return {string} URL.
  */
 export function resolveSiteUrl() {
 	let url;
@@ -298,7 +298,7 @@ export function validateUrl( url ) {
 /**
  * Checks if the test site is a local one, with wp-cli accessible or a remote one
  *
- * @returns {boolean} true if site is local
+ * @return {boolean} true if site is local
  */
 export function isLocalSite() {
 	return ! process.env.TEST_SITE;
@@ -343,7 +343,7 @@ export async function logEnvironment() {
 /**
  * Get Jetpack version.
  *
- * @returns {string|undefined} Version.
+ * @return {string|undefined} Version.
  */
 export async function getJetpackVersion() {
 	let version;

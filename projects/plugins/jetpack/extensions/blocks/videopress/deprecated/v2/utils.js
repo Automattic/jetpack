@@ -18,9 +18,9 @@ export const ASPECT_RATIOS = [
  * attribute, leaving any custom CSS classes alone. Then filters those custom
  * CSS classes from the VideoPress specific class list.
  *
- * @param   {string} className            - CSS classes in standard className attribute.
- * @param   {string} videoPressClassNames - VideoPress block's custom CSS classes attribute.
- * @returns {object}                      - Filtered CSS class attributes.
+ * @param {string} className            - CSS classes in standard className attribute.
+ * @param {string} videoPressClassNames - VideoPress block's custom CSS classes attribute.
+ * @return {object}                      - Filtered CSS class attributes.
  */
 export const filterVideoPressClasses = ( className, videoPressClassNames ) => {
 	// Filter out VideoPress specific styles from className attribute.

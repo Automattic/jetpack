@@ -8,10 +8,10 @@ export const REMOVE_NOTICE = 'REMOVE_NOTICE';
 /**
  * Create global notice
  *
- * @param {*} status - success, error, info or warning.
- * @param {*} text - the text to show.
+ * @param {*} status  - success, error, info or warning.
+ * @param {*} text    - the text to show.
  * @param {*} options - Options.
- * @returns {object} - action object.
+ * @return {object} - action object.
  */
 export function createNotice( status, text, options = {} ) {
 	const notice = {
@@ -34,7 +34,7 @@ export function createNotice( status, text, options = {} ) {
  * Remove notice by ID
  *
  * @param {*} noticeId - noticeID.
- * @returns {object} - action object.
+ * @return {object} - action object.
  */
 export function removeNotice( noticeId ) {
 	return { type: REMOVE_NOTICE, notice: { id: noticeId } };

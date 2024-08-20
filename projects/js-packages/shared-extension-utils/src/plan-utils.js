@@ -10,12 +10,12 @@ import { isAtomicSite, isSimpleSite } from './site-type-utils';
  * Return the checkout URL to upgrade the site plan,
  * depending on the plan, postId, and postType site values.
  *
- * @param {object} siteParams -          Site params used to build the URL.
+ * @param {object} siteParams          - Site params used to build the URL.
  * @param {string} siteParams.planSlug - Plan slug.
- * @param {object} siteParams.plan -     An object with details about the plan.
- * @param {number} siteParams.postId -   Post id.
+ * @param {object} siteParams.plan     - An object with details about the plan.
+ * @param {number} siteParams.postId   - Post id.
  * @param {string} siteParams.postType - Post type.
- * @returns {string}                     Upgrade URL.
+ * @return {string}                     Upgrade URL.
  */
 export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
 	// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't.
@@ -88,7 +88,7 @@ export function getUpgradeUrl( { planSlug, plan, postId, postType } ) {
  * the block requires a paid plan.
  *
  * @param {string} name - Block name.
- * @returns {boolean} True if the block is upgradable, false otherwise.
+ * @return {boolean} True if the block is upgradable, false otherwise.
  */
 export function isUpgradable( name ) {
 	if ( ! name ) {
@@ -105,8 +105,8 @@ export function isUpgradable( name ) {
  * Checks whether the block requires a paid plan or not.
  *
  * @param {string} unavailableReason - The reason why block is unavailable
- * @param {object} details - The block details
- * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
+ * @param {object} details           - The block details
+ * @return {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
  */
 export function requiresPaidPlan( unavailableReason, details ) {
 	if ( unavailableReason === 'missing_plan' ) {
@@ -119,7 +119,7 @@ export function requiresPaidPlan( unavailableReason, details ) {
  * Returns the required plan slug for a passed block name.
  *
  * @param {string} name - Block name.
- * @returns {string|boolean} Plan name if the block is upgradable, false otherwise.
+ * @return {string|boolean} Plan name if the block is upgradable, false otherwise.
  */
 export function getRequiredPlan( name ) {
 	if ( ! name ) {
@@ -158,7 +158,7 @@ const usableBlockWithFreePlan = [
 /**
  * Return whether upgrade nudges are enabled or not.
  *
- * @returns {boolean} True if the Upgrade Nudge is enable. Otherwise, False.
+ * @return {boolean} True if the Upgrade Nudge is enable. Otherwise, False.
  */
 export function isUpgradeNudgeEnabled() {
 	return get( getJetpackData(), 'jetpack.enable_upgrade_nudge', false );

@@ -65,15 +65,15 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 /**
  * Primary question-answer.
  *
- * @param {object} props - Component props.
- * @param {string} props.askButtonLabel - Ask button label.
- * @param {number} props.blogId - Blog ID.
- * @param {string} props.blogType - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
- * @param {string} props.placeholder - Input placeholder.
- * @param {boolean} props.settingShowCopy - Show copy button.
+ * @param {object}  props                     - Component props.
+ * @param {string}  props.askButtonLabel      - Ask button label.
+ * @param {number}  props.blogId              - Blog ID.
+ * @param {string}  props.blogType            - Blog type (wpcom|jetpack) for wpcom simple and jetpack/atomic.
+ * @param {string}  props.placeholder         - Input placeholder.
+ * @param {boolean} props.settingShowCopy     - Show copy button.
  * @param {boolean} props.settingShowFeedback - Show feedback (thumbs up/down) buttons.
- * @param {boolean} props.settingShowSources - Show references (the list of URLs).
- * @returns {QuestionAnswer} component.
+ * @param {boolean} props.settingShowSources  - Show references (the list of URLs).
+ * @return {QuestionAnswer} component.
  */
 export default function QuestionAnswer( {
 	askButtonLabel = DEFAULT_ASK_BUTTON_LABEL,

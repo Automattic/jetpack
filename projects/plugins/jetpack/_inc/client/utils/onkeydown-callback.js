@@ -5,7 +5,7 @@
  * if the key pressed is space or enter - to mirror button functionality.
  *
  * @param {Function} callback function to call after the keydown event
- * @returns {Function}        a function ready to be used as event handler
+ * @return {Function}        a function ready to be used as event handler
  */
 export default function ( callback ) {
 	return event => {

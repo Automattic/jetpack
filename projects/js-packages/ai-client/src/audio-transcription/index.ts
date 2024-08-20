@@ -12,10 +12,10 @@ const debug = debugFactory( 'jetpack-ai-client:audio-transcription' );
 /**
  * A function that takes an audio blob and transcribes it.
  *
- * @param {Blob} audio - The audio to be transcribed, from a recording or from a file.
- * @param {string} feature - The feature name that is calling the transcription.
+ * @param {Blob}        audio              - The audio to be transcribed, from a recording or from a file.
+ * @param {string}      feature            - The feature name that is calling the transcription.
  * @param {AbortSignal} requestAbortSignal - The signal to abort the request.
- * @returns {Promise<string>} - The promise of a string containing the transcribed audio.
+ * @return {Promise<string>} - The promise of a string containing the transcribed audio.
  */
 export default async function transcribeAudio(
 	audio: Blob,

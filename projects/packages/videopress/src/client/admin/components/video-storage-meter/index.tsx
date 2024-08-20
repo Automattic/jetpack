@@ -23,7 +23,7 @@ import type React from 'react';
  * Video Storage Meter component
  *
  * @param {VideoStorageMeterProps} props - Component props.
- * @returns {React.ReactNode} - VideoStorageMeter react component.
+ * @return {React.ReactNode} - VideoStorageMeter react component.
  */
 const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 	className,

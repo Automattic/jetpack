@@ -10,7 +10,7 @@ import './styles.scss';
 /**
  * Top-level component for the Gutenberg-style Jetpack Search customization interface.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function Layout() {
 	const { isLargeViewport } = useSelect( select => ( {

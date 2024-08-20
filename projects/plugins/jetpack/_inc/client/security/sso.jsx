@@ -89,7 +89,7 @@ export const SSO = withModuleSettingsFormHelpers(
 		/**
 		 * Get options for initial state.
 		 *
-		 * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
+		 * @return {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
 		 */
 		state = {
 			jetpack_sso_match_by_email: this.props.getOptionValue(

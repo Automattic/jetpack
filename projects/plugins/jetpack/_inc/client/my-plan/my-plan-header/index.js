@@ -532,7 +532,7 @@ class MyPlanHeader extends React.Component {
 	 * Renders license related actions
 	 *
 	 * @param {'header'|'footer'} position - Whether the actions are for header or footer
-	 * @returns {React.ReactElement} The licence actions
+	 * @return {React.ReactElement} The licence actions
 	 */
 	renderLicensingActions = ( position = 'header' ) => {
 		const {

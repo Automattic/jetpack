@@ -25,7 +25,7 @@ import type React from 'react';
  * React component that renders the settings within the privacy and ratings panel.
  *
  * @param {PrivacyAndRatingPanelProps} props - Component props.
- * @returns {React.ReactElement}               Settings to change video's privacy and ratings.
+ * @return {React.ReactElement}               Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,

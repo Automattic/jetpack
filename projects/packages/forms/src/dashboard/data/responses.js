@@ -13,7 +13,7 @@ import { isNil, mapValues, omitBy, pick } from 'lodash';
  * @param {string} query.status - Post status.
  * @param {number} query.limit  - Maximum results limit.
  * @param {number} query.offset - Offset for results paging.
- * @returns {Promise} Request promise.
+ * @return {Promise} Request promise.
  */
 export const fetchResponses = query => {
 	const queryString = new URLSearchParams(
@@ -34,9 +34,9 @@ export const fetchResponses = query => {
 /**
  * Performs a bulk action on responses.
  *
- * @param {Array} responseIds - The list of responses to be updated.
- * @param {string} action  - The action to be executed.
- * @returns {Promise} Request promise.
+ * @param {Array}  responseIds - The list of responses to be updated.
+ * @param {string} action      - The action to be executed.
+ * @return {Promise} Request promise.
  */
 export const doBulkAction = ( responseIds, action ) => {
 	return apiFetch( {

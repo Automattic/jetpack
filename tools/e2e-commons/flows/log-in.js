@@ -9,7 +9,7 @@ const cookie = config.get( 'storeSandboxCookieValue' );
 /**
  * Login to WordPress.com site
  *
- * @param {page} page - Playwright page instance.
+ * @param {page}    page         - Playwright page instance.
  * @param {boolean} mockPlanData - Whether to mock plan data.
  */
 export async function loginToWpSite( page, mockPlanData ) {
@@ -40,8 +40,8 @@ export async function loginToWpSite( page, mockPlanData ) {
 /**
  * Login to WordPress.com
  *
- * @param {page} page - Playwright page instance.
- * @param {boolean} mockPlanData - Whether to mock plan data.
+ * @param {page}    page           - Playwright page instance.
+ * @param {boolean} mockPlanData   - Whether to mock plan data.
  * @param {boolean} navigateToPage - Whether to navigate to the login page first.
  */
 export async function loginToWpCom( page, mockPlanData, navigateToPage = true ) {

@@ -8,8 +8,8 @@ import type React from 'react';
 /**
  * React component to render a Price composition.
  *
- * @param {PriceProps} props  - Component props.
- * @returns {React.ReactNode} -Price react component.
+ * @param {PriceProps} props - Component props.
+ * @return {React.ReactNode} -Price react component.
  */
 export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
 	const classNames = clsx( styles.price, 'product-price_price', {

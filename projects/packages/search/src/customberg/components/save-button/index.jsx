@@ -7,7 +7,7 @@ import './styles.scss';
 /**
  * Component for saving pending entity record changes.
  *
- * @returns {Element} component instance
+ * @return {Element} component instance
  */
 export default function SaveButton() {
 	const { isSaving, hasUnsavedEdits, saveRecords } = useEntityRecordState();

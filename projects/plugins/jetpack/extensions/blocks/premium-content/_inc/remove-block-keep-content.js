@@ -15,7 +15,7 @@ function replaceBlockAndKeepContent() {
 /**
  * Register a Menu item for Removing the block and keeping the content.
  *
- * @returns {Element} Remove block and keep content menu item.
+ * @return {Element} Remove block and keep content menu item.
  */
 export default () => (
 	<PluginBlockSettingsMenuItem

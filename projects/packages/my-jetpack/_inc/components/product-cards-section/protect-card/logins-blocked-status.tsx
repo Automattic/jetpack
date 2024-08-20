@@ -40,10 +40,10 @@ export const LoginsBlockedStatus = () => {
 /**
  * BlockedStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}             props        - The component props
  * @param {'active' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const {

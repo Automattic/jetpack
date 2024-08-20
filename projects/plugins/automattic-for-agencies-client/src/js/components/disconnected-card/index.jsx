@@ -10,7 +10,7 @@ import styles from './styles.module.scss';
 /**
  * Disconnected Card component.
  *
- * @returns {React.Component} The `ConnectionCard` component.
+ * @return {React.Component} The `ConnectionCard` component.
  */
 export default function DisconnectedCard() {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;

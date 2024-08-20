@@ -46,7 +46,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement }    Banner component.
  */
 export default function Message( {
 	severity = null,

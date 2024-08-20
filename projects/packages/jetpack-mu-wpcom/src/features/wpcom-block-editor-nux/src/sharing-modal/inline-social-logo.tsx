@@ -18,7 +18,7 @@ interface Props {
  *
  * InlineSocialLogosSprite must be included on the page where this is used
  * @param props - The props of the component,
- * @returns A Social Logo SVG
+ * @return A Social Logo SVG
  */
 function InlineSocialLogo( props: Assign< React.SVGProps< SVGSVGElement >, Props > ) {
 	const { size = 24, icon, className, ...otherProps } = props;

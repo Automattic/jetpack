@@ -105,9 +105,9 @@ function isWpcomFilesUrl( url ) {
  * If we pass all images through Photon servers, some images are unreachable. *.files.wordpress.com
  * is already photon-like so we can pass it the same parameters for image resizing.
  *
- * @param  {string} url - Image url
- * @param  {object} opts - Options to pass to photon
- * @returns {string}      Url string with options applied
+ * @param {string} url  - Image url
+ * @param {object} opts - Options to pass to photon
+ * @return {string}      Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {
 	// Adhere to the same options API as the photon.js lib

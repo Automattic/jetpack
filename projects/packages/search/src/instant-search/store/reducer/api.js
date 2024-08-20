@@ -4,9 +4,9 @@ let cachedAggregations = {};
 /**
  * Reducer for recording if the previous search request yielded an error.
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function hasError( state = false, action ) {
 	switch ( action.type ) {
@@ -23,9 +23,9 @@ export function hasError( state = false, action ) {
 /**
  * Reducer for recording search request state.
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function isLoading( state = false, action ) {
 	switch ( action.type ) {
@@ -42,9 +42,9 @@ export function isLoading( state = false, action ) {
 /**
  * Reducer for recording search results.
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function response( state = {}, action ) {
 	switch ( action.type ) {

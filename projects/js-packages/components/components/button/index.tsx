@@ -16,7 +16,7 @@ import type { ButtonProps } from './types';
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @returns {React.ReactNode} Rendered button
+ * @return {React.ReactNode} Rendered button
  */
 const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 	const {

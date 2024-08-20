@@ -38,11 +38,11 @@ type liveResizeModifierFactory = (
  * The Popper modifier queues an asynchronous update on the Popper instance whenever either of the
  * Observers trigger its callback.
  *
- * @param config - The config.
+ * @param config                     - The config.
  * @param config.rootElementSelector - The selector of the root element.
- * @param config.mutation - Whether to mutate.
- * @param config.resize - Whether to resize.
- * @returns custom Popper modifier.
+ * @param config.mutation            - Whether to mutate.
+ * @param config.resize              - Whether to resize.
+ * @return custom Popper modifier.
  */
 export const liveResizeModifier: liveResizeModifierFactory = (
 	{ rootElementSelector, mutation = false, resize = false }: LiveResizeConfiguration = {

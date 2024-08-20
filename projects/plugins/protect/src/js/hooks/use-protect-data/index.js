@@ -9,13 +9,13 @@ const KEY_FILTERS = [ 'all', 'core', 'plugins', 'themes', 'files', 'database' ];
 /**
  * Filter Extension Threats
  *
- * @param {Array} threats        - The threats to filter.
+ * @param {Array}  threats       - The threats to filter.
  * @param {object} filter        - The filter to apply to the data.
  * @param {string} filter.status - The status to filter: 'all', 'fixed', or 'ignored'.
  * @param {string} filter.key    - The key to filter: 'all', 'core', 'files', 'database', or an extension name.
  * @param {string} key           - The threat's key: 'all', 'core', 'files', 'database', or an extension name.
  *
- * @returns {Array} The filtered threats.
+ * @return {Array} The filtered threats.
  */
 const filterThreats = ( threats, filter, key ) => {
 	if ( ! Array.isArray( threats ) ) {
@@ -36,13 +36,13 @@ const filterThreats = ( threats, filter, key ) => {
 /**
  * Get parsed data from the initial state
  *
- * @param {object} options               - The options to use when getting the data.
- * @param {string} options.sourceType    - 'scan' or 'history'.
- * @param {object} options.filter        - The filter to apply to the data.
- * _param {string} options.filter.status - 'all', 'fixed', or 'ignored'.
- * _param {string} options.filter.key    - 'all', 'core', 'files', 'database', or an extension name.
+ * @param {object} options            - The options to use when getting the data.
+ * @param {string} options.sourceType - 'scan' or 'history'.
+ * @param {object} options.filter     - The filter to apply to the data.
+ *                                    _param {string} options.filter.status - 'all', 'fixed', or 'ignored'.
+ *                                    _param {string} options.filter.key    - 'all', 'core', 'files', 'database', or an extension name.
  *
- * @returns {object} The information available in Protect's initial state.
+ * @return {object} The information available in Protect's initial state.
  */
 export default function useProtectData(
 	{ sourceType, filter } = {

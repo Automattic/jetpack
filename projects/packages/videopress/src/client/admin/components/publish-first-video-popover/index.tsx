@@ -22,7 +22,7 @@ import type React from 'react';
  * Publish First Video Popover component
  *
  * @param {PublishFirstVideoPopoverProps} props - Component props.
- * @returns {React.ReactNode} - PublishFirstVideoPopover react component.
+ * @return {React.ReactNode} - PublishFirstVideoPopover react component.
  */
 const PublishFirstVideoPopover = ( {
 	id,

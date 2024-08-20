@@ -49,7 +49,7 @@ export type QRCodeProps = {
  * Renders a QR Code.
  *
  * @param {QRCodeProps} props - Component props
- * @returns {React.ReactNode} - React component.
+ * @return {React.ReactNode} - React component.
  */
 const QRCode: React.FC< QRCodeProps > = ( {
 	value = 'https://jetpack.com',

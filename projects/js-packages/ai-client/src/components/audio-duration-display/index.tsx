@@ -16,7 +16,7 @@ type AudioDurationDisplayProps = {
  * AudioDurationDisplay component.
  *
  * @param {AudioDurationDisplayProps} props - Component props.
- * @returns {React.ReactElement}              Rendered component.
+ * @return {React.ReactElement}              Rendered component.
  */
 export default function AudioDurationDisplay( {
 	duration,

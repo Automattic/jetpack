@@ -94,7 +94,7 @@ class Modal extends Component {
 	/**
 	 * Renders the modal.
 	 *
-	 * @returns {object} The modal element.
+	 * @return {object} The modal element.
 	 */
 	render() {
 		const {

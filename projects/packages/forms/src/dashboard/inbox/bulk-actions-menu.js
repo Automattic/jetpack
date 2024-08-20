@@ -19,7 +19,7 @@ import { useFeedbackQuery } from './use-feedback-query';
  * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
  *
  * @param {number} offset - Offset for the query.
- * @returns {Promise} Promise that resolves once checking for spam has finished.
+ * @return {Promise} Promise that resolves once checking for spam has finished.
  */
 const checkForSpam = ( offset = 0 ) => {
 	const limit = 100;

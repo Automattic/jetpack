@@ -19,9 +19,9 @@ type ImageGenerationResponse = {
 
 /**
  * Cut the post content on a given lenght so the total length of the prompt is not longer than 4000 characters.
- * @param {string} content - the content to be truncated
+ * @param {string} content             - the content to be truncated
  * @param {number} currentPromptLength - the length of the prompt already in use
- * @returns {string} a truncated version of the content respecting the prompt length limit
+ * @return {string} a truncated version of the content respecting the prompt length limit
  */
 const truncateContent = ( content: string, currentPromptLength: number ): string => {
 	const maxLength = 4000;
@@ -35,8 +35,8 @@ const truncateContent = ( content: string, currentPromptLength: number ): string
 /**
  * Create the prompt string based on the provided context.
  * @param {string} postContent - the content of the post
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
- * @returns {string} the prompt string
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @return {string} the prompt string
  */
 const getDalleImageGenerationPrompt = ( postContent: string, userPrompt?: string ): string => {
 	/**
@@ -89,8 +89,8 @@ This is the post content:
 /**
  * Create the Stable Diffusion pre-processing prompt based on the provided context.
  * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
- * @returns {string} the prompt string to be fed to the AI Assistant model.
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated.
+ * @return {string} the prompt string to be fed to the AI Assistant model.
  */
 const getStableDiffusionPreProcessingPrompt = (
 	postContent: string,
@@ -134,9 +134,9 @@ Return just the prompt, without comments. The content is:
 /**
  * Uses the Jetpack AI query endpoint to produce a prompt for the stable diffusion model.
  * @param {string} postContent - the content of the post.
- * @param {string} userPrompt - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
- * @param {string} feature - the feature to be used for the image generation.
- * @returns {string} the prompt string to be used on stable diffusion image generation.
+ * @param {string} userPrompt  - the user prompt for the image generation, if provided. Max length is 1000 characters, will be truncated
+ * @param {string} feature     - the feature to be used for the image generation.
+ * @return {string} the prompt string to be used on stable diffusion image generation.
  */
 const getStableDiffusionImageGenerationPrompt = async (
 	postContent: string,

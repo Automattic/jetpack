@@ -10,7 +10,7 @@ import disconnectImage from '../images/disconnect-thanks.jpg';
  * Show the "thank you" step following survey submission
  *
  * @param {object} props - The properties.
- * @returns {React.Component} - The StepThankYou Component
+ * @return {React.Component} - The StepThankYou Component
  */
 const StepThankYou = props => {
 	const { onExit } = props;

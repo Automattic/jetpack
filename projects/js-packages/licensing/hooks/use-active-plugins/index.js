@@ -9,7 +9,7 @@ const fetchActivePlugins = async () => {
 /**
  * Hook to handle retrieving dismissed notices and dismissing a notice.
  *
- * @returns {Array} An array of active plugins.
+ * @return {Array} An array of active plugins.
  */
 export default function useActivePlugins() {
 	const [ activePlugins, setActivePlugins ] = useState( [] );

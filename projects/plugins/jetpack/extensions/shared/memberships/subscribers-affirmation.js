@@ -13,9 +13,9 @@ import { store as membershipProductsStore } from '../../store/membership-product
 
 /**
  * Get the formatted list of categories for a post.
- * @param {Array} postCategories - list of category IDs for the post
+ * @param {Array} postCategories       - list of category IDs for the post
  * @param {Array} newsletterCategories - list of the site's newsletter categories
- * @returns {string} - formatted list of categories
+ * @return {string} - formatted list of categories
  */
 const getFormattedCategories = ( postCategories, newsletterCategories ) => {
 	// If the post has no categories, then it's going to have the 'Uncategorized' category

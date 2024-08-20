@@ -55,7 +55,7 @@ const PRODUCT_GROUPS = {
  * Get the group of a product given a product Id.
  *
  * @param {number} productId -- The id of the product
- * @returns {string} The group of the product.
+ * @return {string} The group of the product.
  */
 export function getProductGroup( productId ) {
 	return (

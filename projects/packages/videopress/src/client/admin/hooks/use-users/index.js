@@ -10,7 +10,7 @@ import { STORE_ID } from '../../../state/constants';
 /**
  * React custom hook to get the Users.
  *
- * @returns {object} Users
+ * @return {object} Users
  */
 export default function useUsers() {
 	// Data

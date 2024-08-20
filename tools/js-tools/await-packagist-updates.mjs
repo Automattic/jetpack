@@ -63,9 +63,9 @@ if ( http2Client ) {
 /**
  * Poll packagist until the specified version of the named package is available.
  *
- * @param {string} name - Package name to poll.
+ * @param {string} name         - Package name to poll.
  * @param {string} versionRange - Version number/range to look for.
- * @returns {object} Listr task object.
+ * @return {object} Listr task object.
  */
 function pollPackagist( name, versionRange ) {
 	const delay = 10 * 1000;

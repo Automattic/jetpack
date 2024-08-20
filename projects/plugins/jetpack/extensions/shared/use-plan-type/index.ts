@@ -8,7 +8,7 @@ export type PlanType = typeof PLAN_TYPE_FREE | typeof PLAN_TYPE_TIERED | typeof 
  * Simple hook to get the plan type from the current tier
  *
  * @param {object} currentTier - the current tier from the AI Feature data
- * @returns {PlanType} the plan type
+ * @return {PlanType} the plan type
  */
 export const usePlanType = ( currentTier ): PlanType => {
 	if ( ! currentTier ) {

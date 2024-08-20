@@ -17,7 +17,7 @@ const sortThreats = ( a, b ) => b.severity - a.severity;
  *
  * @param {object} data    - The threat category data, i.e. "core", "plugins", "themes", etc.
  * @param {object} newData - Additional data to add to each threat.
- * @returns {object[]} Array of threats with additional properties from the threat category and function argument.
+ * @return {object[]} Array of threats with additional properties from the threat category and function argument.
  */
 const flattenThreats = ( data, newData ) => {
 	// If "data" is an empty object
@@ -41,17 +41,17 @@ const flattenThreats = ( data, newData ) => {
 /**
  * Threats List Hook
  *
- * @param {object} args        - Arguments for the hook.
- * @param {string} args.source - "scan" or "history".
- * @param {string} args.status - "all", "fixed", or "ignored".
- * ---
+ * @param    {object}   args        - Arguments for the hook.
+ * @param    {string}   args.source - "scan" or "history".
+ * @param    {string}   args.status - "all", "fixed", or "ignored".
+ *                                  ---
  * @typedef {object} UseThreatsList
  * @property {object}   item        - The selected threat category.
  * @property {object[]} list        - The list of threats to display.
  * @property {string}   selected    - The selected threat category.
  * @property {Function} setSelected - Sets the selected threat category.
- * ---
- * @returns {UseThreatsList} useThreatsList hook.
+ *                                  ---
+ * @return {UseThreatsList} useThreatsList hook.
  */
 const useThreatsList = ( { source, status } = { source: 'scan', status: 'all' } ) => {
 	const [ selected, setSelected ] = useState( 'all' );

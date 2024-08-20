@@ -34,7 +34,7 @@ type AiAssistantExtensionToolbarDropdownContentProps = {
 /**
  * The dropdown component with logic for the AI Assistant block.
  * @param {AiAssistantExtensionToolbarDropdownContentProps} props - The props.
- * @returns {ReactElement} The React content of the dropdown.
+ * @return {ReactElement} The React content of the dropdown.
  */
 function AiAssistantExtensionToolbarDropdownContent( {
 	blockType,

@@ -51,8 +51,8 @@ export const reducer = combineReducers( {
 /**
  * Returns true if currently requesting scan. status. Otherwise false.
  *
- * @param  {object}  state - Global state tree
- * @returns {boolean}      Whether rewind status is being requested
+ * @param {object} state - Global state tree
+ * @return {boolean}      Whether rewind status is being requested
  */
 export function isFetchingScanStatus( state ) {
 	return !! state.jetpack.scan.requests.isFetchingScanStatus;
@@ -61,8 +61,8 @@ export function isFetchingScanStatus( state ) {
 /**
  * Returns the current status of scan.
  *
- * @param  {object}  state - Global state tree
- * @returns {object}  Features
+ * @param {object} state - Global state tree
+ * @return {object}  Features
  */
 export function getScanStatus( state ) {
 	return get( state.jetpack.scan, [ 'data', 'status' ], {} );

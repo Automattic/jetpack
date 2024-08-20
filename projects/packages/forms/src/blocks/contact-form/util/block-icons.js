@@ -12,7 +12,7 @@ const COLOR_JETPACK = PALETTE[ 'Jetpack Green 40' ];
  *
  * Green in the Jetpack context, otherwise black for Simple sites or Atomic sites.
  *
- * @returns {string} HEX color for block editor icons
+ * @return {string} HEX color for block editor icons
  */
 export function getIconColor() {
 	if ( isAtomicSite() || isSimpleSite() ) {

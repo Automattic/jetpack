@@ -16,9 +16,9 @@ describe( 'bin/eslint-changed.js', () => {
 	/**
 	 * Run eslint-changed.
 	 *
-	 * @param {string[]} args - Arguments to pass.
-	 * @param {object} [options] - Process options.
-	 * @returns {object} data - Process data.
+	 * @param {string[]} args      - Arguments to pass.
+	 * @param {object}   [options] - Process options.
+	 * @return {object} data - Process data.
 	 */
 	async function runEslintChanged( args, options = {} ) {
 		const proc = {
@@ -330,12 +330,12 @@ describe( 'bin/eslint-changed.js', () => {
 		 *
 		 * The path is stored in `tmpdir`.
 		 *
-		 * @param {object[]} branches - An array of branches to create.
-		 * @param {string} [branches.name] - Name of the branch.
-		 * @param {string} [branches.parent] - Name of the parent branch. If omitted, the parent is the previous entry in the array. Must be omitted in the first entry.
-		 * @param {Object<string, string | null>} branches.files - Files to modify, and their contents (or null to delete the file).
-		 * @param {Object<string, string | null>} [staged] - Files to modify and stage.
-		 * @param {Object<string, string | null>} [unstaged] - Files to modify and leave unstaged.
+		 * @param {object[]}                      branches          - An array of branches to create.
+		 * @param {string}                        [branches.name]   - Name of the branch.
+		 * @param {string}                        [branches.parent] - Name of the parent branch. If omitted, the parent is the previous entry in the array. Must be omitted in the first entry.
+		 * @param {Object<string, string | null>} branches.files    - Files to modify, and their contents (or null to delete the file).
+		 * @param {Object<string, string | null>} [staged]          - Files to modify and stage.
+		 * @param {Object<string, string | null>} [unstaged]        - Files to modify and leave unstaged.
 		 */
 		async function mktmpdirgit( branches, staged, unstaged ) {
 			await mktmpdir();
@@ -355,7 +355,7 @@ describe( 'bin/eslint-changed.js', () => {
 			 * Modify files.
 			 *
 			 * @param {Object<string, string | null>} files - Files to modify, and their contents (or null to delete the file).
-			 * @param {boolean} git - Whether to do git manipulations.
+			 * @param {boolean}                       git   - Whether to do git manipulations.
 			 */
 			async function doFiles( files, git ) {
 				const modified = [];

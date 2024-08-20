@@ -9,10 +9,10 @@ import './style.scss';
 /**
  * The Activation Screen Illustration component.
  *
- * @param {object} props -- The properties.
- * @param {string} props.imageUrl -- The assets base URL.
+ * @param {object}  props                 -- The properties.
+ * @param {string}  props.imageUrl        -- The assets base URL.
  * @param {boolean} props.showSupportLink -- The assets base URL.
- * @returns {React.Component} The `ActivationScreenIllustration` component.
+ * @return {React.Component} The `ActivationScreenIllustration` component.
  */
 const ActivationScreenIllustration = props => {
 	const { imageUrl, showSupportLink = false } = props;

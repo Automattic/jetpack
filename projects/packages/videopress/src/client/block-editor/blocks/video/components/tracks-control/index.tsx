@@ -29,7 +29,7 @@ const debug = debugFactory( 'videopress:tracks:tracks-control' );
  * Track Item component.
  *
  * @param {TrackItemProps} props - Component props.
- * @returns {React.ReactElement}   TrackItem react component
+ * @return {React.ReactElement}   TrackItem react component
  */
 function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElement {
 	const [ isDeleting, setIsDeleting ] = useState( false );
@@ -64,7 +64,7 @@ function TrackItem( { track, guid, onDelete }: TrackItemProps ): React.ReactElem
  * Track List React component.
  *
  * @param {TrackListProps} props - Component props.
- * @returns {React.ReactElement}   TracksControl block control
+ * @return {React.ReactElement}   TracksControl block control
  */
 function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React.ReactElement {
 	if ( ! tracks?.length ) {
@@ -111,7 +111,7 @@ function TrackList( { tracks, guid, onTrackListUpdate }: TrackListProps ): React
  * Tracks control react component.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}      TracksControl block control
+ * @return {React.ReactElement}      TracksControl block control
  */
 export default function TracksControl( {
 	attributes,
