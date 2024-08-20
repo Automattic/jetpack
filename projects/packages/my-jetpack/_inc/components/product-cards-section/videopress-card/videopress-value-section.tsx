@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { PRODUCT_SLUGS } from '../../../data/constants';
@@ -12,9 +12,11 @@ import type { FC } from 'react';
 
 import './style.scss';
 
+type VideoPressWindowData = Window[ 'myJetpackInitialState' ][ 'videopress' ];
+
 interface VideoPressValueSectionProps {
 	isPluginActive: boolean;
-	data: Window[ 'myJetpackInitialState' ][ 'videopress' ];
+	data: VideoPressWindowData;
 }
 
 interface ValueSectionProps {
@@ -22,6 +24,7 @@ interface ValueSectionProps {
 	previousValue: number;
 	formattedValue: string;
 	formattedDifference: string;
+	period: VideoPressWindowData[ 'featuredStats' ][ 'period' ];
 }
 
 const ValueSection: FC< ValueSectionProps > = ( {
@@ -29,13 +32,14 @@ const ValueSection: FC< ValueSectionProps > = ( {
 	previousValue,
 	formattedValue,
 	formattedDifference,
+	period,
 } ) => {
 	const hasValueIncreased = value > previousValue;
 	return (
 		<div className="videopress-card__value-section__value-container">
 			<span className="videopress-card__value-section__value">{ formattedValue }</span>
 
-			{ value !== previousValue && (
+			{ value !== previousValue && period === 'day' && (
 				<div
 					className={ clsx(
 						'videopress-card__value-section__previous-value',
@@ -100,6 +104,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const currentWatchTime = featuredStats?.data?.watch_time?.current;
 	const previousViews = featuredStats?.data?.views?.previous;
 	const previousWatchTime = featuredStats?.data?.watch_time?.previous;
+	const period = featuredStats?.period;
 
 	const viewsDifference = Math.abs( currentViews - previousViews );
 	const watchTimeDifference = Math.abs( currentWatchTime - previousWatchTime );
@@ -107,6 +112,9 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	if ( currentViews === undefined || currentWatchTime === undefined ) {
 		return null;
 	}
+
+	const watchTimeTitle =
+		period === 'day' ? __( '30-Day', 'jetpack-my-jetpack' ) : __( 'Yearly', 'jetpack-my-jetpack' );
 
 	return (
 		<div className="videopress-card__value-section">
@@ -117,7 +125,10 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 						'videopress-card__value-section__heading'
 					) }
 				>
-					{ __( '30-Day views', 'jetpack-my-jetpack' ) }
+					{
+						// translators: %s is the period of time for which the views are counted. Example 30-Day or Yearly.
+						sprintf( __( '%s views', 'jetpack-my-jetpack' ), watchTimeTitle )
+					}
 
 					<InfoTooltip
 						tracksEventName="videopress_card_tooltip_open"
@@ -125,6 +136,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 							location: 'views',
 							current_views: currentViews,
 							previous_views: previousViews,
+							period,
 							...tracksProps,
 						} }
 					>
@@ -147,6 +159,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					previousValue={ previousViews }
 					formattedValue={ formatNumber( currentViews, shortenedNumberConfig ) }
 					formattedDifference={ formatNumber( viewsDifference, shortenedNumberConfig ) }
+					period={ period }
 				/>
 			</div>
 
@@ -165,6 +178,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 							location: 'watch_time',
 							current_watch_time: currentWatchTime,
 							previous_watch_time: previousWatchTime,
+							period,
 							...tracksProps,
 						} }
 					>
@@ -178,6 +192,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 					previousValue={ previousWatchTime }
 					formattedValue={ formatTime( currentWatchTime ) }
 					formattedDifference={ formatTime( watchTimeDifference ) }
+					period={ period }
 				/>
 			</div>
 		</div>

@@ -322,13 +322,17 @@ class Initializer {
 
 		if ( ! $featured_stats ) {
 			$videopress_stats = new VideoPress_Stats();
-			$featured_stats   = $videopress_stats->get_featured_stats( 60 );
+			$featured_stats   = $videopress_stats->get_featured_stats( 60, 'day' );
 		}
 
 		if ( is_wp_error( $featured_stats ) || ! $featured_stats ) {
 			return array(
 				'videoCount' => $video_count,
 			);
+		}
+
+		if ( $featured_stats['data']['views']['current'] < 500 || $featured_stats['data']['views']['previous'] < 500 ) {
+			$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
 		}
 
 		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, HOUR_IN_SECONDS );

@@ -245,6 +245,7 @@ interface Window {
 		videopress: {
 			featuredStats: {
 				label: string;
+				period: 'day' | 'year';
 				data: {
 					views: {
 						current: number;
