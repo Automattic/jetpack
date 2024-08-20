@@ -1,23 +1,13 @@
 import { Spinner } from '@automattic/jetpack-components';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { STORE_ID } from '../../state/store';
+import useCredentialsQuery from '../../data/use-credentials-query';
 import CredentialsNeededModal from '../credentials-needed-modal';
 import styles from './styles.module.scss';
 
 const CredentialsGate = ( { children } ) => {
-	const { checkCredentials } = useDispatch( STORE_ID );
+	const { data: credentials, isLoading: credentialsIsFetching } = useCredentialsQuery();
 
-	const { credentials, credentialsIsFetching } = useSelect( select => ( {
-		credentials: select( STORE_ID ).getCredentials(),
-		credentialsIsFetching: select( STORE_ID ).getCredentialsIsFetching(),
-	} ) );
-
-	if ( ! credentials && ! credentialsIsFetching ) {
-		checkCredentials();
-	}
-
-	if ( ! credentials ) {
+	if ( credentialsIsFetching ) {
 		return (
 			<div className={ styles.loading }>
 				<Spinner
@@ -35,7 +25,7 @@ const CredentialsGate = ( { children } ) => {
 		);
 	}
 
-	if ( credentials.length === 0 ) {
+	if ( ! credentials || credentials.length === 0 ) {
 		return <CredentialsNeededModal />;
 	}
 

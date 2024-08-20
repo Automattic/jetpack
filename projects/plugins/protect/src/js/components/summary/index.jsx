@@ -2,6 +2,7 @@ import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useState } from 'react';
+import usePlan from '../../hooks/use-plan';
 import useProtectData from '../../hooks/use-protect-data';
 import ScanSectionHeader from '../../routes/scan/scan-section-header';
 import OnboardingPopover from '../onboarding-popover';
@@ -13,8 +14,8 @@ const Summary = () => {
 			current: { threats: numThreats },
 		},
 		lastChecked,
-		hasRequiredPlan,
 	} = useProtectData();
+	const { hasPlan } = usePlan();
 
 	// Popover anchors
 	const [ dailyScansPopoverAnchor, setDailyScansPopoverAnchor ] = useState( null );
@@ -40,7 +41,7 @@ const Summary = () => {
 							dateI18n( 'F jS', lastChecked )
 						) }
 					</div>
-					{ ! hasRequiredPlan && (
+					{ ! hasPlan && (
 						<OnboardingPopover
 							id="free-daily-scans"
 							position={ isSm ? 'bottom' : 'middle right' }
