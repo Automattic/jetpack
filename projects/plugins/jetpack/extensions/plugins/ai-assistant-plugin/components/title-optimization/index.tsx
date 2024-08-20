@@ -3,7 +3,7 @@
  */
 import { useAiSuggestions } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Spinner, ExternalLink } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -238,6 +238,11 @@ export default function TitleOptimization( {
 							</div>
 						</>
 					) }
+					<div className="jetpack-ai-title-optimization__footer">
+						<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+							{ __( 'Provide feedback', 'jetpack' ) }
+						</ExternalLink>
+					</div>
 				</AiAssistantModal>
 			) }
 		</div>
