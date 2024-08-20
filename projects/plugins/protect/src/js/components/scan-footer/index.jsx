@@ -7,31 +7,25 @@ import {
 	Col,
 	Container,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import React, { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
 const ProductPromotion = () => {
-	const { adminUrl, siteSuffix, blogID } = window.jetpackProtectInitialState || {};
+	const { recordEvent } = useAnalyticsTracks();
+	const { hasPlan, upgradePlan } = usePlan();
+	const { siteSuffix, blogID } = window.jetpackProtectInitialState || {};
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-		useBlogIdSuffix: true,
-	} );
+	const getScan = useCallback( () => {
+		recordEvent( 'jetpack_protect_footer_get_scan_link_click' );
+		upgradePlan();
+	}, [ recordEvent, upgradePlan ] );
 
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_footer_get_scan_link_click', run );
-
-	const { hasRequiredPlan } = useProtectData();
-
-	if ( hasRequiredPlan ) {
+	if ( hasPlan ) {
 		const goToCloudUrl = getRedirectUrl( 'jetpack-scan-dash', { site: blogID ?? siteSuffix } );
 
 		return (
@@ -74,14 +68,14 @@ const ProductPromotion = () => {
 };
 
 const FooterInfo = () => {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'
 		: totalVulnerabilities.toLocaleString();
 
-	if ( hasRequiredPlan ) {
+	if ( hasPlan ) {
 		const learnMoreScanUrl = getRedirectUrl( 'protect-footer-learn-more-scan' );
 
 		return (
