@@ -32,6 +32,7 @@ class Publicize_Script_Data {
 		global $publicize;
 
 		if ( ! $publicize && function_exists( 'publicize_init' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check
 			publicize_init();
 		}
 
