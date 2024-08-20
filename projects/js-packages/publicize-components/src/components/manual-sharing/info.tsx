@@ -9,7 +9,7 @@ export type ManualSharingInfoProps = React.ComponentPropsWithoutRef< typeof Text
  *
  * @param {ManualSharingInfoProps} props - Component props.
  *
- * @returns {import('react').ReactNode} Manual sharing information component.
+ * @return {import('react').ReactNode} Manual sharing information component.
  */
 export function ManualSharingInfo( { ...textProps }: ManualSharingInfoProps ) {
 	return (

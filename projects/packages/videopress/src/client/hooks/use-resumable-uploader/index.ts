@@ -53,7 +53,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	 * Upload a file
 	 *
 	 * @param {File} file - the file to upload
-	 * @returns {*} ???
+	 * @return {*} ???
 	 */
 	async function uploadHandler( file: File ) {
 		const tokenData = await getMediaToken( 'upload-jwt' );

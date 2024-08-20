@@ -11,7 +11,7 @@ const DOCS_URL = 'https://jetpack.com/support/search/jetpack-search-record-meter
  * Returns record count component showing current records indexed and max records available for tier.
  *
  * @param {object} props - current record count and plan record limit.
- * @returns {React.Component} record count component.
+ * @return {React.Component} record count component.
  */
 export function RecordCount( props ) {
 	if ( ! props.recordCount ) {

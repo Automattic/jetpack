@@ -4,7 +4,7 @@ import { getSettings } from '@wordpress/date';
  * Clean up WP locale so it matches the format expected by browsers.
  *
  * @param {string} locale - Locale given by WordPress.
- * @returns {string} Browser-formatted locale.
+ * @return {string} Browser-formatted locale.
  */
 export const cleanLocale = ( locale: string ) => {
 	const regex = /^([a-z]{2,3})(_[a-z]{2}|_[a-z][a-z0-9]{4,7})?(?:_.*)?$/i;
@@ -30,7 +30,7 @@ declare const global: typeof globalThis;
 /**
  * Current user locale, or browser locale as fallback.
  *
- * @returns {string} Formatted user locale (e.g. `en-US` or `fr-FR`).
+ * @return {string} Formatted user locale (e.g. `en-US` or `fr-FR`).
  */
 export const getUserLocale = () => {
 	const {

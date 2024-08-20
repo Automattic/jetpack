@@ -18,7 +18,7 @@ export type DisconnectProps = {
  *
  * @param {DisconnectProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function Disconnect( {
 	connection,

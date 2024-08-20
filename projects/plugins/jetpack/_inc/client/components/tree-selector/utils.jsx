@@ -2,7 +2,7 @@
  * Adds depth and parentNames property to an array of tree items.
  *
  * @param {Array} items - Array of objects containing at least id, parent, and name.
- * @returns {Array} flatList - Array of objects including a depth property and an array of parent names.
+ * @return {Array} flatList - Array of objects including a depth property and an array of parent names.
  */
 function createFlatTreeItems( items ) {
 	const map = {};
