@@ -44,7 +44,7 @@ class Threats {
 	 * @return bool
 	 */
 	public static function update_threat( $threat_id, $updates ) {
-		$api_base = self::get_api_base( $threat_id );
+		$api_base = self::get_api_base();
 		if ( is_wp_error( $api_base ) ) {
 			return false;
 		}
