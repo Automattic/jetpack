@@ -3,7 +3,7 @@ import { createBlock } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
 import { PluginPreviewDropdownItem } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
-import { atSymbol } from '@wordpress/icons';
+import { atSymbol, send } from '@wordpress/icons';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
 import CommandPalette from './command-palette';
@@ -81,7 +81,10 @@ registerJetpackPlugin( blockName, {
 				<SubscribePanels />
 				{ shouldShowNewsletterMenu() && <NewsletterMenu /> }
 				<CommandPalette />
-				<PluginPreviewDropdownItem onClick={ () => {} }>My button title</PluginPreviewDropdownItem>
+				<PluginPreviewDropdownItem onClick={ () => {} }>Custom Preview</PluginPreviewDropdownItem>
+				<PluginPreviewDropdownItem onClick={ () => {} } icon={ send }>
+					Email preview
+				</PluginPreviewDropdownItem>
 			</>
 		);
 	},
