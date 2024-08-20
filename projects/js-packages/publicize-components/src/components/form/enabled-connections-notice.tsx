@@ -8,7 +8,7 @@ import { useConnectionState } from './use-connection-state';
 /**
  * Displays enabled connections text.
  *
- * @returns {import('react').ReactElement} Enabled connections text.
+ * @return {import('react').ReactElement} Enabled connections text.
  */
 export function EnabledConnectionsNotice() {
 	const { enabledConnections } = useSocialMediaConnections();

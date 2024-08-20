@@ -4,7 +4,7 @@ import { useSelect } from '@wordpress/data';
 /**
  * Expose the `connectionStatus` state object from the Jetpack connection store.
  *
- * @returns {object} connectionStatus The connection status object.
+ * @return {object} connectionStatus The connection status object.
  */
 export default function useConnection() {
 	const connectionStatus = useSelect(

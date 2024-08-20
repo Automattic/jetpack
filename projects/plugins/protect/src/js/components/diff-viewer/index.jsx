@@ -24,10 +24,10 @@ const decompose = path => {
  * from the right when looking at the contents of a single
  * file over time.
  *
- * @param {object} options - deconstructed argument
+ * @param {object} options             - deconstructed argument
  * @param {string} options.oldFileName - filename of left contents
  * @param {string} options.newFileName - filename of right contents
- * @returns {window.Element} description of the file or files in the diff
+ * @return {window.Element} description of the file or files in the diff
  */
 const filename = ( { oldFileName, newFileName } ) => {
 	// if we think the diff utility added a bogus

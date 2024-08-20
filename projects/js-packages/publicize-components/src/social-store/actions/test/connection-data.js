@@ -14,7 +14,7 @@ const post = {
  *
  * @param {boolean} initConnections - Whether to set initial connections.
  *
- * @returns {WPDataRegistry} Registry.
+ * @return {WPDataRegistry} Registry.
  */
 function createRegistryWithStores( initConnections = true ) {
 	// Create a registry.

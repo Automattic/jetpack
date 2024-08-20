@@ -5,7 +5,7 @@ import useConnection from './useConnection';
 /**
  * Return information and loader of Backup functioality Capabilities
  *
- * @returns {object} capabilities, capabilitiesError, capabilitiesLoaded, fetchCapabilities
+ * @return {object} capabilities, capabilitiesError, capabilitiesLoaded, fetchCapabilities
  */
 export default function useCapabilities() {
 	const [ capabilities, setCapabilities ] = useState( null );

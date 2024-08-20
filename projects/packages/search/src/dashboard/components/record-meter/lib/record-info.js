@@ -4,11 +4,11 @@ const PALETTE = require( '@automattic/color-studio' );
 /**
  * Convert provided information into a chart-consumable data form
  *
- * @param {number} postCount - The total count of indexed post records
+ * @param {number} postCount         - The total count of indexed post records
  * @param {object} postTypeBreakdown - Post type breakdown (post type => number of posts)
- * @param {string} lastIndexedDate - The date on which the site was last indexed as a string
- * @param {object} postTypes - Post types (post type label => post type slug)
- * @returns {object} data in correct form to use in chart and notice-box
+ * @param {string} lastIndexedDate   - The date on which the site was last indexed as a string
+ * @param {object} postTypes         - Post types (post type label => post type slug)
+ * @return {object} data in correct form to use in chart and notice-box
  */
 export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexedDate, postTypes ) {
 	const maxPostTypeCount = 5; // this value determines when to cut off displaying post times & compound into an 'other'
@@ -108,8 +108,8 @@ export default function getRecordInfo( postCount, postTypeBreakdown, lastIndexed
  * adds the appropriate labels the post type breakdown
  *
  * @param {Array} postTypeBreakdown - an array of the different post types with their counts
- * @param {Array} postTypes - an array of the different post types labels matched with their slugs
- * @returns {object} updated postTypeBreakdown containing the post type slug, label, and count
+ * @param {Array} postTypes         - an array of the different post types labels matched with their slugs
+ * @return {object} updated postTypeBreakdown containing the post type slug, label, and count
  */
 export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
 	const postTypeBreakdownWithLabels = postTypeBreakdown.map( postType => {
@@ -127,10 +127,10 @@ export function addLabelsToPostTypeBreakdown( postTypeBreakdown, postTypes ) {
  * split post types into those being displayed,
  * and those combined into the 'other' category
  *
- * @param {Array} postTypeBreakdown - an array of the different post types with their counts
- * @param {number} numItems - count of different post types
- * @param {number} maxPostTypeCount - the max number of records to display before combining the rest into the 'other' category
- * @returns {object} containing included items with post type and count, and other items, split.
+ * @param {Array}  postTypeBreakdown - an array of the different post types with their counts
+ * @param {number} numItems          - count of different post types
+ * @param {number} maxPostTypeCount  - the max number of records to display before combining the rest into the 'other' category
+ * @return {object} containing included items with post type and count, and other items, split.
  */
 export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCount ) {
 	const count = maxPostTypeCount <= numItems ? maxPostTypeCount : numItems;
@@ -145,7 +145,7 @@ export function splitUsablePostTypes( postTypeBreakdown, numItems, maxPostTypeCo
  * combine remaining item count for use in 'other' category
  *
  * @param {Array} otherItems - array of items, with their counts, to be combined into 'other'
- * @returns {number} sum of all 'other' item counts
+ * @return {number} sum of all 'other' item counts
  */
 export function combineOtherCount( otherItems ) {
 	let runningTotal = 0;
@@ -159,10 +159,10 @@ export function combineOtherCount( otherItems ) {
 /**
  * return chart-ready data
  *
- * @param {object} data - data object with the count for the post type item
+ * @param {object} data  - data object with the count for the post type item
  * @param {string} color - color code to be used for the chart item
- * @param {string} name - name of post type for the label
- * @returns {object} chart ready data with data, label and background color.
+ * @param {string} name  - name of post type for the label
+ * @return {object} chart ready data with data, label and background color.
  */
 export function createData( data, color, name ) {
 	return {
