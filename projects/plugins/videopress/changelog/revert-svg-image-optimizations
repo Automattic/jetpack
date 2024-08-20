@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Revert recent SVG image optimizations.
