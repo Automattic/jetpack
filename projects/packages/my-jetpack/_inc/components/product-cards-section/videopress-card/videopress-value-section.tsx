@@ -1,6 +1,7 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
 import clsx from 'clsx';
+import { useMemo } from 'react';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import formatNumber from '../../../utils/format-number';
@@ -64,6 +65,16 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 		notation: 'compact',
 	};
 
+	const period = featuredStats?.period;
+
+	const watchTimeTitle = useMemo( () => {
+		if ( period === 'day' ) {
+			return __( '30-Day views', 'jetpack-my-jetpack' );
+		}
+
+		return __( 'Yearly views', 'jetpack-my-jetpack' );
+	}, [ period ] );
+
 	if ( ! videoCount ) {
 		return null;
 	}
@@ -104,7 +115,6 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const currentWatchTime = featuredStats?.data?.watch_time?.current;
 	const previousViews = featuredStats?.data?.views?.previous;
 	const previousWatchTime = featuredStats?.data?.watch_time?.previous;
-	const period = featuredStats?.period;
 
 	const viewsDifference = Math.abs( currentViews - previousViews );
 	const watchTimeDifference = Math.abs( currentWatchTime - previousWatchTime );
@@ -112,9 +122,6 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	if ( currentViews === undefined || currentWatchTime === undefined ) {
 		return null;
 	}
-
-	const watchTimeTitle =
-		period === 'day' ? __( '30-Day', 'jetpack-my-jetpack' ) : __( 'Yearly', 'jetpack-my-jetpack' );
 
 	return (
 		<div className="videopress-card__value-section">
@@ -125,10 +132,7 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 						'videopress-card__value-section__heading'
 					) }
 				>
-					{
-						// translators: %s is the period of time for which the views are counted. Example 30-Day or Yearly.
-						sprintf( __( '%s views', 'jetpack-my-jetpack' ), watchTimeTitle )
-					}
+					{ watchTimeTitle }
 
 					<InfoTooltip
 						tracksEventName="videopress_card_tooltip_open"
