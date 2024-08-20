@@ -54,7 +54,7 @@ class Publicize_Script_Data {
 
 		$data['social'] = self::get_admin_script_data();
 
-		if ( empty( $data['site']['plan'] ) ) {
+		if ( empty( $data['site']['plan']['product_slug'] ) ) {
 			$data['site']['plan'] = Current_Plan::get();
 		}
 
