@@ -27,6 +27,7 @@ const ThreatAccordionItem = ( {
 	type,
 	severity,
 	status,
+	hideAutoFixColumn = false,
 } ) => {
 	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 	const { setModal } = useDispatch( STORE_ID );
@@ -87,6 +88,7 @@ const ThreatAccordionItem = ( {
 				}
 				recordEvent( `jetpack_protect_${ type }_threat_open` );
 			}, [ recordEvent, type ] ) }
+			hideAutoFixColumn={ hideAutoFixColumn }
 		>
 			{ description && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -135,39 +137,41 @@ const ThreatAccordionItem = ( {
 				</div>
 			) }
 			{ ! description && <div className={ styles[ 'threat-section' ] }>{ learnMoreButton }</div> }
-			<div className={ styles[ 'threat-footer' ] }>
-				{ 'ignored' === status && (
-					<Button
-						isDestructive={ true }
-						variant="secondary"
-						onClick={ handleUnignoreThreatClick() }
-					>
-						{ __( 'Unignore threat', 'jetpack-protect' ) }
-					</Button>
-				) }
-				{ 'current' === status && (
-					<>
+			{ [ 'ignored', 'current' ].includes( status ) && (
+				<div className={ styles[ 'threat-footer' ] }>
+					{ 'ignored' === status && (
 						<Button
 							isDestructive={ true }
 							variant="secondary"
-							onClick={ handleIgnoreThreatClick() }
+							onClick={ handleUnignoreThreatClick() }
 							disabled={ fixerInProgress }
 						>
-							{ __( 'Ignore threat', 'jetpack-protect' ) }
+							{ __( 'Unignore threat', 'jetpack-protect' ) }
 						</Button>
-						{ fixable && (
-							<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
-								{ __( 'Fix threat', 'jetpack-protect' ) }
+					) }
+					{ 'current' === status && (
+						<>
+							<Button
+								isDestructive={ true }
+								variant="secondary"
+								onClick={ handleIgnoreThreatClick() }
+							>
+								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
-						) }
-					</>
-				) }
-			</div>
+							{ fixable && (
+								<Button disabled={ fixerInProgress } onClick={ handleFixThreatClick() }>
+									{ __( 'Fix threat', 'jetpack-protect' ) }
+								</Button>
+							) }
+						</>
+					) }
+				</div>
+			) }
 		</PaidAccordionItem>
 	);
 };
 
-const PaidList = ( { list } ) => {
+const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	return (
@@ -176,7 +180,7 @@ const PaidList = ( { list } ) => {
 				<div className={ styles[ 'accordion-heading' ] }>
 					<span>{ __( 'Details', 'jetpack-protect' ) }</span>
 					<span>{ __( 'Severity', 'jetpack-protect' ) }</span>
-					<span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span>
+					{ ! hideAutoFixColumn && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 					<span></span>
 				</div>
 			) }
@@ -224,6 +228,7 @@ const PaidList = ( { list } ) => {
 							type={ type }
 							version={ version }
 							status={ status }
+							hideAutoFixColumn={ hideAutoFixColumn }
 						/>
 					)
 				) }

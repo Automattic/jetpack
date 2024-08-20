@@ -6,7 +6,6 @@ import {
 	getTotalSharesCount,
 	isShareLimitEnabled,
 	numberOfSharesRemaining,
-	shouldShowAdvancedPlanNudge,
 	showShareLimits,
 } from '../shares-data';
 
@@ -134,22 +133,6 @@ describe( 'Social store selectors: sharesData', () => {
 		} );
 	} );
 
-	describe( 'shouldShowAdvancedPlanNudge', () => {
-		it( 'should return the default value when no data', () => {
-			expect( shouldShowAdvancedPlanNudge( {} ) ).toBe( false );
-			expect( shouldShowAdvancedPlanNudge( { sharesData: {} } ) ).toBe( false );
-		} );
-
-		it( 'should return the value from state', () => {
-			expect(
-				shouldShowAdvancedPlanNudge( { sharesData: { show_advanced_plan_upgrade_nudge: true } } )
-			).toBe( true );
-
-			expect(
-				shouldShowAdvancedPlanNudge( { sharesData: { show_advanced_plan_upgrade_nudge: false } } )
-			).toBe( false );
-		} );
-	} );
 	describe( 'numberOfSharesRemaining', () => {
 		it( 'should return infinity when share limits are not applied', () => {
 			expect( numberOfSharesRemaining( {} ) ).toBe( Infinity );

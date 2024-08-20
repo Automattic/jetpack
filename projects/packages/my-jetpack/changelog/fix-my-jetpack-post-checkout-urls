@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: ensure product screens redirect to the correct post-checkout URLs.
