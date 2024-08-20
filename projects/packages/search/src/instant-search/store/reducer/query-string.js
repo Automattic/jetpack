@@ -4,9 +4,9 @@ import { getFilterKeys, getStaticFilterKeys } from '../../lib/filters';
 /**
  * Reducer for keeping track of the user's inputted search query
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function searchQuery( state = null, action ) {
 	switch ( action.type ) {
@@ -22,9 +22,9 @@ export function searchQuery( state = null, action ) {
 /**
  * Reducer for keeping track of the user's selected sort type
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function sort( state = null, action ) {
 	switch ( action.type ) {
@@ -44,9 +44,9 @@ export function sort( state = null, action ) {
 /**
  * Reducer for keeping track of the user's selected filter value
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function filters( state = {}, action ) {
 	switch ( action.type ) {
@@ -77,9 +77,9 @@ export function filters( state = {}, action ) {
 /**
  * Reducer for keeping track of the user's selected static filter value
  *
- * @param {object} state - Current state.
+ * @param {object} state  - Current state.
  * @param {object} action - Dispatched action.
- * @returns {object} Updated state.
+ * @return {object} Updated state.
  */
 export function staticFilters( state = {}, action ) {
 	switch ( action.type ) {

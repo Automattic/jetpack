@@ -68,11 +68,11 @@ export const ScanAndThreatStatus = () => {
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren} props - The component props
- * @param {number} props.numThreats - The number of threats
- * @param {number} props.criticalThreatCount - The number of critical threats
+ * @param {PropsWithChildren} props                     - The component props
+ * @param {number}            props.numThreats          - The number of threats
+ * @param {number}            props.criticalThreatCount - The number of critical threats
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function ThreatStatus( {
 	numThreats,
@@ -167,10 +167,10 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}             props        - The component props
  * @param {'success' | 'partial' | 'off'} props.status - The number of threats
  *
- * @returns { ReactElement} rendered component
+ * @return { ReactElement} rendered component
  */
 function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	const tooltipContent = useProtectTooltipCopy();

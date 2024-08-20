@@ -31,7 +31,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
 
 /**
  * Product Page for Jetpack AI
- * @returns {object} React component for the product page
+ * @return {object} React component for the product page
  */
 export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );

@@ -20,15 +20,15 @@ const clickHandler = open => e => {
 /**
  * Wrapper that handles media-related functionality.
  *
- * @param {object} props - Props for the Media Picker
- * @param {string} props.buttonLabel - Label for the button of the picker
- * @param {string} props.subTitle - Alt text under the button
- * @param {number} props.mediaId - The ID of the currently selected media
- * @param {object} props.mediaDetails - The details of the media for preview
- * @param {Function} props.onChange - A callback that can be passed to parent for validation
- * @param {string} props.wrapperClassName - A class name to be added to the wrapper
- * @param {object} props.allowedMediaTypes - Custom allowed media types
- * @returns {object} The media section.
+ * @param {object}   props                   - Props for the Media Picker
+ * @param {string}   props.buttonLabel       - Label for the button of the picker
+ * @param {string}   props.subTitle          - Alt text under the button
+ * @param {number}   props.mediaId           - The ID of the currently selected media
+ * @param {object}   props.mediaDetails      - The details of the media for preview
+ * @param {Function} props.onChange          - A callback that can be passed to parent for validation
+ * @param {string}   props.wrapperClassName  - A class name to be added to the wrapper
+ * @param {object}   props.allowedMediaTypes - Custom allowed media types
+ * @return {object} The media section.
  */
 export default function MediaPicker( {
 	buttonLabel,

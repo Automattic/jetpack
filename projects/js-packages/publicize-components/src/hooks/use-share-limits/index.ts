@@ -20,7 +20,7 @@ export type UseShareLimitsArgs = {
  * Returns the messages for the share limits
  *
  * @param {number} remainingCount - The number of shares left
- * @returns {ReturnType<typeof getMessages>} Share limits messages
+ * @return {ReturnType<typeof getMessages>} Share limits messages
  */
 export function getMessages( remainingCount: number ) {
 	const remaining = Number.isFinite( remainingCount )
@@ -51,7 +51,7 @@ export function getMessages( remainingCount: number ) {
  *
  * @param {UseShareLimitsArgs} args - Arguments
  *
- * @returns {ShareLimits} Share limits details
+ * @return {ShareLimits} Share limits details
  */
 export function useShareLimits( {
 	scheduledCountAdjustment = 0,

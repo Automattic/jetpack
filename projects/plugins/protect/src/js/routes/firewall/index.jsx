@@ -111,7 +111,7 @@ const FirewallPage = () => {
 	 * Get a custom error message based on the error code.
 	 *
 	 * @param {object} error - Error object.
-	 * @returns string|bool Custom error message or false if no custom message exists.
+	 * @return string|bool Custom error message or false if no custom message exists.
 	 */
 	const getCustomErrorMessage = useCallback( error => {
 		switch ( error.code ) {
@@ -172,7 +172,7 @@ const FirewallPage = () => {
 	 *
 	 * Updates the WAF settings with the current form state values.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const saveIpAllowListChanges = useCallback( () => {
 		setFormIsSubmitting( true );
@@ -197,7 +197,7 @@ const FirewallPage = () => {
 	 *
 	 * Updates the WAF settings with the current form state values.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const saveIpBlockListChanges = useCallback( () => {
 		setFormIsSubmitting( true );
@@ -223,7 +223,7 @@ const FirewallPage = () => {
 	 * Syncs change events from a form element to formState.
 	 *
 	 * @param {Event} event - The form control's change event.
-	 * @returns void
+	 * @return void
 	 */
 	const handleChange = useCallback(
 		event => {
@@ -238,7 +238,7 @@ const FirewallPage = () => {
 	 *
 	 * Toggles the WAF's automatic rules option.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const handleAutomaticRulesChange = useCallback( () => {
 		setFormIsSubmitting( true );
@@ -293,7 +293,7 @@ const FirewallPage = () => {
 	 *
 	 * Toggles the brute force protection module.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const handleBruteForceProtectionChange = useCallback( () => {
 		setFormIsSubmitting( true );
@@ -330,7 +330,7 @@ const FirewallPage = () => {
 	 *
 	 * Toggles the WAF's IP allow list option.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const handleIpAllowListChange = useCallback( () => {
 		const newIpAllowListStatus = ! formState.jetpack_waf_ip_allow_list_enabled;
@@ -368,7 +368,7 @@ const FirewallPage = () => {
 	 *
 	 * Toggles the WAF's IP block list option.
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const handleIpBlockListChange = useCallback( () => {
 		const newIpBlockListStatus = ! formState.jetpack_waf_ip_block_list_enabled;
@@ -406,7 +406,7 @@ const FirewallPage = () => {
 	 *
 	 * Sets user meta for post upgrade messaging
 	 *
-	 * @returns void
+	 * @return void
 	 */
 	const handleClosePopoverClick = useCallback( () => {
 		setWafUpgradeIsSeen( true );
@@ -416,7 +416,7 @@ const FirewallPage = () => {
 	/**
 	 * Checks if the current IP address is allow listed.
 	 *
-	 * @returns {boolean} - Indicates whether the current IP address is allow listed.
+	 * @return {boolean} - Indicates whether the current IP address is allow listed.
 	 */
 	const isCurrentIpAllowed = useMemo( () => {
 		return formState.jetpack_waf_ip_allow_list.includes( currentIp );
@@ -425,7 +425,7 @@ const FirewallPage = () => {
 	/**
 	 * Adds the current IP address to the IP allow list.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	const addCurrentIpToAllowList = useCallback( () => {
 		const updatedList =
