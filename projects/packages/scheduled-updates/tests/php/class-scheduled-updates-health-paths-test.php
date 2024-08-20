@@ -40,7 +40,7 @@ class Scheduled_Updates_Health_Paths_Test extends \WorDBless\BaseTestCase {
 
 		// Be sure wordbless cron is reset before each test.
 		delete_option( 'cron' );
-		update_option( 'cron', array( 'version' => 2 ), 'yes' );
+		update_option( 'cron', array( 'version' => 2 ), true );
 
 		$this->admin_id = wp_insert_user(
 			array(

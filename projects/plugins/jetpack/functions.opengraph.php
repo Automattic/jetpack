@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
@@ -543,7 +545,7 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  *
  * @see https://blog.joinmastodon.org/2024/07/highlighting-journalism-on-mastodon/
  *
- * @since $$next-version$$
+ * @since 13.8
  *
  * @param array $tags Current tags.
  *
@@ -551,15 +553,17 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  */
 function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 	/*
-	 * Let's not add any tags when the ActivityPub plugin already adds its own.
-	 * On WordPress.com simple, let's check if the plugin is active.
-	 * On self-hosted, let's just check if the class exists.
+	 * Let's not do this on WordPress.com Simple for now,
+	 * because of its performance impact.
+	 * See p1723574138779019/1723572983.803009-slack-C01U2KGS2PQ
 	 */
-	$is_activitypub_active = function_exists( 'wpcom_activitypub_is_active' )
-		? wpcom_activitypub_is_active()
-		: class_exists( '\Activitypub\Integration\Opengraph' );
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		return $tags;
+	}
 
-	if ( $is_activitypub_active ) {
+	// Let's not add any tags when the ActivityPub plugin already adds its own.
+	$is_activitypub_opengraph_integration_active = get_option( 'activitypub_use_opengraph' );
+	if ( $is_activitypub_opengraph_integration_active ) {
 		return $tags;
 	}
 
@@ -609,7 +613,7 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
 				'user_id'       => (int) $connection_user_id,
 				'connection_id' => (int) $connection_id,
 				'handle'        => $mastodon_handle,
-				'global'        => 0 === $connection_user_id,
+				'global'        => 0 === (int) $connection_user_id,
 			);
 		}
 	}
@@ -643,7 +647,7 @@ function jetpack_add_fediverse_creator_open_graph_tag( $tags ) {
  * Update the markup for the Open Graph tag to match the expected output for Mastodon
  * (name instead of property).
  *
- * @since $$next-version$$
+ * @since 13.8
  *
  * @param string $og_tag A single OG tag.
  *

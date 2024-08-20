@@ -32,7 +32,6 @@ return [
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanPossiblyUndeclaredVariable : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
-    // PhanTypeMismatchArgumentProbablyReal : 1 occurrence
     // PhanTypeObjectUnsetDeclaredProperty : 1 occurrence
     // PhanUndeclaredClassConstant : 1 occurrence
     // PhanUndeclaredClassStaticProperty : 1 occurrence
@@ -46,7 +45,6 @@ return [
         'custom-colors/colors.php' => ['PhanTypeMismatchArgumentNullable'],
         'custom-colors/core-bg-admin-notice.php' => ['PhanContextNotObject'],
         'endpoints/class-marketplace-webhook-response.php' => ['PhanPluginMixedKeyNoKey'],
-        'endpoints/rest-api-export.php' => ['PhanTypeMismatchArgumentProbablyReal'],
         'feature-plugins/autosave-revision.php' => ['PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentNullable'],
         'feature-plugins/coblocks-mods.php' => ['PhanUndeclaredClassConstant', 'PhanUndeclaredClassMethod'],
         'feature-plugins/gutenberg-mods.php' => ['PhanUndeclaredFunctionInCallable'],

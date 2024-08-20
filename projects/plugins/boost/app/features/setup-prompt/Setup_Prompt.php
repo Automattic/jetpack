@@ -55,7 +55,7 @@ class Setup_Prompt implements Has_Setup {
 	 */
 	public function dismiss_setup_banner() {
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-		update_option( self::OPTION_KEY, true, 'no' );
+		update_option( self::OPTION_KEY, true, false );
 		exit();
 	}
 }
