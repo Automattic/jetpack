@@ -13,10 +13,10 @@ import styles from './styles.module.scss';
  * Site Connection Content
  * The main copy for the connection card.
  *
- * @param {object}   props                             - Component props
- * @param {Function} props.onShowSharingDetailsClick  - Callback to show the sharing details.
+ * @param {object}   props                           - Component props
+ * @param {Function} props.onShowSharingDetailsClick - Callback to show the sharing details.
  *
- * @returns {React.Component} The `ConnectionContent` component.
+ * @return {React.Component} The `ConnectionContent` component.
  */
 function ConnectionContent( { onShowSharingDetailsClick } ) {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
@@ -101,10 +101,10 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
  * Detail Sharing Content
  * The copy for the "sync your site‘s data" information linked from the TOS.
  *
- * @param {object}   props                             - Component props
- * @param {Function} props.onCloseSharingDetailsClick  - Callback to close the sharing details.
+ * @param {object}   props                            - Component props
+ * @param {Function} props.onCloseSharingDetailsClick - Callback to close the sharing details.
  *
- * @returns {React.Component} The `DetailSharingContent` component.
+ * @return {React.Component} The `DetailSharingContent` component.
  */
 function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 	return (
@@ -201,7 +201,7 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 /**
  * Connection Card component.
  *
- * @returns {React.Component} The `ConnectionCard` component.
+ * @return {React.Component} The `ConnectionCard` component.
  */
 export default function ConnectionCard() {
 	// Toggle the card content between the default connection content and the sharing details content linked from the TOS.

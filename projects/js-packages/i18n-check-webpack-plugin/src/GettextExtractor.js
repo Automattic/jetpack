@@ -38,10 +38,10 @@ class GettextExtractor {
 	/**
 	 * Constructor.
 	 *
-	 * @param {object} options - Configuration options.
-	 * @param {object} options.babelOptions - Options for Babel.
-	 * @param {Object<string, (string | null)[]>} options.functions - Functions to extract. Defaults are available as a static property `defaultFunctions`.
-	 * @param {Function} options.lintLogger - Lint logging callback. See `this.setLintLogger()`.
+	 * @param {object}                            options              - Configuration options.
+	 * @param {object}                            options.babelOptions - Options for Babel.
+	 * @param {Object<string, (string | null)[]>} options.functions    - Functions to extract. Defaults are available as a static property `defaultFunctions`.
+	 * @param {Function}                          options.lintLogger   - Lint logging callback. See `this.setLintLogger()`.
 	 */
 	constructor( options = {} ) {
 		this.#babelOptions = options.babelOptions || {};
@@ -54,7 +54,7 @@ class GettextExtractor {
 	 *
 	 * @param {string} file - File name.
 	 * @param {object} opts - Babel options.
-	 * @returns {GettextEntries} Set of entries.
+	 * @return {GettextEntries} Set of entries.
 	 */
 	async extractFromFile( file, opts = {} ) {
 		const contents = await fs.readFile( file, { encoding: 'utf8' } );
@@ -65,8 +65,8 @@ class GettextExtractor {
 	 * Parse source.
 	 *
 	 * @param {string} source - JavaScript source.
-	 * @param {object} opts - Babel options.
-	 * @returns {babel.File} Babel File object.
+	 * @param {object} opts   - Babel options.
+	 * @return {babel.File} Babel File object.
 	 */
 	async parse( source, opts = {} ) {
 		const options = { ...this.#babelOptions, ...opts };
@@ -79,8 +79,8 @@ class GettextExtractor {
 	 * Extract gettext strings from source.
 	 *
 	 * @param {string} source - JavaScript source.
-	 * @param {object} opts - Babel options.
-	 * @returns {GettextEntries} Set of entries.
+	 * @param {object} opts   - Babel options.
+	 * @return {GettextEntries} Set of entries.
 	 */
 	async extract( source, opts ) {
 		return this.extractFromAst( await this.parse( source, opts ), opts );
@@ -90,8 +90,8 @@ class GettextExtractor {
 	 * Extract gettext strings from a Babel File object.
 	 *
 	 * @param {babel.File} file - Babel File object, e.g. from `this.parse()`.
-	 * @param {object} opts - Babel options.
-	 * @returns {GettextEntries} Set of entries.
+	 * @param {object}     opts - Babel options.
+	 * @return {GettextEntries} Set of entries.
 	 */
 	extractFromAst( file, opts = {} ) {
 		const entries = new GettextEntries();
@@ -101,11 +101,11 @@ class GettextExtractor {
 	/**
 	 * Extract gettext strings from a Babel File object.
 	 *
-	 * @param {babel.File} file - Babel File object, e.g. from `this.parse()`.
-	 * @param {GettextEntries} entries - Entries object to fill in.
-	 * @param {number|false} evalline - If this is a recursive call from an `eval()`, the line of the eval.
-	 * @param {object} opts - Babel options.
-	 * @returns {GettextEntries} `entries`.
+	 * @param {babel.File}     file     - Babel File object, e.g. from `this.parse()`.
+	 * @param {GettextEntries} entries  - Entries object to fill in.
+	 * @param {number|false}   evalline - If this is a recursive call from an `eval()`, the line of the eval.
+	 * @param {object}         opts     - Babel options.
+	 * @return {GettextEntries} `entries`.
 	 */
 	#extractFromAst( file, entries, evalline, opts ) {
 		const options = { ...this.#babelOptions, ...opts };
@@ -311,7 +311,7 @@ class GettextExtractor {
 	 *
 	 * @see https://github.com/wp-cli/i18n-command/blob/e9eef8aab4b5e43c3aa09bf60e1e7a9d6d30d302/src/JsFunctionsScanner.php#L254
 	 * @param {babel.CallExpression} node - CallExpression node.
-	 * @returns {{ name: string, comments: string[] }|undefined} Callee name and comments, or undefined.
+	 * @return {{ name: string, comments: string[] }|undefined} Callee name and comments, or undefined.
 	 */
 	#resolveExpressionCallee( node ) {
 		const callee = node.callee;
@@ -422,8 +422,8 @@ class GettextExtractor {
 	 *
 	 * @see https://github.com/wp-cli/i18n-command/blob/e9eef8aab4b5e43c3aa09bf60e1e7a9d6d30d302/src/JsFunctionsScanner.php#L364
 	 * @param {babel.Comment} comment - Comment.
-	 * @param {babel.Node} node - Node.
-	 * @returns {boolean} Whether the comment comes before the node.
+	 * @param {babel.Node}    node    - Node.
+	 * @return {boolean} Whether the comment comes before the node.
 	 */
 	#commentPrecedesNode( comment, node ) {
 		// Comments should be on the same or an earlier line than the translation.
