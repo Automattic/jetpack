@@ -4,7 +4,7 @@ import useConnection from '../../hooks/useConnection';
 import { useIsFullyConnected } from '../Admin/hooks';
 
 export const useShowBackUpNow = () => {
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 	const isFullyConnected = useIsFullyConnected();
 	const { capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 

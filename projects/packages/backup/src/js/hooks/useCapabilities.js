@@ -11,7 +11,7 @@ export default function useCapabilities() {
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 
 	useEffect( () => {
 		const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
