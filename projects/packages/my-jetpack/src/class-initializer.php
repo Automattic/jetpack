@@ -332,7 +332,7 @@ class Initializer {
 		}
 
 		if ( $featured_stats['data']['views']['current'] < 500 || $featured_stats['data']['views']['previous'] < 500 ) {
-			$featured_stats = $videopress_stats->get_featured_stats( 1, 'year' );
+			$featured_stats = $videopress_stats->get_featured_stats( 2, 'year' );
 		}
 
 		set_transient( self::VIDEOPRESS_STATS_KEY, $featured_stats, HOUR_IN_SECONDS );
