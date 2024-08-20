@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+i18n loader script & React JSX runtime: load scripts in the footer.
