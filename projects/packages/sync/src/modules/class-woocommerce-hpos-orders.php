@@ -306,6 +306,8 @@ class WooCommerce_HPOS_Orders extends Module {
 		/**
 		 * Filter the order data before syncing.
 		 *
+		 * @since x.x.x
+		 *
 		 * @param array              $filtered_order_data The Filtered order data.
 		 * @param \WC_Abstract_Order $order_object        The Order object.
 		 */
