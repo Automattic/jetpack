@@ -93,6 +93,10 @@ class Jetpack_Ai extends Product {
 	 * @return string[] Slugs of the available tiers
 	 */
 	public static function get_tiers() {
+		if ( ! self::are_tier_plans_enabled() ) {
+			return parent::get_tiers();
+		}
+
 		return array(
 			self::UPGRADED_TIER_SLUG,
 			self::CURRENT_TIER_SLUG,
@@ -105,6 +109,10 @@ class Jetpack_Ai extends Product {
 	 * @return array[] Protect features comparison
 	 */
 	public static function get_features_by_tier() {
+		if ( ! self::are_tier_plans_enabled() ) {
+			return parent::get_features_by_tier();
+		}
+
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
 			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
@@ -360,6 +368,18 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
+		// no tiers
+		if ( ! self::are_tier_plans_enabled() ) {
+			return array_merge(
+				array(
+					'available'          => true,
+					'wpcom_product_slug' => static::get_wpcom_product_slug(),
+				),
+				// hardcoding 1 as next tier if tiers are not enabled
+				self::get_pricing_for_ui_by_usage_tier( 1 )
+			);
+		}
+
 		$next_tier              = self::get_next_usage_tier();
 		$current_tier           = self::get_current_usage_tier();
 		$current_call_to_action = $current_tier === 0
@@ -541,6 +561,19 @@ class Jetpack_Ai extends Product {
 		}
 
 		return \Jetpack_AI_Helper::get_ai_assistance_feature();
+	}
+
+	/**
+	 * Get the AI Assistant tiered plans status
+	 *
+	 * @return boolean
+	 */
+	public static function are_tier_plans_enabled() {
+		$info = self::get_ai_assistant_feature();
+		if ( ! empty( $info ) && isset( $info['tier-plans-enabled'] ) ) {
+			return boolval( $info['tier-plans-enabled'] );
+		}
+		return false;
 	}
 
 	/**
