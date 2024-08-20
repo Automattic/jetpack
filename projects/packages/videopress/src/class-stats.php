@@ -141,7 +141,7 @@ class Stats {
 		// template for the response
 		$featured_stats = array(
 			// translators: %1$d is the number of units of time, %2$s is the period in which the units of time are measured ex. 'day' or 'year'.
-			'label'  => sprintf( _n( 'last %1$d %2$s', 'last %1$d %2$ss', $period_of_data, 'jetpack-videopress-pkg' ), $period_of_data, $period ),
+			'label'  => sprintf( _n( 'last %1$d %2$s', 'last %1$d %2$ss', (int) $period_of_data, 'jetpack-videopress-pkg' ), $period_of_data, $period ),
 			'period' => $period,
 			'data'   => array(
 				'views'       => array(
