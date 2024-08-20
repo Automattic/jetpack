@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { createElement, useCallback, useMemo } from 'react';
+import { createElement, useCallback } from 'react';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 
@@ -58,54 +58,39 @@ const useTooltipCopy = () => {
 		text: __( 'Success! 🌟 Your video is live and gathering views.', 'jetpack-my-jetpack' ),
 	};
 
-	const watchTimeTitle = useMemo( () => {
-		if ( period === 'day' ) {
-			return __( '30-Day views', 'jetpack-my-jetpack' );
-		}
+	const thirtyDayViews = __( '30-Day views', 'jetpack-my-jetpack' );
+	const yearlyViews = __( 'Yearly views', 'jetpack-my-jetpack' );
 
-		return __( 'Yearly views', 'jetpack-my-jetpack' );
-	}, [ period ] );
-
-	const viewsWithPlanText = useMemo( () => {
-		if ( period === 'day' ) {
-			return _n(
-				'This metric represents the total number of views your video has received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
-				'This metric represents the total number of views your videos have received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
-				videoCount,
-				'jetpack-my-jetpack'
-			);
-		}
-
-		return _n(
-			'This metric represents the total number of views your videos have received on our platform over the past year.',
-			'This metric represents the total number of views your videos have received on our platform over the past year.',
-			videoCount,
-			'jetpack-my-jetpack'
-		);
-	}, [ period, videoCount ] );
+	const viewsWithPlanTextDay = _n(
+		'This metric represents the total number of views your video has received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
+		'This metric represents the total number of views your videos have received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
+		videoCount,
+		'jetpack-my-jetpack'
+	);
+	const viewsWithPlanTextYear = _n(
+		'This metric represents the total number of views your videos have received on our platform over the past year.',
+		'This metric represents the total number of views your videos have received on our platform over the past year.',
+		videoCount,
+		'jetpack-my-jetpack'
+	);
 
 	const viewsWithPlan = {
-		title: watchTimeTitle,
-		text: viewsWithPlanText,
+		title: period === 'day' ? thirtyDayViews : yearlyViews,
+		text: period === 'day' ? viewsWithPlanTextDay : viewsWithPlanTextYear,
 	};
 
-	const watchTimeText = useMemo( () => {
-		if ( period === 'day' ) {
-			return __(
-				'This metric shows total video viewing time for the last 30 days, comparing it with the performance of the previous 30 days.',
-				'jetpack-my-jetpack'
-			);
-		}
-
-		return __(
-			'This metric shows total video viewing time for the last year.',
-			'jetpack-my-jetpack'
-		);
-	}, [ period ] );
+	const watchTimeTextDay = __(
+		'This metric shows total video viewing time for the last 30 days, comparing it with the performance of the previous 30 days.',
+		'jetpack-my-jetpack'
+	);
+	const watchTimeTextYear = __(
+		'This metric shows total video viewing time for the last year.',
+		'jetpack-my-jetpack'
+	);
 
 	const watchTime = {
-		title: watchTimeTitle,
-		text: watchTimeText,
+		title: period === 'day' ? thirtyDayViews : yearlyViews,
+		text: period === 'day' ? watchTimeTextDay : watchTimeTextYear,
 	};
 
 	return {
