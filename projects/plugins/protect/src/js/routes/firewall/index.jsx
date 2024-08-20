@@ -708,19 +708,12 @@ const FirewallPage = () => {
 							onChange={ handleChange }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListEnabled }
 						/>
-						<Text variant="body-extra-small" mt={ 1 }>
-							{ __(
-								'By adding their IP addresses, you ensure they will never access your site.',
-								'jetpack-protect'
-							) }
-						</Text>
 					</div>
 				) }
 				{ ipBlockListEnabled && (
 					<div className={ styles[ 'block-list-button-container' ] }>
 						<Button
 							onClick={ saveIpBlockListChanges }
-							size={ 'small' }
 							isLoading={ ipBlockListIsUpdating }
 							disabled={ ! canEditFirewallSettings || ! ipBlockListHasChanges }
 						>
@@ -765,7 +758,7 @@ const FirewallPage = () => {
 							/>
 							<Text variant="body-extra-small" mt={ 1 }>
 								{ __(
-									"Add IP addresses here to ensure they always have access your site, regardless of Jetpack's security features.",
+									"Add IP addresses here to ensure they always have access to your site, regardless of Jetpack's security features.",
 									'jetpack-protect'
 								) }
 							</Text>
@@ -774,7 +767,7 @@ const FirewallPage = () => {
 					{ formState.jetpack_waf_ip_allow_list_enabled && (
 						<div className={ styles[ 'allow-list-button-container' ] }>
 							<div>
-								<Text variant="body-small" mb={ 1 }>
+								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>
 									{ createInterpolateElement(
 										sprintf(
 											// translators: placeholder is the user's current IP address.
@@ -797,7 +790,6 @@ const FirewallPage = () => {
 							</div>
 							<Button
 								onClick={ saveIpAllowListChanges }
-								size={ 'small' }
 								isLoading={ ipAllowListIsUpdating }
 								disabled={ formIsSubmitting || ! ipAllowListHasChanges }
 							>
