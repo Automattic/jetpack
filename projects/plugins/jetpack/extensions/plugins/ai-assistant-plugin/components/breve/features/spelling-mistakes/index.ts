@@ -48,7 +48,7 @@ const fetchContext = async ( language: string ) => {
 		contextRequests[ language ] = { loading: false, loaded: true, failed: false };
 		debug( 'Loaded spelling context from the server' );
 	} catch ( error ) {
-		debug( 'Failed to fetch spelling context' );
+		debug( 'Failed to fetch spelling context', error );
 		contextRequests[ language ] = { loading: false, loaded: false, failed: true };
 		// TODO: Handle retries
 	}
