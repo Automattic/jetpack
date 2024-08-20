@@ -3,9 +3,9 @@
  *
  * Example: project-slug into Project Slug
  *
- * @param {string} name - The project name
+ * @param {string}  name          - The project name
  * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack, default true.
- * @returns {string} The transformed string
+ * @return {string} The transformed string
  */
 export function transformToReadableName( name, jetpackPrefix = true ) {
 	let readableName = name.replace( /[-._][a-z]/g, m => {
@@ -23,10 +23,10 @@ export function transformToReadableName( name, jetpackPrefix = true ) {
  *
  * Example: pro.ject_different-slug into pro-ject-different-slug
  *
- * @param {string} name - The project name
+ * @param {string}  name          - The project name
  * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
- * @param {string} separator - The separator to use
- * @returns {string} The transformed string
+ * @param {string}  separator     - The separator to use
+ * @return {string} The transformed string
  */
 export function normalizeSlug( name, jetpackPrefix = true, separator = '-' ) {
 	let slug = name.replace( /[-._]/g, separator );
@@ -41,9 +41,9 @@ export function normalizeSlug( name, jetpackPrefix = true, separator = '-' ) {
  *
  * Example: project-name into Project_Name
  *
- * @param {string} name - The project name
+ * @param {string}  name          - The project name
  * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
- * @returns {string} The transformed string
+ * @return {string} The transformed string
  */
 export function transformToPhpClassName( name, jetpackPrefix = true ) {
 	return transformToReadableName( name, jetpackPrefix ).replaceAll( ' ', '_' );
@@ -54,9 +54,9 @@ export function transformToPhpClassName( name, jetpackPrefix = true ) {
  *
  * Example: project-name into PROJECT_NAME
  *
- * @param {string} name - The project name
+ * @param {string}  name          - The project name
  * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
- * @returns {string} The transformed string
+ * @return {string} The transformed string
  */
 export function transformToPhpConstantName( name, jetpackPrefix = true ) {
 	return transformToPhpClassName( name, jetpackPrefix ).toUpperCase();
@@ -67,9 +67,9 @@ export function transformToPhpConstantName( name, jetpackPrefix = true ) {
  *
  * Example: project-name into projectName
  *
- * @param {string} name - The project name
+ * @param {string}  name          - The project name
  * @param {boolean} jetpackPrefix - Whether to prefix the name with Jetpack
- * @returns {string} The transformed string
+ * @return {string} The transformed string
  */
 export function transformToCamelCase( name, jetpackPrefix = true ) {
 	let slug = transformToReadableName( name, false ).replaceAll( ' ', '' );

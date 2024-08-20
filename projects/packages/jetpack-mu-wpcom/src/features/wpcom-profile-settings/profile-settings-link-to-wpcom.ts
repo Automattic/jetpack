@@ -1,8 +1,8 @@
 /**
- * Disable the email field on Simple sites.
+ * Disable the email field except on Atomic Classic sites.
  */
 const wpcom_profile_settings_disable_email_field = () => {
-	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomSimple ) {
+	if ( window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomicClassic ) {
 		return;
 	}
 	const emailField = document.getElementById( 'email' ) as HTMLInputElement;
@@ -25,8 +25,8 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 
 	userSessionSection?.remove();
 
-	// Simple sites cannot set a password in wp-admin.
-	if ( window.wpcomProfileSettingsLinkToWpcom?.isWpcomSimple && newPasswordSection ) {
+	// We cannot set a password in wp-admin except on Atomic Classic sites.
+	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomicClassic && newPasswordSection ) {
 		newPasswordSection.innerHTML = '';
 	}
 

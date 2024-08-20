@@ -35,7 +35,7 @@
 		"eslint-plugin-import": "2.29.1",
 		"eslint-plugin-jest": "27.9.0",
 		"eslint-plugin-jest-dom": "5.4.0",
-		"eslint-plugin-jsdoc": "46.10.1",
+		"eslint-plugin-jsdoc": "48.8.3",
 		"eslint-plugin-jsx-a11y": "6.8.0",
 		"eslint-plugin-lodash": "7.4.0",
 		"eslint-plugin-playwright": "0.22.2",

@@ -68,11 +68,11 @@ function getTourAssets( key: string ): TourAsset | undefined {
 /**
  * Get the steps of the tour
  *
- * @param localeSlug - The slug of the locale.
+ * @param localeSlug           - The slug of the locale.
  * @param referencePositioning - The reference positioning.
- * @param isSiteEditor - Whether is the site editor.
- * @param themeName - The name of the theme.
- * @param siteIntent - The intent of the current site.
+ * @param isSiteEditor         - Whether is the site editor.
+ * @param themeName            - The name of the theme.
+ * @param siteIntent           - The intent of the current site.
  */
 function useTourSteps(
 	localeSlug: string,

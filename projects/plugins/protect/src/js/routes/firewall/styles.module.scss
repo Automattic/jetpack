@@ -148,15 +148,20 @@
     }
 }
 
+.allow-list-current-ip {
+    line-height: 1;
+    margin-bottom: calc( var( --spacing-base ) * 1.5 ); // 12px
+}
+
 .allow-list-button-container {
-    margin-top: calc( var( --spacing-base ) * 3 );
+    margin-top: calc( var( --spacing-base ) * 2 );
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
 }
 
 .block-list-button-container {
-    margin-top: calc( var( --spacing-base ) * 3 );
+    margin-top: calc( var( --spacing-base ) * 2 );
     display: flex;
     justify-content: right;
 }

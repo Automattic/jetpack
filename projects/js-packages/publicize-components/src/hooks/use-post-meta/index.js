@@ -6,7 +6,7 @@ import { getShareMessageMaxLength } from '../../utils';
 /**
  * Returns the post meta values.
  *
- * @returns {import('./types').UsePostMeta} The post meta values.
+ * @return {import('./types').UsePostMeta} The post meta values.
  */
 export function usePostMeta() {
 	const { editPost } = useDispatch( editorStore );

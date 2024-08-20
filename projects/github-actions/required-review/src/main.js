@@ -8,7 +8,7 @@ const Requirement = require( './requirement.js' );
 /**
  * Load the requirements yaml file.
  *
- * @returns {Requirement[]} Requirements.
+ * @return {Requirement[]} Requirements.
  */
 async function getRequirements() {
 	let requirementsString = core.getInput( 'requirements' );

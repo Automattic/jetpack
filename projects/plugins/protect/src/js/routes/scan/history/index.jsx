@@ -287,7 +287,7 @@ const ScanHistoryRoute = () => {
 													<StatusFilters numFixed={ numFixed } numIgnored={ numIgnored } />
 												</div>
 											</div>
-											<PaidList list={ list } />
+											<PaidList list={ list } hideAutoFixColumn={ true } />
 										</div>
 									) : (
 										<>

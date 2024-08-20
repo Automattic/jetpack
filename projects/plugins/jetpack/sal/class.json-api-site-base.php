@@ -424,6 +424,18 @@ abstract class SAL_Site {
 	abstract public function is_a4a_client();
 
 	/**
+	 * Indicates that a site is an A4A dev site.
+	 *
+	 * @return bool
+	 */
+	public function is_a4a_dev_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'a4a-is-dev-site' );
+		}
+		return false;
+	}
+
+	/**
 	 * Return the user interactions with a site. Not used in Jetpack.
 	 *
 	 * @param string $role The capability to check.

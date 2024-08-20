@@ -32,9 +32,9 @@ const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 /**
  * defines UpsellPage.
  *
- * @param {object} props - Component properties.
+ * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @returns {React.Component} UpsellPage component.
+ * @return {React.Component} UpsellPage component.
  */
 export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
