@@ -13,15 +13,17 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOptionIcon as ToggleGroupControlOptionIcon, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Spinner,
+	SelectControl,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { desktop, mobile, tablet, check, people, currencyDollar } from '@wordpress/icons';
+import { desktop, mobile, tablet, check } from '@wordpress/icons';
 import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
+import { store as membershipProductsStore } from '../../store/membership-products';
 import { SendIcon } from './icons';
 
 export function NewsletterTestEmailModal( { isOpen, onClose } ) {
@@ -125,10 +127,10 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 
 	return (
 		<ToggleGroupControl
-			__nextHasNoMarginBottom
 			onChange={ setSelectedDevice }
 			value={ selectedDevice }
 			isBlock
+			__next40pxDefaultSize
 		>
 			{ getAvailableDevices().map( device => (
 				<ToggleGroupControlOptionIcon
@@ -146,55 +148,60 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const { tracks } = useAnalytics();
 
-	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
+	const products = useSelect( select =>
+		select( membershipProductsStore ).getNewsletterTierProducts()
+	);
 
-	const accessOptionsList = [
-		{ label: accessOptions.subscribers.label, value: accessOptions.subscribers.key, icon: people },
-		{
-			label: accessOptions.paid_subscribers.label,
-			value: accessOptions.paid_subscribers.key,
-			icon: currencyDollar,
-			disabled: isPaidOptionDisabled,
-		},
-	];
+	const tiers = products
+		?.filter( product => product.interval === '1 month' )
+		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	const handleChange = value => {
-		if ( ! isPaidOptionDisabled ) {
-			setSelectedAccess( value );
-		}
+		setSelectedAccess( value );
+		tracks.recordEvent( 'jetpack_newsletter_preview_access_changed', { access: value } );
 	};
 
-	if ( isSmall && isPaidOptionDisabled ) {
+	if ( isSmall && ( ! tiers || tiers.length <= 1 ) ) {
 		return null;
 	}
 
+	if ( ! tiers || tiers.length <= 1 ) {
+		return (
+			<ToggleGroupControl
+				__nextHasNoMarginBottom
+				onChange={ handleChange }
+				value={ selectedAccess }
+				isBlock
+				isAdaptiveWidth
+			>
+				<ToggleGroupControlOption
+					value={ accessOptions.subscribers.key }
+					label={ accessOptions.subscribers.label }
+				/>
+				<ToggleGroupControlOption
+					value={ accessOptions.paid_subscribers.key }
+					label={ accessOptions.paid_subscribers.label }
+					disabled={ ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key }
+				/>
+			</ToggleGroupControl>
+		);
+	}
+
+	const options = [
+		{ label: accessOptions.subscribers.label, value: accessOptions.subscribers.key },
+		...tiers.map( tier => ( { label: tier.title, value: `tier_${ tier.id }` } ) ),
+	];
+
 	return (
-		<ToggleGroupControl
-			__nextHasNoMarginBottom
-			onChange={ handleChange }
+		<SelectControl
 			value={ selectedAccess }
-			isBlock
-			isAdaptiveWidth
-		>
-			{ accessOptionsList.map( access =>
-				isSmall ? (
-					<ToggleGroupControlOptionIcon
-						key={ access.value }
-						value={ access.value }
-						icon={ access.icon }
-						label={ access.label }
-					/>
-				) : (
-					<ToggleGroupControlOption
-						key={ access.value }
-						value={ access.value }
-						label={ access.label }
-						disabled={ access.disabled }
-					/>
-				)
-			) }
-		</ToggleGroupControl>
+			options={ options }
+			onChange={ handleChange }
+			__nextHasNoMarginBottom={ true }
+			__next40pxDefaultSize={ true }
+		/>
 	);
 };
 
