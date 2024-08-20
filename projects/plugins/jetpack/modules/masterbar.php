@@ -14,6 +14,11 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Masterbar\Main as Jetpack_Masterbar;
-
-Jetpack_Masterbar::init();
+/**
+ * Remove Masterbar from the old Module list.
+ * Available at wp-admin/admin.php?page=jetpack_modules
+ * We only need this function and module file until the Masterbar is fully removed from Jetpack including notices).
+ *
+ * @param array $items Array of Jetpack modules.
+ * @return array
+ */
