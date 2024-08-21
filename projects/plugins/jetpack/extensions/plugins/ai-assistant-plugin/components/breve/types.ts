@@ -18,6 +18,7 @@ export type BreveState = {
 	configuration?: {
 		enabled?: boolean;
 		disabled?: Array< string >;
+		loading?: Array< string >;
 	};
 	suggestions?: {
 		[ key: string ]: {
@@ -41,6 +42,7 @@ export type BreveSelect = {
 	getPopoverLevel: () => number;
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
+	isFeatureDictionaryLoading: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
 	getBlockMd5: ( blockId: string ) => string;
 	getSuggestionsLoading: ( {
@@ -73,6 +75,7 @@ export type BreveDispatch = {
 	setPopoverAnchor: ( anchor: Anchor ) => void;
 	toggleProofread: ( force?: boolean ) => void;
 	toggleFeature: ( feature: string, force?: boolean ) => void;
+	setDictionaryLoading( feature: string, loading: boolean ): void;
 	invalidateSuggestions: ( blockId: string ) => void;
 	invalidateSingleSuggestion: ( feature: string, blockId: string, id: string ) => void;
 	ignoreSuggestion: ( blockId: string, id: string ) => void;

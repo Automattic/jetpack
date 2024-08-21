@@ -3,7 +3,7 @@
  */
 import type { Anchor, BreveState } from '../types';
 
-// POPOVER
+// Popover
 
 export function isHighlightHover( state: BreveState ) {
 	return state.popover?.isHighlightHover;
@@ -21,7 +21,7 @@ export function getPopoverLevel( state: BreveState ) {
 	return state.popover?.level;
 }
 
-// CONFIGURATION
+// Configuration
 
 export function isProofreadEnabled( state: BreveState ) {
 	return state.configuration?.enabled;
@@ -29,6 +29,10 @@ export function isProofreadEnabled( state: BreveState ) {
 
 export function isFeatureEnabled( state: BreveState, feature: string ) {
 	return ! state.configuration?.disabled?.includes( feature );
+}
+
+export function isFeatureDictionaryLoading( state: BreveState, feature: string ) {
+	return state.configuration?.loading?.includes( feature );
 }
 
 export function getDisabledFeatures( state: BreveState ) {

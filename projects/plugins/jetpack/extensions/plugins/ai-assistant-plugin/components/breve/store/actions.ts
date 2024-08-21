@@ -50,6 +50,14 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setDictionaryLoading( feature: string, loading: boolean ) {
+	return {
+		type: 'SET_DICTIONARY_LOADING',
+		feature,
+		loading,
+	};
+}
+
 export function setBlockMd5( blockId: string, md5: string ) {
 	return {
 		type: 'SET_BLOCK_MD5',
