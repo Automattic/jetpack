@@ -263,6 +263,7 @@ export default function Highlight() {
 												<Button
 													className="jetpack-ai-breve__suggest"
 													icon={ AiSVG }
+													iconSize={ 18 }
 													onClick={ handleSuggestions }
 												>
 													{ __( 'Suggest', 'jetpack' ) }
