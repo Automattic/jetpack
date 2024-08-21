@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
 Add mapping for `es-x/no-regexp-duplicate-named-capturing-groups`.
