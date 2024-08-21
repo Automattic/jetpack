@@ -17,7 +17,7 @@
 		"test": "jest tests"
 	},
 	"dependencies": {
-		"@mdn/browser-compat-data": "5.5.33",
+		"@mdn/browser-compat-data": "5.5.47",
 		"browserslist": "^4.17.6",
 		"debug": "^4.3.2",
 		"semver": "^7.3.5"
