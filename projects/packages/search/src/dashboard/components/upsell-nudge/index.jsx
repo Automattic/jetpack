@@ -7,7 +7,7 @@ import './style.scss';
  * Upsell nudge component
  *
  * @param {object} props - Props
- * @returns {React.Component}	- Upsell nudge component.
+ * @return {React.Component} - Upsell nudge component.
  */
 export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (

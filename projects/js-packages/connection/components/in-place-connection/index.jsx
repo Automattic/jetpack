@@ -7,18 +7,18 @@ import './style.scss';
 /**
  * The in-place connection component.
  *
- * @param {object} props -- The properties.
- * @param {string} props.title -- Element title.
- * @param {boolean} props.isLoading -- Whether the element is still loading.
- * @param {string|number} props.width -- Iframe width.
- * @param {string|number} props.height -- Iframe height.
- * @param {boolean} props.displayTOS -- Whether the site has connection owner connected.
- * @param {boolean} props.scrollToIframe -- Whether we need to auto-scroll the window upon element rendering.
- * @param {string} props.connectUrl -- The connection URL.
- * @param {Function} props.onComplete -- The callback to be called upon complete of the connection process.
- * @param {Function} props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
- * @param {string} props.location -- Component location identifier passed to WP.com.
- * @returns {React.Component} The in-place connection component.
+ * @param {object}        props                            -- The properties.
+ * @param {string}        props.title                      -- Element title.
+ * @param {boolean}       props.isLoading                  -- Whether the element is still loading.
+ * @param {string|number} props.width                      -- Iframe width.
+ * @param {string|number} props.height                     -- Iframe height.
+ * @param {boolean}       props.displayTOS                 -- Whether the site has connection owner connected.
+ * @param {boolean}       props.scrollToIframe             -- Whether we need to auto-scroll the window upon element rendering.
+ * @param {string}        props.connectUrl                 -- The connection URL.
+ * @param {Function}      props.onComplete                 -- The callback to be called upon complete of the connection process.
+ * @param {Function}      props.onThirdPartyCookiesBlocked -- The callback to be called if third-party cookies are disabled.
+ * @param {string}        props.location                   -- Component location identifier passed to WP.com.
+ * @return {React.Component} The in-place connection component.
  */
 const InPlaceConnection = props => {
 	const {

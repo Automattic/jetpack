@@ -42,7 +42,7 @@ function showSuccessNotice() {
 /**
  * Component to trigger the resharing of the post.
  *
- * @returns {object} A button component that will share the current post when clicked.
+ * @return {object} A button component that will share the current post when clicked.
  */
 export function SharePostButton() {
 	const { hasEnabledConnections } = useSocialMediaConnections();
@@ -103,7 +103,7 @@ export function SharePostButton() {
  * A panel row that renders the share button when the resharing
  * feature is available.
  *
- * @returns {object|null} A PanelRow component, or null if nothing should be rendered.
+ * @return {object|null} A PanelRow component, or null if nothing should be rendered.
  */
 export function SharePostRow() {
 	const { isRePublicizeUpgradableViaUpsell } = usePublicizeConfig();

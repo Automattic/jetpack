@@ -12,7 +12,7 @@ import styles from './style.module.scss';
  * @param {object} props.counts         - Counts object for the current period.
  * @param {object} props.previousCounts - Counts object for the previous period.
  *
- * @returns {object} StatsCards React component.
+ * @return {object} StatsCards React component.
  */
 const StatsCards = ( { counts, previousCounts } ) => {
 	return (
