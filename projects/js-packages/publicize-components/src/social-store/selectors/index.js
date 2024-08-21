@@ -12,7 +12,6 @@ const selectors = {
 	...socialImageGeneratorSettingsSelectors,
 	userConnectionUrl: state => state.userConnectionUrl,
 	hasPaidFeatures: state => state.hasPaidFeatures,
-	connectionRefreshPath: state => state.connectionRefreshPath,
 };
 
 export default selectors;
