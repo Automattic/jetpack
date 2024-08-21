@@ -253,7 +253,7 @@ const SharingModalInner: React.FC = () => {
 						<InlineSocialLogo icon="pinterest-alt" size={ 18 } />
 					</Button>
 					<div className="wpcom-block-editor-post-published-sharing-modal__checkbox-section">
-						<FormLabel htmlFor="toggle" className="is-checkbox">
+						<FormLabel htmlFor="toggle" className="is-checkbox" style={ { display: 'flex' } }>
 							<FormInputCheckbox
 								id="toggle"
 								onChange={ () => {
