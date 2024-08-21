@@ -27,7 +27,7 @@ const initialConfiguration = {
 
 export function configuration(
 	state: BreveState[ 'configuration' ] = initialConfiguration,
-	action: { type: string; enabled?: boolean; feature?: string }
+	action: { type: string; enabled?: boolean; feature?: string; loading?: boolean }
 ) {
 	switch ( action.type ) {
 		case 'SET_PROOFREAD_ENABLED': {
@@ -63,6 +63,17 @@ export function configuration(
 			return {
 				...state,
 				disabled,
+			};
+		}
+
+		case 'SET_DICTIONARY_LOADING': {
+			const loading = action.loading
+				? [ ...( state.loading ?? [] ), action.feature ]
+				: [ ...( state.loading ?? [] ) ].filter( feature => feature !== action.feature );
+
+			return {
+				...state,
+				loading,
 			};
 		}
 	}
