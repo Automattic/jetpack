@@ -145,7 +145,12 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	);
 };
 
-const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
+const PreviewAccessSelector = ( {
+	selectedAccess,
+	setSelectedAccess,
+	selectedTier,
+	setSelectedTier,
+} ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
@@ -160,7 +165,13 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
 	const handleChange = value => {
-		setSelectedAccess( value );
+		if ( value.startsWith( 'tier_' ) ) {
+			setSelectedAccess( accessOptions.paid_subscribers.key );
+			setSelectedTier( value.replace( 'tier_', '' ) );
+		} else {
+			setSelectedAccess( value );
+			setSelectedTier( null );
+		}
 		tracks.recordEvent( 'jetpack_newsletter_preview_access_changed', { access: value } );
 	};
 
@@ -197,7 +208,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 
 	return (
 		<SelectControl
-			value={ selectedAccess }
+			value={ selectedTier ? `tier_${ selectedTier }` : selectedAccess }
 			options={ options }
 			onChange={ handleChange }
 			__nextHasNoMarginBottom={ true }
@@ -212,6 +223,8 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 const PreviewControls = ( {
 	selectedAccess,
 	setSelectedAccess,
+	selectedTier,
+	setSelectedTier,
 	selectedDevice,
 	setSelectedDevice,
 } ) => {
@@ -226,6 +239,8 @@ const PreviewControls = ( {
 			<PreviewAccessSelector
 				selectedAccess={ selectedAccess }
 				setSelectedAccess={ setSelectedAccess }
+				selectedTier={ selectedTier }
+				setSelectedTier={ setSelectedTier }
 			/>
 		</HStack>
 	);
@@ -235,10 +250,11 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	const [ isLoading, setIsLoading ] = useState( true );
 	const [ previewCache, setPreviewCache ] = useState( {} );
 	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
+	const [ selectedTier, setSelectedTier ] = useState( null );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
 
 	const fetchPreview = useCallback(
-		async accessLevel => {
+		async ( accessLevel, tier ) => {
 			if ( ! postId ) {
 				return;
 			}
@@ -247,14 +263,16 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 
 			try {
 				const response = await apiFetch( {
-					path: `/wpcom/v2/email-preview/?post_id=${ postId }&access=${ accessLevel }`,
+					path: `/wpcom/v2/email-preview/?post_id=${ postId }&access=${ accessLevel }&tier=${
+						tier || ''
+					}`,
 					method: 'GET',
 				} );
 
 				if ( response && response.html ) {
 					setPreviewCache( prevCache => ( {
 						...prevCache,
-						[ accessLevel ]: response.html,
+						[ `${ accessLevel }_${ tier || '' }` ]: response.html,
 					} ) );
 				} else {
 					throw new Error( 'Invalid response format' );
@@ -262,7 +280,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			} catch ( error ) {
 				setPreviewCache( prevCache => ( {
 					...prevCache,
-					[ accessLevel ]: `<html><body>${ __(
+					[ `${ accessLevel }_${ tier || '' }` ]: `<html><body>${ __(
 						'Error loading preview',
 						'jetpack'
 					) }</body></html>`,
@@ -275,12 +293,15 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	);
 
 	useEffect( () => {
-		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
-			fetchPreview( selectedAccess );
+		if (
+			isOpen &&
+			! previewCache.hasOwnProperty( `${ selectedAccess }_${ selectedTier || '' }` )
+		) {
+			fetchPreview( selectedAccess, selectedTier );
 		} else if ( isOpen ) {
 			setIsLoading( false );
 		}
-	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
+	}, [ isOpen, selectedAccess, selectedTier, fetchPreview, previewCache ] );
 
 	const deviceWidth = previewDevices.find( device => device.name === selectedDevice ).width;
 
@@ -297,6 +318,8 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 					<PreviewControls
 						selectedAccess={ selectedAccess }
 						setSelectedAccess={ setSelectedAccess }
+						selectedTier={ selectedTier }
+						setSelectedTier={ setSelectedTier }
 						selectedDevice={ selectedDevice }
 						setSelectedDevice={ setSelectedDevice }
 					/>
@@ -318,7 +341,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 						<Spinner />
 					) : (
 						<iframe
-							srcDoc={ previewCache?.[ selectedAccess ] }
+							srcDoc={ previewCache?.[ `${ selectedAccess }_${ selectedTier || '' }` ] }
 							style={ {
 								width: deviceWidth,
 								maxWidth: '100%',
