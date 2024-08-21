@@ -17,6 +17,8 @@ import useBackupsState from '../../hooks/useBackupsState';
 import useCapabilities from '../../hooks/useCapabilities';
 import useConnection from '../../hooks/useConnection';
 import { Backups, Loading as BackupsLoadingPlaceholder } from '../Backups';
+import { BackupConnectionScreen } from '../backup-connection-screen';
+import { BackupSecondaryAdminConnectionScreen } from '../backup-connection-screen/secondary-admin';
 import BackupStorageSpace from '../backup-storage-space';
 import ReviewRequest from '../review-request';
 import Header from './header';
@@ -31,7 +33,7 @@ import '../masthead/masthead-style.scss';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Admin = () => {
-	const [ connectionStatus, , BackupSecondaryAdminConnectionScreen ] = useConnection();
+	const connectionStatus = useConnection();
 	const { tracks } = useAnalytics();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
@@ -119,7 +121,7 @@ const Admin = () => {
 // Render additional segments for the backup admin page under the jp-hero section.
 // If the user has a backup plan and is connected, we render the storage space segment.
 const BackupSegments = ( { hasBackupPlan, connectionLoaded } ) => {
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 	const { tracks } = useAnalytics();
 
 	const trackLearnMoreClick = useCallback( () => {
@@ -337,8 +339,6 @@ const LoadedState = ( {
 	capabilities,
 	isFullyConnected,
 } ) => {
-	const [ , BackupConnectionScreen ] = useConnection();
-
 	if ( ! isFullyConnected ) {
 		return (
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

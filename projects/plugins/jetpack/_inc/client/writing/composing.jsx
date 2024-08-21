@@ -18,7 +18,7 @@ export class Composing extends React.Component {
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
 	 *
 	 * @param {string} module the slug of the module to update
-	 * @returns {*}           the updated value
+	 * @return {*}           the updated value
 	 */
 	updateFormStateByMarkdown = module => {
 		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
@@ -34,7 +34,7 @@ export class Composing extends React.Component {
 	/**
 	 * Update the option that disables Jetpack Blocks.
 	 *
-	 * @returns {*}           the updated value
+	 * @return {*}           the updated value
 	 */
 	toggleBlocks = () => {
 		const updateValue = ! this.props.getSettingCurrentValue( 'jetpack_blocks_disabled' );

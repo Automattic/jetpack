@@ -19,7 +19,7 @@ const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual'
  * The Connection Screen Visual component for consumers that require a Plan.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectScreenRequiredPlanVisual` component.
+ * @return {React.Component} The `ConnectScreenRequiredPlanVisual` component.
  */
 const ConnectScreenRequiredPlanVisual = props => {
 	const {

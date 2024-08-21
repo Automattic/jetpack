@@ -49,7 +49,7 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting rewind status. Otherwise false.
  * otherwise.
  *
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}       Whether rewind status is being requested
  */
 export function isFetchingRewindStatus( state ) {
@@ -58,7 +58,7 @@ export function isFetchingRewindStatus( state ) {
 
 /**
  * Returns the current status of rewind
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Object}  Features
  */
 export function getRewindStatus( state ) {

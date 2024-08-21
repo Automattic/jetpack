@@ -40,7 +40,7 @@ export const reducer = combineReducers( {
 /**
  * Returns true if currently requesting products. Otherwise false.
  *
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}       Whether products are being requested
  */
 export function isFetchingProducts( state ) {
@@ -49,7 +49,7 @@ export function isFetchingProducts( state ) {
 
 /**
  * Returns WP.com products that are relevant to Jetpack.
- * @param  {Object}  state Global state tree
+ * @param {Object} state Global state tree
  * @return {Object}  Products
  */
 export function getProducts( state ) {
