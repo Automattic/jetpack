@@ -157,11 +157,13 @@
 
 			#wp-admin-bar-reader {
 				display: block !important;
-				width: 52px !important;
+				width: auto !important;
+				min-width: 52px;
+				padding: 0px 13px;
 
 				.ab-icon {
-					padding: 0px;
 					justify-content: center;
+					padding: 0px;
 
 					&:before {
 						width: 36px;
@@ -210,7 +212,8 @@
 		}
 		@media (max-width: 480px) {
 			#wp-admin-bar-reader {
-				width: 46px !important;
+				min-width: 46px;
+				padding: 0 7px;
 
 				.ab-icon {
 					max-width: 46px;
