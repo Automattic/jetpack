@@ -574,6 +574,12 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function are_tier_plans_enabled() {
 		$info = self::get_ai_assistant_feature();
+		if ( is_wp_error( $info ) ) {
+			// this is another faulty default value, we'll assume disabled while
+			// production is enabled
+			return false;
+		}
+
 		if ( ! empty( $info ) && isset( $info['tier-plans-enabled'] ) ) {
 			return boolval( $info['tier-plans-enabled'] );
 		}
