@@ -39,8 +39,6 @@ type ConnectionDataSelectors = {
 type SharesDataSelectors = {
 	getSharesCount: () => number;
 	getPostsCount: () => number;
-	isShareLimitEnabled: () => boolean;
-	numberOfSharesRemaining: () => number;
 };
 
 type SiteDataSelectors = {
