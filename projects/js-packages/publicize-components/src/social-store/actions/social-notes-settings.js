@@ -10,8 +10,8 @@ import { setJetpackSettings } from './jetpack-settings';
  * Yield actions to update settings
  *
  * @param {object} settings - settings to apply.
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* updateSocialNotesSettings( settings ) {
 	try {
@@ -34,8 +34,8 @@ export function* updateSocialNotesSettings( settings ) {
  * Yield actions to update settings
  *
  * @param {object} config - config to update
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* updateSocialNotesConfig( config ) {
 	const prevConfig = select( SOCIAL_STORE_ID ).getSocialNotesConfig();
@@ -55,8 +55,8 @@ export function* updateSocialNotesConfig( config ) {
 /**
  * Yield actions to refresh settings
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* refreshSocialNotesSettings() {
 	try {
@@ -74,7 +74,7 @@ export function* refreshSocialNotesSettings() {
 /**
  * Set state updating action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingSocialNotesSettings() {
 	return setJetpackSettings( { social_notes_is_updating: true } );
@@ -83,7 +83,7 @@ export function setUpdatingSocialNotesSettings() {
 /**
  * Set state updating finished
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingSocialNotesSettingsDone() {
 	return setJetpackSettings( { social_notes_is_updating: false } );
@@ -92,7 +92,7 @@ export function setUpdatingSocialNotesSettingsDone() {
 /**
  * Set state updating action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingSocialNotesConfig() {
 	return setJetpackSettings( { social_notes_config_is_updating: true } );

@@ -21,7 +21,7 @@ type SettingsButtonProps = {
  *
  * @param {SettingsButtonProps} props - The component props.
  *
- * @returns {import('react').ReactNode} The button/link component.
+ * @return {import('react').ReactNode} The button/link component.
  */
 export function SettingsButton( { label, variant = 'primary' }: SettingsButtonProps ) {
 	const { useAdminUiV1, connections } = useSelect( select => {

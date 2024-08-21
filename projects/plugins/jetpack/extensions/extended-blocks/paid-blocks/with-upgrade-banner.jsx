@@ -116,7 +116,7 @@ export default withUpgradeBanner;
  *
  * @param {object} settings - The block settings.
  * @param {string} name     - The block name.
- * @returns {object}          The extended block settings.
+ * @return {object}          The extended block settings.
  */
 
 export function blockEditWithUpgradeBanner( settings, name ) {

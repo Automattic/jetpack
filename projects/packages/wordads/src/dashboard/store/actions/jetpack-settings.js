@@ -21,8 +21,8 @@ export const TOGGLE_WORDADS_MODULE = 'TOGGLE_WORDADS_MODULE';
  * Yield actions to update WordAds Settings
  *
  * @param {object} settings - settings to apply.
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* updateJetpackSettings( settings ) {
 	try {
@@ -46,7 +46,7 @@ export function* updateJetpackSettings( settings ) {
 /**
  * Set state updating action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingJetpackSettings() {
 	return setJetpackSettings( { is_updating: true } );
@@ -55,7 +55,7 @@ export function setUpdatingJetpackSettings() {
 /**
  * Set state updating finished
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setUpdatingJetpackSettingsDone() {
 	return setJetpackSettings( { is_updating: false } );
@@ -65,7 +65,7 @@ export function setUpdatingJetpackSettingsDone() {
  * Set Jetpack settings action
  *
  * @param {object} options - Jetpack settings.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setJetpackSettings( options ) {
 	return { type: SET_WORDADS_SETTINGS, options };

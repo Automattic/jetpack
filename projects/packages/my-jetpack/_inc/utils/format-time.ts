@@ -1,8 +1,9 @@
-type FormatTimeFunction = ( seconds: number ) => string;
+type FormatTimeFunction = ( hours: number ) => string;
 
-const formatTime: FormatTimeFunction = ( seconds: number ) => {
+const formatTime: FormatTimeFunction = ( hours: number ) => {
+	const seconds = Math.floor( hours * 3600 );
 	const minutes = Math.floor( seconds / 60 );
-	const hours = Math.floor( minutes / 60 );
+	hours = Math.floor( hours );
 	const days = Math.floor( hours / 24 );
 	const years = Math.floor( days / 365 );
 
@@ -22,7 +23,7 @@ const formatTime: FormatTimeFunction = ( seconds: number ) => {
 		return `${ minutes }m ${ seconds % 60 }s`;
 	}
 
-	return `${ seconds }s`;
+	return `${ Math.floor( seconds ) }s`;
 };
 
 export default formatTime;
