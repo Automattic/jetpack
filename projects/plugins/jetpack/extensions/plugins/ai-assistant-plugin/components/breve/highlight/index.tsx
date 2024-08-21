@@ -285,7 +285,7 @@ export default function Highlight() {
 									? __( 'Click on the suggestion to insert it.', 'jetpack' )
 									: description }
 								<Button variant="link" onClick={ handleIgnoreSuggestion }>
-									{ __( 'Dismiss', 'jetpack' ) }
+									{ __( 'Ignore', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
