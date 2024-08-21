@@ -15,7 +15,7 @@
 		"symfony/process": "^3.4 || ^4.4 || ^5.2 || ^6.0 || ^7.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0"
 	},
 	"autoload": {

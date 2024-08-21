@@ -12,7 +12,7 @@
 		"wikimedia/aho-corasick": "^1.0"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "@dev"
 	},
