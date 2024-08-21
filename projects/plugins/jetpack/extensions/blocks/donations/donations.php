@@ -44,7 +44,7 @@ function render_block( $attr, $content ) {
 			// Inject the link of the current post from the server side as the fallback link to make sure the donations block
 			// points to the correct post when it's inserted from the synced pattern (aka “My Pattern”).
 			$parsed[0]['attrs']['fallbackLinkUrl'] = get_permalink();
-			$content                               = render_block( $parsed[0] );
+			$content                               = \render_block( $parsed[0] );
 		}
 
 		return $content;
