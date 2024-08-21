@@ -640,7 +640,7 @@ class SSO {
 								'jetpack_sso_login_form_explanation_text',
 								sprintf(
 									/* Translators: %s is the name of the site. */
-									__( 'Test - You can now save time spent logging in by connecting your WordPress.com account to %s.', 'jetpack-connection' ),
+									__( 'You can now save time spent logging in by connecting your WordPress.com account to %s.', 'jetpack-connection' ),
 									esc_html( $site_name )
 								)
 							);
