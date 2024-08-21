@@ -1,3 +1,7 @@
+export interface SocialUrls {
+	connectionsManagementPage: string;
+}
+
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
 }
@@ -22,6 +26,7 @@ export interface SocialScriptData {
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
+	urls: SocialUrls;
 }
 
 type JetpackSettingsSelectors = {
