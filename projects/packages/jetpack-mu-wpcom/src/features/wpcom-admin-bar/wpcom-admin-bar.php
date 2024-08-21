@@ -159,7 +159,7 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 		)
 	);
 }
-add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 118 );
+add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 
 /**
  * Points the (Profile) -> Edit Profile menu to /me when appropriate.

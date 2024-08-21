@@ -101,7 +101,7 @@ class Help_Center {
 						)
 					);
 				},
-				119
+				12
 			);
 		}
 
