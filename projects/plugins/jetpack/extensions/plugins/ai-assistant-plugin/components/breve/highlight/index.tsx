@@ -13,6 +13,7 @@ import {
 	useSelect,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { reusableBlock as retry } from '@wordpress/icons';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import clsx from 'clsx';
 import md5 from 'crypto-js/md5';
@@ -46,9 +47,13 @@ type CoreBlockEditorSelect = {
 
 // Setup the Breve highlights
 export default function Highlight() {
-	const { setPopoverHover, setSuggestions, invalidateSuggestions, ignoreSuggestion } = useDispatch(
-		'jetpack/ai-breve'
-	) as BreveDispatch;
+	const {
+		setPopoverHover,
+		setSuggestions,
+		invalidateSuggestions,
+		ignoreSuggestion,
+		invalidateSingleSuggestion,
+	} = useDispatch( 'jetpack/ai-breve' ) as BreveDispatch;
 
 	const { tracks } = useAnalytics();
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
@@ -200,6 +205,11 @@ export default function Highlight() {
 		} );
 	};
 
+	const handleRetry = () => {
+		invalidateSingleSuggestion( feature, blockId, id );
+		handleSuggestions();
+	};
+
 	const handleIgnoreSuggestion = () => {
 		ignoreSuggestion( blockId, id );
 		setPopoverHover( false );
@@ -232,20 +242,34 @@ export default function Highlight() {
 								<div className="jetpack-ai-breve__color" data-breve-type={ feature } />
 								<div>{ title }</div>
 							</div>
-							{ ! hasSuggestions && feature !== SPELLING_MISTAKES.name && (
+							{ feature !== SPELLING_MISTAKES.name && (
 								<div className="jetpack-ai-breve__action">
-									{ loading ? (
-										<div className="jetpack-ai-breve__loading">
-											<Spinner />
-										</div>
-									) : (
+									{ hasSuggestions ? (
 										<Button
-											className="jetpack-ai-breve__suggest"
-											icon={ AiSVG }
-											onClick={ handleSuggestions }
-										>
-											{ __( 'Suggest', 'jetpack' ) }
-										</Button>
+											showTooltip
+											size="small"
+											iconSize={ 20 }
+											icon={ retry }
+											label={ __( 'Retry', 'jetpack' ) }
+											onClick={ handleRetry }
+										/>
+									) : (
+										<>
+											{ loading ? (
+												<div className="jetpack-ai-breve__loading">
+													<Spinner />
+												</div>
+											) : (
+												<Button
+													className="jetpack-ai-breve__suggest"
+													icon={ AiSVG }
+													iconSize={ 18 }
+													onClick={ handleSuggestions }
+												>
+													{ __( 'Suggest', 'jetpack' ) }
+												</Button>
+											) }
+										</>
 									) }
 								</div>
 							) }
@@ -261,7 +285,7 @@ export default function Highlight() {
 									? __( 'Click on the suggestion to insert it.', 'jetpack' )
 									: description }
 								<Button variant="link" onClick={ handleIgnoreSuggestion }>
-									{ __( 'Dismiss', 'jetpack' ) }
+									{ __( 'Ignore', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>

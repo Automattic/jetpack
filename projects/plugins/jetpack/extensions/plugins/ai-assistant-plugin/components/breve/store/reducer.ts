@@ -197,6 +197,19 @@ export function suggestions(
 			};
 		}
 
+		case 'INVALIDATE_SINGLE_SUGGESTION': {
+			return {
+				...current,
+				[ blockId ]: {
+					...currentBlock,
+					[ feature ]: {
+						...( currentBlock[ feature ] ?? {} ),
+						[ id ]: {},
+					},
+				},
+			};
+		}
+
 		case 'IGNORE_SUGGESTION': {
 			return {
 				...current,
