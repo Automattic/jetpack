@@ -34,7 +34,6 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
-import { isPluginActive } from 'state/site/plugins';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -271,21 +270,6 @@ class JetpackNotices extends React.Component {
 					/>
 				) }
 
-				{ showGoogleAnalyticsNotice && (
-					<SimpleNotice
-						status="is-warning"
-						dismissText={ __( 'Dismiss', 'jetpack' ) }
-						onDismissClick={ this.dismissGoogleAnalyticsNotice }
-					>
-						<div>{ __( "Jetpack's Google Analytics has been removed.", 'jetpack' ) }</div>
-						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
-							{ __(
-								'To keep tracking visits and more information on this change, please refer to this document',
-								'jetpack'
-							) }
-						</ExternalLink>
-					</SimpleNotice>
-				) }
 				{ showMasterbarNotice && (
 					<SimpleNotice
 						status="is-warning"
@@ -327,18 +311,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			showGoogleAnalyticsNotice:
-				window.Initial_State?.isGoogleAnalyticsActive &&
-				! isWoASite( state ) &&
-				isPluginActive(
-					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
-					state,
-					'jetpack/jetpack.php'
-				) &&
-				! isPluginActive(
-					state,
-					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
-				),
 			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},
