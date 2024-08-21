@@ -1,7 +1,5 @@
 export type SharesData = {
-	is_share_limit_enabled: boolean;
 	to_be_publicized_count: number;
-	share_limit: number;
 	publicized_count: number;
 	shared_posts_count: number;
 };
