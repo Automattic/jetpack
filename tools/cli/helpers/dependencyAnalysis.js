@@ -4,10 +4,10 @@ import { glob } from 'glob';
 /**
  * Collect project dependencies.
  *
- * @param {string} root - Monorepo root directory.
+ * @param {string}      root  - Monorepo root directory.
  * @param {string|null} extra - Extra deps to include, "build" or "test".
- * @param {boolean} noDev - Exclude dev dependencies.
- * @returns {Map} Key is the project slug, value is a Set of slugs depended on.
+ * @param {boolean}     noDev - Exclude dev dependencies.
+ * @return {Map} Key is the project slug, value is a Set of slugs depended on.
  */
 export async function getDependencies( root, extra = null, noDev = false ) {
 	const ret = new Map();
@@ -104,12 +104,12 @@ export async function getDependencies( root, extra = null, noDev = false ) {
 /**
  * Filter dependencies to a set of projects.
  *
- * @param {Map} deps - Dependencies.
- * @param {string[]} projects - Projects to include.
- * @param {object} options - Options.
- * @param {boolean} options.dependencies - Keep the dependencies of the specified projects too.
- * @param {boolean} options.dependents - Keep the dependents of the specified projects too.
- * @returns {Map} Filtered dependencies.
+ * @param {Map}      deps                 - Dependencies.
+ * @param {string[]} projects             - Projects to include.
+ * @param {object}   options              - Options.
+ * @param {boolean}  options.dependencies - Keep the dependencies of the specified projects too.
+ * @param {boolean}  options.dependents   - Keep the dependents of the specified projects too.
+ * @return {Map} Filtered dependencies.
  */
 export function filterDeps( deps, projects, options = {} ) {
 	const keep = new Set( projects );
@@ -157,7 +157,7 @@ export function filterDeps( deps, projects, options = {} ) {
  * List projects in build order.
  *
  * @param {Map} deps - Dependencies.
- * @returns {string[][]} Groups of project slugs. Projects in each group only depend on earlier groups.
+ * @return {string[][]} Groups of project slugs. Projects in each group only depend on earlier groups.
  * @throws {Error} If the dependencies contain a cycle. The error object has a `deps` property with the residual dependencies.
  */
 export function getBuildOrder( deps ) {

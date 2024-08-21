@@ -3,7 +3,7 @@
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} Player ready.
+ * @return {boolean} Player ready.
  */
 export function isPlayerReady( state, playerId ) {
 	return !! state[ playerId ];
@@ -14,7 +14,7 @@ export function isPlayerReady( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} Current slide index.
+ * @return {number} Current slide index.
  */
 export function getCurrentSlideIndex( state, playerId ) {
 	return state[ playerId ].currentSlide.index;
@@ -25,7 +25,7 @@ export function getCurrentSlideIndex( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} progress object.
+ * @return {number} progress object.
  */
 export function getCurrentSlideProgress( state, playerId ) {
 	return state[ playerId ].currentSlide.progress;
@@ -36,7 +36,7 @@ export function getCurrentSlideProgress( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} progress percentage.
+ * @return {number} progress percentage.
  */
 export function getCurrentSlideProgressPercentage( state, playerId ) {
 	const currentTime = state[ playerId ].currentSlide.progress.currentTime;
@@ -51,7 +51,7 @@ export function getCurrentSlideProgressPercentage( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} is player playing
+ * @return {boolean} is player playing
  */
 export function isPlaying( state, playerId ) {
 	return state[ playerId ].playing;
@@ -62,7 +62,7 @@ export function isPlaying( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} is story muted.
+ * @return {boolean} is story muted.
  */
 export function isMuted( state, playerId ) {
 	return state[ playerId ].muted;
@@ -74,7 +74,7 @@ export function isMuted( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} is player buffering
+ * @return {boolean} is player buffering
  */
 export function isBuffering( state, playerId ) {
 	return state[ playerId ].buffering;
@@ -85,7 +85,7 @@ export function isBuffering( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} underlying media element for the current slide.
+ * @return {number} underlying media element for the current slide.
  */
 export function getCurrentMediaElement( state, playerId ) {
 	return state[ playerId ].currentSlide.mediaElement;
@@ -96,7 +96,7 @@ export function getCurrentMediaElement( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} slide duration.
+ * @return {number} slide duration.
  */
 export function getCurrentMediaDuration( state, playerId ) {
 	return state[ playerId ].currentSlide.duration;
@@ -108,7 +108,7 @@ export function getCurrentMediaDuration( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} has slide ended.
+ * @return {boolean} has slide ended.
  */
 export function hasCurrentSlideEnded( state, playerId ) {
 	return state[ playerId ].currentSlide.ended;
@@ -120,7 +120,7 @@ export function hasCurrentSlideEnded( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} is current slide ready.
+ * @return {boolean} is current slide ready.
  */
 export function isCurrentSlideReady( state, playerId ) {
 	return state[ playerId ].currentSlide.ready;
@@ -131,7 +131,7 @@ export function isCurrentSlideReady( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} underlying media element for the previous slide.
+ * @return {number} underlying media element for the previous slide.
  */
 export function getPreviousSlideMediaElement( state, playerId ) {
 	return state[ playerId ].previousSlide?.mediaElement;
@@ -143,7 +143,7 @@ export function getPreviousSlideMediaElement( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} is player fullscreen.
+ * @return {boolean} is player fullscreen.
  */
 export function isFullscreen( state, playerId ) {
 	return state[ playerId ].fullscreen;
@@ -154,7 +154,7 @@ export function isFullscreen( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {boolean} story ended.
+ * @return {boolean} story ended.
  */
 export function hasEnded( state, playerId ) {
 	return state[ playerId ].ended;
@@ -165,7 +165,7 @@ export function hasEnded( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {object} player settings.
+ * @return {object} player settings.
  */
 export function getSettings( state, playerId ) {
 	return state[ playerId ].settings;
@@ -176,7 +176,7 @@ export function getSettings( state, playerId ) {
  *
  * @param {object} state    - State object.
  * @param {string} playerId - The player identifier.
- * @returns {number} how many slides the story has.
+ * @return {number} how many slides the story has.
  */
 export function getSlideCount( state, playerId ) {
 	return state[ playerId ].settings.slideCount;

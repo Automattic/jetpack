@@ -4,7 +4,7 @@ import { store as socialStore } from '../../social-store';
 /**
  * Hooks to deal with the social media connections.
  *
- * @returns {object} Social media connection handler.
+ * @return {object} Social media connection handler.
  */
 export default function useSocialMediaConnections() {
 	const { refreshConnectionTestResults, toggleConnectionById } = useDispatch( socialStore );
