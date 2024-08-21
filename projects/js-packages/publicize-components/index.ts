@@ -35,3 +35,4 @@ export * from './src/hooks/use-saving-post';
 export * from './src/hooks/use-post-meta';
 export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
+export * from './src/utils/shares-data';

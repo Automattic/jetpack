@@ -1,3 +1,9 @@
+export type SharesData = {
+	to_be_publicized_count: number;
+	publicized_count: number;
+	shared_posts_count: number;
+};
+
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
 }
@@ -22,6 +28,7 @@ export interface SocialScriptData {
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
+	shares_data: SharesData;
 }
 
 type JetpackSettingsSelectors = {
@@ -40,11 +47,6 @@ type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
 	getConnectionsAdminUrl: () => string;
 	hasConnections: () => boolean;
-};
-
-type SharesDataSelectors = {
-	getSharesCount: () => number;
-	getPostsCount: () => number;
 };
 
 type SiteDataSelectors = {
@@ -73,6 +75,5 @@ type SocialImageGeneratorSettingsSelectors = {
  */
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
-	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors;
