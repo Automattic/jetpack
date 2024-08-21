@@ -11,10 +11,10 @@ type LogoProps = {
 /**
  * Protect Logo component
  *
- * @param {object} props                 - Component props
+ * @param {object}       props           - Component props
  * @param {HEXColorType} props.color     - Text color.
  * @param {HEXColorType} props.iconColor - Icon color
- * @returns {React.ReactElement}   Component template
+ * @return {React.ReactElement}   Component template
  */
 export default function Logo( {
 	iconColor = '#069E08',

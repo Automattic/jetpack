@@ -12,10 +12,10 @@ const reducer = combineReducers( {
 	jetpackSettings,
 	socialImageGeneratorSettings,
 	hasPaidPlan: ( state = false ) => state,
+	userConnectionUrl: ( state = '' ) => state,
 	useAdminUiV1: ( state = false ) => state,
 	featureFlags: ( state = false ) => state,
 	hasPaidFeatures: ( state = false ) => state,
-	connectionRefreshPath: ( state = '' ) => state,
 } );
 
 export default reducer;

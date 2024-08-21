@@ -79,20 +79,6 @@
 .manual-scan {
 	margin: calc( var( --spacing-base ) * 4 ) calc( var( --spacing-base ) * 8 ); // 32px | 64px
 	text-align: center;
-
-	> button span {
-		font-size: var( --font-body-small );
-		font-weight: normal;
-		color: var( --jp-gray-70 );
-	}
-
-	button:hover:not(:disabled) {
-		text-decoration-line: none;
-	}
-
-	button:focus:not(:disabled) {
-		box-shadow: none;
-	}
 }
 
 @media ( max-width: 599px ) {

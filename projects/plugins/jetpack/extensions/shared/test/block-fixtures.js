@@ -13,8 +13,8 @@ let FIXTURES_DIR;
 /**
  * Run block fixture tests.
  *
- * @param {string} blockName - Block name.
- * @param {Array} blocks - Blocks.
+ * @param {string} blockName    - Block name.
+ * @param {Array}  blocks       - Blocks.
  * @param {string} fixturesPath - Fixtures path.
  */
 export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) {
@@ -195,7 +195,7 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
  * Convert a nested object representing blocks into just the validation messages.
  *
  * @param {Array} blocks - Blocks.
- * @returns {Array} Validation issues object.
+ * @return {Array} Validation issues object.
  */
 function gatherValidationIssues( blocks ) {
 	return blocks.map( block => {
@@ -220,8 +220,8 @@ function gatherValidationIssues( blocks ) {
 /**
  * Check for valid parse.
  *
- * @param {object} block - Block.
- * @param {string} fixtureName - Fixture name.
+ * @param {object}      block            - Block.
+ * @param {string}      fixtureName      - Fixture name.
  * @param {object|null} validationIssues - Issues object.
  * @throws {Error} If the parse was invalid.
  */
@@ -245,7 +245,7 @@ function checkParseValid( block, fixtureName, validationIssues = null ) {
  * Render validation issues string.
  *
  * @param {object} issues - Issues object.
- * @returns {string} Rendered string.
+ * @return {string} Rendered string.
  */
 function renderValidationIssuesString( issues ) {
 	if ( ! issues ) {
@@ -286,7 +286,7 @@ export function registerBlocks( blocks ) {
  * Normalize parsed blocks.
  *
  * @param {Array} blocks - Blocks.
- * @returns {Array} Normalized blocks.
+ * @return {Array} Normalized blocks.
  */
 function normalizeParsedBlocks( blocks ) {
 	return blocks.map( ( block, index ) => {
@@ -309,8 +309,8 @@ function normalizeParsedBlocks( blocks ) {
  * Read fixture file.
  *
  * @param {string} fixturesDir - Fixtures directory.
- * @param {string} filename - Filename.
- * @returns {string|null} Content.
+ * @param {string} filename    - Filename.
+ * @return {string|null} Content.
  */
 function readFixtureFile( fixturesDir, filename ) {
 	try {
@@ -324,8 +324,8 @@ function readFixtureFile( fixturesDir, filename ) {
  * Write fixture file.
  *
  * @param {string} fixturesDir - Fixtures directory.
- * @param {string} filename - Filename.
- * @param {string} content - Content.
+ * @param {string} filename    - Filename.
+ * @param {string} content     - Content.
  */
 function writeFixtureFile( fixturesDir, filename, content ) {
 	fs.writeFileSync( path.join( fixturesDir, filename ), content );
@@ -343,7 +343,7 @@ function setFixturesDir( fixturePath ) {
  * Block name to fixture basename.
  *
  * @param {string} blockName - Block name.
- * @returns {string} Fixture base name.
+ * @return {string} Fixture base name.
  */
 function blockNameToFixtureBasename( blockName ) {
 	return blockName.replace( /\//g, '__' );
@@ -352,7 +352,7 @@ function blockNameToFixtureBasename( blockName ) {
 /**
  * Get available block fixtures basenames.
  *
- * @returns {string[]} Names.
+ * @return {string[]} Names.
  */
 function getAvailableBlockFixturesBasenames() {
 	// We expect 4 different types of files for each fixture:
@@ -373,7 +373,7 @@ function getAvailableBlockFixturesBasenames() {
  * Get block fixture HTML
  *
  * @param {string} basename - Filename base.
- * @returns {object} Fixture data.
+ * @return {object} Fixture data.
  */
 function getBlockFixtureHTML( basename ) {
 	const filename = `${ basename }.html`;
@@ -388,7 +388,7 @@ function getBlockFixtureHTML( basename ) {
  * Get block fixture JSON.
  *
  * @param {string} basename - Filename base.
- * @returns {object} Fixture data.
+ * @return {object} Fixture data.
  */
 function getBlockFixtureJSON( basename ) {
 	const filename = `${ basename }.json`;
@@ -402,7 +402,7 @@ function getBlockFixtureJSON( basename ) {
  * Get block fixture parsed JSON
  *
  * @param {string} basename - Filename base.
- * @returns {object} Fixture data.
+ * @return {object} Fixture data.
  */
 function getBlockFixtureParsedJSON( basename ) {
 	const filename = `${ basename }.parsed.json`;
@@ -416,7 +416,7 @@ function getBlockFixtureParsedJSON( basename ) {
  * Get block fixture serialized HTML
  *
  * @param {string} basename - Filename base.
- * @returns {object} Fixture data.
+ * @return {object} Fixture data.
  */
 function getBlockFixtureSerializedHTML( basename ) {
 	const filename = `${ basename }.serialized.html`;
@@ -430,7 +430,7 @@ function getBlockFixtureSerializedHTML( basename ) {
  * Write block fixture JSON
  *
  * @param {string} basename - Filename base.
- * @param {string} fixture - Data to write.
+ * @param {string} fixture  - Data to write.
  */
 function writeBlockFixtureJSON( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.json`, fixture );
@@ -440,7 +440,7 @@ function writeBlockFixtureJSON( basename, fixture ) {
  * Write block fixture parsed JSON
  *
  * @param {string} basename - Filename base.
- * @param {string} fixture - Data to write.
+ * @param {string} fixture  - Data to write.
  */
 function writeBlockFixtureParsedJSON( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.parsed.json`, fixture );
@@ -450,7 +450,7 @@ function writeBlockFixtureParsedJSON( basename, fixture ) {
  * Write block fixture serialized HTML
  *
  * @param {string} basename - Filename base.
- * @param {string} fixture - Data to write.
+ * @param {string} fixture  - Data to write.
  */
 function writeBlockFixtureSerializedHTML( basename, fixture ) {
 	writeFixtureFile( FIXTURES_DIR, `${ basename }.serialized.html`, fixture );

@@ -21,7 +21,7 @@ type SettingsButtonProps = {
  *
  * @param {SettingsButtonProps} props - The component props.
  *
- * @returns {import('react').ReactNode} The button/link component.
+ * @return {import('react').ReactNode} The button/link component.
  */
 export function SettingsButton( { label, variant = 'primary' }: SettingsButtonProps ) {
 	const { useAdminUiV1, connections } = useSelect( select => {
@@ -31,7 +31,7 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 		};
 	}, [] );
 	const { openConnectionsModal } = useDispatch( store );
-	const { connectionsPageUrl } = usePublicizeConfig();
+	const { connectionsAdminUrl } = usePublicizeConfig();
 
 	const text = label || __( 'Manage connections', 'jetpack' );
 	const hasConnections = connections.length > 0;
@@ -46,7 +46,7 @@ export function SettingsButton( { label, variant = 'primary' }: SettingsButtonPr
 			{ text }
 		</Button>
 	) : (
-		<ExternalLink className={ styles[ 'settings-button' ] } href={ connectionsPageUrl }>
+		<ExternalLink className={ styles[ 'settings-button' ] } href={ connectionsAdminUrl }>
 			{ text }
 		</ExternalLink>
 	);

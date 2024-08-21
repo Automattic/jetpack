@@ -3,9 +3,9 @@ import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
+import { InfoTooltip } from '../../info-tooltip';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
-import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { ReactElement, PropsWithChildren } from 'react';
 
@@ -40,10 +40,10 @@ export const LoginsBlockedStatus = () => {
 /**
  * BlockedStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}             props        - The component props
  * @param {'active' | 'inactive' | 'off'} props.status - The status of Brute Force Protection
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const {
@@ -74,12 +74,13 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventProps={ {
 						location: 'blocked-logins',
 						status: status,
+						feature: 'jetpack-protect',
 						message: 'no data yet',
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ blockedLoginsTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ blockedLoginsTooltip.text }</p>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>
@@ -118,12 +119,13 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					tracksEventName={ 'protect_card_tooltip_open' }
 					tracksEventProps={ {
 						location: 'blocked-logins',
+						feature: 'jetpack-protect',
 						status: status,
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ blockedLoginsTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ blockedLoginsTooltip.text }</p>
+						<h3>{ blockedLoginsTooltip.title }</h3>
+						<p>{ blockedLoginsTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>

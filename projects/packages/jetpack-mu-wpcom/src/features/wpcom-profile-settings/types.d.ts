@@ -9,7 +9,7 @@ declare global {
 				link: string;
 				text: string;
 			};
-			isWpcomSimple: boolean;
+			isWpcomAtomicClassic: boolean;
 		};
 	}
 }

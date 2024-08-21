@@ -5,7 +5,7 @@ const webpack = require( 'webpack' );
 /**
  * Returns an instance of the DefinePlugin that adds color-studio colors as literals.
  *
- * @returns {object} DefinePlugin instance.
+ * @return {object} DefinePlugin instance.
  */
 function definePaletteColorsAsStaticVariables() {
 	return new webpack.DefinePlugin( {
