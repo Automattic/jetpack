@@ -77,7 +77,6 @@ const showError = () => {
 				embedIframe.setAttribute( 'src', actualEmbedUrl );
 			}
 		} );
-		return;
 	} );
 };
 
