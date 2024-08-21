@@ -13,14 +13,14 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "8bec1af06b593110bf4aeca06b05c1ba1841960c"
+                "reference": "3ac0481862de59f65856b3ac2e086d9cdc86a8fd"
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
@@ -60,7 +60,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "a717fa4e4939a9aa751bc7601a1ca2d5ece799c7"
+                "reference": "891b1551e10d864bc4654bd034ce0487ad849425"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -73,7 +73,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -124,7 +124,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "17f7a7b60e88906fb6efe77474cebf2214ba6b53"
+                "reference": "d7a0268045b235a3158435f2b83179d7fecada39"
             },
             "require": {
                 "phan/phan": "^5.4",
@@ -132,7 +132,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
@@ -178,7 +178,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "f1db07c15d87025728fe8c7ceffed4a2dea848b4"
+                "reference": "8eec63259d8259729921c7ce48393890cb9babdd"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -187,7 +187,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
