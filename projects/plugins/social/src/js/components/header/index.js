@@ -7,7 +7,11 @@ import {
 	getUserLocale,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { store as socialStore } from '@automattic/jetpack-publicize-components';
+import {
+	store as socialStore,
+	getTotalSharesCount,
+	getSharedPostsCount,
+} from '@automattic/jetpack-publicize-components';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -18,12 +22,11 @@ import styles from './styles.module.scss';
 const Header = () => {
 	const connectionData = window.jetpackSocialInitialState.connectionData ?? {};
 	const {
+		// TODO - Replace some of these with data from initial state
 		connectionsAdminUrl,
 		hasConnections,
 		isModuleEnabled,
 		newPostUrl,
-		postsCount,
-		totalShareCount,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -31,8 +34,6 @@ const Header = () => {
 			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
-			postsCount: store.getSharedPostsCount(),
-			totalShareCount: store.getTotalSharesCount(),
 		};
 	} );
 	// TODO - Replace this with a utility function like `getSocialFeatureFlags` when available
@@ -87,14 +88,12 @@ const Header = () => {
 							{
 								icon: <SocialIcon />,
 								label: __( 'Total shares past 30 days', 'jetpack-social' ),
-								loading: null === totalShareCount,
-								value: formatter.format( totalShareCount ),
+								value: formatter.format( getTotalSharesCount() ),
 							},
 							{
 								icon: <Icon icon={ postList } />,
 								label: __( 'Posted this month', 'jetpack-social' ),
-								loading: null === postsCount,
-								value: formatter.format( postsCount ),
+								value: formatter.format( getSharedPostsCount() ),
 							},
 						] }
 					/>

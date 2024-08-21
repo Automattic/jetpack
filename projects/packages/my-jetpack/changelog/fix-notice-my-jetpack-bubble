@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Notification bubbles: avoid PHP warning when information is missing.
