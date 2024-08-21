@@ -18,13 +18,6 @@ type ConnectionDataSelectors = {
 	hasConnections: () => boolean;
 };
 
-type SharesDataSelectors = {
-	getSharesCount: () => number;
-	getPostsCount: () => number;
-	isShareLimitEnabled: () => boolean;
-	numberOfSharesRemaining: () => number;
-};
-
 type SiteDataSelectors = {
 	getSiteData: () => Array< object >;
 	getSiteTitle: () => string;
@@ -58,7 +51,6 @@ type SocialNotesSettingsSelectors = {
  */
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
-	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors &
 	SocialNotesSettingsSelectors;
