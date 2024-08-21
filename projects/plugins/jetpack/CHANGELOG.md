@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8-a.3 - 2024-08-19
+
+### Improved compatibility
+- AMP: Avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled. [#38744]
+- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance. [#38928]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add flag for Breve typo detection support. [#38895]
+- AI Assistant: Add general improvements in Breve UX. [#38856]
+- AI Assistant: Add spelling mistake detection to Breve. [#38923]
+- AI Assistant: Allow dismiss suggestion in all states [#38848]
+- AI Assistant: Change Breve type markup and restrict types. [#38867]
+- AI Assistant: Remove Breve highlight popover when feature is disabled. [#38814]
+- AI Assistant: Remove unique-id sass function call from animation name. [#38922]
+- Email preview: ensure the email is visible [#38934]
+- Jetpack AI: Register the ai-title-optimization-keywords-support beta flag. [#38891]
+- Jetpack Color & Tonesque: Add deprecation warning in the codebase. [#38338]
+- Open Graph Meta Tags: Check if the Open Graph integration in the ActivityPub plugin is active instead of checking for the class. [#38875]
+- Open Graph Meta Tags: Do not display Fediverse tag on WordPress.com Simple. [#38874]
+- Paywall Block: Improve styles. [#38837]
+- Protect: Make allow list settings always accessible [#38886]
+- REST API: Add a /wpcom/v2/profile endpoint that returns user profile, admin color and locale. [#38879]
+- Site Breadcrumbs: Wrapping functions in function_exists as part of functionality move to package. [#38880]
+- Small change under feature flag. [#38862]
+- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
+- Subscribe Block: p tag styles leaking in from theme. [#38840]
+- Sync: Add a new callable for Sync Active Modules. [#38831]
+- Title Optimization: Add keywords section to UI and make it send the keywords on the request. [#38921]
+- Title Optimization: Change UI labels when keywords beta flag is enabled. [#38911]
+- Title Optimization: Include feedback link on the footer. [#38940]
+- Updated package dependencies. [#38662] [#38665] [#38822]
+- WP.com: Hide the Customizer link on WP.com sites. [#38852]
+
 ## 13.8-a.1 - 2024-08-12
 ### Enhancements
 - Social: Display Fediverse creator meta tag when a post has an active Mastodon connection. [#38809]
