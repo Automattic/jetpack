@@ -321,7 +321,7 @@ class Initializer {
 
 		$featured_stats = get_transient( self::VIDEOPRESS_STATS_KEY );
 
-		if ( ! is_wp_error( $featured_stats ) && $featured_stats ) {
+		if ( $featured_stats ) {
 			return array(
 				'featuredStats' => $featured_stats,
 				'videoCount'    => $video_count,
