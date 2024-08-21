@@ -22,7 +22,7 @@ import { SharePostForm } from './share-post-form';
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @returns {object} - Publicize form component.
+ * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();

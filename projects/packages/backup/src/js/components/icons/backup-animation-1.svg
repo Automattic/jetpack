@@ -1,1 +1,33 @@
-<svg fill="none" height="212" width="176" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><filter id="a" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse" height="212" width="176" x="0" y="0"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feColorMatrix in="SourceAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/><feOffset/><feGaussianBlur stdDeviation="20"/><feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"/><feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/><feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/></filter><g filter="url(#a)"><rect fill="#98c6d9" height="132" rx="3" width="96" x="40" y="40"/></g></svg>
+<svg
+	class="backup__animation-el-1"
+	width="176"
+	height="212"
+	fill="none"
+	xmlns="http://www.w3.org/2000/svg"
+>
+	<g filter="url(#filter1_d)">
+		<rect x="40" y="40" width="96" height="132" rx="3" fill="#98C6D9"></rect>
+	</g>
+	<defs>
+		<filter
+			id="filter1_d"
+			x="0"
+			y="0"
+			width="176"
+			height="212"
+			filterUnits="userSpaceOnUse"
+			color-interpolation-filters="sRGB"
+		>
+			<feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood>
+			<feColorMatrix
+				in="SourceAlpha"
+				values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+			></feColorMatrix>
+			<feOffset></feOffset>
+			<feGaussianBlur stdDeviation="20"></feGaussianBlur>
+			<feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.08 0"></feColorMatrix>
+			<feBlend in2="BackgroundImageFix" result="effect1_dropShadow"></feBlend>
+			<feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"></feBlend>
+		</filter>
+	</defs>
+</svg>

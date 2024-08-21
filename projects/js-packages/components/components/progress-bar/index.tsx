@@ -13,7 +13,7 @@ import type React from 'react';
  * Progress Bar component
  *
  * @param {ProgressBarProps} props - Component props.
- * @returns {React.ReactNode} - ProgressBar react component.
+ * @return {React.ReactNode} - ProgressBar react component.
  */
 const ProgressBar: React.FC< ProgressBarProps > = ( {
 	className,

@@ -23,7 +23,7 @@ import {
 /**
  * Set connections list
  * @param {Array<import('../types').Connection>} connections - list of connections
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setConnections( connections ) {
 	return {
@@ -37,7 +37,7 @@ export function setConnections( connections ) {
  *
  * @param {import('../types').KeyringResult} [keyringResult] - keyring result
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function setKeyringResult( keyringResult ) {
 	return {
@@ -49,7 +49,7 @@ export function setKeyringResult( keyringResult ) {
 /**
  * Add connection to the list
  * @param {import('../types').Connection} connection - connection object
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function addConnection( connection ) {
 	return {
@@ -62,7 +62,7 @@ export function addConnection( connection ) {
  * Toggle connection enable status.
  * @param {string} connectionId - Connection ID to switch.
  *
- * @returns {object} Switch connection enable-status action.
+ * @return {object} Switch connection enable-status action.
  */
 export function toggleConnection( connectionId ) {
 	return {
@@ -74,7 +74,7 @@ export function toggleConnection( connectionId ) {
 /**
  * Merge connections with fresh connections.
  * @param {Array} freshConnections - list of fresh connections
- * @returns {Function} - a function to merge connections.
+ * @return {Function} - a function to merge connections.
  */
 export function mergeConnections( freshConnections ) {
 	return function ( { dispatch, select } ) {
@@ -114,9 +114,9 @@ export function mergeConnections( freshConnections ) {
 /**
  * Create an abort controller.
  * @param {AbortController} abortController - Abort controller.
- * @param {string} requestType - Type of abort request.
+ * @param {string}          requestType     - Type of abort request.
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function createAbortController( abortController, requestType ) {
 	return {
@@ -131,7 +131,7 @@ export function createAbortController( abortController, requestType ) {
  *
  * @param {string} requestType - Type of abort request.
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export function removeAbortControllers( requestType ) {
 	return {
@@ -145,7 +145,7 @@ export function removeAbortControllers( requestType ) {
  *
  * @param {string} requestType - Type of abort request.
  *
- * @returns {Function} - a function to abort a request.
+ * @return {Function} - a function to abort a request.
  */
 export function abortRequest( requestType ) {
 	return function ( { dispatch, select } ) {
@@ -163,7 +163,7 @@ export function abortRequest( requestType ) {
 /**
  * Abort the refresh connections request.
  *
- * @returns {Function} - a function to abort a request.
+ * @return {Function} - a function to abort a request.
  */
 export function abortRefreshConnectionsRequest() {
 	return abortRequest( REQUEST_TYPE_REFRESH_CONNECTIONS );
@@ -172,8 +172,8 @@ export function abortRefreshConnectionsRequest() {
 /**
  * Effect handler which will refresh the connection test results.
  *
- * @param {boolean} syncToMeta  - Whether to sync the connection state to the post meta.
- * @returns {Function} Refresh connection test results action.
+ * @param {boolean} syncToMeta - Whether to sync the connection state to the post meta.
+ * @return {Function} Refresh connection test results action.
  */
 export function refreshConnectionTestResults( syncToMeta = false ) {
 	return async function ( { dispatch, select } ) {
@@ -213,7 +213,7 @@ export function refreshConnectionTestResults( syncToMeta = false ) {
 /**
  * Syncs the connections to the post meta.
  *
- * @returns {Function} Sync connections to post meta action.
+ * @return {Function} Sync connections to post meta action.
  */
 export function syncConnectionsToPostMeta() {
 	return function ( { registry, select } ) {
@@ -229,9 +229,9 @@ export function syncConnectionsToPostMeta() {
 /**
  * Toggles the connection enable-status.
  *
- * @param {string} connectionId - Connection ID to switch.
- * @param {boolean} syncToMeta  - Whether to sync the connection state to the post meta.
- * @returns {object} Switch connection enable-status action.
+ * @param {string}  connectionId - Connection ID to switch.
+ * @param {boolean} syncToMeta   - Whether to sync the connection state to the post meta.
+ * @return {object} Switch connection enable-status action.
  */
 export function toggleConnectionById( connectionId, syncToMeta = true ) {
 	return function ( { dispatch } ) {
@@ -248,7 +248,7 @@ export function toggleConnectionById( connectionId, syncToMeta = true ) {
  *
  * @param {string} connectionId - Connection ID to delete.
  *
- * @returns {object} Delete connection action.
+ * @return {object} Delete connection action.
  */
 export function deleteConnection( connectionId ) {
 	return {
@@ -260,10 +260,10 @@ export function deleteConnection( connectionId ) {
 /**
  * Marks a connection as being deleted.
  *
- * @param {string} connectionId - Connection ID to delete.
- * @param {boolean} deleting - Whether the connection is being deleted.
+ * @param {string}  connectionId - Connection ID to delete.
+ * @param {boolean} deleting     - Whether the connection is being deleted.
  *
- * @returns {object} Deleting connection action.
+ * @return {object} Deleting connection action.
  */
 export function deletingConnection( connectionId, deleting = true ) {
 	return {
@@ -276,11 +276,11 @@ export function deletingConnection( connectionId, deleting = true ) {
 /**
  * Deletes a connection by disconnecting it.
  *
- * @param {object} args - Arguments.
- * @param {string | number} args.connectionId - Connection ID to delete.
- * @param {boolean} [args.showSuccessNotice] - Whether to show a success notice.
+ * @param {object}          args                     - Arguments.
+ * @param {string | number} args.connectionId        - Connection ID to delete.
+ * @param {boolean}         [args.showSuccessNotice] - Whether to show a success notice.
  *
- * @returns {boolean} Whether the connection was deleted.
+ * @return {boolean} Whether the connection was deleted.
  */
 export function deleteConnectionById( { connectionId, showSuccessNotice = true } ) {
 	return async function ( { registry, dispatch } ) {
@@ -332,9 +332,9 @@ let uniqueId = 1;
 /**
  * Creates a connection.
  *
- * @param {Record<string, any>} data - The data for API call.
+ * @param {Record<string, any>} data           - The data for API call.
  * @param {Record<string, any>} optimisticData - Optimistic data for the connection.
- * @returns {void}
+ * @return {void}
  */
 export function createConnection( data, optimisticData = {} ) {
 	return async function ( { registry, dispatch } ) {
@@ -409,10 +409,10 @@ export function createConnection( data, optimisticData = {} ) {
 /**
  * Updates a connection.
  *
- * @param {string} connectionId - Connection ID to update.
- * @param {Record<string, any>} data - The data.
+ * @param {string}              connectionId - Connection ID to update.
+ * @param {Record<string, any>} data         - The data.
  *
- * @returns {object} Delete connection action.
+ * @return {object} Delete connection action.
  */
 export function updateConnection( connectionId, data ) {
 	return {
@@ -425,10 +425,10 @@ export function updateConnection( connectionId, data ) {
 /**
  * Marks a connection as being updating.
  *
- * @param {string} connectionId - Connection ID being updated.
- * @param {boolean} updating - Whether the connection is being updated.
+ * @param {string}  connectionId - Connection ID being updated.
+ * @param {boolean} updating     - Whether the connection is being updated.
  *
- * @returns {object} Deleting connection action.
+ * @return {object} Deleting connection action.
  */
 export function updatingConnection( connectionId, updating = true ) {
 	return {
@@ -443,7 +443,7 @@ export function updatingConnection( connectionId, updating = true ) {
  *
  * @param {string} reconnectingAccount - Account being reconnected.
  *
- * @returns {object} Reconnecting account action.
+ * @return {object} Reconnecting account action.
  */
 export function setReconnectingAccount( reconnectingAccount ) {
 	return {
@@ -455,9 +455,9 @@ export function setReconnectingAccount( reconnectingAccount ) {
 /**
  * Updates a connection.
  *
- * @param {string} connectionId - Connection ID to update.
- * @param {Record<string, any>} data - The data for API call.
- * @returns {void}
+ * @param {string}              connectionId - Connection ID to update.
+ * @param {Record<string, any>} data         - The data for API call.
+ * @return {void}
  */
 export function updateConnectionById( connectionId, data ) {
 	return async function ( { dispatch, select } ) {
@@ -506,7 +506,7 @@ export function updateConnectionById( connectionId, data ) {
  *
  * @param {boolean} isOpen - Whether the modal is open.
  *
- * @returns {object} - An action object.
+ * @return {object} - An action object.
  */
 export function toggleConnectionsModal( isOpen ) {
 	return {
@@ -518,7 +518,7 @@ export function toggleConnectionsModal( isOpen ) {
 /**
  * Opens the connections modal.
  *
- * @returns {object} - An action object.
+ * @return {object} - An action object.
  */
 export function openConnectionsModal() {
 	return toggleConnectionsModal( true );
@@ -526,7 +526,7 @@ export function openConnectionsModal() {
 
 /**
  * Closes the connections modal.
- * @returns {object} - An action object.
+ * @return {object} - An action object.
  */
 export function closeConnectionsModal() {
 	return toggleConnectionsModal( false );
