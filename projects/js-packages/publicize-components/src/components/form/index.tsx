@@ -11,6 +11,9 @@ import { useSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { usePublicizeConfig } from '../../..';
 import useAttachedMedia from '../../hooks/use-attached-media';
+import useFeaturedImage from '../../hooks/use-featured-image';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
@@ -26,12 +29,22 @@ import { SharePostForm } from './share-post-form';
  * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
-	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const { hasConnections, hasEnabledConnections, connections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
 	const { attachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
+
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ]
+	);
 
 	const showSharePostForm =
-		isPublicizeEnabled && ( hasEnabledConnections || attachedMedia.length > 0 );
+		isPublicizeEnabled &&
+		( hasEnabledConnections ||
+			attachedMedia.length > 0 ||
+			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
 	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
