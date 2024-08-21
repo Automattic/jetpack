@@ -114,3 +114,8 @@ export type SpellChecker = {
 	correct: ( word: string ) => boolean;
 	suggest: ( word: string ) => Array< string >;
 };
+
+export type SpellingDictionaryContext = {
+	affix: string;
+	dictionary: string;
+};
