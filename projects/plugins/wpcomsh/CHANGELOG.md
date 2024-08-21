@@ -1,5 +1,15 @@
 # Changelog
 
+## 5.4.1 - 2024-08-19
+### Added
+- Incompatible Plugins: Added one-click-ssl [#38918]
+
+### Changed
+- Updated package dependencies. [#38822]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## 5.4.0 - 2024-08-13
 ### Changed
 - rum data: include WooCommerce active status [#38846]
