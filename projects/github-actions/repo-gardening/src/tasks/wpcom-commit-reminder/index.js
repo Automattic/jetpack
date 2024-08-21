@@ -12,7 +12,7 @@ const getComments = require( '../../utils/get-comments' );
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<string>} Promise resolving to a string.
+ * @return {Promise<string>} Promise resolving to a string.
  */
 async function getMatticBotComment( octokit, owner, repo, number ) {
 	let commentBody = '';
@@ -39,7 +39,7 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasReminderComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a previous comment from this task in our PR.` );

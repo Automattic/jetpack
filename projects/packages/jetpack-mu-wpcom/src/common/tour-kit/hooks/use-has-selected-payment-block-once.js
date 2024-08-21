@@ -8,7 +8,7 @@ import { useState, useEffect } from '@wordpress/element';
  * or jetpack/recurring-payments.
  * Selecting a block whose direct parent has 'payments' in the name also counts.
  * This is to account for clicking inside the button in a payments block, for example.
- * @returns {boolean} Has the user selected a payments block (or a direct descendant) at least once?
+ * @return {boolean} Has the user selected a payments block (or a direct descendant) at least once?
  */
 const useHasSelectedPaymentBlockOnce = () => {
 	const [ hasSelectedPaymentsOnce, setHasSelectedPaymentsOnce ] = useState( false );

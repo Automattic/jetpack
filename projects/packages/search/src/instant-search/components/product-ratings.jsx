@@ -7,11 +7,11 @@ import './product-ratings.scss';
 /**
  * Renders a hook-based component for displaying product ratings.
  *
- * @param {object} props - Component properties.
- * @param {number} props.count - Number of ratings.
- * @param {number} props.rating - Average rating out of five.
+ * @param {object} props           - Component properties.
+ * @param {number} props.count     - Number of ratings.
+ * @param {number} props.rating    - Average rating out of five.
  * @param {string} props.permalink - Permalink URL to product page.
- * @returns {object} Product rating component.
+ * @return {object} Product rating component.
  */
 export default function ProductRatings( { rating = 0, count = 0, permalink } ) {
 	return (

@@ -43,7 +43,7 @@ export const usePlan = (): usePlanProps => {
 	 * Check if the user has a plan that includes VideoPress
 	 *
 	 * @param {string} productSlug - wpcom prtoduct slug
-	 * @returns {boolean}            true if the product is owned by the user
+	 * @return {boolean}            true if the product is owned by the user
 	 */
 	function hasPurchase( productSlug ) {
 		return purchasesCamelCase.some( product => product.productSlug === productSlug );

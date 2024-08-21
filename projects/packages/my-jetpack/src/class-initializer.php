@@ -42,7 +42,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '4.32.3-alpha';
+	const PACKAGE_VERSION = '4.32.4-alpha';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -219,6 +219,11 @@ class Initializer {
 		$scan_data                      = Protect_Status::get_status();
 		self::update_historically_active_jetpack_modules();
 
+		$waf_config = array();
+		if ( class_exists( 'Automattic\Jetpack\Waf\Waf_Runner' ) ) {
+			$waf_config = Waf_Runner::get_config();
+		}
+
 		wp_localize_script(
 			'my_jetpack_main_app',
 			'myJetpackInitialState',
@@ -273,7 +278,7 @@ class Initializer {
 				'protect'                => array(
 					'scanData'  => $scan_data,
 					'wafConfig' => array_merge(
-						Waf_Runner::get_config(),
+						$waf_config,
 						array( 'blocked_logins' => (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 ) )
 					),
 				),
@@ -768,7 +773,7 @@ class Initializer {
 			self::get_red_bubble_alerts(),
 			function ( $alert ) {
 				// We don't want to show silent alerts
-				return ! $alert['is_silent'];
+				return empty( $alert['is_silent'] );
 			}
 		);
 

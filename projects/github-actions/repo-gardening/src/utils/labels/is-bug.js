@@ -13,7 +13,7 @@ const getLabels = require( './get-labels' );
  * @param {string} number     - Issue number.
  * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
  * @param {object} eventLabel - Label that was added to the issue.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function isBug( octokit, owner, repo, number, action, eventLabel ) {
 	// If the issue has a "[Type] Bug" label, it's a bug.

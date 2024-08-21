@@ -12,9 +12,9 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
 /**
  * React custom hook to get specific video.
  *
- * @param {number} id        - Video ID
+ * @param {number}  id       - Video ID
  * @param {boolean} addAtEnd - Whether to add the video to the end of the list if not loaded.
- * @returns {object} video
+ * @return {object} video
  */
 export default function useVideo( id: number | string, addAtEnd = false ) {
 	const dispatch = useDispatch( STORE_ID );
