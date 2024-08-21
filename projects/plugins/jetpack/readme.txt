@@ -326,16 +326,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.1 - 2024-08-12
-#### Enhancements
-- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection.
+### 13.8-a.3 - 2024-08-19
 
 #### Improved compatibility
-- Performance: Optimize the size of included image files.
-
-#### Bug fixes
-- AI Assistant: Disable Breve for free plan users when AI Assistant block is disabled
-- Subscriptions: Prevent saave discussion settings from turning on the subscribe modal.
+- AMP: Avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
+- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance.
 
 --------
 

@@ -10,6 +10,8 @@ import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-c
 import {
 	store as socialStore,
 	getSocialScriptData,
+	getTotalSharesCount,
+	getSharedPostsCount,
 } from '@automattic/jetpack-publicize-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -19,19 +21,11 @@ import StatCards from '../stat-cards';
 import styles from './styles.module.scss';
 
 const Header = () => {
-	const {
-		// TODO replace some of these from script data (initial state)
-		hasConnections,
-		isModuleEnabled,
-		postsCount,
-		totalShareCount,
-	} = useSelect( select => {
+	const { hasConnections, isModuleEnabled } = useSelect( select => {
 		const store = select( socialStore );
 		return {
 			hasConnections: store.getConnections().length > 0,
 			isModuleEnabled: store.isModuleEnabled(),
-			postsCount: store.getSharedPostsCount(),
-			totalShareCount: store.getTotalSharesCount(),
 		};
 	} );
 
@@ -92,14 +86,12 @@ const Header = () => {
 							{
 								icon: <SocialIcon />,
 								label: __( 'Total shares past 30 days', 'jetpack-social' ),
-								loading: null === totalShareCount,
-								value: formatter.format( totalShareCount ),
+								value: formatter.format( getTotalSharesCount() ),
 							},
 							{
 								icon: <Icon icon={ postList } />,
 								label: __( 'Posted this month', 'jetpack-social' ),
-								loading: null === postsCount,
-								value: formatter.format( postsCount ),
+								value: formatter.format( getSharedPostsCount() ),
 							},
 						] }
 					/>

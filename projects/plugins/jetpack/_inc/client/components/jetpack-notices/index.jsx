@@ -36,7 +36,6 @@ import {
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
-import { isPluginActive } from 'state/site/plugins';
 import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
@@ -187,12 +186,6 @@ class JetpackNotices extends React.Component {
 
 		const cookieParsed = cookie.parse( document.cookie );
 		this.state = {
-			isGoogleAnalyticsNoticeDismissed:
-				cookieParsed &&
-				cookieParsed.hasOwnProperty(
-					'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]'
-				) &&
-				'1' === cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]' ],
 			isMasterbarNoticeDismissed:
 				cookieParsed &&
 				cookieParsed.hasOwnProperty(
@@ -202,20 +195,6 @@ class JetpackNotices extends React.Component {
 					cookieParsed[ 'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]' ],
 		};
 	}
-
-	dismissGoogleAnalyticsNotice = () => {
-		this.setState( { isGoogleAnalyticsNoticeDismissed: true } );
-
-		document.cookie = cookie.serialize(
-			'jetpack_deprecate_dismissed[jetpack-ga-admin-removal-notice]',
-			'1',
-			{
-				path: '/',
-				maxAge: 365 * 24 * 60 * 60,
-				SameSite: 'None',
-			}
-		);
-	};
 
 	dismissMasterbarNotice = () => {
 		this.setState( { isMasterbarNoticeDismissed: true } );
@@ -237,8 +216,6 @@ class JetpackNotices extends React.Component {
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
-		const showGoogleAnalyticsNotice =
-			this.props.showGoogleAnalyticsNotice && ! this.state.isGoogleAnalyticsNoticeDismissed;
 
 		const showMasterbarNotice =
 			this.props.showMasterbarNotice && ! this.state.isMasterbarNoticeDismissed;
@@ -300,21 +277,6 @@ class JetpackNotices extends React.Component {
 						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
 					</SimpleNotice>
 				) }
-				{ showGoogleAnalyticsNotice && (
-					<SimpleNotice
-						status="is-warning"
-						dismissText={ __( 'Dismiss', 'jetpack' ) }
-						onDismissClick={ this.dismissGoogleAnalyticsNotice }
-					>
-						<div>{ __( "Jetpack's Google Analytics has been removed.", 'jetpack' ) }</div>
-						<ExternalLink href={ getRedirectUrl( 'jetpack-support-google-analytics' ) }>
-							{ __(
-								'To keep tracking visits and more information on this change, please refer to this document',
-								'jetpack'
-							) }
-						</ExternalLink>
-					</SimpleNotice>
-				) }
 				{ showMasterbarNotice && (
 					<SimpleNotice
 						status="is-warning"
@@ -358,18 +320,6 @@ export default connect(
 			hasConnectedOwner: hasConnectedOwner( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
-			showGoogleAnalyticsNotice:
-				window.Initial_State?.isGoogleAnalyticsActive &&
-				! isWoASite( state ) &&
-				isPluginActive(
-					// Making sure the plugins are loaded with no flickering caused by "isFetchingPluginsData".
-					state,
-					'jetpack/jetpack.php'
-				) &&
-				! isPluginActive(
-					state,
-					'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php'
-				),
 			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},

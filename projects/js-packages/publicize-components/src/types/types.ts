@@ -2,6 +2,12 @@ export interface SocialUrls {
 	connectionsManagementPage: string;
 }
 
+export type SharesData = {
+	to_be_publicized_count: number;
+	publicized_count: number;
+	shared_posts_count: number;
+};
+
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
 }
@@ -27,6 +33,7 @@ export interface SocialScriptData {
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
 	urls: SocialUrls;
+	shares_data: SharesData;
 }
 
 type JetpackSettingsSelectors = {
@@ -44,11 +51,6 @@ type JetpackSettingsSelectors = {
 type ConnectionDataSelectors = {
 	getConnections: () => Array< object >;
 	hasConnections: () => boolean;
-};
-
-type SharesDataSelectors = {
-	getSharesCount: () => number;
-	getPostsCount: () => number;
 };
 
 type SiteDataSelectors = {
@@ -77,6 +79,5 @@ type SocialImageGeneratorSettingsSelectors = {
  */
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
-	SharesDataSelectors &
 	SiteDataSelectors &
 	SocialImageGeneratorSettingsSelectors;

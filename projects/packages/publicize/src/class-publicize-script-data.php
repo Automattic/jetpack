@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
+use Jetpack_Options;
 
 /**
  * Publicize_Script_Data class.
@@ -85,6 +86,7 @@ class Publicize_Script_Data {
 			'feature_flags'        => self::get_feature_flags(),
 			'supported_services'   => array(),
 			'urls'                 => array(),
+			'shares_data'          => array(),
 		);
 
 		if ( ! Utils::is_publicize_active() ) {
@@ -104,10 +106,10 @@ class Publicize_Script_Data {
 				'api_paths'          => self::get_api_paths(),
 				'supported_services' => self::get_supported_services(),
 				'urls'               => self::get_urls(),
+				'shares_data'        => self::get_shares_data(),
 				/**
 				 * 'store'       => self::get_store_script_data(),
 				 * 'urls'        => self::get_urls(),
-				 * 'shares_data' => self::get_shares_data(),
 				 */
 			)
 		);
@@ -153,6 +155,15 @@ class Publicize_Script_Data {
 		}
 
 		return Current_Plan::supports( 'social-' . $feature );
+	}
+
+	/**
+	 * Get the shares data.
+	 *
+	 * @return ?array
+	 */
+	public static function get_shares_data() {
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
 	}
 
 	/**
