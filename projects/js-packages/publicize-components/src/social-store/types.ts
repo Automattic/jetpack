@@ -1,9 +1,3 @@
-export type SharesData = {
-	to_be_publicized_count: number;
-	publicized_count: number;
-	shared_posts_count: number;
-};
-
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
@@ -40,8 +34,6 @@ export type JetpackSettings = {
 
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
-	connectionData: ConnectionData;
-	sharesData: SharesData;
 	// on post editor
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
