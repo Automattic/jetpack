@@ -2,8 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.8-a.3 - 2024-08-19
+## 13.8-a.5 - 2024-08-21
+### Improved compatibility
+- Sharing Block: Improve performance when hooking the block into single post templates. [#38727]
+- WordPress.com Toolbar: Removed feature from self-hosted Jetpack sites. [#38804]
 
+### Bug fixes
+- Social Icons Widget: Ensure the social network icons are displayed properly. [#38965]
+- Social Menus: Ensure the SVG can be displayed properly. [#38966]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- A4A: Add a4a_is_dev_site attribute to Sites API response. [#38964]
+- Contact Form: Prevent direct file access. [#38982]
+- Google Analytics: Delete the Google Analytics removal notices. [#38882]
+- Security Settings: Redirect to Protect dashboard for Firewall settings, when available. [#38741]
+- SVG Optimizations: Revert recent SVG image optimizations. [#38981]
+
+## 13.8-a.3 - 2024-08-19
 ### Improved compatibility
 - AMP: Avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled. [#38744]
 - Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance. [#38928]

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Decoupled backup connection screens from useConnection hook to avoid unnecessary loading and prevent duplicated API calls.
