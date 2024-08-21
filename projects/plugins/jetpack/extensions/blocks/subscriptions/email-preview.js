@@ -8,6 +8,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
 	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalInputControlPrefixWrapper as InputControlPrefixWrapper, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Icon,
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -163,7 +164,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 		tracks.recordEvent( 'jetpack_newsletter_preview_access_changed', { access: value } );
 	};
 
-	if ( isSmall && ( ! tiers || tiers.length <= 1 ) ) {
+	if ( isSmall && accessLevel !== accessOptions.paid_subscribers.key ) {
 		return null;
 	}
 
@@ -201,6 +202,9 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 			onChange={ handleChange }
 			__nextHasNoMarginBottom={ true }
 			__next40pxDefaultSize={ true }
+			prefix={
+				<InputControlPrefixWrapper> { __( 'Access:', 'jetpack' ) } </InputControlPrefixWrapper>
+			}
 		/>
 	);
 };
