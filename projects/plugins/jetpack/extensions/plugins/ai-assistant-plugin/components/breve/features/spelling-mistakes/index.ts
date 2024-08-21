@@ -79,7 +79,7 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
+export const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	if ( spellcheckers[ language ] ) {
 		return spellcheckers[ language ];
 	}
@@ -113,16 +113,11 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 
 	words.forEach( ( word: string, index ) => {
 		if ( ! spellchecker.correct( word ) ) {
-			const suggestions = spellchecker.suggest( word );
-
-			if ( suggestions.length > 0 ) {
-				highlightedTexts.push( {
-					text: word,
-					startIndex: text.indexOf( word, index ),
-					endIndex: text.indexOf( word, index ) + word.length,
-					suggestions,
-				} );
-			}
+			highlightedTexts.push( {
+				text: word,
+				startIndex: text.indexOf( word, index ),
+				endIndex: text.indexOf( word, index ) + word.length,
+			} );
 		}
 	} );
 

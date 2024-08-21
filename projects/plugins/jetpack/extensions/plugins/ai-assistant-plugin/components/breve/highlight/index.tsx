@@ -6,6 +6,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { rawHandler } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { reusableBlock as retry } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -17,7 +18,7 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import { LONG_SENTENCES } from '../features/long-sentences';
-import { SPELLING_MISTAKES } from '../features/spelling-mistakes';
+import { SPELLING_MISTAKES, getSpellchecker } from '../features/spelling-mistakes';
 import { getNodeTextIndex } from '../utils/get-node-text-index';
 import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
@@ -49,6 +50,7 @@ export default function Highlight() {
 
 		return { getBlock: selector.getBlock };
 	}, [] );
+	const [ spellingSuggestions, setSpellingSuggestions ] = useState< string[] >( [] );
 
 	const {
 		anchor,
@@ -192,6 +194,10 @@ export default function Highlight() {
 		} );
 	};
 
+	const handleApplySpellingFix = () => {
+		// TODO: Implement
+	};
+
 	const handleRetry = () => {
 		invalidateSingleSuggestion( feature, blockId, id );
 		handleSuggestions();
@@ -205,6 +211,25 @@ export default function Highlight() {
 			type: feature,
 		} );
 	};
+
+	useEffect( () => {
+		if ( feature === SPELLING_MISTAKES.name && isPopoverOpen ) {
+			// Get the typo
+			const typo = anchor?.innerText;
+
+			if ( ! typo ) {
+				return;
+			}
+
+			// Get the spellchecker
+			const spellchecker = getSpellchecker();
+
+			// Get the suggestions
+			setSpellingSuggestions( spellchecker?.suggest( typo ) ?? [] );
+		} else {
+			setSpellingSuggestions( [] );
+		}
+	}, [ feature, isPopoverOpen, anchor ] );
 
 	return (
 		<>
@@ -262,11 +287,22 @@ export default function Highlight() {
 							) }
 						</div>
 						<div className="jetpack-ai-breve__bottom-container">
-							{ hasSuggestions && (
+							{ feature !== SPELLING_MISTAKES.name && hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
 							) }
+							{ feature === SPELLING_MISTAKES.name &&
+								spellingSuggestions.map( spellingSuggestion => (
+									<Button
+										variant="tertiary"
+										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
+										key={ spellingSuggestion }
+									>
+										{ spellingSuggestion }
+									</Button>
+								) ) }
+
 							<div className="jetpack-ai-breve__helper">
 								{ hasSuggestions
 									? __( 'Click on the suggestion to insert it.', 'jetpack' )
