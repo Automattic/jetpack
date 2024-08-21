@@ -5,14 +5,11 @@ import {
 	Button,
 	SocialIcon,
 	getUserLocale,
-	Text,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import {
 	getSocialScriptData,
-	ShareLimitsBar,
 	store as socialStore,
-	useShareLimits,
 } from '@automattic/jetpack-publicize-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -29,7 +26,6 @@ const Header = () => {
 		newPostUrl,
 		postsCount,
 		totalShareCount,
-		showShareLimits,
 	} = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -39,7 +35,6 @@ const Header = () => {
 			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
 			postsCount: store.getSharedPostsCount(),
 			totalShareCount: store.getTotalSharesCount(),
-			showShareLimits: store.showShareLimits(),
 		};
 	} );
 
@@ -51,8 +46,6 @@ const Header = () => {
 		notation: 'compact',
 		compactDisplay: 'short',
 	} );
-
-	const { noticeType, usedCount, scheduledCount, remainingCount } = useShareLimits();
 
 	const { openConnectionsModal } = useDispatch( socialStore );
 
@@ -91,44 +84,22 @@ const Header = () => {
 					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					{ showShareLimits ? (
-						<>
-							<ShareLimitsBar
-								usedCount={ usedCount }
-								scheduledCount={ scheduledCount }
-								remainingCount={ remainingCount }
-								remainingLabel={ __( 'left in this cycle', 'jetpack-social' ) }
-								legendCaption={ __( 'Auto-share usage', 'jetpack-social' ) }
-								noticeType={ noticeType }
-								className={ styles[ 'bar-wrapper' ] }
-							/>
-							<Text variant="small" className={ styles[ 'bar-description' ] }>
-								<i>
-									{ __(
-										'As a free Jetpack Social user, you get 30 shares within every rolling 30-day window.',
-										'jetpack-social'
-									) }
-								</i>
-							</Text>
-						</>
-					) : (
-						<StatCards
-							stats={ [
-								{
-									icon: <SocialIcon />,
-									label: __( 'Total shares past 30 days', 'jetpack-social' ),
-									loading: null === totalShareCount,
-									value: formatter.format( totalShareCount ),
-								},
-								{
-									icon: <Icon icon={ postList } />,
-									label: __( 'Posted this month', 'jetpack-social' ),
-									loading: null === postsCount,
-									value: formatter.format( postsCount ),
-								},
-							] }
-						/>
-					) }
+					<StatCards
+						stats={ [
+							{
+								icon: <SocialIcon />,
+								label: __( 'Total shares past 30 days', 'jetpack-social' ),
+								loading: null === totalShareCount,
+								value: formatter.format( totalShareCount ),
+							},
+							{
+								icon: <Icon icon={ postList } />,
+								label: __( 'Posted this month', 'jetpack-social' ),
+								loading: null === postsCount,
+								value: formatter.format( postsCount ),
+							},
+						] }
+					/>
 				</Col>
 			</Container>
 		</>
