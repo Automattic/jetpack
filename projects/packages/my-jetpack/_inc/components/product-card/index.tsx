@@ -36,6 +36,7 @@ export type ProductCardProps = {
 	status: ProductStatus;
 	onMouseEnter?: MouseEventHandler< HTMLButtonElement >;
 	onMouseLeave?: MouseEventHandler< HTMLButtonElement >;
+	customLoadTracks?: Record< Lowercase< string >, unknown >;
 };
 
 // ProductCard component
@@ -63,6 +64,7 @@ const ProductCard: FC< ProductCardProps > = props => {
 		onMouseEnter,
 		onMouseLeave,
 		recommendation,
+		customLoadTracks,
 	} = props;
 
 	const { ownedProducts } = getMyJetpackWindowInitialState( 'lifecycleStats' );
@@ -147,8 +149,9 @@ const ProductCard: FC< ProductCardProps > = props => {
 		recordEvent( 'jetpack_myjetpack_product_card_load', {
 			product: slug,
 			status: status,
+			...customLoadTracks,
 		} );
-	}, [ recordEvent, slug, status ] );
+	}, [ recordEvent, slug, status, customLoadTracks ] );
 
 	return (
 		<Card

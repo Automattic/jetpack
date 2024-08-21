@@ -243,8 +243,9 @@ interface Window {
 			};
 		};
 		videopress: {
-			featuredStats: {
+			featuredStats?: {
 				label: string;
+				period: 'day' | 'year';
 				data: {
 					views: {
 						current: number;

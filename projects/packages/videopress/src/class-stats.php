@@ -87,15 +87,16 @@ class Stats {
 	/**
 	 * Returns the featured stats for VideoPress.
 	 *
-	 * @param int $days (optional) The number of days to consider.
+	 * @param int    $period_count (optional) The number of days to consider.
+	 * @param string $period (optional) The period to consider.
 	 *
 	 * @return array|WP_Error a list of stats, or WP_Error on failure.
 	 */
-	public static function get_featured_stats( $days = 14 ) {
+	public static function get_featured_stats( $period_count = 14, $period = 'day' ) {
 		$response = self::fetch_video_plays(
 			array(
-				'period'         => 'day',
-				'num'            => $days,
+				'period'         => $period,
+				'num'            => $period_count,
 				'complete_stats' => true,
 			)
 		);
@@ -117,29 +118,32 @@ class Stats {
 		$dates = $data['days'];
 
 		// Organize the data into the planned stats
-		return self::prepare_featured_stats( $dates, $days );
+		return self::prepare_featured_stats( $dates, $period_count, $period );
 	}
 
 	/**
 	 * Prepares the featured stats for VideoPress.
 	 *
-	 * @param array $dates The list of dates returned by the API.
-	 * @param int   $total_days The total number of days to consider.
+	 * @param array  $dates The list of dates returned by the API.
+	 * @param int    $period_count The total number of days to consider.
+	 * @param string $period The period to consider.
 	 * @return array a list of stats.
 	 */
-	public static function prepare_featured_stats( $dates, $total_days ) {
+	public static function prepare_featured_stats( $dates, $period_count, $period = 'day' ) {
 		/**
 		 * Ensure the sorting of the dates, recent ones first.
 		 * This way, the first 7 positions are from the last 7 days,
 		 * and the next 7 positions are from the 7 days before it.
 		 */
 		krsort( $dates );
+		$period_of_data = floor( $period_count / 2 );
 
 		// template for the response
 		$featured_stats = array(
-			// translators: %d is the number of days
-			'label' => sprintf( __( 'last %d days', 'jetpack-videopress-pkg' ), floor( $total_days / 2 ) ),
-			'data'  => array(
+			// translators: %1$d is the number of units of time, %2$s is the period in which the units of time are measured ex. 'day' or 'year'.
+			'label'  => sprintf( _n( 'last %1$d %2$s', 'last %1$d %2$ss', (int) $period_of_data, 'jetpack-videopress-pkg' ), $period_of_data, $period ),
+			'period' => $period,
+			'data'   => array(
 				'views'       => array(
 					'current'  => 0,
 					'previous' => 0,
@@ -160,7 +164,7 @@ class Stats {
 		foreach ( $dates as $date_info ) {
 			$date_totals = $date_info['total'];
 
-			if ( $counter < floor( $total_days / 2 ) ) {
+			if ( $counter < floor( $period_count / 2 ) ) {
 
 				// the first 7 elements are for the current period
 				$featured_stats['data']['views']['current']       += $date_totals['views'];
