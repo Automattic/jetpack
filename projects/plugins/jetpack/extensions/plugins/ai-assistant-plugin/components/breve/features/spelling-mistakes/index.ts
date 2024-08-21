@@ -103,7 +103,7 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 	// Regex to match words, including contractions and hyphenated words
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[\p{L}\p{M}'-]+/, 'gu' );
+	const wordRegex = new RegExp( /[\p{L}\p{M}']+/, 'gu' );
 	const words = text.match( wordRegex ) || [];
 	const spellchecker = getSpellchecker();
 
