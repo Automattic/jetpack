@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.4] - 2024-08-21
+### Fixed
+- Decoupled backup connection screens from useConnection hook to avoid unnecessary loading and prevent duplicated API calls. [#38948]
+- Revert recent SVG image optimizations. [#38981]
+
+## [3.4.3] - 2024-08-19
+### Changed
+- Update dependencies. [#38861] [#38662]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [3.4.2] - 2024-07-22
 ### Changed
 - Update dependencies. [#38402]
@@ -660,6 +672,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[3.4.4]: https://github.com/Automattic/jetpack-backup/compare/v3.4.3...v3.4.4
+[3.4.3]: https://github.com/Automattic/jetpack-backup/compare/v3.4.2...v3.4.3
 [3.4.2]: https://github.com/Automattic/jetpack-backup/compare/v3.4.1...v3.4.2
 [3.4.1]: https://github.com/Automattic/jetpack-backup/compare/v3.4.0...v3.4.1
 [3.4.0]: https://github.com/Automattic/jetpack-backup/compare/v3.3.17...v3.4.0
