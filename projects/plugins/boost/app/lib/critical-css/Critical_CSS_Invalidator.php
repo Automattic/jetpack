@@ -47,7 +47,7 @@ class Critical_CSS_Invalidator {
 
 			// Clear the regenerate flag.
 			// If we don't clear it, reverting to free will show the regenerate notice.
-			jetpack_boost_ds_delete( 'critical_css_suggest_regenerate', null );
+			jetpack_boost_ds_delete( 'critical_css_suggest_regenerate' );
 		}
 
 		Cloud_CSS_Followup::unschedule();
