@@ -201,16 +201,16 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
-		if ( ! self::is_site_connected() ) {
-			// without site connection we can't know if tiers are enabled or not,
-			// hence we can't know if the next tier is 100 or 1 (unlimited).
-			return 100;
-		}
+		// if ( ! self::is_site_connected() ) {
+		// without site connection we can't know if tiers are enabled or not,
+		// hence we can't know if the next tier is 100 or 1 (unlimited).
+		// return 100;
+		// }
 
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data or if it's included in a plan.
-		if ( is_wp_error( $info ) || self::has_paid_plan_for_product() ) {
+		if ( self::has_paid_plan_for_product() || is_wp_error( $info ) || empty( $info ) ) {
 			return null;
 		}
 
