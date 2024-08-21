@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Visitor;
 use Jetpack_Options;
 use WP_Error;
@@ -30,6 +31,8 @@ class Wpcom_Products {
 	 */
 	const CACHE_META_NAME = 'my-jetpack-cache';
 
+	const CACHE_CHECK_HASH_NAME = 'my-jetpack-wpcom-product-check-hash';
+
 	const MY_JETPACK_PURCHASES_TRANSIENT_KEY = 'my-jetpack-purchases';
 
 	/**
@@ -38,16 +41,24 @@ class Wpcom_Products {
 	 * @return Object|WP_Error
 	 */
 	private static function get_products_from_wpcom() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-		$ip      = ( new Visitor() )->get_ip( true );
-		$headers = array(
+		$connection = new Connection_Manager();
+		$blog_id    = \Jetpack_Options::get_option( 'id' );
+		$ip         = ( new Visitor() )->get_ip( true );
+		$headers    = array(
 			'X-Forwarded-For' => $ip,
 		);
 
-		// If has a blog id, use connected endpoint.
-
 		if ( $blog_id ) {
+			// If has a blog id, use connected endpoint.
 			$endpoint = sprintf( '/sites/%d/products/?_locale=%s&type=jetpack', $blog_id, get_user_locale() );
+
+			// If available in the user data, set the user's currency as one of the params
+			if ( $connection->is_user_connected() ) {
+				$user_details = $connection->get_connected_user_data();
+				if ( $user_details['user_currency'] && $user_details['user_currency'] !== 'USD' ) {
+					$endpoint .= sprintf( '&currency=%s', $user_details['user_currency'] );
+				}
+			}
 
 			$wpcom_request = Client::wpcom_json_api_request_as_blog(
 				$endpoint,
@@ -82,6 +93,32 @@ class Wpcom_Products {
 	}
 
 	/**
+	 * Super unintelligent hash string that can help us reset the cache after connection changes
+	 * This is important because the currency can change after a user connects depending on what is set in their profile
+	 *
+	 * @return string
+	 */
+	private static function build_check_hash() {
+		$hash_string = 'check_hash_';
+		$connection  = new Connection_Manager();
+
+		if ( $connection->is_connected() ) {
+			$hash_string .= 'site_connected_';
+		}
+
+		if ( $connection->is_user_connected() ) {
+			$hash_string .= 'user_connected';
+			// Add the user's currency
+			$user_details = $connection->get_connected_user_data();
+			if ( $user_details['user_currency'] ) {
+				$hash_string .= '_' . $user_details['user_currency'];
+			}
+		}
+
+		return md5( $hash_string );
+	}
+
+	/**
 	 * Update the cache with new information retrieved from WPCOM
 	 *
 	 * We store one cache for each user, as the information is internationalized based on user preferences
@@ -92,6 +129,7 @@ class Wpcom_Products {
 	 */
 	private static function update_cache( $products_list ) {
 		update_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, time() );
+		update_user_meta( get_current_user_id(), self::CACHE_CHECK_HASH_NAME, self::build_check_hash() );
 		return update_user_meta( get_current_user_id(), self::CACHE_META_NAME, $products_list );
 	}
 
@@ -102,8 +140,15 @@ class Wpcom_Products {
 		if ( empty( self::get_products_from_cache() ) ) {
 			return true;
 		}
+
+		// This allows the cache to reset after the site or user connects/ disconnects
+		$check_hash = get_user_meta( get_current_user_id(), self::CACHE_CHECK_HASH_NAME, true );
+		if ( $check_hash !== self::build_check_hash() ) {
+			return true;
+		}
+
 		$cache_date = get_user_meta( get_current_user_id(), self::CACHE_DATE_META_NAME, true );
-		return time() - (int) $cache_date > ( 7 * DAY_IN_SECONDS );
+		return time() - (int) $cache_date > DAY_IN_SECONDS;
 	}
 
 	/**
