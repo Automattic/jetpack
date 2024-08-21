@@ -326,11 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.3 - 2024-08-19
-
+### 13.8-a.5 - 2024-08-21
 #### Improved compatibility
-- AMP: Avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
-- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance.
+- Sharing Block: Improve performance when hooking the block into single post templates.
+- WordPress.com Toolbar: Removed feature from self-hosted Jetpack sites.
+
+#### Bug fixes
+- Social Icons Widget: Ensure the social network icons are displayed properly.
+- Social Menus: Ensure the SVG can be displayed properly.
 
 --------
 
