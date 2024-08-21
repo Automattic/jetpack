@@ -19,7 +19,7 @@ export const reducer = combineReducers( {
 /**
  * Returns the Search Term
  *
- * @param  {Object} state  Global state tree
+ * @param {Object} state Global state tree
  * @return {string}        The current term being searched
  */
 export function getSearchTerm( state ) {
@@ -29,8 +29,8 @@ export function getSearchTerm( state ) {
 /**
  * Returns the module found status
  *
- * @param  {Object} state  Global state tree
- * @param  {String} module The module slug
+ * @param {Object} state  Global state tree
+ * @param {String} module The module slug
  * @return {Boolean}       Whether the module should be in the search results
  */
 export function isModuleFound( state, module ) {

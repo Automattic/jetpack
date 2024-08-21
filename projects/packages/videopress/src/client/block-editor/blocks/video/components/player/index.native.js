@@ -27,10 +27,10 @@ const IS_ANDROID = Platform.isAndroid;
 /**
  * VideoPlayer react component
  *
- * @param {object} props - Component props.
- * @param {object} props.attributes - Block attributes.
+ * @param {object}  props            - Component props.
+ * @param {object}  props.attributes - Block attributes.
  * @param {boolean} props.isSelected - Whether the block is selected.
- * @returns {import('react').ReactElement} - React component.
+ * @return {import('react').ReactElement} - React component.
  */
 export default function Player( { isSelected, attributes } ) {
 	const {

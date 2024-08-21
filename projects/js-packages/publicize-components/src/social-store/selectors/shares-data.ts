@@ -5,7 +5,7 @@ import { SocialStoreState } from '../types';
  *
  * @param {SocialStoreState} state - Global state tree
  *
- * @returns {number} Total number of shares used
+ * @return {number} Total number of shares used
  */
 export function getSharesUsedCount( state: SocialStoreState ) {
 	return state.sharesData?.publicized_count ?? 0;
@@ -16,7 +16,7 @@ export function getSharesUsedCount( state: SocialStoreState ) {
  *
  * @param {SocialStoreState} state - Global state tree
  *
- * @returns {number} Number of shares scheduled
+ * @return {number} Number of shares scheduled
  */
 export function getScheduledSharesCount( state: SocialStoreState ) {
 	return state.sharesData?.to_be_publicized_count ?? 0;
@@ -27,7 +27,7 @@ export function getScheduledSharesCount( state: SocialStoreState ) {
  *
  * @param {SocialStoreState} state - Global state tree
  *
- * @returns {number} Total number of shares used and scheduled
+ * @return {number} Total number of shares used and scheduled
  */
 export function getTotalSharesCount( state: SocialStoreState ) {
 	const count = getSharesUsedCount( state ) + getScheduledSharesCount( state );
@@ -40,7 +40,7 @@ export function getTotalSharesCount( state: SocialStoreState ) {
  *
  * @param {SocialStoreState} state - Global state tree
  *
- * @returns {number} Number of posts shared this month
+ * @return {number} Number of posts shared this month
  */
 export function getSharedPostsCount( state: SocialStoreState ) {
 	return state.sharesData?.shared_posts_count ?? 0;
