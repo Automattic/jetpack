@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing Block: improve performance when hooking the block into single post templates.

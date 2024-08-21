@@ -10,7 +10,7 @@ export const FETCH_JETPACK_SOCIAL_SETTINGS = 'FETCH_JETPACK_SOCIAL_SETTINGS';
 /**
  * fetchJetpackSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchJetpackSettings = () => {
 	return {
@@ -22,7 +22,7 @@ export const fetchJetpackSettings = () => {
  * updateJetpackSettings action
  *
  * @param {*} settings - Jetpack settings object.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const updateJetpackSettings = settings => {
 	return {
@@ -34,7 +34,7 @@ export const updateJetpackSettings = settings => {
 /**
  * fetchSocialImageGeneratorSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchSocialImageGeneratorSettings = () => {
 	return {
@@ -46,7 +46,7 @@ export const fetchSocialImageGeneratorSettings = () => {
  * updateSocialImageGeneratorSettings action
  *
  * @param {*} settings - Social Image Generator settings object.
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const updateSocialImageGeneratorSettings = settings => {
 	return {
@@ -58,7 +58,7 @@ export const updateSocialImageGeneratorSettings = settings => {
 /**
  * fetchJetpackSocialSettings action
  *
- * @returns {object} - an action object.
+ * @return {object} - an action object.
  */
 export const fetchJetpackSocialSettings = () => {
 	return {

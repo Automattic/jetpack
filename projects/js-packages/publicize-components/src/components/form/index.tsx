@@ -16,13 +16,13 @@ import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-conn
 import { SocialPostModal } from '../social-post-modal/modal';
 import { ConnectionNotice } from './connection-notice';
 import { ConnectionsList } from './connections-list';
-import { ShareCountInfo } from './share-count-info';
+import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { SharePostForm } from './share-post-form';
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @returns {object} - Publicize form component.
+ * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
@@ -50,7 +50,7 @@ export default function PublicizeForm() {
 						<ConnectionsList />
 					</PanelRow>
 					{ featureFlags.useEditorPreview && isPublicizeEnabled ? <SocialPostModal /> : null }
-					<ShareCountInfo />
+					<EnhancedFeaturesNudge />
 				</>
 			) : null }
 			<ConnectionNotice />

@@ -12,7 +12,7 @@ import { VideoId } from '../../blocks/video/types';
  * Hook to update the media data by hitting the VideoPress API.
  *
  * @param {VideoId} id - Media ID.
- * @returns {Function}  Update Promise handler.
+ * @return {Function}  Update Promise handler.
  */
 export default function useMediaDataUpdate( id: VideoId ) {
 	const updateMediaItem = data => {

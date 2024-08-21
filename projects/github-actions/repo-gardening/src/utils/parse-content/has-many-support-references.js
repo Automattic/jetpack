@@ -7,7 +7,7 @@ const { getInput } = require( '@actions/core' );
  * We only count the number of unanswered support references, since they're the ones we'll need to contact.
  *
  * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<boolean>} Promise resolving to boolean.
+ * @return {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasManySupportReferences( issueComments ) {
 	const referencesThreshhold = getInput( 'reply_to_customers_threshold' );

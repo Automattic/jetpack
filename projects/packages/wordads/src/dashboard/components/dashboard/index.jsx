@@ -14,7 +14,7 @@ import './style.scss';
 /**
  * WordAdsDashboard component definition.
  *
- * @returns {React.Component} Search dashboard component.
+ * @return {React.Component} Search dashboard component.
  */
 export default function WordAdsDashboard() {
 	useSelect( select => select( STORE_ID ).getWordAdsModuleStatus(), [] );

@@ -108,7 +108,7 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
  **/
 function wpcomsh_hide_color_schemes() {
 	// Do nothing if the admin interface is wp-admin.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
+	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
 		return false;
 	}
 
@@ -333,7 +333,7 @@ add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interfa
  *    from wp-admin going forward.
  */
 function wpcomsh_unsync_color_schemes_on_save() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
 		return;
 	}
 

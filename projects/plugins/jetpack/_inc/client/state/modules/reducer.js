@@ -117,7 +117,7 @@ export const reducer = combineReducers( {
  * Returns true if currently requesting modules lists or false
  * otherwise.
  *
- * @param  {Object}  state  Global state tree
+ * @param {Object} state Global state tree
  * @return {Boolean}         Whether modules are being requested
  */
 export function isFetchingModulesList( state ) {
@@ -127,8 +127,8 @@ export function isFetchingModulesList( state ) {
 /**
  * Returns true if we are currently making a request to activate a module
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  name module name
+ * @param {Object} state Global state tree
+ * @param {String} name  module name
  * @return {Boolean}         Whether module is being activated
  */
 export function isActivatingModule( state, name ) {
@@ -138,8 +138,8 @@ export function isActivatingModule( state, name ) {
 /**
  * Returns true if we are currently making a request to deactivate a module
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  name module name
+ * @param {Object} state Global state tree
+ * @param {String} name  module name
  * @return {Boolean}         Whether module is being deactivated
  */
 export function isDeactivatingModule( state, name ) {
@@ -149,9 +149,9 @@ export function isDeactivatingModule( state, name ) {
 /**
  * Returns true if we are currently making a request to update a module's option
  *
- * @param  {Object}  state  Global state tree
- * @param  {String}  module_slug slug of the module to check
- * @param  {String}  option_name option key to check if currently updating
+ * @param {Object} state       Global state tree
+ * @param {String} module_slug slug of the module to check
+ * @param {String} option_name option key to check if currently updating
  * @return {Boolean}         Whether option is being updated on the module
  */
 export function isUpdatingModuleOption( state, module_slug, option_name ) {
@@ -170,9 +170,9 @@ export function getModuleOption( state, module_slug, option_name ) {
 /**
  * Return a list of key & value pairs admitted.
  *
- * @param  {Object}  state   Global state tree.
- * @param  {String}  group   Slug of the set of settings to check.
- * @param  {String}  setting Setting to check for valid values.
+ * @param {Object} state   Global state tree.
+ * @param {String} group   Slug of the set of settings to check.
+ * @param {String} setting Setting to check for valid values.
  * @return {Array}           The list of key => value pairs.
  */
 export function getModuleOptionValidValues( state, group, setting ) {
@@ -181,7 +181,7 @@ export function getModuleOptionValidValues( state, group, setting ) {
 
 /**
  * Returns an object with jetpack modules descriptions keyed by module name
- * @param  {Object} state Global state tree
+ * @param {Object} state Global state tree
  * @return {Object}       Modules keyed by module name
  */
 export function getModules( state ) {
@@ -191,8 +191,8 @@ export function getModules( state ) {
 /**
  * Returns an array of module slugs for all active modules on the site.
  *
- * @param  {object} state - Global state tree
- * @returns {Array}         Array of module slugs.
+ * @param {object} state - Global state tree
+ * @return {Array}         Array of module slugs.
  */
 export function getActiveModules( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
@@ -202,8 +202,8 @@ export function getActiveModules( state ) {
 
 /**
  * Returns a module object by its name as present in the state
- * @param  {Object} state Global state tree
- * @param  {String}  name module name
+ * @param {Object} state Global state tree
+ * @param {String} name  module name
  * @return {Object}       Module description
  */
 export function getModule( state, name ) {
@@ -215,8 +215,8 @@ export function getModule( state, name ) {
  *
  * Module features are defined in the module's header comments
  *
- * @param  {Object} state   Global state tree
- * @param  {String} feature Feature to select
+ * @param {Object} state   Global state tree
+ * @param {String} feature Feature to select
  * @return {Array}          Array of modules that match the feature.
  */
 export function getModulesByFeature( state, feature ) {
@@ -230,7 +230,7 @@ export function getModulesByFeature( state, feature ) {
  *
  * The module's header comments indicates if it requires connection or not.
  *
- * @param  {Object} state   Global state tree
+ * @param {Object} state Global state tree
  * @return {Array}          Array of modules that require connection.
  */
 export function getModulesThatRequireConnection( state ) {
@@ -244,8 +244,8 @@ export function getModulesThatRequireConnection( state ) {
  *
  * The module's header comments indicates if it requires user connection or not.
  *
- * @param  {object} state - Global state tree
- * @returns {Array} Array of modules that require user connection.
+ * @param {object} state - Global state tree
+ * @return {Array} Array of modules that require user connection.
  */
 export function getModulesThatRequireUserConnection( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
@@ -256,8 +256,8 @@ export function getModulesThatRequireUserConnection( state ) {
 /**
  * Check that the module list includes at least one of these modules.
  *
- * @param  {Object} state   Global state tree
- * @param  {array}   modules Modules that are probably included in the module list.
+ * @param {Object} state   Global state tree
+ * @param {array}  modules Modules that are probably included in the module list.
  *
  * @return {boolean}         True if at least one of the modules is included in the list.
  */
@@ -269,9 +269,9 @@ export function hasAnyOfTheseModules( state, modules = [] ) {
 /**
  * Check that the site has any of the performance features available.
  *
- * @param {object} state   - Global state tree
+ * @param {object} state - Global state tree
  *
- * @returns {boolean}        True if at least one of the performance features is available
+ * @return {boolean}        True if at least one of the performance features is available
  */
 export function hasAnyPerformanceFeature( state ) {
 	return hasAnyOfTheseModules( state, [
@@ -286,7 +286,7 @@ export function hasAnyPerformanceFeature( state ) {
 /**
  * Check that the site has any of the security features available.
  *
- * @param  {Object} state   Global state tree
+ * @param {Object} state Global state tree
  *
  * @return {boolean}        True if at least one of the security features is available.
  */
@@ -298,8 +298,8 @@ export function hasAnySecurityFeature( state ) {
 }
 /**
  * Returns true if the module is activated
- * @param  {Object}  state Global state tree
- * @param  {String}  name  A module's name
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
  * @return {Boolean}       Weather a module is activated
  */
 export function isModuleActivated( state, name ) {
@@ -308,8 +308,8 @@ export function isModuleActivated( state, name ) {
 
 /**
  * Returns true if the module is available.
- * @param  {Object}  state      Global state tree.
- * @param  {String}  moduleSlug The slug of a module.
+ * @param {Object} state      Global state tree.
+ * @param {String} moduleSlug The slug of a module.
  * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
  */
 export function isModuleAvailable( state, moduleSlug ) {
@@ -333,8 +333,8 @@ export function getModuleOverride( state, name ) {
 
 /**
  * Returns true if the module is forced to be active.
- * @param {Object}   state Global state tree
- * @param {String}   name  A module's name
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
  * @return {Boolean}       Whether the module is forced to be active.
  */
 export function isModuleForcedActive( state, name ) {
@@ -343,8 +343,8 @@ export function isModuleForcedActive( state, name ) {
 
 /**
  * Returns true if the module is forced to be inactive.
- * @param {Object}   state Global state tree
- * @param {String}   name  A module's name
+ * @param {Object} state Global state tree
+ * @param {String} name  A module's name
  * @return {Boolean}       Whether the module is forced to be inactive.
  */
 export function isModuleForcedInactive( state, name ) {
