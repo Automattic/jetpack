@@ -1,4 +1,3 @@
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -6,6 +5,7 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { getSocialScriptData } from '../../utils/script-data';
 
 /**
  * Takes an error object and returns a more meaningful error message.
@@ -79,9 +79,7 @@ export default function useSharePost( postId ) {
 	postId = postId || currentPostId;
 
 	const [ data, setData ] = useState( { data: [], error: {} } );
-	const path = (
-		getJetpackData()?.social?.resharePath ?? '/wpcom/v2/posts/{postId}/publicize'
-	).replace( '{postId}', postId );
+	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
 		function () {

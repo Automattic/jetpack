@@ -16,7 +16,6 @@ const reducer = combineReducers( {
 	useAdminUiV1: ( state = false ) => state,
 	featureFlags: ( state = false ) => state,
 	hasPaidFeatures: ( state = false ) => state,
-	connectionRefreshPath: ( state = '' ) => state,
 } );
 
 export default reducer;

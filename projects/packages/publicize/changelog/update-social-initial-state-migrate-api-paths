@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social; Migrated the API paths from initial state to the new script data
