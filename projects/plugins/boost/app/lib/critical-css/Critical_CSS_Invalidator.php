@@ -44,6 +44,10 @@ class Critical_CSS_Invalidator {
 		if ( self::is_cloud_css() ) {
 			$state->prepare_for_generation( ( new Source_Providers() )->get_provider_sources() );
 			$state->save();
+
+			// Clear the regenerate flag.
+			// If we don't clear it, reverting to free will show the regenerate notice.
+			jetpack_boost_ds_delete( 'critical_css_suggest_regenerate', null );
 		}
 
 		Cloud_CSS_Followup::unschedule();
