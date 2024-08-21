@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a6dc6c05d755f64657239a8b24f28db9",
+    "content-hash": "7818c6b0a2b6404c7939a9b16bd8bd93",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "1eb58c9a6a5bb9e921a825ef51df5607e504a519"
+                "reference": "8e9867c7b1f5bac0c5652f87946fd2cd41a88f70"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -21,7 +21,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "composer/composer": "^1.1 || ^2.0",
-                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "composer-plugin",
             "extra": {
@@ -76,14 +76,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "fb527bb516160f7a0f31b98f4287038a6d6cab7b"
+                "reference": "0cbca46f49b19ea8f252cba7a7c67cf2b222824f"
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -128,7 +128,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "1dbdf888c1e43dd94b0209c129b1b617e90ab753"
+                "reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
             },
             "require": {
                 "php": ">=7.0",
@@ -137,7 +137,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "bin": [
                 "bin/changelogger"

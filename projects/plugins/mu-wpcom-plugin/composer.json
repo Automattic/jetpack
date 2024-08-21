@@ -7,7 +7,7 @@
 		"automattic/jetpack-mu-wpcom": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.1.0 || 1.1.1",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
