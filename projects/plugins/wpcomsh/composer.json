@@ -20,7 +20,6 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "0.4.2",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"phpunit/phpunit": "^9",
 		"yoast/phpunit-polyfills": "^1.1.1",
 		"wp-coding-standards/wpcs": "^3.0"
 	},
