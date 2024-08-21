@@ -68,7 +68,7 @@ const useTooltipCopy = () => {
 		'jetpack-my-jetpack'
 	);
 	const viewsWithPlanTextYear = _n(
-		'This metric represents the total number of views your videos have received on our platform over the past year.',
+		'This metric represents the total number of views your video have received on our platform over the past year.',
 		'This metric represents the total number of views your videos have received on our platform over the past year.',
 		videoCount,
 		'jetpack-my-jetpack'
