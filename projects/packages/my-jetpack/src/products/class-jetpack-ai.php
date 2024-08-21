@@ -314,11 +314,7 @@ class Jetpack_Ai extends Product {
 			return array();
 		}
 
-		// get info about the feature.
-		$info = self::get_ai_assistant_feature();
-
-		// flag to indicate if the tiers are enabled, case the info is available.
-		$tier_plans_enabled = ( ! is_wp_error( $info ) && isset( $info['tier-plans-enabled'] ) ) ? boolval( $info['tier-plans-enabled'] ) : false;
+		$tier_plans_enabled = self::are_tier_plans_enabled();
 
 		/*
 		 * when tiers are enabled and the price tier list is empty,
