@@ -3,6 +3,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { getSocialScriptData } from '../../utils/script-data';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
@@ -82,7 +83,7 @@ export function mergeConnections( freshConnections ) {
 		const connections = [];
 		const defaults = {
 			done: false,
-			enabled: Boolean( select.numberOfSharesRemaining() ),
+			enabled: true,
 			toggleable: true,
 		};
 
@@ -177,7 +178,7 @@ export function abortRefreshConnectionsRequest() {
 export function refreshConnectionTestResults( syncToMeta = false ) {
 	return async function ( { dispatch, select } ) {
 		try {
-			const path = select.connectionRefreshPath() || '/wpcom/v2/publicize/connection-test-results';
+			const path = getSocialScriptData().api_paths.refreshConnections;
 
 			// Wait until all connections are done updating/deleting.
 			while (
