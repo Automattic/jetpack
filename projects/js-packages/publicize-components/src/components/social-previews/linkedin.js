@@ -9,7 +9,7 @@ import { SOCIAL_STORE_ID, CONNECTION_SERVICE_LINKEDIN } from '../../social-store
  * The linkedin tab component.
  *
  * @param {object} props - The props.
- * @returns {React.ReactNode} The linkedin tab component.
+ * @return {React.ReactNode} The linkedin tab component.
  */
 export function LinkedIn( props ) {
 	const { title, url, image, media, description: postDescription } = props;

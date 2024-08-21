@@ -18,7 +18,7 @@ const getPeriodDimension = function ( key: string, periods: Period[] ) {
  * Transforms an array of periods into an array of arrays, where the first array is the timestamps, and the rest are the values for each key
  *
  * @param {Period[]} periods - Array of periods to transform
- * @returns {ScoreGraphAlignedData | []} - Array of arrays, where the first array is the timestamps, and the rest are the values for each key
+ * @return {ScoreGraphAlignedData | []} - Array of arrays, where the first array is the timestamps, and the rest are the values for each key
  */
 export function useBoostScoreTransform( periods: Period[] ): ScoreGraphAlignedData | [] {
 	return useMemo( () => {

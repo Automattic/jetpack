@@ -15,7 +15,7 @@ export type ServicesItemProps = ServicesItemDetailsProps;
  *
  * @param {ServicesItemProps} props - Component props
  *
- * @returns {import('react').ReactNode} Service item component
+ * @return {import('react').ReactNode} Service item component
  */
 export function ServiceItem( { service, serviceConnections }: ServicesItemProps ) {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );

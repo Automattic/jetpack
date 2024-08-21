@@ -10,7 +10,7 @@ import ConnectedPlugins from '../../connected-plugins';
  * Disconnect step in disconnection flow.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} - The StepDisconnect component
+ * @return {React.Component} - The StepDisconnect component
  */
 const StepDisconnect = props => {
 	const {
@@ -66,7 +66,7 @@ const StepDisconnect = props => {
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
 	 *
-	 * @returns {React.Component} - Button used for disconnect.
+	 * @return {React.Component} - Button used for disconnect.
 	 */
 	const renderDisconnectButton = () => {
 		let buttonText = __( 'Disconnect', 'jetpack' );
@@ -93,7 +93,7 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @returns {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @return {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
 		const hasOtherConnectedPlugins =
