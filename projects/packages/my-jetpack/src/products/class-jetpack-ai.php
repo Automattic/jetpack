@@ -263,14 +263,13 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features = array(
-			1 => array(
-				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
-				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
-				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
-				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
-			),
+		$is_tier_plan = $tier && intval( $tier ) > 1;
+		$features     = array(
+			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
+			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
+			__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
 		);
 
 		$tiered_features = array(
@@ -284,7 +283,7 @@ class Jetpack_Ai extends Product {
 			sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
-		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
+		return $is_tier_plan ? $tiered_features : $features;
 	}
 
 	/**
