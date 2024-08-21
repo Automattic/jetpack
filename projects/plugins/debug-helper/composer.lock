@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
+                "reference": "1dbdf888c1e43dd94b0209c129b1b617e90ab753"
             },
             "require": {
                 "php": ">=7.0",
@@ -22,7 +22,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
             },
             "bin": [
                 "bin/changelogger"

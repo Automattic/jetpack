@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b191c34a0e21f625069eab0c054d8827b9542dfa"
+                "reference": "fc467c08402888ddd9a4c42147608419cfa7e4b0"
             },
             "require": {
                 "php": ">=7.0"
@@ -21,7 +21,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/wordbless": "dev-master",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -74,7 +74,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "6bb097db25b5b249079fcb03ff39d493f59076a6"
+                "reference": "1eb58c9a6a5bb9e921a825ef51df5607e504a519"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -83,7 +83,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "composer/composer": "^1.1 || ^2.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
             },
             "type": "composer-plugin",
             "extra": {
@@ -271,7 +271,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
+                "reference": "1dbdf888c1e43dd94b0209c129b1b617e90ab753"
             },
             "require": {
                 "php": ">=7.0",
@@ -280,7 +280,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "1.1.0 || 1.1.1"
             },
             "bin": [
                 "bin/changelogger"
