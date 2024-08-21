@@ -41,7 +41,7 @@ export const describe = 'Report monorepo project dependencies';
  * Options definition for the dependencies subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function builder( yargs ) {
 	return yargs

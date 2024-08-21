@@ -54,9 +54,9 @@ class AtAGlance extends Component {
 	/**
 	 * Determines whether a card should be added based on the feature and module availability.
 	 *
-	 * @param {string} feature - The feature to check.
+	 * @param {string}  feature                         - The feature to check.
 	 * @param {boolean} [checkModuleAvailability=false] - Whether to check module availability.
-	 * @returns {boolean} - Whether the card should be added.
+	 * @return {boolean} - Whether the card should be added.
 	 */
 	shouldAddCard = ( feature, checkModuleAvailability = false ) => {
 		const isActive = 'inactive' !== this.props.getModuleOverride( feature );

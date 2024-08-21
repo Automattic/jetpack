@@ -3,6 +3,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	Button,
+	__experimentalGrid as Grid, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Modal,
@@ -82,12 +83,11 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								'jetpack'
 							) }
 						</p>
-						<HStack wrap={ true }>
+						<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
 							<InputControl
 								value={ window?.Jetpack_Editor_Initial_State?.tracksUserData?.email }
 								disabled
 								__next40pxDefaultSize={ true }
-								size="__unstable-large"
 							/>
 							<Button
 								variant="primary"
@@ -98,7 +98,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 								{ __( 'Send', 'jetpack' ) }
 								<Icon icon={ SendIcon } />
 							</Button>
-						</HStack>
+						</Grid>
 					</>
 				) }
 			</VStack>

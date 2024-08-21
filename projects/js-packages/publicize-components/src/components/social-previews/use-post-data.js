@@ -7,7 +7,7 @@ import { getMediaSourceUrl, getPostImageUrl } from './utils';
 /**
  * Returns the post data.
  *
- * @returns {object} The post data.
+ * @return {object} The post data.
  */
 export function usePostData() {
 	const { attachedMedia, imageGeneratorSettings } = usePostMeta();

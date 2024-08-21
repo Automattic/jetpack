@@ -9,11 +9,11 @@ import React from 'react';
  * for main and secondary sections respectively,
  * in large lg viewport size.
  *
- * @param {object} props                            - Component props
- * @param {React.ReactNode} props.main              - Main section component
- * @param {React.ReactNode} props.secondary         - Secondary section component
- * @param {boolean} props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
- * @returns {React.ReactNode} 					    - React meta-component
+ * @param {object}          props                           - Component props
+ * @param {React.ReactNode} props.main                      - Main section component
+ * @param {React.ReactNode} props.secondary                 - Secondary section component
+ * @param {boolean}         props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
+ * @return {React.ReactNode} - React meta-component
  */
 const SeventyFiveLayout = ( { main, secondary, preserveSecondaryOnMobile = false } ) => {
 	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
