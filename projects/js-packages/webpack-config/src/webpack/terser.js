@@ -11,10 +11,10 @@ const browsers = browserslist(
  * Terser's function to decide which comments to preserve.
  *
  * @see https://github.com/terser/terser/blob/v5.9.0/lib/output.js#L171-L177
- * @param {object} comment - Comment object.
- * @param {string} comment.type - Comment type.
+ * @param {object} comment       - Comment object.
+ * @param {string} comment.type  - Comment type.
  * @param {string} comment.value - Comment text.
- * @returns {boolean} Whether to keep it.
+ * @return {boolean} Whether to keep it.
  */
 function isSomeComments( comment ) {
 	return (
@@ -28,10 +28,10 @@ function isSomeComments( comment ) {
  *
  * @see https://github.com/php-gettext/Gettext/blob/4.x/src/Utils/ParsedComment.php#L53-L73
  * @see https://github.com/wp-cli/i18n-command/blob/v2.2.9/src/JsCodeExtractor.php#L15
- * @param {object} comment - Comment object.
- * @param {string} comment.type - Comment type.
+ * @param {object} comment       - Comment object.
+ * @param {string} comment.type  - Comment type.
  * @param {string} comment.value - Comment text.
- * @returns {boolean} Whether to keep it.
+ * @return {boolean} Whether to keep it.
  */
 function isTranslatorsComment( comment ) {
 	return (
@@ -96,7 +96,7 @@ if (
  *
  * @param {*} a - Object A.
  * @param {*} b - Object B.
- * @returns {*} Result:
+ * @return {*} Result:
  * - If A and B are both plain objects, like { ...a, ...b }.
  * - If they're arrays, elements of B replace those of A.
  * - If B is undefined, A. Else B.

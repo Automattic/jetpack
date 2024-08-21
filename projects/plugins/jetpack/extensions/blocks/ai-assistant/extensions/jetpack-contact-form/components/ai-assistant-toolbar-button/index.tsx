@@ -20,9 +20,9 @@ const AI_ASSISTANT_BAR_SLOT_CLASS = 'jetpack-ai-assistant-bar__slot';
  * Also, it creates a slot just after the contextual toolbar
  * to be used as the anchor for the Assistant Bar.
  *
- * @param {object} props - The component props.
+ * @param {object} props                     - The component props.
  * @param {string} props.jetpackFormClientId - The Jetpack Form block client ID.
- * @returns {ReactElement}               The toolbar button.
+ * @return {ReactElement}               The toolbar button.
  */
 export default function AiAssistantToolbarButton( {
 	jetpackFormClientId,

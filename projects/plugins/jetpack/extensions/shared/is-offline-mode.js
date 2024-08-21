@@ -4,7 +4,7 @@ import { get } from 'lodash';
 /**
  * Is Jetpack in offline mode?
  *
- * @returns {boolean} Whether Jetpack's offline mode is active.
+ * @return {boolean} Whether Jetpack's offline mode is active.
  */
 export default function isOfflineMode() {
 	return get( getJetpackData(), [ 'jetpack', 'is_offline_mode' ], false );

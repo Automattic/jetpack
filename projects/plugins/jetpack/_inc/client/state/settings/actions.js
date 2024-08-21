@@ -171,9 +171,9 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 /**
  * Maps the response from the API for handling special cases
  * like with regeneration of Post By Email where we need the new address from the response
- * @param {object} success           The JSON response from the API
+ * @param {object} success         The JSON response from the API
  * @param {object} requestedValues The object holding the requested value changes for settings.
- * @returns {object}                 The mapped object.
+ * @return {object}                 The mapped object.
  */
 function mapUpdateSettingsResponseFromApi( success, requestedValues ) {
 	let values = requestedValues;

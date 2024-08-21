@@ -10,10 +10,10 @@ import './style.scss';
 /**
  * The Jetpack Product Details component.
  *
- * @param {object} props -- The properties.
- * @param {number} props.productId -- The id of the product
+ * @param {object} props            -- The properties.
+ * @param {number} props.productId  -- The id of the product
  * @param {string} props.siteRawUrl -- The url of the site
- * @returns {React.Component} The `JetpackProductDetails` component.
+ * @return {React.Component} The `JetpackProductDetails` component.
  */
 const JetpackProductDetails = props => {
 	const { productId, siteRawUrl } = props;

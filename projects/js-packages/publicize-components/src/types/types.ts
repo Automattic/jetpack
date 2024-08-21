@@ -12,7 +12,13 @@ export type ConnectionService = {
 	multiple_external_user_ID_support?: boolean;
 };
 
+export interface ApiPaths {
+	refreshConnections: string;
+	resharePost: string;
+}
+
 export interface SocialScriptData {
+	api_paths: ApiPaths;
 	is_publicize_enabled: boolean;
 	feature_flags: FeatureFlags;
 	supported_services: Array< ConnectionService >;
@@ -39,8 +45,6 @@ type ConnectionDataSelectors = {
 type SharesDataSelectors = {
 	getSharesCount: () => number;
 	getPostsCount: () => number;
-	isShareLimitEnabled: () => boolean;
-	numberOfSharesRemaining: () => number;
 };
 
 type SiteDataSelectors = {

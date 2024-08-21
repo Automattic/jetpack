@@ -5,7 +5,7 @@ import styles from './styles.module.scss';
 /**
  * Settings section of the social post modal.
  *
- * @returns {import('react').ReactNode} - Settings section of the social post modal.
+ * @return {import('react').ReactNode} - Settings section of the social post modal.
  */
 export function SettingsSection() {
 	return (

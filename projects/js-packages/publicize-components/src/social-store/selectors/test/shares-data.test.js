@@ -1,73 +1,11 @@
 import {
 	getScheduledSharesCount,
-	getShareLimit,
 	getSharedPostsCount,
 	getSharesUsedCount,
 	getTotalSharesCount,
-	isShareLimitEnabled,
-	numberOfSharesRemaining,
-	showShareLimits,
 } from '../shares-data';
 
 describe( 'Social store selectors: sharesData', () => {
-	describe( 'isShareLimitEnabled', () => {
-		it( 'should return the default value when no data', () => {
-			expect( isShareLimitEnabled( {} ) ).toBe( false );
-			expect( isShareLimitEnabled( { sharesData: {} } ) ).toBe( false );
-		} );
-
-		it( 'should return the value from state', () => {
-			expect( isShareLimitEnabled( { sharesData: { is_share_limit_enabled: true } } ) ).toBe(
-				true
-			);
-			expect( isShareLimitEnabled( { sharesData: { is_share_limit_enabled: false } } ) ).toBe(
-				false
-			);
-		} );
-	} );
-
-	describe( 'showShareLimits', () => {
-		it( 'should return the default value when no data', () => {
-			expect( showShareLimits( {} ) ).toBe( false );
-			expect( showShareLimits( { sharesData: {} } ) ).toBe( false );
-		} );
-
-		it( 'should fallback to isShareLimitEnabled if there is no paid plan', () => {
-			expect( showShareLimits( { sharesData: { is_share_limit_enabled: true } } ) ).toBe( true );
-			expect( showShareLimits( { sharesData: { s_share_limit_enabled: false } } ) ).toBe( false );
-		} );
-
-		it( 'should return false if there is a paid plan', () => {
-			expect(
-				showShareLimits( {
-					sharesData: {
-						is_share_limit_enabled: true,
-					},
-					hasPaidPlan: true,
-				} )
-			).toBe( false );
-
-			expect(
-				showShareLimits( {
-					jetpackSettings: { showNudge: false },
-					sharesData: { is_share_limit_enabled: true },
-				} )
-			).toBe( false );
-		} );
-	} );
-
-	describe( 'getShareLimit', () => {
-		it( 'should return the default value when no data', () => {
-			expect( getShareLimit( {} ) ).toBe( 30 );
-			expect( getShareLimit( { sharesData: {} } ) ).toBe( 30 );
-		} );
-
-		it( 'should return the value from state', () => {
-			expect( getShareLimit( { sharesData: { share_limit: 100 } } ) ).toBe( 100 );
-			expect( getShareLimit( { sharesData: { share_limit: 0 } } ) ).toBe( 0 );
-		} );
-	} );
-
 	describe( 'getSharesUsedCount', () => {
 		it( 'should return the default value when no data', () => {
 			expect( getSharesUsedCount( {} ) ).toBe( 0 );
@@ -131,94 +69,5 @@ describe( 'Social store selectors: sharesData', () => {
 			expect( getSharedPostsCount( { sharesData: { shared_posts_count: 100 } } ) ).toBe( 100 );
 			expect( getSharedPostsCount( { sharesData: { shared_posts_count: 0 } } ) ).toBe( 0 );
 		} );
-	} );
-
-	describe( 'numberOfSharesRemaining', () => {
-		it( 'should return infinity when share limits are not applied', () => {
-			expect( numberOfSharesRemaining( {} ) ).toBe( Infinity );
-			expect( numberOfSharesRemaining( { sharesData: { is_share_limit_enabled: false } } ) ).toBe(
-				Infinity
-			);
-		} );
-
-		it( 'should return 0 instead of negative number when limits are crossed', () => {
-			expect(
-				numberOfSharesRemaining( {
-					sharesData: {
-						is_share_limit_enabled: true,
-						publicized_count: 35,
-					},
-				} )
-			).toBe( 0 );
-		} );
-
-		const suites = [
-			[
-				'should count used and scheduled shares',
-				{
-					includeScheduled: true,
-				},
-				[
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						result: 10,
-					},
-					{
-						sharesUsed: 20,
-						scheduledShares: 10,
-						result: 0,
-					},
-					{
-						sharesUsed: 0,
-						scheduledShares: 0,
-						result: 30,
-					},
-				],
-			],
-			[
-				'should count used shares but not the scheduled shares',
-				{
-					includeScheduled: false,
-				},
-				[
-					{
-						sharesUsed: 10,
-						scheduledShares: 10,
-						result: 20,
-					},
-					{
-						sharesUsed: 30,
-						scheduledShares: 10,
-						result: 0,
-					},
-					{
-						sharesUsed: 0,
-						scheduledShares: 0,
-						result: 30,
-					},
-				],
-			],
-		];
-
-		for ( const [ name, args, cases ] of suites ) {
-			it( `${ name }`, () => {
-				for ( const { sharesUsed, scheduledShares, result } of cases ) {
-					expect(
-						numberOfSharesRemaining(
-							{
-								sharesData: {
-									is_share_limit_enabled: true,
-									publicized_count: sharesUsed,
-									to_be_publicized_count: scheduledShares,
-									share_limit: 30,
-								},
-							},
-							args
-						)
-					).toBe( result );
-				}
-			} );
-		}
 	} );
 } );
