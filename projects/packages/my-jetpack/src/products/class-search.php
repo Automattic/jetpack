@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
@@ -222,22 +223,33 @@ class Search extends Hybrid_Product {
 	 */
 	public static function get_pricing_from_wpcom( $record_count ) {
 		static $pricings = array();
+		$connection      = new Connection_Manager();
+		$blog_id         = \Jetpack_Options::get_option( 'id' );
 
 		if ( isset( $pricings[ $record_count ] ) ) {
 			return $pricings[ $record_count ];
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// For simple sites fetch the response directly.
+		// If the site is connected, request pricing with the blog token
+		if ( $blog_id ) {
+			$endpoint = sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() );
+
+			// If available in the user data, set the user's currency as one of the params
+			if ( $connection->is_user_connected() ) {
+				$user_details = $connection->get_connected_user_data();
+				if ( $user_details['user_currency'] && $user_details['user_currency'] !== 'USD' ) {
+					$endpoint .= sprintf( '&currency=%s', $user_details['user_currency'] );
+				}
+			}
+
 			$response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
+				$endpoint,
 				'2',
 				array( 'timeout' => 5 ),
 				null,
 				'wpcom'
 			);
 		} else {
-			// For non-simple sites we have to use the wp_remote_get, as connection might not be available.
 			$response = wp_remote_get(
 				sprintf( Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/wpcom/v2/jetpack-search/pricing?record_count=%1$d&locale=%2$s', $record_count, get_user_locale() ),
 				array( 'timeout' => 5 )
