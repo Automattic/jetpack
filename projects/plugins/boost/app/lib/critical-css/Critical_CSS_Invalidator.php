@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Lib\Boost_Health;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
@@ -45,9 +46,12 @@ class Critical_CSS_Invalidator {
 			$state->prepare_for_generation( ( new Source_Providers() )->get_provider_sources() );
 			$state->save();
 
-			// Clear the regenerate flag.
-			// If we don't clear it, reverting to free will show the regenerate notice.
+			// Clear the regenerate flag so things are nice and tidy.
 			jetpack_boost_ds_delete( 'critical_css_suggest_regenerate' );
+			// Also clear the admin notice flag, so the notice doesn't show up in case
+			// the user is reverted to free Boost.
+			Regenerate_Admin_Notice::dismiss();
+
 		}
 
 		Cloud_CSS_Followup::unschedule();
