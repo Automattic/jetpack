@@ -1,6 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useMemo } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
@@ -56,31 +55,15 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 	const tooltipContent = useProtectTooltipCopy();
 	const { blockedLoginsTooltip } = tooltipContent;
 
-	const blockedLoginsFontSize = useMemo( () => {
-		switch ( true ) {
-			case blockedLoginsCount > 99999:
-				return 20;
-			case blockedLoginsCount > 9999:
-				return 24;
-			case blockedLoginsCount > 999:
-				return 28;
-			default:
-				return 36;
-		}
-	}, [ blockedLoginsCount ] );
-
-	const blockedLoginsStyle = {
-		letterSpacing: '-1px',
-		fontSize: `${ blockedLoginsFontSize }px`,
+	const shortenedNumberConfig: Intl.NumberFormatOptions = {
+		maximumFractionDigits: 1,
+		notation: 'compact',
 	};
 
 	if ( status === 'active' ) {
 		return blockedLoginsCount > 0 ? (
-			<div
-				className="logins_blocked__count"
-				style={ blockedLoginsFontSize < 36 ? blockedLoginsStyle : {} }
-			>
-				{ numberFormat( blockedLoginsCount ) }
+			<div className="logins_blocked__count">
+				{ numberFormat( blockedLoginsCount, shortenedNumberConfig ) }
 			</div>
 		) : (
 			<>
@@ -126,11 +109,8 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 								) }
 							/>
 						</div>
-						<div
-							className="logins_blocked__count"
-							style={ blockedLoginsFontSize < 36 ? blockedLoginsStyle : {} }
-						>
-							{ numberFormat( blockedLoginsCount ) }
+						<div className="logins_blocked__count">
+							{ numberFormat( blockedLoginsCount, shortenedNumberConfig ) }
 						</div>
 					</>
 				) : (
