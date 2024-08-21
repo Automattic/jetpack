@@ -1,6 +1,10 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
+	// ES2025
+	'no-regexp-duplicate-named-capturing-groups':
+		'javascript.regular_expressions.named_capturing_group.duplicate_named_capturing_groups',
+
 	// ES2024
 	'no-arraybuffer-prototype-transfer': 'javascript.builtins.ArrayBuffer.transfer',
 	'no-atomics-waitasync': 'javascript.builtins.Atomics.waitAsync',
