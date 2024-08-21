@@ -38,7 +38,7 @@ if ( ! class_exists( 'Tonesque' ) ) {
 		 * @param string $image_url Image URL.
 		 */
 		public function __construct( $image_url ) {
-			_deprecated_function( 'Tonesque::__construct', 'jetpack-$$next-version$$' );
+			_deprecated_function( 'Tonesque::__construct', 'jetpack-13.8' );
 
 			if ( ! class_exists( 'Jetpack_Color' ) ) {
 				require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class.color.php';
@@ -68,7 +68,7 @@ if ( ! class_exists( 'Tonesque' ) ) {
 		 * @return object|bool Image object or false if the image could not be loaded.
 		 */
 		public static function imagecreatefromurl( $image_url ) {
-			_deprecated_function( 'Tonesque::imagecreatefromurl', 'jetpack-$$next-version$$' );
+			_deprecated_function( 'Tonesque::imagecreatefromurl', 'jetpack-13.8' );
 
 			$data = null;
 
