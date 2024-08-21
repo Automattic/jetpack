@@ -27,8 +27,6 @@ export default function PublicizeForm() {
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
 
-	const { useAdminUiV1 } = getSocialScriptData().feature_flags;
-
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const { feature_flags } = getSocialScriptData();
@@ -37,7 +35,7 @@ export default function PublicizeForm() {
 		<Wrapper>
 			{
 				// Render modal only once
-				useAdminUiV1 ? <ManageConnectionsModal /> : null
+				feature_flags.useAdminUiV1 ? <ManageConnectionsModal /> : null
 			}
 			{ hasConnections ? (
 				<>
