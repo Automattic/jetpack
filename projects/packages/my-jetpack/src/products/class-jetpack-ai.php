@@ -264,7 +264,14 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
 		$is_tier_plan = $tier && intval( $tier ) > 1;
-		$features     = array(
+
+		if ( $tier === 100 && ( ! self::is_site_connected() || ! self::has_paid_plan_for_product() ) ) {
+			// in these cases, get_next_usage_tier() will return 100
+			// 100 is fine as default when tiered plans are enabled, but not otherwise
+			$is_tier_plan = false;
+		}
+
+		$features = array(
 			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
