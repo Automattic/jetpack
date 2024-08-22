@@ -139,6 +139,7 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/help-center/class-help-center.php';
 		}
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+		require_once __DIR__ . '/features/sync-locale-from-calypso-to-atomic/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
