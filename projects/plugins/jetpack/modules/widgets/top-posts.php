@@ -15,6 +15,7 @@
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 // Register the widget for use in Appearance -> Widgets
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
@@ -94,7 +95,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
-		$widget_types[] = 'top-posts';
+		// @TODO: Hide for Simple sites when the block API starts working.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$widget_types[] = 'top-posts';
+		}
 		return $widget_types;
 	}
 
