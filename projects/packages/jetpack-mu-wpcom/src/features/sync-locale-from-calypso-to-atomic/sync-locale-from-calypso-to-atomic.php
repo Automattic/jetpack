@@ -84,7 +84,6 @@ function _unload_non_default_textdomains_on_wpcom_user_locale_switch( $wpcom_loc
  * Handles the locale setup for Atomic sites.
  *
  * @param string $user_locale The user's locale.
- * @return string The updated locale.
  */
 function wpcom_sync_locale_from_calypso_to_atomic( $user_locale ) {
 	$user_id            = get_current_user_id();
