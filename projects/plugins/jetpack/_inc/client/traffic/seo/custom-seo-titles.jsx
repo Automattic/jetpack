@@ -46,18 +46,14 @@ export const stringToTokenizedArray = ( inputValue, pageType ) => {
 	);
 
 	return inputArray
-		.filter( value => {
-			if ( value ) {
-				return value;
-			}
-		} )
+		.filter( value => value )
 		.map( value => {
 			let matchedToken = null;
-			Object.keys( customSeoTitleFormats.insertableTokens ).map( token => {
+			for ( const token of Object.keys( customSeoTitleFormats.insertableTokens ) ) {
 				if ( value === `[${ token }]` ) {
 					matchedToken = token;
 				}
-			} );
+			}
 
 			if (
 				matchedToken &&

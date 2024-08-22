@@ -22,9 +22,9 @@ describe( 'Recommendations – Product Purchased', () => {
 		expect( screen.getByText( 'You now have access to these benefits:' ) ).toBeInTheDocument();
 
 		// Shows dynamic features checkboxes.
-		productSuggestion.features.map( feature => {
+		for ( const feature of productSuggestion.features ) {
 			expect( screen.getByText( feature ) ).toBeInTheDocument();
-		} );
+		}
 	} );
 
 	it( 'track landing on the purchase step', () => {
