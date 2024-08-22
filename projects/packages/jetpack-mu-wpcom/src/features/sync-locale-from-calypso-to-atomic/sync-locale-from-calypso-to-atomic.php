@@ -15,7 +15,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 function _get_jetpack_locale( $slug = '' ) {
 	if ( ! class_exists( 'GP_Locales' ) ) {
-		// @phan-suppress-next-line PhanTypeMismatchArgumentNullableInternal -- See https://github.com/Automattic/jetpack/issues/2707#issuecomment-2036701663
 		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
 			require JETPACK__GLOTPRESS_LOCALES_PATH;
 		}
@@ -103,7 +102,5 @@ function wpcom_sync_locale_from_calypso_to_atomic( $user_locale ) {
 	if ( get_user_option( 'locale', $user_id ) !== $jetpack_locale ) {
 		update_user_option( $user_id, 'locale', $jetpack_locale, true );
 	}
-
-	return $jetpack_locale;
 }
-add_filter( 'plugins_loaded', 'wpcom_sync_locale_from_calypso_to_atomic' );
+add_filter( 'init', 'wpcom_sync_locale_from_calypso_to_atomic' );
