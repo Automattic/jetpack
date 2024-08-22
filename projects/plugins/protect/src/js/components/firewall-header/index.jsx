@@ -19,7 +19,6 @@ const FirewallHeader = ( {
 	wafSupported,
 	oneDayStats,
 	thirtyDayStats,
-	jetpackWafShareData,
 	standaloneMode,
 } ) => {
 	return (
@@ -106,7 +105,6 @@ const FirewallHeader = ( {
 							hasRequiredPlan={ hasRequiredPlan }
 							oneDayStats={ oneDayStats }
 							thirtyDayStats={ thirtyDayStats }
-							jetpackWafShareData={ jetpackWafShareData }
 						/>
 					) }
 				</Col>
@@ -124,7 +122,6 @@ const ConnectedFirewallHeader = () => {
 			standaloneMode,
 			automaticRulesAvailable,
 			bruteForceProtection,
-			jetpackWafShareData,
 		},
 		isToggling,
 		wafSupported,
@@ -150,7 +147,6 @@ const ConnectedFirewallHeader = () => {
 			wafSupported={ wafSupported }
 			oneDayStats={ oneDayStats }
 			thirtyDayStats={ thirtyDayStats }
-			jetpackWafShareData={ jetpackWafShareData }
 			standaloneMode={ standaloneMode }
 		/>
 	);

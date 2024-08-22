@@ -21,6 +21,7 @@ class Waf_Stats {
 		return array(
 			'one_day_stats'    => Waf_Blocklog_Manager::get_one_day_stats(),
 			'thirty_day_stats' => Waf_Blocklog_Manager::get_thirty_day_stats(),
+			'all_time_stats'   => Waf_Blocklog_Manager::get_all_time_stats(),
 		);
 	}
 

@@ -19,7 +19,6 @@ FirewallOnFree.args = {
 	wafSupported: true,
 	oneDayStats: 0,
 	thirtyDayStats: 0,
-	jetpackWafShareData: true,
 	standaloneMode: false,
 };
 
@@ -34,7 +33,6 @@ FirewallOffFree.args = {
 	wafSupported: true,
 	oneDayStats: 0,
 	thirtyDayStats: 0,
-	jetpackWafShareData: true,
 	standaloneMode: false,
 };
 
@@ -49,7 +47,6 @@ FirewallOnPaid.args = {
 	wafSupported: true,
 	oneDayStats: 100,
 	thirtyDayStats: 30000,
-	jetpackWafShareData: true,
 	standaloneMode: false,
 };
 
@@ -64,7 +61,6 @@ FirewallOffPaid.args = {
 	wafSupported: true,
 	oneDayStats: 0,
 	thirtyDayStats: 0,
-	jetpackWafShareData: true,
 	standaloneMode: false,
 };
 
@@ -79,7 +75,6 @@ FirewallOnStandalone.args = {
 	wafSupported: true,
 	oneDayStats: 100,
 	thirtyDayStats: 30000,
-	jetpackWafShareData: true,
 	standaloneMode: true,
 };
 
@@ -94,6 +89,5 @@ FirewallLoading.args = {
 	wafSupported: true,
 	oneDayStats: 0,
 	thirtyDayStats: 0,
-	jetpackWafShareData: true,
 	standaloneMode: false,
 };

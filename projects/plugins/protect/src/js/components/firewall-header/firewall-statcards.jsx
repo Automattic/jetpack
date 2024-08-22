@@ -4,18 +4,10 @@ import { Icon, shield, chartBar } from '@wordpress/icons';
 import React from 'react';
 import styles from './styles.module.scss';
 
-const FirewallStatCards = ( {
-	status,
-	hasRequiredPlan,
-	oneDayStats,
-	thirtyDayStats,
-	jetpackWafShareData,
-} ) => {
+const FirewallStatCards = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const statCardIsDisabled = status !== 'on' || ! jetpackWafShareData;
-
 	const defaultArgs = {
-		className: statCardIsDisabled ? styles.disabled : styles.active,
+		className: status !== 'on' ? styles.disabled : styles.active,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
@@ -57,14 +49,14 @@ const FirewallStatCards = ( {
 		...defaultArgs,
 		icon: getIcon( shield ),
 		label: getLabel( 24, 'hours' ),
-		value: statCardIsDisabled ? 0 : oneDayStats,
+		value: status !== 'on' ? 0 : oneDayStats,
 	};
 
 	const thirtyDayArgs = {
 		...defaultArgs,
 		icon: getIcon( chartBar ),
 		label: getLabel( 30, 'days' ),
-		value: statCardIsDisabled ? 0 : thirtyDayStats,
+		value: status !== 'on' ? 0 : thirtyDayStats,
 	};
 
 	return (

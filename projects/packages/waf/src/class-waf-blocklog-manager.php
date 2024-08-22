@@ -86,10 +86,6 @@ class Waf_Blocklog_Manager {
 	 * @return void
 	 */
 	private static function update_daily_summary() {
-		if ( ! ( defined( 'JETPACK_WAF_SHARE_DATA' ) && JETPACK_WAF_SHARE_DATA ) ) {
-			return;
-		}
-
 		$option_name = 'jetpack_waf_blocklog_daily_summary';
 		$date        = gmdate( 'Y-m-d' );
 
@@ -203,6 +199,56 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
+	 * Get the total number of blocked requests for all time.
+	 *
+	 * @return int
+	 */
+	public static function get_all_time_stats() {
+		$all_time_stats = get_option( 'jetpack_waf_all_time_stats', false );
+
+		if ( false !== $all_time_stats ) {
+			return intval( $all_time_stats );
+		}
+
+		// Initialize all_time_stats based on last log ID or 0 if no logs exist
+		$all_time_stats = self::initialize_all_time_stats();
+		return intval( $all_time_stats );
+	}
+
+	/**
+	 * Increment the all-time stats.
+	 */
+	public static function update_all_time_stats() {
+		$all_time_stats = get_option( 'jetpack_waf_all_time_stats', false );
+
+		if ( false === $all_time_stats ) {
+			// Initialize all_time_stats if not already set
+			$all_time_stats = self::initialize_all_time_stats();
+		}
+
+		// Increment and update the stats
+		++$all_time_stats;
+		update_option( 'jetpack_waf_all_time_stats', $all_time_stats );
+	}
+
+	/**
+	 * Initialize the all-time stats based on the last log ID.
+	 *
+	 * @return int The initialized all-time stats value.
+	 */
+	private static function initialize_all_time_stats() {
+		// TODO: Need to account for standalone mode, see write_blocklog_row, and update_daily_summary methods - could these be consolidated?
+		global $wpdb;
+
+		$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+
+		$all_time_stats = $last_log_id ? intval( $last_log_id ) : 0;
+		update_option( 'jetpack_waf_all_time_stats', $all_time_stats );
+
+		return $all_time_stats;
+	}
+
+	/**
 	 * Get the headers for logging purposes.
 	 */
 	public static function get_request_headers() {
@@ -257,8 +303,9 @@ class Waf_Blocklog_Manager {
 			}
 		}
 
-		self::write_blocklog_row( $log_data );
 		self::update_daily_summary();
+		self::update_all_time_stats();
+		self::write_blocklog_row( $log_data );
 	}
 
 	/**
