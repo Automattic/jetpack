@@ -14,8 +14,8 @@ import {
 /**
  * Yield actions to get Search Module Status
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchModuleStatus() {
 	try {
@@ -31,8 +31,8 @@ export function* getSearchModuleStatus() {
 /**
  * Yield actions to get search plan info
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchPlanInfo() {
 	try {
@@ -48,8 +48,8 @@ export function* getSearchPlanInfo() {
 /**
  * Yield actions to get search stats
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchStats() {
 	try {
@@ -65,8 +65,8 @@ export function* getSearchStats() {
 /**
  * Yield actions to get search pricing
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSearchPricing() {
 	try {

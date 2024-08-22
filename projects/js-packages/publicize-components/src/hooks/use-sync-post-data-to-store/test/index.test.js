@@ -69,17 +69,28 @@ describe( 'useSyncPostDataToStore', () => {
 		// Mock apiFetch response.
 		apiFetch.setFetchHandler( async options => {
 			const method = getMethod( options );
-			const { path, data } = options;
+			const { path, data, parse = true } = options;
+
+			const wrapReturn = parse
+				? v => v
+				: v =>
+						// Ideally we'd do `new Response( JSON.stringify( v ) )` here, but jsdom deletes that. Sigh.
+						// See https://github.com/jsdom/jsdom/issues/1724
+						( {
+							async json() {
+								return v;
+							},
+						} );
 
 			if ( method === 'PUT' && path.startsWith( `/wp/v2/posts/${ testPost.id }` ) ) {
-				return { ...post, ...data };
+				return wrapReturn( { ...post, ...data } );
 			} else if (
 				// This URL is requested by the actions dispatched in this test.
 				// They are safe to ignore and are only listed here to avoid triggeringan error.
 				method === 'GET' &&
 				path.startsWith( '/wp/v2/types/post' )
 			) {
-				return {};
+				return wrapReturn( {} );
 			}
 
 			throw {

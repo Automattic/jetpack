@@ -2,10 +2,10 @@ import { __ } from '@wordpress/i18n';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { InfoTooltip } from '../../info-tooltip';
 import ShieldInactive from './assets/shield-inactive.svg';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldSuccess from './assets/shield-success.svg';
-import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { ReactElement, PropsWithChildren } from 'react';
 
@@ -33,10 +33,10 @@ export const AutoFirewallStatus = () => {
 /**
  * WafStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}             props        - The component props
  * @param {'active' | 'inactive' | 'off'} props.status - The status of the WAF
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 	const slug = 'protect';
@@ -75,12 +75,13 @@ function WafStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) {
 					tracksEventProps={ {
 						location: 'auto-firewall',
 						status: status,
+						feature: 'jetpack-protect',
 						has_paid_plan: hasPaidPlanForProduct,
 					} }
 				>
 					<>
-						<h3 className="value-section__tooltip-heading">{ autoFirewallTooltip.title }</h3>
-						<p className="value-section__tooltip-content">{ autoFirewallTooltip.text }</p>
+						<h3>{ autoFirewallTooltip.title }</h3>
+						<p>{ autoFirewallTooltip.text }</p>
 					</>
 				</InfoTooltip>
 			</>

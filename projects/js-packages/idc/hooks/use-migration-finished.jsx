@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 /**
  * Custom hook to handle finishing migration action.
  *
- * @returns {{isFinishingMigration: boolean, finishMigrationCallback: ((function(): void)|*)}} Hook values.
+ * @return {{isFinishingMigration: boolean, finishMigrationCallback: ((function(): void)|*)}} Hook values.
  */
 export default () => {
 	const [ isFinishingMigration, setIsFinishingMigration ] = useState( false );

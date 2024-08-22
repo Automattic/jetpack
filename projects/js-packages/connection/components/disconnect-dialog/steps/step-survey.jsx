@@ -10,7 +10,7 @@ import DisconnectSurvey from '../../disconnect-survey';
  * Show the survey step and allow the user to select a response.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The StepSurvey Component
+ * @return {React.Component} The StepSurvey Component
  */
 const StepSurvey = props => {
 	const { onExit, onFeedBackProvided, isSubmittingFeedback } = props;
