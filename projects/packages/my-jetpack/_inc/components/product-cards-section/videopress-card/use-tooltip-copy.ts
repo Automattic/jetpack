@@ -89,7 +89,7 @@ const useTooltipCopy = () => {
 	);
 
 	const watchTime = {
-		title: period === 'day' ? thirtyDayViews : yearlyViews,
+		title: __( 'Total time watched', 'jetpack-my-jetpack' ),
 		text: period === 'day' ? watchTimeTextDay : watchTimeTextYear,
 	};
 
