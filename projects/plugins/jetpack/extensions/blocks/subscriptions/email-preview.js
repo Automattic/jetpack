@@ -33,7 +33,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const { tracks } = useAnalytics();
 
 	const sendTestEmail = async () => {
-		tracks.recordEvent( 'jetpack_newsletter_send_test_email', { post_id: postId } );
+		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setIsEmailSending( true );
 		await __unstableSaveForPreview();
 
