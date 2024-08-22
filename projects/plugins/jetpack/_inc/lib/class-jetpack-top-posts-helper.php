@@ -44,6 +44,14 @@ class Jetpack_Top_Posts_Helper {
 			$data = array( 'summary' => array( 'postviews' => array() ) );
 		}
 
+		// Remove posts that have subsequently been deleted.
+		$data['summary']['postviews'] = array_filter(
+			$data['summary']['postviews'],
+			function ( $item ) {
+				return get_post_status( $item['id'] ) === 'publish';
+			}
+		);
+
 		$posts_retrieved = is_countable( $data['summary']['postviews'] ) ? count( $data['summary']['postviews'] ) : 0;
 
 		// Fallback to random posts if user does not have enough top content.
