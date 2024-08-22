@@ -1,9 +1,9 @@
-import { numberFormat } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import numberFormat from '../../../utils/format-number';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
@@ -57,11 +57,6 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 	const tooltipContent = useProtectTooltipCopy();
 	const { blockedLoginsTooltip } = tooltipContent;
 
-	const shortenedNumberConfig: Intl.NumberFormatOptions = {
-		maximumFractionDigits: 1,
-		notation: 'compact',
-	};
-
 	if ( status === 'active' ) {
 		return blockedLoginsCount > 0 ? (
 			<>
@@ -69,9 +64,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
-					<div className="logins_blocked__count">
-						{ numberFormat( blockedLoginsCount, shortenedNumberConfig ) }
-					</div>
+					<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
 				</div>
 			</>
 		) : (
@@ -140,9 +133,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 									) }
 								/>
 							</div>
-							<div className="logins_blocked__count">
-								{ numberFormat( blockedLoginsCount, shortenedNumberConfig ) }
-							</div>
+							<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
 						</>
 					) : (
 						<div>
