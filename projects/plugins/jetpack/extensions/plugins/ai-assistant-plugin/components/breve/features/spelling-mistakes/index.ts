@@ -111,14 +111,21 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		return highlightedTexts;
 	}
 
-	words.forEach( ( word: string, index ) => {
+	// To avoid highlighting the same word occurrence multiple times
+	let searchStartIndex = 0;
+
+	words.forEach( ( word: string ) => {
+		const wordIndex = text.indexOf( word, searchStartIndex );
+
 		if ( ! spellchecker.correct( word ) ) {
 			highlightedTexts.push( {
 				text: word,
-				startIndex: text.indexOf( word, index ),
-				endIndex: text.indexOf( word, index ) + word.length,
+				startIndex: wordIndex,
+				endIndex: wordIndex + word.length,
 			} );
 		}
+
+		searchStartIndex = wordIndex + word.length;
 	} );
 
 	return highlightedTexts;
