@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
+use Automattic\Jetpack\Schema\Parser;
 
 class DS_Utils {
 
