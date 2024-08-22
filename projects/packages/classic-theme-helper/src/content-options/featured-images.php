@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Featured Images.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {

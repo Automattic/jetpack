@@ -3,7 +3,7 @@
  * Jetpack Compatibility File
  * See: https://jetpack.com/
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 /**

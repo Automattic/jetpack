@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Customizer enhancements.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
@@ -77,7 +77,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 		$wp_customize->add_section(
 			'jetpack_content_options',
 			array(
-				'title'          => esc_html__( 'Content Options', 'jetpack' ),
+				'title'          => esc_html__( 'Content Options', 'jetpack-classic-theme-helper' ),
 				'theme_supports' => 'jetpack-content-options',
 				'priority'       => 100,
 			)
@@ -87,19 +87,19 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 		if ( in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ), true ) ) {
 			if ( 'mixed' === $blog_display ) {
 				$blog_display_choices = array(
-					'content' => esc_html__( 'Full post', 'jetpack' ),
-					'excerpt' => esc_html__( 'Post excerpt', 'jetpack' ),
-					'mixed'   => esc_html__( 'Default', 'jetpack' ),
+					'content' => esc_html__( 'Full post', 'jetpack-classic-theme-helper' ),
+					'excerpt' => esc_html__( 'Post excerpt', 'jetpack-classic-theme-helper' ),
+					'mixed'   => esc_html__( 'Default', 'jetpack-classic-theme-helper' ),
 				);
 
-				$blog_display_description = esc_html__( 'Choose between a full post or an excerpt for the blog and archive pages, or opt for the theme\'s default combination of excerpt and full post.', 'jetpack' );
+				$blog_display_description = esc_html__( 'Choose between a full post or an excerpt for the blog and archive pages, or opt for the theme\'s default combination of excerpt and full post.', 'jetpack-classic-theme-helper' );
 			} else {
 				$blog_display_choices = array(
-					'content' => esc_html__( 'Full post', 'jetpack' ),
-					'excerpt' => esc_html__( 'Post excerpt', 'jetpack' ),
+					'content' => esc_html__( 'Full post', 'jetpack-classic-theme-helper' ),
+					'excerpt' => esc_html__( 'Post excerpt', 'jetpack-classic-theme-helper' ),
 				);
 
-				$blog_display_description = esc_html__( 'Choose between a full post or an excerpt for the blog and archive pages.', 'jetpack' );
+				$blog_display_description = esc_html__( 'Choose between a full post or an excerpt for the blog and archive pages.', 'jetpack-classic-theme-helper' );
 
 				if ( 'mixed' === get_option( 'jetpack_content_blog_display' ) ) {
 					update_option( 'jetpack_content_blog_display', $blog_display );
@@ -120,7 +120,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 				'jetpack_content_blog_display',
 				array(
 					'section'     => 'jetpack_content_options',
-					'label'       => esc_html__( 'Blog Display', 'jetpack' ),
+					'label'       => esc_html__( 'Blog Display', 'jetpack-classic-theme-helper' ),
 					'description' => $blog_display_description,
 					'type'        => 'radio',
 					'choices'     => $blog_display_choices,
@@ -138,7 +138,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_author_bio_title',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Author Bio', 'jetpack' ),
+						'label'   => esc_html__( 'Author Bio', 'jetpack-classic-theme-helper' ),
 						'type'    => 'title',
 					)
 				)
@@ -157,7 +157,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 				'jetpack_content_author_bio',
 				array(
 					'section' => 'jetpack_content_options',
-					'label'   => esc_html__( 'Display on single posts', 'jetpack' ),
+					'label'   => esc_html__( 'Display on single posts', 'jetpack-classic-theme-helper' ),
 					'type'    => 'checkbox',
 				)
 			);
@@ -179,7 +179,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_title',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Post Details', 'jetpack' ),
+						'label'   => esc_html__( 'Post Details', 'jetpack-classic-theme-helper' ),
 						'type'    => 'title',
 					)
 				)
@@ -201,7 +201,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_date',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Display date', 'jetpack' ),
+						'label'   => esc_html__( 'Display date', 'jetpack-classic-theme-helper' ),
 						'type'    => 'checkbox',
 					)
 				);
@@ -223,7 +223,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_categories',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Display categories', 'jetpack' ),
+						'label'   => esc_html__( 'Display categories', 'jetpack-classic-theme-helper' ),
 						'type'    => 'checkbox',
 					)
 				);
@@ -245,7 +245,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_tags',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Display tags', 'jetpack' ),
+						'label'   => esc_html__( 'Display tags', 'jetpack-classic-theme-helper' ),
 						'type'    => 'checkbox',
 					)
 				);
@@ -267,7 +267,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_author',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Display author', 'jetpack' ),
+						'label'   => esc_html__( 'Display author', 'jetpack-classic-theme-helper' ),
 						'type'    => 'checkbox',
 					)
 				);
@@ -289,7 +289,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_post_details_comment',
 					array(
 						'section' => 'jetpack_content_options',
-						'label'   => esc_html__( 'Display comment link', 'jetpack' ),
+						'label'   => esc_html__( 'Display comment link', 'jetpack-classic-theme-helper' ),
 						'type'    => 'checkbox',
 					)
 				);
@@ -306,7 +306,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_title',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Featured Images', 'jetpack' ) . sprintf( '<a href="https://en.support.wordpress.com/featured-images/" class="customize-help-toggle dashicons dashicons-editor-help" title="%1$s" rel="noopener noreferrer" target="_blank"><span class="screen-reader-text">%1$s</span></a>', esc_html__( 'Learn more about Featured Images', 'jetpack' ) ),
+						'label'           => esc_html__( 'Featured Images', 'jetpack-classic-theme-helper' ) . sprintf( '<a href="https://en.support.wordpress.com/featured-images/" class="customize-help-toggle dashicons dashicons-editor-help" title="%1$s" rel="noopener noreferrer" target="_blank"><span class="screen-reader-text">%1$s</span></a>', esc_html__( 'Learn more about Featured Images', 'jetpack-classic-theme-helper' ) ),
 						'type'            => 'title',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)
@@ -328,7 +328,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_archive',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Display on blog and archives', 'jetpack' ),
+						'label'           => esc_html__( 'Display on blog and archives', 'jetpack-classic-theme-helper' ),
 						'type'            => 'checkbox',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)
@@ -350,7 +350,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_post',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Display on single posts', 'jetpack' ),
+						'label'           => esc_html__( 'Display on single posts', 'jetpack-classic-theme-helper' ),
 						'type'            => 'checkbox',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)
@@ -372,7 +372,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_page',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Display on pages', 'jetpack' ),
+						'label'           => esc_html__( 'Display on pages', 'jetpack-classic-theme-helper' ),
 						'type'            => 'checkbox',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)
@@ -394,7 +394,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_portfolio',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Display on single projects', 'jetpack' ),
+						'label'           => esc_html__( 'Display on single projects', 'jetpack-classic-theme-helper' ),
 						'type'            => 'checkbox',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)
@@ -416,7 +416,7 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 					'jetpack_content_featured_images_fallback',
 					array(
 						'section'         => 'jetpack_content_options',
-						'label'           => esc_html__( 'Automatically use first image in post', 'jetpack' ),
+						'label'           => esc_html__( 'Automatically use first image in post', 'jetpack-classic-theme-helper' ),
 						'type'            => 'checkbox',
 						'active_callback' => 'jetpack_post_thumbnail_supports',
 					)

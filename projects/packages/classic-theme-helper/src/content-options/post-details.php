@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Post Details.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_post_details_enqueue_scripts' ) ) {
