@@ -115,7 +115,7 @@ export const Typographies = args => (
 );
 
 Typographies.args = {
-	[ 'Text Instance' ]: '',
+	'Text Instance': '',
 };
 Typographies.parameters = {
 	docs: { source: { code: null } },
