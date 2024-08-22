@@ -3,6 +3,7 @@
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -59,6 +60,18 @@ const DefaultUpgradePrompt = ( {
 			placement: placement,
 		} );
 	}, [ tracks, placement ] );
+
+	// Return notice component for the fair usage limit message, on unlimited plans.
+	if ( currentTier?.value === 1 ) {
+		return (
+			<Notice status="warning" isDismissible={ false }>
+				{ __(
+					'You exceeded your current quota of requests. Check the usage policy for more information.',
+					'jetpack'
+				) }
+			</Notice>
+		);
+	}
 
 	if ( ! canUpgrade ) {
 		const cantUpgradeDescription = createInterpolateElement(
