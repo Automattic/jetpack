@@ -79,7 +79,7 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
+export const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	if ( spellcheckers[ language ] ) {
 		return spellcheckers[ language ];
 	}
@@ -103,7 +103,7 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 	// Regex to match words, including contractions and hyphenated words
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[\p{L}\p{M}'-]+/, 'gu' );
+	const wordRegex = new RegExp( /[\p{L}\p{M}']+/, 'gu' );
 	const words = text.match( wordRegex ) || [];
 	const spellchecker = getSpellchecker();
 
@@ -111,19 +111,21 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		return highlightedTexts;
 	}
 
-	words.forEach( ( word: string, index ) => {
-		if ( ! spellchecker.correct( word ) ) {
-			const suggestions = spellchecker.suggest( word );
+	// To avoid highlighting the same word occurrence multiple times
+	let searchStartIndex = 0;
 
-			if ( suggestions.length > 0 ) {
-				highlightedTexts.push( {
-					text: word,
-					startIndex: text.indexOf( word, index ),
-					endIndex: text.indexOf( word, index ) + word.length,
-					suggestions,
-				} );
-			}
+	words.forEach( ( word: string ) => {
+		const wordIndex = text.indexOf( word, searchStartIndex );
+
+		if ( ! spellchecker.correct( word ) ) {
+			highlightedTexts.push( {
+				text: word,
+				startIndex: wordIndex,
+				endIndex: wordIndex + word.length,
+			} );
 		}
+
+		searchStartIndex = wordIndex + word.length;
 	} );
 
 	return highlightedTexts;

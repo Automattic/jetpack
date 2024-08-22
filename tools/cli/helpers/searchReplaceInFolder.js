@@ -27,7 +27,7 @@ export default function searchReplaceInFolder( folder, search, replace ) {
 			if ( stats.isDirectory() ) {
 				searchReplaceInFolder( fileName, search, replace );
 			} else if ( stats.isSymbolicLink() ) {
-				return;
+				// ignore
 			} else {
 				fs.readFile( fileName, 'utf8', ( err, fileContents ) => {
 					if ( ! err ) {

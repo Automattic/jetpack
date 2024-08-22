@@ -1,3 +1,4 @@
+/* eslint-disable no-alert -- ok for demo */
 import React, { useState } from 'react';
 import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';

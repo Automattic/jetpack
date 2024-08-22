@@ -53,9 +53,7 @@ export const liveResizeModifier: liveResizeModifierFactory = (
 	name: 'liveResizeModifier',
 	enabled: true,
 	phase: 'main',
-	fn: () => {
-		return;
-	},
+	fn: () => {},
 	effect: arg0 => {
 		try {
 			const { state, instance } = arg0 as ModifierArgumentsWithObserversProp; // augment types here because we are mutating the properties on the argument that is passed in
