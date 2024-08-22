@@ -332,6 +332,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 								height: '100%',
 								border: 'none',
 								transition: 'width 0.3s ease-in-out',
+								pointerEvents: 'none',
 							} }
 							title={ __( 'Email Preview', 'jetpack' ) }
 						/>
