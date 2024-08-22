@@ -19,8 +19,8 @@ class Waf_Stats {
 	 */
 	public static function get_blocked_requests() {
 		return array(
-			'one_day_stats'    => Waf_Blocklog_Manager::get_today_stats(),
-			'thirty_day_stats' => Waf_Blocklog_Manager::get_current_month_stats(),
+			'one_day_stats'    => Waf_Blocklog_Manager::get_one_day_stats(),
+			'thirty_day_stats' => Waf_Blocklog_Manager::get_thirty_day_stats(),
 		);
 	}
 

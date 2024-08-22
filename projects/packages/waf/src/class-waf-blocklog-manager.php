@@ -176,7 +176,7 @@ class Waf_Blocklog_Manager {
 	 *
 	 * @return int
 	 */
-	public static function get_today_stats() {
+	public static function get_one_day_stats() {
 		$stats = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$today = gmdate( 'Y-m-d' );
 
@@ -184,11 +184,11 @@ class Waf_Blocklog_Manager {
 	}
 
 	/**
-	 * Get the total number of blocked requests for the current month.
+	 * Get the total number of blocked requests for last thirty days.
 	 *
 	 * @return int
 	 */
-	public static function get_current_month_stats() {
+	public static function get_thirty_day_stats() {
 		$stats               = get_option( 'jetpack_waf_blocklog_daily_summary', array() );
 		$current_month_start = gmdate( 'Y-m-01' );
 		$total_blocks        = 0;
