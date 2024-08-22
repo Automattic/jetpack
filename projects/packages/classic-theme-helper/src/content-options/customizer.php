@@ -52,24 +52,27 @@ if ( ! function_exists( 'jetpack_content_options_customize_register' ) ) {
 			return;
 		}
 
-		/**
-		 * New Customizer control type: Title.
-		 */
-		class Jetpack_Customize_Control_Title extends WP_Customize_Control {
-			/**
-			 * Customizer control type.
-			 *
-			 * @var string
-			 */
-			public $type = 'title';
+		if ( ! class_exists( 'Jetpack_Customize_Control_Title' ) ) {
 
 			/**
-			 * Render the control's content.
+			 * New Customizer control type: Title.
 			 */
-			public function render_content() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
-				?>
-				<span class="customize-control-title"><?php echo wp_kses_post( $this->label ); ?></span>
-				<?php
+			class Jetpack_Customize_Control_Title extends WP_Customize_Control {
+				/**
+				 * Customizer control type.
+				 *
+				 * @var string
+				 */
+				public $type = 'title';
+
+				/**
+				 * Render the control's content.
+				 */
+				public function render_content() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+					?>
+					<span class="customize-control-title"><?php echo wp_kses_post( $this->label ); ?></span>
+					<?php
+				}
 			}
 		}
 
@@ -445,7 +448,7 @@ if ( ! function_exists( 'jetpack_content_options_sanitize_checkbox' ) ) {
 	 * Sanitize the checkbox.
 	 *
 	 * @param int $input The unsanitized value from the setting.
-	 * @return boolean|string
+	 * @return int|string
 	 */
 	function jetpack_content_options_sanitize_checkbox( $input ) {
 		return ( 1 === (int) $input ) ? 1 : '';
