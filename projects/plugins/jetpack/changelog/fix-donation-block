@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations Block: Fix the editor got stuck after inserting a pattern with the donations block

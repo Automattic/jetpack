@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import nspell from 'nspell';
@@ -16,6 +17,7 @@ import type {
 	SpellingDictionaryContext,
 	HighlightedText,
 	SpellChecker,
+	BreveDispatch,
 } from '../../types';
 
 const debug = debugFactory( 'jetpack-ai-breve:spelling-mistakes' );
@@ -36,6 +38,10 @@ const contextRequests: {
 const fetchContext = async ( language: string ) => {
 	debug( 'Fetching spelling context from the server' );
 
+	const { setDictionaryLoading } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+
+	setDictionaryLoading( SPELLING_MISTAKES.name, true );
+
 	try {
 		contextRequests[ language ] = { loading: true, loaded: false, failed: false };
 		const data = await getDictionary( SPELLING_MISTAKES.name, language );
@@ -51,6 +57,8 @@ const fetchContext = async ( language: string ) => {
 		debug( 'Failed to fetch spelling context', error );
 		contextRequests[ language ] = { loading: false, loaded: false, failed: true };
 		// TODO: Handle retries
+	} finally {
+		setDictionaryLoading( SPELLING_MISTAKES.name, false );
 	}
 };
 
@@ -71,7 +79,7 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
+export const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	if ( spellcheckers[ language ] ) {
 		return spellcheckers[ language ];
 	}
@@ -90,12 +98,12 @@ const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	return spellcheckers[ language ];
 };
 
-export default function longSentences( text: string ): Array< HighlightedText > {
+export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
 	// Regex to match words, including contractions and hyphenated words
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[\p{L}\p{M}'-]+/, 'gu' );
+	const wordRegex = new RegExp( /[\p{L}\p{M}']+/, 'gu' );
 	const words = text.match( wordRegex ) || [];
 	const spellchecker = getSpellchecker();
 
@@ -103,19 +111,21 @@ export default function longSentences( text: string ): Array< HighlightedText > 
 		return highlightedTexts;
 	}
 
-	words.forEach( ( word: string, index ) => {
-		if ( ! spellchecker.correct( word ) ) {
-			const suggestions = spellchecker.suggest( word );
+	// To avoid highlighting the same word occurrence multiple times
+	let searchStartIndex = 0;
 
-			if ( suggestions.length > 0 ) {
-				highlightedTexts.push( {
-					text: word,
-					startIndex: text.indexOf( word, index ),
-					endIndex: text.indexOf( word, index ) + word.length,
-					suggestions,
-				} );
-			}
+	words.forEach( ( word: string ) => {
+		const wordIndex = text.indexOf( word, searchStartIndex );
+
+		if ( ! spellchecker.correct( word ) ) {
+			highlightedTexts.push( {
+				text: word,
+				startIndex: wordIndex,
+				endIndex: wordIndex + word.length,
+			} );
 		}
+
+		searchStartIndex = wordIndex + word.length;
 	} );
 
 	return highlightedTexts;
