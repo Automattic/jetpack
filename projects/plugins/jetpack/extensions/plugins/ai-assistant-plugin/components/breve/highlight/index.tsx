@@ -3,7 +3,7 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler } from '@wordpress/blocks';
+import { rawHandler, getBlockContent } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
@@ -19,9 +19,9 @@ import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import { LONG_SENTENCES } from '../features/long-sentences';
 import { SPELLING_MISTAKES, getSpellchecker } from '../features/spelling-mistakes';
-import { getNodeTextIndex } from '../utils/get-node-text-index';
-import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
+import getTargetText from '../utils/get-target-text';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
+import replaceOccurrence from '../utils/replace-occurrence';
 import './style.scss';
 /**
  * Types
@@ -137,17 +137,7 @@ export default function Highlight() {
 			type: feature,
 		} );
 
-		const target = ( anchor as HTMLElement )?.innerText;
-		const parent = getNonLinkAncestor( anchor as HTMLElement );
-		// The text containing the target
-		const text = parent?.innerText as string;
-		// Get the index of the target in the parent
-		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
-		// Get the occurrences of the target in the sentence
-		const targetRegex = new RegExp( target, 'gi' );
-		const matches = Array.from( text.matchAll( targetRegex ) ).map( match => match.index );
-		// Get the right occurrence of the target in the sentence
-		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
+		const { target, text, occurrence } = getTargetText( anchor as HTMLElement );
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
@@ -194,8 +184,28 @@ export default function Highlight() {
 		} );
 	};
 
-	const handleApplySpellingFix = () => {
-		// TODO: Implement
+	const handleApplySpellingFix = ( spellingSuggestion: string ) => {
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			setPopoverHover( false );
+			return;
+		}
+
+		const { target, occurrence } = getTargetText( anchor as HTMLElement );
+
+		const html = getBlockContent( block );
+		const fixedHtml = replaceOccurrence( {
+			text: html,
+			target,
+			occurrence,
+			replacement: spellingSuggestion,
+		} );
+
+		const [ newBlock ] = rawHandler( { HTML: fixedHtml } );
+		invalidateSuggestions( blockId );
+		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
 	};
 
 	const handleRetry = () => {
