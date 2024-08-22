@@ -33,7 +33,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose } ) {
 	const { tracks } = useAnalytics();
 
 	const sendTestEmail = async () => {
-		tracks.recordEvent( 'jetpack_send_email_preview', { post_id: postId } );
+		tracks.recordEvent( 'jetpack_newsletter_test_email_send', { post_id: postId } );
 		setIsEmailSending( true );
 		await __unstableSaveForPreview();
 
@@ -115,6 +115,12 @@ const previewDevices = [
 const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	const [ isMedium ] = useBreakpointMatch( 'md' );
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const { tracks } = useAnalytics();
+
+	const handleDeviceChange = device => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_device_change', { device } );
+		setSelectedDevice( device );
+	};
 
 	if ( isSmall ) {
 		return null;
@@ -126,7 +132,7 @@ const PreviewDeviceSelector = ( { selectedDevice, setSelectedDevice } ) => {
 	return (
 		<ToggleGroupControl
 			__nextHasNoMarginBottom
-			onChange={ setSelectedDevice }
+			onChange={ handleDeviceChange }
 			value={ selectedDevice }
 			isBlock
 		>
@@ -146,6 +152,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const accessLevel = useAccessLevel( postType );
+	const { tracks } = useAnalytics();
 
 	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
 
@@ -161,6 +168,7 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 
 	const handleChange = value => {
 		if ( ! isPaidOptionDisabled ) {
+			tracks.recordEvent( 'jetpack_newsletter_preview_access_change', { access: value } );
 			setSelectedAccess( value );
 		}
 	};
@@ -225,6 +233,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	const [ previewCache, setPreviewCache ] = useState( {} );
 	const [ selectedAccess, setSelectedAccess ] = useState( accessOptions.subscribers.key );
 	const [ selectedDevice, setSelectedDevice ] = useState( 'desktop' );
+	const { tracks } = useAnalytics();
 
 	const fetchPreview = useCallback(
 		async accessLevel => {
@@ -271,6 +280,18 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 		}
 	}, [ isOpen, selectedAccess, fetchPreview, previewCache ] );
 
+	useEffect( () => {
+		if ( isOpen ) {
+			tracks.recordEvent( 'jetpack_newsletter_preview_modal_open', { post_id: postId } );
+		}
+	}, [ isOpen, postId, tracks ] );
+
+	const handleClose = () => {
+		tracks.recordEvent( 'jetpack_newsletter_preview_modal_close', { post_id: postId } );
+		onClose();
+		setPreviewCache( {} );
+	};
+
 	const deviceWidth = previewDevices.find( device => device.name === selectedDevice ).width;
 
 	return (
@@ -278,10 +299,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 			<Modal
 				isFullScreen={ true }
 				title={ __( 'Preview email', 'jetpack' ) }
-				onRequestClose={ () => {
-					onClose();
-					setPreviewCache( {} );
-				} }
+				onRequestClose={ handleClose }
 				headerActions={
 					<PreviewControls
 						selectedAccess={ selectedAccess }
