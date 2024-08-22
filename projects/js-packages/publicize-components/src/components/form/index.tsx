@@ -35,10 +35,16 @@ export default function PublicizeForm() {
 	const featuredImageId = useFeaturedImage();
 
 	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
-	const { isConvertible } = useMediaRestrictions( connections, useMediaDetails( mediaId )[ 0 ] );
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ]
+	);
 
 	const showSharePostForm =
-		isPublicizeEnabled && ( hasEnabledConnections || attachedMedia.length > 0 || ! isConvertible );
+		isPublicizeEnabled &&
+		( hasEnabledConnections ||
+			attachedMedia.length > 0 ||
+			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
 	const { useAdminUiV1, featureFlags } = useSelect( select => {
 		const store = select( socialStore );
