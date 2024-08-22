@@ -113,7 +113,7 @@ export default class MailchimpBlock extends EditorCanvas {
 	 * Calls rest_route=/wpcom/v2/mailchimp and checks response for connected status
 	 * "code":"connected" => Mailchimp was connected
 	 *
-	 * @returns {Promise<boolean>} true is connected, false if not_connected status code is found or call fails for any reason
+	 * @return {Promise<boolean>} true is connected, false if not_connected status code is found or call fails for any reason
 	 */
 	async isMailchimpConnected() {
 		let connectionStatus = '';

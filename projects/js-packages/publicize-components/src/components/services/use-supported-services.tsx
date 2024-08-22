@@ -1,7 +1,6 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import connectionsFacebook from '../../assets/connections-facebook.png';
 import connectionsInstagramBusiness from '../../assets/connections-instagram-business.png';
@@ -9,8 +8,8 @@ import connectionsLinkedin from '../../assets/connections-linkedin.png';
 import connectionsNextdoor from '../../assets/connections-nextdoor.png';
 import connectionsThreads from '../../assets/connections-threads.png';
 import connectionsTumblr from '../../assets/connections-tumblr.png';
-import { store } from '../../social-store';
-import { ConnectionService } from '../../social-store/types';
+import { ConnectionService } from '../../types/types';
+import { getSocialScriptData } from '../../utils/script-data';
 
 export type Badge = {
 	text: string;
@@ -27,19 +26,19 @@ export interface SupportedService extends ConnectionService {
 /**
  * Get the list of supported services.
  *
- * @returns {Array< SupportedService >} The list of supported services
+ * @return {Array< SupportedService >} The list of supported services
  */
 export function useSupportedServices(): Array< SupportedService > {
-	const availableServices = useSelect( select => {
-		return select( store )
-			.getServices()
-			.reduce< Record< string, ConnectionService > >(
-				( serviceData, service ) => ( {
-					...serviceData,
-					[ service.ID ]: service,
-				} ),
-				{}
-			);
+	const availableServices = useMemo( () => {
+		const { supported_services } = getSocialScriptData();
+
+		return supported_services.reduce< Record< string, ConnectionService > >(
+			( serviceData, service ) => ( {
+				...serviceData,
+				[ service.ID ]: service,
+			} ),
+			{}
+		);
 	}, [] );
 
 	const badgeNew: Badge = {

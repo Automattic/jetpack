@@ -3,10 +3,13 @@
  */
 import { Text } from '@automattic/jetpack-components';
 import { useCallback } from 'react';
+import { PRODUCT_STATUSES } from '../../../constants';
 import { PRODUCT_SLUGS } from '../../../data/constants';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import ProductCard from '../../connected-product-card';
+import { InfoTooltip } from '../../info-tooltip';
+import useTooltipCopy from './use-tooltip-copy';
 import useVideoPressCardDescription from './use-videopress-description';
 import VideoPressValueSection from './videopress-value-section';
 import type { ProductCardComponent } from '../types';
@@ -17,28 +20,61 @@ const slug = PRODUCT_SLUGS.VIDEOPRESS;
 
 const VideopressCard: ProductCardComponent = ( { admin } ) => {
 	const { detail } = useProduct( slug );
-	const { isPluginActive = false } = detail || {};
+	const { status } = detail || {};
 	const { videopress: data } = getMyJetpackWindowInitialState();
+	const { activeAndNoVideos } = useTooltipCopy();
+	const { videoCount = 0, featuredStats } = data || {};
+
+	const isPluginActive =
+		status === PRODUCT_STATUSES.ACTIVE || status === PRODUCT_STATUSES.CAN_UPGRADE;
 
 	const descriptionText = useVideoPressCardDescription( {
 		isPluginActive,
-		videoCount: data.videoCount,
+		videoCount,
 	} );
+
+	const customLoadTracks = {
+		stats_period: featuredStats?.period,
+		video_count: videoCount,
+	};
 
 	const Description = useCallback( () => {
 		return (
 			<Text variant="body-small" className="description">
-				{ descriptionText }
+				{ descriptionText || detail.description }
+				{ isPluginActive && ! videoCount && (
+					<InfoTooltip
+						className="videopress-card__no-video-tooltip"
+						tracksEventName={ 'videopress_card_tooltip_open' }
+						tracksEventProps={ {
+							location: 'description',
+							feature: 'jetpack-videopress',
+							status,
+							video_count: videoCount,
+						} }
+					>
+						<h3>{ activeAndNoVideos.title }</h3>
+						<p>{ activeAndNoVideos.text }</p>
+					</InfoTooltip>
+				) }
 			</Text>
 		);
-	}, [ descriptionText ] );
+	}, [
+		descriptionText,
+		detail.description,
+		videoCount,
+		status,
+		activeAndNoVideos,
+		isPluginActive,
+	] );
 
 	return (
 		<ProductCard
 			slug={ slug }
 			showMenu
 			admin={ admin }
-			Description={ descriptionText ? Description : null }
+			Description={ Description }
+			customLoadTracks={ customLoadTracks }
 		>
 			<VideoPressValueSection isPluginActive={ isPluginActive } data={ data } />
 		</ProductCard>

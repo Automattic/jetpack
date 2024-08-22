@@ -24,7 +24,7 @@ afterEach( () => {
  * Load the config, bypassing normal module caching.
  *
  * @param {string} name - Config name.
- * @returns {object} Config.
+ * @return {object} Config.
  */
 function loadConfig( name ) {
 	let config;

@@ -26,7 +26,7 @@ const addWordPressDomain = window.location.hostname.endsWith( '.wordpress.com' )
 /**
  * Hook to retrieve user info from server, handle social login, and logout functionality.
  *
- * @returns {object} login, loginWindowRef, logout - login is a function to open the social login popup, loginWindowRef is a reference to the login popup window, and logout is a function to logout the user.
+ * @return {object} login, loginWindowRef, logout - login is a function to open the social login popup, loginWindowRef is a reference to the login popup window, and logout is a function to logout the user.
  */
 export default function useSocialLogin() {
 	const [ loginWindowRef, setLoginWindowRef ] = useState< Window >();

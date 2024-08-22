@@ -3,7 +3,7 @@
  * adding hours and minutes only when needed.
  *
  * @param {number} ms - The time in milliseconds to format.
- * @returns {string} The formatted time string.
+ * @return {string} The formatted time string.
  * @example
  * const formattedTime1 = formatTime(1234567); // Returns "20:34.56"
  * const formattedTime2 = formatTime(45123);   // Returns "45.12"

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.7.0] - 2024-08-21
+### Added
+- Synced Order Data: adds filtering to the filtered order data [#38955]
+
+## [3.6.0] - 2024-08-15
+### Added
+- Sync: Add a new callable for Sync Active Modules [#38831]
+
+### Fixed
+- Fix incorrect next-version tokens in php `@since` and/or `@deprecated` docs. [#38869]
+- Sync: update WooCommerce Post Meta whitelist. [#38677]
+
 ## [3.5.1] - 2024-08-08
 ### Fixed
 - Sync: Fix integration of Brute Force Login Protection [#38518]
@@ -1231,6 +1243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.7.0]: https://github.com/Automattic/jetpack-sync/compare/v3.6.0...v3.7.0
+[3.6.0]: https://github.com/Automattic/jetpack-sync/compare/v3.5.1...v3.6.0
 [3.5.1]: https://github.com/Automattic/jetpack-sync/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/Automattic/jetpack-sync/compare/v3.4.1...v3.5.0
 [3.4.1]: https://github.com/Automattic/jetpack-sync/compare/v3.4.0...v3.4.1

@@ -74,8 +74,7 @@ const ErrorSection = ( { errorMessage, errorCode } ) => {
 
 const ScanningSection = ( { currentProgress } ) => {
 	const { hasRequiredPlan } = useProtectData();
-	const { stats } = useWafData();
-	const { globalStats } = stats;
+	const { globalStats } = useWafData();
 	const totalVulnerabilities = parseInt( globalStats?.totalVulnerabilities );
 	const totalVulnerabilitiesFormatted = isNaN( totalVulnerabilities )
 		? '50,000'

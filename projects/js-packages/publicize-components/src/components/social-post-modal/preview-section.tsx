@@ -2,7 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TabPanel } from '@wordpress/components';
 import { ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 /**
  * Preview section of the social post modal.
  *
- * @returns {import('react').ReactNode} - Preview section of the social post modal.
+ * @return {import('react').ReactNode} - Preview section of the social post modal.
  */
 export function PreviewSection() {
 	const { recordEvent } = useAnalytics();
@@ -79,24 +79,32 @@ export function PreviewSection() {
 	return (
 		<div className={ styles[ 'preview-section' ] }>
 			<TabPanel tabs={ connections }>
-				{ ( tab: ( typeof connections )[ number ] ) => (
-					<div className={ styles[ 'preview-content' ] }>
-						{
-							// If the connection should be disabled
-							// it means that there is some validation error
-							// or the connection is broken
-							// in that case we won't show the toggle
-							! shouldBeDisabled( tab ) ? (
-								<ToggleControl
-									label={ __( 'Connection enabled', 'jetpack' ) }
-									checked={ canBeTurnedOn( tab ) && tab.enabled }
-									onChange={ toggleConnection( tab.connection_id, tab ) }
-								/>
-							) : null
-						}
-						<PostPreview connection={ tab } />
-					</div>
-				) }
+				{ ( tab: ( typeof connections )[ number ] ) => {
+					const isEnabled = canBeTurnedOn( tab ) && tab.enabled;
+
+					return (
+						<div className={ styles[ 'preview-content' ] }>
+							{
+								// If the connection should be disabled
+								// it means that there is some validation error
+								// or the connection is broken
+								// in that case we won't show the toggle
+								! shouldBeDisabled( tab ) ? (
+									<ToggleControl
+										label={
+											isEnabled
+												? _x( 'Connection enabled', '', 'jetpack' )
+												: __( 'Connection disabled', 'jetpack' )
+										}
+										checked={ isEnabled }
+										onChange={ toggleConnection( tab.connection_id, tab ) }
+									/>
+								) : null
+							}
+							<PostPreview connection={ tab } />
+						</div>
+					);
+				} }
 			</TabPanel>
 		</div>
 	);

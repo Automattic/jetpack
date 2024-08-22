@@ -77,11 +77,6 @@ module.exports = {
 				'Object.<>': 'Object<>',
 				'object<>': 'Object<>',
 			},
-			// Temporarily override plugin:@wordpress/esnext so we can clean up the jsdocs in a separate PR.
-			tagNamePreference: {
-				returns: 'returns',
-				yields: 'yields',
-			},
 		},
 	},
 	overrides: [
@@ -124,7 +119,20 @@ module.exports = {
 			},
 		],
 
-		'jsdoc/check-indentation': 'warn',
+		'jsdoc/check-indentation': [
+			'warn',
+			{
+				excludeTags: [
+					'example',
+					// Tags aligned by jsdoc/check-line-alignment from @wordpress/eslint-plugin.
+					'param',
+					'arg',
+					'argument',
+					'property',
+					'prop',
+				],
+			},
+		],
 		'jsdoc/check-syntax': 'warn',
 		'jsdoc/check-tag-names': [ 'error', { definedTags: [ 'jest-environment' ] } ],
 		'jsdoc/check-values': 'warn',
@@ -205,16 +213,10 @@ module.exports = {
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
 		'array-callback-return': 'off',
 		eqeqeq: [ 'error', 'allow-null' ],
-		'jsdoc/check-line-alignment': 'off',
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
-		'no-alert': 'off',
-		'no-bitwise': 'off',
-		'no-fallthrough': 'off',
 		'no-prototype-builtins': 'off',
 		'no-undef-init': 'off',
 		'no-unused-expressions': 'off',
-		'no-useless-computed-key': 'off',
-		'no-useless-return': 'off',
 		'object-shorthand': 'off',
 		'@wordpress/no-base-control-with-label-without-id': 'off',
 		'@wordpress/no-global-active-element': 'off',

@@ -24,6 +24,8 @@ use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -233,6 +235,7 @@ class Jetpack_Protect {
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 				'stats'               => self::get_waf_stats(),
+				'globalStats'         => Waf_Stats::get_global_stats(),
 			),
 		);
 
@@ -295,7 +298,9 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->remove_connection();
 
-		Status::delete_option();
+		Protect_Status::delete_option();
+		Scan_Status::delete_option();
+		Scan_History::delete_option();
 	}
 
 	/**
@@ -456,7 +461,6 @@ class Jetpack_Protect {
 			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
 			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
 			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
-			'globalStats'               => Waf_Stats::get_global_stats(),
 		);
 	}
 }

@@ -7,7 +7,7 @@ import { createBlocksFromInnerBlocksTemplate, createBlock } from '@wordpress/blo
  * that a WordPress site currently could get.
  *
  * @param {Array} innerBlocksOrTemplate - Nested blocks or InnerBlocks templates.
- * @returns {object[]} Array of Block objects.
+ * @return {object[]} Array of Block objects.
  */
 export default function createBlocksFromTemplate( innerBlocksOrTemplate = [] ) {
 	if ( typeof createBlocksFromInnerBlocksTemplate !== 'undefined' ) {
