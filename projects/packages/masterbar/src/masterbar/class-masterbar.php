@@ -136,7 +136,7 @@ class Masterbar {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
 		// If Atomic, store and install user locale.
-		if ( $this->site_woa ) {
+		if ( $this->site_woa && 'wp-admin' !== get_option( 'wpcom_admin_interface' ) ) {
 			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
 			$this->install_locale( $this->user_locale );
 			$this->unload_non_default_textdomains_on_wpcom_user_locale_switch( $this->user_locale );
