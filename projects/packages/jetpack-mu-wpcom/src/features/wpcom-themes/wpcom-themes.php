@@ -70,3 +70,27 @@ function wpcom_themes_add_theme_showcase_menu() {
 	);
 }
 add_action( 'admin_menu', 'wpcom_themes_add_theme_showcase_menu' );
+
+/**
+ * Automatically opens the "Upload Theme" dialog on the theme installation page based on a 'wpcom-upload' query parameter.
+ */
+function wpcom_auto_open_upload_theme() {
+	error_log( 'test theme install' );
+	if ( isset( $_GET['wpcom-upload'] ) && $_GET['wpcom-upload'] === '1' ) {
+		if ( ! current_user_can( 'install_themes' ) ) {
+			return;
+		}
+		error_log( 'test theme install 2' );
+		wp_enqueue_script(
+			'auto-open-upload-theme',
+			plugins_url( 'js/auto-open-upload-theme.js', __FILE__ ),
+			array(),
+			Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
+		);
+	}
+}
+add_action( 'load-theme-install.php', 'wpcom_auto_open_upload_theme' );
