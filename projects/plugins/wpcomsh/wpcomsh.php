@@ -217,9 +217,29 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ * Determine if users who are already logged in to WordPress.com are automatically logged in to wp-admin.
  */
-add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+function wpcomsh_bypass_jetpack_sso_login() {
+	/**
+	 * Sites with the classic interface:
+	 * - Automatic login if they come from Calypso.
+	 * - Otherwise we display the login form, so they can decide whether to use a WP.com account or a local account.
+	 */
+	if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+		$calypso_domains = array(
+			'https://wordpress.com/',
+			'https://horizon.wordpress.com/',
+			'https://wpcalypso.wordpress.com/',
+			'http://calypso.localhost:3000/',
+			'http://127.0.0.1:41050/', // Desktop App.
+		);
+		return in_array( wp_get_referer(), $calypso_domains, true );
+	}
+
+	// Users of sites with the default interface are always logged in automatically.
+	return true;
+}
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
  * Overwrite the default value of SSO "Match by Email" setting.
