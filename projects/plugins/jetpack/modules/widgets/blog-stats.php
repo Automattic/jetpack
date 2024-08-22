@@ -10,6 +10,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status\Host;
 
 // Disable direct access/execution to/of the widget code.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -52,7 +53,10 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
-		$widget_types[] = 'blog-stats';
+		// @TODO: Hide for Simple sites when the block API starts working.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$widget_types[] = 'blog-stats';
+		}
 		return $widget_types;
 	}
 
