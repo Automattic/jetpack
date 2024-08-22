@@ -23,7 +23,7 @@
 		"clean": "rm -rf src/build/",
 		"watch": "pnpm run build-production-js && pnpm webpack watch",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
-		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh --release=v3.5.0"
+		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh"
 	},
 	"optionalDependencies": {
 		"react": "^18.2.0",
