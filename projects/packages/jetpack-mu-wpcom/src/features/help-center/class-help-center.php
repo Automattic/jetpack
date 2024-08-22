@@ -90,7 +90,7 @@ class Help_Center {
 					$wp_admin_bar->add_menu(
 						array(
 							'id'     => 'help-center',
-							'title'  => self::download_asset( 'widgets.wp.com/help-center/help-icon.svg', false ),
+							'title'  => '<span id="help-center-icon" class="ab-icon"></span><span id="help-center-icon-with-notification" class="ab-icon"></span>',
 							'parent' => 'top-secondary',
 							'href'   => $this->get_help_center_url(),
 							'meta'   => array(

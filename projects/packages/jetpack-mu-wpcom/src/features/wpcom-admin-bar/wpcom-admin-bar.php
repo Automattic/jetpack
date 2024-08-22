@@ -96,16 +96,6 @@ CSS
 			}
 CSS
 	);
-
-	// Force wpcom icons to have consistent color.
-	wp_add_inline_style(
-		'wpcom-admin-bar',
-		<<<CSS
-			#wpadminbar .ab-icon {
-				color: $admin_icon_color;
-			}
-CSS
-	);
 }
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );

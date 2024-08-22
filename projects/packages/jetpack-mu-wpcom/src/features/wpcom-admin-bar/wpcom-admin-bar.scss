@@ -181,8 +181,25 @@
 				display: block !important;
 				width: 52px !important;
 				margin-right: 0 !important;
+
 				.ab-item {
-					width: 52px;
+					display: flex;
+					justify-content: center;
+
+					.ab-icon {
+						width: 30px;
+						height: 46px;
+
+						&:before {
+							background-position-y: bottom;
+							background-position-x: center;
+							top: 0 !important;
+							left: 0 !important;
+							width: 30px !important;
+							height: 46px !important;
+							background-size: contain;
+						}
+					}
 				}
 			}
 
