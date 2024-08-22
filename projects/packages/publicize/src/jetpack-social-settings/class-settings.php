@@ -52,6 +52,11 @@ class Settings {
 			'feature_name'  => 'editor-preview',
 			'variable_name' => 'useEditorPreview',
 		),
+		array(
+			'flag_name'     => 'share_status',
+			'feature_name'  => 'share-status',
+			'variable_name' => 'useShareStatus',
+		),
 	);
 
 	/**
