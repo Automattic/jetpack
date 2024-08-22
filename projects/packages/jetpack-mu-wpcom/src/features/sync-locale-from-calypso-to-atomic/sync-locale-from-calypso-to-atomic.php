@@ -86,6 +86,11 @@ function _unload_non_default_textdomains_on_wpcom_user_locale_switch( $wpcom_loc
  * @param string $user_locale The user's locale.
  */
 function wpcom_sync_locale_from_calypso_to_atomic( $user_locale ) {
+	$is_atomic_site = ( new Automattic\Jetpack\Status\Host() )->is_woa_site();
+	if ( ! $is_atomic_site ) {
+		return;
+	}
+
 	$user_id            = get_current_user_id();
 	$connection_manager = new Connection_Manager( 'jetpack' );
 	if ( ! $connection_manager->is_user_connected( $user_id ) ) {
