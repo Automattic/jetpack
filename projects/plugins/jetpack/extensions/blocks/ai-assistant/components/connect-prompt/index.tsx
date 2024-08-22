@@ -18,7 +18,7 @@ const ConnectPrompt = () => {
 
 	return (
 		<Nudge
-			buttonText={ __( 'Reconnect Jetpack', 'jetpack' ) }
+			buttonText={ __( 'Connect Jetpack', 'jetpack' ) }
 			checkoutUrl={ checkoutUrl }
 			className={ 'jetpack-ai-connect-banner' }
 			description={ __( 'Your account is not connected to Jetpack at the moment.', 'jetpack' ) }
