@@ -12,7 +12,7 @@ const FirewallStatCards = ( {
 	jetpackWafShareData,
 } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const statCardIsDisabled = status !== 'on' || ! hasRequiredPlan || ! jetpackWafShareData;
+	const statCardIsDisabled = status !== 'on' || ! jetpackWafShareData;
 
 	const defaultArgs = {
 		className: statCardIsDisabled ? styles.disabled : styles.active,
