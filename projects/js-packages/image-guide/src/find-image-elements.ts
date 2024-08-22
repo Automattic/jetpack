@@ -9,7 +9,16 @@ import { MeasurableImage, type FetchFn } from './MeasurableImage.js';
 export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
 	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
 		if ( el instanceof HTMLImageElement ) {
-			if ( isSvgUrl( el.src ) ) {
+			// Handle img tags with empty or no src attributes.
+			if ( ! el.src.trim() ) {
+				return false;
+			}
+
+			try {
+				if ( isSvgUrl( el.src ) ) {
+					return false;
+				}
+			} catch ( e ) {
 				return false;
 			}
 			return true;
