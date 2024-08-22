@@ -45,6 +45,10 @@ function wpcom_profile_settings_add_links_to_wpcom() {
 		'wpcom-profile-settings-link-to-wpcom',
 		'wpcomProfileSettingsLinkToWpcom',
 		array(
+			'language'             => array(
+				'link' => esc_url( $wpcom_host . '/me/account' ),
+				'text' => __( 'Your admin interface language is managed on WordPress.com Account settings', 'jetpack-mu-wpcom' ),
+			),
 			'synced'               => array(
 				'link' => esc_url( $wpcom_host . '/me' ),
 				'text' => __( 'You can manage your profile on WordPress.com Profile settings (First / Last / Display Names, Website, and Biographical Info)', 'jetpack-mu-wpcom' ),

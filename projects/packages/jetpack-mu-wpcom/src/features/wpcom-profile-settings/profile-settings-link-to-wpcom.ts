@@ -18,18 +18,28 @@ const wpcom_profile_settings_disable_email_field = () => {
  * Add a link to the WordPress.com profile settings page.
  */
 const wpcom_profile_settings_add_links_to_wpcom = () => {
-	const usernameSection = document.querySelector( '.user-user-login-wrap' )?.querySelector( 'td' );
-	const emailSection = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
-	const newPasswordSection = document.getElementById( 'password' )?.querySelector( 'td' );
 	const userSessionSection = document.querySelector( '.user-sessions-wrap' );
-
 	userSessionSection?.remove();
 
 	// We cannot set a password in wp-admin except on Atomic Classic sites.
+	const newPasswordSection = document.getElementById( 'password' )?.querySelector( 'td' );
 	if ( ! window.wpcomProfileSettingsLinkToWpcom?.isWpcomAtomicClassic && newPasswordSection ) {
 		newPasswordSection.innerHTML = '';
 	}
 
+	const languageSection = document.querySelector( '.user-language-wrap' )?.querySelector( 'td' );
+	const languageSelect = document.getElementById( 'locale' );
+	const languageSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.language?.link;
+	const languageSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.language?.text;
+	if ( languageSettingsLink && languageSettingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ languageSettingsLink }">${ languageSettingsLinkText }</a>.`;
+		languageSection?.appendChild( notice );
+		languageSelect?.remove();
+	}
+
+	const emailSection = document.querySelector( '.user-email-wrap' )?.querySelector( 'td' );
 	const emailSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.email?.link;
 	const emailSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.email?.text;
 	if ( emailSection && emailSettingsLink && emailSettingsLinkText ) {
@@ -48,6 +58,7 @@ const wpcom_profile_settings_add_links_to_wpcom = () => {
 		newPasswordSection.appendChild( notice );
 	}
 
+	const usernameSection = document.querySelector( '.user-user-login-wrap' )?.querySelector( 'td' );
 	const syncedSettingsLink = window.wpcomProfileSettingsLinkToWpcom?.synced?.link;
 	const syncedSettingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.synced?.text;
 	if ( usernameSection && syncedSettingsLink && syncedSettingsLinkText ) {
