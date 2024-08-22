@@ -23,26 +23,26 @@ const Edit = props => {
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	const isPostSavingLocked = useSelect(
+		select => select( 'core/editor' ).isPostSavingLocked(),
+		[]
+	);
 
 	const stripeConnectUrl = useSelect(
-		select => select( membershipProductsStore ).getConnectUrl(),
-		''
+		select => select( membershipProductsStore ).getConnectUrl() || '',
+		[]
 	);
 
 	const { setConnectUrl, setConnectedAccountDefaultCurrency } = useDispatch(
 		MEMBERSHIPS_PRODUCTS_STORE
 	);
 
-	useEffect( () => {
-		setAttributes( { fallbackLinkUrl: post.link } );
-	}, [ post.link, setAttributes ] );
-
 	const stripeDefaultCurrency = useSelect( select =>
 		select( MEMBERSHIPS_PRODUCTS_STORE ).getConnectedAccountDefaultCurrency()
 	);
 
 	useEffect( () => {
-		if ( ! currency && stripeDefaultCurrency ) {
+		if ( ! currency && stripeDefaultCurrency && ! isPostSavingLocked ) {
 			const uppercasedStripeCurrency = stripeDefaultCurrency.toUpperCase();
 			const isCurrencySupported = !! SUPPORTED_CURRENCIES[ uppercasedStripeCurrency ];
 			if ( isCurrencySupported ) {
@@ -53,7 +53,7 @@ const Edit = props => {
 				setAttributes( { currency: 'USD' } );
 			}
 		}
-	}, [ currency, stripeDefaultCurrency, setAttributes ] );
+	}, [ currency, stripeDefaultCurrency, isPostSavingLocked, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -120,6 +120,8 @@ const Edit = props => {
 					unlockPostSaving( 'donations' );
 				}, apiError );
 			}
+
+			unlockPostSaving( 'donations' );
 		}, apiError );
 	}, [
 		lockPostSaving,

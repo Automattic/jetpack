@@ -21,20 +21,23 @@ const Amount = ( {
 	const richTextRef = useRef( null );
 
 	const setAmount = useCallback(
-		amount => {
-			setEditedValue( amount );
+		( amount, shouldSync ) => {
+			setEditedValue( currentAmount => {
+				// Validate the amount only when it changes.
+				if ( amount !== currentAmount ) {
+					const parsedAmount = parseAmount( amount, currency );
+					if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+						setIsInvalid( false );
+						if ( shouldSync ) {
+							onChange?.( parsedAmount );
+						}
+					} else {
+						setIsInvalid( true );
+					}
+				}
 
-			if ( ! onChange ) {
-				return;
-			}
-
-			const parsedAmount = parseAmount( amount, currency );
-			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
-				onChange( parsedAmount );
-				setIsInvalid( false );
-			} else {
-				setIsInvalid( true );
-			}
+				return amount;
+			} );
 		},
 		[ currency, onChange ]
 	);
@@ -76,12 +79,12 @@ const Amount = ( {
 			return;
 		}
 		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
-	}, [ currency, isFocused, isInvalid, setAmount, value ] );
+	}, [ currency, isFocused, isInvalid, value ] );
 
 	useEffect( () => {
 		setAmount( formatCurrency( value, currency, { symbol: '' } ) );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ value ] );
+	}, [ currency, value ] );
 
 	return (
 		<div
@@ -103,7 +106,7 @@ const Amount = ( {
 				<RichText
 					allowedFormats={ [] }
 					aria-label={ label }
-					onChange={ amount => setAmount( amount ) }
+					onChange={ amount => setAmount( amount, true ) }
 					placeholder={ formatCurrency( defaultValue, currency, { symbol: '' } ) }
 					ref={ richTextRef }
 					value={ editedValue }
