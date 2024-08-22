@@ -178,7 +178,7 @@ class Cloud_CSS implements Pluggable, Has_Always_Available_Endpoints, Changes_Pa
 	public function get_existing_sources() {
 		$state = new Critical_CSS_State();
 		$data  = $state->get();
-		if ( isset( $data['providers'] ) ) {
+		if ( ! empty( $data['providers'] ) ) {
 			$providers = $data['providers'];
 		} else {
 			$source_providers = new Source_Providers();
