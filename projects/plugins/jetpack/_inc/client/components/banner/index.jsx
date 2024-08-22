@@ -205,7 +205,7 @@ export class Banner extends Component {
  * Redux-connect a Banner or subclass.
  *
  * @param {Banner} BannerComponent - Component to connect.
- * @returns {Component} Wrapped component.
+ * @return {Component} Wrapped component.
  */
 export function connect( BannerComponent ) {
 	return reduxConnect( state => ( {

@@ -50,6 +50,14 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setDictionaryLoading( feature: string, loading: boolean ) {
+	return {
+		type: 'SET_DICTIONARY_LOADING',
+		feature,
+		loading,
+	};
+}
+
 export function setBlockMd5( blockId: string, md5: string ) {
 	return {
 		type: 'SET_BLOCK_MD5',
@@ -68,6 +76,15 @@ export function invalidateSuggestions( blockId: string ) {
 export function ignoreSuggestion( blockId: string, id: string ) {
 	return {
 		type: 'IGNORE_SUGGESTION',
+		blockId,
+		id,
+	};
+}
+
+export function invalidateSingleSuggestion( feature: string, blockId: string, id: string ) {
+	return {
+		type: 'INVALIDATE_SINGLE_SUGGESTION',
+		feature,
 		blockId,
 		id,
 	};

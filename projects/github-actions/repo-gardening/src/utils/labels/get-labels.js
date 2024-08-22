@@ -11,7 +11,7 @@ const cache = {};
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<Array>} Promise resolving to an array of all labels for that PR.
+ * @return {Promise<Array>} Promise resolving to an array of all labels for that PR.
  */
 async function getLabels( octokit, owner, repo, number ) {
 	const labelList = [];

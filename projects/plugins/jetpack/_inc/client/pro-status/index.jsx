@@ -29,7 +29,7 @@ import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/
  *
  * @param {string} type    - Status of a certain feature.
  * @param {string} feature - Slug of plugin or service.
- * @returns {undefined}
+ * @return {undefined}
  */
 const trackProStatusClick = ( type, feature ) =>
 	analytics.tracks.recordJetpackClick( {
@@ -43,7 +43,7 @@ const trackProStatusClick = ( type, feature ) =>
  *
  * @param {string} type    - Status of a certain feature.
  * @param {string} feature - Slug of plugin or service.
- * @returns {Function} Function to track a click.
+ * @return {Function} Function to track a click.
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
@@ -138,7 +138,7 @@ class ProStatus extends React.Component {
 	 * Return a button to Set Up a feature.
 	 *
 	 * @param {string} feature - Slug of the feature to set up.
-	 * @returns {React.ReactElement} A Button component.
+	 * @return {React.ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (

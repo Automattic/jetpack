@@ -8,7 +8,7 @@ import type { JSONObject } from './utils/json-object-type';
  *
  * @param {string} path - The path to the endpoint.
  * @param {string} root - The root URL to use.
- * @returns {string} - The full URL.
+ * @return {string} - The full URL.
  */
 function getEndpointUrl( path: string, root: string ): string {
 	return root + JETPACK_BOOST_REST_NAMESPACE + JETPACK_BOOST_REST_PREFIX + path;
@@ -17,12 +17,12 @@ function getEndpointUrl( path: string, root: string ): string {
 /**
  * Send a request to the Boost REST API.
  *
- * @param {string} method - The HTTP method to use.
- * @param {string} root - The root URL to use.
- * @param {string} path - The path to the endpoint.
- * @param {null | JSONObject} body - The body of the request.
- * @param {string} nonce - The nonce to use.
- * @returns {Promise} - The response.
+ * @param {string}            method - The HTTP method to use.
+ * @param {string}            root   - The root URL to use.
+ * @param {string}            path   - The path to the endpoint.
+ * @param {null | JSONObject} body   - The body of the request.
+ * @param {string}            nonce  - The nonce to use.
+ * @return {Promise} - The response.
  */
 async function sendRequest(
 	method: string,
@@ -79,12 +79,12 @@ async function sendRequest(
 /**
  * Make a request to the Boost REST API.
  *
- * @param {string} method - The HTTP method to use.
- * @param {string} root - The root URL to use.
- * @param {string} path - The path to the endpoint.
- * @param {null | JSONObject} body - The body of the request.
- * @param {string} nonce - The nonce to use.
- * @returns {Promise} - The response.
+ * @param {string}            method - The HTTP method to use.
+ * @param {string}            root   - The root URL to use.
+ * @param {string}            path   - The path to the endpoint.
+ * @param {null | JSONObject} body   - The body of the request.
+ * @param {string}            nonce  - The nonce to use.
+ * @return {Promise} - The response.
  */
 async function makeRequest< T = JSONObject >(
 	method: string,
@@ -123,10 +123,10 @@ async function makeRequest< T = JSONObject >(
 /**
  * Make a GET request to the Boost REST API.
  *
- * @param {string} root - The root URL to use.
- * @param {string} path - The path to the endpoint.
+ * @param {string} root  - The root URL to use.
+ * @param {string} path  - The path to the endpoint.
  * @param {string} nonce - The nonce to use.
- * @returns {Promise} - The response.
+ * @return {Promise} - The response.
  */
 function get< T = JSONObject >( root: string, path: string, nonce: string ): Promise< T > {
 	return makeRequest< T >( 'get', root, path, null, nonce );
@@ -135,11 +135,11 @@ function get< T = JSONObject >( root: string, path: string, nonce: string ): Pro
 /**
  * Make a POST request to the Boost REST API.
  *
- * @param {string} root - The root URL to use.
- * @param {string} path - The path to the endpoint.
- * @param {null | JSONObject} body - The body of the request.
- * @param {string} nonce - The nonce to use.
- * @returns {Promise} - The response.
+ * @param {string}            root  - The root URL to use.
+ * @param {string}            path  - The path to the endpoint.
+ * @param {null | JSONObject} body  - The body of the request.
+ * @param {string}            nonce - The nonce to use.
+ * @return {Promise} - The response.
  */
 function post< T = JSONObject >(
 	root: string,

@@ -17,15 +17,13 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @returns { object } The various flags and togglePublicizeFeature,
+ * @return { object } The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
-	const sharesData = getJetpackData()?.social?.sharesData ?? {};
 	const blogID = getJetpackData()?.wpcomBlogId;
-	const isShareLimitEnabled = sharesData.is_share_limit_enabled;
 	const isRePublicizeFeatureAvailable =
-		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
+		getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
@@ -115,9 +113,7 @@ export default function usePublicizeConfig() {
 		isRePublicizeFeatureAvailable,
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
-		isShareLimitEnabled,
 		isPostAlreadyShared,
-		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan,
 		isEnhancedPublishingEnabled,
 		isSocialImageGeneratorAvailable:

@@ -1,9 +1,9 @@
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 
 /**
- * @param { string } postId - ID of the current post
+ * @param { string } postId     - ID of the current post
  * @param { string } connectURL - Stripe connect URL
- * @returns { null | string } URL
+ * @return { null | string } URL
  */
 export default function getConnectUrl( postId, connectURL ) {
 	if ( ! isURL( connectURL ) ) {

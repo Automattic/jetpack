@@ -2,7 +2,7 @@
  * Convert snake case string to camel case string.
  *
  * @param {string} string - String to convert.
- * @returns {string} 	  - Converted string.
+ * @return {string} - Converted string.
  */
 export function snakeToCamel( string ) {
 	return string.replace( /([-_][a-z])/gi, $1 => {
@@ -14,7 +14,7 @@ export function snakeToCamel( string ) {
  * Check is the string has snake shape.
  *
  * @param {string} string - String to check.
- * @returns {boolean}      - True if the string has snake shape.
+ * @return {boolean}      - True if the string has snake shape.
  */
 function isSnake( string ) {
 	return string.indexOf( '_' ) !== -1;
@@ -25,7 +25,7 @@ function isSnake( string ) {
  *
  * @param {object}  originalObject     - Object to be converted.
  * @param {boolean} deleteOriginalProp - Whether to delete the original property. False by default.
- * @returns {object}                   - Converted object.
+ * @return {object}                   - Converted object.
  */
 export function mapObjectKeysToCamel( originalObject, deleteOriginalProp = false ) {
 	// avoid to override original object
