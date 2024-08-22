@@ -51,7 +51,7 @@ const InputWrapper = ( {
 		onChange: handleChangeEvent,
 		onKeyUp: handleKeyUpEvent,
 		disabled: disabled,
-		[ 'aria-disabled' ]: disabled,
+		'aria-disabled': disabled,
 	};
 
 	const isTextarea = inputProps?.type === 'textarea';

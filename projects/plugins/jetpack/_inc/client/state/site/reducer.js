@@ -47,6 +47,7 @@ export const data = ( state = {}, action ) => {
 			if ( action.siteDiscount?.code ) {
 				return merge( {}, state, { site: { discount: action.siteDiscount } } );
 			}
+			return state;
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:

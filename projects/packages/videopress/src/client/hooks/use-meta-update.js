@@ -25,7 +25,6 @@ const useMetaUpdate = id => {
 					// check for code, if set
 					if ( 'success' !== result?.code ) {
 						reject();
-						return;
 					}
 				} )
 				.catch( e => reject( e ) )

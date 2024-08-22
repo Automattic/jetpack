@@ -427,7 +427,6 @@ const VideoPressEdit = CoreVideoEdit =>
 					// check for wpcom status field, if set
 					if ( status in result && 200 !== result.status ) {
 						onRevert();
-						return;
 					}
 				} )
 				.catch( () => onRevert() )

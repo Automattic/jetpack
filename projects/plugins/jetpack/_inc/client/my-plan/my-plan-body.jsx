@@ -302,6 +302,11 @@ class MyPlanBody extends React.Component {
 		};
 
 		switch ( planClass ) {
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-security-plan':
+			case 'is-realtime-security-plan':
+			// fall through
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-jetpack-starter-plan':
@@ -309,10 +314,6 @@ class MyPlanBody extends React.Component {
 			case 'is-security-t2-plan':
 			case 'is-business-plan':
 			case 'is-complete-plan':
-			// DEPRECATED: Daily and Real-time variations will soon be retired.
-			// Remove after all customers are migrated to new products.
-			case 'is-daily-security-plan':
-			case 'is-realtime-security-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
@@ -623,6 +624,11 @@ class MyPlanBody extends React.Component {
 				);
 				break;
 
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			case 'is-daily-backup-plan':
+			case 'is-realtime-backup-plan':
+			// fall through
 			case 'is-free-plan':
 			case 'is-backup-t0-plan':
 			case 'is-backup-t1-plan':
@@ -632,10 +638,6 @@ class MyPlanBody extends React.Component {
 			case 'is-free-search-plan':
 			case 'is-jetpack-creator-plan':
 			case 'offline':
-			// DEPRECATED: Daily and Real-time variations will soon be retired.
-			// Remove after all customers are migrated to new products.
-			case 'is-daily-backup-plan':
-			case 'is-realtime-backup-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }

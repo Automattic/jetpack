@@ -38,6 +38,7 @@ export default class ClipboardButton extends React.Component {
 	}
 
 	displayPrompt = () => {
+		// eslint-disable-next-line no-alert -- Fallback if clipboard doesn't work, lets the user copy it manually.
 		window.prompt( this.props.prompt, this.props.text );
 	};
 

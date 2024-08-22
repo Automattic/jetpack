@@ -496,6 +496,7 @@ export async function handler( argv ) {
 	} );
 	await listr.run().catch( err => {
 		for ( const e of err.errors ?? [ err ] ) {
+			// eslint-disable-next-line no-bitwise
 			process.exitCode |= e.isSuccessfulError ? 1 : 2;
 		}
 	} );
@@ -667,6 +668,7 @@ export async function handler( argv ) {
 		reportStream.end();
 		console.log( `Report written to ${ argv.reportFile }` );
 	}
+	// eslint-disable-next-line no-bitwise
 	if ( ( process.exitCode & 2 ) !== 0 ) {
 		console.error(
 			chalk.red(

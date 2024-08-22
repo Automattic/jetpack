@@ -31,13 +31,9 @@ class JetpackOption extends Component {
 		if ( event.key === 'Enter' ) {
 			this.props.onAddOption( this.props.index );
 			event.preventDefault();
-			return;
-		}
-
-		if ( event.key === 'Backspace' && event.target.value === '' ) {
+		} else if ( event.key === 'Backspace' && event.target.value === '' ) {
 			this.props.onChangeOption( this.props.index );
 			event.preventDefault();
-			return;
 		}
 	}
 

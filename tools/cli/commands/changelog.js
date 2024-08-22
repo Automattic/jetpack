@@ -376,8 +376,6 @@ async function changelogAdd( argv ) {
 		argv = await formatAutoArgs( proj, argv, response );
 		await changelogArgs( argv );
 	}
-
-	return;
 }
 
 /**

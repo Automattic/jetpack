@@ -278,10 +278,12 @@ describe( 'bin/eslint-changed.js', () => {
 			[ '--eslint-orig', path.join( dirname, 'fixtures/no-new-errors.orig.json' ) ],
 			[ '--eslint-new', path.join( dirname, 'fixtures/no-new-errors.new.json' ) ],
 		];
+		// eslint-disable-next-line no-bitwise
 		for ( let i = ( 1 << argsets.length ) - 2; i > 0; i-- ) {
 			const args = [];
 			const missing = [];
 			for ( let j = 0; j < argsets.length; j++ ) {
+				// eslint-disable-next-line no-bitwise
 				if ( i & ( 1 << j ) ) {
 					args.push( ...argsets[ j ] );
 				} else {

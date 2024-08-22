@@ -1,3 +1,4 @@
+/* eslint-disable no-alert -- ok for demo */
 import { ExternalLink } from '@wordpress/components';
 import Button from '../../button';
 import Notice from '../index';

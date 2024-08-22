@@ -471,6 +471,7 @@ async function setupForMirroring( argv ) {
 	if ( ! stats.isDirectory() ) {
 		throw new Error( `${ argv.forMirrors } is not a directory` );
 	}
+	// eslint-disable-next-line no-bitwise
 	await fs.access( argv.forMirrors, fsconstants.R_OK | fsconstants.W_OK | fsconstants.X_OK );
 	if ( ( await fs.readdir( argv.forMirrors ).then( a => a.length ) ) > 0 ) {
 		throw new Error( `Directory ${ argv.forMirrors } is not empty` );
@@ -732,6 +733,7 @@ async function buildProject( t ) {
 						stdio: [ 'ignore', 'pipe', 'inherit' ],
 					} )
 				).stdout.match( /^.*-a\.(\d+)$/ );
+				// eslint-disable-next-line no-bitwise
 				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
 			}
 			await t.execa(
