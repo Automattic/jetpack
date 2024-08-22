@@ -67,6 +67,13 @@ export function backgroundImageSource( node: HTMLElement ) {
 	return null;
 }
 
+/**
+ * Check if a URL is an SVG.
+ *
+ * @param {string} srcUrl - The URL to check
+ * @throws {Error} - If the URL is not valid.
+ * @return {boolean} - true if the URL is an SVG
+ */
 function isSvgUrl( srcUrl: string ): boolean {
 	const url = new URL( srcUrl );
 	return url.pathname.toLowerCase().endsWith( '.svg' );
