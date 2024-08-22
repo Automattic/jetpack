@@ -61,3 +61,23 @@ function robots_txt( string $output, $public ): string {
 }
 
 add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt', 12, 2 );
+
+/**
+ * Disable the Open Graph Tags based on the value of either wpcom_public_coming_soon and wpcom_data_sharing_opt_out option.
+ */
+function remove_og_tags() {
+	if ( ! (bool) get_option( 'wpcom_public_coming_soon ' ) && ! (bool) get_option( 'wpcom_data_sharing_opt_out' ) ) {
+		return;
+	}
+
+	// Disable Jetpack Open Graph Tags.
+	remove_action( 'wp_head', 'jetpack_og_tags' );
+
+	// Disable Yoast SEO. See https://developer.yoast.com/customization/yoast-seo/disabling-yoast-seo/.
+	if ( function_exists( 'YoastSEO' ) ) {
+		$front_end = \YoastSEO()->classes->get( \Yoast\WP\SEO\Integrations\Front_End_Integration::class );
+		remove_action( 'wpseo_head', array( $front_end, 'present_head' ), -9999 );
+	}
+}
+
+add_action( 'init', __NAMESPACE__ . '\remove_og_tags' );
