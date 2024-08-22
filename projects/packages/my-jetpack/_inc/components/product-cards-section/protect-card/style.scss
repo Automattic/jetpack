@@ -9,6 +9,12 @@
         align-items: flex-start;
     }
 
+    &__heading {
+        display: flex;
+        align-items: center;
+        text-wrap: nowrap;
+    }
+
     &__last-scan {
         display: flex;
         align-items: center;
