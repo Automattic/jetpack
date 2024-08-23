@@ -104,6 +104,11 @@
 				align-items: center;
 				gap: 8px;
 
+				.jetpack-ai-breve__helper-buttons-wrapper {
+					display: flex;
+					gap: 16px;
+				}
+
 				.components-button {
 					padding: 0px;
 					color: #646970;
