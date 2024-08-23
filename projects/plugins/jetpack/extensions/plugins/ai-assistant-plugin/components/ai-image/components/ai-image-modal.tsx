@@ -98,7 +98,7 @@ export default function AiImageModal( {
 	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	// Controllers
-	const instructionsDisabled = notEnoughRequests || generating;
+	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
 	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
