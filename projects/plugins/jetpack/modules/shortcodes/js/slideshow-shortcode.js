@@ -34,7 +34,6 @@ JetpackSlideshow.prototype.init = function () {
 		img.src = imageInfo.src;
 		img.title = typeof imageInfo.title !== 'undefined' ? imageInfo.title : '';
 		img.alt = typeof imageInfo.alt !== 'undefined' ? imageInfo.alt : '';
-		img.align = 'middle';
 		img.setAttribute( 'itemprop', 'image' );
 		img.nopin = 'nopin';
 		var caption = document.createElement( 'div' );
