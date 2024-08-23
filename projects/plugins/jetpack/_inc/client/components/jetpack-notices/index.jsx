@@ -188,7 +188,8 @@ class JetpackNotices extends React.Component {
 		this.state = {
 			isMasterbarNoticeDismissed:
 				cookieParsed &&
-				cookieParsed.hasOwnProperty(
+				Object.hasOwn(
+					cookieParsed,
 					'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]'
 				) &&
 				'1' ===
@@ -212,7 +213,7 @@ class JetpackNotices extends React.Component {
 
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
-			error.hasOwnProperty( 'action' )
+			Object.hasOwn( error, 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
