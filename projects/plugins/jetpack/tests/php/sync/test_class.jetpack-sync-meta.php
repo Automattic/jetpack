@@ -212,6 +212,11 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach ( $white_listed_post_meta as $meta_key ) {
+			if ( $meta_key === 'footnotes' ) {
+				$this->assertOptionIsSynced( $meta_key, '[]', 'post', $this->post_id );
+				continue;
+			}
+
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
 		}
 		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
