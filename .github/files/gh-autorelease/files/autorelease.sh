@@ -15,6 +15,12 @@ fi
 ROLLING_MODE=
 if [[ "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
 	TAG="${GITHUB_REF#refs/tags/}"
+
+	## Check for alphas
+	if [[ "$TAG" =~ -(alpha|a\.[0-9]*[02468])$ ]]; then
+		echo "Not creating a release for alpha version $TAG"
+		exit 0
+	fi
 elif [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
 	if ! jq -e '.extra.autorelease["rolling-release"]? // false' composer.json > /dev/null; then
 		echo "::notice::Skipping trunk release because autorelease rolling mode is not enabled."
@@ -27,11 +33,6 @@ else
 	exit 1
 fi
 
-## Check for alphas
-if [[ "$TAG" =~ -(alpha|a\.[0-9]*[02468])$ && -z "$ROLLING_MODE" ]]; then
-	echo "Not creating a release for alpha version $TAG"
-	exit 0
-fi
 echo "Creating release for $TAG"
 
 ## Determine slug and title format.
