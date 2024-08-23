@@ -262,6 +262,7 @@ function generateApiQueryString( {
 	adminQueryFilter,
 	isInCustomizer = false,
 	additionalBlogIds = [],
+	highlightFields = ['title', 'content', 'comments'],
 } ) {
 	if ( query === null ) {
 		query = '';
@@ -276,7 +277,6 @@ function generateApiQueryString( {
 		'shortcode_types',
 		'forum.topic_resolved',
 	];
-	const highlightFields = [ 'title', 'content', 'comments' ];
 
 	/* Fetch image fields for non-minimal results
 	 *
