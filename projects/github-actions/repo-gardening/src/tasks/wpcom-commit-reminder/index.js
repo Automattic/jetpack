@@ -20,14 +20,14 @@ async function getMatticBotComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a comment from Matticbot on this PR.` );
 
 	const comments = await getComments( octokit, owner.login, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'matticbot' &&
 			comment.body.includes( 'This PR has changes that must be merged to WordPress.com' )
 		) {
 			commentBody = comment.body;
 		}
-	} );
+	}
 
 	return commentBody;
 }
@@ -45,14 +45,14 @@ async function hasReminderComment( octokit, owner, repo, number ) {
 	debug( `wpcom-commit-reminder: Looking for a previous comment from this task in our PR.` );
 
 	const comments = await getComments( octokit, owner.login, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( 'Great news! One last step' )
 		) {
 			return true;
 		}
-	} );
+	}
 
 	return false;
 }
