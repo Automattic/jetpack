@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Block Editor: consider all blocks to be available on WoA sites, to simplify logic and improve performance.

@@ -200,6 +200,16 @@ class Current_Plan {
 	 * @return bool Were the subscriptions successfully updated?
 	 */
 	private static function store_data_in_option( $option, $data ) {
+		/*
+		 * The endpoint returns a big array of "available" features.
+		 * We do not use it, so we truncate it before to save our local option.
+		 */
+		if ( 'jetpack_active_plan' === $option ) {
+			if ( isset( $data['features']['available'] ) ) {
+				unset( $data['features']['available'] );
+			}
+		}
+
 		$result = update_option( $option, $data, true );
 
 		// If something goes wrong with the update, so delete the current option and then update it.

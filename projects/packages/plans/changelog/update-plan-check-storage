@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Local plan info storage: truncate the data stored locally. Remove the "available" feature information as it is not used in our codebase.

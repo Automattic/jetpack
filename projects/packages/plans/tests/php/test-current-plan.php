@@ -155,67 +155,9 @@ class WP_Test_Jetpack_Plan extends TestCase {
 			'user_is_owner'      => false,
 			'is_free'            => true,
 			'features'           => array(
-				'active'    => array(
+				'active' => array(
 					'akismet',
 					'support',
-				),
-				'available' => array(
-					'akismet'                       => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-backups'            => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-backup-archive'     => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-storage-space'      => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-automated-restores' => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'simple-payments'               => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'support'                       => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_personal',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
-					),
-					'premium-themes'                => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-security-scanning'  => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
-					'polldaddy'                     => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
 				),
 			),
 		);
@@ -224,7 +166,7 @@ class WP_Test_Jetpack_Plan extends TestCase {
 	private function get_changed_personal_plan() {
 		$changed_personal_plan = $this->get_personal_plan();
 
-		$changed_personal_plan['features']['available']['test_feature'] = array( 'jetpack_free' );
+		$changed_personal_plan['features']['active'][] = 'test_feature';
 		return $changed_personal_plan;
 	}
 
@@ -237,67 +179,8 @@ class WP_Test_Jetpack_Plan extends TestCase {
 			'user_is_owner'      => false,
 			'is_free'            => false,
 			'features'           => array(
-				'active'    => array(
+				'active' => array(
 					'support',
-				),
-				'available' => array(
-					'akismet'                       => array(
-						'jetpack_free',
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'support'                       => array(
-						'jetpack_free',
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-						'jetpack_personal_monthly',
-					),
-					'vaultpress-backups'            => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-backup-archive'     => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-storage-space'      => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-automated-restores' => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'simple-payments'               => array(
-						'jetpack_premium',
-						'jetpack_business',
-						'jetpack_premium_monthly',
-						'jetpack_business_monthly',
-					),
-					'premium-themes'                => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
-					'vaultpress-security-scanning'  => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
-					'polldaddy'                     => array(
-						'jetpack_business',
-						'jetpack_business_monthly',
-					),
 				),
 			),
 		);
