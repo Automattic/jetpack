@@ -18,7 +18,7 @@ import { LightNudge } from './light-nudge';
 import type { ReactElement } from 'react';
 import './style.scss';
 
-type UpgradePromptProps = {
+type QuotaExceededMessageProps = {
 	placement?: string;
 	description?: string;
 	useLightNudge?: boolean;
@@ -29,14 +29,14 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
  * to the checkout page or the Jetpack AI interstitial page.
  *
- * @param {UpgradePromptProps} props - Component props.
+ * @param {QuotaExceededMessageProps} props - Component props.
  * @return {ReactElement} the Nudge component with the prompt.
  */
 const DefaultUpgradePrompt = ( {
 	placement = null,
 	description = null,
 	useLightNudge = false,
-}: UpgradePromptProps ): ReactElement => {
+}: QuotaExceededMessageProps ): ReactElement => {
 	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 
 	const { checkoutUrl } = useAICheckout();
@@ -225,7 +225,7 @@ const FairUsageNotice = () => {
 	);
 };
 
-const UpgradePrompt = props => {
+const QuotaExceededMessage = props => {
 	const { upgradeType, currentTier } = useAiFeature();
 
 	// Return notice component for the fair usage limit message, on unlimited plans.
@@ -244,4 +244,4 @@ const UpgradePrompt = props => {
 	return DefaultUpgradePrompt( props );
 };
 
-export default UpgradePrompt;
+export default QuotaExceededMessage;
