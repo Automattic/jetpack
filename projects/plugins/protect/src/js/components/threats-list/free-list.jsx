@@ -5,7 +5,9 @@ import React, { useCallback } from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
+import usePagination from './use-pagination';
 
 const ThreatAccordionItem = ( {
 	description,
@@ -84,39 +86,48 @@ const ThreatAccordionItem = ( {
 };
 
 const FreeList = ( { list } ) => {
+	const { currentPage, totalPages, currentItems, handlePageChange } = usePagination( list, 5 );
+
 	return (
-		<FreeAccordion>
-			{ list.map(
-				( {
-					description,
-					fixedIn,
-					icon,
-					id,
-					label,
-					name,
-					source,
-					table,
-					title,
-					type,
-					version,
-				} ) => (
-					<ThreatAccordionItem
-						description={ description }
-						fixedIn={ fixedIn }
-						icon={ icon }
-						id={ id }
-						label={ label }
-						key={ id }
-						name={ name }
-						source={ source }
-						table={ table }
-						title={ title }
-						type={ type }
-						version={ version }
-					/>
-				)
-			) }
-		</FreeAccordion>
+		<>
+			<FreeAccordion>
+				{ currentItems.map(
+					( {
+						description,
+						fixedIn,
+						icon,
+						id,
+						label,
+						name,
+						source,
+						table,
+						title,
+						type,
+						version,
+					} ) => (
+						<ThreatAccordionItem
+							description={ description }
+							fixedIn={ fixedIn }
+							icon={ icon }
+							id={ id }
+							label={ label }
+							key={ id }
+							name={ name }
+							source={ source }
+							table={ table }
+							title={ title }
+							type={ type }
+							version={ version }
+						/>
+					)
+				) }
+			</FreeAccordion>
+			<Pagination
+				currentPage={ currentPage }
+				totalPages={ totalPages }
+				onPageChange={ handlePageChange }
+			/>
+		</>
 	);
 };
 
