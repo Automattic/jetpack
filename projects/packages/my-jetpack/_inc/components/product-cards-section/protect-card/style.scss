@@ -90,7 +90,7 @@
 
 .logins_blocked {
     &__count {
-        font-size: calc(var(--font-title-large) - 4px);
+        font-size: calc(var(--font-headline-small) - 4px);
         line-height: var(--font-title-large);
         font-weight: 400;
         color: var(--jp-black);

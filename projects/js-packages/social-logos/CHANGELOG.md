@@ -1,3 +1,7 @@
+## [3.1.7] - 2024-08-23
+### Changed
+- Internal updates.
+
 ## [3.1.6] - 2024-08-21
 ### Fixed
 - Revert recent SVG image optimizations. [#38981]
@@ -145,6 +149,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.1.7]: https://github.com/Automattic/social-logos/compare/v3.1.6...v3.1.7
 [3.1.6]: https://github.com/Automattic/social-logos/compare/v3.1.5...v3.1.6
 [3.1.5]: https://github.com/Automattic/social-logos/compare/v3.1.4...v3.1.5
 [3.1.4]: https://github.com/Automattic/social-logos/compare/v3.1.3...v3.1.4

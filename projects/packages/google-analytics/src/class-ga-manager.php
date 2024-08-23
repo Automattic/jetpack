@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.2.3-alpha';
+	const PACKAGE_VERSION = '0.2.3';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
