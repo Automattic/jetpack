@@ -77,8 +77,9 @@ function remove_og_tags() {
 	}
 
 	// Avoid calling check_open_graph as it registers the jetpack_og_tags function when running wp_head action.
-	if ( class_exists( '\Jetpack', false ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunction, PhanUndeclaredClassReference
+	// @phan-suppress-next-line PhanUndeclaredClassInCallable
+	if ( class_exists( '\Jetpack', false ) && is_callable( 'Jetpack::init' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod
 		$jetpack = \Jetpack::init();
 		remove_action( 'wp_head', array( $jetpack, 'check_open_graph' ), 1 );
 	}
