@@ -142,18 +142,23 @@ add_action( 'admin_bar_menu', 'wpcom_replace_wp_logo_with_wpcom_all_sites_menu',
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_add_reader_menu( $wp_admin_bar ) {
-	$wp_admin_bar->add_node(
+	$wp_admin_bar->add_menu(
 		array(
-			'id'    => 'reader',
-			'title' => __( 'Reader', 'jetpack-mu-wpcom' ),
-			'href'  => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
-			'meta'  => array(
+			'id'     => 'reader',
+			'title'  => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
+						/* translators: Hidden accessibility text. */
+						__( 'Reader', 'jetpack-mu-wpcom' ) .
+						'</span>',
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/read' ),
+			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),
+			'parent' => 'top-secondary',
 		)
 	);
 }
-add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 15 );
+// Add the reader icon to the admin bar before the help center icon.
+add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 
 /**
  * Points the (Profile) -> Edit Profile menu to /me when appropriate.
