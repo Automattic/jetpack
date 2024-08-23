@@ -3,9 +3,7 @@
 set -eo pipefail
 
 : "${GH_TOKEN:?Build argument needs to be set and non-empty.}"
-: "${GITHUB_API_URL:?Build argument needs to be set and non-empty.}"
 : "${GITHUB_REF:?Build argument needs to be set and non-empty.}"
-: "${GITHUB_REPOSITORY:?Build argument needs to be set and non-empty.}"
 : "${GITHUB_SHA:?Build argument needs to be set and non-empty.}"
 
 if [[ ! -f composer.json ]]; then
