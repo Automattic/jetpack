@@ -242,17 +242,58 @@ class Waf_Blocklog_Manager {
 	 * Increment the all-time stats.
 	 */
 	public static function update_all_time_stats() {
-		// TODO: Need to account for standalone mode, see write_blocklog_row, and update_daily_summary methods - could these be consolidated?
-		$all_time_stats = get_option( 'jetpack_waf_all_time_stats', false );
+		$option_name = 'jetpack_waf_all_time_stats';
 
-		if ( false === $all_time_stats ) {
-			// Initialize all_time_stats if not already set
-			$all_time_stats = self::initialize_all_time_stats();
+		// Check if WordPress functions are available
+		if ( function_exists( 'get_option' ) && function_exists( 'update_option' ) ) {
+			$all_time_stats = get_option( $option_name, false );
+
+			if ( false === $all_time_stats ) {
+				// Initialize if not set
+				$all_time_stats = self::initialize_all_time_stats();
+			}
+
+			++$all_time_stats;
+			update_option( $option_name, $all_time_stats );
+		} else {
+			// WordPress is not initialized; use direct DB connection
+			$conn = self::connect_to_wordpress_db();
+			if ( ! $conn ) {
+				return;
+			}
+
+			global $table_prefix;
+
+			// Fetch or initialize the current all-time stats
+			$result = $conn->query(
+				sprintf(
+					"SELECT option_value FROM %soptions WHERE option_name = '%s'",
+					$conn->real_escape_string( $table_prefix ),
+					$conn->real_escape_string( $option_name )
+				)
+			);
+
+			if ( $result && $result->num_rows > 0 ) {
+				$row            = $result->fetch_assoc();
+				$all_time_stats = intval( unserialize( $row['option_value'] ) );
+			} else {
+				$all_time_stats = self::initialize_all_time_stats();
+			}
+
+			++$all_time_stats;
+
+			// Update the option in the database
+			$updated_value = serialize( $all_time_stats );
+			$conn->query(
+				sprintf(
+					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
+					$conn->real_escape_string( $table_prefix ),
+					$conn->real_escape_string( $option_name ),
+					$conn->real_escape_string( $updated_value ),
+					$conn->real_escape_string( $updated_value )
+				)
+			);
 		}
-
-		// Increment and update the stats
-		++$all_time_stats;
-		update_option( 'jetpack_waf_all_time_stats', $all_time_stats );
 	}
 
 	/**
@@ -261,9 +302,32 @@ class Waf_Blocklog_Manager {
 	 * @return int The initialized all-time stats value.
 	 */
 	private static function initialize_all_time_stats() {
-		// TODO: Need to account for standalone mode, see write_blocklog_row, and update_daily_summary methods - could these be consolidated?
 		global $wpdb;
 
+		// Fallback for when WordPress isn't initialized
+		if ( ! function_exists( 'get_option' ) ) {
+
+			error_log( 'Are we initializing all time stats here?' );
+			$conn = self::connect_to_wordpress_db();
+			if ( ! $conn ) {
+				return 0;
+			}
+
+			global $table_prefix;
+
+			$last_log_id = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+			$last_log_id = $last_log_id ? intval( $last_log_id->fetch_assoc()['log_id'] ) : 0;
+			$conn->query(
+				sprintf(
+					"INSERT INTO %soptions (option_name, option_value) VALUES ('jetpack_waf_all_time_stats', '%s')",
+					$conn->real_escape_string( $table_prefix ),
+					$conn->real_escape_string( serialize( $last_log_id ) )
+				)
+			);
+			return $last_log_id;
+		}
+
+		// WordPress is initialized
 		$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
 		$all_time_stats = $last_log_id ? intval( $last_log_id ) : 0;
