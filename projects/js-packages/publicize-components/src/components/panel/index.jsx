@@ -12,10 +12,10 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useRefreshConnections from '../../hooks/use-refresh-connections';
 import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { store as socialStore } from '../../social-store';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { SharePostRow } from '../share-post';
+import { ShareStatusModal } from '../share-status-modal';
 import styles from './styles.module.scss';
 import './global.scss';
 
@@ -25,13 +25,6 @@ const PublicizePanel = ( { prePublish, children } ) => {
 	const refreshConnections = useRefreshConnections();
 
 	const { isPublicizeEnabled, hidePublicizeFeature, togglePublicizeFeature } = usePublicizeConfig();
-
-	const { featureFlags } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			featureFlags: store.featureFlags(),
-		};
-	}, [] );
 
 	// Refresh connections when the post is just published.
 	usePostJustPublished(
@@ -81,8 +74,8 @@ const PublicizePanel = ( { prePublish, children } ) => {
 			) }
 			{ isPostPublished && (
 				<>
+					<ShareStatusModal />
 					<ManualSharing />
-					{ featureFlags?.useShareStatus && 'Share status modal comes here' }
 				</>
 			) }
 		</PanelWrapper>
