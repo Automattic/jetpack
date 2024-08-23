@@ -61,18 +61,6 @@ const DefaultUpgradePrompt = ( {
 		} );
 	}, [ tracks, placement ] );
 
-	// Return notice component for the fair usage limit message, on unlimited plans.
-	if ( currentTier?.value === 1 ) {
-		return (
-			<Notice status="warning" isDismissible={ false }>
-				{ __(
-					'You exceeded your current quota of requests. Check the usage policy for more information.',
-					'jetpack'
-				) }
-			</Notice>
-		);
-	}
-
 	if ( ! canUpgrade ) {
 		const cantUpgradeDescription = createInterpolateElement(
 			__(
@@ -223,7 +211,19 @@ const VIPUpgradePrompt = ( {
 };
 
 const UpgradePrompt = props => {
-	const { upgradeType } = useAiFeature();
+	const { upgradeType, currentTier } = useAiFeature();
+
+	// Return notice component for the fair usage limit message, on unlimited plans.
+	if ( currentTier?.value === 1 ) {
+		return (
+			<Notice status="warning" isDismissible={ false }>
+				{ __(
+					'You exceeded your current quota of requests. Check the usage policy for more information.',
+					'jetpack'
+				) }
+			</Notice>
+		);
+	}
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {
