@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack;
 
+define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
+
 /**
  * Jetpack_Mu_Wpcom main class.
  */

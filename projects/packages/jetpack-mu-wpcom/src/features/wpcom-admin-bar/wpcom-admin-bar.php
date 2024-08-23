@@ -10,8 +10,6 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
-
 // The $icon-color variable for admin color schemes.
 // See: https://github.com/WordPress/wordpress-develop/blob/679cc0c4a261a77bd8fdb140cd9b0b2ff80ebf37/src/wp-admin/css/colors/_variables.scss#L9
 // Only the ones different from the "fresh" scheme are listed.

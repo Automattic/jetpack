@@ -32,10 +32,10 @@ class Admin_Color_Schemes {
 			add_action( 'rest_api_init', array( $this, 'register_admin_color_meta' ) );
 		}
 
-		if ( ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) { // Classic sites.
+		if ( ( defined( 'WPCOM_ADMIN_BAR_UNIFICATION' ) && WPCOM_ADMIN_BAR_UNIFICATION ) || get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) { // Simple and Atomic sites.
 			add_filter( 'css_do_concat', array( $this, 'disable_css_concat_for_color_schemes' ), 10, 2 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_color_scheme_for_sidebar_notice' ) );
-		} else { // Default and self-hosted sites.
+		} else { // self-hosted sites.
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_core_color_schemes_overrides' ) );
 		}
 	}
