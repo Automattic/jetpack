@@ -210,19 +210,27 @@ const VIPUpgradePrompt = ( {
 	);
 };
 
+/**
+ * The fair usage notice component.
+ * @return {ReactElement} the Notice component with the fair usage message.
+ */
+const FairUsageNotice = () => {
+	return (
+		<Notice status="warning" isDismissible={ false }>
+			{ __(
+				'You exceeded your current quota of requests. Check the usage policy for more information.',
+				'jetpack'
+			) }
+		</Notice>
+	);
+};
+
 const UpgradePrompt = props => {
 	const { upgradeType, currentTier } = useAiFeature();
 
 	// Return notice component for the fair usage limit message, on unlimited plans.
 	if ( currentTier?.value === 1 ) {
-		return (
-			<Notice status="warning" isDismissible={ false }>
-				{ __(
-					'You exceeded your current quota of requests. Check the usage policy for more information.',
-					'jetpack'
-				) }
-			</Notice>
-		);
+		return <FairUsageNotice />;
 	}
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
