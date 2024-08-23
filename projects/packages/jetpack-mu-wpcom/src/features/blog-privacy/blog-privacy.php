@@ -70,12 +70,17 @@ function remove_og_tags() {
 		return;
 	}
 
-	/** This filter is documented in class.jetpack.php */
-	$jetpack_enable_open_graph = apply_filters( 'jetpack_enable_open_graph', false );
 	// Disable Jetpack Open Graph Tags.
-	if ( $jetpack_enable_open_graph && function_exists( 'jetpack_og_tags' ) ) {
+	if ( function_exists( 'jetpack_og_tags' ) ) {
 		// @phan-suppress-next-line PhanUndeclaredFunctionInCallable
 		remove_action( 'wp_head', 'jetpack_og_tags' );
+	}
+
+	// Avoid calling check_open_graph as it registers the jetpack_og_tags function when running wp_head action.
+	if ( class_exists( '\Jetpack', false ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction, PhanUndeclaredClassReference
+		$jetpack = \Jetpack::init();
+		remove_action( 'wp_head', array( $jetpack, 'check_open_graph' ), 1 );
 	}
 
 	// Disable Yoast SEO. See https://developer.yoast.com/customization/yoast-seo/disabling-yoast-seo/.
@@ -86,4 +91,4 @@ function remove_og_tags() {
 	}
 }
 
-add_action( 'init', __NAMESPACE__ . '\remove_og_tags' );
+add_action( 'wp_head', __NAMESPACE__ . '\remove_og_tags', 0 );
