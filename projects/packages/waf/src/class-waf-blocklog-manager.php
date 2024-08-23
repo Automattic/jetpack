@@ -44,11 +44,21 @@ class Waf_Blocklog_Manager {
 		return self::$db_connection;
 	}
 
-		/**
-		 * Create the log table when plugin is activated.
-		 *
-		 * @return void
-		 */
+	/**
+	 * Close the database connection.
+	 */
+	public static function close_db_connection() {
+		if ( self::$db_connection ) {
+			self::$db_connection->close();
+			self::$db_connection = null;
+		}
+	}
+
+	/**
+	 * Create the log table when plugin is activated.
+	 *
+	 * @return void
+	 */
 	public static function create_blocklog_table() {
 		global $wpdb;
 
@@ -320,6 +330,7 @@ class Waf_Blocklog_Manager {
 		self::update_daily_summary();
 		self::update_all_time_stats();
 		self::write_blocklog_row( $log_data );
+		self::close_db_connection();
 	}
 
 	/**
