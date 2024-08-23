@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.58.0] - 2024-08-23
+### Added
+- Sync Calypso locale to Atomic Classic [#39009]
+
+### Changed
+- Jetpack-mu-wpcom admin bar: move the Reader menu item to the secondary admin bar group. [#38976]
+- Replace language selector with a link to WPCOM [#39013]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Admin bar: fix icon colors on site frontend [#39014]
+- Ensure theme update icon is hidden correctly [#38957]
+- Inconsistent Color Scheme when previewing on Simple Default [#39048]
+
 ## [5.57.1] - 2024-08-21
 ### Changed
 - Site Level User Profile: expose all relevant fields on profile.php [#38949]
@@ -1163,6 +1177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.58.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.1...v5.58.0
 [5.57.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.0...v5.57.1
 [5.57.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.56.0...v5.57.0
 [5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
