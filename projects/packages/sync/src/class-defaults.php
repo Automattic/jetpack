@@ -769,6 +769,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_mess',
 		'_wpas_options',
+		'_publicize_shares',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',

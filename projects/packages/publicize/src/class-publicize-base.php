@@ -61,6 +61,13 @@ abstract class Publicize_Base {
 	const POST_PUBLICIZE_FEATURE_ENABLED = '_wpas_feature_enabled';
 
 	/**
+	 * Post meta key for the share log of the post.
+	 *
+	 * @var string
+	 */
+	const POST_PUBLICIZE_SHARES = '_publicize_shares';
+
+	/**
 	 * Post meta key for Jetpack Social options.
 	 *
 	 * @var string
@@ -1163,6 +1170,57 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$publicize_shares = array(
+			'type'          => 'array',
+			'description'   => __( 'Log of shares to Jetpack Social of that post.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => array(),
+			'show_in_rest'  => array(
+				'name'   => 'jetpack_social_post_shares',
+				'schema' => array(
+					'type'  => 'array',
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'status'          => array(
+								'type'        => 'string',
+								'description' => __( 'The status of the share, e.g., success or failure.', 'jetpack-publicize-pkg' ),
+							),
+							'message'         => array(
+								'type'        => 'string',
+								'description' => __( 'The message or URL associated with the share.', 'jetpack-publicize-pkg' ),
+							),
+							'timestamp'       => array(
+								'type'        => 'integer',
+								'description' => __( 'The timestamp of the share in Unix time.', 'jetpack-publicize-pkg' ),
+							),
+							'service'         => array(
+								'type'        => 'string',
+								'description' => __( 'The social media service, e.g., Facebook, Tumblr, etc.', 'jetpack-publicize-pkg' ),
+							),
+							'connection_id'   => array(
+								'type'        => 'integer',
+								'description' => __( 'The connection ID for the social media account.', 'jetpack-publicize-pkg' ),
+							),
+							'external_name'   => array(
+								'type'        => 'string',
+								'description' => __( 'The external name of the social media account.', 'jetpack-publicize-pkg' ),
+							),
+							'profile_picture' => array(
+								'type'        => 'string',
+								'description' => __( 'The profile URL of the social media account.', 'jetpack-publicize-pkg' ),
+							),
+							'profile_link'    => array(
+								'type'        => 'string',
+								'description' => __( 'The profile link of the social media account.', 'jetpack-publicize-pkg' ),
+							),
+						),
+					),
+				),
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		$already_shared_flag_args = array(
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the post has already been shared.', 'jetpack-publicize-pkg' ),
@@ -1246,11 +1304,13 @@ abstract class Publicize_Base {
 
 			$message_args['object_subtype']                  = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
+			$publicize_shares['object_subtype']              = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
+			register_meta( 'post', self::POST_PUBLICIZE_SHARES, $publicize_shares );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 		}
