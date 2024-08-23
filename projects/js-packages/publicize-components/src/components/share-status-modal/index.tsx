@@ -1,7 +1,9 @@
-import { Button } from '@wordpress/components';
+import { Button, Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useCallback, useReducer } from 'react';
 import { store as socialStore } from '../../social-store';
+import { ShareList } from './share-list';
 import styles from './styles.module.scss';
 
 /**
@@ -10,6 +12,12 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - Share status modal component.
  */
 export function ShareStatusModal() {
+	const [ isModalOpen, toggleModal ] = useReducer( state => ! state, false );
+
+	const handleOpenModal = useCallback( () => {
+		toggleModal();
+	}, [] );
+
 	const { featureFlags } = useSelect( select => {
 		const store = select( socialStore );
 		return {
@@ -23,7 +31,24 @@ export function ShareStatusModal() {
 
 	return (
 		<div className={ styles.wrapper }>
-			<Button variant="secondary">{ __( 'Review sharing status', 'jetpack' ) }</Button>{ ' ' }
+			{ isModalOpen && (
+				<Modal
+					onRequestClose={ toggleModal }
+					title={ __( 'Sharing status', 'jetpack' ) }
+					className={ styles.modal }
+				>
+					<ShareList />
+					<Button
+						className={ styles[ 'close-button' ] }
+						onClick={ toggleModal }
+						icon={ close }
+						label={ __( 'Close', 'jetpack' ) }
+					/>
+				</Modal>
+			) }
+			<Button variant="secondary" onClick={ handleOpenModal }>
+				{ __( 'Review sharing status', 'jetpack' ) }
+			</Button>
 		</div>
 	);
 }

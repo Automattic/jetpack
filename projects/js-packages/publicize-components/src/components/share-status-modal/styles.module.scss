@@ -2,3 +2,25 @@
 	margin-top: 1rem;
 	padding-block: 1rem;
 }
+
+.share-log-list {
+	outline: 1px solid var(--jp-gray-5);
+	border-radius: 4px;
+	margin: 0;
+	width: 100%;
+
+	.share-log-list-item {
+		margin-bottom: 0px;
+		padding: 1rem;
+
+		&:not(:last-child) {
+			border-bottom: 1px solid var(--jp-gray-5);
+		}
+	}
+
+	.share-item {
+		display: flex;
+		gap: 1rem;
+		align-items: center;
+	}
+}
