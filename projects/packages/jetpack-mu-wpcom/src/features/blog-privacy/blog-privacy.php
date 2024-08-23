@@ -66,7 +66,7 @@ add_filter( 'robots_txt', __NAMESPACE__ . '\\robots_txt', 12, 2 );
  * Disable the Open Graph Tags based on the value of either wpcom_public_coming_soon and wpcom_data_sharing_opt_out option.
  */
 function remove_og_tags() {
-	if ( ! (bool) get_option( 'wpcom_public_coming_soon ' ) && ! (bool) get_option( 'wpcom_data_sharing_opt_out' ) ) {
+	if ( ! (bool) get_option( 'wpcom_public_coming_soon' ) && ! (bool) get_option( 'wpcom_data_sharing_opt_out' ) ) {
 		return;
 	}
 
