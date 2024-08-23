@@ -93,6 +93,7 @@ function Styles( { globalStyleElements } ) {
 						</style>
 					);
 				}
+				return undefined;
 			} ) }
 		</>
 	);

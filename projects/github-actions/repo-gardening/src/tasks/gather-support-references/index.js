@@ -17,7 +17,7 @@ async function getListComment( issueComments ) {
 
 	debug( `gather-support-references: Looking for a previous comment from this task in our issue.` );
 
-	issueComments.map( comment => {
+	for ( const comment of issueComments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Support References**' )
@@ -27,7 +27,7 @@ async function getListComment( issueComments ) {
 				body: comment.body,
 			};
 		}
-	} );
+	}
 
 	return commentInfo;
 }
@@ -71,18 +71,18 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 	}
 
 	debug( `gather-support-references: Getting references from comments.` );
-	issueComments.map( comment => {
+	for ( const comment of issueComments ) {
 		if (
 			comment.user.login !== 'github-actions[bot]' ||
 			! comment.body.includes( '**Support References**' )
 		) {
 			ticketReferences.push( ...comment.body.matchAll( referencesRegexP ) );
 		}
-	} );
+	}
 
 	// Let's build a array with unique and correct support IDs, formatted properly.
 	const correctedSupportIds = new Set();
-	ticketReferences.map( reference => {
+	for ( const reference of ticketReferences ) {
 		let supportId = reference[ 0 ];
 
 		// xxx-zen is the preferred format for tickets.
@@ -98,7 +98,7 @@ async function getIssueReferences( octokit, owner, repo, number, issueComments )
 		}
 
 		correctedSupportIds.add( supportId );
-	} );
+	}
 
 	return [ ...correctedSupportIds ];
 }

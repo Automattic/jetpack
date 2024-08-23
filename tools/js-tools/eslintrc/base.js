@@ -211,7 +211,6 @@ module.exports = {
 		strict: [ 'error', 'never' ],
 
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
-		'array-callback-return': 'off',
 		eqeqeq: [ 'error', 'allow-null' ],
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
 		'no-prototype-builtins': 'off',

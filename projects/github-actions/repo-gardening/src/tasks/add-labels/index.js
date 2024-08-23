@@ -71,7 +71,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 
 	debug( 'add-labels: Loop through all files modified in this PR and add matching labels.' );
 
-	files.map( file => {
+	for ( const file of files ) {
 		// Projects.
 		const project = file.match( /^projects\/(?<ptype>[^/]*)\/(?<pname>[^/]*)\// );
 		if ( project && project.groups.ptype && project.groups.pname ) {
@@ -273,7 +273,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft, isRevert )
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-	} );
+	}
 
 	// The Image CDN was previously named "Photon".
 	// If we're touching that package, let's add the Photon label too

@@ -29,9 +29,9 @@ async function getComments( octokit, owner, repo, number ) {
 		issue_number: +number,
 		per_page: 100,
 	} ) ) {
-		response.data.map( comment => {
+		for ( const comment of response.data ) {
 			issueComments.push( comment );
-		} );
+		}
 	}
 
 	cache[ cacheKey ] = issueComments;

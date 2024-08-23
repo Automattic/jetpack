@@ -30,11 +30,11 @@ async function getCheckComments( github, owner, repo, number, testCommentIndicat
 		issue_number: +number,
 		per_page: 100,
 	} ) ) {
-		response.data.map( comment => {
+		for ( const comment of response.data ) {
 			if ( comment.body.includes( testCommentIndicator ) ) {
 				testCommentIDs.push( comment.id );
 			}
-		} );
+		}
 	}
 
 	cache[ cacheKey ] = testCommentIDs;

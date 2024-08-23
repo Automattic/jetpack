@@ -14,12 +14,12 @@ const getLabels = require( './labels/get-labels' );
 async function getPluginNames( octokit, owner, repo, number ) {
 	const plugins = [];
 	const labels = await getLabels( octokit, owner, repo, number );
-	labels.map( label => {
+	for ( const label of labels ) {
 		const plugin = label.match( /^\[Plugin\]\s(?<pluginName>[^/]*)$/ );
 		if ( plugin && plugin.groups.pluginName ) {
 			plugins.push( plugin.groups.pluginName.replace( /\s+/, '-' ).toLowerCase() );
 		}
-	} );
+	}
 
 	return plugins;
 }

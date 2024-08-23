@@ -25,9 +25,9 @@ describe( 'Jetpack Product Card', () => {
 		expect( screen.getByRole( 'heading', { name: mockAttributes.title } ) ).toBeInTheDocument();
 		expect( screen.getByText( mockAttributes.description ) ).toBeInTheDocument();
 
-		mockAttributes.features.map( feature => {
+		for ( const feature of mockAttributes.features ) {
 			expect( screen.getByText( feature ) ).toBeInTheDocument();
-		} );
+		}
 	} );
 
 	it( 'price is shown', () => {

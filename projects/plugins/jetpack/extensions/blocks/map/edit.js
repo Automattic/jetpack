@@ -150,13 +150,7 @@ const MapEdit = ( {
 
 	const addPoint = point => {
 		const newPoints = points.slice( 0 );
-		let duplicateFound = false;
-		points.map( existingPoint => {
-			if ( existingPoint.id === point.id ) {
-				duplicateFound = true;
-			}
-		} );
-		if ( duplicateFound ) {
+		if ( points.some( existingPoint => existingPoint.id === point.id ) ) {
 			return;
 		}
 		newPoints.push( point );

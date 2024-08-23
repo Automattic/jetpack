@@ -70,6 +70,7 @@ export function getAvailableStaticFilters( variation ) {
 		if ( variation && filter.variation ) {
 			return filter.variation === variation;
 		}
+		return false;
 	} );
 }
 

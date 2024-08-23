@@ -127,7 +127,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					if ( ! category ) {
 						// Data is not yet loaded
 						loading = true;
-						return;
+						return undefined;
 					}
 
 					return category;
@@ -149,7 +149,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					if ( ! tag ) {
 						// Data is not yet loaded
 						loading = true;
-						return;
+						return undefined;
 					}
 
 					return tag;
