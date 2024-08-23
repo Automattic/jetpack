@@ -71,10 +71,14 @@ function remove_og_tags() {
 	}
 
 	// Disable Jetpack Open Graph Tags.
-	remove_action( 'wp_head', 'jetpack_og_tags' );
+	if ( function_exists( 'jetpack_og_tags' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunctionInCallable
+		remove_action( 'wp_head', 'jetpack_og_tags' );
+	}
 
 	// Disable Yoast SEO. See https://developer.yoast.com/customization/yoast-seo/disabling-yoast-seo/.
-	if ( function_exists( 'YoastSEO' ) ) {
+	if ( function_exists( 'YoastSEO' ) && class_exists( 'Yoast\WP\SEO\Integrations\Front_End_Integration', false ) ) {
+		// @phan-suppress-next-line PhanUndeclaredFunction, PhanUndeclaredClassReference
 		$front_end = \YoastSEO()->classes->get( \Yoast\WP\SEO\Integrations\Front_End_Integration::class );
 		remove_action( 'wpseo_head', array( $front_end, 'present_head' ), -9999 );
 	}
