@@ -1,4 +1,4 @@
-/* global jetpackSlideshowSettings, escape */
+/* global jetpackSlideshowSettings */
 
 function JetpackSlideshow( element, transition, autostart ) {
 	this.element = element;
@@ -171,7 +171,7 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function ( isNext, i /*, slid
 	stats.src =
 		document.location.protocol +
 		'//pixel.wp.com/g.gif?host=' +
-		escape( document.location.host ) +
+		encodeURIComponent( document.location.host ) +
 		'&rand=' +
 		Math.random() +
 		'&blog=' +
@@ -183,7 +183,7 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function ( isNext, i /*, slid
 		'&post=' +
 		postid +
 		'&ref=' +
-		escape( document.location );
+		encodeURIComponent( document.location );
 };
 
 ( function () {
