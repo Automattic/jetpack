@@ -6,7 +6,7 @@ import { STORE_ID } from '../../state/store';
 /**
  * Use WAF Data Hook
  *
- * @returns {object} WAF data and methods for interacting with it.
+ * @return {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
 	const { setWafConfig, setWafStats, setWafIsEnabled, setWafIsUpdating, setWafIsToggling } =

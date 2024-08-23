@@ -4,7 +4,7 @@ import { extractVideoChapters } from './extract-video-chapters';
  * Converts milliseconds duration to a string in the hh:mm:ss format
  *
  * @param {number} milliseconds - The duration in milliseconds
- * @returns {string}             - The formatted time
+ * @return {string}             - The formatted time
  */
 function millisecondsToClockTime( milliseconds: number ) {
 	const hours = Math.floor( milliseconds / 3600000 );
@@ -25,7 +25,7 @@ function millisecondsToClockTime( milliseconds: number ) {
  *
  * @param {string} description   - The video description
  * @param {number} videoDuration - The video duration, in milliseconds
- * @returns {string}             - WebVTT text content
+ * @return {string}             - WebVTT text content
  */
 function generateChaptersFileContent(
 	description: string,

@@ -7,8 +7,8 @@ import React from 'react';
  * High order component that provides a <form> with functionality
  * to handle input values on the forms' own React component state.
  *
- * @param  {React.Component} InnerComponent The component with a top level form element
- * @return {[React.Component]}	The component with new functionality
+ * @param {React.Component} InnerComponent The component with a top level form element
+ * @return {[React.Component]} The component with new functionality
  */
 export function withModuleSettingsFormHelpers( InnerComponent ) {
 	class SettingsForm extends React.Component {
@@ -34,9 +34,9 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * Updates the list of form values to save, usually options to set or modules to activate.
 		 * Receives an object with key => value pairs to set multiple options or a string and a value to set a single option.
 		 *
-		 * @param   {string|object} optionMaybeOptions options to update.
-		 * @param   {*}             optionValue        value to set if it's a single option
-		 * @returns {boolean}       Always true
+		 * @param {string|object} optionMaybeOptions options to update.
+		 * @param {*}             optionValue        value to set if it's a single option
+		 * @return {boolean}       Always true
 		 */
 		updateFormStateOptionValue = ( optionMaybeOptions, optionValue = undefined ) => {
 			if ( 'string' === typeof optionMaybeOptions ) {
@@ -69,9 +69,9 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * If the module is active, only the option is added to the list of form values to send.
 		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
 		 *
-		 * @param {String}  module        the module.
-		 * @param {String}  moduleOption  the option slug for the module.
-		 * @param {Boolean} deactivate    whether to deactive the module too.
+		 * @param {String}  module       the module.
+		 * @param {String}  moduleOption the option slug for the module.
+		 * @param {Boolean} deactivate   whether to deactive the module too.
 		 */
 		updateFormStateModuleOption = ( module, moduleOption, deactivate = false ) => {
 			this.trackSettingsToggle( module, moduleOption, ! this.getOptionValue( moduleOption ) );
@@ -102,7 +102,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		/**
 		 * Instantly activate or deactivate a module.
 		 *
-		 * @param {String} module	the module slug.
+		 * @param {String} module the module slug.
 		 */
 		toggleModuleNow = module => {
 			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
@@ -141,10 +141,10 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		/**
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
-		 * @param {String} settingName  the setting to get.
-		 * @param {String} module       the module related to the setting.
-		 * @param  {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
-		 * @returns {*}                 the current value of the settings.
+		 * @param {String}  settingName           the setting to get.
+		 * @param {String}  module                the module related to the setting.
+		 * @param {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
+		 * @return {*}                 the current value of the settings.
 		 */
 		getOptionValue = ( settingName, module = '', ignoreDisabledModules = true ) => {
 			return get(
@@ -162,7 +162,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		/**
 		 * Check if there are unsaved settings in the card.
 		 *
-		 * @returns {Boolean}  True if the form has unsaved changes.
+		 * @return {Boolean}  True if the form has unsaved changes.
 		 */
 		isDirty = () => {
 			return !! Object.keys( this.state.options ).length;
@@ -171,9 +171,9 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		/**
 		 * Checks if a setting is currently being saved.
 		 *
-		 * @param {String|Array} settings  The settings to check for a current saving in progress
+		 * @param {String|Array} settings The settings to check for a current saving in progress
 		 *
-		 * @returns {Boolean} True if specified settings are being saved, false otherwise.
+		 * @return {Boolean} True if specified settings are being saved, false otherwise.
 		 */
 		isSavingAnyOption = ( settings = '' ) => {
 			return this.props.isUpdating( settings );

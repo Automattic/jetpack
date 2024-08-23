@@ -11,9 +11,9 @@ import { noop } from 'lodash';
  *     .then( () => setAttributes( url ) )
  *     .catch( () => setErrorNotice() );
  * };
- * @param {string} url - The URL to test.
+ * @param {string}   url                      - The URL to test.
  * @param {Function} [setIsResolvingUrl=noop] - An optional function to track the resolving state. Typically used to update the calling component's state.
- * @returns {Promise} Resolve if the URL is valid, reject otherwise.
+ * @return {Promise} Resolve if the URL is valid, reject otherwise.
  */
 export default function testEmbedUrl( url, setIsResolvingUrl = noop ) {
 	setIsResolvingUrl( true );

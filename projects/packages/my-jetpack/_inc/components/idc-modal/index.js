@@ -5,7 +5,7 @@ import styles from './styles.module.scss';
 /**
  * Wrapper for the IDC Screen to display it in a modal.
  *
- * @returns {React.Component|null} The IDC Screen modal component.
+ * @return {React.Component|null} The IDC Screen modal component.
  */
 function IDCModal() {
 	const [ isOpen, setOpen ] = useState( true );

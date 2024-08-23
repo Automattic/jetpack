@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
  * A function to format a duration as h:m:s.
  *
  * @param {number} duration - Duration in milliseconds.
- * @returns {string} Formatted duration.
+ * @return {string} Formatted duration.
  */
 export default function formatDuration( duration ) {
 	let n = '';

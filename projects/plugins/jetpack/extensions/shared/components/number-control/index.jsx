@@ -10,7 +10,7 @@ import {
  * to a standard TextControl, limited to numbers.
  *
  * @param {any} props - the NumberControl component props
- * @returns {object} - NumberControl component
+ * @return {object} - NumberControl component
  */
 const NumberControl =
 	BlockEditorNumberControl ||

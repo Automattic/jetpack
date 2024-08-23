@@ -10,7 +10,7 @@ import { STORE_ID } from '../../../state/constants';
 /**
  * React custom hook to get the videos.
  *
- * @returns {object} videos
+ * @return {object} videos
  */
 export default function useVideos() {
 	// Data
@@ -32,6 +32,7 @@ export default function useVideos() {
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
 	const filter = useSelect( select => select( STORE_ID ).getVideosFilter() );
+	const uploadErrors = useSelect( select => select( STORE_ID ).getUploadErrorVideos() );
 
 	return {
 		items,
@@ -48,6 +49,7 @@ export default function useVideos() {
 		...query,
 		...pagination,
 		...storageUsed,
+		uploadErrors,
 
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
@@ -84,7 +86,7 @@ export const useLocalVideos = () => {
 /**
  * React custom hook to get the videos query.
  *
- * @returns {object} search query information
+ * @return {object} search query information
  */
 export const useVideosQuery = () => {
 	// Data

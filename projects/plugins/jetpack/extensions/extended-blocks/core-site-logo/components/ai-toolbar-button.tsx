@@ -13,9 +13,9 @@ import type { ReactElement } from 'react';
 /**
  * The toolbar button that toggles the Logo Generator Modal.
  *
- * @param {object} props - The component props.
+ * @param {object}   props              - The component props.
  * @param {Function} props.clickHandler - The handler for the click event.
- * @returns {ReactElement} The toolbar button.
+ * @return {ReactElement} The toolbar button.
  */
 export default function AiToolbarButton( {
 	clickHandler,

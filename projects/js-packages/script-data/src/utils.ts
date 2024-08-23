@@ -1,7 +1,7 @@
 /**
  * Get the script data from the window object.
  *
- * @returns {import('./types').JetpackScriptData} The script data.
+ * @return {import('./types').JetpackScriptData} The script data.
  */
 export function getScriptData() {
 	return window.JetpackScriptData;
@@ -10,7 +10,7 @@ export function getScriptData() {
 /**
  * Get the site data from the script data.
  *
- * @returns {import('./types').SiteData} The site data.
+ * @return {import('./types').SiteData} The site data.
  */
 export function getSiteData() {
 	return getScriptData().site;
@@ -21,7 +21,7 @@ export function getSiteData() {
  *
  * @param {string} [path] - The path to append to the admin URL. e.g. `admin.php?page=jetpack`.
  *
- * @returns {string} The admin URL.
+ * @return {string} The admin URL.
  */
 export function getAdminUrl( path = '' ) {
 	return `${ getScriptData().site.admin_url }${ path }`;
@@ -32,7 +32,7 @@ export function getAdminUrl( path = '' ) {
  *
  * @param {string} [section] - The section to append to the My Jetpack URL. e.g. `#/settings`.
  *
- * @returns {string} The Jetpack admin page URL.
+ * @return {string} The Jetpack admin page URL.
  */
 export function getJetpackAdminPageUrl( section = '' ) {
 	return getAdminUrl( `admin.php?page=jetpack${ section }` );
@@ -43,7 +43,7 @@ export function getJetpackAdminPageUrl( section = '' ) {
  *
  * @param {string} [section] - The section to append to the My Jetpack URL. e.g. `#/connection`.
  *
- * @returns {string} The My Jetpack URL.
+ * @return {string} The My Jetpack URL.
  */
 export function getMyJetpackUrl( section = '' ) {
 	return getAdminUrl( `admin.php?page=my-jetpack${ section }` );
@@ -52,7 +52,7 @@ export function getMyJetpackUrl( section = '' ) {
 /**
  * Get active features from the site plan.
  *
- * @returns {import('./types').SitePlan['features']['active']} The active features.
+ * @return {import('./types').SitePlan['features']['active']} The active features.
  */
 export function getActiveFeatures() {
 	return getScriptData().site.plan?.features?.active ?? [];
