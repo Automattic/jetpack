@@ -16,11 +16,11 @@ ROLLING_MODE=
 if [[ "$GITHUB_REF" =~ ^refs/tags/v?[0-9]+(\.[0-9]+)+(-[a-z0-9._-]+)?$ ]]; then
 	TAG="${GITHUB_REF#refs/tags/}"
 elif [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
-	ROLLING_MODE="$(jq -r '.extra.autorelease.rolling-release' composer.json)"
-	if [[ -z "$ROLLING_MODE" ]]; then
+	if ! jq -e '.extra.autorelease["rolling-release"]? // false' composer.json > /dev/null; then
 		echo "::notice::Skipping trunk release because autorelease rolling mode is not enabled."
 		exit 0
 	fi
+	ROLLING_MODE=true
 	TAG="rolling-release"
 else
 	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\` or \`trunk\` for rolling releases, got \`$GITHUB_REF\`"
