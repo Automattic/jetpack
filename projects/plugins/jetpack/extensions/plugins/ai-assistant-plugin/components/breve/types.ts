@@ -109,7 +109,6 @@ export type BreveFeature = {
 export type HighlightedText = {
 	text: string;
 	suggestion?: string;
-	suggestions?: Array< string >;
 	startIndex: number;
 	endIndex: number;
 };
