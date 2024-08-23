@@ -126,8 +126,6 @@ gh release create "$TAG" \
 echo "::endgroup::"
 
 echo "::group::Uploading artifact to release"
-if ! gh release upload "$TAG" "$SLUG.zip"; then
-	exit 1
-fi
+gh release upload "$TAG" "$SLUG.zip"
 
 echo "::endgroup::"
