@@ -21,16 +21,13 @@ async function flagOss( payload, octokit ) {
 	}
 
 	// Check if PR author is org member
+	// Result is communicated by status code, and non-successful status codes throw.
 	// https://docs.github.com/en/rest/orgs/members?apiVersion=2022-11-28#check-organization-membership-for-a-user
 	try {
-		const orgMembershipRequest = await octokit.rest.orgs.checkMembershipForUser( {
+		await octokit.rest.orgs.checkMembershipForUser( {
 			org: owner.login,
 			username: head.user.login,
 		} );
-
-		if ( 204 === orgMembershipRequest.status ) {
-			return;
-		}
 	} catch ( error ) {
 		debug( `flag-oss: Adding OSS Citizen label to PR #${ number }` );
 		await octokit.rest.issues.addLabels( {

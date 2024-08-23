@@ -83,7 +83,7 @@ CSS
 		);
 	}
 
-	$admin_color      = get_user_option( 'admin_color' );
+	$admin_color      = is_admin() ? get_user_option( 'admin_color' ) : 'fresh';
 	$admin_icon_color = WPCOM_ADMIN_ICON_COLORS[ $admin_color ] ?? WPCOM_ADMIN_ICON_COLORS['fresh'];
 
 	// Force the icon colors to have desktop color even on mobile viewport.
