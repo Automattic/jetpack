@@ -11,11 +11,44 @@ namespace Automattic\Jetpack\Waf;
  * Class used to manage blocklog operations
  */
 class Waf_Blocklog_Manager {
+
 	/**
-	 * Create the log table when plugin is activated.
+	 * Database connection.
 	 *
-	 * @return void
+	 * @var \mysqli|null
 	 */
+	private static $db_connection = null;
+
+	/**
+	 * Connect to WordPress database.
+	 */
+	private static function connect_to_wordpress_db() {
+		if ( self::$db_connection !== null ) {
+			return self::$db_connection;
+		}
+
+		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
+			return;
+		}
+
+		require_once JETPACK_WAF_WPCONFIG;
+		// @phan-suppress-next-line PhanUndeclaredConstant - These constants are defined in the wp-config file.
+		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
+
+		if ( $conn->connect_error ) {
+			error_log( 'Could not connect to the database:' . $conn->connect_error );
+			return null;
+		}
+
+		self::$db_connection = $conn;
+		return self::$db_connection;
+	}
+
+		/**
+		 * Create the log table when plugin is activated.
+		 *
+		 * @return void
+		 */
 	public static function create_blocklog_table() {
 		global $wpdb;
 
@@ -33,26 +66,6 @@ class Waf_Blocklog_Manager {
 		";
 
 		dbDelta( $sql );
-	}
-
-	/**
-	 * Connect to WordPress database.
-	 */
-	private static function connect_to_wordpress_db() {
-		if ( ! file_exists( JETPACK_WAF_WPCONFIG ) ) {
-			return;
-		}
-
-		require_once JETPACK_WAF_WPCONFIG;
-		// @phan-suppress-next-line PhanUndeclaredConstant - These constants are defined in the wp-config file.
-		$conn = new \mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME ); // phpcs:ignore WordPress.DB.RestrictedClasses.mysql__mysqli
-
-		if ( $conn->connect_error ) {
-			error_log( 'Could not connect to the database:' . $conn->connect_error );
-			return null;
-		}
-
-		return $conn;
 	}
 
 	/**
@@ -219,6 +232,7 @@ class Waf_Blocklog_Manager {
 	 * Increment the all-time stats.
 	 */
 	public static function update_all_time_stats() {
+		// TODO: Need to account for standalone mode, see write_blocklog_row, and update_daily_summary methods - could these be consolidated?
 		$all_time_stats = get_option( 'jetpack_waf_all_time_stats', false );
 
 		if ( false === $all_time_stats ) {

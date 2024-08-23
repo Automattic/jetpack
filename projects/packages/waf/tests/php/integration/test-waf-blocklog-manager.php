@@ -51,7 +51,7 @@ final class WafBlocklogManagerIntegrationTest extends WorDBless\BaseTestCase {
 	 */
 	public function testGetWafBlocklogDailySummaryTodayStats() {
 		// Check the today stats
-		$today_stats = Waf_Blocklog_Manager::get_today_stats();
+		$today_stats = Waf_Blocklog_Manager::get_one_day_stats();
 		$this->assertSame( 1, $today_stats, 'The today stats should be 1.' );
 	}
 
@@ -60,7 +60,16 @@ final class WafBlocklogManagerIntegrationTest extends WorDBless\BaseTestCase {
 	 */
 	public function testGetWafBlocklogDailySummaryCurrentMonthStats() {
 		// Check the current month stats
-		$current_month_stats = Waf_Blocklog_Manager::get_current_month_stats();
+		$current_month_stats = Waf_Blocklog_Manager::get_thirty_day_stats();
 		$this->assertSame( 1, $current_month_stats, 'The current month stats should be 1.' );
+	}
+
+	/**
+	 * Ensures that the method for retrieving the all time stats accurately reflects the recorded data.
+	 */
+	public function testGetWafBlocklogAllTimeStats() {
+		// Check the all time stats
+		$all_time_stats = Waf_Blocklog_Manager::get_all_time_stats();
+		$this->assertSame( 1, $all_time_stats, 'The all time stats should be 1.' );
 	}
 }
