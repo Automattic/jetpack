@@ -62,6 +62,7 @@ Backups are essential for eCommerce stores. New orders come in at any moment, so
 Save hours of time developing and maintaining sites by restoring to any point. Just one change pays for itself. Real‑time backups go beyond a snapshot to give you total power and flexibility. The activity log lets you know exactly what action (and who) broke the site, so you can look like a pro for your clients.
 
 * Full, incremental, and differential backups in real-time
+* Start a backup anytime with the **Back up now** button
 * Complete list of all site changes
 * Quickly restore from any point
 * Be empowered to experiment with the look and feel of your site
