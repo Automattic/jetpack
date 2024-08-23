@@ -2,11 +2,11 @@
 
 set -eo pipefail
 
-: "${GITHUB_REF:?Build argument needs to be set and non-empty.}"
-: "${GITHUB_SHA:?Build argument needs to be set and non-empty.}"
-: "${API_TOKEN_GITHUB:?Build argument needs to be set and non-empty.}"
+: "${GH_TOKEN:?Build argument needs to be set and non-empty.}"
 : "${GITHUB_API_URL:?Build argument needs to be set and non-empty.}"
+: "${GITHUB_REF:?Build argument needs to be set and non-empty.}"
 : "${GITHUB_REPOSITORY:?Build argument needs to be set and non-empty.}"
+: "${GITHUB_SHA:?Build argument needs to be set and non-empty.}"
 
 if [[ ! -f composer.json ]]; then
 	echo '::error::No composer.json. Did it get excluded from the mirror?'
@@ -121,7 +121,7 @@ if ! gh release create "$TAG" \
 	--notes "$ENTRY" \
 	--target "$GITHUB_SHA" \
 	--title "$TITLE"; then
-   exit 1
+	exit 1
 fi
 
 echo "::endgroup::"
