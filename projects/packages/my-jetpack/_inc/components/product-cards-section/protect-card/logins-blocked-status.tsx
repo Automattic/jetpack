@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import numberFormat from '../../../utils/format-number';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
@@ -63,7 +64,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
-					<div className="logins_blocked__count">{ blockedLoginsCount }</div>
+					<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
 				</div>
 			</>
 		) : (
@@ -132,7 +133,7 @@ function BlockedStatus( { status }: { status: 'active' | 'inactive' | 'off' } ) 
 									) }
 								/>
 							</div>
-							<div className="logins_blocked__count">{ blockedLoginsCount }</div>
+							<div className="logins_blocked__count">{ numberFormat( blockedLoginsCount ) }</div>
 						</>
 					) : (
 						<div>
