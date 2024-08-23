@@ -17,3 +17,8 @@ export const SCAN_IN_PROGRESS_STATUSES = [
 	SCAN_STATUS_SCANNING,
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
 ];
+
+/**
+ * Items per page for pagination
+ */
+export const ITEMS_PER_PAGE = 10;

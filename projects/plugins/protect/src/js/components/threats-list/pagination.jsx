@@ -54,38 +54,40 @@ const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
 		return pageNumbers;
 	}, [ currentPage, totalPages ] );
 
-	return (
-		<div className={ styles[ 'pagination-container' ] }>
-			<Button
-				onClick={ handlePreviousPageClick }
-				disabled={ currentPage === 1 }
-				variant={ 'secondary' }
-			>
-				{ '<' }
-			</Button>
-			{ getPageNumbers().map( ( pageNumber, index ) =>
-				typeof pageNumber === 'number' ? (
-					<PaginationButton
-						key={ index }
-						pageNumber={ pageNumber }
-						currentPage={ currentPage }
-						onPageChange={ onPageChange }
-					/>
-				) : (
-					<span key={ index } className={ styles.ellipsis }>
-						{ pageNumber }
-					</span>
-				)
-			) }
-			<Button
-				onClick={ handleNextPageClick }
-				disabled={ currentPage === totalPages }
-				variant={ 'secondary' }
-			>
-				{ '>' }
-			</Button>
-		</div>
-	);
+	if ( totalPages > 1 ) {
+		return (
+			<div className={ styles[ 'pagination-container' ] }>
+				<Button
+					onClick={ handlePreviousPageClick }
+					disabled={ currentPage === 1 }
+					variant={ 'secondary' }
+				>
+					{ '<' }
+				</Button>
+				{ getPageNumbers().map( ( pageNumber, index ) =>
+					typeof pageNumber === 'number' ? (
+						<PaginationButton
+							key={ index }
+							pageNumber={ pageNumber }
+							currentPage={ currentPage }
+							onPageChange={ onPageChange }
+						/>
+					) : (
+						<span key={ index } className={ styles.ellipsis }>
+							{ pageNumber }
+						</span>
+					)
+				) }
+				<Button
+					onClick={ handleNextPageClick }
+					disabled={ currentPage === totalPages }
+					variant={ 'secondary' }
+				>
+					{ '>' }
+				</Button>
+			</div>
+		);
+	}
 };
 
 export default Pagination;
