@@ -1,7 +1,5 @@
-import {
-	PostPublishManualSharing,
-	PostPublishReviewPrompt,
-} from '@automattic/jetpack-publicize-components';
+import PostPublishManualSharing from '../post-publish-manual-sharing';
+import PostPublishReviewPrompt from '../post-publish-review-prompt';
 
 const PostPublishPanels = () => {
 	return (
