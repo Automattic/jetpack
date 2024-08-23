@@ -17,7 +17,7 @@ const debug = debugFactory( 'videopress:connection' );
  * both exposed by the connection class-block-editor-extension.php.
  *
  * @see {@link ../class-block-editor-extension.php}
- * @returns {boolean} True if the user is connected, false otherwise.
+ * @return {boolean} True if the user is connected, false otherwise.
  */
 export function isUserConnected(): boolean {
 	if ( siteType === 'simple' ) {
@@ -37,7 +37,7 @@ export function isUserConnected(): boolean {
 /**
  * Check whether the Jetpack VideoPress module is active.
  *
- * @returns {boolean} True if the module is active, false otherwise.
+ * @return {boolean} True if the module is active, false otherwise.
  */
 export function isVideoPressModuleActive(): boolean {
 	return window?.videoPressEditorState?.isVideoPressModuleActive === '1';
@@ -51,7 +51,7 @@ export function isVideoPressModuleActive(): boolean {
  * Note: It's possible to have the module active,
  * but the user not connected.
  *
- * @returns {boolean} True if the feature is active, false otherwise.
+ * @return {boolean} True if the feature is active, false otherwise.
  */
 export function isVideoPressActive(): boolean {
 	if ( ! isUserConnected() ) {
@@ -64,7 +64,7 @@ export function isVideoPressActive(): boolean {
 /**
  * Return whether the standalone plugin is active.
  *
- * @returns {boolean} True if the feature is active, false otherwise.
+ * @return {boolean} True if the feature is active, false otherwise.
  */
 export function isStandaloneActive(): boolean {
 	return window?.videoPressEditorState?.isStandaloneActive === '1';

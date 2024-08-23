@@ -5,7 +5,7 @@ import { SCAN_IN_PROGRESS_STATUSES, SCAN_STATUS_OPTIMISTICALLY_SCANNING } from '
  * Scan in progress selector.
  *
  * @param {object} state - The current state.
- * @returns {boolean} Whether a scan is in progress.
+ * @return {boolean} Whether a scan is in progress.
  */
 const scanInProgress = state => {
 	const { status, lastChecked, error } = selectors.getStatus( state );
@@ -37,13 +37,13 @@ const scanInProgress = state => {
 /**
  * Scan error selector.
  *
- * @param {object} state - The current state.
+ * @param    {object} state   - The current state.
  *
  * @typedef {object} ScanError
  * @property {string} code    - The code identifying the type of error.
  * @property {string} message - A message describing the error.
  *
- * @returns {ScanError|null} The error object or null.
+ * @return {ScanError|null} The error object or null.
  */
 const scanError = state => {
 	const { status, error, errorCode, errorMessage } = selectors.getStatus( state );

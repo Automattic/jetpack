@@ -32,7 +32,7 @@ module.exports = function transformer( file, api ) {
 /**
  * Whether the node is a function call with the specific name
  *
- * @param node - The AST node
+ * @param node         - The AST node
  * @param functionName - The function name we want to check
  */
 function isFunctionCallWithName( node, functionName ) {
