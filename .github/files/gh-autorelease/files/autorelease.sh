@@ -116,9 +116,14 @@ if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::endgroup::"
 fi
 
+
 echo "::group::Creating release"
+ADDITIONAL_ARGS=()
+if [[ -n "$ROLLING_MODE" ]]; then
+	ADDITIONAL_ARGS+=( --prerelease )
+fi
 gh release create "$TAG" \
-	--prerelease \
+	"${ADDITIONAL_ARGS[@]}" \
 	--notes "$ENTRY" \
 	--target "$GITHUB_SHA" \
 	--title "$TITLE"
