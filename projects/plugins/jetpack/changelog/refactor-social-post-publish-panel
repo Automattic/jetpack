@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Moved PostPublishPanels component to publicize-coomponents package
