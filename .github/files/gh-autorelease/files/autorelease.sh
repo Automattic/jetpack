@@ -110,7 +110,9 @@ fi
 
 if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::group::Deleting stale rolling release"
-	gh release delete "$TAG" --cleanup-tag -y
+	if gh release view "$TAG" >/dev/null; then
+		gh release delete "$TAG" --cleanup-tag -y
+	fi
 	echo "::endgroup::"
 fi
 
