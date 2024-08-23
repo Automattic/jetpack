@@ -3,9 +3,10 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler } from '@wordpress/blocks';
+import { rawHandler, getBlockContent } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { reusableBlock as retry } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -17,10 +18,10 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import { LONG_SENTENCES } from '../features/long-sentences';
-import { SPELLING_MISTAKES } from '../features/spelling-mistakes';
-import { getNodeTextIndex } from '../utils/get-node-text-index';
-import { getNonLinkAncestor } from '../utils/get-non-link-ancestor';
+import { SPELLING_MISTAKES, getSpellchecker } from '../features/spelling-mistakes';
+import getTargetText from '../utils/get-target-text';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
+import replaceOccurrence from '../utils/replace-occurrence';
 import './style.scss';
 /**
  * Types
@@ -49,6 +50,7 @@ export default function Highlight() {
 
 		return { getBlock: selector.getBlock };
 	}, [] );
+	const [ spellingSuggestions, setSpellingSuggestions ] = useState< string[] >( [] );
 
 	const {
 		anchor,
@@ -135,17 +137,7 @@ export default function Highlight() {
 			type: feature,
 		} );
 
-		const target = ( anchor as HTMLElement )?.innerText;
-		const parent = getNonLinkAncestor( anchor as HTMLElement );
-		// The text containing the target
-		const text = parent?.innerText as string;
-		// Get the index of the target in the parent
-		const startIndex = getNodeTextIndex( parent as HTMLElement, anchor as HTMLElement );
-		// Get the occurrences of the target in the sentence
-		const targetRegex = new RegExp( target, 'gi' );
-		const matches = Array.from( text.matchAll( targetRegex ) ).map( match => match.index );
-		// Get the right occurrence of the target in the sentence
-		const occurrence = Math.max( 1, matches.indexOf( startIndex ) + 1 );
+		const { target, text, occurrence } = getTargetText( anchor as HTMLElement );
 		const ordinalOccurence = numberToOrdinal( occurrence );
 
 		setSuggestions( {
@@ -192,6 +184,30 @@ export default function Highlight() {
 		} );
 	};
 
+	const handleApplySpellingFix = ( spellingSuggestion: string ) => {
+		const block = getBlock( blockId );
+
+		if ( ! block ) {
+			setPopoverHover( false );
+			return;
+		}
+
+		const { target, occurrence } = getTargetText( anchor as HTMLElement );
+
+		const html = getBlockContent( block );
+		const fixedHtml = replaceOccurrence( {
+			text: html,
+			target,
+			occurrence,
+			replacement: spellingSuggestion,
+		} );
+
+		const [ newBlock ] = rawHandler( { HTML: fixedHtml } );
+		invalidateSuggestions( blockId );
+		updateBlockAttributes( blockId, newBlock.attributes );
+		setPopoverHover( false );
+	};
+
 	const handleRetry = () => {
 		invalidateSingleSuggestion( feature, blockId, id );
 		handleSuggestions();
@@ -205,6 +221,25 @@ export default function Highlight() {
 			type: feature,
 		} );
 	};
+
+	useEffect( () => {
+		if ( feature === SPELLING_MISTAKES.name && isPopoverOpen ) {
+			// Get the typo
+			const typo = anchor?.innerText;
+
+			if ( ! typo ) {
+				return;
+			}
+
+			// Get the spellchecker
+			const spellchecker = getSpellchecker();
+
+			// Get the suggestions
+			setSpellingSuggestions( spellchecker?.suggest( typo ) ?? [] );
+		} else {
+			setSpellingSuggestions( [] );
+		}
+	}, [ feature, isPopoverOpen, anchor ] );
 
 	return (
 		<>
@@ -262,11 +297,22 @@ export default function Highlight() {
 							) }
 						</div>
 						<div className="jetpack-ai-breve__bottom-container">
-							{ hasSuggestions && (
+							{ feature !== SPELLING_MISTAKES.name && hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
 								</Button>
 							) }
+							{ feature === SPELLING_MISTAKES.name &&
+								spellingSuggestions.map( spellingSuggestion => (
+									<Button
+										variant="tertiary"
+										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
+										key={ spellingSuggestion }
+									>
+										{ spellingSuggestion }
+									</Button>
+								) ) }
+
 							<div className="jetpack-ai-breve__helper">
 								{ hasSuggestions
 									? __( 'Click on the suggestion to insert it.', 'jetpack' )
