@@ -125,7 +125,7 @@ For plans with daily backups, a new backup will take place approximately 24 hour
 
 For plans with real-time backups, a new backup will be performed each time a change is made to WordPress core's database tables, WooCommerce database tables, and any associated file changes. All other changes are backed up daily.
 
-You can also initiate a backup on-demand by clicking the **Back up now** button on the admin page.
+You can also initiate a backup on-demand by clicking the **Back up now** button.
 
 You’ll know your WordPress backup has been created if you see a **Backup complete** event in the activity log.
 
