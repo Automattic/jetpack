@@ -216,7 +216,7 @@ const VIPUpgradePrompt = ( {
  */
 const FairUsageNotice = () => {
 	return (
-		<Notice status="warning" isDismissible={ false }>
+		<Notice status="warning" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
 			{ __(
 				'You exceeded your current quota of requests. Check the usage policy for more information.',
 				'jetpack'
