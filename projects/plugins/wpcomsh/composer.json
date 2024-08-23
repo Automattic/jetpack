@@ -142,7 +142,7 @@
 		},
 		"installer-disable": true,
 		"release-branch-prefix": [
-			"weekly"
+			"wpcomsh"
 		],
 		"version-constants": {
 			"WPCOMSH_VERSION": "wpcomsh.php"
