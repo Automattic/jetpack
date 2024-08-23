@@ -117,12 +117,11 @@ if [[ -n "$ROLLING_MODE" ]]; then
 fi
 
 echo "::group::Creating release"
-if ! gh release create "$TAG" \
+gh release create "$TAG" \
+	--prerelease \
 	--notes "$ENTRY" \
 	--target "$GITHUB_SHA" \
-	--title "$TITLE"; then
-	exit 1
-fi
+	--title "$TITLE"
 
 echo "::endgroup::"
 
