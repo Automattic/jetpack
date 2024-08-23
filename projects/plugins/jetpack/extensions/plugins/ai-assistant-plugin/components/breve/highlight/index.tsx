@@ -230,6 +230,13 @@ export default function Highlight() {
 	const handleAddToDictionary = () => {
 		const { target } = getTargetText( anchor as HTMLElement );
 		addTextToDictionary( target );
+
+		tracks.recordEvent( 'jetpack_ai_breve_add_to_dictionary', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+			word: target,
+			language: 'en',
+		} );
 	};
 
 	useEffect( () => {
