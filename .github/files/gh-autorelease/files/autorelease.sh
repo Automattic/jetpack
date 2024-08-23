@@ -108,7 +108,7 @@ else
 	ENTRY="### Rolling release based on the trunk branch."
 fi
 
-if [[ "true" == "$ROLLING_MODE" ]]; then
+if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::group::Deleting stale rolling release"
 	gh release delete "$TAG" --cleanup-tag -y
 	echo "::endgroup::"
