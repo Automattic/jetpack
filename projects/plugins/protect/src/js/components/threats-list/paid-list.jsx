@@ -9,7 +9,6 @@ import MarkedLines from '../marked-lines';
 import PaidAccordion, { PaidAccordionItem } from '../paid-accordion';
 import Pagination from './pagination';
 import styles from './styles.module.scss';
-import usePagination from './use-pagination';
 
 const ThreatAccordionItem = ( {
 	context,
@@ -175,7 +174,6 @@ const ThreatAccordionItem = ( {
 
 const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
-	const { currentPage, totalPages, currentItems, handlePageChange } = usePagination( list, 5 );
 
 	return (
 		<>
@@ -187,60 +185,59 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 					<span></span>
 				</div>
 			) }
-			<PaidAccordion>
-				{ currentItems.map(
-					( {
-						context,
-						description,
-						diff,
-						filename,
-						firstDetected,
-						fixedIn,
-						fixedOn,
-						icon,
-						fixable,
-						id,
-						label,
-						name,
-						severity,
-						source,
-						table,
-						title,
-						type,
-						version,
-						status,
-					} ) => (
-						<ThreatAccordionItem
-							context={ context }
-							description={ description }
-							diff={ diff }
-							filename={ filename }
-							firstDetected={ firstDetected }
-							fixedIn={ fixedIn }
-							fixedOn={ fixedOn }
-							icon={ icon }
-							fixable={ fixable }
-							id={ id }
-							key={ id }
-							label={ label }
-							name={ name }
-							severity={ severity }
-							source={ source }
-							table={ table }
-							title={ title }
-							type={ type }
-							version={ version }
-							status={ status }
-							hideAutoFixColumn={ hideAutoFixColumn }
-						/>
-					)
+			<Pagination list={ list }>
+				{ ( { currentItems } ) => (
+					<PaidAccordion>
+						{ currentItems.map(
+							( {
+								context,
+								description,
+								diff,
+								filename,
+								firstDetected,
+								fixedIn,
+								fixedOn,
+								icon,
+								fixable,
+								id,
+								label,
+								name,
+								severity,
+								source,
+								table,
+								title,
+								type,
+								version,
+								status,
+							} ) => (
+								<ThreatAccordionItem
+									context={ context }
+									description={ description }
+									diff={ diff }
+									filename={ filename }
+									firstDetected={ firstDetected }
+									fixedIn={ fixedIn }
+									fixedOn={ fixedOn }
+									icon={ icon }
+									fixable={ fixable }
+									id={ id }
+									key={ id }
+									label={ label }
+									name={ name }
+									severity={ severity }
+									source={ source }
+									table={ table }
+									title={ title }
+									type={ type }
+									version={ version }
+									status={ status }
+									hideAutoFixColumn={ hideAutoFixColumn }
+								/>
+							)
+						) }
+					</PaidAccordion>
 				) }
-			</PaidAccordion>
-			<Pagination
-				currentPage={ currentPage }
-				totalPages={ totalPages }
-				onPageChange={ handlePageChange }
-			/>
+			</Pagination>
 		</>
 	);
 };

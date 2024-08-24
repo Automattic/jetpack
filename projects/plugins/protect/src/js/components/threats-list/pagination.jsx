@@ -1,5 +1,5 @@
 import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, useMemo, useState, memo } from 'react';
 import styles from './styles.module.scss';
 
 const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => {
@@ -18,7 +18,21 @@ const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => 
 	);
 } );
 
-const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
+const Pagination = ( { list, itemPerPage = 10, children } ) => {
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+
+	const totalPages = useMemo( () => Math.ceil( list.length / itemPerPage ), [ list, itemPerPage ] );
+
+	const currentItems = useMemo( () => {
+		const indexOfLastItem = currentPage * itemPerPage;
+		const indexOfFirstItem = indexOfLastItem - itemPerPage;
+		return list.slice( indexOfFirstItem, indexOfLastItem );
+	}, [ currentPage, list, itemPerPage ] );
+
+	const onPageChange = useCallback( pageNumber => {
+		setCurrentPage( pageNumber );
+	}, [] );
+
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const handleFirstPageClick = useCallback( () => {
@@ -69,58 +83,61 @@ const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
 		return pageNumbers;
 	}, [ currentPage, totalPages, isSmall ] );
 
-	if ( totalPages > 1 ) {
-		return (
-			<div className={ styles[ 'pagination-container' ] }>
-				{ isSmall && (
+	return (
+		<>
+			{ children( { currentItems } ) }
+			{ totalPages > 1 && (
+				<div className={ styles[ 'pagination-container' ] }>
+					{ isSmall && (
+						<Button
+							onClick={ handleFirstPageClick }
+							disabled={ currentPage === 1 }
+							variant={ 'secondary' }
+						>
+							{ 1 }
+						</Button>
+					) }
 					<Button
-						onClick={ handleFirstPageClick }
+						onClick={ handlePreviousPageClick }
 						disabled={ currentPage === 1 }
 						variant={ 'secondary' }
 					>
-						{ 1 }
+						{ '<' }
 					</Button>
-				) }
-				<Button
-					onClick={ handlePreviousPageClick }
-					disabled={ currentPage === 1 }
-					variant={ 'secondary' }
-				>
-					{ '<' }
-				</Button>
-				{ getPageNumbers().map( ( pageNumber, index ) =>
-					typeof pageNumber === 'number' ? (
-						<PaginationButton
-							key={ index }
-							pageNumber={ pageNumber }
-							currentPage={ currentPage }
-							onPageChange={ onPageChange }
-						/>
-					) : (
-						<span key={ index } className={ styles.ellipsis }>
-							{ pageNumber }
-						</span>
-					)
-				) }
-				<Button
-					onClick={ handleNextPageClick }
-					disabled={ currentPage === totalPages }
-					variant={ 'secondary' }
-				>
-					{ '>' }
-				</Button>
-				{ isSmall && (
+					{ getPageNumbers().map( ( pageNumber, index ) =>
+						typeof pageNumber === 'number' ? (
+							<PaginationButton
+								key={ index }
+								pageNumber={ pageNumber }
+								currentPage={ currentPage }
+								onPageChange={ onPageChange }
+							/>
+						) : (
+							<span key={ index } className={ styles.ellipsis }>
+								{ pageNumber }
+							</span>
+						)
+					) }
 					<Button
-						onClick={ handleLastPageClick }
+						onClick={ handleNextPageClick }
 						disabled={ currentPage === totalPages }
 						variant={ 'secondary' }
 					>
-						{ totalPages }
+						{ '>' }
 					</Button>
-				) }
-			</div>
-		);
-	}
+					{ isSmall && (
+						<Button
+							onClick={ handleLastPageClick }
+							disabled={ currentPage === totalPages }
+							variant={ 'secondary' }
+						>
+							{ totalPages }
+						</Button>
+					) }
+				</div>
+			) }
+		</>
+	);
 };
 
 export default Pagination;
