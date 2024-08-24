@@ -1,4 +1,4 @@
-import { Button } from '@automattic/jetpack-components';
+import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
 import React, { useCallback, memo } from 'react';
 import styles from './styles.module.scss';
 
@@ -19,6 +19,12 @@ const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => 
 } );
 
 const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const handleFirstPageClick = useCallback( () => {
+		onPageChange( 1 );
+	}, [ onPageChange ] );
+
 	const handlePreviousPageClick = useCallback( () => {
 		onPageChange( currentPage - 1 );
 	}, [ currentPage, onPageChange ] );
@@ -27,15 +33,24 @@ const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
 		onPageChange( currentPage + 1 );
 	}, [ currentPage, onPageChange ] );
 
+	const handleLastPageClick = useCallback( () => {
+		onPageChange( totalPages );
+	}, [ onPageChange, totalPages ] );
+
 	const getPageNumbers = useCallback( () => {
 		const pageNumbers = [];
 
-		pageNumbers.push( 1 );
+		if ( ! isSmall ) {
+			pageNumbers.push( 1 );
+		}
 
-		const startPage = Math.max( 2, currentPage - 2 );
-		const endPage = Math.min( totalPages - 1, currentPage + 2 );
+		const start = isSmall ? 1 : 2;
+		const offset = isSmall ? 0 : 2;
+		const end = isSmall ? 0 : 1;
+		const startPage = Math.max( start, currentPage - offset );
+		const endPage = Math.min( totalPages - end, currentPage + offset );
 
-		if ( startPage > 2 ) {
+		if ( startPage > 2 && ! isSmall ) {
 			pageNumbers.push( '...' );
 		}
 
@@ -43,20 +58,29 @@ const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
 			pageNumbers.push( i );
 		}
 
-		if ( endPage < totalPages - 1 ) {
+		if ( endPage < totalPages - 1 && ! isSmall ) {
 			pageNumbers.push( '...' );
 		}
 
-		if ( totalPages > 1 ) {
+		if ( totalPages > 1 && ! isSmall ) {
 			pageNumbers.push( totalPages );
 		}
 
 		return pageNumbers;
-	}, [ currentPage, totalPages ] );
+	}, [ currentPage, totalPages, isSmall ] );
 
 	if ( totalPages > 1 ) {
 		return (
 			<div className={ styles[ 'pagination-container' ] }>
+				{ isSmall && (
+					<Button
+						onClick={ handleFirstPageClick }
+						disabled={ currentPage === 1 }
+						variant={ 'secondary' }
+					>
+						{ 1 }
+					</Button>
+				) }
 				<Button
 					onClick={ handlePreviousPageClick }
 					disabled={ currentPage === 1 }
@@ -85,6 +109,15 @@ const Pagination = ( { currentPage, totalPages, onPageChange } ) => {
 				>
 					{ '>' }
 				</Button>
+				{ isSmall && (
+					<Button
+						onClick={ handleLastPageClick }
+						disabled={ currentPage === totalPages }
+						variant={ 'secondary' }
+					>
+						{ totalPages }
+					</Button>
+				) }
 			</div>
 		);
 	}
