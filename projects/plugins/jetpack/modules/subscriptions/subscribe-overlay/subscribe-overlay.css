@@ -43,6 +43,10 @@ body.admin-bar .jetpack-subscribe-overlay__close {
 	top: 64px;
 }
 
+body.has-marketing-bar .jetpack-subscribe-overlay__close {
+	top: 74px;
+}
+
 .jetpack-subscribe-overlay__to-content {
 	display: none;
 	position: fixed;
