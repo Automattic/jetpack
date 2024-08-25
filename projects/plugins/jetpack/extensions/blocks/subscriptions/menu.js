@@ -32,6 +32,7 @@ const NewsletterMenu = () => {
 
 	const { isUserConnected } = useConnection();
 	const connectUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
+	const shouldPromptForConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const openPreviewModal = () => setIsPreviewModalOpen( true );
 	const closePreviewModal = () => setIsPreviewModalOpen( false );
@@ -49,7 +50,7 @@ const NewsletterMenu = () => {
 				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
-						{ isUserConnected || isSimpleSite() ? (
+						{ ! shouldPromptForConnection ? (
 							<>
 								<p>
 									{ __(
