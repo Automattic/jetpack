@@ -15,7 +15,7 @@ use Automattic\Jetpack\Protect_Models\Status_Model;
  */
 class Status {
 
-	const PACKAGE_VERSION = '0.1.3-alpha';
+	const PACKAGE_VERSION = '0.1.3';
 	/**
 	 * Name of the option where status is stored
 	 *

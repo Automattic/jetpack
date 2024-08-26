@@ -326,14 +326,14 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.5 - 2024-08-21
-#### Improved compatibility
-- Sharing Block: Improve performance when hooking the block into single post templates.
-- WordPress.com Toolbar: Removed feature from self-hosted Jetpack sites.
+### 13.8-a.7 - 2024-08-26
+#### Enhancements
+- Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature.
 
 #### Bug fixes
-- Social Icons Widget: Ensure the social network icons are displayed properly.
-- Social Menus: Ensure the SVG can be displayed properly.
+- Blocks: Ensure that the Contact Info stylesheet is properly loaded.
+- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
+- Blocks: Ensure that the Payment Button stylesheet is properly loaded.
 
 --------
 
