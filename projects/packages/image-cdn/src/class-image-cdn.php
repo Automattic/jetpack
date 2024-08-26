@@ -457,7 +457,6 @@ final class Image_CDN {
 					$height = false;
 				}
 
-				// Detect WP registered image size from HTML class.
 				$needs_sizing = false === $width && false === $height;
 				$size         = null;
 
