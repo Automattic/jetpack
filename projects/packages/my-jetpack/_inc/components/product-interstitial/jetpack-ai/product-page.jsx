@@ -64,10 +64,11 @@ export default function () {
 		nextTier,
 		usagePeriod: usage,
 		isOverLimit,
+		tierPlansEnabled,
 	} = aiAssistantFeature || {};
 
-	const hasUnlimited = currentTier?.value === 1;
 	const isFree = currentTier?.value === 0;
+	const hasUnlimited = currentTier?.value === 1 || ( ! tierPlansEnabled && ! isFree );
 	const hasPaidTier = ! isFree && ! hasUnlimited;
 	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
