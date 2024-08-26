@@ -278,7 +278,7 @@ class Waf_Blocklog_Manager {
 			if ( $result && $result->num_rows > 0 ) {
 				$row = $result->fetch_assoc();
 				if ( $row !== null && isset( $row['option_value'] ) ) {
-					$all_time_stats = unserialize( $row['option_value'] );
+					$all_time_stats = $row['option_value'];
 				}
 			}
 
@@ -289,14 +289,14 @@ class Waf_Blocklog_Manager {
 			++$all_time_stats;
 
 			// Update the option in the database
-			$updated_value = serialize( $all_time_stats );
+			$updated_value = intval( $all_time_stats );
 			$conn->query(
 				sprintf(
 					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
 					$conn->real_escape_string( $table_prefix ),
 					$conn->real_escape_string( $option_name ),
-					$conn->real_escape_string( $updated_value ),
-					$conn->real_escape_string( $updated_value )
+					$updated_value,
+					$updated_value
 				)
 			);
 		}
@@ -308,10 +308,21 @@ class Waf_Blocklog_Manager {
 	 * @return int The initialized all-time stats value.
 	 */
 	private static function initialize_all_time_stats() {
-		global $wpdb;
+		$option_name = 'jetpack_waf_all_time_stats';
 
-		// Fallback for when WordPress isn't initialized
-		if ( ! function_exists( 'get_option' ) ) {
+		// Check if WordPress functions are available
+		if ( function_exists( 'get_option' ) ) {
+			global $wpdb;
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+
+			$all_time_stats = $last_log_id ? $last_log_id : 0;
+			update_option( $option_name, $all_time_stats );
+
+			return $all_time_stats;
+		} else {
+			// WordPress is not initialized; use direct DB connection
 			$conn = self::connect_to_wordpress_db();
 			if ( ! $conn ) {
 				return 0;
@@ -321,33 +332,28 @@ class Waf_Blocklog_Manager {
 
 			$last_log_id_result = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
-			$last_log_id = 0; // Default value
+			$all_time_stats = 0; // Default value
 
 			if ( $last_log_id_result && $last_log_id_result->num_rows > 0 ) {
 				$row = $last_log_id_result->fetch_assoc();
 				if ( $row !== null && isset( $row['log_id'] ) ) {
-					$last_log_id = $row['log_id'];
+					$all_time_stats = $row['log_id'];
 				}
 			}
 
+			// Update the option in the database
+			$updated_value = intval( $all_time_stats );
 			$conn->query(
 				sprintf(
-					"INSERT INTO %soptions (option_name, option_value) VALUES ('jetpack_waf_all_time_stats', '%s')",
+					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
 					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( serialize( $last_log_id ) )
+					$conn->real_escape_string( $option_name ),
+					$updated_value,
+					$updated_value
 				)
 			);
-			return $last_log_id;
+			return $all_time_stats;
 		}
-
-		// WordPress is initialized
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
-
-		$all_time_stats = $last_log_id ? $last_log_id : 0;
-		update_option( 'jetpack_waf_all_time_stats', $all_time_stats );
-
-		return $all_time_stats;
 	}
 
 	/**
