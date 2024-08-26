@@ -1,6 +1,7 @@
-import { useSelect } from '@wordpress/data';
-import { store } from '../../social-store';
+import moment from 'moment';
 import ConnectionIcon from '../connection-icon';
+import { ShareStatusAction } from './share-status-action';
+import { ShareStatusLabel } from './share-status-label';
 import styles from './styles.module.scss';
 
 /**
@@ -12,21 +13,21 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - React element
  */
 export function ShareInfo( { share } ) {
-	const { connections } = useSelect( select => {
-		return {
-			connections: select( store ).getConnections(),
-		};
-	}, [] );
-
-	console.log( { share, connections } );
+	const { service, external_name, profile_picture, timestamp, status, message } = share;
 
 	return (
 		<div className={ styles[ 'share-item' ] }>
-			{ /* <ConnectionIcon
-				serviceName={ connection.service_name }
-				label={ connection.display_name || connection.external_display }
-				profilePicture={ connection.profile_picture }
-			/> */ }
+			<ConnectionIcon
+				serviceName={ service }
+				label={ external_name }
+				profilePicture={ profile_picture }
+			/>
+			<div className={ styles[ 'share-item-name-wrapper' ] }>
+				<div className={ styles[ 'share-item-name' ] }>{ external_name }</div>
+			</div>
+			<div>{ moment.unix( timestamp ).fromNow() }</div>
+			<ShareStatusLabel status={ status } message={ message } />
+			<ShareStatusAction status={ status } shareLink={ 'success' === status ? message : '' } />
 		</div>
 	);
 }
