@@ -328,18 +328,19 @@ export default function Highlight() {
 								) ) }
 
 							<div className="jetpack-ai-breve__helper">
-								{ hasSuggestions
-									? __( 'Click on the suggestion to insert it.', 'jetpack' )
-									: description }
+								{ feature === SPELLING_MISTAKES.name && (
+									<Button variant="link" onClick={ handleAddToDictionary }>
+										{ __( 'Add to dictionary', 'jetpack' ) }
+									</Button>
+								) }
+								{ feature !== SPELLING_MISTAKES.name &&
+									( hasSuggestions
+										? __( 'Click on the suggestion to insert it.', 'jetpack' )
+										: description ) }
 								<div className="jetpack-ai-breve__helper-buttons-wrapper">
 									<Button variant="link" onClick={ handleIgnoreSuggestion }>
 										{ __( 'Ignore', 'jetpack' ) }
 									</Button>
-									{ feature === SPELLING_MISTAKES.name && (
-										<Button variant="link" onClick={ handleAddToDictionary }>
-											{ __( 'Add to dictionary', 'jetpack' ) }
-										</Button>
-									) }
 								</div>
 							</div>
 						</div>
