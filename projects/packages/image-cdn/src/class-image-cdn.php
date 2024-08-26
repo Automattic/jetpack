@@ -470,7 +470,7 @@ final class Image_CDN {
 					}
 				}
 
-				if ( $needs_sizing && 'full' !== $size && isset( $image_sizes[ $size ] ) ) {
+				if ( $needs_sizing && 'full' !== $size && isset( $image_sizes[ $size ] ) && is_array( $image_sizes[ $size ] ) ) {
 					$width     = (int) $image_sizes[ $size ]['width'];
 					$height    = (int) $image_sizes[ $size ]['height'];
 					$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
@@ -493,6 +493,7 @@ final class Image_CDN {
 				if (
 					$attachment_id &&
 					preg_match( '#^[1-9][0-9]*$#', $attachment_id ) &&
+					is_array( $upload_dir ) &&
 					str_starts_with( $src, $upload_dir['baseurl'] ) &&
 					/**
 					 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
@@ -534,7 +535,7 @@ final class Image_CDN {
 								$width     = $src_per_wp[1];
 								$height    = $src_per_wp[2];
 								$transform = 'fit';
-							} elseif ( isset( $size ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
+							} elseif ( isset( $size ) && is_array( $image_sizes ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
 								$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
 							}
 						}
@@ -577,7 +578,7 @@ final class Image_CDN {
 				}
 
 				// Build URL, first maybe removing WP's resized string so we pass the original image to Photon.
-				if ( ! $fullsize_url && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
+				if ( ! $fullsize_url && is_array( $upload_dir ) && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
 					$src = self::strip_image_dimensions_maybe( $src );
 				}
 
