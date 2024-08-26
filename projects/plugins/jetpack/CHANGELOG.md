@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8-a.7 - 2024-08-26
+### Enhancements
+- Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature. [#39039]
+
+### Bug fixes
+- Blocks: Ensure that the Contact Info stylesheet is properly loaded. [#39018]
+- Blocks: Fix the editor freeze after inserting a pattern with the Donations block. [#38961]
+- Blocks: Ensure that the Payment Button stylesheet is properly loaded. [#39018]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Accept Breve typo suggestions [#39008]
+- AI Assistant: Add retry for Write Brief. [#38998]
+- AI Assistant: Load dictionaries from CDN. [#38943]
+- AI Assistant: Recompute Breve highlights when dictionary is loaded. [#38999]
+- AI Assistant: Update connection button text. [#39031]
+- Dashboard: Remove extra link in banner to invite admins to activate stats. [#39026]
+- Newsletters: Don't prompt for connection on Simple sites. [#39064]
+- Newsletters: Improve Sender Name and Reply-to settings. [#38833]
+- Newsletters: Make preview non-clickable. [#39035]
+- General: Adds to-test.md contents for Jetpack 13.8. [#39071]
+- General: Adds tracks to featured flagged feature. [#39032]
+- General: Fix incorrect case fall-through in `_inc/client/state/site/reducer.js`. [#39000]
+- General: Updated package dependencies. [#39004]
+- Legacy Widgets: Ensure widgets are available for Simple sites until the block API is fixed. [#38610]
+- Social: Moved PostPublishPanels component to publicize-coomponents package. [#39049]
+- Stats: Moved stats to the top of the Jetpack menu. [#39061]
+- Sharing: Remove functions that were deprecated in Jetpack 11.0. [#38991]
+- Site Breadcrumbs: Requiring the feature from the Classic Theme Helper package. [#38931]
+- Subscriptions: Render the Close button lower than the Marketing bar. [#39065]
+- Top Posts & Pages Block: Ensure deleted content does not display. [#37251]
+
 ## 13.8-a.5 - 2024-08-21
 ### Improved compatibility
 - Sharing Block: Improve performance when hooking the block into single post templates. [#38727]
