@@ -118,6 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				remove_action( 'customize_register', 'Automattic\Jetpack\Masterbar\register_css_nudge_control' );
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredClassInCallable
 			remove_action( 'customize_register', array( 'Jetpack_Custom_CSS_Enhancements', 'customize_register' ) );
 		}
 	}

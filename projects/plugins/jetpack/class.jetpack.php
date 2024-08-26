@@ -159,9 +159,6 @@ class Jetpack {
 			array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 			array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
 		),
-		'custom-css'          => array(
-			array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
-		),
 		'gravatar-hovercards' => array(
 			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
 		),

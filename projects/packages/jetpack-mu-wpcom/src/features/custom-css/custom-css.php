@@ -1,7 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
-// @phan-file-suppress PhanRedefinedClassReference,PhanRedefineFunction,PhanRedefineClass
 /**
  * Alternate Custom CSS source for 4.7 compat.
  *

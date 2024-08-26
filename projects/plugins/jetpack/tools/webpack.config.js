@@ -72,7 +72,6 @@ const supportedModules = [
 	'shortcodes',
 	'widgets',
 	'widget-visibility',
-	'custom-css',
 	'publicize',
 	'custom-post-types',
 	'sharedaddy',

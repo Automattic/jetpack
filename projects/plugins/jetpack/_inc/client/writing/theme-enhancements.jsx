@@ -11,7 +11,6 @@ import { connect } from 'react-redux';
 import { currentThemeSupports } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound } from 'state/search';
-import CustomCss from './custom-css';
 
 class ThemeEnhancements extends React.Component {
 	/**
@@ -99,10 +98,9 @@ class ThemeEnhancements extends React.Component {
 	};
 
 	render() {
-		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-			foundCustomCSS = this.props.isModuleFound( 'custom-css' );
+		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' );
 
-		if ( ! foundInfiniteScroll && ! foundCustomCSS ) {
+		if ( ! foundInfiniteScroll ) {
 			return null;
 		}
 
@@ -185,7 +183,6 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundCustomCSS && <CustomCss /> }
 			</SettingsCard>
 		);
 	}
