@@ -249,7 +249,7 @@ class Waf_Blocklog_Manager {
 
 			if ( false === $all_time_stats ) {
 				// Initialize if not set, but do not update option in `initialize_all_time_stats`
-				$all_time_stats = self::initialize_all_time_stats( true );
+				$all_time_stats = self::initialize_all_time_stats( false );
 			}
 
 			++$all_time_stats;
@@ -283,7 +283,7 @@ class Waf_Blocklog_Manager {
 
 			if ( null === $all_time_stats ) {
 				// Initialize if not set, but do not update option in `initialize_all_time_stats`
-				$all_time_stats = self::initialize_all_time_stats( true );
+				$all_time_stats = self::initialize_all_time_stats( false );
 			}
 
 			++$all_time_stats;
@@ -308,7 +308,7 @@ class Waf_Blocklog_Manager {
 	 * @param bool $update Whether to update the option in the database.
 	 * @return int The initialized all-time stats value.
 	 */
-	private static function initialize_all_time_stats( $update = false ) {
+	private static function initialize_all_time_stats( $update = true ) {
 		$option_name = 'jetpack_waf_all_time_stats';
 
 		// Check if WordPress functions are available
