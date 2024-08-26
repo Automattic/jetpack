@@ -171,6 +171,9 @@ add_filter( 'site_settings_endpoint_get', __NAMESPACE__ . '\add_public_coming_so
 function add_public_coming_soon_to_settings_endpoint_post( $input, $unfiltered_input ) {
 	if ( is_array( $unfiltered_input ) && array_key_exists( 'wpcom_public_coming_soon', $unfiltered_input ) ) {
 		$input['wpcom_public_coming_soon'] = (int) $unfiltered_input['wpcom_public_coming_soon'];
+
+		// Avoid updating the value of the `wpcom_public_coming_soon` if the request wants to change the option.
+		remove_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_on_privacy_change', 10 );
 	}
 	return $input;
 }

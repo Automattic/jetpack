@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+MU WPCOM: Fix the coming soon isn't configured correctly if the settings changes from Coming Soon -> Private -> Coming Soon
