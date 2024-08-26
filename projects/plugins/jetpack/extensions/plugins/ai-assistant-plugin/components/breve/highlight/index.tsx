@@ -3,7 +3,7 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler, getBlockContent } from '@wordpress/blocks';
+import { rawHandler, serialize } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
@@ -18,7 +18,11 @@ import { AiSVG } from '../../ai-icon';
 import { BREVE_FEATURE_NAME } from '../constants';
 import features from '../features';
 import { LONG_SENTENCES } from '../features/long-sentences';
-import { SPELLING_MISTAKES, getSpellchecker } from '../features/spelling-mistakes';
+import {
+	SPELLING_MISTAKES,
+	addTextToDictionary,
+	suggestSpellingFixes,
+} from '../features/spelling-mistakes';
 import getTargetText from '../utils/get-target-text';
 import { numberToOrdinal } from '../utils/number-to-ordinal';
 import replaceOccurrence from '../utils/replace-occurrence';
@@ -194,7 +198,8 @@ export default function Highlight() {
 
 		const { target, occurrence } = getTargetText( anchor as HTMLElement );
 
-		const html = getBlockContent( block );
+		// The serialize function returns the block's HTML with its Gutenberg comments
+		const html = serialize( block );
 		const fixedHtml = replaceOccurrence( {
 			text: html,
 			target,
@@ -221,9 +226,22 @@ export default function Highlight() {
 	const handleIgnoreSuggestion = () => {
 		ignoreSuggestion( blockId, id );
 		setPopoverHover( false );
+
 		tracks.recordEvent( 'jetpack_ai_breve_ignore', {
 			feature: BREVE_FEATURE_NAME,
 			type: feature,
+		} );
+	};
+
+	const handleAddToDictionary = () => {
+		const { target } = getTargetText( anchor as HTMLElement );
+		addTextToDictionary( target );
+
+		tracks.recordEvent( 'jetpack_ai_breve_add_to_dictionary', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+			word: target,
+			language: 'en',
 		} );
 	};
 
@@ -236,11 +254,8 @@ export default function Highlight() {
 				return;
 			}
 
-			// Get the spellchecker
-			const spellchecker = getSpellchecker();
-
 			// Get the suggestions
-			setSpellingSuggestions( spellchecker?.suggest( typo ) ?? [] );
+			setSpellingSuggestions( suggestSpellingFixes( typo ) );
 		} else {
 			setSpellingSuggestions( [] );
 		}
@@ -307,24 +322,36 @@ export default function Highlight() {
 									{ suggestions?.suggestion }
 								</Button>
 							) }
+
 							{ feature === SPELLING_MISTAKES.name &&
 								spellingSuggestions.map( spellingSuggestion => (
 									<Button
 										variant="tertiary"
 										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
 										key={ spellingSuggestion }
+										className="jetpack-ai-breve__spelling-suggestion"
 									>
 										{ spellingSuggestion }
 									</Button>
 								) ) }
 
 							<div className="jetpack-ai-breve__helper">
-								{ hasSuggestions
-									? __( 'Click on the suggestion to insert it.', 'jetpack' )
-									: description }
-								<Button variant="link" onClick={ handleIgnoreSuggestion }>
-									{ __( 'Ignore', 'jetpack' ) }
-								</Button>
+								{ feature === SPELLING_MISTAKES.name && (
+									<Button variant="link" onClick={ handleAddToDictionary }>
+										{ __( 'Add to dictionary', 'jetpack' ) }
+									</Button>
+								) }
+
+								{ feature !== SPELLING_MISTAKES.name &&
+									( hasSuggestions
+										? __( 'Click on the suggestion to insert it.', 'jetpack' )
+										: description ) }
+
+								<div className="jetpack-ai-breve__helper-buttons-wrapper">
+									<Button variant="link" onClick={ handleIgnoreSuggestion }>
+										{ __( 'Ignore', 'jetpack' ) }
+									</Button>
+								</div>
 							</div>
 						</div>
 					</div>

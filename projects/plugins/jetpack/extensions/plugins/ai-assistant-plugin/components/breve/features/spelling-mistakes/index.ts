@@ -30,7 +30,7 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 	defaultEnabled: false,
 };
 
-const spellcheckers: { [ key: string ]: SpellChecker } = {};
+const spellCheckers: { [ key: string ]: SpellChecker } = {};
 const contextRequests: {
 	[ key: string ]: { loading: boolean; loaded: boolean; failed: boolean };
 } = {};
@@ -79,9 +79,9 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-export const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
-	if ( spellcheckers[ language ] ) {
-		return spellcheckers[ language ];
+export const getSpellChecker = ( { language = 'en' }: { language?: string } = {} ) => {
+	if ( spellCheckers[ language ] ) {
+		return spellCheckers[ language ];
 	}
 
 	// Cannot await here as the Rich Text function needs to be synchronous.
@@ -93,9 +93,74 @@ export const getSpellchecker = ( { language = 'en' }: { language?: string } = {}
 	}
 
 	const { affix, dictionary } = spellingContext;
-	spellcheckers[ language ] = nspell( affix, dictionary );
+	const spellChecker = nspell( affix, dictionary ) as unknown as SpellChecker;
 
-	return spellcheckers[ language ];
+	// Get the exceptions from the local storage
+	const exceptions: string[] = Array.from(
+		new Set(
+			JSON.parse(
+				localStorage.getItem( `jetpack-ai-breve-spelling-exceptions-${ language }` ) as string
+			) || []
+		)
+	);
+	exceptions.forEach( exception => spellChecker.add( exception ) );
+
+	spellCheckers[ language ] = spellChecker;
+
+	return spellCheckers[ language ];
+};
+
+export const addTextToDictionary = (
+	text: string,
+	{ language = 'en' }: { language?: string } = {}
+) => {
+	const spellChecker = getSpellChecker( { language } );
+	const { reloadDictionary } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+
+	if ( ! spellChecker ) {
+		return;
+	}
+
+	try {
+		// Save the new exception to the local storage
+		const current = new Set(
+			JSON.parse(
+				localStorage.getItem( `jetpack-ai-breve-spelling-exceptions-${ language }` ) as string
+			) || []
+		);
+
+		current.add( text );
+
+		localStorage.setItem(
+			`jetpack-ai-breve-spelling-exceptions-${ language }`,
+			JSON.stringify( Array.from( current ) )
+		);
+	} catch ( error ) {
+		debug( 'Failed to add text to the dictionary', error );
+		return;
+	}
+
+	// Recompute the spell checker on the next call
+	delete spellCheckers[ language ];
+
+	reloadDictionary( SPELLING_MISTAKES.name );
+
+	debug( 'Added text to the dictionary', text );
+};
+
+export const suggestSpellingFixes = (
+	text: string,
+	{ language = 'en' }: { language?: string } = {}
+) => {
+	const spellChecker = getSpellChecker( { language } );
+
+	if ( ! spellChecker ) {
+		return [];
+	}
+
+	const suggestions = spellChecker.suggest( text );
+
+	return suggestions;
 };
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
@@ -110,9 +175,9 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		// Split hyphenated words into separate words as nspell doesn't work well with them
 		.map( word => word.split( '-' ) )
 		.flat();
-	const spellchecker = getSpellchecker();
+	const spellChecker = getSpellChecker();
 
-	if ( ! spellchecker ) {
+	if ( ! spellChecker ) {
 		return highlightedTexts;
 	}
 
@@ -122,7 +187,7 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 	words.forEach( ( word: string ) => {
 		const wordIndex = text.indexOf( word, searchStartIndex );
 
-		if ( ! spellchecker.correct( word ) ) {
+		if ( ! spellChecker.correct( word ) ) {
 			highlightedTexts.push( {
 				text: word,
 				startIndex: wordIndex,
