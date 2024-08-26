@@ -384,7 +384,7 @@ final class Image_CDN {
 			 * most one copy of each attribute, escaping all values appropriately.
 			 */
 			$tag_name = strtolower( $processor->get_tag() );
-			$tag      = new \WP_HTML_Tag_processor( "<{$tag_name}>" );
+			$tag      = new \WP_HTML_Tag_Processor( "<{$tag_name}>" );
 			$tag->next_tag();
 			foreach ( $processor->get_attribute_names_with_prefix( '' ) ?? array() as $name ) {
 				$tag->set_attribute( $name, $processor->get_attribute( $name ) );
@@ -458,14 +458,13 @@ final class Image_CDN {
 				}
 
 				// Detect WP registered image size from HTML class.
-				$class        = $processor->get_attribute( 'class' );
 				$needs_sizing = false === $width && false === $height;
 				$size         = null;
 
 				if ( $needs_sizing ) {
 					// Find the first CSS class listed with a prefix of `size-`, e.g. `size-full-width`
 					foreach ( $processor->class_list() ?? array() as $class_name ) {
-						if ( str_starts_with( 'size-', $class_name ) ) {
+						if ( str_starts_with( $class_name, 'size-' ) ) {
 							$size = substr( $class_name, strlen( 'size-' ) );
 							break;
 						}
