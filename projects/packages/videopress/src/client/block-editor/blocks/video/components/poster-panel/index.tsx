@@ -344,7 +344,7 @@ export function VideoHoverPreviewControl( {
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
-	const maxLoopDurationSeconds = ( ( maxLoopDuration / 10 ) | 0 ) / 100;
+	const maxLoopDurationSeconds = Math.floor( maxLoopDuration / 10 ) / 100;
 
 	const startingPointHelp = createInterpolateElement(
 		sprintf(
