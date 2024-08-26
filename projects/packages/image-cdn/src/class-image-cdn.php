@@ -470,7 +470,7 @@ final class Image_CDN {
 					}
 				}
 
-				if ( $needs_sizing && 'full' !== $size && isset( $image_sizes[ $size ] ) && is_array( $image_sizes[ $size ] ) ) {
+				if ( $needs_sizing && 'full' !== $size && is_string( $size ) && isset( $image_sizes[ $size ] ) && is_array( $image_sizes[ $size ] ) ) {
 					$width     = (int) $image_sizes[ $size ]['width'];
 					$height    = (int) $image_sizes[ $size ]['height'];
 					$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
