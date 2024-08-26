@@ -1010,11 +1010,9 @@ HTML;
 		</h3>
 		<script type="text/javascript">
 			try {
-				window.parent.location = <?php echo wp_json_encode( $url ); ?>;
-				window.parent.location.reload(true);
+				window.parent.location.href = <?php echo wp_json_encode( $url ); ?>;
 			} catch (e) {
-				window.location = <?php echo wp_json_encode( $url ); ?>;
-				window.location.reload(true);
+				window.location.href = <?php echo wp_json_encode( $url ); ?>;
 			}
 			ellipsis = document.getElementById('ellipsis');
 
