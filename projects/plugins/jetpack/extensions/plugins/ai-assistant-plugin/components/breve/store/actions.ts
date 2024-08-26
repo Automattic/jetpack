@@ -90,6 +90,16 @@ export function invalidateSingleSuggestion( feature: string, blockId: string, id
 	};
 }
 
+export function reloadDictionary( feature: string ) {
+	return ( { dispatch } ) => {
+		dispatch( setDictionaryLoading( feature, true ) );
+
+		setTimeout( () => {
+			dispatch( setDictionaryLoading( feature, false ) );
+		}, 100 );
+	};
+}
+
 export function setSuggestions( {
 	anchor,
 	id,
