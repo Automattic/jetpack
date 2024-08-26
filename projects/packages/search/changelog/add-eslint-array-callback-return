@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix `array-callback-return` eslint sniff. Should be no change to functionality.
+
+
