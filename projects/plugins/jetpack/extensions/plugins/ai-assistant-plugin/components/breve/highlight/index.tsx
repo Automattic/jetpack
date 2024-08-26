@@ -3,7 +3,7 @@
  */
 import { fixes } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler, getBlockContent } from '@wordpress/blocks';
+import { rawHandler, serialize } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
@@ -198,7 +198,8 @@ export default function Highlight() {
 
 		const { target, occurrence } = getTargetText( anchor as HTMLElement );
 
-		const html = getBlockContent( block );
+		// The serialize function returns the block's HTML with its Gutenberg comments
+		const html = serialize( block );
 		const fixedHtml = replaceOccurrence( {
 			text: html,
 			target,
