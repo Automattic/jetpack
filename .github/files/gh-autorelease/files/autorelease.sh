@@ -113,9 +113,12 @@ fi
 
 if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::group::Deleting stale rolling release"
-	if gh release view "$TAG" >/dev/null; then
-		gh release delete "$TAG" --cleanup-tag -y
-	fi
+
+	for R in $( gh release list --limit 100 --json tagName --jq '.[].tagName | select( contains( "rolling" ) )' ); do
+		echo "Found $R, deleting"
+		gh release delete "$R" --cleanup-tag --yes
+	done
+
 	echo "::endgroup::"
 fi
 
