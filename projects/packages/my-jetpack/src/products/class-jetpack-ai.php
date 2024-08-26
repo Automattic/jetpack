@@ -237,7 +237,7 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_long_description_by_usage_tier( $tier ) {
 		$long_descriptions  = array(
-			1   => __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' ),
+			1   => __( 'Continue using the most advanced AI technology Jetpack has to offer with unlimited requests.', 'jetpack-my-jetpack' ),
 			100 => __( 'The most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' ),
 		);
 		$tiered_description = __( 'Upgrade and increase the amount of your available monthly requests to continue using the most advanced AI technology Jetpack has to offer.', 'jetpack-my-jetpack' );
@@ -272,11 +272,12 @@ class Jetpack_Ai extends Product {
 		}
 
 		$features = array(
-			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
-			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
-			__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-			__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
+			__( 'Easily refine content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Make your content easier to read', 'jetpack-my-jetpack' ),
+			__( 'Generate images with one-click', 'jetpack-my-jetpack' ),
+			__( 'Optimize your titles for better performance', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
 		);
 
 		$tiered_features = array(
