@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+My Jetpack: reflect tier filters properly on product class and UI. Fix little nuances with date constructor

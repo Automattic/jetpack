@@ -272,11 +272,12 @@ class Jetpack_Ai extends Product {
 		}
 
 		$features = array(
-			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
-			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
-			__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
-			__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
+			__( 'Easily refine content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Make your content easier to read', 'jetpack-my-jetpack' ),
+			__( 'Generate images with one-click', 'jetpack-my-jetpack' ),
+			__( 'Optimize your titles for better performance', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
 		);
 
 		$tiered_features = array(
@@ -468,9 +469,15 @@ class Jetpack_Ai extends Product {
 	 * @return boolean
 	 */
 	public static function is_upgradable() {
-		$has_ai_feature = static::does_site_have_feature( 'ai-assistant' );
-		$current_tier   = self::get_current_usage_tier();
-		$next_tier      = self::get_next_usage_tier();
+		$has_ai_feature     = static::does_site_have_feature( 'ai-assistant' );
+		$tier_plans_enabled = self::are_tier_plans_enabled();
+		$current_tier       = self::get_current_usage_tier();
+
+		if ( $has_ai_feature && ! $tier_plans_enabled && $current_tier >= 1 ) {
+			return false;
+		}
+
+		$next_tier = self::get_next_usage_tier();
 
 		// The check below is debatable, not having the feature should not flag as not upgradable.
 		// If user is free (tier = 0), not unlimited (tier = 1) and has a next tier, then it's upgradable.
