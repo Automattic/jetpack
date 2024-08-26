@@ -211,17 +211,11 @@ module.exports = {
 		strict: [ 'error', 'never' ],
 
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
-		'array-callback-return': 'off',
 		eqeqeq: [ 'error', 'allow-null' ],
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
-		'no-alert': 'off',
-		'no-bitwise': 'off',
-		'no-fallthrough': 'off',
 		'no-prototype-builtins': 'off',
 		'no-undef-init': 'off',
 		'no-unused-expressions': 'off',
-		'no-useless-computed-key': 'off',
-		'no-useless-return': 'off',
 		'object-shorthand': 'off',
 		'@wordpress/no-base-control-with-label-without-id': 'off',
 		'@wordpress/no-global-active-element': 'off',

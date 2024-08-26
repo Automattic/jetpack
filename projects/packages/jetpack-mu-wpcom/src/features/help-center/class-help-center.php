@@ -100,7 +100,9 @@ class Help_Center {
 							),
 						)
 					);
-				}
+				},
+				// Add the help center icon to the admin bar after the reader icon.
+				12
 			);
 		}
 
