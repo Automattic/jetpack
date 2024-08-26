@@ -306,8 +306,6 @@ class Waf_Blocklog_Manager {
 
 		// Fallback for when WordPress isn't initialized
 		if ( ! function_exists( 'get_option' ) ) {
-
-			error_log( 'Are we initializing all time stats here?' );
 			$conn = self::connect_to_wordpress_db();
 			if ( ! $conn ) {
 				return 0;
