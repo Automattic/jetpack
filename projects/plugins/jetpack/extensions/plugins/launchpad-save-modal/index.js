@@ -145,7 +145,6 @@ export const settings = {
 				isInsidePostEditor
 			) {
 				setIsModalOpen( false );
-				return;
 			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )

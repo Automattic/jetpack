@@ -207,7 +207,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const handleGetSuggestion = ( ...args ) => {
 		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
-		return;
 	};
 
 	const handleChange = value => {
