@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Sync: Ensure filtering orders by status when doing HPOS Checksums
