@@ -6,10 +6,10 @@ import React from 'react';
 /**
  * The Google Search tab component.
  *
- * @param {object} props - The props.
+ * @param {object}   props        - The props.
  * @param {object[]} props.tweets - The tweets.
- * @param {object} props.media - The media.
- * @returns {React.ReactNode} The Google Search tab component.
+ * @param {object}   props.media  - The media.
+ * @return {React.ReactNode} The Google Search tab component.
  */
 export function GoogleSearch( props ) {
 	const siteTitle = useSelect( select => {

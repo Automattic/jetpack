@@ -15,7 +15,7 @@ import promptForProject from '../helpers/promptForProject.js';
  * Command definition for the test subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function testDefine( yargs ) {
 	yargs.command(
@@ -72,7 +72,7 @@ async function testCli( argv ) {
  * Validate the project we're being passed.
  *
  * @param {object} argv - the arguments being passed.
- * @returns {object} argv
+ * @return {object} argv
  */
 async function validateProject( argv ) {
 	if ( allProjects().includes( argv.project ) ) {
@@ -88,7 +88,7 @@ async function validateProject( argv ) {
  * Gets list of tests available for chosen projects.
  *
  * @param {string} project - the project we want tests for..
- * @returns {object} argv.
+ * @return {object} argv.
  */
 async function getTests( project ) {
 	const composerJson = await readComposerJson( project );
@@ -110,7 +110,7 @@ async function getTests( project ) {
  * Gets the test instructions required for the project.
  *
  * @param {object} argv - the arguments passed.
- * @returns {Array} testScript - array containing test scripts.
+ * @return {Array} testScript - array containing test scripts.
  */
 async function getTestInstructions( argv ) {
 	const tests = await getTests( argv.project );
@@ -174,8 +174,8 @@ async function runTest( argv ) {
 /**
  * Prompts for the test we want to run.
  *
- * @param {argv}  argv - the arguments passed.
- * @returns {object} argv
+ * @param {argv} argv - the arguments passed.
+ * @return {object} argv
  */
 export async function promptForTest( argv ) {
 	const tests = await getTests( argv.project );

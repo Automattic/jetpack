@@ -24,7 +24,7 @@ import { Ads } from './ads';
  * Earn Feature description card.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Feature description and CTA.
+ * @return {React.Component} Feature description and CTA.
  */
 function EarnFeatureButton( props ) {
 	const {
@@ -78,7 +78,7 @@ function EarnFeatureButton( props ) {
  * Earn Section.
  *
  * @param {object} props - Component props.
- * @returns {React.Component} Earn settings component.
+ * @return {React.Component} Earn settings component.
  */
 function Earn( props ) {
 	const { active, hasConnectedOwner, isModuleFound, isOffline, searchTerm, siteRawUrl, blogID } =
