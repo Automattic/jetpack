@@ -15,6 +15,7 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
 import { SharePostRow } from '../share-post';
+import { ShareStatusModal } from '../share-status-modal';
 import styles from './styles.module.scss';
 import './global.scss';
 
@@ -71,7 +72,12 @@ const PublicizePanel = ( { prePublish, children } ) => {
 					<SharePostRow />
 				</Fragment>
 			) }
-			{ isPostPublished && <ManualSharing /> }
+			{ isPostPublished && (
+				<>
+					<ShareStatusModal />
+					<ManualSharing />
+				</>
+			) }
 		</PanelWrapper>
 	);
 };

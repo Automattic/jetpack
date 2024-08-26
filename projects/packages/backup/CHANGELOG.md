@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.5] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
 ## [3.4.4] - 2024-08-21
 ### Fixed
 - Decoupled backup connection screens from useConnection hook to avoid unnecessary loading and prevent duplicated API calls. [#38948]
@@ -672,6 +676,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[3.4.5]: https://github.com/Automattic/jetpack-backup/compare/v3.4.4...v3.4.5
 [3.4.4]: https://github.com/Automattic/jetpack-backup/compare/v3.4.3...v3.4.4
 [3.4.3]: https://github.com/Automattic/jetpack-backup/compare/v3.4.2...v3.4.3
 [3.4.2]: https://github.com/Automattic/jetpack-backup/compare/v3.4.1...v3.4.2
