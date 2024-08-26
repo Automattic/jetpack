@@ -316,12 +316,14 @@ export default function Highlight() {
 									{ suggestions?.suggestion }
 								</Button>
 							) }
+
 							{ feature === SPELLING_MISTAKES.name &&
 								spellingSuggestions.map( spellingSuggestion => (
 									<Button
 										variant="tertiary"
 										onClick={ () => handleApplySpellingFix( spellingSuggestion ) }
 										key={ spellingSuggestion }
+										className="jetpack-ai-breve__spelling-suggestion"
 									>
 										{ spellingSuggestion }
 									</Button>
@@ -333,10 +335,12 @@ export default function Highlight() {
 										{ __( 'Add to dictionary', 'jetpack' ) }
 									</Button>
 								) }
+
 								{ feature !== SPELLING_MISTAKES.name &&
 									( hasSuggestions
 										? __( 'Click on the suggestion to insert it.', 'jetpack' )
 										: description ) }
+
 								<div className="jetpack-ai-breve__helper-buttons-wrapper">
 									<Button variant="link" onClick={ handleIgnoreSuggestion }>
 										{ __( 'Ignore', 'jetpack' ) }
