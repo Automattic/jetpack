@@ -234,8 +234,7 @@ class Waf_Blocklog_Manager {
 		}
 
 		// Initialize all_time_stats based on last log ID or 0 if no logs exist
-		$all_time_stats = self::initialize_all_time_stats();
-		return intval( $all_time_stats );
+		return intval( self::initialize_all_time_stats() );
 	}
 
 	/**
@@ -249,8 +248,8 @@ class Waf_Blocklog_Manager {
 			$all_time_stats = get_option( $option_name, false );
 
 			if ( false === $all_time_stats ) {
-				// Initialize if not set
-				$all_time_stats = self::initialize_all_time_stats();
+				// Initialize if not set, but do not update option in `initialize_all_time_stats`
+				$all_time_stats = self::initialize_all_time_stats( true );
 			}
 
 			++$all_time_stats;
@@ -283,7 +282,8 @@ class Waf_Blocklog_Manager {
 			}
 
 			if ( null === $all_time_stats ) {
-				$all_time_stats = self::initialize_all_time_stats();
+				// Initialize if not set, but do not update option in `initialize_all_time_stats`
+				$all_time_stats = self::initialize_all_time_stats( true );
 			}
 
 			++$all_time_stats;
@@ -305,9 +305,10 @@ class Waf_Blocklog_Manager {
 	/**
 	 * Initialize the all-time stats based on the last log ID.
 	 *
+	 * @param bool $update Whether to update the option in the database.
 	 * @return int The initialized all-time stats value.
 	 */
-	private static function initialize_all_time_stats() {
+	private static function initialize_all_time_stats( $update = false ) {
 		$option_name = 'jetpack_waf_all_time_stats';
 
 		// Check if WordPress functions are available
@@ -318,7 +319,10 @@ class Waf_Blocklog_Manager {
 			$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
 			$all_time_stats = $last_log_id ? $last_log_id : 0;
-			update_option( $option_name, $all_time_stats );
+
+			if ( $update ) {
+				update_option( $option_name, $all_time_stats );
+			}
 
 			return $all_time_stats;
 		} else {
@@ -332,7 +336,7 @@ class Waf_Blocklog_Manager {
 
 			$last_log_id_result = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
-			$all_time_stats = 0; // Default value
+			$all_time_stats = 0;
 
 			if ( $last_log_id_result && $last_log_id_result->num_rows > 0 ) {
 				$row = $last_log_id_result->fetch_assoc();
@@ -341,17 +345,20 @@ class Waf_Blocklog_Manager {
 				}
 			}
 
-			// Update the option in the database
-			$updated_value = intval( $all_time_stats );
-			$conn->query(
-				sprintf(
-					"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
-					$conn->real_escape_string( $table_prefix ),
-					$conn->real_escape_string( $option_name ),
-					$updated_value,
-					$updated_value
-				)
-			);
+			if ( $update ) {
+				// Update the option in the database
+				$updated_value = intval( $all_time_stats );
+				$conn->query(
+					sprintf(
+						"INSERT INTO %soptions (option_name, option_value) VALUES ('%s', '%s') ON DUPLICATE KEY UPDATE option_value = '%s'",
+						$conn->real_escape_string( $table_prefix ),
+						$conn->real_escape_string( $option_name ),
+						$updated_value,
+						$updated_value
+					)
+				);
+			}
+
 			return $all_time_stats;
 		}
 	}
