@@ -1,5 +1,5 @@
-import { Button, useBreakpointMatch } from '@automattic/jetpack-components';
-import React, { useCallback, useMemo, useState, memo } from 'react';
+import { Button } from '@automattic/jetpack-components';
+import React, { useCallback, useEffect, useState, useMemo, memo } from 'react';
 import styles from './styles.module.scss';
 
 const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => {
@@ -33,7 +33,23 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 		setCurrentPage( pageNumber );
 	}, [] );
 
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const [ isSmall, setIsSmall ] = useState( window.matchMedia( '(max-width: 1220px)' ).matches );
+
+	useEffect( () => {
+		const mediaQuery = window.matchMedia( '(max-width: 1220px)' );
+
+		const handleMediaChange = event => {
+			setIsSmall( event.matches );
+		};
+
+		// Add event listeners
+		mediaQuery.addEventListener( 'change', handleMediaChange );
+
+		// Cleanup listeners on component unmount
+		return () => {
+			mediaQuery.removeEventListener( 'change', handleMediaChange );
+		};
+	}, [] );
 
 	const handleFirstPageClick = useCallback( () => {
 		onPageChange( 1 );
