@@ -1,5 +1,0 @@
-Significance: patch
-Type: removed
-Comment: Remove unnecessary phpunit dep, `yoast/phpunit-polyfills` already brings in an appropriate version.
-
-
