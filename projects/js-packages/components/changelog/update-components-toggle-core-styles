@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Jetpack components: Use styles closer to core component for the toggle component. Removes size variants.
