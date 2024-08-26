@@ -43,6 +43,8 @@ export default function PublicizeForm() {
 	const showSharePostForm =
 		isPublicizeEnabled &&
 		( hasEnabledConnections ||
+			// We show the form if there is any attached media or validation errors to let the user
+			// fix the issues with uploading an image.
 			attachedMedia.length > 0 ||
 			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
