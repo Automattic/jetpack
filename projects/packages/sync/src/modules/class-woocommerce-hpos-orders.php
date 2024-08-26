@@ -65,7 +65,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array Order types to sync.
 	 */
 	public static function get_order_types_to_sync( $prefixed = false ) {
-		$types = array( 'order', 'order_refund' );
+		$types = array( 'order', 'order_refund', 'subscription' );
 		if ( $prefixed ) {
 			$types = array_map(
 				function ( $type ) {
