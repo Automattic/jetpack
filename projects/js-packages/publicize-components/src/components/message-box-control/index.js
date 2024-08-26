@@ -7,13 +7,13 @@ import { useCallback, useRef } from 'react';
  * Wrapper around a textbox to restrict the number of characters and
  * display how many are remaining.
  *
- * @param {object}   props           - The component's props.
- * @param {string}   props.message   - The message to display.
- * @param {Function} props.onChange  - Callback to invoke as the message changes.
- * @param {boolean}  [props.disabled]  - Whether the control is disabled.
- * @param {number}   props.maxLength - The maximum character length of the message.
+ * @param {object}   props               - The component's props.
+ * @param {string}   props.message       - The message to display.
+ * @param {Function} props.onChange      - Callback to invoke as the message changes.
+ * @param {boolean}  [props.disabled]    - Whether the control is disabled.
+ * @param {number}   props.maxLength     - The maximum character length of the message.
  * @param {object}   props.analyticsData - Data for tracking analytics.
- * @returns {object} The message box component.
+ * @return {object} The message box component.
  */
 export default function MessageBoxControl( {
 	message = '',
@@ -45,7 +45,10 @@ export default function MessageBoxControl( {
 			onChange={ handleChange }
 			disabled={ disabled }
 			maxLength={ maxLength }
-			placeholder={ __( 'Write a message for your audience here.', 'jetpack' ) }
+			placeholder={ __(
+				'Write a custom message for your social audience here. This message will override your social post content.',
+				'jetpack'
+			) }
 			rows={ 4 }
 			help={ sprintf(
 				/* translators: placeholder is a number. */

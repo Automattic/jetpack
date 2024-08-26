@@ -37,6 +37,7 @@ class Help_Center {
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 	}
 
 	/**
@@ -99,21 +100,27 @@ class Help_Center {
 							),
 						)
 					);
-				}
+				},
+				// Add the help center icon to the admin bar after the reader icon.
+				12
 			);
 		}
 
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			// Load translations directly from widgets.wp.com.
-			wp_enqueue_script(
-				'help-center-translations',
-				'https://widgets.wp.com/help-center/languages/' . Common\determine_iso_639_locale() . '-v1.js',
-				array( 'wp-i18n' ),
-				$version,
-				true
-			);
+			$locale = Common\determine_iso_639_locale();
 
-			$script_dependencies[] = 'help-center-translations';
+			if ( 'en' !== $locale ) {
+				// Load translations directly from widgets.wp.com.
+				wp_enqueue_script(
+					'help-center-translations',
+					'https://widgets.wp.com/help-center/languages/' . $locale . '-v1.js',
+					array( 'wp-i18n' ),
+					$version,
+					true
+				);
+
+				$script_dependencies[] = 'help-center-translations';
+			}
 		}
 
 		// If the user is not connected, the Help Center icon will link to the support page.
@@ -169,6 +176,22 @@ class Help_Center {
 					)
 				),
 				'before'
+			);
+		}
+
+		if ( ! is_admin() ) {
+			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
+			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
+			if ( function_exists( 'gutenberg_url' ) ) {
+				// @phan-suppress-next-line PhanUndeclaredFunction
+				$stylesheet_url = gutenberg_url( $stylesheet );
+			}
+			// Enqueue wp-component styles because they're not enqueued in wp-admin outside of the editor.
+			wp_enqueue_style(
+				'wp-components',
+				$stylesheet_url,
+				array( 'dashicons' ),
+				$version
 			);
 		}
 	}
@@ -283,7 +306,7 @@ class Help_Center {
 	public function is_block_editor() {
 		global $current_screen;
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -291,7 +314,7 @@ class Help_Center {
 	 */
 	private function is_wc_admin_home_page() {
 		global $current_screen;
-		return $current_screen->id === 'woocommerce_page_wc-admin';
+		return $current_screen && $current_screen->id === 'woocommerce_page_wc-admin';
 	}
 
 	/**
@@ -313,18 +336,34 @@ class Help_Center {
 	}
 
 	/**
+	 * Returns true if...
+	 * 1. The current user can edit posts.
+	 * 2. The current user is a member of the blog.
+	 * 3. The current request is not in the admin.
+	 * 4. The current request is not in the block editor.
+	 *
+	 * @return bool True if the this is being loaded on the frontend.
+	 */
+	public function is_loading_on_frontend() {
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+
+		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+	}
+
+	/**
 	 * Returns the URL for the Help Center redirect.
 	 * Used for the Help Center when disconnected.
 	 */
 	public function get_help_center_url() {
-		$help_url = 'https://wordpress.com/help';
+		$help_url = 'https://wordpress.com/help?help-center=home';
 
-		if ( ! $this->is_jetpack_disconnected() ) {
-			return false;
+		if ( $this->is_jetpack_disconnected() || $this->is_loading_on_frontend() ) {
+			return $help_url;
 		}
 
-		return $help_url;
+		return false;
 	}
+
 	/**
 	 * Get the asset via file-system on wpcom and via network on Atomic sites.
 	 *
@@ -354,21 +393,31 @@ class Help_Center {
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		if ( $this->is_wc_admin_home_page() ) {
 			return;
 		}
 
-		$variant  = $this->is_block_editor() ? 'gutenberg' : 'wp-admin';
-		$variant .= $this->is_jetpack_disconnected() ? '-disconnected' : '';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+
+		// We will show the help center icon in the admin bar when;
+		// 1. On wp-admin
+		// 2. On the front end of the site if the current user can edit posts
+		// 3. On the front end of the site and the theme is not P2
+		// 4. If it is the frontend we show the disconnected version of the help center.
+		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) ) {
+			return;
+		} elseif ( $this->is_loading_on_frontend() ) {
+			$variant = 'wp-admin-disconnected';
+		} elseif ( $this->is_block_editor() ) {
+			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		} else {
+			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		}
 
 		$asset_file = self::download_asset( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
-
 		if ( ! $asset_file ) {
 			return;
 		}

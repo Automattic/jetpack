@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 5.3.0-alpha
+ * Version: 5.6.1
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '5.3.0-alpha' );
+define( 'WPCOMSH_VERSION', '5.6.1' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -217,9 +217,29 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ * Determine if users who are already logged in to WordPress.com are automatically logged in to wp-admin.
  */
-add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+function wpcomsh_bypass_jetpack_sso_login() {
+	/**
+	 * Sites with the classic interface:
+	 * - Automatic login if they come from Calypso.
+	 * - Otherwise we display the login form, so they can decide whether to use a WP.com account or a local account.
+	 */
+	if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
+		$calypso_domains = array(
+			'https://wordpress.com/',
+			'https://horizon.wordpress.com/',
+			'https://wpcalypso.wordpress.com/',
+			'http://calypso.localhost:3000/',
+			'http://127.0.0.1:41050/', // Desktop App.
+		);
+		return in_array( wp_get_referer(), $calypso_domains, true );
+	}
+
+	// Users of sites with the default interface are always logged in automatically.
+	return true;
+}
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
  * Overwrite the default value of SSO "Match by Email" setting.
@@ -522,13 +542,49 @@ function wpcomsh_footer_rum_js() {
 		}
 	}
 
+	$rum_kv = array();
+	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
+
+	if ( count( $rum_kv ) > 0 ) {
+		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
+		if ( is_string( $rum_kv ) ) {
+			$rum_kv = 'data-customproperties="' . esc_attr( $rum_kv ) . '"';
+		} else {
+			$rum_kv = '';
+		}
+	} else {
+		$rum_kv = '';
+	}
+
 	printf(
-		'<script defer id="bilmur" data-provider="wordpress.com" data-service="%1$s" %2$s src="%3$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		'<script defer id="bilmur" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s src="%4$s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
 		esc_url( 'https://s0.wp.com/wp-content/js/bilmur.min.js?m=' . gmdate( 'YW' ) )
 	);
 }
+
+/**
+ * Adds WooCommerce-related data to the Real User Monitoring (RUM) array.
+ *
+ * This function checks if WooCommerce is active on the site and adds
+ * this information to the provided RUM data array. It's designed to be
+ * used as part of the RUM data collection process for Atomic sites.
+ *
+ * @param array $rum_kv An array of existing RUM key-value pairs.
+ *                      If not provided, an empty array will be used.
+ *
+ * @return array The input array with added WooCommerce data.
+ *               The 'woo_active' key will be added with a boolean value
+ *               indicating whether WooCommerce is active.
+ */
+function wpcomsh_get_woo_rum_data( $rum_kv = array() ) {
+	$woo_active           = class_exists( 'WooCommerce' ) ? '1' : '0';
+	$rum_kv['woo_active'] = $woo_active;
+	return $rum_kv;
+}
+
 add_action( 'wp_footer', 'wpcomsh_footer_rum_js' );
 add_action( 'admin_footer', 'wpcomsh_footer_rum_js' );
 

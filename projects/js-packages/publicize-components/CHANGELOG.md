@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.63.0] - 2024-08-26
+### Added
+- Added the new feature flag for the social share status [#39015]
+
+### Changed
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Updated package dependencies. [#39004]
+
+## [0.62.0] - 2024-08-21
+### Changed
+- Social: Migrated the API paths from initial state to the new script data. [#38962]
+
+### Removed
+- Social: Removed share limits UI and data logic. [#38904]
+
+## [0.61.0] - 2024-08-19
+### Added
+- Added a description for the social modal. [#38927]
+
+### Changed
+- Social: Migrated services list to the initial state. [#38924]  [#38861] [#38662] [#38665]
+
+### Removed
+- Remove the unused Advanced plan nudge. [#38926]
+
+### Fixed
+- Fixed a ui issue with the toggle naming. [#38925]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
+## [0.60.0] - 2024-08-12
+### Changed
+- Hid most of the actions and notices when sharing is off [#38801]
+- Updated the position of connection notices in the editor [#38789]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Updated the custom message placeholder [#38784]
+
+### Fixed
+- Fixed a UI issue in the editor [#38829]
+- Fixed social post modal max-height [#38830]
+- Social post UI: Fix connection toggle and media notice [#38799]
+
 ## [0.59.0] - 2024-08-05
 ### Added
 - Added connection toggle to social post preview [#38686]
@@ -819,6 +861,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.63.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.62.0...v0.63.0
+[0.62.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.61.0...v0.62.0
+[0.61.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.60.0...v0.61.0
+[0.60.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.56.2...v0.57.0

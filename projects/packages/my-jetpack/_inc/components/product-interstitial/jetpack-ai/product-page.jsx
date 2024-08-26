@@ -10,7 +10,6 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
@@ -23,6 +22,7 @@ import { useCallback, useState, useEffect } from 'react';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { useGoBack } from '../../../hooks/use-go-back';
+import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import styles from './style.module.scss';
@@ -31,14 +31,14 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai-product-
 
 /**
  * Product Page for Jetpack AI
- * @returns {object} React component for the product page
+ * @return {object} React component for the product page
  */
 export default function () {
 	const { onClickGoBack } = useGoBack( 'jetpack-ai' );
 	const { detail } = useProduct( 'jetpack-ai' );
 	const { description, aiAssistantFeature } = detail;
 	const [ showNotice, setShowNotice ] = useState( false );
-	const { isRegistered } = useConnection();
+	const { isRegistered } = useMyJetpackConnection();
 
 	const videoTitleContentGeneration = __(
 		'Generate and edit content faster with Jetpack AI Assistant',

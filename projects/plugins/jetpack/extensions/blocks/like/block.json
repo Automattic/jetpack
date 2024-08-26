@@ -4,7 +4,7 @@
 	"name": "jetpack/like",
 	"title": "Like",
 	"description": "Give your readers the ability to show appreciation for your posts.",
-	"keywords": [ "like", "thumbs up", "button" ],
+	"keywords": [ "like", "likes", "thumbs up", "button", "heart" ],
 	"version": "1.0.0",
 	"textdomain": "jetpack",
 	"category": "grow",

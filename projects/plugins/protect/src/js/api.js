@@ -45,6 +45,12 @@ const API = {
 			method: 'POST',
 			data: { step_ids: stepIds },
 		} ),
+
+	fetchScanHistory: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/scan-history',
+			method: 'GET',
+		} ),
 };
 
 export default API;

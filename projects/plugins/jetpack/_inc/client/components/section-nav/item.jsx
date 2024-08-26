@@ -40,7 +40,12 @@ class NavItem extends React.PureComponent {
 		}
 
 		return (
-			<li ref={ node => ( this.domNode = node ) } className={ itemClassName }>
+			<li
+				ref={ node => {
+					this.domNode = node;
+				} }
+				className={ itemClassName }
+			>
 				{ ! this.props.isExternalLink && (
 					<a
 						href={ this.props.path }

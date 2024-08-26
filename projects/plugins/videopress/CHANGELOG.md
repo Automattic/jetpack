@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.9 - 2024-08-15
+### Changed
+- General: indicate compatibility with the upcoming version of WordPress - 6.6.
+- Updated package dependencies.
+
+### Removed
+- General: update WordPress version requirements to WordPress 6.5.
+
+### Fixed
+- Updated package dependencies.
+
 ## 1.8 - 2024-05-22
 ### Added
 - Trigger a red bubble notification when a bad plugin install is detected.

@@ -5,7 +5,7 @@ import { getUnselectableFilterKeys, mapFilterKeyToFilter } from '../lib/filters'
  * Get the stored API response.
  *
  * @param {object} state - Current state.
- * @returns {object} Response object.
+ * @return {object} Response object.
  */
 export function getResponse( state ) {
 	return state.response;
@@ -15,7 +15,7 @@ export function getResponse( state ) {
  * Get the hasError flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} hasError - Whether the API returned an erroneous response.
+ * @return {boolean} hasError - Whether the API returned an erroneous response.
  */
 export function hasError( state ) {
 	return state.hasError;
@@ -25,7 +25,7 @@ export function hasError( state ) {
  * Get the hasNextPage flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} hasNextPage - Whether the API contains a page handle for a subsequent page.
+ * @return {boolean} hasNextPage - Whether the API contains a page handle for a subsequent page.
  */
 export function hasNextPage( state ) {
 	return ! hasError( state ) && getResponse( state )?.page_handle;
@@ -35,7 +35,7 @@ export function hasNextPage( state ) {
  * Get the isLoading flag.
  *
  * @param {object} state - Current state.
- * @returns {boolean} isLoading - Whether the API request is still loading.
+ * @return {boolean} isLoading - Whether the API request is still loading.
  */
 export function isLoading( state ) {
 	return state.isLoading;
@@ -45,7 +45,7 @@ export function isLoading( state ) {
  * Get the search query.
  *
  * @param {object} state - Current state.
- * @returns {string} searchQuery - The search query entered by the user.
+ * @return {string} searchQuery - The search query entered by the user.
  */
 export function getSearchQuery( state ) {
 	return state.searchQuery;
@@ -54,9 +54,9 @@ export function getSearchQuery( state ) {
 /**
  * Get the sort key.
  *
- * @param {object} state - Current state.
+ * @param {object}  state       - Current state.
  * @param {string?} defaultSort - Default sort order specified via the Customizer.
- * @returns {string} sort - The selected sort key for the search interface.
+ * @return {string} sort - The selected sort key for the search interface.
  */
 export function getSort( state, defaultSort ) {
 	// Default non-string defaultSort to 'relevance'
@@ -70,7 +70,7 @@ export function getSort( state, defaultSort ) {
  * Get the filters.
  *
  * @param {object} state - Current state.
- * @returns {object} filters - An object mapping filter keys and its selected values.
+ * @return {object} filters - An object mapping filter keys and its selected values.
  */
 export function getFilters( state ) {
 	return state.filters;
@@ -80,7 +80,7 @@ export function getFilters( state ) {
  * Get the selected static filters.
  *
  * @param {object} state - Current state.
- * @returns {object} filters - An object mapping filter keys and its selected values.
+ * @return {object} filters - An object mapping filter keys and its selected values.
  */
 export function getStaticFilters( state ) {
 	return state.staticFilters;
@@ -90,7 +90,7 @@ export function getStaticFilters( state ) {
  * Checks if any filters have been selected.
  *
  * @param {object} state - Current state.
- * @returns {object} hasFilters - true if any filter has been selected.
+ * @return {object} hasFilters - true if any filter has been selected.
  */
 export function hasFilters( state ) {
 	return Object.keys( state.filters ).length > 0;
@@ -100,7 +100,7 @@ export function hasFilters( state ) {
  * Checks if any static filters have been selected.
  *
  * @param {object} state - Current state.
- * @returns {object} hasStaticFilters - true if any filter has been selected.
+ * @return {object} hasStaticFilters - true if any filter has been selected.
  */
 function hasStaticFilters( state ) {
 	return Object.keys( state.staticFilters ).length > 0;
@@ -110,7 +110,7 @@ function hasStaticFilters( state ) {
  * Checks if there is an active search-related query values.
  *
  * @param {object} state - Current state.
- * @returns {object} hasActiveQuery - true if any search-related query value has been defined.
+ * @return {object} hasActiveQuery - true if any search-related query value has been defined.
  */
 export function hasActiveQuery( state ) {
 	return (
@@ -127,7 +127,7 @@ export function hasActiveQuery( state ) {
  * This is used to render a single SearchFilters component for all filters selected outside the search overlay.
  *
  * @param {object} state - Redux state tree.
- * @returns {{ filters: object[] }} pseudoWidget - contains `filters`, an array of filter objects selected outside the search overlay.
+ * @return {{ filters: object[] }} pseudoWidget - contains `filters`, an array of filter objects selected outside the search overlay.
  */
 export function getWidgetOutsideOverlay( state ) {
 	// Both of these values should default to [] when empty; they should never be falsy.
@@ -146,7 +146,7 @@ export function getWidgetOutsideOverlay( state ) {
  * Returns true if the query string change was performed by a history navigation.
  *
  * @param {object} state - Current state.
- * @returns {boolean} isHistoryNavigation.
+ * @return {boolean} isHistoryNavigation.
  */
 export function isHistoryNavigation( state ) {
 	return state.isHistoryNavigation;

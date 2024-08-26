@@ -1,5 +1,5 @@
 import { Button } from '@wordpress/components';
-import { useI18n } from '@wordpress/react-i18n';
+import { __ } from '@wordpress/i18n';
 import WpcomTourKitPaginationControl from './wpcom-tour-kit-pagination-control';
 import type { WpcomTourStepRendererProps } from '../../../types';
 
@@ -14,7 +14,6 @@ const WpcomTourKitStepCardNavigation: React.FunctionComponent< Props > = ( {
 	setInitialFocusedElement,
 	steps,
 } ) => {
-	const { __ } = useI18n();
 	const isFirstStep = currentStepIndex === 0;
 	const lastStepIndex = steps.length - 1;
 

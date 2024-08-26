@@ -8,7 +8,7 @@ declare global {
 /**
  * Function to get the current year and week number.
  *
- * @returns {string} The current year and week number.
+ * @return {string} The current year and week number.
  */
 function getCurrentYearAndWeek() {
 	const date = new Date();
@@ -32,13 +32,16 @@ function getCurrentYearAndWeek() {
  * and appends it to the document's head.
  *
  * @param {string} src - The URL of the script to load.
- * @returns {Promise<void>} A promise that resolves once the script has loaded.
+ * @return {Promise<void>} A promise that resolves once the script has loaded.
  */
 function loadScript( src: string ): Promise< void > {
-	return new Promise( resolve => {
+	return new Promise( ( resolve, reject ) => {
 		const script = document.createElement( 'script' );
 		script.src = src;
 		script.onload = () => resolve();
+		script.onerror = () => {
+			reject( new Error( `Failed to load script: ${ src }` ) );
+		};
 		document.head.appendChild( script );
 	} );
 }
@@ -50,7 +53,7 @@ function loadScript( src: string ): Promise< void > {
  * and then loads the tracking script from the specified URL. Once the script has loaded,
  * the provided callback function is called.
  *
- * @returns {Promise<void>} A promise that resolves once the Tracks has been side loaded.
+ * @return {Promise<void>} A promise that resolves once the Tracks has been side loaded.
  */
 export default function sideloadTracks(): Promise< void > {
 	window._tkq = window._tkq || [];

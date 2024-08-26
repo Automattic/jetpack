@@ -4,6 +4,7 @@
 import { askQuestionSync } from '@automattic/jetpack-ai-client';
 import { select } from '@wordpress/data';
 import { BREVE_FEATURE_NAME } from '../constants';
+import { Anchor } from '../types';
 import { getRequestMessages } from '../utils/get-request-messages';
 
 // ACTIONS
@@ -22,7 +23,7 @@ export function setPopoverHover( isHover: boolean ) {
 	};
 }
 
-export function setPopoverAnchor( anchor: HTMLElement | EventTarget ) {
+export function setPopoverAnchor( anchor: Anchor ) {
 	return {
 		type: 'SET_POPOVER_ANCHOR',
 		anchor,
@@ -49,6 +50,14 @@ export function toggleFeature( feature: string, force?: boolean ) {
 	};
 }
 
+export function setDictionaryLoading( feature: string, loading: boolean ) {
+	return {
+		type: 'SET_DICTIONARY_LOADING',
+		feature,
+		loading,
+	};
+}
+
 export function setBlockMd5( blockId: string, md5: string ) {
 	return {
 		type: 'SET_BLOCK_MD5',
@@ -72,6 +81,15 @@ export function ignoreSuggestion( blockId: string, id: string ) {
 	};
 }
 
+export function invalidateSingleSuggestion( feature: string, blockId: string, id: string ) {
+	return {
+		type: 'INVALIDATE_SINGLE_SUGGESTION',
+		feature,
+		blockId,
+		id,
+	};
+}
+
 export function setSuggestions( {
 	anchor,
 	id,
@@ -90,7 +108,7 @@ export function setSuggestions( {
 	occurrence: string;
 } ) {
 	return ( { dispatch } ) => {
-		anchor?.classList?.add( 'is-loading' );
+		anchor?.classList?.add( 'jetpack-ai-breve__is-loading' );
 
 		dispatch( {
 			type: 'SET_SUGGESTIONS_LOADING',
@@ -113,7 +131,7 @@ export function setSuggestions( {
 			}
 		)
 			.then( response => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				try {
 					const suggestions = JSON.parse( response );
@@ -135,7 +153,7 @@ export function setSuggestions( {
 				}
 			} )
 			.catch( () => {
-				anchor?.classList?.remove( 'is-loading' );
+				anchor?.classList?.remove( 'jetpack-ai-breve__is-loading' );
 
 				dispatch( {
 					type: 'SET_SUGGESTIONS_LOADING',

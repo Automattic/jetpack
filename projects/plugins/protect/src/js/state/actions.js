@@ -1,9 +1,12 @@
 import apiFetch from '@wordpress/api-fetch';
 import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
+import API from '../api';
+import { SCAN_STATUS_UNAVAILABLE } from '../constants';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
+const SET_SCAN_HISTORY = 'SET_SCAN_HISTORY';
 const SET_STATUS = 'SET_STATUS';
 const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
@@ -31,6 +34,10 @@ const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 const SET_WAF_STATS = 'SET_WAF_STATS';
 
+const setScanHistory = scanHistory => {
+	return { type: SET_SCAN_HISTORY, scanHistory };
+};
+
 const setStatus = status => {
 	return { type: SET_STATUS, status };
 };
@@ -56,7 +63,7 @@ const refreshPlan =
  * Fetch Status
  *
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
- * @returns {Promise} - Promise which resolves with the status request results.
+ * @return {Promise} - Promise which resolves with the status request results.
  */
 const fetchStatus = hardRefresh =>
 	apiFetch( {
@@ -68,7 +75,7 @@ const fetchStatus = hardRefresh =>
  * Side effect action which will fetch the status from the server
  *
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
- * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ * @return {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
 const refreshStatus =
 	( hardRefresh = false ) =>
@@ -78,7 +85,7 @@ const refreshStatus =
 			return fetchStatus( hardRefresh )
 				.then( checkStatus )
 				.then( status => {
-					dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
+					dispatch( setScanIsUnavailable( SCAN_STATUS_UNAVAILABLE === status.status ) );
 					dispatch( setStatus( camelize( status ) ) );
 					resolve( status );
 				} )
@@ -92,15 +99,29 @@ const refreshStatus =
 	};
 
 /**
+ * Refresh Scan History
+ * @return {Promise} - Promise which resolves with the scan history once it has been fetched.
+ */
+const refreshScanHistory = () => {
+	return async ( { dispatch } ) => {
+		return API.fetchScanHistory()
+			.then( scanHistory => camelize( scanHistory ) )
+			.then( scanHistory => {
+				dispatch( setScanHistory( scanHistory ) );
+			} );
+	};
+};
+
+/**
  * Check Status
  *
  * @param {object} currentStatus - The status.
- * @param {number} attempts - The amount of recursive attempts that have already been made.
- * @returns {Promise} - Promise which resolves with the status once it has been checked.
+ * @param {number} attempts      - The amount of recursive attempts that have already been made.
+ * @return {Promise} - Promise which resolves with the status once it has been checked.
  */
 const checkStatus = ( currentStatus, attempts = 0 ) => {
 	return new Promise( ( resolve, reject ) => {
-		if ( 'unavailable' === currentStatus.status && attempts < 3 ) {
+		if ( SCAN_STATUS_UNAVAILABLE === currentStatus.status && attempts < 3 ) {
 			fetchStatus( true )
 				.then( newStatus => {
 					setTimeout( () => {
@@ -119,7 +140,7 @@ const checkStatus = ( currentStatus, attempts = 0 ) => {
 /**
  * Side effect action which will fetch the credential status from the server
  *
- * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
+ * @return {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
 const checkCredentials =
 	() =>
@@ -200,6 +221,9 @@ const ignoreThreat =
 					return dispatch( refreshStatus() );
 				} )
 				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
 					return dispatch(
 						setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
 					);
@@ -209,6 +233,41 @@ const ignoreThreat =
 						setNotice( {
 							type: 'error',
 							message: __( 'An error ocurred ignoring the threat.', 'jetpack-protect' ),
+						} )
+					);
+				} )
+				.finally( () => {
+					dispatch( setThreatIsUpdating( threatId, false ) );
+					callback();
+				} );
+		} );
+	};
+
+const unignoreThreat =
+	( threatId, callback = () => {} ) =>
+	async ( { dispatch } ) => {
+		dispatch( setThreatIsUpdating( threatId, true ) );
+		return await new Promise( () => {
+			return apiFetch( {
+				path: `jetpack-protect/v1/unignore-threat?threat_id=${ threatId }`,
+				method: 'POST',
+			} )
+				.then( () => {
+					return dispatch( refreshScanHistory() );
+				} )
+				.then( () => {
+					return dispatch( refreshStatus() );
+				} )
+				.then( () => {
+					return dispatch(
+						setNotice( { type: 'success', message: __( 'Threat unignored', 'jetpack-protect' ) } )
+					);
+				} )
+				.catch( () => {
+					return dispatch(
+						setNotice( {
+							type: 'error',
+							message: __( 'An error ocurred unignoring the threat.', 'jetpack-protect' ),
 						} )
 					);
 				} )
@@ -254,6 +313,7 @@ const getFixThreatsStatus =
 			.then( () => {
 				// threats fixed - refresh the status
 				dispatch( refreshStatus() );
+				dispatch( refreshScanHistory() );
 				dispatch(
 					setNotice( {
 						type: 'success',
@@ -364,7 +424,7 @@ const scan =
  * @param {object}      modal       - The modal payload to set in state.
  * @param {null|string} modal.type  - The modal slug, or null to display no modal.
  * @param {object}      modal.props - The props to pass to the modal component.
- * @returns {object} The modal action object.
+ * @return {object} The modal action object.
  */
 const setModal = modal => {
 	return { type: SET_MODAL, payload: modal };
@@ -418,10 +478,12 @@ const actions = {
 	checkCredentials,
 	setCredentials,
 	setCredentialsIsFetching,
+	setScanHistory,
 	setStatus,
 	setStatusProgress,
 	startScanOptimistically,
 	refreshStatus,
+	refreshScanHistory,
 	setStatusIsFetching,
 	setScanIsEnqueuing,
 	setInstalledPlugins,
@@ -429,6 +491,7 @@ const actions = {
 	setwpVersion,
 	setJetpackScan,
 	ignoreThreat,
+	unignoreThreat,
 	setModal,
 	setNotice,
 	clearNotice,
@@ -451,6 +514,7 @@ const actions = {
 export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
+	SET_SCAN_HISTORY,
 	SET_STATUS,
 	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,

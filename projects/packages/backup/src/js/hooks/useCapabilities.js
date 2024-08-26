@@ -5,13 +5,13 @@ import useConnection from './useConnection';
 /**
  * Return information and loader of Backup functioality Capabilities
  *
- * @returns {object} capabilities, capabilitiesError, capabilitiesLoaded, fetchCapabilities
+ * @return {object} capabilities, capabilitiesError, capabilitiesLoaded, fetchCapabilities
  */
 export default function useCapabilities() {
 	const [ capabilities, setCapabilities ] = useState( null );
 	const [ capabilitiesError, setCapabilitiesError ] = useState( null );
 	const [ capabilitiesLoaded, setCapabilitiesLoaded ] = useState( false );
-	const [ connectionStatus ] = useConnection();
+	const connectionStatus = useConnection();
 
 	useEffect( () => {
 		const connectionLoaded = 0 < Object.keys( connectionStatus ).length;

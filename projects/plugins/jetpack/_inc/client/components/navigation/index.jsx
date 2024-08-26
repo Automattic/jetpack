@@ -128,7 +128,7 @@ export class Navigation extends React.Component {
 									count: (
 										<span
 											className={ clsx( 'dops-section-nav-tab__update-badge', {
-												[ 'is-hidden' ]:
+												'is-hidden':
 													this.props.location.pathname.startsWith( '/recommendations' ) ||
 													! this.props.newRecommendationsCount,
 											} ) }

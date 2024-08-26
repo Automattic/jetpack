@@ -21,16 +21,16 @@ import { STORE_ID } from '../../state/store';
 /**
  * Product Detail component.
  *
- * @param {object} props                 - Component props
- * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @returns {object}                ConnectedPricingTable react component.
+ * @param {object}   props           - Component props
+ * @param {Function} props.onScanAdd - Callback when adding paid protect product successfully
+ * @return {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = ( { onScanAdd } ) => {
 	const { handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
-	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
+	const { refreshPlan, refreshStatus, startScanOptimistically } = useDispatch( STORE_ID );
 
 	const [ getProtectFreeButtonIsLoading, setGetProtectFreeButtonIsLoading ] = useState( false );
 	const [ getScanButtonIsLoading, setGetScanButtonIsLoading ] = useState( false );
@@ -54,17 +54,26 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 		onScanAdd();
 	} );
 
-	const getProtectFree = useCallback( () => {
+	const getProtectFree = useCallback( async () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
 		setGetProtectFreeButtonIsLoading( true );
-		handleRegisterSite()
-			.then( () => setGetProtectFreeButtonIsLoading( false ) )
-			.then( () => {
-				refreshPlan();
-				refreshWaf();
-				refreshStatus( true );
-			} );
-	}, [ handleRegisterSite, recordEvent, refreshWaf, refreshPlan, refreshStatus ] );
+		try {
+			await handleRegisterSite();
+			startScanOptimistically();
+			await refreshPlan();
+			await refreshWaf();
+			await refreshStatus( true );
+		} finally {
+			setGetProtectFreeButtonIsLoading( false );
+		}
+	}, [
+		handleRegisterSite,
+		recordEvent,
+		refreshWaf,
+		refreshPlan,
+		refreshStatus,
+		startScanOptimistically,
+	] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),

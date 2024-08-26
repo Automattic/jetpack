@@ -12,6 +12,7 @@
 
     @include break-large {
         width: calc(#{$break-large} - 40px);
+        max-height: calc(100% - 120px);
     }
 
     :global(.components-modal__content.hide-header) {
@@ -61,7 +62,7 @@
 }
 
 .settings-content {
-    padding: 2rem;
+    padding: 1rem 2rem;
 
     @include break-medium {
         border-inline-end: 1px solid var(--studio-gray-5);
@@ -89,10 +90,15 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 3rem;
-    padding: 2rem;
+    gap: 1rem;
+    padding: 1rem 2rem;
 }
 
 .disabled-tab {
     opacity: 0.5;
+}
+
+.modal-description {
+	color: var(--jp-gray-40);
+	margin-top: 0;
 }

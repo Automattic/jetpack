@@ -8,20 +8,27 @@ import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_SECURITY_SCANNING_JETPACK,
+	PLAN_JETPACK_SCAN,
 } from 'lib/plans/constants';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
+import Card from '../components/card';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
+import PlanIcon from '../components/plans/plan-icon';
 import Textarea from '../components/textarea';
+import { getSiteAdminUrl } from '../state/initial-state';
+import { isPluginActive } from '../state/site/plugins';
 import { updateWafSettings } from '../state/waf/actions';
 import {
 	getAutomaticRulesAvailable,
@@ -30,11 +37,17 @@ import {
 	isUpdatingWafSettings,
 } from '../state/waf/reducer';
 
+const PROTECT_PLUGIN_FILES = [
+	'protect/jetpack-protect.php',
+	'jetpack-protect/jetpack-protect.php',
+	'jetpack-protect-dev/jetpack-protect.php',
+];
+
 export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	state = {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
@@ -67,7 +80,7 @@ export const Waf = class extends Component {
 	 * Get a custom error message based on the error code.
 	 *
 	 * @param {object} error - Error object.
-	 * @returns {string|boolean} Custom error message or false if no custom message exists.
+	 * @return {string|boolean} Custom error message or false if no custom message exists.
 	 */
 	getCustomErrorMessage = error => {
 		switch ( error.code ) {
@@ -83,7 +96,7 @@ export const Waf = class extends Component {
 	/**
 	 * Handle settings updates.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	onSubmit = () => {
 		this.props.removeNotice( 'module-setting-update' );
@@ -411,41 +424,73 @@ export const Waf = class extends Component {
 						</span>
 					}
 				/>
-				<div className="waf__settings__ips">
-					<Textarea
-						disabled={
-							baseInputDisabledCase ||
-							this.props.isUpdatingWafSettings ||
-							! this.props.settings?.ipBlockListEnabled
-						}
-						name="ipBlockList"
-						placeholder={ sprintf(
-							/* translators: Placeholder is a list of example IP addresses. */
-							__( 'Example: %s', 'jetpack' ),
-							'\n12.12.12.1\n12.12.12.2'
+				{ ( this.state.ipBlockListEnabled || !! this.state.ipBlockList ) && (
+					<div className="waf__settings__ips">
+						<Textarea
+							disabled={
+								baseInputDisabledCase ||
+								this.props.isUpdatingWafSettings ||
+								! this.props.settings?.ipBlockListEnabled
+							}
+							name="ipBlockList"
+							placeholder={ sprintf(
+								/* translators: Placeholder is a list of example IP addresses. */
+								__( 'Example: %s', 'jetpack' ),
+								'\n12.12.12.1\n12.12.12.2'
+							) }
+							value={ this.state.ipBlockList }
+							onChange={ this.handleIpBlockListChange }
+						/>
+						{ this.state.ipBlockListEnabled && (
+							<Button
+								primary
+								rna
+								compact
+								type="button"
+								className="waf__settings__ips__save-button"
+								disabled={
+									baseInputDisabledCase ||
+									this.state.ipBlockList === this.props.settings?.ipBlockList ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
+								}
+								onClick={ this.onSubmit }
+							>
+								{ __( 'Save block list', 'jetpack' ) }
+							</Button>
 						) }
-						value={ this.state.ipBlockList }
-						onChange={ this.handleIpBlockListChange }
-					/>
-					<Button
-						primary
-						rna
-						compact
-						type="button"
-						className="waf__settings__ips__save-button"
-						disabled={
-							baseInputDisabledCase ||
-							this.state.ipBlockList === this.props.settings?.ipBlockList ||
-							( this.props.isUpdatingWafSettings &&
-								this.state.ipBlockList !== this.props.settings?.ipBlockList )
-						}
-						onClick={ this.onSubmit }
-					>
-						{ __( 'Save block list', 'jetpack' ) }
-					</Button>
-				</div>
+					</div>
+				) }
 			</div>
 		);
+
+		// If the site has Jetpack Protect activated, redirect the user to the dedicated Protect settings screen.
+		if ( this.props.isProtectActive ) {
+			return (
+				<SettingsCard { ...this.props } header={ moduleHeader } module="waf" hideButton={ true }>
+					<Card className="dops-banner has-call-to-action">
+						<div className="dops-banner__icon-plan">
+							<PlanIcon plan={ PLAN_JETPACK_SCAN } />
+						</div>
+						<div className="dops-banner__content">
+							<div className="dops-banner__info">
+								<div className="dops-banner__title">
+									{ __(
+										'Firewall settings have been moved to the Jetpack Protect plugin.',
+										'jetpack'
+									) }
+								</div>
+							</div>
+							<div className="dops-banner__action">
+								<Button rna={ true } compact href={ this.props.protectAdminUrl } primary>
+									{ __( 'View Firewall Settings', 'jetpack' ) }
+								</Button>
+							</div>
+						</div>
+					</Card>
+				</SettingsCard>
+			);
+		}
 
 		return (
 			<SettingsCard
@@ -456,6 +501,18 @@ export const Waf = class extends Component {
 				hideButton={ true }
 			>
 				{ isWafActive && <QueryWafSettings /> }
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-info"
+					text={ __(
+						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.10.',
+						'jetpack'
+					) }
+				>
+					<NoticeAction href={ this.props.getProtectUrl }>
+						{ __( 'Get Jetpack Protect', 'jetpack' ) }
+					</NoticeAction>
+				</SimpleNotice>
 				<SettingsGroup
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }
@@ -498,6 +555,11 @@ export default connect(
 		return {
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			hasScan: siteHasFeature( state, 'scan' ),
+			protectAdminUrl: `${ getSiteAdminUrl( state ) }admin.php?page=jetpack-protect#/firewall`,
+			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
+				isPluginActive( state, pluginFile )
+			),
+			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),

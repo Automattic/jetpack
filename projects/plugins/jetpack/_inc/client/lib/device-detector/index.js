@@ -9,7 +9,7 @@
 /**
  * Determines type of device. Only checks for several major operating systems.
  *
- * @returns {string} 'windows' | 'android' | 'ios' | 'unknown'
+ * @return {string} 'windows' | 'android' | 'ios' | 'unknown'
  */
 function detectMobileDevice() {
 	const userAgent = navigator.userAgent || navigator.vendor || window.opera;

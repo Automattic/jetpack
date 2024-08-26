@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.6] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.4.5] - 2024-08-19
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [0.4.4] - 2024-08-05
 ### Changed
 - Do not serve media from Amazon CDN from Jetpack's CDN. [#38682]
@@ -106,6 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.4.6]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.4...v0.4.5
 [0.4.4]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.1...v0.4.2

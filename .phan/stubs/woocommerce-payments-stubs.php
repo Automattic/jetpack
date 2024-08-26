@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from WooPayments 7.9.1
+ * Stubs automatically generated from WooPayments 8.0.1
  * using the definition file `tools/stubs/woocommerce-payments-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.

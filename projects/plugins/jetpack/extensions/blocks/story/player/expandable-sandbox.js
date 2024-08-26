@@ -19,8 +19,8 @@ export default function ExpandableSandbox( {
 	playerQuerySelector,
 	children,
 } ) {
-	const rootElementRef = useRef();
-	const modalRef = useRef();
+	const rootElementRef = useRef( undefined );
+	const modalRef = useRef( undefined );
 	const [ lastScrollPosition, setLastScrollPosition ] = useState( null );
 	const shouldUseFullscreenAPI = isMobile && fullscreenAPI.enabled();
 	const isFullPageModalOpened = fullscreen && ! shouldUseFullscreenAPI;

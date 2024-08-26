@@ -3,6 +3,9 @@
 //store for the components, but at the moment they're tied.
 import './src/social-store';
 
+// Ensure that module augmentation is applied
+export type {} from './src/types';
+
 export { default as Connection } from './src/components/connection';
 export { default as Form } from './src/components/form';
 export { default as SocialPreviewsModal } from './src/components/social-previews/modal';
@@ -13,8 +16,7 @@ export { default as SocialImageGeneratorToggle } from './src/components/social-i
 export { default as TemplatePickerButton } from './src/components/social-image-generator/template-picker/button';
 export { default as PublicizePanel } from './src/components/panel';
 export { default as ReviewPrompt } from './src/components/review-prompt';
-export { default as PostPublishReviewPrompt } from './src/components/post-publish-review-prompt';
-export { default as PostPublishManualSharing } from './src/components/post-publish-manual-sharing';
+export { default as PostPublishPanels } from './src/components/post-publish-panels';
 export { default as RefreshJetpackSocialSettingsWrapper } from './src/components/refresh-jetpack-social-settings';
 export { default as ConnectionManagement } from './src/components/connection-management';
 
@@ -28,9 +30,8 @@ export * from './src/social-store';
 export * from './src/utils';
 export * from './src/components/share-post';
 export * from './src/hooks/use-sync-post-data-to-store';
-export * from './src/components/share-limits-bar';
 export * from './src/hooks/use-saving-post';
-export * from './src/hooks/use-share-limits';
 export * from './src/hooks/use-post-meta';
 export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
+export * from './src/utils/shares-data';

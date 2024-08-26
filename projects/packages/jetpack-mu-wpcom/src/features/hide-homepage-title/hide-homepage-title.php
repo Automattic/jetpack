@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
-define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
-
 /**
  * Can be used to determine if the current screen is the block editor.
  *

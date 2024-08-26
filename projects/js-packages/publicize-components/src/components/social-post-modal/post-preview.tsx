@@ -15,8 +15,8 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { Connection } from '../../social-store/types';
+import { InstagramNoMediaNotice } from '../form/instagram-no-media-notice';
 import { usePostData } from '../social-previews/use-post-data';
-import { InstagramMediaNotice } from './instagram-media-notice';
 
 export type PostPreviewProps = {
 	connection: Connection;
@@ -27,7 +27,7 @@ export type PostPreviewProps = {
  *
  * @param {PostPreviewProps} props - PostPreview component props.
  *
- * @returns {import('react').ReactNode} - Post preview component.
+ * @return {import('react').ReactNode} - Post preview component.
  */
 export function PostPreview( { connection }: PostPreviewProps ) {
 	const user = useMemo(
@@ -85,7 +85,7 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			const hasImage = Boolean( image );
 
 			return ! hasMedia && ! hasImage ? (
-				<InstagramMediaNotice />
+				<InstagramNoMediaNotice />
 			) : (
 				<InstagramPostPreview
 					{ ...commonProps }
@@ -112,14 +112,11 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			const firstMediaItem = media?.[ 0 ];
 
 			const customImage = firstMediaItem?.type.startsWith( 'image/' ) ? firstMediaItem.url : null;
-			const desc = message
-				? message
-				: `${ title && excerpt ? `${ title }\n\n${ excerpt }` : title }`;
 
 			return (
 				<MastodonPostPreview
 					{ ...commonProps }
-					description={ desc }
+					description={ excerpt }
 					siteName={ siteName }
 					user={ {
 						avatarUrl: user.profileImage,
