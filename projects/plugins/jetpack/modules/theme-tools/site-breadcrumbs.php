@@ -23,7 +23,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * @phan-suppress PhanRedefineFunction -- Covered by function_exists check.
 		 */
 		function jetpack_breadcrumbs() {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 			$taxonomy                 = is_category() ? 'category' : get_query_var( 'taxonomy' );
 			$is_taxonomy_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
@@ -81,7 +81,7 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		 * @return string A list of links to the term parents.
 		 */
 		function jetpack_get_term_parents( $term, $taxonomy, $visited = array() ) {
-			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 			$parent = get_term( $term, $taxonomy );
 
 			if ( is_wp_error( $parent ) ) {
