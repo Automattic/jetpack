@@ -9,7 +9,7 @@ import { Icon, external } from '@wordpress/icons';
  * Internal dependencies
  */
 import './ai-image-modal.scss';
-import UpgradePrompt from '../../../../../blocks/ai-assistant/components/upgrade-prompt';
+import QuotaExceededMessage from '../../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import AiAssistantModal from '../../modal';
 import Carrousel, { CarrouselImages } from './carrousel';
 import UsageCounter from './usage-counter';
@@ -98,7 +98,7 @@ export default function AiImageModal( {
 	const costTooltipText = cost === 1 ? costTooltipTextSingular : costTooltipTextPlural;
 
 	// Controllers
-	const instructionsDisabled = notEnoughRequests || generating;
+	const instructionsDisabled = notEnoughRequests || generating || requireUpgrade;
 	const upgradePromptVisible = ( requireUpgrade || notEnoughRequests ) && ! generating;
 	const counterVisible = Boolean( ! isUnlimited && cost && currentLimit );
 	const tryAgainButtonDisabled = ! userPrompt && ! postContent;
@@ -159,7 +159,7 @@ export default function AiImageModal( {
 							</div>
 						</div>
 						{ upgradePromptVisible && (
-							<UpgradePrompt
+							<QuotaExceededMessage
 								description={ upgradeDescription }
 								placement={ FEATURED_IMAGE_UPGRADE_PROMPT_PLACEMENT }
 								useLightNudge={ true }

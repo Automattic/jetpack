@@ -3,6 +3,7 @@
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -17,7 +18,7 @@ import { LightNudge } from './light-nudge';
 import type { ReactElement } from 'react';
 import './style.scss';
 
-type UpgradePromptProps = {
+type QuotaExceededMessageProps = {
 	placement?: string;
 	description?: string;
 	useLightNudge?: boolean;
@@ -28,14 +29,14 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
  * to the checkout page or the Jetpack AI interstitial page.
  *
- * @param {UpgradePromptProps} props - Component props.
+ * @param {QuotaExceededMessageProps} props - Component props.
  * @return {ReactElement} the Nudge component with the prompt.
  */
 const DefaultUpgradePrompt = ( {
 	placement = null,
 	description = null,
 	useLightNudge = false,
-}: UpgradePromptProps ): ReactElement => {
+}: QuotaExceededMessageProps ): ReactElement => {
 	const Nudge = useLightNudge ? LightNudge : StandardNudge;
 
 	const { checkoutUrl } = useAICheckout();
@@ -209,8 +210,28 @@ const VIPUpgradePrompt = ( {
 	);
 };
 
-const UpgradePrompt = props => {
-	const { upgradeType } = useAiFeature();
+/**
+ * The fair usage notice component.
+ * @return {ReactElement} the Notice component with the fair usage message.
+ */
+const FairUsageNotice = () => {
+	return (
+		<Notice status="warning" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
+			{ __(
+				'You exceeded your current quota of requests. Check the usage policy for more information.',
+				'jetpack'
+			) }
+		</Notice>
+	);
+};
+
+const QuotaExceededMessage = props => {
+	const { upgradeType, currentTier } = useAiFeature();
+
+	// Return notice component for the fair usage limit message, on unlimited plans.
+	if ( currentTier?.value === 1 ) {
+		return <FairUsageNotice />;
+	}
 
 	// If the user is on a VIP site, show the VIP upgrade prompt.
 	if ( upgradeType === 'vip' ) {
@@ -223,4 +244,4 @@ const UpgradePrompt = props => {
 	return DefaultUpgradePrompt( props );
 };
 
-export default UpgradePrompt;
+export default QuotaExceededMessage;
