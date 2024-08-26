@@ -211,6 +211,11 @@ export default function Highlight() {
 	const handleRetry = () => {
 		invalidateSingleSuggestion( feature, blockId, id );
 		handleSuggestions();
+
+		tracks.recordEvent( 'jetpack_ai_breve_retry', {
+			feature: BREVE_FEATURE_NAME,
+			type: feature,
+		} );
 	};
 
 	const handleIgnoreSuggestion = () => {
