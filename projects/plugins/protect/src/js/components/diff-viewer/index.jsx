@@ -140,6 +140,9 @@ export const DiffViewer = ( { diff } ) => (
 
 									case '+':
 										return <ins key={ key }>{ output }</ins>;
+
+									default:
+										return undefined;
 								}
 							} )
 						) }

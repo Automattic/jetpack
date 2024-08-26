@@ -61,16 +61,12 @@ const useTooltipCopy = () => {
 	const thirtyDayViews = __( '30-Day views', 'jetpack-my-jetpack' );
 	const yearlyViews = __( 'Yearly views', 'jetpack-my-jetpack' );
 
-	const viewsWithPlanTextDay = _n(
-		'This metric represents the total number of views your video has received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
-		'This metric represents the total number of views your videos have received on our platform over the past 30 days, comparing it with the performance of the previous 30 days.',
-		videoCount,
+	const viewsWithPlanTextDay = __(
+		'This metric shows your total video views over the past 30 days, compared to the previous 30 days.',
 		'jetpack-my-jetpack'
 	);
-	const viewsWithPlanTextYear = _n(
-		'This metric represents the total number of views your video have received on our platform over the past year.',
-		'This metric represents the total number of views your videos have received on our platform over the past year.',
-		videoCount,
+	const viewsWithPlanTextYear = __(
+		'This metric shows your total video views over the past year.',
 		'jetpack-my-jetpack'
 	);
 
@@ -80,7 +76,7 @@ const useTooltipCopy = () => {
 	};
 
 	const watchTimeTextDay = __(
-		'This metric shows total video viewing time for the last 30 days, comparing it with the performance of the previous 30 days.',
+		'This metric shows your total video viewing time over the past 30 days, compared to the previous 30 days.',
 		'jetpack-my-jetpack'
 	);
 	const watchTimeTextYear = __(
@@ -89,7 +85,7 @@ const useTooltipCopy = () => {
 	);
 
 	const watchTime = {
-		title: period === 'day' ? thirtyDayViews : yearlyViews,
+		title: __( 'Total time watched', 'jetpack-my-jetpack' ),
 		text: period === 'day' ? watchTimeTextDay : watchTimeTextYear,
 	};
 

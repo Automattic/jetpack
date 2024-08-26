@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## [0.1.31] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
 ## [0.1.30] - 2024-08-21
 ### Changed
 - Internal updates.
@@ -120,6 +124,7 @@
 ### Added
 - Initial release of jetpack-api package.
 
+[0.1.31]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.30...v0.1.31
 [0.1.30]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.29...v0.1.30
 [0.1.29]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.28...v0.1.29
 [0.1.28]: https://github.com/Automattic/jetpack-analytics/compare/v0.1.27...v0.1.28
