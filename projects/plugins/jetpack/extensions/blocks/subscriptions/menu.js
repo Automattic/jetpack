@@ -1,4 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/edit-post';
@@ -31,6 +32,7 @@ const NewsletterMenu = () => {
 
 	const { isUserConnected } = useConnection();
 	const connectUrl = `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/connection`;
+	const shouldPromptForConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const openPreviewModal = () => setIsPreviewModalOpen( true );
 	const closePreviewModal = () => setIsPreviewModalOpen( false );
@@ -48,7 +50,7 @@ const NewsletterMenu = () => {
 				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
 				{ isSendEmailEnabled && ! isPublished && (
 					<>
-						{ isUserConnected ? (
+						{ ! shouldPromptForConnection ? (
 							<>
 								<p>
 									{ __(
