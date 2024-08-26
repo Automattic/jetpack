@@ -328,6 +328,7 @@ class Waf_Blocklog_Manager {
 		}
 
 		// WordPress is initialized
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
 		$all_time_stats = $last_log_id ? intval( $last_log_id ) : 0;
