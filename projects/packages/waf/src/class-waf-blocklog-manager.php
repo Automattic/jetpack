@@ -273,10 +273,16 @@ class Waf_Blocklog_Manager {
 				)
 			);
 
+			$all_time_stats = null;
+
 			if ( $result && $result->num_rows > 0 ) {
-				$row            = $result->fetch_assoc();
-				$all_time_stats = intval( unserialize( $row['option_value'] ) );
-			} else {
+				$row = $result->fetch_assoc();
+				if ( $row !== null && isset( $row['option_value'] ) ) {
+					$all_time_stats = unserialize( $row['option_value'] );
+				}
+			}
+
+			if ( null === $all_time_stats ) {
 				$all_time_stats = self::initialize_all_time_stats();
 			}
 
@@ -313,8 +319,17 @@ class Waf_Blocklog_Manager {
 
 			global $table_prefix;
 
-			$last_log_id = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
-			$last_log_id = $last_log_id ? intval( $last_log_id->fetch_assoc()['log_id'] ) : 0;
+			$last_log_id_result = $conn->query( "SELECT log_id FROM {$table_prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
+
+			$last_log_id = 0; // Default value
+
+			if ( $last_log_id_result && $last_log_id_result->num_rows > 0 ) {
+				$row = $last_log_id_result->fetch_assoc();
+				if ( $row !== null && isset( $row['log_id'] ) ) {
+					$last_log_id = $row['log_id'];
+				}
+			}
+
 			$conn->query(
 				sprintf(
 					"INSERT INTO %soptions (option_name, option_value) VALUES ('jetpack_waf_all_time_stats', '%s')",
@@ -329,7 +344,7 @@ class Waf_Blocklog_Manager {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$last_log_id = $wpdb->get_var( "SELECT log_id FROM {$wpdb->prefix}jetpack_waf_blocklog ORDER BY log_id DESC LIMIT 1" );
 
-		$all_time_stats = $last_log_id ? intval( $last_log_id ) : 0;
+		$all_time_stats = $last_log_id ? $last_log_id : 0;
 		update_option( 'jetpack_waf_all_time_stats', $all_time_stats );
 
 		return $all_time_stats;
