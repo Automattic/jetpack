@@ -41,6 +41,7 @@
 		"@wordpress/icons": "10.5.0",
 		"@wordpress/media-utils": "5.5.0",
 		"@wordpress/notices": "5.5.0",
+		"moment": "2.29.4",
 		"clsx": "2.1.1",
 		"prop-types": "15.8.1",
 		"react-page-visibility": "7.0.0",
