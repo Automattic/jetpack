@@ -100,11 +100,16 @@ export const getSpellchecker = ( { language = 'en' }: { language?: string } = {}
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
-	// Regex to match words, including contractions and hyphenated words
+	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[\p{L}\p{M}']+/, 'gu' );
-	const words = text.match( wordRegex ) || [];
+	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/, 'gu' );
+	const words = ( text.match( wordRegex ) || [] )
+		// Filter out words that start with special characters
+		.filter( word => [ '@', '#', '+', '$' ].indexOf( word[ 0 ] ) === -1 )
+		// Split hyphenated words into separate words as nspell doesn't work well with them
+		.map( word => word.split( '-' ) )
+		.flat();
 	const spellchecker = getSpellchecker();
 
 	if ( ! spellchecker ) {
