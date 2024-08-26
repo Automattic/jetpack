@@ -32,6 +32,22 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
+export type ShareStatusItem = Pick<
+	Connection,
+	'connection_id' | 'profile_link' | 'profile_picture'
+> & {
+	status: 'success' | 'failure';
+	message: string;
+	timestamp: number;
+	service: string;
+	external_name: string;
+};
+
+export type PostShareStatus = {
+	shares: Array< ShareStatusItem >;
+	loading?: boolean;
+};
+
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	// on post editor
@@ -40,6 +56,7 @@ export type SocialStoreState = {
 	jetpackSettings?: JetpackSettings;
 	useAdminUiV1?: boolean;
 	featureFlags?: Record< string, boolean >;
+	shareStatus?: { [ PostId: number ]: PostShareStatus };
 };
 
 export interface KeyringAdditionalUser {
