@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Auto open Upload Theme dialog if query parameter is present
