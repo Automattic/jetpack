@@ -31,24 +31,34 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  * @return {ReactElement} the fair usage notice message, with the proper link and date.
  */
 const useFairUsageNoticeMessage = () => {
+	const { usagePeriod } = useAiFeature();
+	const nextUsagePeriodStartDate = usagePeriod?.nextStart;
+
 	// Translators: %s is the date when the requests will reset.
-	const fairUsageNoticeMessageTemplate = __(
+	const fairUsageNoticeMessageTemplateWithDate = __(
 		"You've reached this month's request limit, per our <link>fair usage policy</link>. Requests will reset on %s.",
 		'jetpack'
 	);
 
-	const fairUsageNoticeMessageElement = createInterpolateElement(
-		sprintf( fairUsageNoticeMessageTemplate, 'September 19' ),
-		{
-			link: (
-				<a
-					href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
-					target="_blank"
-					rel="noreferrer"
-				/>
-			),
-		}
+	const fairUsageNoticeMessageTemplateWithoutDate = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>.",
+		'jetpack'
 	);
+
+	// Get the proper template based on the presence of the next usage period start date.
+	const fairUsageNoticeMessageTemplate = nextUsagePeriodStartDate
+		? sprintf( fairUsageNoticeMessageTemplateWithDate, nextUsagePeriodStartDate )
+		: fairUsageNoticeMessageTemplateWithoutDate;
+
+	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessageTemplate, {
+		link: (
+			<a
+				href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+				target="_blank"
+				rel="noreferrer"
+			/>
+		),
+	} );
 
 	return fairUsageNoticeMessageElement;
 };
