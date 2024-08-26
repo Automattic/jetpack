@@ -25,6 +25,34 @@ type QuotaExceededMessageProps = {
 };
 
 const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
+
+/**
+ * The fair usage notice message for the AI Assistant block.
+ * @return {ReactElement} the fair usage notice message, with the proper link and date.
+ */
+const useFairUsageNoticeMessage = () => {
+	// Translators: %s is the date when the requests will reset.
+	const fairUsageNoticeMessageTemplate = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>. Requests will reset on %s.",
+		'jetpack'
+	);
+
+	const fairUsageNoticeMessageElement = createInterpolateElement(
+		sprintf( fairUsageNoticeMessageTemplate, 'September 19' ),
+		{
+			link: (
+				<a
+					href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+					target="_blank"
+					rel="noreferrer"
+				/>
+			),
+		}
+	);
+
+	return fairUsageNoticeMessageElement;
+};
+
 /**
  * The default upgrade prompt for the AI Assistant block, containing the Upgrade button and linking
  * to the checkout page or the Jetpack AI interstitial page.
@@ -215,12 +243,10 @@ const VIPUpgradePrompt = ( {
  * @return {ReactElement} the Notice component with the fair usage message.
  */
 const FairUsageNotice = () => {
+	const useFairUsageNoticeMessageElement = useFairUsageNoticeMessage();
 	return (
 		<Notice status="warning" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
-			{ __(
-				'You exceeded your current quota of requests. Check the usage policy for more information.',
-				'jetpack'
-			) }
+			{ useFairUsageNoticeMessageElement }
 		</Notice>
 	);
 };
