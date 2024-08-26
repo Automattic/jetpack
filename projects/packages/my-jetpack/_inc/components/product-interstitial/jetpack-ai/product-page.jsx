@@ -117,8 +117,9 @@ export default function () {
 			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
 			'jetpack-my-jetpack'
 		),
-		Math.floor( ( new Date( usage?.[ 'next-start' ] ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
 	);
+
 	const upgradeNoticeBody = __(
 		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
 		'jetpack-my-jetpack'
