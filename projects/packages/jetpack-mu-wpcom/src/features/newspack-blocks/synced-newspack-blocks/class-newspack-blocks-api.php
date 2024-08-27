@@ -254,7 +254,7 @@ class Newspack_Blocks_API {
 		$args       = Newspack_Blocks::build_articles_query( $attributes, apply_filters( 'newspack_blocks_block_name', 'newspack-blocks/homepage-articles' ) );
 
 		if ( $attributes['exclude'] && count( $attributes['exclude'] ) ) {
-			$args['post__not_in'] = $attributes['exclude'];
+			$args['post__not_in'] = $attributes['exclude']; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 		}
 
 		if ( $attributes['include'] && count( $attributes['include'] ) ) {

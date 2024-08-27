@@ -14,9 +14,9 @@ return [
     // PhanUndeclaredClassMethod : 20+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 15+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 10+ occurrences
-    // PhanUndeclaredConstant : 10+ occurrences
     // PhanUndeclaredFunction : 10+ occurrences
     // PhanTypeMismatchReturn : 8 occurrences
+    // PhanUndeclaredConstant : 7 occurrences
     // PhanTypeArraySuspiciousNullable : 6 occurrences
     // PhanNoopNew : 5 occurrences
     // PhanParamTooMany : 4 occurrences

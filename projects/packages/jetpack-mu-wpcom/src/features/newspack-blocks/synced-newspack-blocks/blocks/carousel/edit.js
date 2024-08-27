@@ -238,8 +238,8 @@ class Edit extends Component {
 		];
 
 		return (
-			<Fragment>
-				<div className={ classes } ref={ this.carouselRef }>
+            (<Fragment>
+                <div className={ classes } ref={ this.carouselRef }>
 					{ hasNoPosts && (
 						<Placeholder className="component-placeholder__align-center">
 							<div style={ { margin: 'auto' } }>
@@ -365,7 +365,7 @@ class Edit extends Component {
 						</Fragment>
 					) }
 				</div>
-				<InspectorControls>
+                <InspectorControls>
 					<PanelBody title={ __( 'Display Settings', 'jetpack-mu-wpcom' ) } initialOpen={ true }>
 						{ postsToShow && (
 							<QueryControls
@@ -437,10 +437,10 @@ class Edit extends Component {
 											'jetpack-mu-wpcom'
 									  )
 									: __(
-											'The image will be resized to fit inside the slide without being cropped.',
-											'jetpack-mu-wpcom',
-											0
-									  )
+                                    'The image will be resized to fit inside the slide without being cropped.',
+                                    'jetpack-mu-wpcom',
+                                    0
+                                )
 							}
 							id="newspack-blocks__blocks__image-fit-control"
 						>
@@ -570,8 +570,8 @@ class Edit extends Component {
 					<PostTypesPanel attributes={ attributes } setAttributes={ setAttributes } />
 					<PostStatusesPanel attributes={ attributes } setAttributes={ setAttributes } />
 				</InspectorControls>
-			</Fragment>
-		);
+            </Fragment>)
+        );
 	}
 }
 

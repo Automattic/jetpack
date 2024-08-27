@@ -1,4 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
+/* eslint-disable jsx-a11y/anchor-is-valid, @typescript-eslint/no-explicit-any */
 
 /**
  * Internal dependencies
@@ -352,7 +352,6 @@ class Edit extends Component< HomepageArticlesProps > {
 		return (
 			<Fragment>
 				<PanelBody title={ __( 'Display Settings', 'jetpack-mu-wpcom' ) } initialOpen={ true }>
-					{ /* @ts-ignore */ }
 					<QueryControls
 						numberOfItems={ postsToShow }
 						onNumberOfItemsChange={ ( _postsToShow: number ) =>
@@ -830,8 +829,6 @@ class Edit extends Component< HomepageArticlesProps > {
 
 export default compose( [
 	withColors( { textColor: 'color' } ),
-	// @ts-ignore
 	withSelect( postsBlockSelector ),
-	// @ts-ignore
 	withDispatch( postsBlockDispatch ),
 ] as any )( Edit );

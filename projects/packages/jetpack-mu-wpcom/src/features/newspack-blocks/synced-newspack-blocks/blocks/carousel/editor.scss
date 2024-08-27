@@ -1,4 +1,4 @@
-@use '../../shared/sass/placeholder';
+@use "../../shared/sass/placeholder";
 
 .wp-block-newspack-blocks-carousel {
 	.swiper-wrapper {
@@ -14,7 +14,7 @@
 		&:active,
 		&:focus,
 		&:hover {
-			color: rgba( 255, 255, 255, 0.75 );
+			color: rgba(255, 255, 255, 0.75);
 		}
 	}
 	.post-thumbnail img {

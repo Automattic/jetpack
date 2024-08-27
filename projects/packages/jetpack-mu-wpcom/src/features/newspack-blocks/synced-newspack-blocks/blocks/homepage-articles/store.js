@@ -88,7 +88,7 @@ const createCacheKey = JSON.stringify;
 /**
  * Get posts for a single block.
  *
- * @yields
+ * @yield
  * @param {object} block - an object with a postsQuery and a clientId
  */
 function* getPostsForBlock( block ) {
@@ -115,7 +115,7 @@ function* getPostsForBlock( block ) {
  *
  * @param {string} clientId
  *
- * @returns {boolean} whether the block uses deduplication
+ * @return {boolean} whether the block uses deduplication
  */
 function shouldDeduplicate( clientId ) {
 	const { getBlock } = select( 'core/block-editor' );
@@ -127,7 +127,7 @@ const createFetchPostsSaga = blockNames => {
 	/**
 	 * "worker" Saga: will be fired on REFLOW actions
 	 *
-	 * @yields
+	 * @yield
 	 */
 	function* fetchPosts() {
 		// debounce by 300ms
@@ -186,7 +186,7 @@ const createFetchPostsSaga = blockNames => {
 	 * if new reflow happens during this time, the reflow from before
 	 * will be cancelled.
 	 *
-	 * @yields
+	 * @yield
 	 */
 	return function* fetchPostsSaga() {
 		yield takeLatest( 'REFLOW', fetchPosts );
