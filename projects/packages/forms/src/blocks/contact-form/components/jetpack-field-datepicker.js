@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { SelectControl } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -40,15 +41,17 @@ const JetpackDatePicker = props => {
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
-
-	const classes = clsx( 'jetpack-field', {
-		'is-selected': isSelected,
-		'has-placeholder': !! placeholder,
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field', {
+			'is-selected': isSelected,
+			'has-placeholder': !! placeholder,
+		} ),
+		style: blockStyle,
 	} );
 
 	return (
 		<>
-			<div className={ classes } style={ blockStyle }>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					attributes={ attributes }
 					label={ label }

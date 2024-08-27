@@ -30,7 +30,7 @@ async function fetchWeightUsingProxy( url: string ): Promise< Response > {
 				// If the JSON data contains the content length, create a new response object with the JSON headers and the original response body.
 				const headers = new Headers();
 				for ( const key in json.data ) {
-					if ( json.data.hasOwnProperty( key ) ) {
+					if ( Object.hasOwn( json.data, key ) ) {
 						headers.set( key, json.data[ key ] );
 					}
 				}

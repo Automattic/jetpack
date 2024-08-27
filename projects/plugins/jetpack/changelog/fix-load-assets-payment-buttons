@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Payment Button Blocks: ensure that the buttons' stylesheet is properly loaded on the frontend.

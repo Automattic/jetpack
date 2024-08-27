@@ -127,21 +127,23 @@
 			"composer/installers": true,
 			"roots/wordpress-core-installer": true
 		},
-		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_6_0"
+		"autoloader-suffix": "26841ac2064774301cbe06d174833bfc_wpcomshⓥ5_6_1"
 	},
 	"extra": {
 		"mirror-repo": "Automattic/wpcom-site-helper",
-		"autorelease": true,
+		"autorelease": {
+			"rolling-release": true,
+			"titlefmt": "wpcomsh %s"
+		},
 		"autotagger": true,
 		"beta-plugin-slug": "wpcomsh",
-		"release-branch-prefix": [
-			"wpcomsh",
-			"weekly"
-		],
-		"installer-disable": true,
 		"changelogger": {
 			"versioning": "semver"
 		},
+		"installer-disable": true,
+		"release-branch-prefix": [
+			"wpcomsh"
+		],
 		"version-constants": {
 			"WPCOMSH_VERSION": "wpcomsh.php"
 		}
