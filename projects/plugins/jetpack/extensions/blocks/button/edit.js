@@ -3,6 +3,7 @@ import {
 	RichText,
 	__experimentalUseGradient as useGradient, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	withColors,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -36,7 +37,9 @@ export function ButtonEdit( props ) {
 		: {};
 	/* eslint-enable react-hooks/rules-of-hooks */
 
-	const blockClasses = clsx( 'wp-block-button', className );
+	const blockProps = useBlockProps( {
+		className: clsx( 'wp-block-button', className ),
+	} );
 
 	const buttonClasses = clsx( 'wp-block-button__link', {
 		'has-background': backgroundColor.color || gradientValue,
@@ -61,7 +64,7 @@ export function ButtonEdit( props ) {
 	};
 
 	return (
-		<div className={ blockClasses }>
+		<div { ...blockProps }>
 			<RichText
 				allowedFormats={ 'input' === element ? [] : undefined }
 				className={ buttonClasses }

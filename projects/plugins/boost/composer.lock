@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccdd1d4bb66bb03a7ef28b4b09801984",
+    "content-hash": "454eed89648b0b11d6701a5ce9cbe4dd",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1658,6 +1658,73 @@
             }
         },
         {
+            "name": "automattic/jetpack-schema",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/schema",
+                "reference": "be04299bd366af85656cead6917aa99a2d61cdd8"
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "^1.1.1"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-schema/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-schema",
+                "textdomain": "jetpack-schema",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-schema.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Define a schema to validate or sanitize data in php",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-status",
             "version": "dev-trunk",
             "dist": {
@@ -1799,9 +1866,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wp-js-data-sync",
-                "reference": "1770dad42992455be389cfb6197851dcf913daa6"
+                "reference": "0c37b41f53f82a21dfb1ba97d4aeaf90e37e1dc9"
             },
             "require": {
+                "automattic/jetpack-schema": "@dev",
                 "php": ">=7.0"
             },
             "require-dev": {
@@ -5180,6 +5248,7 @@
         "automattic/jetpack-image-cdn": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-plugin-deactivation": 20,
+        "automattic/jetpack-schema": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-wp-js-data-sync": 20,
