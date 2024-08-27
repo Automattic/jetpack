@@ -32,7 +32,14 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  */
 const useFairUsageNoticeMessage = () => {
 	const { usagePeriod } = useAiFeature();
-	const nextUsagePeriodStartDate = usagePeriod?.nextStart;
+	const nextUsagePeriodStartDate = usagePeriod?.nextStart
+		? new Date( usagePeriod?.nextStart )
+		: null;
+	const nextUsagePeriodStartDateString = nextUsagePeriodStartDate
+		? nextUsagePeriodStartDate.toLocaleString( 'default', { month: 'long' } ) +
+		  ' ' +
+		  nextUsagePeriodStartDate.getDate()
+		: null;
 
 	// Translators: %s is the date when the requests will reset.
 	const fairUsageNoticeMessageTemplateWithDate = __(
@@ -46,8 +53,8 @@ const useFairUsageNoticeMessage = () => {
 	);
 
 	// Get the proper template based on the presence of the next usage period start date.
-	const fairUsageNoticeMessageTemplate = nextUsagePeriodStartDate
-		? sprintf( fairUsageNoticeMessageTemplateWithDate, nextUsagePeriodStartDate )
+	const fairUsageNoticeMessageTemplate = nextUsagePeriodStartDateString
+		? sprintf( fairUsageNoticeMessageTemplateWithDate, nextUsagePeriodStartDateString )
 		: fairUsageNoticeMessageTemplateWithoutDate;
 
 	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessageTemplate, {
