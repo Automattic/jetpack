@@ -167,17 +167,7 @@ if $UPDATE; then
 			ARGS+=( --filename-auto-suffix )
 		fi
 
-		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			changelogger_add "${ARGS[@]}"
-		else
-			changelogger_add "${ARGS[@]}"
-			info "Updating version for $SLUG"
-			local PRERELEASE=$(alpha_tag composer.json 0)
-			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
-			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
-			get_packages "$SLUG"
-		fi
+		changelogger_add "${ARGS[@]}"
 		cd "$OLDDIR"
 	}
 fi

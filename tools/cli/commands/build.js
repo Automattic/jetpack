@@ -589,9 +589,80 @@ async function checkCollisions( basedir ) {
 async function buildProject( t ) {
 	await t.setStatus( 'installing' );
 
-	const composerJson = JSON.parse(
+	let composerJson = JSON.parse(
 		await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
 	);
+
+	// Update the changelog, if applicable.
+	if (
+		t.argv.forMirrors &&
+		( t.project === 'packages/changelogger' ||
+			composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
+			composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ] )
+	) {
+		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
+		const changesDir = npath.resolve(
+			t.cwd,
+			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
+		);
+		t.output( '\n=== Updating changelog ===\n\n' );
+		if (
+			await fs.readdir( changesDir ).then(
+				a => a.filter( f => ! f.startsWith( '.' ) ).length > 0,
+				() => false
+			)
+		) {
+			let prerelease = 'alpha';
+			if ( composerJson.extra?.[ 'dev-releases' ] ) {
+				const m = (
+					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
+						cwd: t.cwd,
+						stdio: [ 'ignore', 'pipe', 'inherit' ],
+					} )
+				).stdout.match( /^.*-a\.(\d+)$/ );
+				// eslint-disable-next-line no-bitwise
+				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
+			}
+			await t.execa(
+				changelogger,
+				[
+					'write',
+					'--prologue=This is an alpha version! The changes listed here are not final.',
+					'--default-first-version',
+					`--prerelease=${ prerelease }`,
+					`--release-date=unreleased`,
+					`--no-interaction`,
+					`--yes`,
+					`-vvv`,
+				],
+				{ cwd: t.cwd, stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
+			);
+
+			t.output( '\n=== Updating version numbers ===\n\n' );
+			const ver = (
+				await t.execa( changelogger, [ 'version', 'current' ], {
+					cwd: t.cwd,
+					stdio: [ 'ignore', 'pipe', 'inherit' ],
+				} )
+			).stdout;
+			await t.execa( npath.resolve( 'tools/project-version.sh' ), [ '-v', '-u', ver, t.project ], {
+				stdio: [ 'ignore', 'inherit', 'inherit' ],
+				buffer: false,
+			} );
+			await t.execa(
+				npath.resolve( 'tools/replace-next-version-tag.sh' ),
+				[ '-v', t.project, ver ],
+				{ stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
+			);
+
+			// Reload composer.json after the above may have changed it.
+			composerJson = JSON.parse(
+				await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
+			);
+		} else {
+			t.output( 'Not updating changelog, there are no change files\n' );
+		}
+	}
 
 	// Determine the composer script to run.
 	const scripts = t.argv.production
@@ -705,67 +776,6 @@ async function buildProject( t ) {
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
 		return;
-	}
-
-	// Update the changelog, if applicable.
-	if (
-		t.project === 'packages/changelogger' ||
-		composerJson.require?.[ 'automattic/jetpack-changelogger' ] ||
-		composerJson[ 'require-dev' ]?.[ 'automattic/jetpack-changelogger' ]
-	) {
-		const changelogger = npath.resolve( 'projects/packages/changelogger/bin/changelogger' );
-		const changesDir = npath.resolve(
-			t.cwd,
-			composerJson.extra?.changelogger?.[ 'changes-dir' ] || 'changelog'
-		);
-		t.output( '\n=== Updating changelog ===\n\n' );
-		if (
-			await fs.readdir( changesDir ).then(
-				a => a.filter( f => ! f.startsWith( '.' ) ).length > 0,
-				() => false
-			)
-		) {
-			let prerelease = 'alpha';
-			if ( composerJson.extra?.[ 'dev-releases' ] ) {
-				const m = (
-					await t.execa( changelogger, [ 'version', 'current', '--default-first-version' ], {
-						cwd: t.cwd,
-						stdio: [ 'ignore', 'pipe', 'inherit' ],
-					} )
-				).stdout.match( /^.*-a\.(\d+)$/ );
-				// eslint-disable-next-line no-bitwise
-				prerelease = 'a.' + ( m ? ( parseInt( m[ 1 ] ) & ~1 ) + 2 : 0 );
-			}
-			await t.execa(
-				changelogger,
-				[
-					'write',
-					'--prologue=This is an alpha version! The changes listed here are not final.',
-					'--default-first-version',
-					`--prerelease=${ prerelease }`,
-					`--release-date=unreleased`,
-					`--no-interaction`,
-					`--yes`,
-					`-vvv`,
-				],
-				{ cwd: t.cwd, stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
-			);
-
-			t.output( '\n=== Updating $$next-version$$ ===\n\n' );
-			const ver = (
-				await t.execa( changelogger, [ 'version', 'current' ], {
-					cwd: t.cwd,
-					stdio: [ 'ignore', 'pipe', 'inherit' ],
-				} )
-			).stdout;
-			await t.execa(
-				npath.resolve( 'tools/replace-next-version-tag.sh' ),
-				[ '-v', t.project, ver ],
-				{ stdio: [ 'ignore', 'inherit', 'inherit' ], buffer: false }
-			);
-		} else {
-			t.output( 'Not updating changelog, there are no change files\n' );
-		}
 	}
 
 	// Read mirror repo from composer.json.

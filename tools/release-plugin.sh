@@ -342,15 +342,6 @@ yellow "Release branches created!"
 yellow "Creating a PR to merge the prerelease branch into trunk."
 git checkout prerelease
 
-# If we're releasing the Jetpack plugin, ask if we want to start a new cycle.
-if [[ -v PROJECTS["plugins/jetpack"] ]]; then
-  if proceed_p "Do you want to start a new cycle for Jetpack?" "" Y; then
-    pnpm jetpack release plugins/jetpack version -a --init-next-cycle
-    git add --all
-    git commit -am "Init new cycle"
-  fi
-fi
-
 # Handle any package changes merged into trunk while we were working.
 git fetch
 git merge origin/trunk
