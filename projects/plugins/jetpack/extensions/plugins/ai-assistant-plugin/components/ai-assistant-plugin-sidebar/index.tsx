@@ -20,7 +20,7 @@ import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { PLAN_TYPE_FREE, usePlanType } from '../../../../shared/use-plan-type';
+import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
 import useBreveAvailability from '../breve/hooks/use-breve-availability';
@@ -177,8 +177,9 @@ export default function AiAssistantPluginSidebar() {
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
 
-	const showUsagePanel = planType === PLAN_TYPE_FREE;
-	const showQuotaExceeded = ! tierPlansEnabled && isOverLimit;
+	const showUsagePanel =
+		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showQuotaExceeded = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 
 	return (
 		<>
