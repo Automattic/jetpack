@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { getDate, humanTimeDiff } from '@wordpress/date';
 import ConnectionIcon from '../connection-icon';
 import { ShareStatusAction } from './share-status-action';
 import { ShareStatusLabel } from './share-status-label';
@@ -25,7 +25,12 @@ export function ShareInfo( { share } ) {
 			<div className={ styles[ 'share-item-name-wrapper' ] }>
 				<div className={ styles[ 'share-item-name' ] }>{ external_name }</div>
 			</div>
-			<div>{ moment.unix( timestamp ).fromNow() }</div>
+			<div>
+				{
+					// @ts-expect-error - humanTimeDiff is incorrectly typed, first argument can be a timestamp
+					humanTimeDiff( timestamp * 1000, getDate() )
+				}
+			</div>
 			<ShareStatusLabel status={ status } message={ message } />
 			<ShareStatusAction status={ status } shareLink={ 'success' === status ? message : '' } />
 		</div>
