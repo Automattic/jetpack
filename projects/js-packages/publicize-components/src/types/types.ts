@@ -7,6 +7,7 @@ export type SharesData = {
 export interface FeatureFlags {
 	useAdminUiV1: boolean;
 	useEditorPreview: boolean;
+	useShareStatus: boolean;
 }
 
 export type ConnectionService = {

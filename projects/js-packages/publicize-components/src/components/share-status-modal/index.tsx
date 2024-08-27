@@ -1,7 +1,6 @@
 import { Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { store as socialStore } from '../../social-store';
+import { getSocialScriptData } from '../../utils/script-data';
 import styles from './styles.module.scss';
 
 /**
@@ -10,14 +9,9 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - Share status modal component.
  */
 export function ShareStatusModal() {
-	const { featureFlags } = useSelect( select => {
-		const store = select( socialStore );
-		return {
-			featureFlags: store.featureFlags(),
-		};
-	}, [] );
+	const { feature_flags } = getSocialScriptData();
 
-	if ( ! featureFlags.useShareStatus ) {
+	if ( ! feature_flags.useShareStatus ) {
 		return null;
 	}
 
