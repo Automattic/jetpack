@@ -18,6 +18,7 @@ export type BreveState = {
 	configuration?: {
 		enabled?: boolean;
 		disabled?: Array< string >;
+		loading?: Array< string >;
 	};
 	suggestions?: {
 		[ key: string ]: {
@@ -41,6 +42,7 @@ export type BreveSelect = {
 	getPopoverLevel: () => number;
 	isProofreadEnabled: () => boolean;
 	isFeatureEnabled: ( feature: string ) => boolean;
+	isFeatureDictionaryLoading: ( feature: string ) => boolean;
 	getDisabledFeatures: () => Array< string >;
 	getBlockMd5: ( blockId: string ) => string;
 	getSuggestionsLoading: ( {
@@ -73,7 +75,10 @@ export type BreveDispatch = {
 	setPopoverAnchor: ( anchor: Anchor ) => void;
 	toggleProofread: ( force?: boolean ) => void;
 	toggleFeature: ( feature: string, force?: boolean ) => void;
+	setDictionaryLoading( feature: string, loading: boolean ): void;
 	invalidateSuggestions: ( blockId: string ) => void;
+	invalidateSingleSuggestion: ( feature: string, blockId: string, id: string ) => void;
+	reloadDictionary: ( feature: string ) => void;
 	ignoreSuggestion: ( blockId: string, id: string ) => void;
 	setBlockMd5: ( blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
@@ -105,7 +110,6 @@ export type BreveFeature = {
 export type HighlightedText = {
 	text: string;
 	suggestion?: string;
-	suggestions?: Array< string >;
 	startIndex: number;
 	endIndex: number;
 };
@@ -113,6 +117,7 @@ export type HighlightedText = {
 export type SpellChecker = {
 	correct: ( word: string ) => boolean;
 	suggest: ( word: string ) => Array< string >;
+	add: ( word: string ) => void;
 };
 
 export type SpellingDictionaryContext = {

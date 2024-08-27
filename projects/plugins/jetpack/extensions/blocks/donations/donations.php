@@ -39,6 +39,18 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attr, $content ) {
 	// Keep content as-is if rendered in other contexts than frontend (i.e. feed, emails, API, etc.).
 	if ( ! jetpack_is_frontend() ) {
+		$parsed = parse_blocks( $content );
+		if ( ! empty( $parsed[0] ) ) {
+			// Inject the link of the current post from the server side as the fallback link to make sure the donations block
+			// points to the correct post when it's inserted from the synced pattern (aka “My Pattern”).
+			$post_link                             = get_permalink();
+			$parsed[0]['attrs']['fallbackLinkUrl'] = $post_link;
+			$content                               = \render_block( $parsed[0] );
+			if ( preg_match( '/<a\s+class="jetpack-donations-fallback-link"\s+href="([^"]*)"/', $content, $matches ) ) {
+				$content = str_replace( $matches[1], $post_link, $content );
+			}
+		}
+
 		return $content;
 	}
 

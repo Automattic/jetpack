@@ -99,7 +99,6 @@ export async function cleanCli( argv ) {
 	}
 
 	await cleanFiles( toCleanFiles, argv );
-	return;
 }
 
 /**

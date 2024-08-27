@@ -29,7 +29,6 @@ return make_phan_config(
 		'exclude_analysis_directory_list' => array(
 			// This file breaks analysis, Phan gets lost recursing in trying to figure out some types.
 			// @todo Add type declarations so Phan won't have to do it itself. Or update to a modern less lib.
-			'modules/custom-css/custom-css/preprocessors/lessc.inc.php',
 		),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from other in-monorepo plugins.
