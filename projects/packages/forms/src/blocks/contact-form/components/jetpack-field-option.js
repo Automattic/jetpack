@@ -54,7 +54,7 @@ export const JetpackFieldOptionEdit = ( {
 			<RichText
 				{ ...blockProps }
 				identifier="label"
-				tagName="p"
+				tagName="div"
 				className="wp-block"
 				value={ attributes.label }
 				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
