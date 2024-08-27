@@ -157,14 +157,14 @@ async function getCheckComment( octokit, owner, repo, number ) {
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
 	const comments = await getComments( octokit, owner, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
 			commentID = comment.id;
 		}
-	} );
+	}
 
 	return commentID;
 }
