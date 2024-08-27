@@ -3,6 +3,7 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 	BlockControls,
+	useBlockProps,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -27,6 +28,11 @@ function JetpackFieldCheckbox( props ) {
 	} = props;
 
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const blockProps = useBlockProps( {
+		id: `jetpack-field-checkbox-${ instanceId }`,
+		className: 'jetpack-field jetpack-field-checkbox',
+		style: blockStyle,
+	} );
 
 	return (
 		<>
@@ -37,11 +43,7 @@ function JetpackFieldCheckbox( props ) {
 				/>
 			</BlockControls>
 
-			<div
-				id={ `jetpack-field-checkbox-${ instanceId }` }
-				className="jetpack-field jetpack-field-checkbox"
-				style={ blockStyle }
-			>
+			<div { ...blockProps }>
 				<input
 					className="jetpack-field-checkbox__checkbox"
 					type="checkbox"

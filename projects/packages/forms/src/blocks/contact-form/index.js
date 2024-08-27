@@ -43,6 +43,7 @@ const icon = renderMaterialIcon(
 );
 
 export const settings = {
+	apiVersion: 3,
 	title: __( 'Form', 'jetpack-forms' ),
 	description: __(
 		'Create forms to collect data from site visitors and manage their responses.',

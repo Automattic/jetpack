@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import clsx from 'clsx';
@@ -41,14 +41,15 @@ function JetpackFieldMultiple( props ) {
 	} );
 
 	const { blockStyle } = useJetpackFieldStyles( attributes );
+	const blockProps = useBlockProps( {
+		id: `jetpack-field-multiple-${ instanceId }`,
+		className: classes,
+		style: blockStyle,
+	} );
 
 	return (
 		<>
-			<div
-				id={ `jetpack-field-multiple-${ instanceId }` }
-				className={ classes }
-				style={ blockStyle }
-			>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }

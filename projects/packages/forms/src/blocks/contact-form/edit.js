@@ -9,6 +9,7 @@ import {
 	InnerBlocks,
 	InspectorControls,
 	URLInput,
+	useBlockProps,
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalBlockPatternSetup as BlockPatternSetup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
@@ -101,15 +102,16 @@ export const JetpackContactFormEdit = forwardRef(
 			jetpackCRM,
 			salesforceData,
 		} = attributes;
-
 		const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
 
+		const blockProps = useBlockProps();
 		const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
 			useModuleStatus( 'contact-form' );
 
 		const formClassnames = clsx( className, 'jetpack-contact-form', {
 			'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 		} );
+
 		const isSalesForceExtensionEnabled =
 			!! window?.Jetpack_Editor_Initial_State?.available_blocks[
 				'contact-form/salesforce-lead-form'
@@ -267,85 +269,91 @@ export const JetpackContactFormEdit = forwardRef(
 			);
 		};
 
+		let elt;
+
 		if ( ! isModuleActive ) {
 			if ( isLoadingModules ) {
-				return <ContactFormSkeletonLoader />;
+				elt = <ContactFormSkeletonLoader />;
+			} else {
+				elt = (
+					<ContactFormPlaceholder
+						changeStatus={ changeStatus }
+						isModuleActive={ isModuleActive }
+						isLoading={ isChangingStatus }
+					/>
+				);
 			}
-			return (
-				<ContactFormPlaceholder
-					changeStatus={ changeStatus }
-					isModuleActive={ isModuleActive }
-					isLoading={ isChangingStatus }
-				/>
+		} else if ( ! hasInnerBlocks && registerBlockVariation ) {
+			elt = renderVariationPicker();
+		} else {
+			elt = (
+				<>
+					<InspectorControls>
+						{ ! attributes.formTitle && (
+							<PanelBody>
+								<Notice status="warning" isDismissible={ false }>
+									{ __(
+										'Add a heading inside the form or before it to help everybody identify it.',
+										'jetpack-forms'
+									) }
+								</Notice>{ ' ' }
+							</PanelBody>
+						) }
+						<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
+							<JetpackManageResponsesSettings setAttributes={ setAttributes } />
+						</PanelBody>
+						<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
+							{ renderSubmissionSettings() }
+						</PanelBody>
+						<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
+							<JetpackEmailConnectionSettings
+								emailAddress={ to }
+								emailSubject={ subject }
+								instanceId={ instanceId }
+								postAuthorEmail={ postAuthorEmail }
+								setAttributes={ setAttributes }
+							/>
+						</PanelBody>
+
+						{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
+							<SalesforceLeadFormSettings
+								salesforceData={ salesforceData }
+								setAttributes={ setAttributes }
+								instanceId={ instanceId }
+							/>
+						) }
+						{ ! ( isSimpleSite() || isAtomicSite() ) && (
+							<Fragment>
+								{ canUserInstallPlugins && (
+									<PanelBody
+										title={ __( 'CRM Connection', 'jetpack-forms' ) }
+										initialOpen={ false }
+									>
+										<CRMIntegrationSettings
+											jetpackCRM={ jetpackCRM }
+											setAttributes={ setAttributes }
+										/>
+									</PanelBody>
+								) }
+								<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
+									<NewsletterIntegrationSettings />
+								</PanelBody>
+							</Fragment>
+						) }
+					</InspectorControls>
+
+					<div className={ formClassnames } style={ style } ref={ ref }>
+						<InnerBlocks
+							allowedBlocks={ ALLOWED_BLOCKS }
+							prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
+							templateInsertUpdatesSelection={ false }
+						/>
+					</div>
+				</>
 			);
 		}
 
-		if ( ! hasInnerBlocks && registerBlockVariation ) {
-			return renderVariationPicker();
-		}
-
-		return (
-			<>
-				<InspectorControls>
-					{ ! attributes.formTitle && (
-						<PanelBody>
-							<Notice status="warning" isDismissible={ false }>
-								{ __(
-									'Add a heading inside the form or before it to help everybody identify it.',
-									'jetpack-forms'
-								) }
-							</Notice>{ ' ' }
-						</PanelBody>
-					) }
-					<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
-						<JetpackManageResponsesSettings setAttributes={ setAttributes } />
-					</PanelBody>
-					<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
-						{ renderSubmissionSettings() }
-					</PanelBody>
-					<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
-						<JetpackEmailConnectionSettings
-							emailAddress={ to }
-							emailSubject={ subject }
-							instanceId={ instanceId }
-							postAuthorEmail={ postAuthorEmail }
-							setAttributes={ setAttributes }
-						/>
-					</PanelBody>
-
-					{ isSalesForceExtensionEnabled && salesforceData?.sendToSalesforce && (
-						<SalesforceLeadFormSettings
-							salesforceData={ salesforceData }
-							setAttributes={ setAttributes }
-							instanceId={ instanceId }
-						/>
-					) }
-					{ ! ( isSimpleSite() || isAtomicSite() ) && (
-						<Fragment>
-							{ canUserInstallPlugins && (
-								<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
-									<CRMIntegrationSettings
-										jetpackCRM={ jetpackCRM }
-										setAttributes={ setAttributes }
-									/>
-								</PanelBody>
-							) }
-							<PanelBody title={ __( 'Creative Mail', 'jetpack-forms' ) } initialOpen={ false }>
-								<NewsletterIntegrationSettings />
-							</PanelBody>
-						</Fragment>
-					) }
-				</InspectorControls>
-
-				<div className={ formClassnames } style={ style } ref={ ref }>
-					<InnerBlocks
-						allowedBlocks={ ALLOWED_BLOCKS }
-						prioritizedInserterBlocks={ PRIORITIZED_INSERTER_BLOCKS }
-						templateInsertUpdatesSelection={ false }
-					/>
-				</div>
-			</>
-		);
+		return <div { ...blockProps }>{ elt }</div>;
 	}
 );
 
