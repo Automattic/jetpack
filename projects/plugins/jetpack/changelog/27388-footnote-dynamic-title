@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Footnotes now have a `title` attribute which displays their contents.
