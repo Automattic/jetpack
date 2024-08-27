@@ -130,8 +130,6 @@ gh release create "$TAG" "$SLUG.zip" \
 	--title "$TITLE"
 
 echo "::endgroup::"
-
-echo "::group::Uploading artifact to release"
 gh release upload "$TAG" "$SLUG.zip"
 
 echo "::endgroup::"
