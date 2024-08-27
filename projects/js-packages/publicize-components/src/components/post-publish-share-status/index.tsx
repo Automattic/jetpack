@@ -13,12 +13,15 @@ export function PostPublishShareStatus() {
 	const { featureFlags, postId, isPostPublised, willPostBeShared } = useSelect( select => {
 		const store = select( socialStore );
 
-		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
+		const _editorStore = select( editorStore ) as any;
+
+		const meta = _editorStore.getEditedPostAttribute( 'meta' );
 
 		return {
 			featureFlags: store.featureFlags(),
-			postId: select( editorStore ).getCurrentPostId(),
-			isPostPublised: select( editorStore ).isCurrentPostPublished(),
+			postId: _editorStore.getCurrentPostId(),
+			isPostPublised: _editorStore.isCurrentPostPublished(),
 			willPostBeShared: meta.jetpack_publicize_feature_enabled,
 		};
 	}, [] );
