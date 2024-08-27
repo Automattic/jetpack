@@ -158,8 +158,13 @@ export const suggestSpellingFixes = (
 ) => {
 	const spellChecker = getSpellChecker( { language } );
 
-	if ( ! spellChecker ) {
+	if ( ! spellChecker || ! text ) {
 		return [];
+	}
+
+	// capital_P_dangit
+	if ( text.toLocaleLowerCase() === 'wordpress' ) {
+		return [ 'WordPress' ];
 	}
 
 	const suggestions = spellChecker.suggest( text );
