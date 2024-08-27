@@ -188,6 +188,18 @@ class REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/share-status/(?P<post_id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_post_share_status' ),
+					'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -648,6 +660,29 @@ class REST_Controller {
 			'rest_cannot_edit',
 			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
 			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Gets the share status for a post.
+	 *
+	 * GET `jetpack/v4/social/share-status/<post_id>`
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 */
+	public function get_post_share_status( WP_REST_Request $request ) {
+		$post_id = $request->get_param( 'post_id' );
+
+		$shares = get_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, true );
+
+		// If the data is not an array, it means that sharing is not done yet.
+		$done = is_array( $shares );
+
+		return rest_ensure_response(
+			array(
+				'shares' => $done ? $shares : array(),
+				'done'   => $done,
+			)
 		);
 	}
 }

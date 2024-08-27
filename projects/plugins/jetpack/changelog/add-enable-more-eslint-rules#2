@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix incorrect case fall-through in `_inc/client/state/site/reducer.js`.
