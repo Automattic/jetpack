@@ -42,22 +42,23 @@ const useFairUsageNoticeMessage = () => {
 		: null;
 
 	// Translators: %s is the date when the requests will reset.
-	const fairUsageNoticeMessageTemplateWithDate = __(
+	const messageWithDate = __(
 		"You've reached this month's request limit, per our <link>fair usage policy</link>. Requests will reset on %s.",
 		'jetpack'
 	);
+	const formattedMessageWithDate = sprintf( messageWithDate, nextUsagePeriodStartDateString );
 
-	const fairUsageNoticeMessageTemplateWithoutDate = __(
+	const messageWithoutDate = __(
 		"You've reached this month's request limit, per our <link>fair usage policy</link>.",
 		'jetpack'
 	);
 
 	// Get the proper template based on the presence of the next usage period start date.
-	const fairUsageNoticeMessageTemplate = nextUsagePeriodStartDateString
-		? sprintf( fairUsageNoticeMessageTemplateWithDate, nextUsagePeriodStartDateString )
-		: fairUsageNoticeMessageTemplateWithoutDate;
+	const fairUsageNoticeMessage = nextUsagePeriodStartDateString
+		? formattedMessageWithDate
+		: messageWithoutDate;
 
-	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessageTemplate, {
+	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessage, {
 		link: (
 			<a
 				href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
