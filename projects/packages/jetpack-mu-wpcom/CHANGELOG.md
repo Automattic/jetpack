@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.59.0] - 2024-08-26
+### Added
+- Auto open Upload Theme dialog if query parameter is present [#39045]
+- Fixup project versions. [#38931]
+
+### Changed
+- MU WPCOM: Fix Post Publish Modal checkbox alignment [#38990]
+
+### Fixed
+- Bump package version [#39056]
+- MU WPCOM: Fix the coming soon isn't configured correctly if the settings changes from Coming Soon -> Private -> Coming Soon [#39010]
+
 ## [5.58.0] - 2024-08-23
 ### Added
 - Sync Calypso locale to Atomic Classic [#39009]
@@ -1177,6 +1189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.59.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.58.0...v5.59.0
 [5.58.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.1...v5.58.0
 [5.57.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.0...v5.57.1
 [5.57.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.56.0...v5.57.0
