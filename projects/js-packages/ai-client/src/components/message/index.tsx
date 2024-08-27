@@ -122,7 +122,7 @@ export function GuidelineMessage(): React.ReactElement {
  */
 export function FairUsageLimitMessage(): React.ReactElement {
 	const message = __(
-		"You've reached this month's request limit, per our <link>fair usage policy</link>.",
+		"You've reached this month's request limit, per our <link>fair usage policy</link>",
 		'jetpack-ai-client'
 	);
 	const element = createInterpolateElement( message, {
