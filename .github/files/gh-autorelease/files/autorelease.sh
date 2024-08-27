@@ -31,7 +31,7 @@ elif [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
 	GIT_SUFFIX=$( git log -1 --format=%h . )
 	TAG="$CURRENT_VER+rolling.$GIT_SUFFIX"
 else
-	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\` or \`trunk\` for rolling releases, got \`$GITHUB_REF\`"
+	echo "::error::Expected GITHUB_REF like \`refs/tags/v1.2.3\` or \`refs/tags/1.2.3\` or \`refs/heads/trunk\` for rolling releases, got \`$GITHUB_REF\`"
 	exit 1
 fi
 
