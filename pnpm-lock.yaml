@@ -1005,6 +1005,9 @@ importers:
       '@wordpress/data':
         specifier: 10.5.0
         version: 10.5.0(react@18.3.1)
+      '@wordpress/date':
+        specifier: 5.5.0
+        version: 5.5.0
       '@wordpress/edit-post':
         specifier: 8.5.0
         version: 8.5.0(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
