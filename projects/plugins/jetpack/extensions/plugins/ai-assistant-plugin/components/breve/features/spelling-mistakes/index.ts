@@ -143,7 +143,7 @@ export const addTextToDictionary = (
 	// Recompute the spell checker on the next call
 	delete spellCheckers[ language ];
 
-	reloadDictionary( SPELLING_MISTAKES.name );
+	reloadDictionary();
 
 	debug( 'Added text to the dictionary', text );
 };

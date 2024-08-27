@@ -50,6 +50,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				isFeatureEnabled,
 				isProofreadEnabled,
 				isFeatureDictionaryLoading,
+				getReloadFlag,
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
 			const { getAiAssistantFeature } = select( 'wordpress-com/plans' );
@@ -60,6 +61,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				isFeatureEnabled: isFeatureEnabled( config.name ),
 				ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				isFeatureDictionaryLoading: isFeatureDictionaryLoading( config.name ),
+				reloadFlag: getReloadFlag(), // Used to force a reload of the highlights
 			};
 		},
 
