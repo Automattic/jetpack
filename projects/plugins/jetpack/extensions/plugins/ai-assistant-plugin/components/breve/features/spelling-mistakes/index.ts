@@ -9,7 +9,7 @@ import nspell from 'nspell';
  * Internal dependencies
  */
 import getDictionary from '../../utils/get-dictionary';
-import a8c from './a8c.ts';
+import a8c from './a8c';
 /**
  * Types
  */
