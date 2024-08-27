@@ -55,11 +55,11 @@ const IDCScreen = props => {
 		initializeAnalytics( tracksEventData, tracksUserData );
 
 		if ( tracksEventData ) {
-			if ( tracksEventData.hasOwnProperty( 'isAdmin' ) && tracksEventData.isAdmin ) {
+			if ( Object.hasOwn( tracksEventData, 'isAdmin' ) && tracksEventData.isAdmin ) {
 				trackAndBumpMCStats( 'notice_view' );
 			} else {
 				trackAndBumpMCStats( 'non_admin_notice_view', {
-					page: tracksEventData.hasOwnProperty( 'currentScreen' )
+					page: Object.hasOwn( tracksEventData, 'currentScreen' )
 						? tracksEventData.currentScreen
 						: false,
 				} );

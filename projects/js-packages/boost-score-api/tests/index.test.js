@@ -82,7 +82,8 @@ describe( 'getScoreMovementPercentage', () => {
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 0 );
 
-		( changedMockData.scores.noBoost.desktop = 80 ), ( changedMockData.scores.noBoost.mobile = 70 );
+		changedMockData.scores.noBoost.desktop = 80;
+		changedMockData.scores.noBoost.mobile = 70;
 
 		expect( getScoreMovementPercentage( changedMockData.scores ) ).toBe( 13 );
 	} );

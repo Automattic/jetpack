@@ -160,7 +160,7 @@ export default function Player( {
 	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
 		attributes.posterData;
 
-	let timeToSetPlayerPosition = undefined;
+	let timeToSetPlayerPosition;
 	if ( type === 'video-frame' ) {
 		if ( previewOnHover ) {
 			timeToSetPlayerPosition = previewAtTime;

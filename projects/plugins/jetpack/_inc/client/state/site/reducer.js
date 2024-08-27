@@ -167,14 +167,14 @@ export const errors = ( state = {}, action ) => {
 			}
 
 			return assign( {}, state, {
-				message: action.error.hasOwnProperty( 'response' )
+				message: Object.hasOwn( action.error, 'response' )
 					? action.error.response.message
 					: defaultErrorMessage,
 				action: resolveAction,
-				code: action.error.hasOwnProperty( 'response' )
+				code: Object.hasOwn( action.error, 'response' )
 					? action.error.response.code
 					: 'fetch_site_data_fail_other',
-				data: action.error.hasOwnProperty( 'response' ) ? action.error.response.data : {},
+				data: Object.hasOwn( action.error, 'response' ) ? action.error.response.data : {},
 			} );
 		default:
 			return state;

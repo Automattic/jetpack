@@ -13,7 +13,7 @@ class TabbedSearchFilters extends Component {
 	};
 
 	renderStaticFilterComponent = configuration => {
-		if ( configuration.hasOwnProperty( 'visible' ) && ! configuration.visible ) {
+		if ( Object.hasOwn( configuration, 'visible' ) && ! configuration.visible ) {
 			return null;
 		}
 

@@ -32,7 +32,7 @@ export function mapObjectKeysToCamel( originalObject, deleteOriginalProp = false
 	const object = Object.assign( {}, originalObject );
 
 	for ( const key in object ) {
-		if ( object.hasOwnProperty( key ) && isSnake( key ) ) {
+		if ( Object.hasOwn( object, key ) && isSnake( key ) ) {
 			object[ snakeToCamel( key ) ] = object[ key ];
 
 			if ( deleteOriginalProp ) {

@@ -50,7 +50,7 @@ module.exports = ( babel, opts ) => {
 					callee = callee.expressions[ callee.expressions.length - 1 ];
 				}
 				const funcName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
-				if ( ! functions.hasOwnProperty( funcName ) ) {
+				if ( ! Object.hasOwn( functions, funcName ) ) {
 					return;
 				}
 				const idx = functions[ funcName ];

@@ -273,7 +273,7 @@ export function NewsletterPreviewModal( { isOpen, onClose, postId } ) {
 	);
 
 	useEffect( () => {
-		if ( isOpen && ! previewCache.hasOwnProperty( selectedAccess ) ) {
+		if ( isOpen && ! Object.hasOwn( previewCache, selectedAccess ) ) {
 			fetchPreview( selectedAccess );
 		} else if ( isOpen ) {
 			setIsLoading( false );

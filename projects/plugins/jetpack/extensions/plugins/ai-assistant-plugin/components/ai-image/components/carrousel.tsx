@@ -82,7 +82,7 @@ export default function Carrousel( {
 		</button>
 	);
 
-	const total = images?.filter?.( item => item?.generating || item.hasOwnProperty( 'image' ) )
+	const total = images?.filter?.( item => item?.generating || Object.hasOwn( item, 'image' ) )
 		?.length;
 
 	const actual = current === 0 && total === 0 ? 0 : current + 1;

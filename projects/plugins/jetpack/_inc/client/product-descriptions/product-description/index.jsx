@@ -27,7 +27,7 @@ const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
 
 	if (
 		isEmpty( product.includedInPlans ) ||
-		! availableProductsAndPlans.hasOwnProperty( upsellPlan ) ||
+		! Object.hasOwn( availableProductsAndPlans, upsellPlan ) ||
 		! product.includedInPlans.includes( upsellPlan )
 	) {
 		return false;
@@ -38,7 +38,7 @@ const getRelatedProductPlan = ( product, availableProductsAndPlans ) => {
 
 const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 	const illustration =
-		! hasRelatedPlan && productIllustrations.hasOwnProperty( product.key )
+		! hasRelatedPlan && Object.hasOwn( productIllustrations, product.key )
 			? productIllustrations[ product.key ]
 			: undefined;
 	let cta, icon;

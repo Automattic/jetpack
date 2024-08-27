@@ -20,7 +20,7 @@ beforeAll( () => {
 		'blockEditor.useSetting.before',
 		'extensions/blocks/button/test/controls',
 		( value, path ) => {
-			if ( overrideSettings.hasOwnProperty( path ) ) {
+			if ( Object.hasOwn( overrideSettings, path ) ) {
 				return overrideSettings[ path ];
 			}
 			return value;

@@ -130,7 +130,7 @@ function photonWpcomImage( url, opts = {} ) {
 	// Build query
 	for ( const [ k, v ] of Object.entries( opts ) ) {
 		urlObj.searchParams.set(
-			photonLibMappings.hasOwnProperty( k ) ? photonLibMappings[ k ] : k,
+			Object.hasOwn( photonLibMappings, k ) ? photonLibMappings[ k ] : k,
 			v
 		);
 	}

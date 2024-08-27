@@ -8,12 +8,12 @@ class BrokenToken {
 		);
 
 		this.setCustomBlogTokenButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.displayEditBlogToken();
 		} );
 
 		this.cancelEditBlogTokenButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.cancelEditBlogToken();
 		} );
 
@@ -26,12 +26,12 @@ class BrokenToken {
 		);
 
 		this.setCustomUserTokenButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.displayEditUserToken();
 		} );
 
 		this.cancelEditUserTokenButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.cancelEditUserToken();
 		} );
 
@@ -41,12 +41,12 @@ class BrokenToken {
 		this.cancelEditBlogIDButton = document.getElementById( 'broken-token-cancel-edit-blog-id' );
 
 		this.setCustomBlogIDButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.displayEditBlogID();
 		} );
 
 		this.cancelEditBlogIDButton.addEventListener( 'click', e => {
-			e.preventDefault;
+			e.preventDefault();
 			this.cancelEditBlogID();
 		} );
 	}

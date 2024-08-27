@@ -119,7 +119,7 @@
 				.then( body => {
 					const plugins = [];
 
-					if ( body.hasOwnProperty( 'plugins' ) ) {
+					if ( Object.hasOwn( body, 'plugins' ) ) {
 						const labels = new Set(
 							$.map( $( '.js-issue-labels a.IssueLabel' ), e => $( e ).data( 'name' ) )
 						);

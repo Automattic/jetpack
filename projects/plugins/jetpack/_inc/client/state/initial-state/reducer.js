@@ -652,7 +652,7 @@ export function getInitialRecommendationsStep( state ) {
  */
 export function getConnectionErrors( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
-		error.hasOwnProperty( 'action' )
+		Object.hasOwn( error, 'action' )
 	);
 }
 

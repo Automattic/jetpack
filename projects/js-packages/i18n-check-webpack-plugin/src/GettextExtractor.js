@@ -156,7 +156,7 @@ class GettextExtractor {
 						return;
 					}
 
-					if ( ! this.#functions.hasOwnProperty( callee.name ) ) {
+					if ( ! Object.hasOwn( this.#functions, callee.name ) ) {
 						return;
 					}
 
