@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.6.1 - 2024-08-26
+### Changed
+- Internal updates.
+
 ## 5.6.0 - 2024-08-23
 ### Added
 - Added social share status feature [#39023]
