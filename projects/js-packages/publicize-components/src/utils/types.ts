@@ -23,7 +23,6 @@ export type JetpackSocialPostMeta = {
 	jetpack_publicize_feature_enabled?: boolean;
 	jetpack_social_post_already_shared?: boolean;
 	jetpack_social_options?: JetpackSocialOptions;
-	jetpack_social_post_shares?: Array< object >;
 };
 
 export type UsePostMeta = {

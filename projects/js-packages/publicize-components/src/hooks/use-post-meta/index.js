@@ -27,8 +27,6 @@ export function usePostMeta() {
 			getShareMessageMaxLength()
 		);
 
-		const postShares = meta.jetpack_social_post_shares || [];
-
 		return {
 			isPublicizeEnabled,
 			jetpackSocialOptions,
@@ -36,7 +34,6 @@ export function usePostMeta() {
 			imageGeneratorSettings,
 			isPostAlreadyShared,
 			shareMessage,
-			postShares,
 		};
 	}, [] );
 
