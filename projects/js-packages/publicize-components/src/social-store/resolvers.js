@@ -1,6 +1,8 @@
+import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
+import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
 import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
 
@@ -58,8 +60,35 @@ export function getConnections() {
 	};
 }
 
+/**
+ * Resolves the post share status.
+ *
+ * @param {number} postId - The post ID.
+ *
+ * @return {Function} Resolver
+ */
+export function getPostShareStatus( postId ) {
+	return async ( { dispatch } ) => {
+		if ( ! postId ) {
+			return;
+		}
+
+		try {
+			dispatch( fetchPostShareStatus( postId ) );
+			const result = await apiFetch( {
+				path: `jetpack/v4/social/share-status/${ postId }`,
+			} );
+
+			dispatch( receivePostShareStaus( result, postId ) );
+		} catch ( error ) {
+			dispatch( fetchPostShareStatus( postId, false ) );
+		}
+	};
+}
+
 export default {
 	getJetpackSettings,
 	getSocialImageGeneratorSettings,
 	getConnections,
+	getPostShareStatus,
 };
