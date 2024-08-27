@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Shortcode: Get rid of custom shortcodes for Youtube and Vimeo in favor of Core
