@@ -168,16 +168,17 @@ add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		// If one of the following is true:
-		// - the user is not a member of the current site
-		// - the current site uses Default admin interface
-		//
-		// Then, the Edit Profile menu should point to /me, instead of the site's profile.php.
-		if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+		/**
+		 * The Edit Profile menu should point to /me, instead of the site's profile.php
+		 * if one of the following is true:
+		 * - the user is not a member of the current site
+		 * - the current site uses Default admin interface AND the site-level user profile is disabled
+		 */
+		if ( ! is_user_member_of_blog() || ( empty( get_option( 'wpcom_site_level_user_profile' ) ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) ) {
 
 			// Temporarily point to wpcalypso.wordpress.com for testing purposes.
 			$url = 'https://wordpress.com/me';
-			if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
+			if ( ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
 				$url = 'https://wpcalypso.wordpress.com/me';
 			}
 
@@ -202,7 +203,7 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 
 	// Temporarily point to wpcalypso.wordpress.com for testing purposes.
 	$url = 'https://wordpress.com/me/account';
-	if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
+	if ( ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
 		$url = 'https://wpcalypso.wordpress.com/me/account';
 	}
 
