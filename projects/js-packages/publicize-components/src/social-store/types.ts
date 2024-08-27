@@ -1,11 +1,3 @@
-export type SharesData = {
-	is_share_limit_enabled: boolean;
-	to_be_publicized_count: number;
-	share_limit: number;
-	publicized_count: number;
-	shared_posts_count: number;
-};
-
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
@@ -40,16 +32,32 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
+export type ShareStatusItem = Pick<
+	Connection,
+	'connection_id' | 'profile_link' | 'profile_picture'
+> & {
+	status: 'success' | 'failure';
+	message: string;
+	timestamp: number;
+	service: string;
+	external_name: string;
+};
+
+export type PostShareStatus = {
+	shares: Array< ShareStatusItem >;
+	done?: boolean;
+	loading?: boolean;
+};
+
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
-	connectionData: ConnectionData;
-	sharesData: SharesData;
 	// on post editor
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
 	useAdminUiV1?: boolean;
 	featureFlags?: Record< string, boolean >;
+	shareStatus?: { [ PostId: number ]: PostShareStatus };
 };
 
 export interface KeyringAdditionalUser {

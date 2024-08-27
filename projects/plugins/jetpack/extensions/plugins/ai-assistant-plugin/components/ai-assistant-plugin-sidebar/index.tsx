@@ -126,6 +126,12 @@ const JetpackAndSettingsContent = ( {
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
+
+			<PanelRow>
+				<ExternalLink href="https://automattic.com/ai-guidelines">
+					{ __( 'AI Guidelines', 'jetpack' ) }
+				</ExternalLink>
+			</PanelRow>
 		</>
 	);
 };

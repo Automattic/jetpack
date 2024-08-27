@@ -187,6 +187,19 @@ class Critical_CSS_State {
 	}
 
 	/**
+	 * Add providers to the state, sets their status to pending
+	 * and sets the generation status to pending.
+	 *
+	 * @param array $providers The providers to include in the state and set as pending.
+	 * @return $this
+	 */
+	public function prepare_for_generation( $providers ) {
+		$this->set_pending_providers( $providers );
+		$this->state['status'] = self::GENERATION_STATES['pending'];
+		return $this;
+	}
+
+	/**
 	 * Get fresh state
 	 */
 	public function get() {

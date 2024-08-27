@@ -15,7 +15,6 @@ class AddressEdit extends Component {
 	preventEnterKey( event ) {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
-			return;
 		}
 	}
 
