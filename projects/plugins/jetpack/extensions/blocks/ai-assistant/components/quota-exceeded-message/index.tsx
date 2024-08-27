@@ -32,31 +32,41 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
  */
 const useFairUsageNoticeMessage = () => {
 	const { usagePeriod } = useAiFeature();
-	const nextUsagePeriodStartDate = usagePeriod?.nextStart
-		? new Date( usagePeriod?.nextStart )
-		: null;
-	const nextUsagePeriodStartDateString = nextUsagePeriodStartDate
-		? nextUsagePeriodStartDate.toLocaleString( 'default', { month: 'long' } ) +
-		  ' ' +
-		  nextUsagePeriodStartDate.getDate()
-		: null;
 
-	// Translators: %s is the date when the requests will reset.
-	const messageWithDate = __(
-		"You've reached this month's request limit, per our <link>fair usage policy</link>. Requests will reset on %s.",
-		'jetpack'
-	);
-	const formattedMessageWithDate = sprintf( messageWithDate, nextUsagePeriodStartDateString );
+	const getFormatterUsagePeriodStartDate = planUsagePeriod => {
+		if ( ! planUsagePeriod?.nextStart ) {
+			return null;
+		}
 
-	const messageWithoutDate = __(
-		"You've reached this month's request limit, per our <link>fair usage policy</link>.",
-		'jetpack'
-	);
+		const nextUsagePeriodStartDate = new Date( planUsagePeriod.nextStart );
+		return (
+			nextUsagePeriodStartDate.toLocaleString( 'default', { month: 'long' } ) +
+			' ' +
+			nextUsagePeriodStartDate.getDate()
+		);
+	};
+
+	const getFairUsageNoticeMessage = resetDateString => {
+		const fairUsageMessage = __(
+			"You've reached this month's request limit, per our <link>fair usage policy</link>.",
+			'jetpack'
+		);
+
+		if ( ! resetDateString ) {
+			return fairUsageMessage;
+		}
+
+		// Translators: %s is the date when the requests will reset.
+		const dateMessage = __( 'Requests will reset on %s.', 'jetpack' );
+		const formattedDateMessage = sprintf( dateMessage, resetDateString );
+
+		return `${ fairUsageMessage } ${ formattedDateMessage }`;
+	};
+
+	const nextUsagePeriodStartDateString = getFormatterUsagePeriodStartDate( usagePeriod );
 
 	// Get the proper template based on the presence of the next usage period start date.
-	const fairUsageNoticeMessage = nextUsagePeriodStartDateString
-		? formattedMessageWithDate
-		: messageWithoutDate;
+	const fairUsageNoticeMessage = getFairUsageNoticeMessage( nextUsagePeriodStartDateString );
 
 	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessage, {
 		link: (
