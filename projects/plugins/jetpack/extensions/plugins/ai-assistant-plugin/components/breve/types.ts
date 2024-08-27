@@ -19,6 +19,7 @@ export type BreveState = {
 		enabled?: boolean;
 		disabled?: Array< string >;
 		loading?: Array< string >;
+		reload?: boolean;
 	};
 	suggestions?: {
 		[ key: string ]: {
@@ -67,6 +68,7 @@ export type BreveSelect = {
 		suggestion: string;
 	};
 	getIgnoredSuggestions: ( { blockId }: { blockId: string } ) => Array< string >;
+	getReloadFlag: () => boolean;
 };
 
 export type BreveDispatch = {
@@ -78,7 +80,7 @@ export type BreveDispatch = {
 	setDictionaryLoading( feature: string, loading: boolean ): void;
 	invalidateSuggestions: ( blockId: string ) => void;
 	invalidateSingleSuggestion: ( feature: string, blockId: string, id: string ) => void;
-	reloadDictionary: ( feature: string ) => void;
+	reloadDictionary: () => void;
 	ignoreSuggestion: ( blockId: string, id: string ) => void;
 	setBlockMd5: ( blockId: string, md5: string ) => void;
 	setSuggestions: ( suggestions: {
