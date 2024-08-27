@@ -304,6 +304,7 @@ jobs:
         with:
           name: test-output-${{ matrix.project }}
           path: ${{ matrix.path }}/output
+          include-hidden-files: true
 
   test-report:
     name: "Test report"
