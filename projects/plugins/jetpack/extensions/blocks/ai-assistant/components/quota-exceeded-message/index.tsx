@@ -262,7 +262,7 @@ const VIPUpgradePrompt = ( {
 const FairUsageNotice = () => {
 	const useFairUsageNoticeMessageElement = useFairUsageNoticeMessage();
 	return (
-		<Notice status="warning" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
+		<Notice status="error" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
 			{ useFairUsageNoticeMessageElement }
 		</Notice>
 	);
