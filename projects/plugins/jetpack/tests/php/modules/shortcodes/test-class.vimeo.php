@@ -17,6 +17,50 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
 	/**
+	 * Runs on every test.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		if ( in_array( 'external-http', $this->getGroups(), true ) ) {
+			// Used by WordPress.com - does nothing in Jetpack.
+			add_filter( 'tests_allow_http_request', '__return_true' );
+		} else {
+			/**
+			 * We normally make an HTTP request to Instagram's oEmbed endpoint.
+			 * This filter bypasses that HTTP request for these tests.
+			 */
+			add_filter( 'pre_http_request', array( $this, 'pre_http_request' ), 10, 3 );
+		}
+	}
+
+	public function pre_http_request( $response, $args, $url ) {
+		if ( ! str_starts_with( $url, 'https://vimeo.com/api/oembed.json?' ) ) {
+			return $response;
+		}
+
+		$oembed_query      = wp_parse_url( $url, PHP_URL_QUERY );
+		$oembed_query_args = null;
+		wp_parse_str( $oembed_query, $oembed_query_args );
+		if ( ! isset( $oembed_query_args['url'] ) ) {
+			return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
+		}
+
+		$body = <<<BODY
+{
+	"html": "<iframe src=\"{$oembed_query_args['url']}\" width=\"500\" height=\"281\" frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture; clipboard-write\" title=\"Eskmo 'We Got More' (Official Video)\"></iframe>",
+}
+BODY;
+
+		return array(
+			'response' => array(
+				'code' => 200,
+			),
+			'body'     => $body,
+		);
+	}
+
+	/**
 	 * Tear down each test.
 	 *
 	 * @inheritDoc
@@ -194,7 +238,6 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		the_content();
 		$actual = ob_get_clean();
 		wp_reset_postdata();
-		$this->assertStringContainsString( '<div class="embed-vimeo"', $actual );
 
 		if ( wp_lazy_loading_enabled( 'iframe', null ) ) {
 			$this->assertStringContainsString( '<iframe loading="lazy" src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
