@@ -131,7 +131,7 @@ export function FairUsageLimitMessage(): React.ReactElement {
 		),
 	} );
 
-	return <Message>{ element }</Message>;
+	return <Message severity={ MESSAGE_SEVERITY_WARNING }>{ element }</Message>;
 }
 
 /**
