@@ -70,9 +70,11 @@ const CountComparisonCard = ( { count = 0, previousCount = 0, icon, heading } ) 
 							{ difference > 0 && <Icon size={ 18 } icon={ arrowUp } /> }
 						</span>
 						<span className={ styles[ 'stats-card-difference-absolute-value' ] }>
-							{ differenceMagnitude > 9999
-								? formatNumber( differenceMagnitude, {} )
-								: formatNumber( differenceMagnitude ) }
+							{
+								differenceMagnitude > 9999
+									? formatNumber( differenceMagnitude ) // i.e.- 10.1K
+									: formatNumber( differenceMagnitude, {} ) // passing empty object removes the compact number formatting options, i.e.- 10,100
+							}
 						</span>
 						{ percentage !== null && (
 							<span className={ styles[ 'stats-card-difference-absolute-percentage' ] }>
