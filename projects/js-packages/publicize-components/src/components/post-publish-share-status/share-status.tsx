@@ -93,6 +93,10 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 		);
 	}
 
+	if ( ! shareStatus.done ) {
+		return <span>{ __( 'The request to your post is still in progress.', 'jetpack' ) }</span>;
+	}
+
 	if ( ! shareStatus.shares.length ) {
 		return <span>{ __( 'Your post was not shared.', 'jetpack' ) }</span>;
 	}
