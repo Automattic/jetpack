@@ -84,7 +84,7 @@ export class Lookup extends Component {
 			const selectedIndex =
 				filteredOptions.length === this.state.filteredOptions.length ? this.state.selectedIndex : 0;
 			this.setState( {
-				[ 'options' ]: keyedOptions,
+				options: keyedOptions,
 				filteredOptions,
 				selectedIndex,
 				isOpen: filteredOptions.length > 0,
