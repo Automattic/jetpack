@@ -16,7 +16,7 @@ function IDCModal() {
 		return null;
 	}
 
-	if ( ! window.hasOwnProperty( 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
+	if ( ! Object.hasOwn( window, 'JP_IDENTITY_CRISIS__INITIAL_STATE' ) ) {
 		return null;
 	}
 
