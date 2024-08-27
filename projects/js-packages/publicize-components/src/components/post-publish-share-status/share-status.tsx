@@ -85,7 +85,9 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 						numberOfFailedShares
 					) }
 				</p>
-				<Button variant="link">{ __( 'Review status and try again', 'jetpack' ) }</Button>
+				<Button variant="link" size="small">
+					{ __( 'Review status and try again', 'jetpack' ) }
+				</Button>
 			</Notice>
 		);
 	}
