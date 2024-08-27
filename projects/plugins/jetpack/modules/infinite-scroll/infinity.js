@@ -129,7 +129,7 @@
 			}
 
 			for ( var key in arguments[ i ] ) {
-				if ( arguments[ i ].hasOwnProperty( key ) ) {
+				if ( Object.hasOwn( arguments[ i ], key ) ) {
 					out[ key ] = arguments[ i ][ key ];
 				}
 			}

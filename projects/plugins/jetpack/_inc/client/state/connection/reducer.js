@@ -300,7 +300,7 @@ export function isConnectingUser( state ) {
  * @return {string|null} string if feature label exists, false otherwise.
  */
 export function getConnectingUserFeatureLabel( state ) {
-	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFeatureLabel' )
+	return Object.hasOwn( state.jetpack.connection.requests, 'connectingUserFeatureLabel' )
 		? state.jetpack.connection.requests.connectingUserFeatureLabel
 		: null;
 }
@@ -312,7 +312,7 @@ export function getConnectingUserFeatureLabel( state ) {
  * @return {string|null} string if "from" value exists, false otherwise.
  */
 export function getConnectingUserFrom( state ) {
-	return state.jetpack.connection.requests.hasOwnProperty( 'connectingUserFrom' )
+	return Object.hasOwn( state.jetpack.connection.requests, 'connectingUserFrom' )
 		? state.jetpack.connection.requests.connectingUserFrom
 		: null;
 }
