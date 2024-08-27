@@ -1,6 +1,10 @@
 .section-title {
 	display: flex;
 	font-weight: bold;
+
+	:global(.icon-tooltip-wrapper svg) {
+		color: #8c8f94;
+	}
 }
 
 .body {

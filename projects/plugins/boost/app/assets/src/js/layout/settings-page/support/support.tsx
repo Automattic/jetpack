@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Button } from '@automattic/jetpack-components';
 import styles from './support.module.scss';
 
 const Support = () => {
@@ -21,13 +22,9 @@ const Support = () => {
 						</p>
 					</div>
 					<div className={ styles.cta }>
-						<button
-							className="components-button jb-button jb-button--outline"
-							onClick={ openPaidSupport }
-							type="button"
-						>
+						<Button variant="secondary" onClick={ openPaidSupport }>
 							{ __( 'Contact Us', 'jetpack-boost' ) }
-						</button>
+						</Button>
 					</div>
 				</div>
 			</div>

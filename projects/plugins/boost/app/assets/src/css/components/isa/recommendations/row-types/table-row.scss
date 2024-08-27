@@ -53,6 +53,10 @@
 	border-bottom: var(--border);
 }
 
+.jb-table-row-container.expanded {
+	margin-bottom: var(--expanded-gap);
+}
+
 .jb-table-row {
 	min-height: 115px;
 	cursor: pointer;
@@ -108,7 +112,6 @@
 	padding-left: calc(var(--thumbnail-size) + var(--gap) * 2);
 
 	.expanded & {
-		margin-bottom: var(--expanded-gap);
 		border-bottom-right-radius: var(--border-radius);
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom: var(--border);
