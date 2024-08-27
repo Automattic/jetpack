@@ -675,9 +675,13 @@ class REST_Controller {
 
 		$shares = get_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, true );
 
+		// If the data is not an array, it means that sharing is not done yet.
+		$done = is_array( $shares );
+
 		return rest_ensure_response(
 			array(
-				'shares' => ! empty( $shares ) ? $shares : array(),
+				'shares' => $done ? $shares : array(),
+				'done'   => $done,
 			)
 		);
 	}

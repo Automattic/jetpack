@@ -44,8 +44,8 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 	const { invalidateResolution } = useDispatch( socialStore );
 
 	useEffect( () => {
-		if ( ! hasBeenMoreThanOneMinute && ! shareStatus.loading && ! shareStatus.shares.length ) {
-			// Fire the next request as soon as the previous one is done but we have no shares yet.
+		if ( ! hasBeenMoreThanOneMinute && ! shareStatus.loading && ! shareStatus.done ) {
+			// Fire the next request as soon as the previous one is done but we are not done yet.
 			invalidateResolution( 'getPostShareStatus', [ postId ] );
 		}
 	}, [
@@ -53,7 +53,7 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 		invalidateResolution,
 		postId,
 		shareStatus.loading,
-		shareStatus.shares.length,
+		shareStatus.done,
 	] );
 
 	if ( shareStatus.loading ) {
@@ -94,12 +94,12 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 	}
 
 	if ( ! shareStatus.shares.length ) {
-		return null;
+		return <span>{ __( 'Your post was not shared.', 'jetpack' ) }</span>;
 	}
 
 	return (
 		<>
-			<b>{ __( 'Your post was shared', 'jetpack' ) }</b>&nbsp;{ '🎉' }
+			<b>{ __( 'Your post was shared.', 'jetpack' ) }</b>&nbsp;{ '🎉' }
 			<p>
 				{ sprintf(
 					/* translators: %d: number of connections to which a post was shared */

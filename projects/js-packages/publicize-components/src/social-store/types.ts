@@ -45,6 +45,7 @@ export type ShareStatusItem = Pick<
 
 export type PostShareStatus = {
 	shares: Array< ShareStatusItem >;
+	done?: boolean;
 	loading?: boolean;
 };
 
