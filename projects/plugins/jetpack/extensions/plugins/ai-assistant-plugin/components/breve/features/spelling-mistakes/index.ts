@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import nspell from 'nspell';
@@ -16,6 +17,7 @@ import type {
 	SpellingDictionaryContext,
 	HighlightedText,
 	SpellChecker,
+	BreveDispatch,
 } from '../../types';
 
 const debug = debugFactory( 'jetpack-ai-breve:spelling-mistakes' );
@@ -28,13 +30,17 @@ export const SPELLING_MISTAKES: BreveFeatureConfig = {
 	defaultEnabled: false,
 };
 
-const spellcheckers: { [ key: string ]: SpellChecker } = {};
+const spellCheckers: { [ key: string ]: SpellChecker } = {};
 const contextRequests: {
 	[ key: string ]: { loading: boolean; loaded: boolean; failed: boolean };
 } = {};
 
 const fetchContext = async ( language: string ) => {
 	debug( 'Fetching spelling context from the server' );
+
+	const { setDictionaryLoading } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+
+	setDictionaryLoading( SPELLING_MISTAKES.name, true );
 
 	try {
 		contextRequests[ language ] = { loading: true, loaded: false, failed: false };
@@ -51,6 +57,8 @@ const fetchContext = async ( language: string ) => {
 		debug( 'Failed to fetch spelling context', error );
 		contextRequests[ language ] = { loading: false, loaded: false, failed: true };
 		// TODO: Handle retries
+	} finally {
+		setDictionaryLoading( SPELLING_MISTAKES.name, false );
 	}
 };
 
@@ -71,9 +79,9 @@ const getContext = ( language: string ) => {
 	return context;
 };
 
-const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
-	if ( spellcheckers[ language ] ) {
-		return spellcheckers[ language ];
+export const getSpellChecker = ( { language = 'en' }: { language?: string } = {} ) => {
+	if ( spellCheckers[ language ] ) {
+		return spellCheckers[ language ];
 	}
 
 	// Cannot await here as the Rich Text function needs to be synchronous.
@@ -85,37 +93,109 @@ const getSpellchecker = ( { language = 'en' }: { language?: string } = {} ) => {
 	}
 
 	const { affix, dictionary } = spellingContext;
-	spellcheckers[ language ] = nspell( affix, dictionary );
+	const spellChecker = nspell( affix, dictionary ) as unknown as SpellChecker;
 
-	return spellcheckers[ language ];
+	// Get the exceptions from the local storage
+	const exceptions: string[] = Array.from(
+		new Set(
+			JSON.parse(
+				localStorage.getItem( `jetpack-ai-breve-spelling-exceptions-${ language }` ) as string
+			) || []
+		)
+	);
+	exceptions.forEach( exception => spellChecker.add( exception ) );
+
+	spellCheckers[ language ] = spellChecker;
+
+	return spellCheckers[ language ];
 };
 
-export default function longSentences( text: string ): Array< HighlightedText > {
+export const addTextToDictionary = (
+	text: string,
+	{ language = 'en' }: { language?: string } = {}
+) => {
+	const spellChecker = getSpellChecker( { language } );
+	const { reloadDictionary } = dispatch( 'jetpack/ai-breve' ) as BreveDispatch;
+
+	if ( ! spellChecker ) {
+		return;
+	}
+
+	try {
+		// Save the new exception to the local storage
+		const current = new Set(
+			JSON.parse(
+				localStorage.getItem( `jetpack-ai-breve-spelling-exceptions-${ language }` ) as string
+			) || []
+		);
+
+		current.add( text );
+
+		localStorage.setItem(
+			`jetpack-ai-breve-spelling-exceptions-${ language }`,
+			JSON.stringify( Array.from( current ) )
+		);
+	} catch ( error ) {
+		debug( 'Failed to add text to the dictionary', error );
+		return;
+	}
+
+	// Recompute the spell checker on the next call
+	delete spellCheckers[ language ];
+
+	reloadDictionary( SPELLING_MISTAKES.name );
+
+	debug( 'Added text to the dictionary', text );
+};
+
+export const suggestSpellingFixes = (
+	text: string,
+	{ language = 'en' }: { language?: string } = {}
+) => {
+	const spellChecker = getSpellChecker( { language } );
+
+	if ( ! spellChecker ) {
+		return [];
+	}
+
+	const suggestions = spellChecker.suggest( text );
+
+	return suggestions;
+};
+
+export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
-	// Regex to match words, including contractions and hyphenated words
+	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[\p{L}\p{M}'-]+/, 'gu' );
-	const words = text.match( wordRegex ) || [];
-	const spellchecker = getSpellchecker();
+	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/, 'gu' );
+	const words = ( text.match( wordRegex ) || [] )
+		// Filter out words that start with special characters
+		.filter( word => [ '@', '#', '+', '$' ].indexOf( word[ 0 ] ) === -1 )
+		// Split hyphenated words into separate words as nspell doesn't work well with them
+		.map( word => word.split( '-' ) )
+		.flat();
+	const spellChecker = getSpellChecker();
 
-	if ( ! spellchecker ) {
+	if ( ! spellChecker ) {
 		return highlightedTexts;
 	}
 
-	words.forEach( ( word: string, index ) => {
-		if ( ! spellchecker.correct( word ) ) {
-			const suggestions = spellchecker.suggest( word );
+	// To avoid highlighting the same word occurrence multiple times
+	let searchStartIndex = 0;
 
-			if ( suggestions.length > 0 ) {
-				highlightedTexts.push( {
-					text: word,
-					startIndex: text.indexOf( word, index ),
-					endIndex: text.indexOf( word, index ) + word.length,
-					suggestions,
-				} );
-			}
+	words.forEach( ( word: string ) => {
+		const wordIndex = text.indexOf( word, searchStartIndex );
+
+		if ( ! spellChecker.correct( word ) ) {
+			highlightedTexts.push( {
+				text: word,
+				startIndex: wordIndex,
+				endIndex: wordIndex + word.length,
+			} );
 		}
+
+		searchStartIndex = wordIndex + word.length;
 	} );
 
 	return highlightedTexts;

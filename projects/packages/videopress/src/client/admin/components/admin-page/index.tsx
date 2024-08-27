@@ -108,8 +108,6 @@ const useDashboardVideos = () => {
 			setVideosQuery( {
 				search: searchFromSearchParam,
 			} );
-
-			return;
 		}
 	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
