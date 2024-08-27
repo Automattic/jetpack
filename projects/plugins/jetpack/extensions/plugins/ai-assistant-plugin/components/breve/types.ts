@@ -120,6 +120,7 @@ export type SpellChecker = {
 	correct: ( word: string ) => boolean;
 	suggest: ( word: string ) => Array< string >;
 	add: ( word: string ) => void;
+	personal: ( dic: string ) => void;
 };
 
 export type SpellingDictionaryContext = {
