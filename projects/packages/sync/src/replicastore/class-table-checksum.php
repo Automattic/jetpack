@@ -315,9 +315,13 @@ class Table_Checksum {
 				'checksum_fields'           => array( 'date_updated_gmt', 'total_amount' ),
 				'checksum_text_fields'      => array( 'type', 'status' ),
 				'filter_values'             => array(
-					'type' => array(
+					'type'   => array(
 						'operator' => 'IN',
 						'values'   => WooCommerce_HPOS_Orders::get_order_types_to_sync( true ),
+					),
+					'status' => array(
+						'operator' => 'IN',
+						'values'   => WooCommerce_HPOS_Orders::get_all_possible_order_status_keys(),
 					),
 				),
 				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_hpos_tables',

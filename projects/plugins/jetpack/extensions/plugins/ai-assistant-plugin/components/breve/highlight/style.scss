@@ -91,6 +91,16 @@
 			border-top: 1px solid #dcdcde;
 			width: 100%;
 
+			.jetpack-ai-breve__spelling-suggestion {
+				& + .jetpack-ai-breve__spelling-suggestion {
+					border-top: 1px solid #dcdcde;
+				}
+
+				&.components-button.is-tertiary {
+					padding: 8px 12px;
+				}
+			}
+
 			.jetpack-ai-breve__helper {
 				padding: 4px 8px;
 				background-color: #f6f7f7;
@@ -103,6 +113,11 @@
 				justify-content: space-between;
 				align-items: center;
 				gap: 8px;
+
+				.jetpack-ai-breve__helper-buttons-wrapper {
+					display: flex;
+					gap: 16px;
+				}
 
 				.components-button {
 					padding: 0px;
