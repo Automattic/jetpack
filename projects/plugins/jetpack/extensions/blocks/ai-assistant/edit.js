@@ -29,8 +29,8 @@ import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-a
 import { PLAN_TYPE_FREE, usePlanType } from '../../shared/use-plan-type';
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
+import QuotaExceededMessage from './components/quota-exceeded-message';
 import ToolbarControls from './components/toolbar-controls';
-import UpgradePrompt from './components/upgrade-prompt';
 import { getStoreBlockId } from './extensions/ai-assistant/with-ai-assistant';
 import useAIAssistant from './hooks/use-ai-assistant';
 import useAICheckout from './hooks/use-ai-checkout';
@@ -207,7 +207,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 	const handleGetSuggestion = ( ...args ) => {
 		getSuggestionFromOpenAI( ...args );
 		focusOnBlock();
-		return;
 	};
 
 	const handleChange = value => {
@@ -304,7 +303,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 
 	const banner = (
 		<>
-			{ isOverLimit && isSelected && <UpgradePrompt placement="ai-assistant-block" /> }
+			{ isOverLimit && isSelected && <QuotaExceededMessage placement="ai-assistant-block" /> }
 			{ ! connected && <ConnectPrompt /> }
 		</>
 	);

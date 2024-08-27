@@ -119,7 +119,7 @@ export function useDataSync<
 			try {
 				return datasync.getInitialValue();
 			} catch ( e ) {
-				return;
+				return undefined;
 			}
 		},
 	};
