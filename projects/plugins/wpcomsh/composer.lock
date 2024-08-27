@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1287f0f4286e1e9052b7615dc69c9271",
+    "content-hash": "db2d649fe88d2b70941a9a4b77d82753",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -1142,7 +1142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "acaaab4c89fce8ed6ad2ea4986cf3e1e6f127b14"
+                "reference": "7fc7349f067c70f35ec09b2028354537372ba24a"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1176,7 +1176,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.58.x-dev"
+                    "dev-trunk": "5.59.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1705,7 +1705,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "3aa7cced1324e48ba8d9fa601c2e4056837d15c5"
+                "reference": "64ed9303f16e3377d99091c67842f3c4b07b71eb"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1738,7 +1738,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.7.x-dev"
+                    "dev-trunk": "3.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
