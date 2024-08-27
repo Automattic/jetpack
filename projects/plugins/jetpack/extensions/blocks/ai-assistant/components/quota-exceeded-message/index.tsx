@@ -33,7 +33,7 @@ const debug = debugFactory( 'jetpack-ai-assistant:upgrade-prompt' );
 const useFairUsageNoticeMessage = () => {
 	const { usagePeriod } = useAiFeature();
 
-	const getFormatterUsagePeriodStartDate = planUsagePeriod => {
+	const getFormattedUsagePeriodStartDate = planUsagePeriod => {
 		if ( ! planUsagePeriod?.nextStart ) {
 			return null;
 		}
@@ -63,7 +63,7 @@ const useFairUsageNoticeMessage = () => {
 		return `${ fairUsageMessage } ${ formattedDateMessage }`;
 	};
 
-	const nextUsagePeriodStartDateString = getFormatterUsagePeriodStartDate( usagePeriod );
+	const nextUsagePeriodStartDateString = getFormattedUsagePeriodStartDate( usagePeriod );
 
 	// Get the proper template based on the presence of the next usage period start date.
 	const fairUsageNoticeMessage = getFairUsageNoticeMessage( nextUsagePeriodStartDateString );
