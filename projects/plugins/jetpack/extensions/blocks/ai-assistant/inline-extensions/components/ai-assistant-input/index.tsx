@@ -76,6 +76,13 @@ export default function AiAssistantInput( {
 		[ requireUpgrade, requestingState ]
 	);
 
+	/**
+	 * Show the fair usage message when the site is on the unlimited tier and was flagged as requireUpgrade.
+	 */
+	const showFairUsageMessage = useMemo( () => {
+		return requireUpgrade && currentTier?.value === 1;
+	}, [ requireUpgrade, currentTier ] );
+
 	const handleSend = useCallback( () => {
 		tracks.recordEvent( 'jetpack_ai_assistant_extension_generate', {
 			block_type: blockType,
@@ -165,6 +172,7 @@ export default function AiAssistantInput( {
 			error={ requestingError }
 			requestsRemaining={ requestsRemaining }
 			showUpgradeMessage={ showUpgradeMessage }
+			showFairUsageMessage={ showFairUsageMessage }
 			upgradeUrl={ checkoutUrl }
 			onChange={ setValue }
 			onSend={ handleSend }
