@@ -263,7 +263,7 @@ export default function Highlight() {
 
 	return (
 		<>
-			{ isPopoverOpen && (
+			{ isPopoverOpen && anchor?.parentElement && (
 				<Popover
 					anchor={ virtual }
 					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
