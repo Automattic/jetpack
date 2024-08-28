@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Mailchimp block: do not attempt to fetch groups when a site is not connected to Mailchimp yet.
