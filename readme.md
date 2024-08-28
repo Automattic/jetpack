@@ -26,6 +26,8 @@ ln -s /path/to/jetpack-monorepo/projects/plugins/jetpack /path/to/wordpress/wp-c
 
 On Windows (Vista and later), open an Administrator Command Prompt window and use `mklink /D` similarly.
 
+hello
+
 ## Contribute
 
 Thank you for thinking about contributing to Jetpack! If you're unsure of anything, feel free to submit an issue or pull request on any topic. The worst that can happen is that you'll be politely directed to the best location to ask your question or to change something in your pull request. There are a variety of options for how you can help:
