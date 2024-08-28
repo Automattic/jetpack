@@ -79,9 +79,9 @@ const invalidateEmbedResolutionFields = [
  * Re-arrange the tracks to match the block attribute format.
  * Also, check if the tracks is out of sync with the media item.
  *
- * @param {VideoDataProps} videoData        - Video data, provided by server.
+ * @param {VideoDataProps}       videoData  - Video data, provided by server.
  * @param {VideoBlockAttributes} attributes - Block attributes.
- * @returns {VideoBlockAttributes}            Video block attributes.
+ * @return {VideoBlockAttributes}            Video block attributes.
  */
 function arrangeTracksAttributes(
 	videoData: VideoDataProps,
@@ -143,9 +143,9 @@ function arrangeTracksAttributes(
  * React hook to keep the data in-sync
  * between the media item and the block attributes.
  *
- * @param {object} attributes      - Block attributes.
+ * @param {object}   attributes    - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
- * @returns {UseSyncMedia}      Hook API object.
+ * @return {UseSyncMedia}      Hook API object.
  */
 export function useSyncMedia(
 	attributes: VideoBlockAttributes,

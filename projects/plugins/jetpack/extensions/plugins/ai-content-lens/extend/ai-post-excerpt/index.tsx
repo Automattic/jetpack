@@ -17,7 +17,7 @@ import { count } from '@wordpress/wordcount';
 /**
  * Internal dependencies
  */
-import UpgradePrompt from '../../../../blocks/ai-assistant/components/upgrade-prompt';
+import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import { isBetaExtension } from '../../../../editor';
 import { AiExcerptControl } from '../../components/ai-excerpt-control';
@@ -145,7 +145,7 @@ function AiPostExcerpt() {
 	/**
 	 * Request AI for a new excerpt.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	function requestExcerpt(): void {
 		// Enable Generate button
@@ -236,7 +236,7 @@ ${ postContent }
 					</Notice>
 				) }
 
-				{ isOverLimit && <UpgradePrompt placement="excerpt-panel" /> }
+				{ isOverLimit && <QuotaExceededMessage placement="excerpt-panel" /> }
 
 				<AiExcerptControl
 					words={ excerptWordsNumber }

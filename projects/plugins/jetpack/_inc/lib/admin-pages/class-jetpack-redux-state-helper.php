@@ -248,7 +248,7 @@ class Jetpack_Redux_State_Helper {
 			'isSubscriptionSiteEnabled'     => apply_filters( 'jetpack_subscription_site_enabled', false ),
 			'newsletterDateExample'         => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported' => $current_theme->is_block_theme(),
-			'isGoogleAnalyticsActive'       => ( new Modules() )->is_active( 'google-analytics', false ),
+			'isMasterbarActive'             => ( new Modules() )->is_active( 'masterbar', false ),
 		);
 	}
 

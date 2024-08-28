@@ -11,7 +11,7 @@ const cache = {};
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - Issue number.
- * @returns {Promise<Array>} Promise resolving to an array of all comments on that given issue.
+ * @return {Promise<Array>} Promise resolving to an array of all comments on that given issue.
  */
 async function getComments( octokit, owner, repo, number ) {
 	const issueComments = [];
@@ -29,9 +29,9 @@ async function getComments( octokit, owner, repo, number ) {
 		issue_number: +number,
 		per_page: 100,
 	} ) ) {
-		response.data.map( comment => {
+		for ( const comment of response.data ) {
 			issueComments.push( comment );
-		} );
+		}
 	}
 
 	cache[ cacheKey ] = issueComments;

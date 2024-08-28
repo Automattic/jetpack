@@ -63,10 +63,10 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
+use Automattic\Jetpack\Schema\Parser;
+use Automattic\Jetpack\Schema\Schema_Context;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Context;
 
 final class Data_Sync {
 

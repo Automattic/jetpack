@@ -150,13 +150,7 @@ const MapEdit = ( {
 
 	const addPoint = point => {
 		const newPoints = points.slice( 0 );
-		let duplicateFound = false;
-		points.map( existingPoint => {
-			if ( existingPoint.id === point.id ) {
-				duplicateFound = true;
-			}
-		} );
-		if ( duplicateFound ) {
+		if ( points.some( existingPoint => existingPoint.id === point.id ) ) {
 			return;
 		}
 		newPoints.push( point );
@@ -183,10 +177,10 @@ const MapEdit = ( {
 	 * Event handler for the ResizableBox component. Updates both the height attribute,
 	 * and the map component's height in the DOM.
 	 *
-	 * @param {Event} event - The event object.
-	 * @param {string} direction - A string representing which resize handler was used.
-	 * @param {HTMLElement} elt - A ref to the ResizeableBox's container element.
-	 * @param {object} delta - Information about how far the element was resized.
+	 * @param {Event}       event     - The event object.
+	 * @param {string}      direction - A string representing which resize handler was used.
+	 * @param {HTMLElement} elt       - A ref to the ResizeableBox's container element.
+	 * @param {object}      delta     - Information about how far the element was resized.
 	 */
 	const onMapResize = ( event, direction, elt, delta ) => {
 		onResizeStop();

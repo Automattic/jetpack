@@ -14,7 +14,7 @@ type ConnectionNameProps = {
  *
  * @param {ConnectionNameProps} props - component props
  *
- * @returns {import('react').ReactNode} - React element
+ * @return {import('react').ReactNode} - React element
  */
 export function ConnectionName( { connection }: ConnectionNameProps ) {
 	const isUpdating = useSelect(

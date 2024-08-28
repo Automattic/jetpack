@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
-require_once __DIR__ . '/profile-edit.php';
 require_once __DIR__ . '/class-wpcom-user-profile-fields-revert.php';
 
 /**
