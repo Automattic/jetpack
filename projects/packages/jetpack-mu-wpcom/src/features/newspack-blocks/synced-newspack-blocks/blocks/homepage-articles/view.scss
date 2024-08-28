@@ -1,6 +1,6 @@
-@use '../../shared/sass/variables';
-@use '../../shared/sass/mixins';
-@use '../../shared/sass/preview';
+@use "../../shared/sass/variables";
+@use "../../shared/sass/mixins";
+@use "../../shared/sass/preview";
 
 :root {
 	--wpnbha-col-gap: 1em;
@@ -62,7 +62,7 @@
 			display: flex;
 			flex-flow: row wrap;
 			justify-content: flex-start;
-			gap: var( --wpnbha-col-gap );
+			gap: var(--wpnbha-col-gap);
 			padding: 0;
 			list-style: none;
 		}
@@ -73,7 +73,7 @@
 		}
 
 		.article-section-title {
-			margin-bottom: calc( 1em - var( --wpnbha-col-gap ) );
+			margin-bottom: calc(1em - var(--wpnbha-col-gap));
 		}
 	}
 
@@ -81,24 +81,24 @@
 		// width of column - ( column gap / number of columns * number of gaps )
 		&.columns-3 article,
 		&.columns-6 article {
-			flex-basis: calc( 33.33% - ( var( --wpnbha-col-gap ) / 3 * 2 ) - 0.1px );
+			flex-basis: calc(33.33% - ( var(--wpnbha-col-gap) / 3 * 2 ) - 0.1px);
 		}
 
 		&.is-style-borders.columns-3 article,
 		&.is-style-borders.columns-6 article {
-			flex-basis: calc( 33.33% - ( 2 * var( --wpnbha-col-gap ) / 3 * 2 ) - 1.1px );
+			flex-basis: calc(33.33% - ( 2 * var(--wpnbha-col-gap) / 3 * 2 ) - 1.1px);
 		}
 
 		&.columns-2 article,
 		&.columns-4 article,
 		&.columns-5 article {
-			flex-basis: calc( 50% - ( var( --wpnbha-col-gap ) / 2 ) - 0.1px );
+			flex-basis: calc(50% - ( var(--wpnbha-col-gap) / 2 ) - 0.1px);
 		}
 
 		&.is-style-borders.columns-2 article,
 		&.is-style-borders.columns-4 article,
 		&.is-style-borders.columns-5 article {
-			flex-basis: calc( 50% - ( 2 * var( --wpnbha-col-gap ) / 2 ) - 1.1px );
+			flex-basis: calc(50% - ( 2 * var(--wpnbha-col-gap) / 2 ) - 1.1px);
 		}
 
 		&.columns-5 article:last-of-type,
@@ -109,29 +109,29 @@
 
 	@include mixins.media( tablet ) {
 		&.columns-4 article {
-			flex-basis: calc( 25% - ( var( --wpnbha-col-gap ) / 4 * 3 ) - 0.1px );
+			flex-basis: calc(25% - ( var(--wpnbha-col-gap) / 4 * 3 ) - 0.1px);
 		}
 
 		&.is-style-borders.columns-4 article {
-			flex-basis: calc( 25% - ( 2 * var( --wpnbha-col-gap ) / 4 * 3 ) - 1.1px );
+			flex-basis: calc(25% - ( 2 * var(--wpnbha-col-gap) / 4 * 3 ) - 1.1px);
 		}
 
 		&.columns-5 article,
 		&.columns-5 article:last-of-type {
-			flex-basis: calc( 20% - ( var( --wpnbha-col-gap ) / 5 * 4 ) - 0.1px );
+			flex-basis: calc(20% - ( var(--wpnbha-col-gap) / 5 * 4 ) - 0.1px);
 		}
 
 		&.is-style-borders.columns-5 article,
 		&.is-style-borders.columns-5 article:last-of-type {
-			flex-basis: calc( 20% - ( 2 * var( --wpnbha-col-gap ) / 5 * 4 ) - 1.1px );
+			flex-basis: calc(20% - ( 2 * var(--wpnbha-col-gap) / 5 * 4 ) - 1.1px);
 		}
 
 		&.columns-6 article {
-			flex-basis: calc( 16.6666% - ( var( --wpnbha-col-gap ) / 6 * 5 ) - 0.1px );
+			flex-basis: calc(16.6666% - ( var(--wpnbha-col-gap) / 6 * 5 ) - 0.1px);
 		}
 
 		&.is-style-borders.columns-6 article {
-			flex-basis: calc( 16.6666% - ( 2 * var( --wpnbha-col-gap ) / 6 * 5 ) - 1.1px );
+			flex-basis: calc(16.6666% - ( 2 * var(--wpnbha-col-gap) / 6 * 5 ) - 1.1px);
 		}
 	}
 
@@ -239,7 +239,7 @@
 	}
 
 	.entry-meta {
-		.byline:not( :last-child ) {
+		.byline:not(:last-child) {
 			margin-right: 1.5em;
 		}
 
@@ -273,7 +273,7 @@
 		figcaption {
 			color: inherit;
 		}
-		.entry-meta span:not( .avatar ) {
+		.entry-meta span:not(.avatar) {
 			opacity: 0.8;
 		}
 	}
@@ -299,8 +299,8 @@
 				}
 
 				&::after {
-					background: rgba( 0, 0, 0, 0.5 );
-					content: '';
+					background: rgba(0, 0, 0, 0.5);
+					content: "";
 					inset: 0;
 					position: absolute;
 					z-index: 1;
@@ -331,7 +331,7 @@
 			bottom: 1em;
 			/* autoprefixer: ignore next */
 			-webkit-box-orient: vertical;
-			color: rgba( white, 0.9 );
+			color: rgba(white, 0.9);
 			display: -webkit-box;
 			font-style: italic;
 			left: 0;
@@ -348,7 +348,7 @@
 
 			a,
 			a:visited {
-			    color: #fff;
+				color: #fff;
 			}
 
 			@include mixins.media( desktop ) {
@@ -450,11 +450,11 @@
 			text-align: inherit;
 		}
 
-		.entry-date:not( :first-child ) {
+		.entry-date:not(:first-child) {
 			margin-left: 1.5em;
 		}
 
-		.entry-meta .byline:not( :last-child ) {
+		.entry-meta .byline:not(:last-child) {
 			margin: 0;
 		}
 	}
@@ -492,7 +492,7 @@
 		&.plus-author {
 			font-size: 0.9em;
 
-			&:not( :last-child ) {
+			&:not(:last-child) {
 				margin-bottom: 0.5rem;
 			}
 		}
@@ -688,13 +688,13 @@
 
 .wpnbha.is-style-borders {
 	article {
-		border: solid rgba( 0, 0, 0, 0.2 );
+		border: solid rgba(0, 0, 0, 0.2);
 		border-width: 0 0 1px;
 		box-sizing: content-box;
 		padding-bottom: 1em;
 
 		&:last-of-type {
-			&:not( :first-of-type ) {
+			&:not(:first-of-type) {
 				border-bottom: 0;
 				padding-right: 0;
 			}
@@ -710,19 +710,19 @@
 		&.columns-2,
 		&.columns-4,
 		&.columns-5 {
-			article:nth-of-type( odd ):not( :last-of-type ) {
+			article:nth-of-type(odd):not(:last-of-type) {
 				border-width: 0 1px 0 0;
-				padding-right: var( --wpnbha-col-gap );
+				padding-right: var(--wpnbha-col-gap);
 			}
 		}
 
 		&.columns-3,
 		&.columns-6 {
 			article {
-				&:nth-of-type( 3n + 1 ):not( :last-of-type ),
-				&:nth-of-type( 3n + 2 ):not( :last-of-type ) {
+				&:nth-of-type(3n + 1):not(:last-of-type),
+				&:nth-of-type(3n + 2):not(:last-of-type) {
 					border-width: 0 1px 0 0;
-					padding-right: var( --wpnbha-col-gap );
+					padding-right: var(--wpnbha-col-gap);
 				}
 			}
 		}
@@ -732,17 +732,17 @@
 		&.is-grid {
 			article {
 				border-width: 0 1px 0 0;
-				padding-right: var( --wpnbha-col-gap );
+				padding-right: var(--wpnbha-col-gap);
 			}
 		}
 
 		&.is-grid article:last-of-type,
 		&.columns-1 article,
-		&.columns-2 article:nth-of-type( 2n ),
-		&.columns-3 article:nth-of-type( 3n ),
-		&.columns-4 article:nth-of-type( 4n ),
-		&.columns-5 article:nth-of-type( 5n ),
-		&.columns-6 article:nth-of-type( 6n ) {
+		&.columns-2 article:nth-of-type(2n),
+		&.columns-3 article:nth-of-type(3n),
+		&.columns-4 article:nth-of-type(4n),
+		&.columns-5 article:nth-of-type(5n),
+		&.columns-6 article:nth-of-type(6n) {
 			border: 0;
 			padding-right: 0;
 		}
@@ -751,9 +751,9 @@
 
 @keyframes wpnbha-loading-animation {
 	from {
-		transform: rotate( 0deg );
+		transform: rotate(0deg);
 	}
 	to {
-		transform: rotate( 360deg );
+		transform: rotate(360deg);
 	}
 }

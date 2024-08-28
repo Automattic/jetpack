@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Search: Use the user's locale when formatting request limits.
