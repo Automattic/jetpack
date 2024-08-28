@@ -270,7 +270,7 @@ const VIPUpgradePrompt = ( {
  * The fair usage notice component.
  * @return {ReactElement} the Notice component with the fair usage message.
  */
-const FairUsageNotice = () => {
+export const FairUsageNotice = () => {
 	const useFairUsageNoticeMessageElement = useFairUsageNoticeMessage();
 	return (
 		<Notice status="error" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
