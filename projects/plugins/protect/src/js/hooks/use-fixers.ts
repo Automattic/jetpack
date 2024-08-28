@@ -12,7 +12,7 @@ export default function useFixers() {
 	const { fixableThreats } = status;
 	const fixersMutation = useFixersMutation();
 
-	const { data: fixersStatus } = useFixersQuery( { threatIds: fixableThreats } );
+	const { data: fixersStatus } = useFixersQuery( { threatIds: fixableThreats, usePolling: true } );
 
 	const fixThreats = async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds );
 
@@ -20,5 +20,6 @@ export default function useFixers() {
 		fixableThreats,
 		fixersStatus,
 		fixThreats,
+		isLoading: fixersMutation.isPending,
 	};
 }

@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useState } from 'react';
-import useFixersMutation from '../../data/scan/use-fixers-mutation';
+import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
 import CredentialsGate from '../credentials-gate';
 import ThreatFixHeader from '../threat-fix-header';
@@ -10,25 +10,25 @@ import styles from './styles.module.scss';
 
 const FixAllThreatsModal = ( { threatList = [] } ) => {
 	const { setModal } = useModal();
-	const fixersMutation = useFixersMutation();
+	const { fixThreats, isLoading: isFixersLoading } = useFixers();
 
 	const [ threatIds, setThreatIds ] = useState( threatList.map( ( { id } ) => parseInt( id ) ) );
 
-	const handleCancelClick = () => {
+	const handleCancelClick = useCallback( () => {
 		return event => {
 			event.preventDefault();
 			setModal( { type: null } );
 		};
-	};
+	}, [ setModal ] );
 
-	const handleFixClick = () => {
+	const handleFixClick = useCallback( () => {
 		return async event => {
 			event.preventDefault();
 
-			await fixersMutation.mutateAsync( threatIds );
+			await fixThreats( threatIds );
 			setModal( { type: null } );
 		};
-	};
+	}, [ fixThreats, setModal, threatIds ] );
 
 	const handleCheckboxClick = useCallback(
 		( checked, threat ) => {
@@ -67,7 +67,7 @@ const FixAllThreatsModal = ( { threatList = [] } ) => {
 						{ __( 'Cancel', 'jetpack-protect' ) }
 					</Button>
 					<Button
-						isLoading={ fixersMutation.isLoading }
+						isLoading={ isFixersLoading }
 						onClick={ handleFixClick() }
 						disabled={ ! threatIds.length }
 					>
