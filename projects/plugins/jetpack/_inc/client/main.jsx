@@ -960,14 +960,69 @@ export default connect(
 	} )( withRouter( Main ) )
 );
 
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Determines the page order of My Jetpack, Activity Log, Dashboard, and Settings in the left sidebar.
+ * @return {object} Object with keys for each page and values for the order of the page in the sidebar.
+ */
+function jetpackPageOrder() {
+	const jetpackParentMenu = document.querySelector( '#toplevel_page_jetpack' );
+	const pageOrder = {};
+
+	if ( jetpackParentMenu ) {
+		const jetpackSubMenu = jetpackParentMenu.querySelector( '.wp-submenu' );
+
+		if ( jetpackSubMenu ) {
+			const subMenuItems = jetpackSubMenu.querySelectorAll( 'li:not(.wp-submenu-head) a' );
+
+			const urlPatterns = [
+				{
+					key: 'dashboard',
+					pattern: '/wp-admin/admin.php?page=jetpack#/dashboard',
+					matchType: 'end',
+				},
+				{
+					key: 'activityLog',
+					pattern: 'https://jetpack.com/redirect/?source=cloud-activity-log-wp-menu',
+					matchType: 'start',
+				},
+				{
+					key: 'settings',
+					pattern: '/wp-admin/admin.php?page=jetpack#/settings',
+					matchType: 'end',
+				},
+			];
+
+			const findIndex = ( urlPattern, matchType ) => {
+				let foundIndex = -1;
+				subMenuItems.forEach( ( item, index ) => {
+					const href = item.href;
+					if (
+						( matchType === 'end' && href.endsWith( urlPattern ) ) ||
+						( matchType === 'start' && href.startsWith( urlPattern ) )
+					) {
+						foundIndex = index + 1;
+					}
+				} );
+				return foundIndex;
+			};
+
+			urlPatterns.forEach( ( { key, pattern, matchType } ) => {
+				const index = findIndex( pattern, matchType );
+				pageOrder[ key ] = index;
+			} );
+			return pageOrder;
+		}
+	}
+}
+
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
  *
- * @param pageOrder
  */
-window.wpNavMenuClassChange = function (
-	pageOrder = { myJetpack: 1, activityLog: 2, dashboard: 3, settings: 4 }
-) {
+window.wpNavMenuClassChange = function () {
+	const pageOrder = jetpackPageOrder();
+
 	let hash = window.location.hash;
 	let page = new URLSearchParams( window.location.search );
 
