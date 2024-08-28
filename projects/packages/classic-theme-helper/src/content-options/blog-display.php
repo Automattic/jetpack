@@ -2,7 +2,7 @@
 /**
  * Theme Tools: the functions to display Content or Excerpt in a theme.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 /**
@@ -43,7 +43,7 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 		if ( ! empty( $content ) ) {
 			_doing_it_wrong(
 				'jetpack_blog_display_custom_excerpt',
-				esc_html__( 'You do not need to pass a $content parameter anymore.', 'jetpack' ),
+				esc_html__( 'You do not need to pass a $content parameter anymore.', 'jetpack-classic-theme-helper' ),
 				'jetpack-9.7.0'
 			);
 		}
@@ -67,7 +67,7 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 			* enter 'characters_excluding_spaces' or 'characters_including_spaces'. Otherwise, enter 'words'.
 			* Do not translate into your own language.
 			*/
-			if ( strpos( _x( 'words', 'Word count type. Do not translate!', 'jetpack' ), 'characters' ) === 0 && preg_match( '/^utf\-?8$/i', get_option( 'blog_charset' ) ) ) {
+			if ( strpos( _x( 'words', 'Word count type. Do not translate!', 'jetpack-classic-theme-helper' ), 'characters' ) === 0 && preg_match( '/^utf\-?8$/i', get_option( 'blog_charset' ) ) ) {
 				$text = trim( preg_replace( "/[\n\r\t ]+/", ' ', $text ), ' ' );
 				preg_match_all( '/./u', $text, $words );
 				$words = array_slice( $words[0], 0, $excerpt_length + 1 );
@@ -79,8 +79,8 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 
 			if ( count( $words ) > $excerpt_length ) {
 				array_pop( $words );
-				$text = implode( $sep, $words );
-				$text = $text . $excerpt_more;
+				$text  = implode( $sep, $words );
+				$text .= $excerpt_more;
 			} else {
 				$text = implode( $sep, $words );
 			}
@@ -102,7 +102,7 @@ if ( ! function_exists( 'jetpack_the_content_to_the_excerptt' ) ) {
 	function jetpack_the_content_to_the_excerpt( $content ) {
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			if ( post_password_required() ) {
-				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
+				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack-classic-theme-helper' ) );
 			} else {
 				$excerpt = jetpack_blog_display_custom_excerpt();
 			}
@@ -130,7 +130,7 @@ if ( ! function_exists( 'jetpack_the_excerpt_to_the_content' ) ) {
 				sprintf(
 					wp_kses(
 						/* translators: %s: Name of current post. Only visible to screen readers */
-						__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
+						__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack-classic-theme-helper' ),
 						array(
 							'span' => array(
 								'class' => array(),
@@ -158,7 +158,7 @@ if ( ! function_exists( 'jetpack_the_content_customizer' ) ) {
 		$class = jetpack_the_content_customizer_class();
 		if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 			if ( post_password_required() ) {
-				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
+				$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack-classic-theme-helper' ) );
 			} else {
 				$excerpt = jetpack_blog_display_custom_excerpt();
 			}
@@ -186,7 +186,7 @@ if ( ! function_exists( 'jetpack_the_excerpt_customizer' ) ) {
 				sprintf(
 					wp_kses(
 						/* translators: %s: Name of current post. Only visible to screen readers */
-						__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack' ),
+						__( 'Continue reading<span class="screen-reader-text"> "%s"</span>', 'jetpack-classic-theme-helper' ),
 						array(
 							'span' => array(
 								'class' => array(),
