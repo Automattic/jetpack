@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Always rewrite profile.php to /me on Default sites

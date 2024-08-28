@@ -24,7 +24,7 @@ import { siteHasFeature } from 'state/site';
 /**
  * Jetpack AI Dashboard card.
  * @param {object} props - Component props
- * @returns {object} DashJetpackAi component
+ * @return {object} DashJetpackAi component
  */
 function DashJetpackAi( props ) {
 	const { hasFeature, hasConnectedOwner, isOffline, isMyJetpackReachable } = props;

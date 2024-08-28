@@ -1,14 +1,16 @@
+import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { setConnections } from './actions/connection-data';
 import { setJetpackSettings } from './actions/jetpack-settings';
+import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
 import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
 
 /**
  * Yield actions to get the Jetpack settings.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getJetpackSettings() {
 	try {
@@ -25,8 +27,8 @@ export function* getJetpackSettings() {
 /**
  * Yield actions to get the Social Image Generator settings.
  *
- * @yields {object} - an action object.
- * @returns {object} - an action object.
+ * @yield {object} - an action object.
+ * @return {object} - an action object.
  */
 export function* getSocialImageGeneratorSettings() {
 	try {
@@ -43,7 +45,7 @@ export function* getSocialImageGeneratorSettings() {
 /**
  * Resolves the connections from the post.
  *
- * @returns {Function} Resolver
+ * @return {Function} Resolver
  */
 export function getConnections() {
 	return function ( { dispatch, registry } ) {
@@ -58,8 +60,35 @@ export function getConnections() {
 	};
 }
 
+/**
+ * Resolves the post share status.
+ *
+ * @param {number} postId - The post ID.
+ *
+ * @return {Function} Resolver
+ */
+export function getPostShareStatus( postId ) {
+	return async ( { dispatch } ) => {
+		if ( ! postId ) {
+			return;
+		}
+
+		try {
+			dispatch( fetchPostShareStatus( postId ) );
+			const result = await apiFetch( {
+				path: `jetpack/v4/social/share-status/${ postId }`,
+			} );
+
+			dispatch( receivePostShareStaus( result, postId ) );
+		} catch ( error ) {
+			dispatch( fetchPostShareStatus( postId, false ) );
+		}
+	};
+}
+
 export default {
 	getJetpackSettings,
 	getSocialImageGeneratorSettings,
 	getConnections,
+	getPostShareStatus,
 };

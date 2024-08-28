@@ -1,4 +1,4 @@
-import { InnerBlocks } from '@wordpress/block-editor';
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -17,6 +17,7 @@ import { useFormWrapper } from './util/form';
 import renderMaterialIcon from './util/render-material-icon';
 
 const FieldDefaults = {
+	apiVersion: 3,
 	category: 'contact-form',
 	supports: {
 		reusable: false,
@@ -229,6 +230,7 @@ const FieldDefaults = {
 };
 
 const OptionFieldDefaults = {
+	apiVersion: 3,
 	category: 'contact-form',
 	edit: JetpackFieldOptionEdit,
 	attributes: {
@@ -675,7 +677,15 @@ export const childBlocks = [
 				/>
 			),
 			edit: editMultiField( 'checkbox' ),
-			save: () => <InnerBlocks.Content />,
+			save: () => {
+				const blockProps = useBlockProps.save();
+
+				return (
+					<div { ...blockProps }>
+						<InnerBlocks.Content />
+					</div>
+				);
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -713,7 +723,15 @@ export const childBlocks = [
 				</Fragment>
 			),
 			edit: editMultiField( 'radio' ),
-			save: () => <InnerBlocks.Content />,
+			save: () => {
+				const blockProps = useBlockProps.save();
+
+				return (
+					<div { ...blockProps }>
+						<InnerBlocks.Content />
+					</div>
+				);
+			},
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {

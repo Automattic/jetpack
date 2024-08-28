@@ -8,6 +8,8 @@ import { FormFieldset } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
@@ -45,7 +47,7 @@ export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {object}
+	 * @return {object}
 	 */
 	state = {
 		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
@@ -78,7 +80,7 @@ export const Waf = class extends Component {
 	 * Get a custom error message based on the error code.
 	 *
 	 * @param {object} error - Error object.
-	 * @returns {string|boolean} Custom error message or false if no custom message exists.
+	 * @return {string|boolean} Custom error message or false if no custom message exists.
 	 */
 	getCustomErrorMessage = error => {
 		switch ( error.code ) {
@@ -94,7 +96,7 @@ export const Waf = class extends Component {
 	/**
 	 * Handle settings updates.
 	 *
-	 * @returns {void}
+	 * @return {void}
 	 */
 	onSubmit = () => {
 		this.props.removeNotice( 'module-setting-update' );
@@ -499,6 +501,18 @@ export const Waf = class extends Component {
 				hideButton={ true }
 			>
 				{ isWafActive && <QueryWafSettings /> }
+				<SimpleNotice
+					showDismiss={ false }
+					status="is-info"
+					text={ __(
+						'The settings for the Firewall will be moved to Jetpack Protect in Jetpack version 13.10.',
+						'jetpack'
+					) }
+				>
+					<NoticeAction href={ this.props.getProtectUrl }>
+						{ __( 'Get Jetpack Protect', 'jetpack' ) }
+					</NoticeAction>
+				</SimpleNotice>
 				<SettingsGroup
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }
@@ -545,6 +559,7 @@ export default connect(
 			isProtectActive: PROTECT_PLUGIN_FILES.some( pluginFile =>
 				isPluginActive( state, pluginFile )
 			),
+			getProtectUrl: `${ getSiteAdminUrl( state ) }admin.php?page=my-jetpack#/add-protect`,
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
 			settings: getWafSettings( state ),

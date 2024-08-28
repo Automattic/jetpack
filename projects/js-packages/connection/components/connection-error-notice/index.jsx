@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
  * The RNA Connection Error Notice component.
  *
  * @param {object} props -- The properties.
- * @returns {React.Component} The `ConnectionErrorNotice` component.
+ * @return {React.Component} The `ConnectionErrorNotice` component.
  */
 const ConnectionErrorNotice = props => {
 	const { message, isRestoringConnection, restoreConnectionCallback, restoreConnectionError } =

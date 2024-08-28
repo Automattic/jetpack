@@ -1,11 +1,11 @@
 <?php
 
+use Automattic\Jetpack\Schema\Schema;
+use Automattic\Jetpack\Schema\Schema_Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Meta_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Getting_Started_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Mergeable_Array_Entry;
@@ -39,7 +39,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  * Make it easier to register a Jetpack Boost Data-Sync option.
  *
  * @param string                                                           $key - The key for this option.
- * @param \Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser                $parser - The schema for this option.
+ * @param \Automattic\Jetpack\Schema\Parser                                $parser - The schema for this option.
  * @param \Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get|null $entry - The entry handler for this option.
  */
 function jetpack_boost_register_option( $key, $parser, $entry = null ) {

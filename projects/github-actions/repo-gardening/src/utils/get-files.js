@@ -11,7 +11,7 @@ const cache = {};
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- * @returns {Promise<Array>} Promise resolving to an array of all files modified in  that PR.
+ * @return {Promise<Array>} Promise resolving to an array of all files modified in  that PR.
  */
 async function getFiles( octokit, owner, repo, number ) {
 	const fileList = [];
@@ -29,12 +29,12 @@ async function getFiles( octokit, owner, repo, number ) {
 		pull_number: +number,
 		per_page: 100,
 	} ) ) {
-		response.data.map( file => {
+		for ( const file of response.data ) {
 			fileList.push( file.filename );
 			if ( file.previous_filename ) {
 				fileList.push( file.previous_filename );
 			}
-		} );
+		}
 	}
 
 	cache[ cacheKey ] = fileList;

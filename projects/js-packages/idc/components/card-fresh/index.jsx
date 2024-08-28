@@ -14,7 +14,7 @@ import ErrorMessage from '../error-message';
  * Render the error message.
  *
  * @param {string} supportURL - The support page URL.
- * @returns {React.Component} The error message.
+ * @return {React.Component} The error message.
  */
 const renderError = supportURL => {
 	return (
@@ -49,7 +49,7 @@ const renderComparisonUrls = ( wpcomHostName, currentHostName ) => {
  * The "start fresh" card.
  *
  * @param {object} props - The properties.
- * @returns {React.Component} The `ConnectScreen` component.
+ * @return {React.Component} The `ConnectScreen` component.
  */
 const CardFresh = props => {
 	const {
