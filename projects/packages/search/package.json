@@ -91,7 +91,7 @@
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"size-limit": "11.1.4",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	},
 	"browserslist": [
