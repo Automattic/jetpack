@@ -5,7 +5,7 @@ export type JetpackSettingsContentProps = {
 	requireUpgrade: boolean;
 	upgradeType: string;
 	showUsagePanel: boolean;
-	showQuotaExceeded: boolean;
+	showFairUsageNotice: boolean;
 };
 
 export type CoreSelect = {
