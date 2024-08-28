@@ -7,7 +7,7 @@ import { store as socialStore } from '../../../social-store';
 import {
 	connections as connectionsList,
 	createRegistryWithStores,
-	testPost,
+	postPublishFetchHandler,
 } from '../../../utils/test-utils';
 
 const connections = connectionsList.map( connection => ( { ...connection, enabled: true } ) );
@@ -15,9 +15,6 @@ const connections = connectionsList.map( connection => ( { ...connection, enable
 const post = {
 	jetpack_publicize_connections: [ connections[ 0 ] ],
 };
-
-const getMethod = options =>
-	options.headers?.[ 'X-HTTP-Method-Override' ] || options.method || 'GET';
 
 describe( 'useSyncPostDataToStore', () => {
 	it( 'should do nothing by default', async () => {
@@ -67,37 +64,7 @@ describe( 'useSyncPostDataToStore', () => {
 		await registry.resolveSelect( socialStore ).getConnections();
 
 		// Mock apiFetch response.
-		apiFetch.setFetchHandler( async options => {
-			const method = getMethod( options );
-			const { path, data, parse = true } = options;
-
-			const wrapReturn = parse
-				? v => v
-				: v =>
-						// Ideally we'd do `new Response( JSON.stringify( v ) )` here, but jsdom deletes that. Sigh.
-						// See https://github.com/jsdom/jsdom/issues/1724
-						( {
-							async json() {
-								return v;
-							},
-						} );
-
-			if ( method === 'PUT' && path.startsWith( `/wp/v2/posts/${ testPost.id }` ) ) {
-				return wrapReturn( { ...post, ...data } );
-			} else if (
-				// This URL is requested by the actions dispatched in this test.
-				// They are safe to ignore and are only listed here to avoid triggeringan error.
-				method === 'GET' &&
-				path.startsWith( '/wp/v2/types/post' )
-			) {
-				return wrapReturn( {} );
-			}
-
-			throw {
-				code: 'unknown_path',
-				message: `Unknown path: ${ method } ${ path }`,
-			};
-		} );
+		apiFetch.setFetchHandler( postPublishFetchHandler( post ) );
 
 		const prevConnections = registry.select( socialStore ).getConnections();
 
