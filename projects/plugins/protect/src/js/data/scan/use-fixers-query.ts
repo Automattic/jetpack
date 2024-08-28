@@ -36,7 +36,7 @@ export default function useFixersQuery( {
 
 			if (
 				Object.values( query.state.data.threats ).some(
-					threat => ( threat as { status: string } ).status === 'in_progress'
+					( threat: { status: string } ) => threat.status === 'in_progress'
 				)
 			) {
 				return 5_000;
