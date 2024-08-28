@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Jetpack_options;
+use Jetpack_Options;
 use WP_Error;
 
 /**
