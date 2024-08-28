@@ -14,7 +14,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import QuotaExceededMessage from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
+import { FairUsageNotice } from '../../../../blocks/ai-assistant/components/quota-exceeded-message';
 import useAICheckout from '../../../../blocks/ai-assistant/hooks/use-ai-checkout';
 import useAiFeature from '../../../../blocks/ai-assistant/hooks/use-ai-feature';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
@@ -66,7 +66,7 @@ const JetpackAndSettingsContent = ( {
 	requireUpgrade,
 	upgradeType,
 	showUsagePanel,
-	showQuotaExceeded,
+	showFairUsageNotice,
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
@@ -80,6 +80,14 @@ const JetpackAndSettingsContent = ( {
 
 	return (
 		<>
+			{ showFairUsageNotice && (
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
+					<BaseControl>
+						<FairUsageNotice variant="muted" />
+					</BaseControl>
+				</PanelRow>
+			) }
+
 			{ isBreveAvailable && (
 				<PanelRow>
 					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
@@ -116,12 +124,6 @@ const JetpackAndSettingsContent = ( {
 			{ isUsagePanelAvailable && showUsagePanel && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<UsagePanel placement={ placement } />
-				</PanelRow>
-			) }
-
-			{ showQuotaExceeded && (
-				<PanelRow>
-					<QuotaExceededMessage />
 				</PanelRow>
 			) }
 
@@ -179,7 +181,7 @@ export default function AiAssistantPluginSidebar() {
 
 	const showUsagePanel =
 		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
-	const showQuotaExceeded = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
+	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 
 	return (
 		<>
@@ -198,7 +200,7 @@ export default function AiAssistantPluginSidebar() {
 						requireUpgrade={ requireUpgrade }
 						upgradeType={ upgradeType }
 						showUsagePanel={ showUsagePanel }
-						showQuotaExceeded={ showQuotaExceeded }
+						showFairUsageNotice={ showFairUsageNotice }
 					/>
 				</PanelBody>
 			</JetpackPluginSidebar>
@@ -213,7 +215,7 @@ export default function AiAssistantPluginSidebar() {
 					requireUpgrade={ requireUpgrade }
 					upgradeType={ upgradeType }
 					showUsagePanel={ showUsagePanel }
-					showQuotaExceeded={ showQuotaExceeded }
+					showFairUsageNotice={ showFairUsageNotice }
 				/>
 			</PluginDocumentSettingPanel>
 
