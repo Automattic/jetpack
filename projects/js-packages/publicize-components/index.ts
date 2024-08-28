@@ -36,3 +36,4 @@ export * from './src/components/share-buttons';
 export * from './src/components/manage-connections-modal';
 export * from './src/utils/script-data';
 export * from './src/utils/shares-data';
+export * from './src/components/global-modals';

@@ -49,13 +49,19 @@ export type PostShareStatus = {
 	loading?: boolean;
 };
 
+export type ShareStatus = {
+	isModalOpen?: boolean;
+	[ PostId: number ]: PostShareStatus;
+};
+
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
+	connectionData: ConnectionData;
 	// on post editor
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
-	shareStatus?: { [ PostId: number ]: PostShareStatus };
+	shareStatus?: ShareStatus;
 };
 
 export interface KeyringAdditionalUser {
