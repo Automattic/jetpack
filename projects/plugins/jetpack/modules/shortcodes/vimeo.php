@@ -22,16 +22,25 @@
 function jetpack_shortcode_get_vimeo_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
 		$atts[0] = trim( $atts[0], '=' );
-		$id      = false;
 		if ( is_numeric( $atts[0] ) ) {
-			$id = (int) $atts[0];
-		} elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) ) {
-			$id = (int) $match[1];
-		} elseif ( preg_match( '|player\.vimeo\.com/video/(\d+)/?$|i', $atts[0], $match ) ) {
-			$id = (int) $match[1];
+			return (int) $atts[0];
 		}
 
-		return $id;
+		/**
+		 * Extract Vimeo ID from the URL. For examples:
+		 * https://vimeo.com/12345
+		 * https://vimeo.com/289091934/cd1f466bcc
+		 * https://vimeo.com/album/2838732/video/6342264
+		 * https://vimeo.com/groups/758728/videos/897094040
+		 * https://vimeo.com/channels/staffpicks/123456789
+		 * https://vimeo.com/album/1234567/video/7654321
+		 * https://player.vimeo.com/video/18427511
+		 */
+		$pattern = '/(?:https?:\/\/)?vimeo\.com\/(?:groups\/\d+\/videos\/|album\/\d+\/video\/|video\/|channels\/[^\/]+\/videos\/|[^\/]+\/)?([0-9]+)(?:[^\'\"0-9<]|$)/i';
+		$match   = array();
+		if ( preg_match( $pattern, $atts[0], $match ) ) {
+			return (int) $match[1];
+		}
 	}
 
 	return 0;
@@ -327,7 +336,7 @@ function vimeo_link( $content ) {
 	 *  Could erroneously capture:
 	 *  <a href="some.link/maybe/even/vimeo">This video (vimeo.com/12345) is teh cat's meow!</a>
 	 */
-	$plain_url = "(?:[^'\">]?\/?(?:https?:\/\/)?vimeo\.com[^0-9]+)([0-9]+)(?:[^'\"0-9<]|$)";
+	$plain_url = "(?:[^'\">]?\/?(?:https?:\/\/)?vimeo\.com\/(?:groups\/\d+\/videos\/|album\/\d+\/video\/|video\/|channels\/[^\/]+\/videos\/|[^\/]+\/)?)([0-9]+)(?:[^'\"0-9<]|$)";
 
 	return jetpack_preg_replace_callback_outside_tags(
 		sprintf( '#%s|%s#i', $shortcode, $plain_url ),
