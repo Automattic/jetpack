@@ -34,7 +34,7 @@ class StaticSiteGeneratorWebpackPlugin {
 							/* includeGlobals: */ true
 						);
 
-						if ( render.hasOwnProperty( 'default' ) ) {
+						if ( Object.hasOwn( render, 'default' ) ) {
 							render = render.default;
 						}
 
