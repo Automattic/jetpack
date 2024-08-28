@@ -62,8 +62,8 @@ function deactivateSlide( slide ) {
  * @param {Element} els.play       - Play button element
  * @param {Element} els.pause      - Pause button element
  * @param {Element} els.pagination - Pagination element
- * @param {object}  config         - Swiper config
- * @returns {object} Swiper instance
+ * @param {Object}  config         - Swiper config
+ * @return {Object} Swiper instance
  */
 export default function createSwiper( els, config = {} ) {
 	const isVisible = 0 < els.container.offsetWidth && 0 < els.container.offsetHeight;

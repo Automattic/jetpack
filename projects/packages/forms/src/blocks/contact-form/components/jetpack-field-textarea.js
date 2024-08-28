@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
 import { useEffect } from '@wordpress/element';
 import clsx from 'clsx';
@@ -21,12 +22,15 @@ const JetpackFieldTextarea = props => {
 		placeholder,
 		width,
 	} = props;
+
 	const formStyle = useFormStyle( clientId );
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
-
-	const classes = clsx( 'jetpack-field jetpack-field-textarea', {
-		'is-selected': isSelected,
-		'has-placeholder': ! isEmpty( placeholder ),
+	const blockProps = useBlockProps( {
+		className: clsx( 'jetpack-field jetpack-field-textarea', {
+			'is-selected': isSelected,
+			'has-placeholder': ! isEmpty( placeholder ),
+		} ),
+		style: blockStyle,
 	} );
 
 	useEffect( () => {
@@ -38,7 +42,7 @@ const JetpackFieldTextarea = props => {
 
 	return (
 		<>
-			<div className={ classes } style={ blockStyle }>
+			<div { ...blockProps }>
 				<JetpackFieldLabel
 					clientId={ clientId }
 					required={ required }

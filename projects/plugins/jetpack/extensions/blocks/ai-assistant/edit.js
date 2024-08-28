@@ -26,7 +26,7 @@ import clsx from 'clsx';
  */
 import UsagePanel from '../../plugins/ai-assistant-plugin/components/usage-panel';
 import { USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } from '../../plugins/ai-assistant-plugin/components/usage-panel/types';
-import { PLAN_TYPE_FREE, usePlanType } from '../../shared/use-plan-type';
+import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../shared/use-plan-type';
 import ConnectPrompt from './components/connect-prompt';
 import FeedbackControl from './components/feedback-control';
 import QuotaExceededMessage from './components/quota-exceeded-message';
@@ -61,6 +61,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsLimit,
 		currentTier,
 		loading: loadingAiFeature,
+		tierPlansEnabled,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -360,11 +361,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							{ __( 'Discover all features', 'jetpack' ) }
 						</ExternalLink>
 					</div>
-					<PanelBody initialOpen={ true }>
-						<PanelRow>
-							<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
-						</PanelRow>
-					</PanelBody>
+					{ ( planType === PLAN_TYPE_FREE ||
+						( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED ) ) && (
+						<PanelBody initialOpen={ true }>
+							<PanelRow>
+								<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />
+							</PanelRow>
+						</PanelBody>
+					) }
 					<PanelBody initialOpen={ true }>
 						<PanelRow>
 							<FeedbackControl />
