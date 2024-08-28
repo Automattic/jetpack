@@ -12,7 +12,7 @@ import { QUERY_FIXERS_KEY } from '../../constants';
  * @return {object} Query object
  */
 export default function useFixersQuery( {
-	threatIds,
+	threatIds = [],
 	usePolling,
 }: {
 	threatIds: number[];
