@@ -68,7 +68,7 @@ const API = {
 		apiFetch( {
 			path: `jetpack-protect/v1/fix-threats`,
 			method: 'POST',
-			data: { threatIds },
+			data: { threat_ids: threatIds },
 		} ),
 
 	getFixersStatus: threatIds => {
