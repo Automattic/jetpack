@@ -7,9 +7,9 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
+use Automattic\Jetpack\Schema\Schema_Parser;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Action;
 use Automattic\Jetpack\WP_JS_Data_Sync\DS_Utils;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Parser;
 
 class Action_Endpoint {
 
