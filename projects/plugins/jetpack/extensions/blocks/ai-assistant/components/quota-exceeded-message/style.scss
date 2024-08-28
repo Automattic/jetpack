@@ -19,5 +19,17 @@
     text-wrap: pretty;
     font-size: calc(13px);
     font-weight: normal;
-    color: var(--jp-gray-40);
+    color: #757575;
+
+    a {
+        color: #757575;
+    }
+}
+
+.jetpack-ai-fair-usage-notice {
+    color: #1E1E1E;
+
+    a {
+        color: #1E1E1E;
+    }
 }
