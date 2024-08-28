@@ -148,6 +148,14 @@ class Jetpack_Memberships {
 		'PLN' => 2.0,
 		'SEK' => 3.0,
 		'SGD' => 0.5,
+		'CZK' => 15.0,
+		'HUF' => 175.0,
+		'TWD' => 10.0,
+		'IDR' => 0,
+		'ILS' => 0,
+		'PHP' => 0,
+		'RUB' => 0,
+		'TRY' => 0,
 	);
 
 	/**
