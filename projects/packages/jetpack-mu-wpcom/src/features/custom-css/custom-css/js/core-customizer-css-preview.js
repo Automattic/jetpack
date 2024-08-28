@@ -20,7 +20,7 @@
 
 			// Sass or Less require Partial -- so ajax call to get it from PHP.
 			// We can explicitly override for specific providers by testing if `'sass' === preprocessor`
-			if ( jpCustomizerCssPreview.preprocessors.hasOwnProperty( preprocessor ) ) {
+			if ( Object.hasOwn( jpCustomizerCssPreview.preprocessors, preprocessor ) ) {
 				return api.selectiveRefresh.Partial.prototype.refresh.call( partial );
 			}
 
