@@ -8,6 +8,7 @@ import {
 	PublicizePanel,
 	useSyncPostDataToStore,
 	PostPublishPanels,
+	GlobalModals,
 } from '@automattic/jetpack-publicize-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { PanelBody } from '@wordpress/components';
@@ -113,6 +114,7 @@ const JetpackSocialSidebar = () => {
 			</PluginPrePublishPanel>
 
 			<PostPublishPanels />
+			<GlobalModals />
 		</PostTypeSupportCheck>
 	);
 };

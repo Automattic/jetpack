@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Featured Images fallback.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
@@ -47,6 +47,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 				'from_attachment' => false,
 			);
 
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- We we've checked the class exists earlier.
 			$image = Jetpack_PostImages::get_image( $post_id, $args );
 
 			if ( ! empty( $image ) ) {
@@ -86,13 +87,13 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image' ) ) {
 						$height = $dims[1];
 					}
 
-					$image_src    = Jetpack_PostImages::fit_image_url( $image['src'], $width, $height );
-					$image_srcset = Jetpack_PostImages::generate_cropped_srcset( $image, $width, $height, true );
+					$image_src    = Jetpack_PostImages::fit_image_url( $image['src'], $width, $height ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
+					$image_srcset = Jetpack_PostImages::generate_cropped_srcset( $image, $width, $height, true ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 					$image_sizes  = 'min(' . $width . 'px, 100vw)';
 				} else {
 					// If we're not aware of the source dimensions, leave the size calculations to the CDN, and
 					// fall back to a simpler `<img>` tag without `width`/`height` or `srcset`.
-					$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+					$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 
 					// Use the theme's crop setting rather than forcing to true.
 					$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
@@ -149,7 +150,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image_src' ) ) {
 	 */
 	function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbnail_id, $size ) {
 		$image_src = wp_get_attachment_image_src( $post_thumbnail_id, $size );
-		$image_src = ( ! empty( $image_src[0] ) ) ? $image_src[0] : null;
+		$image_src = ( ! empty( $image_src[0] ) ) ? $image_src[0] : '';
 		$opts      = jetpack_featured_images_get_settings();
 
 		if ( ! empty( $image_src ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
@@ -173,7 +174,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image_src' ) ) {
 				'from_attachment' => false,
 			);
 
-			$image = Jetpack_PostImages::get_image( $post_id, $args );
+			$image = Jetpack_PostImages::get_image( $post_id, $args ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 
 			if ( ! empty( $image ) ) {
 				$image['width']  = '';
@@ -186,7 +187,7 @@ if ( ! function_exists( 'jetpack_featured_images_fallback_get_image_src' ) ) {
 					$image['crop']   = $_wp_additional_image_sizes[ $size ]['crop'];
 				}
 
-				$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] );
+				$image_src = Jetpack_PostImages::fit_image_url( $image['src'], $image['width'], $image['height'] ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We've checked the class exists earlier.
 
 				// Use the theme's crop setting rather than forcing to true.
 				$image_src = add_query_arg( 'crop', $image['crop'], $image_src );
@@ -222,7 +223,7 @@ if ( ! function_exists( 'jetpack_featured_images_post_class' ) ) {
 	 *
 	 * @param array $classes Classes for the post element.
 	 * @param array $class   Optional. Comma separated list of additional classes.
-	 * @param array $post_id Unique The post ID to check.
+	 * @param int   $post_id Unique The post ID to check.
 	 *
 	 * @return array $classes
 	 */

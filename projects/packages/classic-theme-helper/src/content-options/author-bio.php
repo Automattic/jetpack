@@ -2,7 +2,7 @@
 /**
  * Theme Tools: Author Bio functions.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_author_bio' ) ) {
@@ -67,17 +67,17 @@ if ( ! function_exists( 'jetpack_author_bio' ) ) {
 				<h2 class="author-title">
 					<?php
 						/* translators: %s: post author */
-						printf( esc_html__( 'Published by %s', 'jetpack' ), '<span class="author-name">' . get_the_author() . '</span>' );
+						printf( esc_html__( 'Published by %s', 'jetpack-classic-theme-helper' ), '<span class="author-name">' . get_the_author() . '</span>' );
 					?>
 				</h2>
 			</div><!-- .author-heading -->
 
 			<p class="author-bio">
 				<?php the_author_meta( 'description' ); ?>
-				<a class="author-link" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
+				<a class="author-link" href="<?php echo esc_url( get_author_posts_url( (int) get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
 					<?php
 						/* translators: %s: post author */
-						printf( esc_html__( 'View all posts by %s', 'jetpack' ), get_the_author() );
+						printf( esc_html__( 'View all posts by %s', 'jetpack-classic-theme-helper' ), get_the_author() );
 					?>
 				</a>
 			</p><!-- .author-bio -->

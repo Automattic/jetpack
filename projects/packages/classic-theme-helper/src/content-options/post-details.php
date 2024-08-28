@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Post Details.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_post_details_enqueue_scripts' ) ) {
@@ -60,6 +60,7 @@ if ( ! function_exists( 'jetpack_post_details_enqueue_scripts' ) ) {
 		$css = $elements . ' { clip: rect(1px, 1px, 1px, 1px); height: 1px; position: absolute; overflow: hidden; width: 1px; }';
 
 		// Add the CSS to the stylesheet.
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNullable.
 		wp_add_inline_style( $post_details['stylesheet'], $css );
 	}
 	add_action( 'wp_enqueue_scripts', 'jetpack_post_details_enqueue_scripts' );
@@ -155,21 +156,25 @@ if ( ! function_exists( 'jetpack_post_details_should_run' ) ) {
 			return $void;
 		}
 
-		$date_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_date', 1 );
-		$categories_option = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_categories', 1 );
-		$tags_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_tags', 1 );
-		$author_option     = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_author', 1 );
-		$comment_option    = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_comment', 1 );
+		if ( class_exists( 'Jetpack_Options' ) ) {
 
-		$options  = array( $date_option, $categories_option, $tags_option, $author_option, $comment_option );
-		$definied = array( $date, $categories, $tags, $author, $comment );
+			$date_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_date', 1 ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We're only running this code if the class exists.
+			$categories_option = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_categories', 1 ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We're only running this code if the class exists.
+			$tags_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_tags', 1 ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We're only running this code if the class exists.
+			$author_option     = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_author', 1 ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We're only running this code if the class exists.
+			$comment_option    = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_comment', 1 ); // @phan-suppress-current-line PhanUndeclaredClassMethod -- We're only running this code if the class exists.
 
-		// If all the options are ticked, don't continue.
-		if ( array( 1, 1, 1, 1, 1 ) === $options ) {
-			return $void;
+			$options  = array( $date_option, $categories_option, $tags_option, $author_option, $comment_option );
+			$definied = array( $date, $categories, $tags, $author, $comment );
+
+			// If all the options are ticked, don't continue.
+			if ( array( 1, 1, 1, 1, 1 ) === $options ) {
+				return $void;
+			}
+
+			return array( true, $options, $definied, $post_details );
+
 		}
-
-		return array( true, $options, $definied, $post_details );
 	}
 
 }
