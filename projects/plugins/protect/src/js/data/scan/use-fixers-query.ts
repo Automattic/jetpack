@@ -1,6 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useQuery } from '@tanstack/react-query';
-import camelize from 'camelize';
 import API from '../../api';
 import { QUERY_FIXERS_KEY } from '../../constants';
 
@@ -29,7 +28,7 @@ export default function useFixersQuery( {
 	return useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY, ...threatIds ],
 		queryFn: () => API.getFixersStatus( threatIds ),
-		initialData: camelize( window.jetpackProtectInitialState?.fixerStatus ),
+		initialData: window.jetpackProtectInitialState?.fixerStatus,
 		refetchInterval( query ) {
 			if ( ! usePolling || ! query.state.data ) {
 				return false;
