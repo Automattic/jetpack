@@ -32,7 +32,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 	}
 
 	for ( const editableProp of LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS ) {
-		if ( config.hasOwnProperty( editableProp ) ) {
+		if ( Object.hasOwn( config, editableProp ) ) {
 			window.Jetpack_LaunchpadSaveModal[ editableProp ] = config[ editableProp ];
 		}
 	}
