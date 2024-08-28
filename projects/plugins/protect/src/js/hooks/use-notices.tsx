@@ -6,7 +6,7 @@ import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../constants';
 import usePlan from './use-plan';
 
 interface NoticeState {
-	message?: string;
+	message?: string | JSX.Element;
 	dismissable?: boolean;
 	duration?: number;
 	type?: 'success' | 'info' | 'error';
@@ -68,19 +68,24 @@ export default function useNotices() {
 			setNotice( {
 				type: 'error',
 				dismissable: true,
-				message: `${
-					message || __( 'An error occurred.', 'jetpack-protect' )
-				} ${ createInterpolateElement(
-					__(
-						'Please try again or <supportLink>contact support</supportLink>.',
-						'jetpack-protect'
-					),
-					{
-						supportLink: (
-							<ExternalLink href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL } />
-						),
-					}
-				) }`,
+				message: (
+					<>
+						{ message || __( 'An error occurred.', 'jetpack-protect' ) }{ ' ' }
+						{ createInterpolateElement(
+							__(
+								'Please try again or <supportLink>contact support</supportLink>.',
+								'jetpack-protect'
+							),
+							{
+								supportLink: (
+									<ExternalLink
+										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+									/>
+								),
+							}
+						) }
+					</>
+				),
 			} );
 		},
 		[ hasPlan, setNotice ]

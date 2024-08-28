@@ -13,6 +13,7 @@ import { CheckoutProvider } from './hooks/use-plan';
 import FirewallRoute from './routes/firewall';
 import ScanRoute from './routes/scan';
 import ScanHistoryRoute from './routes/scan/history';
+import SetupRoute from './routes/setup';
 import './styles.module.scss';
 
 const queryClient = new QueryClient( {
@@ -55,6 +56,7 @@ function render() {
 								<HashRouter>
 									<ScrollToTop />
 									<Routes>
+										<Route path="/setup" element={ <SetupRoute /> } />
 										<Route path="/scan" element={ <ScanRoute /> } />
 										<Route
 											path="/scan/history"

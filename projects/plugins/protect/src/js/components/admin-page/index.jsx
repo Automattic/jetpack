@@ -1,10 +1,10 @@
 import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useNotices from '../../hooks/use-notices';
-import { useCheckoutContext } from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
-import InterstitialPage from '../interstitial-page';
 import Logo from '../logo';
 import Notice from '../notice';
 import Tabs, { Tab } from '../tabs';
@@ -12,12 +12,19 @@ import styles from './styles.module.scss';
 
 const AdminPage = ( { children } ) => {
 	const { notice } = useNotices();
-	const { hasCheckoutStarted } = useCheckoutContext();
 	const { isRegistered } = useConnection();
 	const { isSeen: wafSeen } = useWafData();
+	const navigate = useNavigate();
 
-	if ( ! isRegistered || hasCheckoutStarted ) {
-		return <InterstitialPage />;
+	// Redirect to the setup page if the site is not registered.
+	useEffect( () => {
+		if ( ! isRegistered ) {
+			navigate( '/setup' );
+		}
+	}, [ isRegistered, navigate ] );
+
+	if ( ! isRegistered ) {
+		return null;
 	}
 
 	return (

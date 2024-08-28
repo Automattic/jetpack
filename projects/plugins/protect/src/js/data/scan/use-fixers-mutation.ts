@@ -14,8 +14,8 @@ export default function useFixersMutation() {
 	const queryClient = useQueryClient();
 
 	return useMutation( {
-		mutationFn: threatIds => API.fixThreats( threatIds ),
-		onMutate: ( threatIds: number[] ) => {
+		mutationFn: ( threatIds: number[] ) => API.fixThreats( threatIds ),
+		onSuccess: ( threatIds: number[] ) => {
 			// Optimistically update the fixer status to 'in_progress' for the selected threats.
 			queryClient.setQueryData(
 				[ QUERY_FIXERS_KEY, ...threatIds ],

@@ -7,20 +7,14 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import Logo from '../../components/logo';
+import ConnectedPricingTable from '../../components/pricing-table';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import Logo from '../logo';
-import ConnectedPricingTable from '../pricing-table';
 import styles from './styles.module.scss';
 
 const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
-/**
- * Interstitial Page
- *
- * @return {React.Component} Interstitial react component.
- */
-const InterstitialPage = () => {
+const SetupRoute = () => {
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_interstitial',
@@ -57,4 +51,4 @@ const InterstitialPage = () => {
 	);
 };
 
-export default InterstitialPage;
+export default SetupRoute;
