@@ -22,14 +22,18 @@ export default function useAiFeature() {
 			usagePeriod,
 			requestsCount: allTimeRequestsCount,
 			requestsLimit: freeRequestsLimit,
+			tierPlansEnabled,
 		} = featureData;
 
 		const planType = getPlanType( currentTier );
 
+		// TODO: mind this hardcoded value (3000),
+		// maybe provide it from the backend but we'd be replacing the 9 Billion limit with 3k
+		const currentTierLimit = tierPlansEnabled ? currentTier?.limit || freeRequestsLimit : 3000;
+
 		const actualRequestsCount =
 			planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
-		const actualRequestsLimit =
-			planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTier?.limit;
+		const actualRequestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTierLimit;
 
 		return {
 			data: featureData,
