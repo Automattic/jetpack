@@ -80,6 +80,12 @@ const JetpackAndSettingsContent = ( {
 
 	return (
 		<>
+			{ showFairUsageNotice && (
+				<PanelRow>
+					<FairUsageNotice />
+				</PanelRow>
+			) }
+
 			{ isBreveAvailable && (
 				<PanelRow>
 					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
@@ -116,12 +122,6 @@ const JetpackAndSettingsContent = ( {
 			{ isUsagePanelAvailable && showUsagePanel && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<UsagePanel placement={ placement } />
-				</PanelRow>
-			) }
-
-			{ showFairUsageNotice && (
-				<PanelRow>
-					<FairUsageNotice />
 				</PanelRow>
 			) }
 
