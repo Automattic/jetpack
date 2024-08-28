@@ -36,10 +36,17 @@ Once your changes land on the Newspack side, coordinate with the team (over issu
 While being in `projects/packages/jetpack-mu-wpcom` directory, you can run:
 
 ```
-pnpm run sync:newspack-blocks
+pnpm run sync:newspack-blocks --release=<THE RELEASE ID>
 ```
 
-This will pull the code from the release and integrate it into this repository. Please review changes, make sure to update `NEWSPACK_BLOCKS__VERSION` in [index.php](./index.php) and commit.
+This will pull the code from the release and integrate it into this repository. Please:
+ 1. Review changes
+ 2. Keep the PHPCS config if still necessary
+ 3. Ensure [htmlentities uses ENT_COMPAT](https://github.com/Automattic/jetpack/pull/38873/commits/16f57e6f01b6eed98a19cd0299261ce5ac075b8e)
+ 4. Update the phan baseline with `jetpack phan --update-baseline packages/jetpack-mu-wpcom`
+ 4. Update `NEWSPACK_BLOCKS__VERSION` in [index.php](./index.php)
+ 5. Ensure that the blocks `block.json` has `"textdomain": "jetpack-mu-wpcom"`
+ 6. Commit.
 
 ### Local development
 

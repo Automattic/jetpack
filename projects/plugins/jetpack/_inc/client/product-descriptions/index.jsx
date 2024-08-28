@@ -24,7 +24,7 @@ const ProductDescriptions = props => {
 
 	if ( ! isLoading ) {
 		Object.values( SUPPORTED_PRODUCTS ).forEach( function ( key ) {
-			if ( ! products.hasOwnProperty( key ) ) {
+			if ( ! Object.hasOwn( products, key ) ) {
 				return;
 			}
 

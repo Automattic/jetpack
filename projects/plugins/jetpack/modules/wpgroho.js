@@ -7,7 +7,7 @@
 			if ( ! arguments[ i ] ) continue;
 
 			for ( var key in arguments[ i ] ) {
-				if ( arguments[ i ].hasOwnProperty( key ) ) out[ key ] = arguments[ i ][ key ];
+				if ( Object.hasOwn( arguments[ i ], key ) ) out[ key ] = arguments[ i ][ key ];
 			}
 		}
 
