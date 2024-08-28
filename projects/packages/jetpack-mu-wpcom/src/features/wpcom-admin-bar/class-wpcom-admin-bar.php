@@ -60,6 +60,17 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 			return;
 		}
 
+		if ( $args['id'] === 'my-account' ) {
+			if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+				$args['href'] = 'https://wordpress.com/me';
+
+				// Temporarily point to wpcalypso.wordpress.com for testing purposes.
+				if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
+					$args['href'] = 'https://wpcalypso.wordpress.com/me';
+				}
+			}
+		}
+
 		$home_url  = home_url( '/' );
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
 		$href      = str_replace( $home_url, '', $args['href'] );
