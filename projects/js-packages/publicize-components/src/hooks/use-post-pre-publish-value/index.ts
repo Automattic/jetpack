@@ -14,8 +14,9 @@ import { useEffect, useRef, useState } from '@wordpress/element';
  */
 export function usePostPrePublishValue< V >( value: V ) {
 	const isPublishing = useSelect(
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		select => ( select( editorStore ) as any ).isPublishingPost(),
+		// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
+
+		select => select( editorStore ).isPublishingPost(),
 		[]
 	);
 
