@@ -116,7 +116,7 @@ export default function Highlight() {
 	}, [] );
 
 	const isPopoverOpen = popoverOpen && virtual;
-	const hasSuggestions = Boolean( suggestions?.suggestion );
+	const hasSuggestions = Boolean( suggestions?.suggestion ) || spellingSuggestions.length > 0;
 
 	const handleMouseEnter = () => {
 		setPopoverHover( true );
@@ -263,7 +263,7 @@ export default function Highlight() {
 
 	return (
 		<>
-			{ isPopoverOpen && (
+			{ isPopoverOpen && anchor?.parentElement && (
 				<Popover
 					anchor={ virtual }
 					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
@@ -316,7 +316,7 @@ export default function Highlight() {
 								</div>
 							) }
 						</div>
-						<div className="jetpack-ai-breve__bottom-container">
+						<div className="jetpack-ai-breve__suggestions-container">
 							{ feature !== SPELLING_MISTAKES.name && hasSuggestions && (
 								<Button variant="tertiary" onClick={ handleApplySuggestion }>
 									{ suggestions?.suggestion }
@@ -334,24 +334,23 @@ export default function Highlight() {
 										{ spellingSuggestion }
 									</Button>
 								) ) }
+						</div>
+						<div className="jetpack-ai-breve__helper">
+							{ feature === SPELLING_MISTAKES.name && (
+								<Button variant="link" onClick={ handleAddToDictionary }>
+									{ __( 'Add to dictionary', 'jetpack' ) }
+								</Button>
+							) }
 
-							<div className="jetpack-ai-breve__helper">
-								{ feature === SPELLING_MISTAKES.name && (
-									<Button variant="link" onClick={ handleAddToDictionary }>
-										{ __( 'Add to dictionary', 'jetpack' ) }
-									</Button>
-								) }
+							{ feature !== SPELLING_MISTAKES.name &&
+								( hasSuggestions
+									? __( 'Click on the suggestion to insert it.', 'jetpack' )
+									: description ) }
 
-								{ feature !== SPELLING_MISTAKES.name &&
-									( hasSuggestions
-										? __( 'Click on the suggestion to insert it.', 'jetpack' )
-										: description ) }
-
-								<div className="jetpack-ai-breve__helper-buttons-wrapper">
-									<Button variant="link" onClick={ handleIgnoreSuggestion }>
-										{ __( 'Ignore', 'jetpack' ) }
-									</Button>
-								</div>
+							<div className="jetpack-ai-breve__helper-buttons-wrapper">
+								<Button variant="link" onClick={ handleIgnoreSuggestion }>
+									{ __( 'Ignore', 'jetpack' ) }
+								</Button>
 							</div>
 						</div>
 					</div>
