@@ -1002,6 +1002,9 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 					'title'       => $fb_point['name'],
 				);
 			}
+			if ( ! function_exists( 'map_block_from_geo_points' ) ) {
+				require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/map/map.php';
+			}
 			$map_block = map_block_from_geo_points( $geo_points );
 
 			$post['post_content'] = $map_block . $post['post_content'];
