@@ -11,12 +11,7 @@ import ScanFooter from '../../components/scan-footer';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
 import Summary from '../../components/summary';
 import ThreatsList from '../../components/threats-list';
-import {
-	SCAN_IN_PROGRESS_STATUSES,
-	SCAN_STATUS_IDLE,
-	SCAN_STATUS_UNAVAILABLE,
-} from '../../constants';
-import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { OnboardingContext } from '../../hooks/use-onboarding';
 import usePlan from '../../hooks/use-plan';
@@ -175,19 +170,8 @@ const ScanPage = () => {
 		},
 	} );
 
-	const isScanning = useMemo( () => {
-		// If there has never been a scan, and the scan status is idle or not yet available, then we must still be getting set up.
-		const scanIsInitializing =
-			! status?.lastChecked &&
-			[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status );
-
-		const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
-
-		return scanIsInitializing || scanIsInProgress;
-	}, [ status?.status, status?.lastChecked ] );
-
 	const renderSection = useMemo( () => {
-		if ( isScanning ) {
+		if ( isScanInProgress( status ) ) {
 			return <ScanningSection currentProgress={ status.currentProgress } />;
 		}
 
@@ -196,7 +180,7 @@ const ScanPage = () => {
 		}
 
 		return <DefaultSection />;
-	}, [ isScanning, status.error, status.currentProgress, status.errorMessage, status.errorCode ] );
+	}, [ status ] );
 
 	return (
 		<OnboardingContext.Provider value={ onboardingSteps }>

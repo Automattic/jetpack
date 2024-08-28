@@ -9,6 +9,17 @@ import {
 } from '../../constants';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
+export const isScanInProgress = status => {
+	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
+	const scanIsInitializing =
+		! status.lastChecked &&
+		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status );
+
+	const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
+
+	return scanIsInitializing || scanIsInProgress;
+};
+
 /**
  * Use Scan Status Query
  *
@@ -42,15 +53,8 @@ export default function useScanStatusQuery( { usePolling }: { usePolling?: boole
 			// Refetch on a shorter interval, slow down if it is taking a while.
 			const interval = query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
 
-			// If there has never been a scan, and the scan status is idle or not yet available, then we must still be getting set up.
-			const scanIsInitializing =
-				! query.state.data.lastChecked &&
-				[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( query.state.data?.status );
-
-			const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( query.state.data?.status ) >= 0;
-
 			// Refetch when scanning.
-			if ( scanIsInitializing || scanIsInProgress ) {
+			if ( isScanInProgress( query.state.data ) ) {
 				return interval;
 			}
 
