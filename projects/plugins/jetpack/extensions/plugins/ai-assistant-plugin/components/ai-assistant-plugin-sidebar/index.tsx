@@ -81,8 +81,10 @@ const JetpackAndSettingsContent = ( {
 	return (
 		<>
 			{ showFairUsageNotice && (
-				<PanelRow>
-					<FairUsageNotice />
+				<PanelRow className="jetpack-ai-sidebar__feature-section">
+					<BaseControl>
+						<FairUsageNotice variant="muted" />
+					</BaseControl>
 				</PanelRow>
 			) }
 
