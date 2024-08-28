@@ -30,13 +30,10 @@ import {
 	userCanConnectSite,
 	userIsSubscriber,
 	getConnectionErrors,
-	getSiteAdminUrl,
 	isWoASite,
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
-import { getModule } from 'state/modules';
 import { getSiteDataErrors } from 'state/site';
-import { StartFreshDeprecationWarning } from '../../writing/custom-css';
 import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -188,7 +185,8 @@ class JetpackNotices extends React.Component {
 		this.state = {
 			isMasterbarNoticeDismissed:
 				cookieParsed &&
-				cookieParsed.hasOwnProperty(
+				Object.hasOwn(
+					cookieParsed,
 					'jetpack_deprecate_dismissed[jetpack-masterbar-admin-removal-notice]'
 				) &&
 				'1' ===
@@ -212,7 +210,7 @@ class JetpackNotices extends React.Component {
 
 	render() {
 		const siteDataErrors = this.props.siteDataErrors.filter( error =>
-			error.hasOwnProperty( 'action' )
+			Object.hasOwn( error, 'action' )
 		);
 
 		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
@@ -272,11 +270,7 @@ class JetpackNotices extends React.Component {
 						onDismissClick={ this.props.clearLicensingError }
 					/>
 				) }
-				{ this.props.startFreshEnabled && (
-					<SimpleNotice status="is-warning" showDismiss={ false }>
-						<StartFreshDeprecationWarning siteAdminUrl={ this.props.siteAdminUrl } />
-					</SimpleNotice>
-				) }
+
 				{ showMasterbarNotice && (
 					<SimpleNotice
 						status="is-warning"
@@ -318,8 +312,6 @@ export default connect(
 			isReconnectingSite: isReconnectingSite( state ),
 			licensingError: getLicensingError( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			startFreshEnabled: !! getModule( state, 'custom-css' )?.options?.replace,
 			showMasterbarNotice: window.Initial_State?.isMasterbarActive && ! isWoASite( state ),
 		};
 	},
