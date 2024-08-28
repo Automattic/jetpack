@@ -1,10 +1,12 @@
 import { RichText, useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { first } from 'lodash';
 import { supportsParagraphSplitting } from '../util/block-support';
+import { moveCaretToEnd } from '../util/caret';
 import { useParentAttributes } from '../util/use-parent-attributes';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -44,9 +46,21 @@ export const JetpackFieldOptionEdit = ( {
 		removeBlock( clientId );
 	};
 
+	const handleFocus = e => moveCaretToEnd( e.target );
+
 	const supportsSplitting = supportsParagraphSplitting();
 	const type = name.replace( 'jetpack/field-option-', '' );
 	const classes = clsx( 'jetpack-field-option', `field-option-${ type }` );
+
+	useEffect( () => {
+		const input = document.getElementById( blockProps.id );
+
+		input?.addEventListener( 'focus', handleFocus );
+
+		return () => {
+			input?.removeEventListener( 'focus', handleFocus );
+		};
+	}, [ blockProps.id ] );
 
 	return (
 		<div className={ classes } style={ optionStyle }>
