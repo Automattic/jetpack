@@ -41,7 +41,6 @@ export type ShareStatusItem = Pick<
 	timestamp: number;
 	service: string;
 	external_name: string;
-	external_id: string;
 };
 
 export type PostShareStatus = {
