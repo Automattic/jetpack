@@ -33,7 +33,7 @@ const ThreatAccordionItem = ( {
 	const { recordEvent } = useAnalyticsTracks();
 
 	const { fixersStatus } = useFixers();
-	const fixerInProgress = fixersStatus?.[ id ]?.status === 'in_progress';
+	const fixerInProgress = fixersStatus?.threats?.[ id ]?.status === 'in_progress';
 
 	const learnMoreButton = source ? (
 		<Button variant="link" isExternalLink={ true } weight="regular" href={ source }>
@@ -155,6 +155,7 @@ const ThreatAccordionItem = ( {
 								isDestructive={ true }
 								variant="secondary"
 								onClick={ handleIgnoreThreatClick() }
+								disabled={ fixerInProgress }
 							>
 								{ __( 'Ignore threat', 'jetpack-protect' ) }
 							</Button>
