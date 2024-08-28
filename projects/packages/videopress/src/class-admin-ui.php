@@ -39,7 +39,8 @@ class Admin_UI {
 			_x( 'VideoPress', 'The Jetpack VideoPress product name, without the Jetpack prefix', 'jetpack-videopress-pkg' ),
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			array( __CLASS__, 'plugin_settings_page' )
+			array( __CLASS__, 'plugin_settings_page' ),
+			3
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 
