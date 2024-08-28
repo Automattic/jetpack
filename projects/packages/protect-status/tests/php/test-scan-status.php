@@ -134,6 +134,7 @@ class Test_Scan_Status extends BaseTestCase {
 				'num_plugins_threats' => 1,
 				'num_themes_threats'  => 0,
 				'status'              => 'idle',
+				'fixable_threats'     => array( '69353714' ),
 				'plugins'             => array(
 					new Extension_Model(
 						array(
