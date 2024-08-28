@@ -12,6 +12,7 @@ import {
 	SocialImageGeneratorPanel,
 	usePublicizeConfig,
 	PostPublishPanels,
+	GlobalModals,
 } from '@automattic/jetpack-publicize-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -56,6 +57,7 @@ const PublicizeSettings = () => {
 			<>
 				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
 				<PostPublishPanels />
+				<GlobalModals />
 			</>
 		);
 	}
