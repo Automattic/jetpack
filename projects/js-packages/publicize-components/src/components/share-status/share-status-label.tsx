@@ -1,5 +1,5 @@
 import { IconTooltip, Text } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import React from 'react';
@@ -37,7 +37,9 @@ export function ShareStatusLabel( { status, message } ) {
 		>
 			<div className={ styles[ 'share-status-icon' ] }>{ icon }</div>
 			<div className={ styles[ 'share-status-label' ] }>
-				{ isSuccessful ? __( 'Shared', 'jetpack' ) : __( 'Failed', 'jetpack' ) }
+				{ isSuccessful
+					? _x( 'Shared', 'The sharing is successful', 'jetpack' )
+					: __( 'Failed', 'jetpack' ) }
 			</div>
 		</div>
 	);
