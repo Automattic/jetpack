@@ -9,11 +9,13 @@
 
 namespace Automattic\Jetpack;
 
+define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
+
 /**
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '5.57.0-alpha';
+	const PACKAGE_VERSION = '5.59.0';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
@@ -75,6 +77,9 @@ class Jetpack_Mu_Wpcom {
 		// Load the Newsletter category settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_newsletter_categories_settings' ), 999 );
 
+		// Load the Social Links feature.
+		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -106,8 +111,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
-		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
-		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 
 		// Initializers, if needed.
@@ -140,7 +143,10 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
 		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
+		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-plugins/wpcom-plugins.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
+		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
 		require_once __DIR__ . '/features/wpcom-site-management-widget/class-wpcom-site-management-widget.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
@@ -459,5 +465,14 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_wpcom_random_redirect() {
 		require_once __DIR__ . '/features/random-redirect/random-redirect.php';
+	}
+
+	/**
+	 * Load the Social Links feature.
+	 */
+	public static function load_social_links() {
+		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
+			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
+		}
 	}
 }

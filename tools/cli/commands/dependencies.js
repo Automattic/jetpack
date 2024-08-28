@@ -41,7 +41,7 @@ export const describe = 'Report monorepo project dependencies';
  * Options definition for the dependencies subcommand.
  *
  * @param {object} yargs - The Yargs dependency.
- * @returns {object} Yargs with the build commands defined.
+ * @return {object} Yargs with the build commands defined.
  */
 export function builder( yargs ) {
 	return yargs
@@ -178,21 +178,14 @@ export async function handler( argv ) {
 				argv.pretty ? '\t' : null
 			)
 		);
-		return;
-	}
-
-	if ( argv.subcommand === 'list' ) {
+	} else if ( argv.subcommand === 'list' ) {
 		if ( deps.size ) {
 			console.log( Array.from( deps.keys() ).join( '\n' ) );
 		}
-		return;
-	}
-
-	if ( argv.subcommand === 'build-order' ) {
+	} else if ( argv.subcommand === 'build-order' ) {
 		const order = getBuildOrder( deps );
 		for ( const group of order ) {
 			console.log( Array.from( group ).join( argv.pretty ? '\n' : ' ' ) );
 		}
-		return;
 	}
 }

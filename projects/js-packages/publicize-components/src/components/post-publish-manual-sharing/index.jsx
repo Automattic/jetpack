@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@automattic/jetpack-components';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -10,7 +9,7 @@ import styles from './styles.module.scss';
 /**
  * Post Publish Manual Sharing component.
  *
- * @returns {import('react').ReactNode} Post Publish Manual Sharing component.
+ * @return {import('react').JSX.Element} Post Publish Manual Sharing component.
  */
 export default function PostPublishManualSharing() {
 	const { isCurrentPostPublished } = useSelect( select => select( editorStore ), [] );
@@ -26,10 +25,8 @@ export default function PostPublishManualSharing() {
 			id="publicize-manual-sharing"
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<ThemeProvider>
-				<ManualSharingInfo className={ styles.description } variant="body-small" />
-				<ShareButtons />
-			</ThemeProvider>
+			<ManualSharingInfo className={ styles.description } variant="body-small" />
+			<ShareButtons />
 		</PluginPostPublishPanel>
 	);
 }

@@ -11,7 +11,6 @@ import { store as socialStore } from '@automattic/jetpack-publicize-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import React from 'react';
-import AdvancedUpsellNotice from '../advanced-upsell-notice';
 import PricingPage from '../pricing-page';
 import SocialImageGeneratorToggle from '../social-image-generator-toggle';
 import SocialModuleToggle from '../social-module-toggle';
@@ -38,7 +37,6 @@ const Admin = () => {
 		hasPaidFeatures,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
-		shouldShowAdvancedPlanNudge,
 		isUpdatingJetpackSettings,
 	} = useSelect( select => {
 		const store = select( socialStore );
@@ -48,7 +46,6 @@ const Admin = () => {
 			hasPaidFeatures: store.hasPaidFeatures(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			shouldShowAdvancedPlanNudge: store.shouldShowAdvancedPlanNudge(),
 			isUpdatingJetpackSettings: store.isUpdatingJetpackSettings(),
 		};
 	} );
@@ -93,7 +90,6 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ shouldShowAdvancedPlanNudge && <AdvancedUpsellNotice /> }
 						<SocialModuleToggle />
 						{ isModuleEnabled && <SocialNotesToggle disabled={ isUpdatingJetpackSettings } /> }
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && (

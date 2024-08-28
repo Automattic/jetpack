@@ -28,9 +28,12 @@ class Deprecate {
 	 * Initialize the class.
 	 */
 	private function __construct() {
-		add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
+		if ( $this->has_notices() ) {
+			add_action( 'admin_notices', array( $this, 'render_admin_notices' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $this, 'add_my_jetpack_red_bubbles' ) );
+			add_filter( 'jetpack_modules_list_table_items', array( $this, 'remove_masterbar_module_list' ) );
+		}
 	}
 
 	/**
@@ -70,18 +73,18 @@ class Deprecate {
 	}
 
 	/**
-	 * Render Google Analytics deprecation notice.
+	 * Render deprecation notices for relevant features.
 	 *
 	 * @return void
 	 */
 	public function render_admin_notices() {
-		if ( $this->show_ga_notice() ) {
-			$support_url = Redirect::get_url( 'jetpack-support-google-analytics' );
+		if ( $this->show_masterbar_notice() ) {
+			$support_url = Redirect::get_url( 'jetpack-support-masterbar' );
 
 			$this->render_notice(
-				'jetpack-ga-admin-removal-notice',
-				esc_html__( "Jetpack's Google Analytics has been removed.", 'jetpack' )
-				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To keep tracking visits and more information on this change, please refer to this document', 'jetpack' ) . '</a>.'
+				'jetpack-masterbar-admin-removal-notice',
+				esc_html__( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' )
+				. ' <a href="' . $support_url . '" target="_blank">' . esc_html__( 'To find out more about what this means for you, please refer to this document', 'jetpack' ) . '</a>.'
 			);
 		}
 	}
@@ -91,18 +94,18 @@ class Deprecate {
 	 *
 	 * @param array $slugs Already added bubbles.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function add_my_jetpack_red_bubbles( $slugs ) {
-		if ( $this->show_ga_notice() ) {
-			$slugs['jetpack-google-analytics-deprecate-feature'] = array(
+		if ( $this->show_masterbar_notice() ) {
+			$slugs['jetpack-masterbar-deprecate-feature'] = array(
 				'data' => array(
-					'text' => __( "Jetpack's Google Analytics has been removed.", 'jetpack' ),
+					'text' => __( "Jetpack's WordPress.com Toolbar feature has been removed.", 'jetpack' ),
 					'link' => array(
 						'label' => esc_html__( 'See documentation', 'jetpack' ),
-						'url'   => Redirect::get_url( 'jetpack-support-google-analytics' ),
+						'url'   => Redirect::get_url( 'jetpack-support-masterbar' ),
 					),
-					'id'   => 'jetpack-ga-admin-removal-notice',
+					'id'   => 'jetpack-masterbar-admin-removal-notice',
 				),
 			);
 		}
@@ -146,23 +149,37 @@ class Deprecate {
 	}
 
 	/**
-	 * Check if there are any notices to be displayed, so we wouldn't load unnecessary JS.
+	 * Check if there are any notices to be displayed, so we wouldn't load unnecessary JS and run excessive hooks.
 	 *
 	 * @return bool
 	 */
 	private function has_notices() {
-		return $this->show_ga_notice();
+		return $this->show_masterbar_notice();
 	}
 
 	/**
-	 * Check if Google Analytics notice should show up.
+	 * Check if Masterbar notice should show up.
 	 *
 	 * @return bool
 	 */
-	private function show_ga_notice() {
-		return ( new Modules() )->is_active( 'google-analytics', false )
-			&& ! is_plugin_active( 'jetpack-legacy-google-analytics/jetpack-legacy-google-analytics.php' )
+	private function show_masterbar_notice() {
+		return ( new Modules() )->is_active( 'masterbar', false )
 			&& ! ( new Host() )->is_woa_site()
-			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-ga-admin-removal-notice'] );
+			&& empty( $_COOKIE['jetpack_deprecate_dismissed']['jetpack-masterbar-admin-removal-notice'] );
+	}
+
+	/**
+	 * Remove Masterbar from the old Module list.
+	 * Available at wp-admin/admin.php?page=jetpack_modules
+	 * We only need this function until the Masterbar is fully removed from Jetpack (including notices).
+	 *
+	 * @param array $items Array of Jetpack modules.
+	 * @return array
+	 */
+	public function remove_masterbar_module_list( $items ) {
+		if ( isset( $items['masterbar'] ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+			unset( $items['masterbar'] );
+		}
+		return $items;
 	}
 }

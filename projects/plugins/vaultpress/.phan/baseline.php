@@ -15,12 +15,12 @@ return [
     // PhanPluginSimplifyExpressionBool : 8 occurrences
     // PhanTypeMismatchArgumentNullableInternal : 8 occurrences
     // PhanUndeclaredConstant : 8 occurrences
+    // PhanTypeMismatchArgument : 7 occurrences
     // PhanPossiblyUndeclaredVariable : 6 occurrences
     // PhanTypePossiblyInvalidDimOffset : 6 occurrences
     // PhanPluginUnreachableCode : 5 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 5 occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 4 occurrences
-    // PhanTypeMismatchArgument : 4 occurrences
     // PhanUndeclaredVariableDim : 4 occurrences
     // PhanCommentParamWithoutRealParam : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences

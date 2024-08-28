@@ -6,7 +6,7 @@ const { debug } = require( './debug' );
 /**
  * Parses multiple Playwright JSON reports and returns details about the failed tests.
  *
- * @returns {object} an array of Slack blocks with test failure details.
+ * @return {object} an array of Slack blocks with test failure details.
  */
 function getPlaywrightBlocks() {
 	const blocks = [];
@@ -101,7 +101,7 @@ function getPlaywrightBlocks() {
 /**
  * Parses multiple Playwright JSON reports and returns their content as an array of objects.
  *
- * @returns {object} an array of Playwright reports.
+ * @return {object} an array of Playwright reports.
  */
 function getPlaywrightReports() {
 	let parseError = false;
@@ -124,7 +124,7 @@ function getPlaywrightReports() {
 /**
  * Parses the 'playwright_report_path' input and finds matching files.
  *
- * @returns {Array} an array of matching paths.
+ * @return {Array} an array of matching paths.
  */
 function getPlaywrightReportsPaths() {
 	const playwrightReportPath = getInput( 'playwright_report_path' );
@@ -146,9 +146,9 @@ function getPlaywrightReportsPaths() {
 /**
  * Creates the final path to attachments.
  *
- * @param {string} outputPath - the output root path, as defined in the Playwright report
+ * @param {string} outputPath     - the output root path, as defined in the Playwright report
  * @param {string} attachmentPath - the original path to the attachment, as defined in the Playwright report
- * @returns {string} the final path to the attachment
+ * @return {string} the final path to the attachment
  */
 function getAttachmentPath( outputPath, attachmentPath ) {
 	const resultsPath = getInput( 'playwright_output_dir' );
@@ -175,7 +175,7 @@ function getAttachmentPath( outputPath, attachmentPath ) {
  * Flattens the suites in a Playwright report.
  *
  * @param {[object]} suites - an array of nested suites from a Playwright test report
- * @returns {[object]} an array of flattened suites
+ * @return {[object]} an array of flattened suites
  */
 function flattenSuites( suites ) {
 	return suites.reduce( ( all, curr ) => {

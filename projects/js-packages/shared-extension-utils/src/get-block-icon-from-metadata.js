@@ -10,7 +10,7 @@ import getIconColor from './get-icon-color';
  * dynamically set the icon color later on.
  *
  * @param {object} metadata - Block.json content
- * @returns {React.Component} Icon component
+ * @return {React.Component} Icon component
  */
 export function getBlockIconComponent( metadata ) {
 	// Set default values
@@ -46,7 +46,7 @@ export function getBlockIconComponent( metadata ) {
  * of the icon.
  *
  * @param {object} metadata - Block.json content
- * @returns {object} Icon property for client registration
+ * @return {object} Icon property for client registration
  */
 export function getBlockIconProp( metadata ) {
 	return {

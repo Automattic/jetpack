@@ -7,8 +7,12 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
+use Automattic\Jetpack\Status\Host;
+use Jetpack_Options;
 
 /**
  * Publicize_Script_Data class.
@@ -27,6 +31,11 @@ class Publicize_Script_Data {
 		 * @var Publicize $publicize
 		 */
 		global $publicize;
+
+		if ( ! $publicize && function_exists( 'publicize_init' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction - phan is dumb not to see the function_exists check
+			publicize_init();
+		}
 
 		return $publicize;
 	}
@@ -47,7 +56,7 @@ class Publicize_Script_Data {
 
 		$data['social'] = self::get_admin_script_data();
 
-		if ( empty( $data['site']['plan'] ) ) {
+		if ( empty( $data['site']['plan']['product_slug'] ) ) {
 			$data['site']['plan'] = Current_Plan::get();
 		}
 
@@ -72,21 +81,33 @@ class Publicize_Script_Data {
 		}
 
 		$basic_data = array(
+			'api_paths'            => array(),
 			'is_publicize_enabled' => Utils::is_publicize_active(),
 			'feature_flags'        => self::get_feature_flags(),
+			'supported_services'   => array(),
+			'shares_data'          => array(),
 		);
 
-		if ( ! Utils::is_publicize_active() || ! Utils::is_connected() ) {
+		if ( ! Utils::is_publicize_active() ) {
+			return $basic_data;
+		}
+
+		// Simple sites don't have a user connection.
+		$is_publicize_configured = ( new Host() )->is_wpcom_simple() || Utils::is_connected();
+
+		if ( ! $is_publicize_configured ) {
 			return $basic_data;
 		}
 
 		return array_merge(
 			$basic_data,
 			array(
+				'api_paths'          => self::get_api_paths(),
+				'supported_services' => self::get_supported_services(),
+				'shares_data'        => self::get_shares_data(),
 				/**
 				 * 'store'       => self::get_store_script_data(),
 				 * 'urls'        => self::get_urls(),
-				 * 'shares_data' => self::get_shares_data(),
 				 */
 			)
 		);
@@ -132,5 +153,65 @@ class Publicize_Script_Data {
 		}
 
 		return Current_Plan::supports( 'social-' . $feature );
+	}
+
+	/**
+	 * Get the shares data.
+	 *
+	 * @return ?array
+	 */
+	public static function get_shares_data() {
+		return self::publicize()->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) );
+	}
+
+	/**
+	 * Get the list of supported Publicize services.
+	 *
+	 * @return array List of external services and their settings.
+	 */
+	public static function get_supported_services() {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return array();
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+		$services = $body->services ?? array();
+
+		return array_values(
+			array_filter(
+				(array) $services,
+				function ( $service ) {
+					return isset( $service->type ) && 'publicize' === $service->type;
+				}
+			)
+		);
+	}
+
+	/**
+	 * Get the API paths.
+	 *
+	 * @return array
+	 */
+	public static function get_api_paths() {
+
+		$is_simple_site = ( new Host() )->is_wpcom_simple();
+
+		if ( $is_simple_site ) {
+			return array(
+				'refreshConnections' => '/wpcom/v2/publicize/connection-test-results',
+				'resharePost'        => '/wpcom/v2/posts/{postId}/publicize',
+			);
+		}
+
+		return array(
+			'refreshConnections' => '/jetpack/v4/publicize/connections?test_connections=1',
+			'resharePost'        => '/jetpack/v4/publicize/{postId}',
+		);
 	}
 }

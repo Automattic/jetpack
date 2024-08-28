@@ -32,7 +32,7 @@ type CoreSelect = {
 /**
  * Hook to set the site logo on the local state, affecting the logo block.
  *
- * @returns {object} An object with the setLogo function.
+ * @return {object} An object with the setLogo function.
  */
 const useSetLogo = () => {
 	const editEntityRecord = useDispatch( 'core' ).editEntityRecord;
@@ -146,7 +146,7 @@ const siteLogoEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 /**
  * Function to check if the feature is available depending on the site ID.
  *
- * @returns {boolean} True if the feature is available.
+ * @return {boolean} True if the feature is available.
  */
 function isFeatureAvailable() {
 	return getFeatureAvailability( SITE_LOGO_BLOCK_AI_EXTENSION );
@@ -156,7 +156,7 @@ function isFeatureAvailable() {
  * Function to check if the block can be extended.
  *
  * @param {string} name - The block name.
- * @returns {boolean} True if the block can be extended.
+ * @return {boolean} True if the block can be extended.
  */
 function canExtendBlock( name: string ): boolean {
 	if ( name !== 'core/site-logo' ) {
@@ -196,8 +196,8 @@ function canExtendBlock( name: string ): boolean {
  * Will create a HOC to use as the edit implementation.
  *
  * @param {object} settings - The block settings.
- * @param {string} name - The block name.
- * @returns {object} The new block settings.
+ * @param {string} name     - The block name.
+ * @return {object} The new block settings.
  */
 function jetpackSiteLogoWithAiSupport( settings, name: string ) {
 	if ( ! canExtendBlock( name ) ) {
