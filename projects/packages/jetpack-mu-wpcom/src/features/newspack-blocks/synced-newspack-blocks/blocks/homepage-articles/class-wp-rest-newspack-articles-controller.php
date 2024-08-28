@@ -144,7 +144,7 @@ class WP_REST_Newspack_Articles_Controller extends WP_REST_Controller {
 			array_merge(
 				$article_query_args,
 				array(
-					'post__not_in' => $exclude_ids,
+					'post__not_in' => $exclude_ids, // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in
 				)
 			) :
 			array_merge(
