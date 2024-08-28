@@ -4,6 +4,7 @@ declare module '*.png';
 interface Window {
 	jetpackProtectInitialState?: {
 		status?: Record< string, unknown >;
+		fixerStatus?: Record< string, unknown >;
 		scanHistory?: Record< string, unknown >;
 		credentials?: unknown[];
 		hasPlan?: boolean;
