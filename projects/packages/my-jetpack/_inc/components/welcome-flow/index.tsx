@@ -45,11 +45,12 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		if ( ! siteIsRegistered || welcomeFlowExperiment.isLoading ) {
 			return 'connection';
 		} else if ( ! isProcessingEvaluation ) {
-			if ( welcomeFlowExperiment.variation === 'control' ) {
-				return null;
-			}
-			if ( ! recommendedModules && ! isJetpackUserNew() ) {
+			if (
+				! recommendedModules &&
+				( welcomeFlowExperiment.variation === 'control' || ! isJetpackUserNew() )
+			) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
+				// If user has recommendations, it means they were already in treatment group and they redo the evaluation
 				return null;
 			}
 
