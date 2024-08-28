@@ -100,13 +100,14 @@ export const Prompt: React.FC< { initialPrompt?: string } > = ( { initialPrompt 
 	const onPromptPaste = ( event: React.ClipboardEvent< HTMLInputElement > ) => {
 		event.preventDefault();
 
-		// Paste plain text only
-		const text = event.clipboardData.getData( 'text/plain' );
-
 		const selection = window.getSelection();
 		if ( ! selection || ! selection.rangeCount ) {
 			return;
 		}
+
+		// Paste plain text only
+		const text = event.clipboardData.getData( 'text/plain' );
+
 		selection.deleteFromDocument();
 		const range = selection.getRangeAt( 0 );
 		range.insertNode( document.createTextNode( text ) );

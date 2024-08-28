@@ -95,16 +95,19 @@ export const SettingsCard = inprops => {
 	}
 
 	const getBanner = () => {
-		const upgradeLabel = _x(
-				'Upgrade',
-				'A caption for a button to upgrade an existing paid feature to a higher tier.',
-				'jetpack'
-			),
-			connectLabel = _x(
-				'Connect',
-				'A caption for a button to connect a user account to access paid features.',
-				'jetpack'
-			);
+		// We'll only need one of these at most. Avoid unnecessary i18n loading by using callbacks to fetch when needed.
+		const upgradeLabel = () =>
+				_x(
+					'Upgrade',
+					'A caption for a button to upgrade an existing paid feature to a higher tier.',
+					'jetpack'
+				),
+			connectLabel = () =>
+				_x(
+					'Connect',
+					'A caption for a button to connect a user account to access paid features.',
+					'jetpack'
+				);
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -118,7 +121,7 @@ export const SettingsCard = inprops => {
 							'Connect your WordPress.com account to enable high-quality, ad-free video.',
 							'jetpack'
 						) }
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
@@ -138,7 +141,7 @@ export const SettingsCard = inprops => {
 								{ __( 'Generate income with high-quality ads.', 'jetpack' ) }
 							</span>
 						}
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
@@ -151,7 +154,7 @@ export const SettingsCard = inprops => {
 							'Connect your WordPress.com account to upgrade and generate income with high-quality ads.',
 							'jetpack'
 						) }
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
@@ -172,7 +175,7 @@ export const SettingsCard = inprops => {
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-							callToAction={ upgradeLabel }
+							callToAction={ upgradeLabel() }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
 							href={ props.securityUpgradeUrl }
@@ -185,7 +188,7 @@ export const SettingsCard = inprops => {
 								'jetpack'
 							) }
 							plan={ getJetpackProductUpsellByFeature( FEATURE_SITE_BACKUPS_JETPACK ) }
-							callToAction={ connectLabel }
+							callToAction={ connectLabel() }
 							feature={ feature }
 							onClick={ handleConnectClick( feature ) }
 							rna
@@ -195,7 +198,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __(
 							'Automated scanning and one-click fixes keep your site ahead of security threats.',
 							'jetpack'
@@ -208,7 +211,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade for automated scanning and one-click fixes keep your site ahead of security threats.',
 							'jetpack'
@@ -227,7 +230,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __( 'Connect your site to Google Analytics.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
@@ -237,7 +240,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and connect your site to Google Analytics.',
 							'jetpack'
@@ -273,7 +276,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 							'jetpack'
@@ -292,7 +295,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
@@ -301,7 +304,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and automatically clear spam from comments and forms.',
 							'jetpack'
@@ -320,7 +323,7 @@ export const SettingsCard = inprops => {
 
 				return props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ upgradeLabel }
+						callToAction={ upgradeLabel() }
 						title={ __(
 							'Start accepting PayPal payments for physical products, digital goods, or donations.',
 							'jetpack'
@@ -332,7 +335,7 @@ export const SettingsCard = inprops => {
 					/>
 				) : (
 					<JetpackBanner
-						callToAction={ connectLabel }
+						callToAction={ connectLabel() }
 						title={ __(
 							'Connect your WordPress.com account to upgrade and access PayPal features in your editor.',
 							'jetpack'

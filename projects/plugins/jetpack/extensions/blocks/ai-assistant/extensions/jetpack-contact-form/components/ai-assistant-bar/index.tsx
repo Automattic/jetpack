@@ -82,8 +82,6 @@ export default function AiAssistantBar( {
 	const inputRef = useRef< HTMLInputElement >( null );
 	const { tracks } = useAnalytics();
 
-	const connected = isUserConnected();
-
 	const { inputValue, setInputValue, isVisible, assistantAnchor } =
 		useContext( AiAssistantUiContext );
 
@@ -107,10 +105,6 @@ export default function AiAssistantBar( {
 	const isLoading = requestingState === 'requesting' || requestingState === 'suggesting';
 
 	const showGuideLine = requestingState === 'suggesting' || requestingState === 'done';
-
-	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
-
-	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
 
 	const { removeNotice } = useDispatch( noticesStore );
 
@@ -244,6 +238,12 @@ export default function AiAssistantBar( {
 	if ( ! isVisible ) {
 		return null;
 	}
+
+	const placeholder = __( 'Ask Jetpack AI to create your form', 'jetpack' );
+
+	const loadingPlaceholder = __( 'Creating your form. Please wait a few moments.', 'jetpack' );
+
+	const connected = isUserConnected();
 
 	// Assistant bar component.
 	const AiAssistantBarComponent = (

@@ -49,7 +49,6 @@ class SearchResults extends Component {
 		const { total = 0, corrected_query = false } = this.props.response;
 		const hasQuery = this.props.searchQuery !== '';
 		const hasCorrectedQuery = corrected_query !== false;
-		const num = new Intl.NumberFormat().format( total );
 		const isMultiSite =
 			this.props.staticFilters &&
 			this.props.staticFilters.group_id &&
@@ -67,6 +66,7 @@ class SearchResults extends Component {
 			return __( 'No results found', 'jetpack-search-pkg' );
 		}
 
+		const num = new Intl.NumberFormat().format( total );
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
 				/* translators: %1$s: number of results. %2$s: the corrected search query. */

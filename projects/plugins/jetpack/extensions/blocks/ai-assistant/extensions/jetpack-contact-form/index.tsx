@@ -42,13 +42,14 @@ export function useIsPossibleToExtendJetpackFormBlock(
 		clientId: '',
 	}
 ): boolean {
-	// Check if the AI Assistant block is registered.
-	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 	const { isModuleActive } = useModuleStatus( 'contact-form' );
 
 	if ( ! isModuleActive ) {
 		return false;
 	}
+
+	// Check if the AI Assistant block is registered.
+	const isBlockRegistered = getBlockType( 'jetpack/ai-assistant' );
 
 	if ( ! isBlockRegistered ) {
 		return false;
