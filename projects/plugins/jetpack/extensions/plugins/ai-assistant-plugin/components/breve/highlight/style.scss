@@ -35,7 +35,8 @@
 
 			.jetpack-ai-breve__suggestions-container {
 				max-height: calc( 200px - 32px ); // 32px is the height of the helper buttons wrapper
-				overflow-y: scroll;
+				overflow-y: auto;
+				overflow-x: hidden;
 				padding: 3px 0; // Space for the focus highlight
 			}
 		}
