@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Slideshow shortcode: Remove deprecated JS functionality and remove majority of jQuery.

@@ -62,6 +62,7 @@ body div.jetpack-slideshow-window * img {
 
 .jetpack-slideshow-slide img {
 	vertical-align: middle;
+	margin: 0 auto;
 }
 
 .jetpack-slideshow-line-height-hack {
