@@ -46,9 +46,33 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 			return new WP_Error( 'unexpected-http-request', 'Test is making an unexpected HTTP request.' );
 		}
 
+		$video_id = preg_match( '/video\/(\d+)/', $oembed_query_args['url'], $matches )
+			? (int) $matches[1]
+			: 0;
+
 		$body = <<<BODY
 {
+	"type": "video",
+	"version": "1.0",
+	"provider_name": "Vimeo",
+	"provider_url": "https://vimeo.com/",
+	"title": "Eskmo 'We Got More' (Official Video)",
+	"author_name": "Ninja Tune",
+	"author_url": "https://vimeo.com/ninjatune",
+	"is_plus": "1",
+	"account_type": "plus",
 	"html": "<iframe src=\"{$oembed_query_args['url']}\" width=\"500\" height=\"281\" frameborder=\"0\" allow=\"autoplay; fullscreen; picture-in-picture; clipboard-write\" title=\"Eskmo 'We Got More' (Official Video)\"></iframe>",
+	"width": 500,
+	"height": 281,
+	"duration": 158,
+	"description": "Official video for 'We Got More', taken from the album 'Eskmo' on Ninja Tune.\n\nVideo directed by Cyriak Harris: http://www.cyriak.co.uk\nAdditional footage of Eskmo by http://trevortraynor.com &\nhttp://duganoneal.com\n\nDownload the video at http://www.eskmo.com/music/we-got-mor...\n\n'Eskmo' is available on 2LP/CD/Download from the Ninjashop: - http://ninjatune.net/release/eskmo/eskmo\n\nhttp://www.eskmo.com\nhttp://www.ninjatune.net",
+	"thumbnail_url": "https://i.vimeocdn.com/video/115901097-56d85d68b8073d91f0fb9c589e46eb281102c78b49e157dc889e9bac4c47bdcd-d_295x166",
+	"thumbnail_width": 295,
+	"thumbnail_height": 166,
+	"thumbnail_url_with_play_button": "https://i.vimeocdn.com/filter/overlay?src0=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F115901097-56d85d68b8073d91f0fb9c589e46eb281102c78b49e157dc889e9bac4c47bdcd-d_295x166&src1=http%3A%2F%2Ff.vimeocdn.com%2Fp%2Fimages%2Fcrawler_play.png",
+	"upload_date": "2011-01-04 09:55:31",
+	"video_id": $video_id,
+	"uri": "/videos/$video_id"
 }
 BODY;
 
@@ -230,7 +254,7 @@ BODY;
 
 		global $post;
 
-		$post = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => "[vimeo $url]" ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );
@@ -238,6 +262,7 @@ BODY;
 		the_content();
 		$actual = ob_get_clean();
 		wp_reset_postdata();
+		$this->assertStringContainsString( '<div class="embed-vimeo"', $actual );
 
 		if ( wp_lazy_loading_enabled( 'iframe', null ) ) {
 			$this->assertStringContainsString( '<iframe loading="lazy" src="https://player.vimeo.com/video/' . $video_id . '"', $actual );
