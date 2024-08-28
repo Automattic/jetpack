@@ -23,6 +23,10 @@ import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
 import { getPostText } from './utils/getPostText';
 import './breve.scss';
+/**
+ * Types
+ */
+import type { BreveSelect } from './types';
 
 export const useInit = init => {
 	const [ initialized, setInitialized ] = useState( false );
@@ -34,13 +38,13 @@ export const useInit = init => {
 };
 
 const Controls = ( { blocks, disabledFeatures } ) => {
-	const [ gradeLevel, setGradeLevel ] = useState( null );
+	const [ gradeLevel, setGradeLevel ] = useState< string | null >( null );
 	const { toggleFeature, toggleProofread, setPopoverHover, setHighlightHover, setPopoverAnchor } =
 		useDispatch( 'jetpack/ai-breve' );
 	const { tracks } = useAnalytics();
 
 	const isProofreadEnabled = useSelect(
-		select => select( 'jetpack/ai-breve' ).isProofreadEnabled(),
+		select => ( select( 'jetpack/ai-breve' ) as BreveSelect ).isProofreadEnabled(),
 		[]
 	);
 
@@ -64,7 +68,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 	const debouncedGradeLevelUpdate = useDebounce( updateGradeLevel, 250 );
 
 	const handleToggleFeature = useCallback(
-		feature => checked => {
+		( feature: string ) => ( checked: boolean ) => {
 			tracks.recordEvent( 'jetpack_ai_breve_feature_toggle', { type: feature, on: checked } );
 			toggleFeature( feature, checked );
 		},
