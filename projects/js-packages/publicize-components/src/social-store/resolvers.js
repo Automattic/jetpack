@@ -63,15 +63,14 @@ export function getConnections() {
 /**
  * Resolves the post share status.
  *
- * @param {number} postId - The post ID.
+ * @param {number} _postId - The post ID.
  *
  * @return {Function} Resolver
  */
-export function getPostShareStatus( postId ) {
-	return async ( { dispatch } ) => {
-		if ( ! postId ) {
-			return;
-		}
+export function getPostShareStatus( _postId ) {
+	return async ( { dispatch, registry } ) => {
+		// Default to the current post ID if none is provided.
+		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
