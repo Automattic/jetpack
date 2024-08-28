@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -222,9 +223,14 @@ class Plugin_Storage {
 	public static function update_active_plugins_option() {
 		// Note: Since this option is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
 		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
-
 		if ( ! class_exists( 'Automattic\Jetpack\Sync\Settings' ) || ! \Automattic\Jetpack\Sync\Settings::is_sync_enabled() ) {
 			self::update_active_plugins_wpcom_no_sync_fallback();
+			// Remove the checksum for active plugins, so it gets recalculated when sync gets activated.
+			$jetpack_callables_sync_checksum = Jetpack_Options::get_raw_option( 'jetpack_callables_sync_checksum' );
+			if ( isset( $jetpack_callables_sync_checksum['jetpack_connection_active_plugins'] ) ) {
+				unset( $jetpack_callables_sync_checksum['jetpack_connection_active_plugins'] );
+				Jetpack_Options::update_raw_option( 'jetpack_callables_sync_checksum', $jetpack_callables_sync_checksum );
+			}
 		}
 	}
 
