@@ -34,7 +34,11 @@ export default function useFixersQuery( {
 				return false;
 			}
 
-			if ( query.state.data.some( ( { status } ) => status === 'in_progress' ) ) {
+			if (
+				Object.values( query.state.data.threats ).some(
+					threat => ( threat as { status: string } ).status === 'in_progress'
+				)
+			) {
 				return 5_000;
 			}
 		},
