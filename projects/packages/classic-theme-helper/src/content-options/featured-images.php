@@ -2,7 +2,7 @@
 /**
  * Theme Tools: functions for Featured Images.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-classic-theme-helper
  */
 
 if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
@@ -85,7 +85,7 @@ if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
 			return $metadata;
 		}
 	}
-	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', true, 3 );
+	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', 3 );
 
 }
 
@@ -95,7 +95,7 @@ if ( ! function_exists( 'jetpack_is_product' ) ) {
 	 * Check if we are in a WooCommerce Product in order to exclude it from the is_single check.
 	 */
 	function jetpack_is_product() {
-		return ( function_exists( 'is_product' ) ) ? is_product() : false;
+		return ( function_exists( 'is_product' ) ) ? is_product() : false; // @phan-suppress-current-line PhanUndeclaredFunction -- We only call the function if it exists.
 	}
 
 }
@@ -117,10 +117,11 @@ if ( ! function_exists( 'jetpack_is_shop_page' ) ) {
 		$current_page_id      = $wp_query->get( 'page_id' );
 		$is_static_front_page = 'page' === get_option( 'show_on_front' );
 
+		$is_shop_page = false;
 		if ( $is_static_front_page && $front_page_id === $current_page_id ) {
-			$is_shop_page = ( wc_get_page_id( 'shop' ) === $current_page_id ) ? true : false;
-		} else {
-			$is_shop_page = is_shop();
+			$is_shop_page = function_exists( 'wc_get_page_id' ) && wc_get_page_id( 'shop' ) === $current_page_id;  // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first.
+		} elseif ( function_exists( 'is_shop' ) ) {
+			$is_shop_page = is_shop();  // @phan-suppress-current-line PhanUndeclaredFunction -- We're checking the function exists first.
 		}
 
 		return $is_shop_page;
