@@ -71,18 +71,7 @@ function remove_og_tags() {
 	}
 
 	// Disable Jetpack Open Graph Tags.
-	if ( function_exists( 'jetpack_og_tags' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunctionInCallable
-		remove_action( 'wp_head', 'jetpack_og_tags' );
-	}
-
-	// Avoid calling check_open_graph as it registers the jetpack_og_tags function when running wp_head action.
-	// @phan-suppress-next-line PhanUndeclaredClassInCallable
-	if ( class_exists( '\Jetpack', false ) && is_callable( 'Jetpack::init' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredClassMethod
-		$jetpack = \Jetpack::init();
-		remove_action( 'wp_head', array( $jetpack, 'check_open_graph' ), 1 );
-	}
+	add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
 
 	// Disable Yoast SEO. See https://developer.yoast.com/customization/yoast-seo/disabling-yoast-seo/.
 	if ( function_exists( 'YoastSEO' ) && class_exists( 'Yoast\WP\SEO\Integrations\Front_End_Integration', false ) ) {
