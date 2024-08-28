@@ -5,10 +5,6 @@ module.exports = {
 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
-		babelOptions: {
-			configFile: require.resolve( './babel.config.cjs' ),
-		},
-		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: [ './tsconfig.json' ],
 	},
