@@ -185,8 +185,8 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = (string) $status;
 					break;
 				case 'parent': // May be object or false.
-					if ( $comment->comment_parent ) {
-						$parent           = get_comment( $comment->comment_parent );
+					$parent = $comment->comment_parent ? get_comment( $comment->comment_parent ) : null;
+					if ( $parent ) {
 						$response[ $key ] = (object) array(
 							'ID'   => (int) $parent->comment_ID,
 							'type' => (string) ( $parent->comment_type ? $parent->comment_type : 'comment' ),
