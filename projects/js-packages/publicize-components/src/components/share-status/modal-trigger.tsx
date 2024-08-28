@@ -1,5 +1,5 @@
 import { Button } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { forwardRef } from 'react';
 import { store as socialStore } from '../../social-store';
