@@ -11,9 +11,9 @@ import useScanStatusQuery from '../data/scan/use-scan-status-query';
  * @return {object} Fixers object
  */
 export default function useFixers() {
+	const queryClient = useQueryClient();
 	const { data: status } = useScanStatusQuery();
 	const fixersMutation = useFixersMutation();
-	const queryClient = useQueryClient();
 	const { data: fixersStatus } = useFixersQuery( {
 		threatIds: status.fixableThreats,
 		usePolling: true,
