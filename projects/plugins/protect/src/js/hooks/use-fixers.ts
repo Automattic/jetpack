@@ -1,3 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../constants';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
@@ -9,15 +12,28 @@ import useScanStatusQuery from '../data/scan/use-scan-status-query';
  */
 export default function useFixers() {
 	const { data: status } = useScanStatusQuery();
-	const { fixableThreats } = status;
 	const fixersMutation = useFixersMutation();
-
-	const { data: fixersStatus } = useFixersQuery( { threatIds: fixableThreats, usePolling: true } );
+	const queryClient = useQueryClient();
+	const { data: fixersStatus } = useFixersQuery( {
+		threatIds: status.fixableThreats,
+		usePolling: true,
+	} );
 
 	const fixThreats = async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds );
 
+	useEffect( () => {
+		if (
+			Object.values( fixersStatus.threats ).some(
+				( threat: { status: string } ) => threat.status !== 'in_progress'
+			)
+		) {
+			queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+		}
+	}, [ fixersStatus, queryClient ] );
+
 	return {
-		fixableThreats,
+		fixableThreats: status.fixableThreats,
 		fixersStatus,
 		fixThreats,
 		isLoading: fixersMutation.isPending,

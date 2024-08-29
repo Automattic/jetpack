@@ -1,6 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+	QUERY_CREDENTIALS_KEY,
 	QUERY_HAS_PLAN_KEY,
 	QUERY_HISTORY_KEY,
 	QUERY_SCAN_STATUS_KEY,
@@ -37,6 +38,7 @@ export default function useConnectSiteMutation() {
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
+			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
 		},
 	} );
 }

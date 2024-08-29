@@ -39,7 +39,8 @@ export default function useFixersQuery( {
 					( threat: { status: string } ) => threat.status === 'in_progress'
 				)
 			) {
-				return 5_000;
+				// Refetch on a shorter interval first, then slow down if it is taking a while.
+				return query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
 			}
 		},
 		enabled: isRegistered,

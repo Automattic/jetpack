@@ -122,7 +122,7 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ fixersStatus.threats?.[ id ]?.status === 'in_progress' ? (
+								{ fixersStatus?.threats?.[ id ]?.status === 'in_progress' ? (
 									<Spinner color="black" />
 								) : (
 									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
