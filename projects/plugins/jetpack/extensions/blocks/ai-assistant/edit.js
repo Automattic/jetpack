@@ -323,9 +323,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		</>
 	);
 
-	const fairUsageNotice = (
-		<>{ isOverLimit && planType === PLAN_TYPE_UNLIMITED && <FairUsageNotice variant="muted" /> }</>
-	);
+	const fairUsageNotice =
+		isOverLimit && planType === PLAN_TYPE_UNLIMITED ? <FairUsageNotice variant="muted" /> : null;
 
 	const trackUpgradeClick = useCallback(
 		event => {
