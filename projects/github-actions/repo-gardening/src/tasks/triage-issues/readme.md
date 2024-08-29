@@ -9,6 +9,7 @@ Here are the labels added to newly opened issues. Those labels are inferred from
 1. Add a `[Plugin]` label if a specific plugin is impacted by the issue.
 2. Add a `[Pri]` label if we can determine the severity of the issue from the issue contents. If we cannot, we add a `[Pri] TBD` label.
 3. Add a `[Platform]` label if the issue is specific to a platform.
+4. Add `[Feature]` and `[Feature Group]` labels based on the issue contents.
 
 Slack notifications are only sent in specific scenarios:
 
