@@ -183,9 +183,18 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.7 - 2024-07-10
-#### Security
-- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.
+### 3.4.8-beta - 2024-08-29
+#### Changed
+- Admin menu: change order of Jetpack sub-menu items
+- React: Changing global JSX namespace to React.JSX
+
+#### Fixed
+- Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch.
+- Lossless image optimization for images (should improve performance with no visible changes).
+- Misc: Fix PHP warning when generating critical css for some taxonomy pages.
+- Revert recent SVG image optimizations.
+- UI: Fix inconsistencies.
+- Updated package dependencies.
 
 --------
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Sync: Remove the checksum for active plugins if present when sync is not active, so it gets recalculated when sync gets activated
