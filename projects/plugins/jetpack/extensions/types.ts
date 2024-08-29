@@ -3,6 +3,8 @@
  */
 import type { TierProp, UpgradeTypeProp } from './store/wordpress-com/types';
 
+type FeaturesControl = { [ key: string ]: string | boolean | FeaturesControl };
+
 /*
  * `sites/$site/ai-assistant-feature` endpoint response body props
  */
@@ -29,4 +31,5 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 			[ key: string ]: number;
 		};
 	};
+	'features-control'?: FeaturesControl;
 };

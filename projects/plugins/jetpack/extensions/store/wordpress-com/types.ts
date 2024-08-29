@@ -83,6 +83,8 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
+export type FeaturesControl = { [ key: string ]: string | boolean | FeaturesControl };
+
 export type AiFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
@@ -105,6 +107,7 @@ export type AiFeatureProps = {
 			[ key: string ]: number;
 		};
 	};
+	featuresControl?: FeaturesControl;
 };
 
 // Type used in the `wordpress-com/plans` store.
