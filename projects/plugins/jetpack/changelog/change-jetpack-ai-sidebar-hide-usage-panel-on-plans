@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Jetpack AI: hide usagepanel when tier plans are disabled. Show QuotaExceededMessage instead of nudges

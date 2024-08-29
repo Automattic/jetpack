@@ -32,8 +32,13 @@
 
 		&.jetpack-ai-breve__has-suggestions {
 			align-items: flex-start;
-			padding-top: 8px;
-			gap: 8px;
+
+			.jetpack-ai-breve__suggestions-container {
+				max-height: calc( 200px - 32px ); // 32px is the height of the helper buttons wrapper
+				overflow-y: auto;
+				overflow-x: hidden;
+				padding: 3px 0; // Space for the focus highlight
+			}
 		}
 
 		.jetpack-ai-breve__header-container {
@@ -41,6 +46,7 @@
 			width: 100%;
 			justify-content: space-between;
 			gap: 32px;
+			height: 40px;
 
 			.jetpack-ai-breve__title,
 			.jetpack-ai-breve__action {
@@ -75,17 +81,27 @@
 					padding-top: 0px;
 					padding-bottom: 0px;
 					padding-right: 0px;
-					height: unset;
+					height: 24px;
 
 					& > svg,
 					path {
 						fill: #0277a8;
 					}
 				}
+
+				.jetpack-ai-breve__loading {
+					height: 24px;
+					display: flex;
+					align-items: center;
+
+					svg {
+						margin-top: 0;
+					}
+				}
 			}
 		}
 
-		.jetpack-ai-breve__bottom-container {
+		.jetpack-ai-breve__suggestions-container {
 			display: flex;
 			flex-direction: column;
 			border-top: 1px solid #dcdcde;
@@ -101,30 +117,6 @@
 				}
 			}
 
-			.jetpack-ai-breve__helper {
-				padding: 4px 8px;
-				background-color: #f6f7f7;
-				white-space: nowrap;
-				color: #646970;
-				margin: 4px;
-				border-radius: 4px;
-				font-size: 12px;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				gap: 8px;
-
-				.jetpack-ai-breve__helper-buttons-wrapper {
-					display: flex;
-					gap: 16px;
-				}
-
-				.components-button {
-					padding: 0px;
-					color: #646970;
-				}
-			}
-
 			.components-button.is-tertiary {
 				color: #000000;
 				white-space: break-spaces;
@@ -135,6 +127,31 @@
 				padding-top: 16px;
 				padding-bottom: 16px;
 				line-height: 20px;
+			}
+		}
+
+		.jetpack-ai-breve__helper {
+			padding: 4px 8px;
+			background-color: #f6f7f7;
+			white-space: nowrap;
+			color: #646970;
+			margin: 4px;
+			border-radius: 4px;
+			font-size: 12px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 8px;
+			width: calc( 100% - 8px );
+
+			.jetpack-ai-breve__helper-buttons-wrapper {
+				display: flex;
+				gap: 16px;
+			}
+
+			.components-button {
+				padding: 0px;
+				color: #646970;
 			}
 		}
 	}
