@@ -76,6 +76,13 @@ export function configuration(
 				loading,
 			};
 		}
+
+		case 'RELOAD_DICTIONARY': {
+			return {
+				...state,
+				reload: ! state.reload,
+			};
+		}
 	}
 
 	return state;
