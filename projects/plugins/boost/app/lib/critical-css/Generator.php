@@ -68,7 +68,7 @@ class Generator {
 	/**
 	 * Displays the plugin version number as a meta tag.
 	 */
-	private function display_plugin_version_meta() {
+	public function display_plugin_version_meta() {
 		$plugin_version = defined( 'JETPACK_BOOST_VERSION' ) ? JETPACK_BOOST_VERSION : 'unknown';
 		?>
 		<meta name="jetpack-boost-version" content="<?php echo esc_attr( $plugin_version ); ?>"/>
