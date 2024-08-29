@@ -15,21 +15,8 @@ export default function useFixersMutation() {
 
 	return useMutation( {
 		mutationFn: ( threatIds: number[] ) => API.fixThreats( threatIds ),
-		onSuccess: ( data, threatIds ) => {
-			// Optimistically update the fixer status to 'in_progress' for the selected threats.
-			queryClient.setQueryData(
-				[ QUERY_FIXERS_KEY, ...threatIds ],
-				( currentFixers: { threats: [] } ) => ( {
-					...currentFixers,
-					threats: {
-						...currentFixers.threats,
-						...threatIds.reduce( ( acc, threatId ) => {
-							acc[ threatId ] = { status: 'in_progress' };
-							return acc;
-						}, {} ),
-					},
-				} )
-			);
+		onSuccess: () => {
+			// TESTING: Do NOT optimistically update the fixer status to 'in_progress' for the selected threats.
 			// Show a success notice.
 			showSuccessNotice(
 				__(
