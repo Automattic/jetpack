@@ -202,6 +202,7 @@ function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 		}
 	}
 }
+// Run this function later than Core: https://github.com/WordPress/wordpress-develop/blob/5a30482419f1b0bcc713a7fdee3a14afd67a1bca/src/wp-includes/class-wp-admin-bar.php#L651
 add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 9999 );
 
 /**
