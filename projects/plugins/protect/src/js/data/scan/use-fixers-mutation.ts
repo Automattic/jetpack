@@ -18,20 +18,36 @@ export default function useFixersMutation() {
 		onSuccess: ( data, threatIds ) => {
 			// Optimistically update the fixer status to 'in_progress' for the selected threats.
 			queryClient.setQueryData(
-				[ QUERY_FIXERS_KEY, ...threatIds ],
-				( currentFixers: { threats: [] } ) => ( {
-					...currentFixers,
-					threats: {
+				[ QUERY_FIXERS_KEY ],
+				(
+					currentFixers:
+						| { ok: boolean; threats: { [ key: number ]: { status: string } } }
+						| undefined
+				) => {
+					if ( ! currentFixers ) {
+						currentFixers = { ok: true, threats: {} };
+					}
+
+					const updatedThreats = {
 						...currentFixers.threats,
-						...threatIds.reduce( ( acc, threatId ) => {
-							acc[ threatId ] = { status: 'in_progress' };
-							return acc;
-						}, {} ),
-					},
-				} )
+						...threatIds.reduce(
+							( acc, threatId ) => {
+								acc[ threatId ] = { status: 'in_progress' };
+								return acc;
+							},
+							{} as { [ key: number ]: { status: string } }
+						),
+					};
+
+					const newFixers = {
+						...currentFixers,
+						threats: updatedThreats,
+					};
+
+					return newFixers;
+				}
 			);
 
-			// Show a success notice.
 			showSuccessNotice(
 				__(
 					"We're hard at work fixing this threat in the background. Please check back shortly.",

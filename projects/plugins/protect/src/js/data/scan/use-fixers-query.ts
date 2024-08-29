@@ -26,7 +26,7 @@ export default function useFixersQuery( {
 	} );
 
 	return useQuery( {
-		queryKey: [ QUERY_FIXERS_KEY, ...threatIds ],
+		queryKey: [ QUERY_FIXERS_KEY ],
 		queryFn: () => API.getFixersStatus( threatIds ),
 		initialData: window.jetpackProtectInitialState?.fixerStatus,
 		refetchInterval( query ) {
