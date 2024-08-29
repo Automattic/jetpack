@@ -6,7 +6,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\CSS_Proxy;
 
 class Generator {
 
-	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
+	const GENERATE_QUERY_ACTION   = 'jb-generate-critical-css';
+	const PLUGIN_VERSION_META_TAG = 'jb-version';
 
 	public static function init() {
 		$generator = new static();
@@ -71,7 +72,7 @@ class Generator {
 	public function display_plugin_version_meta() {
 		$plugin_version = defined( 'JETPACK_BOOST_VERSION' ) ? JETPACK_BOOST_VERSION : 'unknown';
 		?>
-		<meta name="jetpack-boost-version" content="<?php echo esc_attr( $plugin_version ); ?>"/>
+		<meta name="<?php echo esc_attr( self::PLUGIN_VERSION_META_TAG ); ?>" content="<?php echo esc_attr( $plugin_version ); ?>"/>
 		<?php
 	}
 }
