@@ -33,7 +33,9 @@ if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
 	 * Make module configurable.
 	 */
 	function jetpack_custom_post_types_loaded() {
-		Jetpack::enable_module_configurable( __FILE__ );
+		if ( class_exists( 'Jetpack' ) ) {
+			Jetpack::enable_module_configurable( __FILE__ );
+		}
 	}
 	add_action( 'jetpack_modules_loaded', 'jetpack_custom_post_types_loaded' );
 }
@@ -58,12 +60,14 @@ if ( ! function_exists( 'jetpack_cpt_section_callback' ) ) {
 	 * Settings Description
 	 */
 	function jetpack_cpt_section_callback() {
-		?>
-		<p>
-			<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack-classic-theme-helper' ); ?>
-			<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) ); ?>"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
-		</p>
-		<?php
+		if ( class_exists( 'Redirect' ) ) {
+			?>
+			<p>
+				<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack-classic-theme-helper' ); ?>
+				<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) ); ?>"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
+			</p>
+			<?php
+		}
 	}
 }
 

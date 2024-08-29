@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Classic_Theme_Helper;
 
 use Jetpack_Options;
+use WP_Customize_Image_Control;
+use WP_Customize_Manager;
 use WP_Query;
 
 if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
@@ -68,7 +70,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$setting = get_option( self::OPTION_NAME, '0' );
 			} else {
-				$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
+				$setting = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' ) : '0'; // @phan-suppress-current-line PhanUndeclaredClassMethod -- We check if the class exists first.
 			}
 
 			// Bail early if Portfolio option is not set and the theme doesn't declare support.
@@ -208,7 +210,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 * Bump Portfolio > New Activation stat.
 		 */
 		public function new_activation_stat_bump() {
-			bump_stats_extras( 'portfolios', 'new-activation' );
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( 'portfolios', 'new-activation' ); // @phan-suppress-current-line PhanUndeclaredFunction -- only calling if it exists.
+			}
 		}
 
 		/**
@@ -219,11 +223,17 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 */
 		public function update_option_stat_bump( $old, $new ) {
 			if ( empty( $old ) && ! empty( $new ) ) {
-				bump_stats_extras( 'portfolios', 'option-on' );
+				if ( function_exists( 'bump_stats_extras' ) ) {
+
+					bump_stats_extras( 'portfolios', 'option-on' ); // @phan-suppress-current-line PhanUndeclaredFunction -- only calling if it exists.
+				}
 			}
 
 			if ( ! empty( $old ) && empty( $new ) ) {
-				bump_stats_extras( 'portfolios', 'option-off' );
+				if ( function_exists( 'bump_stats_extras' ) ) {
+
+					bump_stats_extras( 'portfolios', 'option-off' ); // @phan-suppress-current-line PhanUndeclaredFunction -- only calling if it exists.
+				}
 			}
 		}
 
@@ -231,7 +241,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 * Bump Portfolio > Published Projects stat when projects are published.
 		 */
 		public function new_project_stat_bump() {
-			bump_stats_extras( 'portfolios', 'published-projects' );
+			if ( function_exists( 'bump_stats_extras' ) ) {
+
+				bump_stats_extras( 'portfolios', 'published-projects' ); // @phan-suppress-current-line PhanUndeclaredFunction -- only calling if it exists.
+			}
 		}
 
 		/**
@@ -1025,7 +1038,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 
 			// If no types, return empty string.
 			if ( empty( $project_types ) || is_wp_error( $project_types ) ) {
-				return;
+				return '';
 			}
 
 			$html  = '<div class="project-types"><span>' . __( 'Types:', 'jetpack-classic-theme-helper' ) . '</span>';
@@ -1058,7 +1071,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 
 			// If no tags, return empty string.
 			if ( empty( $project_tags ) || is_wp_error( $project_tags ) ) {
-				return false;
+				return '';
 			}
 
 			$html = '<div class="project-tags"><span>' . __( 'Tags:', 'jetpack-classic-theme-helper' ) . '</span>';
@@ -1089,7 +1102,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			$html .= sprintf(
 				/* translators: %1$s is link to author posts, %2$s is author display name */
 				__( '<span>Author:</span> <a href="%1$s">%2$s</a>', 'jetpack-classic-theme-helper' ),
-				esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ),
+				esc_url( get_author_posts_url( (int) get_the_author_meta( 'ID' ) ) ),
 				esc_html( get_the_author() )
 			);
 			$html .= '</div>';
