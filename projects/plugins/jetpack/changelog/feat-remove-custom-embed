@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: compat
 
-Shortcode: Get rid of custom shortcodes for Youtube and Vimeo in favor of Core
+Embeds: prioritize YouTube and Vimeo embeds provided by WordPress itself, over Jetpack's embedding solution.
