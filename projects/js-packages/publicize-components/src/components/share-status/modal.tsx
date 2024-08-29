@@ -3,6 +3,7 @@ import { Modal } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
+import { ShareList } from './share-list';
 import styles from './styles.module.scss';
 
 /**
@@ -14,13 +15,15 @@ export function ShareStatusModal() {
 	const { closeShareStatusModal } = useDispatch( socialStore );
 
 	return (
-		<Modal
-			className={ styles.modal }
-			onRequestClose={ closeShareStatusModal }
-			title={ __( 'Share status', 'jetpack' ) }
-		>
-			Content goes here
-		</Modal>
+		<div className={ styles.wrapper }>
+			<Modal
+				onRequestClose={ closeShareStatusModal }
+				title={ __( 'Sharing status', 'jetpack' ) }
+				className={ styles.modal }
+			>
+				<ShareList />
+			</Modal>
+		</div>
 	);
 }
 
