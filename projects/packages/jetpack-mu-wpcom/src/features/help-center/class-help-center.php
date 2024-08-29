@@ -134,7 +134,7 @@ class Help_Center {
 		// Only enqueue the Help Center button styles. The Help Center takes care of its own styling in JS.
 		wp_enqueue_style(
 			'help-center-style',
-			'https://widgets.wp.com/help-center/help-center-help-button-styles' . ( is_rtl() ? '.rtl.css' : '.css' ),
+			'https://widgets.wp.com/help-center/help-center-button-styles' . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
 		);
