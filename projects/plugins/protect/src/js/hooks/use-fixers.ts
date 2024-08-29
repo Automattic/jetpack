@@ -23,6 +23,7 @@ export default function useFixers() {
 
 	useEffect( () => {
 		if (
+			fixersStatus &&
 			Object.values( fixersStatus.threats ).some(
 				( threat: { status: string } ) => threat.status !== 'in_progress'
 			)
