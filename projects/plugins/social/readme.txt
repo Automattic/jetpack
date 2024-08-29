@@ -102,12 +102,26 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.1.0 - 2024-08-08
-#### Added
-- Added feature flag management for social
+### 5.2.0 - 2024-08-29
+
+#### Changed
+
+- Admin menu: change order of Jetpack sub-menu items
+- Moved PostPublishPanels component to publicize-components package
+- Social: Migrated shares data to the new script data
+- Social: Updated intial state logic to use the new consolidated initial state
+- Social: Updated the share status modal to render it globally
+- Update composer lock file
+- Updated package dependencies.
+
+#### Removed
+
+- Remove the unused Advanced plan nudge
+- Social: Removed share limits UI and data logic
 
 #### Fixed
-- Lossless image optimization of images in projects/plugins [subdirectories from a* through social]
+
+- Revert recent SVG image optimizations.
 
 == Upgrade Notice ==
 
