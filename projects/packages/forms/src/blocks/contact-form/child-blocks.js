@@ -646,7 +646,10 @@ export const childBlocks = [
 	},
 	{
 		name: JetpackFieldMultipleChoice.name,
-		settings: mergeSettings( FieldDefaults, JetpackFieldMultipleChoice.settings ),
+		settings: mergeSettings( FieldDefaults, {
+			...JetpackFieldMultipleChoice.settings,
+			deprecated: [ multiFieldV1( 'checkbox' ) ],
+		} ),
 	},
 	{
 		name: JetpackFieldMultipleChoiceItem.name,
