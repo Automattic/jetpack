@@ -529,9 +529,9 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  *
  * @deprecated since x.x.x
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
 	return youtube_id( $url );
