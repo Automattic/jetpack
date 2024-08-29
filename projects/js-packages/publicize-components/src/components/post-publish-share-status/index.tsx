@@ -2,6 +2,8 @@ import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { usePostMeta } from '../../hooks/use-post-meta';
+import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
+import { store as socialStore } from '../../social-store';
 import { ShareStatus } from './share-status';
 
 /**
@@ -10,7 +12,7 @@ import { ShareStatus } from './share-status';
  * @return {import('react').ReactNode} - Post publish share status component.
  */
 export function PostPublishShareStatus() {
-	const { isPublicizeEnabled: willPostBeShared } = usePostMeta();
+	const { isPublicizeEnabled } = usePostMeta();
 	const { postId, isPostPublised } = useSelect( select => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
 		const _editorStore = select( editorStore ) as any;
@@ -20,6 +22,12 @@ export function PostPublishShareStatus() {
 			isPostPublised: _editorStore.isCurrentPostPublished(),
 		};
 	}, [] );
+
+	const enabledConnections = usePostPrePublishValue(
+		useSelect( select => select( socialStore ).getEnabledConnections(), [] )
+	);
+
+	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0;
 
 	if ( ! willPostBeShared || ! isPostPublised ) {
 		return null;

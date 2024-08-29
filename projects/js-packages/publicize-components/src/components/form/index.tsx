@@ -9,6 +9,10 @@
 import { Disabled, PanelRow } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { usePublicizeConfig } from '../../..';
+import useAttachedMedia from '../../hooks/use-attached-media';
+import useFeaturedImage from '../../hooks/use-featured-image';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { getSocialScriptData } from '../../utils/script-data';
 import { ThemedConnectionsModal as ManageConnectionsModal } from '../manage-connections-modal';
@@ -24,8 +28,24 @@ import { SharePostForm } from './share-post-form';
  * @return {object} - Publicize form component.
  */
 export default function PublicizeForm() {
-	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const { hasConnections, hasEnabledConnections, connections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, isPublicizeDisabledBySitePlan } = usePublicizeConfig();
+	const { attachedMedia } = useAttachedMedia();
+	const featuredImageId = useFeaturedImage();
+
+	const mediaId = attachedMedia[ 0 ]?.id || featuredImageId;
+	const { validationErrors, isConvertible } = useMediaRestrictions(
+		connections,
+		useMediaDetails( mediaId )[ 0 ]
+	);
+
+	const showSharePostForm =
+		isPublicizeEnabled &&
+		( hasEnabledConnections ||
+			// We show the form if there is any attached media or validation errors to let the user
+			// fix the issues with uploading an image.
+			attachedMedia.length > 0 ||
+			( Object.keys( validationErrors ).length !== 0 && ! isConvertible ) );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -50,9 +70,7 @@ export default function PublicizeForm() {
 
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
-					{ isPublicizeEnabled && hasEnabledConnections && (
-						<SharePostForm analyticsData={ { location: 'editor' } } />
-					) }
+					{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 				</Fragment>
 			) }
 		</Wrapper>

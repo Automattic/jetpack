@@ -1,4 +1,0 @@
-Significance: major
-Type: removed
-
-Schema: Remove built in schema and use the dedicated package for schema instead.
