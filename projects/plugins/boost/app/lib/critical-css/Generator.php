@@ -12,6 +12,7 @@ class Generator {
 		$generator = new static();
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
+			add_action( 'wp_head', array( $generator, 'display_plugin_version_meta' ), 0 );
 			$generator->force_logged_out_render();
 		}
 	}
@@ -61,6 +62,16 @@ class Generator {
 	public function display_generate_meta() {
 		?>
 		<meta name="<?php echo esc_attr( self::GENERATE_QUERY_ACTION ); ?>" content="true"/>
+		<?php
+	}
+
+	/**
+	 * Displays the plugin version number as a meta tag.
+	 */
+	private function display_plugin_version_meta() {
+		$plugin_version = defined( 'JETPACK_BOOST_VERSION' ) ? JETPACK_BOOST_VERSION : 'unknown';
+		?>
+		<meta name="jetpack-boost-version" content="<?php echo esc_attr( $plugin_version ); ?>"/>
 		<?php
 	}
 }
