@@ -54,10 +54,16 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
 			const { getAiAssistantFeature } = select( 'wordpress-com/plans' );
-			const isFreePlan = getAiAssistantFeature().currentTier?.value === 0;
+			const { currentTier, featuresControl } = getAiAssistantFeature();
+			const canWriteBriefBeEnabled = featuresControl?.[ 'write-brief' ]?.enabled === true;
+			const canFeatureBeEnabled =
+				featuresControl?.[ 'write-brief' ]?.[ config.name ].enabled === true;
+			const canBeEnabled = canWriteBriefBeEnabled && canFeatureBeEnabled;
+			const isFreePlan = currentTier?.value === 0;
 
 			return {
-				isProofreadEnabled: isProofreadEnabled() && getBreveAvailability( isFreePlan ),
+				isProofreadEnabled:
+					canBeEnabled && isProofreadEnabled() && getBreveAvailability( isFreePlan ),
 				isFeatureEnabled: isFeatureEnabled( config.name ),
 				ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				isFeatureDictionaryLoading: isFeatureDictionaryLoading( config.name ),
