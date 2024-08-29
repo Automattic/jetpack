@@ -1,0 +1,24 @@
+{
+	"translation-revision-date": "2024-07-03 17:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "it" },
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"\u00c8 disponibile una versione migliorata di questo blocco. Esegui l'aggiornamento per avere un modo migliore e pi\u00f9 naturale di gestire i tuoi elenchi presenti nell'articolo del blog. Potrebbero esserci piccole modifiche visive."
+			],
+			"Update Block": [ "Aggiorna blocco" ],
+			"Number of posts": [ "Numero di articoli" ],
+			"Number of posts to show": [ "Numero di articoli da visualizzare" ],
+			"Your recent blog posts will be displayed here.": [
+				"I tuoi articoli del blog recenti saranno visualizzati qui."
+			],
+			"Displays your latest Blog Posts.": [
+				"Visualizza i tuoi articoli del blog pi\u00f9 recenti."
+			],
+			"Blog Posts Listing": [ "Elenco degli articoli del blog" ]
+		}
+	},
+	"comment": { "reference": "posts-list-block/dist/posts-list-block.js" }
+}

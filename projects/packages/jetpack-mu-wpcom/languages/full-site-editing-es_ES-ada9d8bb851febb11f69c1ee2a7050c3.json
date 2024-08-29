@@ -1,0 +1,15 @@
+{
+	"translation-revision-date": "2024-06-27 11:21:38+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es" },
+			"Scheduled": [ "Programada" ],
+			"Draft": [ "Borrador" ],
+			"post author\u0004 and ": [ " y " ],
+			"post author\u0004by": [ "por" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/shared/js/utils.js" }
+}

@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-06-27 11:21:38+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es" },
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"Est\u00e1 disponible una versi\u00f3n mejorada de este bloque. Actualiza para un mejor y m\u00e1s natural manera de gestionar tus listados de entradas del blog. Podr\u00eda haber peque\u00f1os cambios visuales."
+			],
+			"Update Block": [ "Actualizar bloque" ],
+			"Number of posts": [ "N\u00famero de entradas" ],
+			"Number of posts to show": [ "N\u00famero de entradas a mostrar" ],
+			"Your recent blog posts will be displayed here.": [
+				"Tus entradas del blog recientes se mostrar\u00e1n aqu\u00ed."
+			],
+			"Displays your latest Blog Posts.": [ "Muestra tus \u00faltimas entradas del blog." ],
+			"Blog Posts Listing": [ "Lista de entradas del blog" ]
+		}
+	},
+	"comment": { "reference": "posts-list-block/dist/posts-list-block.js" }
+}

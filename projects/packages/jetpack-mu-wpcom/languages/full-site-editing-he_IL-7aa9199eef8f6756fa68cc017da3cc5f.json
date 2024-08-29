@@ -1,0 +1,40 @@
+{
+	"translation-revision-date": "2024-07-05 14:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "he_IL" },
+			"Font Selection": [ "\u05d1\u05d7\u05d9\u05e8\u05ea \u05d2\u05d5\u05e4\u05df" ],
+			"You have unsaved changes.": [
+				"\u05d1\u05d9\u05e6\u05e2\u05ea \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05e9\u05dc\u05d0 \u05e0\u05e9\u05de\u05e8\u05d5."
+			],
+			"Any change you make here will apply to the entire website.": [
+				"\u05db\u05dc \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05e9\u05d1\u05d9\u05e6\u05e2\u05ea \u05db\u05d0\u05df \u05d9\u05d7\u05d5\u05dc\u05d5 \u05e2\u05dc \u05d4\u05d0\u05ea\u05e8 \u05db\u05d5\u05dc\u05d5."
+			],
+			"You are customizing %s.": [
+				"\u05d1\u05d0\u05ea\u05e8 %s \u05de\u05d1\u05d5\u05e6\u05e2\u05d5\u05ea \u05db\u05e2\u05ea \u05d4\u05ea\u05d0\u05de\u05d5\u05ea \u05d0\u05d9\u05e9\u05d9\u05d5\u05ea \u05e2\u05dc \u05d9\u05d3\u05da."
+			],
+			"Global Styles": [
+				"\u05e1\u05d2\u05e0\u05d5\u05e0\u05d5\u05ea \u05d2\u05dc\u05d5\u05d1\u05dc\u05d9\u05d9\u05dd"
+			],
+			"Reset": [ "\u05d0\u05d9\u05e4\u05d5\u05e1" ],
+			"custom font selection": [
+				"\u05d1\u05d7\u05d9\u05e8\u05ea \u05d2\u05d5\u05e4\u05df \u05de\u05d5\u05ea\u05d0\u05dd"
+			],
+			"Base Font": [ "\u05d2\u05d5\u05e4\u05df \u05d1\u05e1\u05d9\u05e1\u05d9" ],
+			"Heading Font": [ "\u05d2\u05d5\u05e4\u05df \u05db\u05d5\u05ea\u05e8\u05ea" ],
+			"font pairings": [
+				"\u05e9\u05d9\u05dc\u05d5\u05d1\u05d9 \u05d2\u05d5\u05e4\u05e0\u05d9\u05dd"
+			],
+			"Font Pairings": [
+				"\u05e9\u05d9\u05dc\u05d5\u05d1\u05d9 \u05d2\u05d5\u05e4\u05e0\u05d9\u05dd"
+			],
+			"Your active theme doesn't support %s.": [
+				"\u05e2\u05e8\u05db\u05ea \u05d4\u05e2\u05d9\u05e6\u05d5\u05d1 \u05d4\u05e4\u05e2\u05d9\u05dc\u05d4 \u05e9\u05dc\u05da \u05dc\u05d0 \u05ea\u05d5\u05de\u05db\u05ea \u05d1-%s."
+			],
+			"Publish": [ "\u05e4\u05e8\u05e1\u05d5\u05dd" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

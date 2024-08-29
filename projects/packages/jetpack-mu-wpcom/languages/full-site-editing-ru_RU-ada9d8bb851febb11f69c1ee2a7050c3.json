@@ -1,0 +1,21 @@
+{
+	"translation-revision-date": "2024-07-04 19:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+				"lang": "ru"
+			},
+			"Scheduled": [
+				"\u0417\u0430\u043f\u043b\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u043e"
+			],
+			"Draft": [ "\u0427\u0435\u0440\u043d\u043e\u0432\u0438\u043a" ],
+			"post author\u0004 and ": [ " \u0438 " ],
+			"post author\u0004by": [ "\u0410\u0432\u0442\u043e\u0440" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/shared/js/utils.js" }
+}

@@ -1,0 +1,47 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"You can visit the the Customizer to edit the colors on your site.": [
+				"Sitenizdeki renkleri d\u00fczenlemek i\u00e7in \u00d6zelle\u015ftirici'yi ziyaret edebilirsiniz."
+			],
+			"You can visit the the <a>Customizer</a> to edit the colors on your site.": [
+				"Sitenizdeki renkleri d\u00fczenlemek i\u00e7in <a>\u00d6zelle\u015ftirici</a>'yi ziyaret edebilirsiniz."
+			],
+			"color": [ "renk" ],
+			"You can visit the the Customizer to edit your logo and site title.": [
+				"Sitenizin logosunu ve ba\u015fl\u0131\u011f\u0131n\u0131 d\u00fczenlemek i\u00e7in \u00d6zelle\u015ftirici'yi ziyaret edebilirsiniz."
+			],
+			"You can visit the the <a>Customizer</a> to edit your logo and site title.": [
+				"Sitenizin logosunu ve ba\u015fl\u0131\u011f\u0131n\u0131 d\u00fczenlemek i\u00e7in <a>\u00d6zelle\u015ftirici</a>'yi ziyaret edebilirsiniz."
+			],
+			"header": [ "\u00fcst bilgi" ],
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Yeni eklentiler y\u00fcklemeye ba\u015flamak i\u00e7in eklenti dizinini ziyaret edebilirsiniz."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Yeni eklentiler y\u00fcklemeye ba\u015flamak i\u00e7in <a>eklenti dizinini</a> ziyaret edebilirsiniz."
+			],
+			"plugin": [ "eklenti" ],
+			"You can visit the the Customizer to edit the CSS on your site.": [
+				"Sitenizdeki CSS'yi d\u00fczenlemek i\u00e7in \u00d6zelle\u015ftirici'yi ziyaret edebilirsiniz."
+			],
+			"You can visit the the <a>Customizer</a> to edit the CSS on your site.": [
+				"Sitenizdeki CSS'yi d\u00fczenlemek i\u00e7in <a>\u00d6zelle\u015ftirici</a>'yi ziyaret edebilirsiniz."
+			],
+			"style": [ "stil" ],
+			"css": [ "css" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Siteniz i\u00e7in farkl\u0131 bir tasar\u0131m se\u00e7mek \u00fczere tema dizinini ziyaret edebilirsiniz."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Siteniz i\u00e7in farkl\u0131 bir tasar\u0131m se\u00e7mek \u00fczere <a>tema dizinini</a> ziyaret edebilirsiniz."
+			],
+			"theme": [ "tema" ]
+		}
+	},
+	"comment": { "reference": "block-inserter-modifications/dist/contextual-tips.js" }
+}

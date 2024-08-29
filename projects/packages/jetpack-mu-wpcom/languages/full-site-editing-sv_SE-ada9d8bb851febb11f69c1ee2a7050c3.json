@@ -1,0 +1,15 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"Scheduled": [ "Tidsinst\u00e4llt" ],
+			"Draft": [ "Utkast" ],
+			"post author\u0004 and ": [ " och " ],
+			"post author\u0004by": [ "av" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/shared/js/utils.js" }
+}

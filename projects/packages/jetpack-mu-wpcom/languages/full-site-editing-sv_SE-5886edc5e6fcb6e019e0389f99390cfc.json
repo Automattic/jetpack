@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"Det finns en f\u00f6rb\u00e4ttrad version av det h\u00e4r blocket tillg\u00e4nglig. Uppdatera f\u00f6r ett b\u00e4ttre och mer naturligt s\u00e4tt att hantera dina blogginl\u00e4ggslistor. Sm\u00e4rre visuella \u00e4ndringar kan intr\u00e4ffa."
+			],
+			"Update Block": [ "Uppdatera block" ],
+			"Number of posts": [ "Antal inl\u00e4gg" ],
+			"Number of posts to show": [ "Antal inl\u00e4gg att visa" ],
+			"Your recent blog posts will be displayed here.": [
+				"Dina senaste blogginl\u00e4gg kommer att visas h\u00e4r."
+			],
+			"Displays your latest Blog Posts.": [ "Visar dina senaste blogginl\u00e4gg." ],
+			"Blog Posts Listing": [ "Lista \u00f6ver blogginl\u00e4gg" ]
+		}
+	},
+	"comment": { "reference": "posts-list-block/blocks/posts-list/index.js" }
+}

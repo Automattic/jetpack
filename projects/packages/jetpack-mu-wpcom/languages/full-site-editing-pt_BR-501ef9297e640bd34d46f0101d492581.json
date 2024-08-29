@@ -1,0 +1,14 @@
+{
+	"translation-revision-date": "2024-07-02 21:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "pt_BR" },
+			"Home": [ "In\u00edcio" ],
+			"Footer": [ "Rodap\u00e9" ],
+			"Header": [ "Cabe\u00e7alho" ]
+		}
+	},
+	"comment": { "reference": "common/dist/data-stores.js" }
+}

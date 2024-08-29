@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"block style\u0004Borders": [ "\uacbd\uacc4\uc120" ],
+			"block style\u0004Default": [ "\uae30\ubcf8" ],
+			"A block for displaying homepage posts.": [
+				"\ud648\ud398\uc774\uc9c0 \uae00\uc744 \ud45c\uc2dc\ud558\ub294 \ube14\ub85d."
+			],
+			"latest": [ "\ucd5c\uc2e0" ],
+			"articles": [ "\uae00" ],
+			"posts": [ "\uae00" ],
+			"Homepage Posts": [ "\ud648\ud398\uc774\uc9c0 \uae00" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/index.js"
+	}
+}

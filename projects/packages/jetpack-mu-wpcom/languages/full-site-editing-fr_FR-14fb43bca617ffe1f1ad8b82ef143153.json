@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "fr" },
+			"A carousel of posts.": [ "Un carrousel d'articles." ],
+			"Post Carousel": [ "Carrousel d\u2019articles" ],
+			"carousel": [ "carrousel" ],
+			"slideshow": [ "diaporama" ],
+			"posts": [ "articles" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/index.js" }
+}

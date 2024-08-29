@@ -1,0 +1,25 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Right": [ "Kanan" ],
+			"Left": [ "Kiri" ],
+			"Alternate items": [ "Item alternatif" ],
+			"Timeline settings": [ "Pengaturan linimasa" ],
+			"Add entry": [ "Tambahkan entri" ],
+			"Create a timeline of events.": [ "Buat linimasa peristiwa." ],
+			"Timeline": [ "Linimasa" ],
+			"An entry on the timeline": [ "Entri di linimasa" ],
+			"Timeline Entry": [ "Entri Linimasa" ],
+			"Winter": [ "Musim Dingin" ],
+			"Fall": [ "Musim Gugur" ],
+			"Summer": [ "Musim Panas" ],
+			"Spring": [ "Musim Semi" ],
+			"Background Color": [ "Warna Latar Belakang" ]
+		}
+	},
+	"comment": { "reference": "jetpack-timeline/dist/jetpack-timeline.js" }
+}

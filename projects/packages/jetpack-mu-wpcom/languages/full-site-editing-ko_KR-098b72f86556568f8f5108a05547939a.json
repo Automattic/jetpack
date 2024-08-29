@@ -1,0 +1,53 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"\uc774\ubbf8\uc9c0\uac00 \uc798\ub9ac\uc9c0 \uc54a\uace0 \uc2ac\ub77c\uc774\ub4dc \ub0b4\ubd80\uc5d0 \uc54c\ub9de\uac8c \ud06c\uae30\uac00 \uc870\uc815\ub429\ub2c8\ub2e4."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"\uc774\ubbf8\uc9c0\uac00 \uc804\uccb4 \uc2ac\ub77c\uc774\ub4dc\ub97c \ucc44\uc6b0\uba70 \ud544\uc694\ud558\uba74 \uc798\ub9bd\ub2c8\ub2e4."
+			],
+			"Show Title": [ "\uc81c\ubaa9 \ud45c\uc2dc" ],
+			"Number of slides to show at once": [
+				"\ud55c \ubc88\uc5d0 \ud45c\uc2dc\ud560 \uc2ac\ub77c\uc774\ub4dc \uc218"
+			],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"\uc2ac\ub77c\uc774\ub4dc \uc1fc UI\ub97c \uc228\uae41\ub2c8\ub2e4. \uc790\ub3d9 \uc7ac\uc0dd\uacfc \ud568\uaed8 \uc0ac\uc6a9\ud560 \ub54c \uc720\uc6a9\ud569\ub2c8\ub2e4."
+			],
+			"Hide Controls": [ "\ucee8\ud2b8\ub864 \uc228\uae30\uae30" ],
+			"Contain": [ "\ud3ec\ud568" ],
+			"Cover": [ "\ucee4\ubc84" ],
+			"Image Fit": [ "\uc774\ubbf8\uc9c0 \ub9de\ucda4" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"\uc77c\uad00\uc131\uc744 \uc704\ud574 \ubaa8\ub4e0 \uc2ac\ub77c\uc774\ub4dc\uc5d0\uc11c \ub3d9\uc77c\ud55c \ud654\uba74 \ube44\uc728\uc744 \uacf5\uc720\ud569\ub2c8\ub2e4."
+			],
+			"Slide Aspect Ratio": [ "\uc2ac\ub77c\uc774\ub4dc \ud654\uba74 \ube44\uc728" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "\uc815\uc0ac\uac01\ud615" ],
+			"Article Meta Settings": [ "\uae00 \uba54\ud0c0 \uc124\uc815" ],
+			"Delay between transitions (in seconds)": [
+				"\uc804\ud658 \uc9c0\uc5f0 \uc2dc\uac04(\ucd08)"
+			],
+			"Autoplay between slides": [ "\uc2ac\ub77c\uc774\ub4dc \uac04 \uc790\ub3d9 \uc7ac\uc0dd" ],
+			"Autoplay": [ "\uc790\ub3d9 \uc2e4\ud589" ],
+			"Slideshow Settings": [ "\uc2ac\ub77c\uc774\ub4dc \uc1fc \uc124\uc815" ],
+			"Sorry, no posts were found.": [
+				"\uc8c4\uc1a1\ud569\ub2c8\ub2e4. \uae00\uc774 \uc5c6\uc2b5\ub2c8\ub2e4."
+			],
+			"Show Author Avatar": [ "\uc791\uc131\uc790 \uc544\ubc14\ud0c0 \ud45c\uc2dc" ],
+			"Show Author": [ "\uc791\uc131\uc790 \ud45c\uc2dc" ],
+			"Show Category": [ "\uce74\ud14c\uace0\ub9ac \ud45c\uc2dc" ],
+			"Show Date": [ "\ub0a0\uc9dc \ud45c\uc2dc" ],
+			"Display Settings": [ "\ud45c\uc2dc \uc124\uc815" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/edit.js" }
+}

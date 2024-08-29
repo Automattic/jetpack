@@ -1,0 +1,89 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Include subcategories ": [ "Mencakup subkategori " ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"Pilihan di sini hanya berpengaruh bagi penyunting, pengguna biasa hanya akan melihat pos yang dipublikasikan."
+			],
+			"Additional Post Statuses": [ "Status Pos Tambahan" ],
+			"Scheduled": [ "Terjadwal" ],
+			"Draft": [ "Konsep" ],
+			"Slide %1$s of %2$s": [ "Slide %1$s dari %2$s" ],
+			"Excluded Categories": [ "Kategori yang Dikecualikan" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"Ukuran gambar akan diubah agar sesuai dengan slide tanpa harus dipotong."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"Gambar akan memenuhi seluruh slide dan akan dipotong jika perlu."
+			],
+			"Show Title": [ "Tampilkan Judul" ],
+			"Number of slides to show at once": [ "Jumlah slide yang perlu ditampilkan sekaligus" ],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"Sembunyikan UI slideshow. Berguna jika digunakan dengan Autoplay."
+			],
+			"Hide Controls": [ "Sembunyikan Kontrol" ],
+			"Contain": [ "Kurung" ],
+			"Cover": [ "Sampul" ],
+			"Image Fit": [ "Image Fit" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"Semua slide memiliki rasio aspek yang sama agar konsisten."
+			],
+			"Slide Aspect Ratio": [ "Rasio Aspek Slide" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Persegi" ],
+			"Featured image caption": [ "Keterangan gambar andalan" ],
+			"Category": [ "Kategori" ],
+			"Author Name": [ "Nama Penulis" ],
+			"Post Title": [ "Judul Pos" ],
+			"Post Subtitle": [ "Subtitle Pos" ],
+			"The post excerpt.": [ "Kutipan pos." ],
+			"The post content.": [ "Konten pos." ],
+			"Post Types": [ "Jenis Pos" ],
+			"A carousel of posts.": [ "Carousel pos." ],
+			"Paused": [ "Tunda" ],
+			"Playing": [ "Memutar" ],
+			"Image: %s, ": [ "Gambar: %s, " ],
+			"Slide %s": [ "Slide %s" ],
+			"Post Carousel": [ "Carousel Pos" ],
+			"Article Meta Settings": [ "Pengaturan Meta Artikel" ],
+			"Delay between transitions (in seconds)": [
+				"Penundaan di antara transisi (dalam hitungan detik)"
+			],
+			"Autoplay between slides": [ "Putar otomatis di antara slide" ],
+			"Autoplay": [ "Putar otomatis" ],
+			"Slideshow Settings": [ "Pengaturan Slideshow" ],
+			"carousel": [ "karosel" ],
+			"slideshow": [ "slideshow" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Mulai ketik judul pos, klik selesaikan otomatis hasil untuk memilih."
+			],
+			"Choose Specific Posts": [ "Pilih Pos Tertentu" ],
+			"Excluded Tags": [ "Tag yang Dikecualikan" ],
+			"Show Advanced Filters": [ "Tampilkan Filter Lanjutan" ],
+			"Hide Advanced Filters": [ "Sembunyikan Filter Lanjutan" ],
+			"Sorry, no posts were found.": [ "Maaf, tidak ditemukan pos apa pun." ],
+			"Show Author Avatar": [ "Tampilkan Avatar Penulis" ],
+			"Show Author": [ "Tampilkan Penulis" ],
+			"Show Category": [ "Tampilkan Kategori" ],
+			"Show Date": [ "Tampilkan Tanggal" ],
+			"Display Settings": [ "Pengaturan Tampilan" ],
+			"Tags": [ "Tag" ],
+			"Categories": [ "Kategori" ],
+			"Authors": [ "Penyusun" ],
+			"(no name)": [ "(tanpa nama)" ],
+			"(no title)": [ "(tanpa judul)" ],
+			"posts": [ "pos" ],
+			"post author\u0004 and ": [ " dan " ],
+			"post author\u0004by": [ "oleh" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/carousel-block-editor.js" }
+}

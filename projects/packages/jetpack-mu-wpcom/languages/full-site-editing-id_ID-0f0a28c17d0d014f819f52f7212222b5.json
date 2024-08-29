@@ -1,0 +1,17 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Done": [ "Selesai" ],
+			"Learn more": [ "Pelajari selengkapnya" ],
+			"Pagination control": [ "Kontrol paginasi" ],
+			"What's new": [ "Apa yang baru" ],
+			"Next": [ "Berikut" ],
+			"Page %1$d of %2$d": [ "Halaman %1$d dari %2$d" ]
+		}
+	},
+	"comment": { "reference": "whats-new/dist/whats-new.js" }
+}

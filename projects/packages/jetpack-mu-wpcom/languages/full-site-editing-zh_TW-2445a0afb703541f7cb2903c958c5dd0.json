@@ -1,0 +1,27 @@
+{
+	"translation-revision-date": "2024-07-05 12:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_TW" },
+			"Count down to your favorite next thing, and celebrate with fireworks when the time is right!": [
+				"\u6d3b\u52d5\u7684\u5012\u6578\u8a08\u6642\u3002\u8acb\u64b0\u5beb\u6a19\u984c\u4e26\u9078\u53d6\u65e5\u671f\u548c\u6642\u9593\u3002"
+			],
+			"Countdown seconds remaining\u0004seconds": [ "\u79d2" ],
+			"Countdown minutes remaining\u0004minutes": [ "\u5206\u9418" ],
+			"Countdown hours remaining\u0004hours": [ "\u5c0f\u6642" ],
+			"Countdown days remaining\u0004days": [ "\u5929" ],
+			"Date:": [ "\u65e5\u671f:" ],
+			"Title:": [ "\u6a19\u984c:" ],
+			"until": [ "\u5269\u9918\u6642\u9593" ],
+			"Event Title": [ "\u6d3b\u52d5\u6a19\u984c" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"\u6d3b\u52d5\u7684\u5012\u6578\u8a08\u6642\u3002\u8acb\u64b0\u5beb\u6a19\u984c\u4e26\u9078\u53d6\u65e5\u671f\u548c\u6642\u9593\u3002"
+			],
+			"Event Countdown": [ "\u6d3b\u52d5\u5012\u6578\u8a08\u6642" ],
+			"Choose Date": [ "\u9078\u53d6\u65e5\u671f" ]
+		}
+	},
+	"comment": { "reference": "event-countdown-block/dist/event-countdown-block.js" }
+}

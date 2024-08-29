@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Include subcategories ": [ "Alt kategorileri dahil et " ],
+			"Excluded Categories": [ "Hari\u00e7 Tutulan Kategoriler" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Yaz\u0131 ba\u015fl\u0131\u011f\u0131 yazmaya ba\u015flay\u0131n, se\u00e7mek i\u00e7in sonucu otomatik tamamla \u00f6\u011fesine t\u0131klay\u0131n."
+			],
+			"Choose Specific Posts": [ "Belirli Yaz\u0131lar\u0131 Se\u00e7" ],
+			"Excluded Tags": [ "\u00c7\u0131kar\u0131lan Etiketler" ],
+			"Show Advanced Filters": [ "Geli\u015fmi\u015f Filtreleri G\u00f6ster" ],
+			"Hide Advanced Filters": [ "Geli\u015fmi\u015f Filtreleri Gizle" ],
+			"Tags": [ "Etiketler" ],
+			"Categories": [ "Kategoriler" ],
+			"Authors": [ "Yazarlar" ],
+			"(no name)": [ "(ads\u0131z)" ],
+			"(no title)": [ "(ba\u015fl\u0131ks\u0131z)" ],
+			"Posts": [ "G\u00f6nderiler" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

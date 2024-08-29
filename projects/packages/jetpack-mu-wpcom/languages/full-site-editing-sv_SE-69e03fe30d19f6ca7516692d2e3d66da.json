@@ -1,0 +1,68 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"Om detta block \u00e4r avmarkerat kommer det att uteslutas fr\u00e5n dedupliceringslogiken och kan visa duplicerade inl\u00e4gg."
+			],
+			"Use deduplication logic": [ "Anv\u00e4nd dedubliceringslogik" ],
+			"Columns Gap": [ "Kolumnmellanrum" ],
+			"\"Read More\" link text": [ "L\u00e4nktext f\u00f6r \u201dL\u00e4s mer\u201d" ],
+			"Add a \"Read More\" link": [ "L\u00e4gg till en l\u00e4nk med \"L\u00e4s mer\"" ],
+			"Max number of words in excerpt": [ "Maximalt antal ord i utdrag" ],
+			"Show \"Load more posts\" Button": [ "Visa knappen \"L\u00e4s in fler inl\u00e4gg\"" ],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Den h\u00e4r bloggen \u00e4r privat. D\u00e4rf\u00f6r \u00e4r funktionen \"L\u00e4s in fler inl\u00e4gg\" inte aktiverad."
+			],
+			"Show Subtitle": [ "Visa underrubrik" ],
+			"Load more posts": [ "Ladda fler inl\u00e4gg" ],
+			"Sorry, no posts were found.": [ "Inga inl\u00e4gg hittades." ],
+			"Write header\u2026": [ "Skriv sidhuvud\u2026" ],
+			"Uncropped": [ "Ej beskurna" ],
+			"Square Image Shape": [ "Fyrkantig bildform" ],
+			"portrait Image Shape": [ "st\u00e5ende bildform" ],
+			"Landscape Image Shape": [ "Liggande bildform" ],
+			"Show media behind": [ "Visa media bakom" ],
+			"Show media on right": [ "Visa media till h\u00f6ger" ],
+			"Show media on left": [ "Visa media till v\u00e4nster" ],
+			"Show media on top": [ "Visa media \u00f6verst" ],
+			"Grid View": [ "Rutn\u00e4tsvy" ],
+			"List View": [ "Listvy" ],
+			"Show Author Avatar": [ "Visa f\u00f6rfattarens profilbild" ],
+			"Show Author": [ "Visa f\u00f6rfattare" ],
+			"Show Category": [ "Visa kategori" ],
+			"Show Date": [ "Visa datum" ],
+			"Post Meta Settings": [ "Metadatainst\u00e4llningar f\u00f6r inl\u00e4gget" ],
+			"Type Scale": [ "Typskala" ],
+			"Show Excerpt": [ "Visa utdrag" ],
+			"Post Control Settings": [ "Kontrollinst\u00e4llningar f\u00f6r inl\u00e4gget" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"Anger en minsta h\u00f6jd f\u00f6r blocket med en procentsats av sk\u00e4rmens aktuella h\u00f6jd."
+			],
+			"Minimum height": [ "Minsta h\u00f6jd" ],
+			"Featured Image Size": [ "Utvald bildstorlek" ],
+			"Stack on mobile": [ "Stapla p\u00e5 mobil" ],
+			"Show Featured Image Caption": [ "Visa bildtext p\u00e5 utvalda bilder" ],
+			"Show Featured Image": [ "Visa utvald bild" ],
+			"Featured Image Settings": [ "Inst\u00e4llningar f\u00f6r utvalda bilder" ],
+			"Columns": [ "Kolumner" ],
+			"Display Settings": [ "Visningsinst\u00e4llningar" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "Extra stor" ],
+			"L": [ "L" ],
+			"Large": [ "Stor" ],
+			"M": [ "M" ],
+			"Medium": [ "Medium" ],
+			"S": [ "S" ],
+			"Small": [ "Liten" ],
+			"Text Color": [ "Textf\u00e4rg" ],
+			"Color Settings": [ "F\u00e4rginst\u00e4llningar" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js"
+	}
+}

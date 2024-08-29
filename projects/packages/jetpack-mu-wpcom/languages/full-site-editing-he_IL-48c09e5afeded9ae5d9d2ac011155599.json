@@ -1,0 +1,20 @@
+{
+	"translation-revision-date": "2024-07-05 14:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "he_IL" },
+			"Slide %1$s of %2$s": [
+				"\u05e9\u05e7\u05d5\u05e4\u05d9\u05ea \u2066%1$s\u2069 \u05de\u05ea\u05d5\u05da \u2066%2$s\u2069"
+			],
+			"Paused": [ "\u05d4\u05d5\u05e9\u05d4\u05d4" ],
+			"Playing": [ "\u05de\u05e0\u05d2\u05df" ],
+			"Image: %s, ": [ "\u05ea\u05de\u05d5\u05e0\u05d4: %s, " ],
+			"Slide %s": [ "\u05e9\u05e7\u05d5\u05e4\u05d9\u05ea %s" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/create-swiper.js"
+	}
+}

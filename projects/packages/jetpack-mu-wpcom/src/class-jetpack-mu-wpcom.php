@@ -125,6 +125,13 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load translations for the Jetpack_Mu_Wpcom class.
+	 */
+	public static function load_translations() {
+		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack-mu-wpcom' );
+	}
+
+	/**
 	 * Load features that only apply to WordPress.com users.
 	 */
 	public static function load_wpcom_user_features() {

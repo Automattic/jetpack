@@ -1,0 +1,17 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Done": [ "Bitti" ],
+			"Learn more": [ "Daha fazlas\u0131n\u0131 \u00f6\u011frenin" ],
+			"Pagination control": [ "Sayfaland\u0131rma kontrol\u00fc" ],
+			"What's new": [ "Yenilikler" ],
+			"Next": [ "Sonraki" ],
+			"Page %1$d of %2$d": [ "Sayfa %1$d / %2$d" ]
+		}
+	},
+	"comment": { "reference": "whats-new/dist/whats-new.js" }
+}

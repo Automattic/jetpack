@@ -1,0 +1,13 @@
+{
+	"translation-revision-date": "2024-06-27 11:21:38+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es" },
+			"Block guide": [ "Gu\u00eda de bloque" ],
+			"Learn more": [ "Aprender m\u00e1s" ]
+		}
+	},
+	"comment": { "reference": "wpcom-block-description-links/dist/wpcom-block-description-links.js" }
+}

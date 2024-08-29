@@ -1,0 +1,24 @@
+{
+	"translation-revision-date": "2024-07-04 14:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));",
+				"lang": "ar"
+			},
+			"Slide %1$s of %2$s": [
+				"\u0627\u0644\u0634\u0631\u064a\u062d\u0629 \u2066%1$s\u2069 \u0645\u0646 \u2066%2$s\u2069"
+			],
+			"Paused": [ "\u0645\u062a\u0648\u0642\u0641 \u0645\u0624\u0642\u062a\u064b\u0627" ],
+			"Playing": [ "\u062f\u0641\u0639" ],
+			"Image: %s, ": [ "\u0635\u0648\u0631\u0629: %s, " ],
+			"Slide %s": [ "\u0634\u0631\u064a\u062d\u0629 %s" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/create-swiper.js"
+	}
+}

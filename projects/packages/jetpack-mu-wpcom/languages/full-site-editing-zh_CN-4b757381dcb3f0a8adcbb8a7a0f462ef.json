@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2024-07-04 10:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_CN" },
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"\u6b64\u5904\u7684\u9009\u62e9\u4ec5\u4f1a\u5f71\u54cd\u7f16\u8f91\uff0c\u5e38\u89c4\u7528\u6237\u5c06\u4ec5\u770b\u5230\u53d1\u5e03\u7684\u6587\u7ae0\u3002"
+			],
+			"Additional Post Statuses": [ "\u5176\u4ed6\u6587\u7ae0\u72b6\u6001" ],
+			"Post Types": [ "\u6587\u7ae0\u7c7b\u578b" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/editor-panels.js" }
+}

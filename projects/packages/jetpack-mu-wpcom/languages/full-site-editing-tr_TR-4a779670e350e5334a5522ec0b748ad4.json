@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"block style\u0004Borders": [ "Kenarl\u0131klar" ],
+			"block style\u0004Default": [ "Varsay\u0131lan" ],
+			"A block for displaying homepage posts.": [
+				"Ana sayfa g\u00f6nderilerini g\u00f6r\u00fcnt\u00fclemek i\u00e7in bir blok."
+			],
+			"latest": [ "en yeni" ],
+			"articles": [ "makaleler" ],
+			"posts": [ "g\u00f6nderiler" ],
+			"Homepage Posts": [ "Ana Sayfa G\u00f6nderileri" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/index.js"
+	}
+}

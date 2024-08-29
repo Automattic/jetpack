@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Font Selection": [ "Yaz\u0131 Tipi Se\u00e7imi" ],
+			"You have unsaved changes.": [ "Kaydedilmemi\u015f de\u011fi\u015fiklikleriniz var." ],
+			"Any change you make here will apply to the entire website.": [
+				"Burada yapaca\u011f\u0131n\u0131z t\u00fcm de\u011fi\u015fiklikler b\u00fct\u00fcn web sitesi i\u00e7in ge\u00e7erli olur."
+			],
+			"You are customizing %s.": [ "%s b\u00f6l\u00fcm\u00fcn\u00fc d\u00fczenliyorsunuz." ],
+			"Global Styles": [ "Genel Stiller" ],
+			"Reset": [ "S\u0131f\u0131rla" ],
+			"custom font selection": [ "\u00f6zel yaz\u0131 tipi se\u00e7imi" ],
+			"Base Font": [ "Temel Yaz\u0131 Tipi" ],
+			"Heading Font": [ "\u00dcst Bilgi Yaz\u0131 Tipi" ],
+			"font pairings": [ "yaz\u0131 tipi \u00e7iftleri" ],
+			"Font Pairings": [ "Yaz\u0131 Tipi \u00c7iftleri" ],
+			"Your active theme doesn't support %s.": [ "Etkin teman\u0131z %s desteklemiyor." ],
+			"Publish": [ "Yay\u0131mla" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

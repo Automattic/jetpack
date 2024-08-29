@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2024-06-30 16:43:58+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"Selectie hier heeft alleen effect voor redacteuren, gewone gebruikers zien alleen gepubliceerde berichten."
+			],
+			"Additional Post Statuses": [ "Extra bericht statussen" ],
+			"Post Types": [ "Berichttypes" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/editor-panels.js" }
+}

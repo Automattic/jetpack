@@ -1,0 +1,34 @@
+{
+	"translation-revision-date": "2024-07-03 09:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ja_JP" },
+			"Font Selection": [ "\u30d5\u30a9\u30f3\u30c8\u306e\u9078\u629e" ],
+			"You have unsaved changes.": [
+				"\u4fdd\u5b58\u3055\u308c\u3066\u3044\u306a\u3044\u5909\u66f4\u304c\u3042\u308a\u307e\u3059\u3002"
+			],
+			"Any change you make here will apply to the entire website.": [
+				"\u3053\u3053\u3067\u884c\u3063\u305f\u5909\u66f4\u306f\u3001\u30b5\u30a4\u30c8\u5168\u4f53\u306b\u9069\u7528\u3055\u308c\u307e\u3059\u3002"
+			],
+			"You are customizing %s.": [
+				"%s \u3092\u30ab\u30b9\u30bf\u30de\u30a4\u30ba\u3057\u3066\u3044\u307e\u3059\u3002"
+			],
+			"Global Styles": [ "\u30b0\u30ed\u30fc\u30d0\u30eb\u30b9\u30bf\u30a4\u30eb" ],
+			"Reset": [ "\u30ea\u30bb\u30c3\u30c8" ],
+			"custom font selection": [
+				"\u30ab\u30b9\u30bf\u30e0\u30d5\u30a9\u30f3\u30c8\u306e\u9078\u629e"
+			],
+			"Base Font": [ "\u30d9\u30fc\u30b9\u30d5\u30a9\u30f3\u30c8" ],
+			"Heading Font": [ "\u898b\u51fa\u3057\u306e\u30d5\u30a9\u30f3\u30c8" ],
+			"font pairings": [ "\u30d5\u30a9\u30f3\u30c8\u30da\u30a2\u30ea\u30f3\u30b0" ],
+			"Font Pairings": [ "\u30d5\u30a9\u30f3\u30c8\u30da\u30a2\u30ea\u30f3\u30b0" ],
+			"Your active theme doesn't support %s.": [
+				"\u73fe\u5728\u306e\u30c6\u30fc\u30de\u306f %s \u306b\u5bfe\u5fdc\u3057\u3066\u3044\u307e\u305b\u3093\u3002"
+			],
+			"Publish": [ "\u516c\u958b" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

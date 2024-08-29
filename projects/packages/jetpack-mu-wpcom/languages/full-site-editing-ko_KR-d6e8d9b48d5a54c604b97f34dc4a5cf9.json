@@ -1,0 +1,115 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"\uc120\ud0dd\uc744 \ucde8\uc18c\ud558\uba74 \uc774 \ube14\ub85d\uc774 \uc911\ubcf5 \uc81c\uac70 \ub85c\uc9c1\uc5d0\uc11c \uc81c\uc678\ub418\uace0 \uc911\ubcf5 \uae00\uc774 \ud45c\uc2dc\ub420 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
+			],
+			"Use deduplication logic": [ "\uc911\ubcf5 \uc81c\uac70 \ub85c\uc9c1 \uc0ac\uc6a9" ],
+			"Include subcategories ": [ "\ud558\uc704 \uce74\ud14c\uace0\ub9ac \ud3ec\ud568 " ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"\uc5ec\uae30\uc5d0\uc11c \uc120\ud0dd\ud558\uba74 \ud3b8\uc9d1\uc790\ub9cc \uc601\ud5a5\uc744 \ubc1b\uc73c\uba70, \uc77c\ubc18 \uc0ac\uc6a9\uc790\uc5d0\uac8c\ub294 \ubc1c\ud589\ud55c \uae00\ub9cc \ud45c\uc2dc\ub429\ub2c8\ub2e4."
+			],
+			"Additional Post Statuses": [ "\ucd94\uac00 \uae00 \uc0c1\ud0dc" ],
+			"Columns Gap": [ "\uc5f4 \uac04\uaca9" ],
+			"Scheduled": [ "\uc608\uc57d\ub428" ],
+			"Draft": [ "\uc784\uc2dc\uae00" ],
+			"Excluded Categories": [ "\uc81c\uc678\ub41c \uce74\ud14c\uace0\ub9ac" ],
+			"Featured image caption": [ "\ud2b9\uc131 \uc774\ubbf8\uc9c0 \ucea1\uc158" ],
+			"Category": [ "\uce74\ud14c\uace0\ub9ac" ],
+			"Author Name": [ "\uae00\uc4f4\uc774 \uc774\ub984" ],
+			"Post Title": [ "\uae00 \uc81c\ubaa9" ],
+			"Post Subtitle": [ "\uae00 \ubd80\uc81c\ubaa9" ],
+			"The post excerpt.": [ "\uae00 \uc694\uc57d\ubb38\uc785\ub2c8\ub2e4." ],
+			"The post content.": [ "\uae00 \ucf58\ud150\uce20\uc785\ub2c8\ub2e4." ],
+			"Post Types": [ "\uae00 \uc720\ud615" ],
+			"\"Read More\" link text": [ "\"\ub354 \ubcf4\uae30\" \ub9c1\ud06c \ud14d\uc2a4\ud2b8" ],
+			"Add a \"Read More\" link": [ "\"\ub354 \ubcf4\uae30\" \ub9c1\ud06c \ucd94\uac00" ],
+			"Max number of words in excerpt": [
+				"\uc694\uc57d\ubb38\uc758 \ucd5c\ub300 \ub2e8\uc5b4 \uc218"
+			],
+			"Show \"Load more posts\" Button": [
+				"\"\ub354 \ub9ce\uc740 \uae00 \ub85c\ub4dc\" \ubc84\ud2bc \ud45c\uc2dc"
+			],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"\uc774 \ube14\ub85c\uadf8\ub294 \ube44\uacf5\uac1c \ube14\ub85c\uadf8\uc774\ubbc0\ub85c \"\ub354 \ub9ce\uc740 \uae00 \ub85c\ub4dc\" \uae30\ub2a5\uc774 \ud65c\uc131 \uc0c1\ud0dc\uac00 \uc544\ub2d9\ub2c8\ub2e4."
+			],
+			"Show Subtitle": [ "\uc790\ub9c9 \ud45c\uc2dc" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"\uae00 \uc81c\ubaa9\uc744 \uc785\ub825\ud558\uace0 \uc790\ub3d9 \uc644\uc131 \uacb0\uacfc\ub97c \ud074\ub9ad\ud558\uc5ec \uc120\ud0dd\ud558\uc138\uc694."
+			],
+			"Choose Specific Posts": [ "\ud2b9\uc815 \uae00 \uc120\ud0dd" ],
+			"Excluded Tags": [ "\uc81c\uc678\ub41c \ud0dc\uadf8" ],
+			"Show Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \ud45c\uc2dc" ],
+			"Hide Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \uc228\uae30\uae30" ],
+			"Load more posts": [ "\ub354 \ub9ce\uc740 \uae00 \ub85c\ub4dc" ],
+			"Sorry, no posts were found.": [
+				"\uc8c4\uc1a1\ud569\ub2c8\ub2e4. \uae00\uc774 \uc5c6\uc2b5\ub2c8\ub2e4."
+			],
+			"Write header\u2026": [ "\ud5e4\ub354\ub97c \uc791\uc131\ud558\uc138\uc694..." ],
+			"Uncropped": [ "\uc790\ub974\uc9c0 \uc54a\uc74c" ],
+			"Square Image Shape": [ "\uc815\uc0ac\uac01\ud615 \uc774\ubbf8\uc9c0 \ubaa8\uc591" ],
+			"portrait Image Shape": [ "\uc138\ub85c \uc774\ubbf8\uc9c0 \ubaa8\uc591" ],
+			"Landscape Image Shape": [ "\uac00\ub85c \uc774\ubbf8\uc9c0 \ubaa8\uc591" ],
+			"Show media behind": [ "\ub4a4\ucabd\uc5d0 \ubbf8\ub514\uc5b4 \ud45c\uc2dc" ],
+			"Show media on right": [ "\uc624\ub978\ucabd\uc5d0 \ubbf8\ub514\uc5b4 \ud45c\uc2dc" ],
+			"Show media on left": [ "\uc67c\ucabd\uc5d0 \ubbf8\ub514\uc5b4 \ud45c\uc2dc" ],
+			"Show media on top": [ "\uc704\ucabd\uc5d0 \ubbf8\ub514\uc5b4 \ud45c\uc2dc" ],
+			"Grid View": [ "\uadf8\ub9ac\ub4dc \ubcf4\uae30" ],
+			"List View": [ "\ubaa9\ub85d \ubcf4\uae30" ],
+			"Show Author Avatar": [ "\uc791\uc131\uc790 \uc544\ubc14\ud0c0 \ud45c\uc2dc" ],
+			"Show Author": [ "\uc791\uc131\uc790 \ud45c\uc2dc" ],
+			"Show Category": [ "\uce74\ud14c\uace0\ub9ac \ud45c\uc2dc" ],
+			"Show Date": [ "\ub0a0\uc9dc \ud45c\uc2dc" ],
+			"Post Meta Settings": [ "\uae00 \uba54\ud0c0 \uc124\uc815" ],
+			"Type Scale": [ "\uc720\ud615 \ubc94\uc704" ],
+			"Show Excerpt": [ "\uc694\uc57d\ubb38 \ud45c\uc2dc" ],
+			"Post Control Settings": [ "\uae00 \uc81c\uc5b4 \uc124\uc815" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"\ud654\uba74\uc758 \ud604\uc7ac \ub192\uc774 \ubc31\ubd84\uc728\uc744 \uc0ac\uc6a9\ud558\uc5ec \ube14\ub85d\uc758 \ucd5c\uc18c \ub192\uc774\ub97c \uc124\uc815\ud569\ub2c8\ub2e4."
+			],
+			"Minimum height": [ "\ucd5c\uc18c \ub192\uc774" ],
+			"Featured Image Size": [ "\ud2b9\uc131 \uc774\ubbf8\uc9c0 \ud06c\uae30" ],
+			"Stack on mobile": [ "\ubaa8\ubc14\uc77c\uc5d0 \uc2a4\ud0dd" ],
+			"Show Featured Image Caption": [
+				"\ud2b9\uc131 \uc774\ubbf8\uc9c0 \ucea1\uc158 \ud45c\uc2dc"
+			],
+			"Show Featured Image": [ "\ud2b9\uc131 \uc774\ubbf8\uc9c0 \ud45c\uc2dc" ],
+			"Featured Image Settings": [ "\ud2b9\uc131 \uc774\ubbf8\uc9c0 \uc124\uc815" ],
+			"Columns": [ "\uc5f4" ],
+			"Display Settings": [ "\ud45c\uc2dc \uc124\uc815" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "\ud2b9\ub300" ],
+			"L": [ "L" ],
+			"Large": [ "\ub300" ],
+			"M": [ "M" ],
+			"Medium": [ "\uc911" ],
+			"S": [ "S" ],
+			"Small": [ "\uc18c" ],
+			"Tags": [ "\ud0dc\uadf8" ],
+			"Categories": [ "\uce74\ud14c\uace0\ub9ac" ],
+			"Authors": [ "\uc791\uc131\uc790" ],
+			"(no name)": [ "(\uc774\ub984 \uc5c6\uc74c)" ],
+			"(no title)": [ "(\uc81c\ubaa9 \uc5c6\uc74c)" ],
+			"Blog Posts": [ "\ube14\ub85c\uadf8 \uae00" ],
+			"block style\u0004Borders": [ "\uacbd\uacc4\uc120" ],
+			"block style\u0004Default": [ "\uae30\ubcf8" ],
+			"A block for displaying homepage posts.": [
+				"\ud648\ud398\uc774\uc9c0 \uae00\uc744 \ud45c\uc2dc\ud558\ub294 \ube14\ub85d."
+			],
+			"latest": [ "\ucd5c\uc2e0" ],
+			"articles": [ "\uae00" ],
+			"posts": [ "\uae00" ],
+			"Homepage Posts": [ "\ud648\ud398\uc774\uc9c0 \uae00" ],
+			"post author\u0004 and ": [ " \ubc0f " ],
+			"post author\u0004by": [ "\uac8c\uc2dc\uc790:" ],
+			"Posts": [ "\uae00" ],
+			"Text Color": [ "\uae00\uc790 \uc0c9\uc0c1" ],
+			"Color Settings": [ "\uc0c9\uc0c1 \uc124\uc815" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/blog-posts-block-editor.js" }
+}
