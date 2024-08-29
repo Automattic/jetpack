@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch.
