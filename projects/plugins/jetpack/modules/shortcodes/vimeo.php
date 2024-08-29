@@ -259,7 +259,7 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
  * Callback to modify output of embedded Vimeo video using Jetpack's shortcode.
  *
  * @since 3.9
- * @deprecated since x.x.x
+ * @deprecated since $$next-version$$
  *
  * @param array $matches Regex partial matches against the URL passed.
  * @param array $attr    Attributes received in embed response.
@@ -268,6 +268,7 @@ add_shortcode( 'vimeo', 'vimeo_shortcode' );
  * @return string Return output of Vimeo shortcode with the proper markup.
  */
 function wpcom_vimeo_embed_url( $matches, $attr, $url ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 	$vimeo_info = array( $url );
 
 	// If we are able to extract a video ID, use it in the shortcode instead of the full URL.
@@ -288,11 +289,12 @@ function wpcom_vimeo_embed_url( $matches, $attr, $url ) {
  * http://player.vimeo.com/video/18427511
  *
  * @since 3.9
- * @deprecated since x.x.x
+ * @deprecated since $$next-version$$
  *
  * @uses wpcom_vimeo_embed_url
  */
 function wpcom_vimeo_embed_url_init() {
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 	wp_embed_register_handler( 'wpcom_vimeo_embed_url', '#https?://(?:[^/]+\.)?vimeo\.com/(?:album/(?<album_id>\d+)/)?(?:video/)?(?<video_id>\d+)(?:/.*)?$#i', 'wpcom_vimeo_embed_url' );
 }
 
