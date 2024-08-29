@@ -89,7 +89,16 @@ export default function SearchResultExpanded( props ) {
 						className="jetpack-instant-search__search-result-expanded__content"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ {
-							__html: highlight.content.join( ' ... ' ),
+							__html:
+								highlight && typeof highlight === 'object'
+									? Object.entries( highlight )
+											.filter(
+												( [ key, value ] ) =>
+													key !== 'comments' && key !== 'title' && Array.isArray( value )
+											)
+											.map( ( [ , array ] ) => array.join( ' ... ' ) )
+											.join( ' ... ' )
+									: '',
 						} }
 					/>
 

@@ -45,8 +45,11 @@ class SearchResultProduct extends Component {
 		const showMatchHint =
 			hasQuery &&
 			! titleHasMark &&
-			Array.isArray( highlight.content ) &&
-			highlight.content[ 0 ]?.length > 0;
+			typeof highlight === 'object' &&
+			Object.entries( highlight ).some(
+				( [ key, value ] ) =>
+					key !== 'title' && key !== 'comments' && Array.isArray( value ) && value[ 0 ]?.length > 0
+			);
 
 		return (
 			<li
