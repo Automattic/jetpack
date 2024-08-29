@@ -15,8 +15,22 @@ export default function useFixersMutation() {
 
 	return useMutation( {
 		mutationFn: ( threatIds: number[] ) => API.fixThreats( threatIds ),
-		onSuccess: () => {
-			// TESTING: Do NOT optimistically update the fixer status to 'in_progress' for the selected threats.
+		onSuccess: ( data, threatIds ) => {
+			// Optimistically update the fixer status to 'in_progress' for the selected threats.
+			queryClient.setQueryData(
+				[ QUERY_FIXERS_KEY, ...threatIds ],
+				( currentFixers: { threats: [] } ) => ( {
+					...currentFixers,
+					threats: {
+						...currentFixers.threats,
+						...threatIds.reduce( ( acc, threatId ) => {
+							acc[ threatId ] = { status: 'in_progress' };
+							return acc;
+						}, {} ),
+					},
+				} )
+			);
+
 			// Show a success notice.
 			showSuccessNotice(
 				__(
@@ -26,10 +40,8 @@ export default function useFixersMutation() {
 			);
 		},
 		onError: () => {
+			// Show an error notice.
 			showErrorNotice( __( 'An error occurred fixing threats.', 'jetpack-protect' ) );
-		},
-		onSettled: ( data, error, threatIds ) => {
-			queryClient.invalidateQueries( { queryKey: [ QUERY_FIXERS_KEY, ...threatIds ] } );
 		},
 	} );
 }
