@@ -217,14 +217,14 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * Determine if users who are already logged in to WordPress.com are automatically logged in to wp-admin.
+ * Determine if users should be enforced to log in with their WP.com account.
  *
  * Sites without local users:
- * - Automatic login, always.
+ * - WP.com login, always.
  *
  * Sites with local users:
- * - If user comes from Calypso: Automatic login
- * - Otherwise: Show the login form, so they can decide whether to use a WP.com account or a local account.
+ * - If user comes from Calypso: WP.com login
+ * - Otherwise: Jetpack SSO login, so they can decide whether to use a WP.com account or a local account.
  */
 function wpcomsh_bypass_jetpack_sso_login() {
 	$calypso_domains = array(
