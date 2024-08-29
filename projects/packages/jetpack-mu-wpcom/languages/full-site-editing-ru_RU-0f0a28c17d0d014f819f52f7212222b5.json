@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 19:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+				"lang": "ru"
+			},
+			"Done": [ "\u0413\u043e\u0442\u043e\u0432\u043e" ],
+			"Learn more": [ "\u0423\u0437\u043d\u0430\u0442\u044c \u0431\u043e\u043b\u044c\u0448\u0435" ],
+			"Pagination control": [
+				"\u0423\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0440\u0430\u0437\u0431\u0438\u0435\u043d\u0438\u0435\u043c \u043d\u0430 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u044b"
+			],
+			"What's new": [
+				"\u041d\u043e\u0432\u043e\u0441\u0442\u0438 \u0438 \u043d\u043e\u0432\u0438\u043d\u043a\u0438"
+			],
+			"Next": [ "\u0412\u043f\u0435\u0440\u0435\u0434" ],
+			"Page %1$d of %2$d": [ "\u0421\u0442\u0440. %1$d \u0438\u0437 %2$d" ],
+			"Back": [ "\u041d\u0430\u0437\u0430\u0434" ]
+		}
+	},
+	"comment": { "reference": "whats-new/dist/whats-new.js" }
+}

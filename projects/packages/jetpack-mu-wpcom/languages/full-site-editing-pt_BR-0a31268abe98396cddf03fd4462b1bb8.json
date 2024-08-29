@@ -1,0 +1,12 @@
+{
+	"translation-revision-date": "2024-07-02 21:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "pt_BR" },
+			"Build your audience with tags": [ "Atraia seu p\u00fablico-alvo com tags" ]
+		}
+	},
+	"comment": { "reference": "tags-education/dist/tags-education.js" }
+}

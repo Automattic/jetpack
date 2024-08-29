@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:37+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_VE" },
+			"Font Selection": [ "Selecci\u00f3n de fuente" ],
+			"You have unsaved changes.": [ "Tienes cambios sin guardar." ],
+			"Any change you make here will apply to the entire website.": [
+				"Cualquier cambio que hagas aqu\u00ed se aplicar\u00e1 a toda la web."
+			],
+			"You are customizing %s.": [ "Est\u00e1s personalizando %s." ],
+			"Global Styles": [ "Estilos globales" ],
+			"Reset": [ "Restablecer" ],
+			"custom font selection": [ "selecci\u00f3n de fuente personalizada" ],
+			"Base Font": [ "Fuente base" ],
+			"Heading Font": [ "Fuente para encabezados" ],
+			"font pairings": [ "emparejamiento de fuentes" ],
+			"Font Pairings": [ "Emparejamiento de fuentes" ],
+			"Your active theme doesn't support %s.": [ "Tu tema activo no es compatible con %s." ],
+			"Publish": [ "Publicar" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

@@ -1,0 +1,20 @@
+{
+	"translation-revision-date": "2024-07-03 09:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ja_JP" },
+			"Done": [ "\u5b8c\u4e86" ],
+			"Learn more": [ "\u3055\u3089\u306b\u8a73\u3057\u304f" ],
+			"Pagination control": [
+				"\u30da\u30fc\u30b8\u30cd\u30fc\u30b7\u30e7\u30f3\u30b3\u30f3\u30c8\u30ed\u30fc\u30eb"
+			],
+			"What's new": [ "\u65b0\u6a5f\u80fd" ],
+			"Next": [ "\u6b21\u3078" ],
+			"Page %1$d of %2$d": [ " %1$d/%2$d\u30da\u30fc\u30b8 " ],
+			"Back": [ "\u623b\u308b" ]
+		}
+	},
+	"comment": { "reference": "whats-new/dist/whats-new.js" }
+}

@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:34+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_EC" },
+			"Right": [ "Derecha" ],
+			"Left": [ "Izquierda" ],
+			"Alternate items": [ "Alternar elementos" ],
+			"Timeline settings": [ "Configuraci\u00f3n de la cronolog\u00eda" ],
+			"Add entry": [ "A\u00f1adir entrada" ],
+			"Create a timeline of events.": [ "Crea una l\u00ednea de tiempo de eventos." ],
+			"Timeline": [ "L\u00ednea de tiempo" ],
+			"An entry on the timeline": [ "Una entrada en la l\u00ednea de tiempo" ],
+			"Timeline Entry": [ "Entrada en la l\u00ednea de tiempo" ],
+			"Winter": [ "Invierno" ],
+			"Fall": [ "Oto\u00f1o" ],
+			"Summer": [ "Verano" ],
+			"Spring": [ "Primavera" ],
+			"Background Color": [ "Color de fondo" ],
+			"Color Settings": [ "Ajustes de color" ]
+		}
+	},
+	"comment": { "reference": "jetpack-timeline/dist/jetpack-timeline.js" }
+}

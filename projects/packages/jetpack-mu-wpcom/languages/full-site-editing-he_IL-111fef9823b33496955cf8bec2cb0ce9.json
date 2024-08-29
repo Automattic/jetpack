@@ -1,0 +1,38 @@
+{
+	"translation-revision-date": "2024-07-05 14:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "he_IL" },
+			"Include subcategories ": [
+				"\u05dc\u05db\u05dc\u05d5\u05dc \u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea \u05de\u05e9\u05e0\u05d9\u05d5\u05ea "
+			],
+			"Excluded Categories": [
+				"\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea \u05e9\u05dc\u05d0 \u05e0\u05db\u05dc\u05dc\u05d5\u05ea"
+			],
+			"Begin typing post title, click autocomplete result to select.": [
+				"\u05e0\u05d9\u05ea\u05df \u05dc\u05d4\u05ea\u05d7\u05d9\u05dc \u05dc\u05d4\u05e7\u05dc\u05d9\u05d3 \u05d5\u05dc\u05dc\u05d7\u05d5\u05e5 \u05e2\u05dc \u05d4\u05e9\u05dc\u05de\u05d4 \u05d0\u05d5\u05d8\u05d5\u05de\u05d8\u05d9\u05ea \u05e9\u05dc \u05d4\u05ea\u05d5\u05e6\u05d0\u05d5\u05ea \u05dc\u05d1\u05d7\u05d9\u05e8\u05d4."
+			],
+			"Choose Specific Posts": [
+				"\u05dc\u05d1\u05d7\u05d5\u05e8 \u05e4\u05d5\u05e1\u05d8\u05d9\u05dd \u05de\u05e1\u05d5\u05d9\u05de\u05d9\u05dd"
+			],
+			"Excluded Tags": [
+				"\u05ea\u05d2\u05d9\u05d5\u05ea \u05e9\u05dc\u05d0 \u05db\u05dc\u05d5\u05dc\u05d5\u05ea"
+			],
+			"Show Advanced Filters": [
+				"\u05dc\u05d4\u05e6\u05d9\u05d2 \u05de\u05e1\u05e0\u05e0\u05d9\u05dd \u05de\u05ea\u05e7\u05d3\u05de\u05d9\u05dd"
+			],
+			"Hide Advanced Filters": [
+				"\u05dc\u05d4\u05e1\u05ea\u05d9\u05e8 \u05de\u05e1\u05e0\u05e0\u05d9\u05dd \u05de\u05ea\u05e7\u05d3\u05de\u05d9\u05dd"
+			],
+			"Tags": [ "\u05ea\u05d2\u05d9\u05d5\u05ea" ],
+			"Categories": [ "\u05e7\u05d8\u05d2\u05d5\u05e8\u05d9\u05d5\u05ea" ],
+			"Authors": [ "\u05de\u05d7\u05d1\u05e8\u05d9\u05dd" ],
+			"(no name)": [ "(\u05dc\u05dc\u05d0 \u05e9\u05dd)" ],
+			"(no title)": [ "(\u05d7\u05e1\u05e8\u05d4 \u05db\u05d5\u05ea\u05e8\u05ea)" ],
+			"Posts": [ "\u05e4\u05d5\u05e1\u05d8\u05d9\u05dd" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

@@ -1,0 +1,31 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Remove premium styles": [ "\ud504\ub9ac\ubbf8\uc5c4 \uc2a4\ud0c0\uc77c \uc81c\uac70" ],
+			"Change all of your site's fonts, colors and more. Available on the %s plan.": [
+				"\uc0ac\uc774\ud2b8\uc758 \uae00\uaf34, \uc0c9\uc0c1 \ub4f1\uc744 \ubaa8\ub450 \ubcc0\uacbd\ud558\uc138\uc694. %s \uc694\uae08\uc81c\uc5d0\uc11c \uc774\uc6a9\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4."
+			],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"\uc0ac\uc774\ud2b8\uc5d0 \ud504\ub9ac\ubbf8\uc5c4 \uc2a4\ud0c0\uc77c\uc774 \ud3ec\ud568\ub418\uc5b4 \uc788\uc73c\uba70, \uc774\ub294 %s \uc694\uae08\uc81c \uc774\uc0c1\uc73c\ub85c \uc5c5\uadf8\ub808\uc774\ub4dc\ud55c \ud6c4\uc5d0\ub9cc \ubc29\ubb38\uc790\uc5d0\uac8c \ud45c\uc2dc\ub429\ub2c8\ub2e4."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"\uc0ac\uc774\ud2b8\uc5d0 \ud504\ub9ac\ubbf8\uc5c4 \uc2a4\ud0c0\uc77c\uc774 \ud3ec\ud568\ub418\uc5b4 \uc788\uc73c\uba70, \uc774\ub294 <a>%s \uc694\uae08\uc81c \uc774\uc0c1\uc73c\ub85c \uc5c5\uadf8\ub808\uc774\ub4dc</a>\ud55c \ud6c4\uc5d0\ub9cc \ubc29\ubb38\uc790\uc5d0\uac8c \ud45c\uc2dc\ub429\ub2c8\ub2e4."
+			],
+			"Generating preview\u2026": [ "\ubbf8\ub9ac\ubcf4\uae30 \uc0dd\uc131 \uc911\u2026" ],
+			"Preview without premium styles": [
+				"\ud504\ub9ac\ubbf8\uc5c4 \uc2a4\ud0c0\uc77c \uc5c6\uc774 \ubbf8\ub9ac\ubcf4\uae30"
+			],
+			"Upgrade now": [ "\uc9c0\uae08 \uc5c5\uadf8\ub808\uc774\ub4dc" ],
+			"Upgrade plan": [ "\uc694\uae08\uc81c \uc5c5\uadf8\ub808\uc774\ub4dc" ],
+			"Try it out": [ "\uc0ac\uc6a9\ud574 \ubcf4\uae30" ],
+			"A powerful new way to style your site": [
+				"\uc0ac\uc774\ud2b8 \uc2a4\ud0c0\uc77c\uc744 \uc9c0\uc815\ud558\ub294 \uac15\ub825\ud55c \uc0c8\ub85c\uc6b4 \ubc29\ubc95\uc785\ub2c8\ub2e4."
+			]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/dist/wpcom-global-styles.js" }
+}

@@ -1,0 +1,15 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"Scheduled": [ "Zamanland\u0131" ],
+			"Draft": [ "Taslak" ],
+			"post author\u0004 and ": [ " ve " ],
+			"post author\u0004by": [ "yazan:" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/shared/js/utils.js" }
+}

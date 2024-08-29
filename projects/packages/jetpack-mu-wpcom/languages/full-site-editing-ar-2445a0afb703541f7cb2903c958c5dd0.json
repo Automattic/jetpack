@@ -1,0 +1,35 @@
+{
+	"translation-revision-date": "2024-07-04 14:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=6; plural=(n == 0) ? 0 : ((n == 1) ? 1 : ((n == 2) ? 2 : ((n % 100 >= 3 && n % 100 <= 10) ? 3 : ((n % 100 >= 11 && n % 100 <= 99) ? 4 : 5))));",
+				"lang": "ar"
+			},
+			"Count down to your favorite next thing, and celebrate with fireworks when the time is right!": [
+				"\u064a\u0645\u0643\u0646\u0643 \u0625\u062c\u0631\u0627\u0621 \u0639\u062f \u062a\u0646\u0627\u0632\u0644\u064a \u0625\u0644\u0649 \u0627\u0644\u0634\u064a\u0621 \u0627\u0644\u062a\u0627\u0644\u064a \u0627\u0644\u0645\u0641\u0636\u0651\u064e\u0644 \u0644\u062f\u064a\u0643\u060c \u0648\u0627\u0644\u0627\u062d\u062a\u0641\u0627\u0644 \u0628\u0627\u0644\u0623\u0644\u0639\u0627\u0628 \u0627\u0644\u0646\u0627\u0631\u064a\u0629 \u0639\u0646\u062f\u0645\u0627 \u064a\u062d\u064a\u0646 \u0627\u0644\u0648\u0642\u062a!"
+			],
+			"Countdown seconds remaining\u0004seconds": [ "\u062b\u0648\u0627\u0646\u064d" ],
+			"Countdown minutes remaining\u0004minutes": [ "\u062f\u0642\u0627\u0626\u0642" ],
+			"Countdown hours remaining\u0004hours": [ "\u0633\u0627\u0639\u0627\u062a" ],
+			"Countdown days remaining\u0004days": [ "\u0623\u064a\u0627\u0645" ],
+			"Date:": [ "\u0627\u0644\u062a\u0627\u0631\u064a\u062e:" ],
+			"Title:": [ "\u0627\u0644\u0639\u0646\u0648\u0627\u0646:" ],
+			"until": [ "\u062d\u062a\u0649" ],
+			"Event Title": [ "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u062d\u062f\u062b" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"\u0642\u0645 \u0628\u0627\u0644\u0639\u062f \u062a\u0646\u0627\u0632\u0644\u064a\u064b\u0627 \u0625\u0644\u0649 \u062d\u062f\u062b \u0645\u0627. \u0642\u0645 \u0628\u062a\u0639\u064a\u064a\u0646 \u0639\u0646\u0648\u0627\u0646 \u0648\u0627\u062e\u062a\u064a\u0627\u0631 \u0627\u0644\u0648\u0642\u062a \u0648\u0627\u0644\u062a\u0627\u0631\u064a\u062e."
+			],
+			"Event Countdown": [
+				"\u0627\u0644\u0639\u062f \u0627\u0644\u062a\u0646\u0627\u0632\u0644\u064a \u0644\u0644\u062d\u062f\u062b"
+			],
+			"Choose Date": [
+				"\u0627\u062e\u062a\u064a\u0627\u0631 \u0627\u0644\u062a\u0627\u0631\u064a\u062e"
+			]
+		}
+	},
+	"comment": { "reference": "event-countdown-block/dist/event-countdown-block.js" }
+}

@@ -1,0 +1,27 @@
+{
+	"translation-revision-date": "2024-07-02 21:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "pt_BR" },
+			"Count down to your favorite next thing, and celebrate with fireworks when the time is right!": [
+				"Fa\u00e7a a contagem regressiva para suas coisas preferidas e celebre com fogos de artif\u00edcio quando chegar a hora!"
+			],
+			"Countdown seconds remaining\u0004seconds": [ "segundos" ],
+			"Countdown minutes remaining\u0004minutes": [ "minutos" ],
+			"Countdown hours remaining\u0004hours": [ "horas" ],
+			"Countdown days remaining\u0004days": [ "dias" ],
+			"Date:": [ "Data:" ],
+			"Title:": [ "T\u00edtulo:" ],
+			"until": [ "at\u00e9" ],
+			"Event Title": [ "T\u00edtulo do evento" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"Inicie a contagem regressiva para um evento. Defina o t\u00edtulo e escolha a data e a hora."
+			],
+			"Event Countdown": [ "Contagem regressiva para o evento" ],
+			"Choose Date": [ "Escolher data" ]
+		}
+	},
+	"comment": { "reference": "event-countdown-block/dist/event-countdown-block.js" }
+}

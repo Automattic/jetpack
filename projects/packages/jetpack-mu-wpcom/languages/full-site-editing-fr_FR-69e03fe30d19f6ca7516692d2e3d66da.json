@@ -1,0 +1,70 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "fr" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"S'il n'est pas v\u00e9rifi\u00e9, ce bloc sera exclu de la logique de d\u00e9duplication et pourrait afficher des articles dupliqu\u00e9s."
+			],
+			"Use deduplication logic": [ "Utiliser la logique de d\u00e9duplication" ],
+			"Columns Gap": [ "Intervalle entre les colonnes" ],
+			"\"Read More\" link text": [ "Texte du lien \u00ab\u00a0Lire la suite\u00a0\u00bb" ],
+			"Add a \"Read More\" link": [ "Ajouter un lien \u00ab\u00a0Lire la suite\u00a0\u00bb" ],
+			"Max number of words in excerpt": [ "Nombre max. de mots dans l\u2019extrait" ],
+			"Show \"Load more posts\" Button": [
+				"Afficher le bouton \u00ab\u00a0Charger d\u2019autres articles\u00a0\u00bb"
+			],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Ce blog est priv\u00e9. La fonctionnalit\u00e9 \u00ab\u00a0Charger d\u2019autres articles\u00a0\u00bb n\u2019est donc pas activ\u00e9e."
+			],
+			"Show Subtitle": [ "Afficher les sous-titres" ],
+			"Load more posts": [ "Charger d\u2019autres articles" ],
+			"Sorry, no posts were found.": [ "D\u00e9sol\u00e9, article introuvable." ],
+			"Write header\u2026": [ "\u00c9crire l'en-t\u00eate\u2026" ],
+			"Uncropped": [ "Sans rognage" ],
+			"Square Image Shape": [ "Image de forme carr\u00e9e" ],
+			"portrait Image Shape": [ "Image en mode portrait" ],
+			"Landscape Image Shape": [ "Image en mode paysage" ],
+			"Show media behind": [ "Afficher le m\u00e9dia derri\u00e8re" ],
+			"Show media on right": [ "Afficher le m\u00e9dia \u00e0 droite" ],
+			"Show media on left": [ "Afficher le m\u00e9dia \u00e0 gauche" ],
+			"Show media on top": [ "Afficher le m\u00e9dia devant" ],
+			"Grid View": [ "Vue en grille" ],
+			"List View": [ "Vue en liste" ],
+			"Show Author Avatar": [ "Afficher l'avatar de l'auteur" ],
+			"Show Author": [ "Afficher l'auteur" ],
+			"Show Category": [ "Afficher la cat\u00e9gorie" ],
+			"Show Date": [ "Afficher la date" ],
+			"Post Meta Settings": [ "Param\u00e8tres des m\u00e9tadonn\u00e9es d'article" ],
+			"Type Scale": [ "Saisir l'\u00e9chelle" ],
+			"Show Excerpt": [ "Afficher un extrait" ],
+			"Post Control Settings": [ "Param\u00e8tres de commande de l'article" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"D\u00e9finit une hauteur minimale du bloc au moyen d'un pourcentage de la hauteur actuelle de l'\u00e9cran."
+			],
+			"Minimum height": [ "Hauteur minimale" ],
+			"Featured Image Size": [ "Taille de l'image mise en avant" ],
+			"Stack on mobile": [ "Empiler sur mobile" ],
+			"Show Featured Image Caption": [ "Afficher la l\u00e9gende de l'image mise en avant" ],
+			"Show Featured Image": [ "Afficher l'image mise en avant" ],
+			"Featured Image Settings": [ "Param\u00e8tres de l'image mise en avant" ],
+			"Columns": [ "Colonnes" ],
+			"Display Settings": [ "Param\u00e8tres d'affichage" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "Extra large" ],
+			"L": [ "L" ],
+			"Large": [ "Grand" ],
+			"M": [ "M" ],
+			"Medium": [ "Moyen" ],
+			"S": [ "S" ],
+			"Small": [ "Petit" ],
+			"Text Color": [ "Couleur du texte" ],
+			"Color Settings": [ "R\u00e9glages des couleurs" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js"
+	}
+}

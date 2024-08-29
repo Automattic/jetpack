@@ -1,0 +1,47 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:34+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_EC" },
+			"You can visit the the Customizer to edit the colors on your site.": [
+				"Visita el personalizador para editar los colores de tu sitio."
+			],
+			"You can visit the the <a>Customizer</a> to edit the colors on your site.": [
+				"Visita el <a>personalizador</a> para editar los colores de tu sitio."
+			],
+			"color": [ "color" ],
+			"You can visit the the Customizer to edit your logo and site title.": [
+				"Visita el personalizador para editar tu logotipo y el t\u00edtulo de tu sitio."
+			],
+			"You can visit the the <a>Customizer</a> to edit your logo and site title.": [
+				"Visita el <a>personalizador</a> para editar tu logotipo y el t\u00edtulo de tu sitio."
+			],
+			"header": [ "encabezado" ],
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Visita el directorio de plugins para empezar a instalar nuevos plugins."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Visita el <a>directorio de plugins</a> para empezar a instalar nuevos plugins."
+			],
+			"plugin": [ "plugin" ],
+			"You can visit the the Customizer to edit the CSS on your site.": [
+				"Visita el personalizador para editar el c\u00f3digo CSS de tu sitio."
+			],
+			"You can visit the the <a>Customizer</a> to edit the CSS on your site.": [
+				"Visita el <a>personalizador</a> para editar el c\u00f3digo CSS de tu sitio."
+			],
+			"style": [ "estilo" ],
+			"css": [ "css" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Visita el directorio de temas para seleccionar un dise\u00f1o diferente para tu sitio."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Visita el <a>directorio de temas</a> para seleccionar un dise\u00f1o diferente para tu sitio."
+			],
+			"theme": [ "tema" ]
+		}
+	},
+	"comment": { "reference": "block-inserter-modifications/dist/contextual-tips.js" }
+}

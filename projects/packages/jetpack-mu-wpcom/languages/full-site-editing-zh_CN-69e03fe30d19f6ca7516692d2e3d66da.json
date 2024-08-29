@@ -1,0 +1,74 @@
+{
+	"translation-revision-date": "2024-07-04 10:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_CN" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"\u5982\u672a\u9009\u4e2d\uff0c\u8be5\u533a\u5757\u5c06\u4e0d\u4f1a\u5e94\u7528\u91cd\u590d\u6570\u636e\u5220\u9664\u903b\u8f91\uff0c\u5e76\u53ef\u80fd\u663e\u793a\u91cd\u590d\u7684\u6587\u7ae0\u3002"
+			],
+			"Use deduplication logic": [ "\u4f7f\u7528\u91cd\u590d\u6570\u636e\u5220\u9664\u903b\u8f91" ],
+			"Columns Gap": [ "\u680f\u76ee\u7a7a\u767d" ],
+			"\"Read More\" link text": [ "\u201c\u9605\u8bfb\u66f4\u591a\u201d\u94fe\u63a5\u6587\u672c" ],
+			"Add a \"Read More\" link": [
+				"\u6dfb\u52a0\u201c\u9605\u8bfb\u66f4\u591a\u201d\u94fe\u63a5"
+			],
+			"Max number of words in excerpt": [ "\u6458\u5f55\u4e2d\u7684\u6700\u5927\u5b57\u6570" ],
+			"Show \"Load more posts\" Button": [
+				"\u663e\u793a\u201c\u52a0\u8f7d\u66f4\u591a\u6587\u7ae0\u201d\u6309\u94ae"
+			],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"\u7531\u4e8e\u6b64\u535a\u5ba2\u662f\u79c1\u5bc6\u535a\u5ba2\uff0c\u56e0\u6b64\u201c\u52a0\u8f7d\u66f4\u591a\u6587\u7ae0\u201d\u529f\u80fd\u4e0d\u53ef\u7528\u3002"
+			],
+			"Show Subtitle": [ "\u663e\u793a\u526f\u6807\u9898" ],
+			"Load more posts": [ "\u52a0\u8f7d\u66f4\u591a\u6587\u7ae0" ],
+			"Sorry, no posts were found.": [
+				"\u62b1\u6b49\uff0c\u627e\u4e0d\u5230\u4efb\u4f55\u6587\u7ae0\u3002"
+			],
+			"Write header\u2026": [ "\u64b0\u5199\u6807\u9898\u2026" ],
+			"Uncropped": [ "\u53d6\u6d88\u88c1\u5207" ],
+			"Square Image Shape": [ "\u65b9\u5f62\u56fe\u50cf\u5f62\u72b6" ],
+			"portrait Image Shape": [ "\u7eb5\u5411\u56fe\u50cf\u5f62\u72b6" ],
+			"Landscape Image Shape": [ "\u6a2a\u5411\u56fe\u50cf\u5f62\u72b6" ],
+			"Show media behind": [ "\u5728\u540e\u9762\u663e\u793a\u5a92\u4f53\u6587\u4ef6" ],
+			"Show media on right": [ "\u5728\u53f3\u4fa7\u663e\u793a\u5a92\u4f53\u6587\u4ef6" ],
+			"Show media on left": [ "\u5728\u5de6\u4fa7\u663e\u793a\u5a92\u4f53\u6587\u4ef6" ],
+			"Show media on top": [ "\u5728\u4e0a\u65b9\u663e\u793a\u5a92\u4f53\u6587\u4ef6" ],
+			"Grid View": [ "\u7f51\u683c\u89c6\u56fe" ],
+			"List View": [ "\u5217\u8868\u89c6\u56fe" ],
+			"Show Author Avatar": [ "\u663e\u793a\u4f5c\u8005\u5934\u50cf" ],
+			"Show Author": [ "\u663e\u793a\u4f5c\u8005" ],
+			"Show Category": [ "\u663e\u793a\u7c7b\u522b" ],
+			"Show Date": [ "\u663e\u793a\u65e5\u671f" ],
+			"Post Meta Settings": [ "\u6587\u7ae0\u5143\u6570\u636e\u8bbe\u7f6e" ],
+			"Type Scale": [ "\u8f93\u5165\u89c4\u6a21" ],
+			"Show Excerpt": [ "\u663e\u793a\u6458\u8981" ],
+			"Post Control Settings": [ "\u6587\u7ae0\u63a7\u5236\u8bbe\u7f6e" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"\u8bbe\u7f6e\u533a\u5757\u7684\u6700\u5c0f\u9ad8\u5ea6\uff0c\u4f7f\u7528\u5c4f\u5e55\u5f53\u524d\u9ad8\u5ea6\u7684\u767e\u5206\u6bd4\u503c\u3002"
+			],
+			"Minimum height": [ "\u6700\u4f4e\u9ad8\u5ea6" ],
+			"Featured Image Size": [ "\u7279\u8272\u56fe\u7247\u5927\u5c0f" ],
+			"Stack on mobile": [ "\u5728\u79fb\u52a8\u8bbe\u5907\u4e0a\u5806\u53e0\u663e\u793a" ],
+			"Show Featured Image Caption": [ "\u663e\u793a\u7279\u8272\u56fe\u7247\u8bf4\u660e" ],
+			"Show Featured Image": [ "\u663e\u793a\u7279\u8272\u56fe\u7247" ],
+			"Featured Image Settings": [ "\u7279\u8272\u56fe\u7247\u8bbe\u7f6e" ],
+			"Columns": [ "\u680f\u76ee" ],
+			"Display Settings": [ "\u663e\u793a\u8bbe\u7f6e" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "\u7279\u5927\u53f7" ],
+			"L": [ "L" ],
+			"Large": [ "\u5927" ],
+			"M": [ "M" ],
+			"Medium": [ "\u4e2d" ],
+			"S": [ "S" ],
+			"Small": [ "\u5c0f" ],
+			"Text Color": [ "\u6587\u672c\u989c\u8272" ],
+			"Color Settings": [ "\u989c\u8272\u8bbe\u7f6e" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js"
+	}
+}

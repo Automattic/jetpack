@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"block style\u0004Borders": [ "Kantlinjer" ],
+			"block style\u0004Default": [ "Standard" ],
+			"A block for displaying homepage posts.": [
+				"Ett block f\u00f6r visning av inl\u00e4gg p\u00e5 startsidan."
+			],
+			"latest": [ "senaste" ],
+			"articles": [ "artiklar" ],
+			"posts": [ "inl\u00e4gg" ],
+			"Homepage Posts": [ "Startsidans inl\u00e4gg" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/index.js"
+	}
+}

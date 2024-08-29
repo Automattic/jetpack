@@ -1,0 +1,47 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "fr" },
+			"You can visit the the Customizer to edit the colors on your site.": [
+				"Vous pouvez utiliser l\u2019Outil de personnalisation pour modifier les couleurs de votre site."
+			],
+			"You can visit the the <a>Customizer</a> to edit the colors on your site.": [
+				"Vous pouvez utiliser l\u2019<a>Outil de personnalisation</a> pour modifier les couleurs de votre site."
+			],
+			"color": [ "couleur" ],
+			"You can visit the the Customizer to edit your logo and site title.": [
+				"Vous pouvez utiliser l\u2019Outil de personnalisation pour modifier le logo et le titre de votre site."
+			],
+			"You can visit the the <a>Customizer</a> to edit your logo and site title.": [
+				"Vous pouvez utiliser l\u2019<a>Outil de personnalisation</a> pour modifier le logo et le titre de votre site."
+			],
+			"header": [ "en-t\u00eate" ],
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Vous pouvez utiliser le r\u00e9pertoire d\u2019extensions pour commencer \u00e0 installer de nouvelles extensions."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Vous pouvez utiliser le <a>r\u00e9pertoire d\u2019extensions</a> pour commencer \u00e0 installer de nouvelles extensions."
+			],
+			"plugin": [ "extension" ],
+			"You can visit the the Customizer to edit the CSS on your site.": [
+				"Vous pouvez utiliser l\u2019Outil de personnalisation pour modifier le CSS sur votre site."
+			],
+			"You can visit the the <a>Customizer</a> to edit the CSS on your site.": [
+				"Vous pouvez utiliser l\u2019<a>Outil de personnalisation</a> pour modifier le CSS sur votre site."
+			],
+			"style": [ "style" ],
+			"css": [ "css" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Vous pouvez utiliser le r\u00e9pertoire de th\u00e8mes pour s\u00e9lectionner un design diff\u00e9rent pour votre site."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Vous pouvez utiliser le <a>r\u00e9pertoire de th\u00e8mes</a> pour s\u00e9lectionner un design diff\u00e9rent pour votre site."
+			],
+			"theme": [ "th\u00e8me" ]
+		}
+	},
+	"comment": { "reference": "block-inserter-modifications/contextual-tips/list.js" }
+}

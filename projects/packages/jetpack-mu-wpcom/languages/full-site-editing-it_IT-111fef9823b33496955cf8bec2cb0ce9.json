@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-03 17:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "it" },
+			"Include subcategories ": [ "Includi le sottocategorie " ],
+			"Excluded Categories": [ "Categorie escluse" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Inizia a scrivere il titolo dell'articolo, fai clic sul risultato di completamento automatico per selezionarlo."
+			],
+			"Choose Specific Posts": [ "Scegli articoli specifici" ],
+			"Excluded Tags": [ "Tag esclusi" ],
+			"Show Advanced Filters": [ "Mostra filtri avanzati" ],
+			"Hide Advanced Filters": [ "Nascondi filtri avanzati" ],
+			"Tags": [ "Tag" ],
+			"Categories": [ "Categorie" ],
+			"Authors": [ "Autori" ],
+			"(no name)": [ "(nessun nome)" ],
+			"(no title)": [ "(nessun titolo)" ],
+			"Posts": [ "Articoli" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

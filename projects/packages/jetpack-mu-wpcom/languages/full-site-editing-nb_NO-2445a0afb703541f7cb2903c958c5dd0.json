@@ -1,0 +1,27 @@
+{
+	"translation-revision-date": "2021-10-01 13:11:40+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nb_NO" },
+			"Count down to your favorite next thing, and celebrate with fireworks when the time is right!": [
+				"Tell ned til din favoritt neste ting, og feire med fyrverkeri n\u00e5r tiden har kommet!"
+			],
+			"Countdown seconds remaining\u0004seconds": [ "sekunder" ],
+			"Countdown minutes remaining\u0004minutes": [ "minutter" ],
+			"Countdown hours remaining\u0004hours": [ "timer" ],
+			"Countdown days remaining\u0004days": [ "dager" ],
+			"Date:": [ "Dato:" ],
+			"Title:": [ "Tittel:" ],
+			"until": [ "inntil" ],
+			"Event Title": [ "Arrangementstittel" ],
+			"Count down to an event. Set a title and pick a time and date.": [
+				"Tell ned til et arrangement. Sett en tittel og velg tid og dato."
+			],
+			"Event Countdown": [ "Arrangementsnedtelling" ],
+			"Choose Date": [ "Velg dato" ]
+		}
+	},
+	"comment": { "reference": "event-countdown-block/dist/event-countdown-block.js" }
+}

@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-06-30 16:43:58+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Font Selection": [ "Lettertypeselectie" ],
+			"You have unsaved changes.": [ "U heeft wijzigingen die niet zijn opgeslagen." ],
+			"Any change you make here will apply to the entire website.": [
+				"Wijzigingen die u hier aanbrengt, worden op de gehele site toegepast."
+			],
+			"You are customizing %s.": [ "U bent %s aan het aanpassen." ],
+			"Global Styles": [ "Algemene stijlen" ],
+			"Reset": [ "Resetten" ],
+			"custom font selection": [ "aangepaste lettertypeselectie" ],
+			"Base Font": [ "Standaard lettertype" ],
+			"Heading Font": [ "Lettertype titel" ],
+			"font pairings": [ "lettertype koppelingen" ],
+			"Font Pairings": [ "Lettertype koppelingen" ],
+			"Your active theme doesn't support %s.": [ "Uw actieve thema ondersteunt geen %s." ],
+			"Publish": [ "Publiceren" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

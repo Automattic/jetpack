@@ -1,0 +1,66 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"Jika tidak dicentang, blok ini akan dikecualikan dari logika deduplikasi dan mungkin menampilkan pos duplikat."
+			],
+			"Use deduplication logic": [ "Gunakan logika deduplikasi" ],
+			"Columns Gap": [ "Celah Kolom" ],
+			"\"Read More\" link text": [ "Teks tautan \"Baca Selengkapnya\"" ],
+			"Add a \"Read More\" link": [ "Tambahkan tautan \"Baca Selengkapnya\"" ],
+			"Max number of words in excerpt": [ "Jumlah kata maksimum dalam kutipan" ],
+			"Show \"Load more posts\" Button": [ "Tampilkan Tombol \"Muat pos lainnya\"" ],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Blog ini tersembunyi, jadi fitur \"Muat pos lainnya\" dimatikan."
+			],
+			"Show Subtitle": [ "Tampilkan Subtitel" ],
+			"Load more posts": [ "Muat pos lainnya" ],
+			"Sorry, no posts were found.": [ "Maaf, tidak ditemukan pos apa pun." ],
+			"Write header\u2026": [ "Tulis header\u2026" ],
+			"Uncropped": [ "Tidak dipotong" ],
+			"Square Image Shape": [ "Bentuk Gambar Kotak" ],
+			"portrait Image Shape": [ "Bentuk Gambar Potret" ],
+			"Landscape Image Shape": [ "Bentuk Gambar Lanskap" ],
+			"Show media behind": [ "Tampilkan media di belakang" ],
+			"Show media on right": [ "Tampilkan media di sisi kanan" ],
+			"Show media on left": [ "Tampilkan media di sisi kiri" ],
+			"Show media on top": [ "Tampilkan media di atas" ],
+			"Grid View": [ "Tampilan Petak" ],
+			"List View": [ "Tampilan Daftar" ],
+			"Show Author Avatar": [ "Tampilkan Avatar Penulis" ],
+			"Show Author": [ "Tampilkan Penulis" ],
+			"Show Category": [ "Tampilkan Kategori" ],
+			"Show Date": [ "Tampilkan Tanggal" ],
+			"Post Meta Settings": [ "Pengaturan Meta Pos" ],
+			"Type Scale": [ "Ketik Skala" ],
+			"Show Excerpt": [ "Tampilkan Kutipan" ],
+			"Post Control Settings": [ "Pengaturan Kontrol Pos" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"Menetapkan tinggi minimum untuk blok menggunakan persentase tinggi layar saat ini."
+			],
+			"Minimum height": [ "Tinggi minimum" ],
+			"Featured Image Size": [ "Ukuran Gambar Andalan" ],
+			"Stack on mobile": [ "Stack di seluler" ],
+			"Show Featured Image Caption": [ "Tampilkan Keterangan Gambar Andalan" ],
+			"Show Featured Image": [ "Tampilkan Gambar Andalan" ],
+			"Featured Image Settings": [ "Pengaturan Gambar Andalan" ],
+			"Columns": [ "Kolom" ],
+			"Display Settings": [ "Pengaturan Tampilan" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "Sangat Besar" ],
+			"L": [ "L" ],
+			"Large": [ "Besar" ],
+			"M": [ "M" ],
+			"Medium": [ "Sedang" ],
+			"S": [ "S" ],
+			"Small": [ "Kecil" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/edit.js"
+	}
+}

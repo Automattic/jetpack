@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2024-06-30 16:43:58+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Slide %1$s of %2$s": [ "Slide %1$s van %2$s" ],
+			"Paused": [ "Gepauzeerd" ],
+			"Playing": [ "Wordt afgespeeld" ],
+			"Image: %s, ": [ "Afbeelding: %s, " ],
+			"Slide %s": [ "Slide %s" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/carousel-block-view.js" }
+}

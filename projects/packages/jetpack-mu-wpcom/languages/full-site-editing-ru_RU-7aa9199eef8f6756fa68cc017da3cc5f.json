@@ -1,0 +1,44 @@
+{
+	"translation-revision-date": "2024-07-04 19:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"plural-forms": "nplurals=3; plural=(n % 10 == 1 && n % 100 != 11) ? 0 : ((n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? 1 : 2);",
+				"lang": "ru"
+			},
+			"Font Selection": [
+				"\u0412\u044b\u0431\u043e\u0440 \u0448\u0440\u0438\u0444\u0442\u043e\u0432"
+			],
+			"You have unsaved changes.": [
+				"\u0423 \u0432\u0430\u0441 \u0435\u0441\u0442\u044c \u043d\u0435\u0441\u043e\u0445\u0440\u0430\u043d\u0451\u043d\u043d\u044b\u0435 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f."
+			],
+			"Any change you make here will apply to the entire website.": [
+				"\u041b\u044e\u0431\u044b\u0435 \u0432\u043d\u0435\u0441\u0435\u043d\u043d\u044b\u0435 \u0437\u0434\u0435\u0441\u044c \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u0431\u0443\u0434\u0443\u0442 \u043f\u0440\u0438\u043c\u0435\u043d\u0435\u043d\u044b \u043a\u043e \u0432\u0441\u0435\u043c\u0443 \u0432\u0435\u0431-\u0441\u0430\u0439\u0442\u0443."
+			],
+			"You are customizing %s.": [
+				"\u0412\u044b \u043d\u0430\u0441\u0442\u0440\u0430\u0438\u0432\u0430\u0435\u0442\u0435 %s."
+			],
+			"Global Styles": [
+				"\u0413\u043b\u043e\u0431\u0430\u043b\u044c\u043d\u044b\u0435 \u0441\u0442\u0438\u043b\u0438"
+			],
+			"Reset": [ "\u0421\u0431\u0440\u043e\u0441" ],
+			"custom font selection": [
+				"\u0432\u044b\u0431\u043e\u0440 \u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u0441\u043a\u0438\u0445 \u0448\u0440\u0438\u0444\u0442\u043e\u0432"
+			],
+			"Base Font": [ "\u0411\u0430\u0437\u043e\u0432\u044b\u0439 \u0448\u0440\u0438\u0444\u0442" ],
+			"Heading Font": [
+				"\u0428\u0440\u0438\u0444\u0442 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043a\u043e\u0432"
+			],
+			"font pairings": [ "\u043f\u0430\u0440\u044b \u0448\u0440\u0438\u0444\u0442\u043e\u0432" ],
+			"Font Pairings": [ "\u041f\u0430\u0440\u044b \u0448\u0440\u0438\u0444\u0442\u043e\u0432" ],
+			"Your active theme doesn't support %s.": [
+				"\u0412\u0430\u0448\u0430 \u0430\u043a\u0442\u0438\u0432\u043d\u0430\u044f \u0442\u0435\u043c\u0430 \u043d\u0435 \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u0442 %s."
+			],
+			"Publish": [ "\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u0442\u044c" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

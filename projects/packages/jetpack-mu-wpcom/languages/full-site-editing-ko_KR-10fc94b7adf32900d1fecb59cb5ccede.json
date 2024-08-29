@@ -1,0 +1,94 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Include subcategories ": [ "\ud558\uc704 \uce74\ud14c\uace0\ub9ac \ud3ec\ud568 " ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"\uc5ec\uae30\uc5d0\uc11c \uc120\ud0dd\ud558\uba74 \ud3b8\uc9d1\uc790\ub9cc \uc601\ud5a5\uc744 \ubc1b\uc73c\uba70, \uc77c\ubc18 \uc0ac\uc6a9\uc790\uc5d0\uac8c\ub294 \ubc1c\ud589\ud55c \uae00\ub9cc \ud45c\uc2dc\ub429\ub2c8\ub2e4."
+			],
+			"Additional Post Statuses": [ "\ucd94\uac00 \uae00 \uc0c1\ud0dc" ],
+			"Scheduled": [ "\uc608\uc57d\ub428" ],
+			"Draft": [ "\uc784\uc2dc\uae00" ],
+			"Slide %1$s of %2$s": [ "\uc2ac\ub77c\uc774\ub4dc %1$s/%2$s" ],
+			"Excluded Categories": [ "\uc81c\uc678\ub41c \uce74\ud14c\uace0\ub9ac" ],
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"\uc774\ubbf8\uc9c0\uac00 \uc798\ub9ac\uc9c0 \uc54a\uace0 \uc2ac\ub77c\uc774\ub4dc \ub0b4\ubd80\uc5d0 \uc54c\ub9de\uac8c \ud06c\uae30\uac00 \uc870\uc815\ub429\ub2c8\ub2e4."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"\uc774\ubbf8\uc9c0\uac00 \uc804\uccb4 \uc2ac\ub77c\uc774\ub4dc\ub97c \ucc44\uc6b0\uba70 \ud544\uc694\ud558\uba74 \uc798\ub9bd\ub2c8\ub2e4."
+			],
+			"Show Title": [ "\uc81c\ubaa9 \ud45c\uc2dc" ],
+			"Number of slides to show at once": [
+				"\ud55c \ubc88\uc5d0 \ud45c\uc2dc\ud560 \uc2ac\ub77c\uc774\ub4dc \uc218"
+			],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"\uc2ac\ub77c\uc774\ub4dc \uc1fc UI\ub97c \uc228\uae41\ub2c8\ub2e4. \uc790\ub3d9 \uc7ac\uc0dd\uacfc \ud568\uaed8 \uc0ac\uc6a9\ud560 \ub54c \uc720\uc6a9\ud569\ub2c8\ub2e4."
+			],
+			"Hide Controls": [ "\ucee8\ud2b8\ub864 \uc228\uae30\uae30" ],
+			"Contain": [ "\ud3ec\ud568" ],
+			"Cover": [ "\ucee4\ubc84" ],
+			"Image Fit": [ "\uc774\ubbf8\uc9c0 \ub9de\ucda4" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"\uc77c\uad00\uc131\uc744 \uc704\ud574 \ubaa8\ub4e0 \uc2ac\ub77c\uc774\ub4dc\uc5d0\uc11c \ub3d9\uc77c\ud55c \ud654\uba74 \ube44\uc728\uc744 \uacf5\uc720\ud569\ub2c8\ub2e4."
+			],
+			"Slide Aspect Ratio": [ "\uc2ac\ub77c\uc774\ub4dc \ud654\uba74 \ube44\uc728" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "\uc815\uc0ac\uac01\ud615" ],
+			"Featured image caption": [ "\ud2b9\uc131 \uc774\ubbf8\uc9c0 \ucea1\uc158" ],
+			"Category": [ "\uce74\ud14c\uace0\ub9ac" ],
+			"Author Name": [ "\uae00\uc4f4\uc774 \uc774\ub984" ],
+			"Post Title": [ "\uae00 \uc81c\ubaa9" ],
+			"Post Subtitle": [ "\uae00 \ubd80\uc81c\ubaa9" ],
+			"The post excerpt.": [ "\uae00 \uc694\uc57d\ubb38\uc785\ub2c8\ub2e4." ],
+			"The post content.": [ "\uae00 \ucf58\ud150\uce20\uc785\ub2c8\ub2e4." ],
+			"Post Types": [ "\uae00 \uc720\ud615" ],
+			"A carousel of posts.": [ "\uae00 \uc2ac\ub77c\uc774\ub4dc." ],
+			"Paused": [ "\uc815\uc9c0" ],
+			"Playing": [ "\uc7ac\uc0dd" ],
+			"Image: %s, ": [ "\uc774\ubbf8\uc9c0: %s, " ],
+			"Slide %s": [ "\uc2ac\ub77c\uc774\ub4dc %s" ],
+			"Post Carousel": [ "\uae00 \uc2ac\ub77c\uc774\ub4dc" ],
+			"Article Meta Settings": [ "\uae00 \uba54\ud0c0 \uc124\uc815" ],
+			"Delay between transitions (in seconds)": [
+				"\uc804\ud658 \uc9c0\uc5f0 \uc2dc\uac04(\ucd08)"
+			],
+			"Autoplay between slides": [ "\uc2ac\ub77c\uc774\ub4dc \uac04 \uc790\ub3d9 \uc7ac\uc0dd" ],
+			"Autoplay": [ "\uc790\ub3d9 \uc2e4\ud589" ],
+			"Slideshow Settings": [ "\uc2ac\ub77c\uc774\ub4dc \uc1fc \uc124\uc815" ],
+			"carousel": [ "\uce90\ub7ec\uc824" ],
+			"slideshow": [ "\uc2ac\ub77c\uc774\ub4dc \uc1fc" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"\uae00 \uc81c\ubaa9\uc744 \uc785\ub825\ud558\uace0 \uc790\ub3d9 \uc644\uc131 \uacb0\uacfc\ub97c \ud074\ub9ad\ud558\uc5ec \uc120\ud0dd\ud558\uc138\uc694."
+			],
+			"Choose Specific Posts": [ "\ud2b9\uc815 \uae00 \uc120\ud0dd" ],
+			"Excluded Tags": [ "\uc81c\uc678\ub41c \ud0dc\uadf8" ],
+			"Show Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \ud45c\uc2dc" ],
+			"Hide Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \uc228\uae30\uae30" ],
+			"Sorry, no posts were found.": [
+				"\uc8c4\uc1a1\ud569\ub2c8\ub2e4. \uae00\uc774 \uc5c6\uc2b5\ub2c8\ub2e4."
+			],
+			"Show Author Avatar": [ "\uc791\uc131\uc790 \uc544\ubc14\ud0c0 \ud45c\uc2dc" ],
+			"Show Author": [ "\uc791\uc131\uc790 \ud45c\uc2dc" ],
+			"Show Category": [ "\uce74\ud14c\uace0\ub9ac \ud45c\uc2dc" ],
+			"Show Date": [ "\ub0a0\uc9dc \ud45c\uc2dc" ],
+			"Display Settings": [ "\ud45c\uc2dc \uc124\uc815" ],
+			"Tags": [ "\ud0dc\uadf8" ],
+			"Categories": [ "\uce74\ud14c\uace0\ub9ac" ],
+			"Authors": [ "\uc791\uc131\uc790" ],
+			"(no name)": [ "(\uc774\ub984 \uc5c6\uc74c)" ],
+			"(no title)": [ "(\uc81c\ubaa9 \uc5c6\uc74c)" ],
+			"posts": [ "\uae00" ],
+			"post author\u0004 and ": [ " \ubc0f " ],
+			"post author\u0004by": [ "\uac8c\uc2dc\uc790:" ],
+			"Posts": [ "\uae00" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/carousel-block-editor.js" }
+}

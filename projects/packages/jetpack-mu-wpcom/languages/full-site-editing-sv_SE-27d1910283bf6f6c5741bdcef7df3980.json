@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"Right": [ "H\u00f6ger" ],
+			"Left": [ "V\u00e4nster" ],
+			"Alternate items": [ "Alternativa poster" ],
+			"Timeline settings": [ "Inst\u00e4llningar f\u00f6r tidslinje" ],
+			"Add entry": [ "L\u00e4gg till inl\u00e4gg" ],
+			"Create a timeline of events.": [ "Skapa en tidslinje med h\u00e4ndelser." ],
+			"Timeline": [ "Tidslinje" ],
+			"An entry on the timeline": [ "En post p\u00e5 tidslinjen" ],
+			"Timeline Entry": [ "Tidslinjespost" ],
+			"Winter": [ "Vinter" ],
+			"Fall": [ "H\u00f6st" ],
+			"Summer": [ "Sommar" ],
+			"Spring": [ "V\u00e5r" ],
+			"Background Color": [ "Bakgrundsf\u00e4rg" ],
+			"Color Settings": [ "F\u00e4rginst\u00e4llningar" ]
+		}
+	},
+	"comment": { "reference": "jetpack-timeline/dist/jetpack-timeline.js" }
+}

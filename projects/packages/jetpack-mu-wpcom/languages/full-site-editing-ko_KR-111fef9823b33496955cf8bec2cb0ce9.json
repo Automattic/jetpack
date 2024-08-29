@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Include subcategories ": [ "\ud558\uc704 \uce74\ud14c\uace0\ub9ac \ud3ec\ud568 " ],
+			"Excluded Categories": [ "\uc81c\uc678\ub41c \uce74\ud14c\uace0\ub9ac" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"\uae00 \uc81c\ubaa9\uc744 \uc785\ub825\ud558\uace0 \uc790\ub3d9 \uc644\uc131 \uacb0\uacfc\ub97c \ud074\ub9ad\ud558\uc5ec \uc120\ud0dd\ud558\uc138\uc694."
+			],
+			"Choose Specific Posts": [ "\ud2b9\uc815 \uae00 \uc120\ud0dd" ],
+			"Excluded Tags": [ "\uc81c\uc678\ub41c \ud0dc\uadf8" ],
+			"Show Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \ud45c\uc2dc" ],
+			"Hide Advanced Filters": [ "\uace0\uae09 \ud544\ud130 \uc228\uae30\uae30" ],
+			"Tags": [ "\ud0dc\uadf8" ],
+			"Categories": [ "\uce74\ud14c\uace0\ub9ac" ],
+			"Authors": [ "\uc791\uc131\uc790" ],
+			"(no name)": [ "(\uc774\ub984 \uc5c6\uc74c)" ],
+			"(no title)": [ "(\uc81c\ubaa9 \uc5c6\uc74c)" ],
+			"Posts": [ "\uae00" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

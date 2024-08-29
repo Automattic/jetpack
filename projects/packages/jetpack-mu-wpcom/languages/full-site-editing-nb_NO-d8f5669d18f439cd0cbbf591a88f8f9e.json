@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2021-10-01 13:11:40+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nb_NO" },
+			"Slide %1$s of %2$s": [ "Lysbilde %1$s of %2$s" ],
+			"Paused": [ "Pauset" ],
+			"Playing": [ "Spiller av" ],
+			"Image: %s, ": [ "Bilde: %s," ],
+			"Slide %s": [ "Karusellbilde %s" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/carousel-block-view.js" }
+}

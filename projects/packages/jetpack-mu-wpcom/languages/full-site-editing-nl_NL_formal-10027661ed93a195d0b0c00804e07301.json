@@ -1,0 +1,20 @@
+{
+	"translation-revision-date": "2024-06-30 16:43:58+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nl" },
+			"Remove premium styles": [ "Verwijder premium stijlen" ],
+			"Your site includes premium styles that are only visible to visitors after upgrading to the %s plan or higher.": [
+				"Uw site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na het upgraden naar het %s abonnement of hoger."
+			],
+			"Your site includes premium styles that are only visible to visitors after <a>upgrading to the %s plan or higher</a>.": [
+				"Uw site bevat aangepaste stijlen die alleen zichtbaar zijn voor bezoekers na <a>upgraden naar het %s abonnement of hoger</a>."
+			],
+			"Preview without premium styles": [ "Voorbeeld zonder aangepaste stijlen" ],
+			"Upgrade now": [ "Upgrade nu" ]
+		}
+	},
+	"comment": { "reference": "wpcom-global-styles/notices.js" }
+}

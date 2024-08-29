@@ -1,0 +1,109 @@
+{
+	"translation-revision-date": "2024-07-03 17:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "it" },
+			"If unchecked, this block will be excluded from the deduplication logic and may show duplicate posts.": [
+				"Se l'opzione \u00e8 deselezionata, questo blocco verr\u00e0 escluso dalla logica di deduplicazione e potrebbe mostrare articoli duplicati."
+			],
+			"Use deduplication logic": [ "Usa logica di deduplicazione" ],
+			"Include subcategories ": [ "Includi le sottocategorie " ],
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"La selezione qui ha effetto solo per gli editor, gli utenti regolari vedranno solo gli articoli pubblicati."
+			],
+			"Additional Post Statuses": [ "Stati aggiuntivi dell'articolo" ],
+			"Columns Gap": [ "Spazio colonne" ],
+			"Scheduled": [ "Programmato" ],
+			"Draft": [ "Bozza" ],
+			"Excluded Categories": [ "Categorie escluse" ],
+			"Featured image caption": [ "Didascalia immagine in evidenza" ],
+			"Category": [ "Categoria" ],
+			"Author Name": [ "Nome dell'autore" ],
+			"Post Title": [ "Titolo dell'articolo" ],
+			"Post Subtitle": [ "Sottotitolo dell'articolo" ],
+			"The post excerpt.": [ "L'estratto dell'articolo." ],
+			"The post content.": [ "Il contenuto dell'articolo." ],
+			"Post Types": [ "Tipi di articoli" ],
+			"\"Read More\" link text": [ "Testo link \"Leggi tutto\"" ],
+			"Add a \"Read More\" link": [ "Aggiunti un link \"Leggi tutto\"" ],
+			"Max number of words in excerpt": [ "Numero massimo di parole nell'estratto" ],
+			"Show \"Load more posts\" Button": [ "Mostra il pulsante \"Carica altri articoli\"" ],
+			"This blog is private, therefore the \"Load more posts\" feature is not active.": [
+				"Questo \u00e8 un blog privato, pertanto la funzionalit\u00e0 \"Carica altri articoli\" non \u00e8 attiva."
+			],
+			"Show Subtitle": [ "Mostra sottotitolo" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Inizia a scrivere il titolo dell'articolo, fai clic sul risultato di completamento automatico per selezionarlo."
+			],
+			"Choose Specific Posts": [ "Scegli articoli specifici" ],
+			"Excluded Tags": [ "Tag esclusi" ],
+			"Show Advanced Filters": [ "Mostra filtri avanzati" ],
+			"Hide Advanced Filters": [ "Nascondi filtri avanzati" ],
+			"Load more posts": [ "Carica altri articoli" ],
+			"Sorry, no posts were found.": [
+				"Siamo spiacenti, non \u00e8 stato trovato alcun articolo."
+			],
+			"Write header\u2026": [ "Scrivi intestazione\u2026" ],
+			"Uncropped": [ "Nessun ritaglio" ],
+			"Square Image Shape": [ "Forma immagine quadrata" ],
+			"portrait Image Shape": [ "Forma immagine ritratto" ],
+			"Landscape Image Shape": [ "Forma immagine paesaggio" ],
+			"Show media behind": [ "Mostra contenuti multimediali dietro" ],
+			"Show media on right": [ "Mostra contenuti multimediali a destra" ],
+			"Show media on left": [ "Mostra contenuti multimediali a sinistra" ],
+			"Show media on top": [ "Mostra contenuti multimediali in alto" ],
+			"Grid View": [ "Visualizzazione a griglia" ],
+			"List View": [ "Visualizzazione a lista" ],
+			"Show Author Avatar": [ "Mostra avatar autore" ],
+			"Show Author": [ "Mostra autore" ],
+			"Show Category": [ "Mostra categoria" ],
+			"Show Date": [ "Mostra data" ],
+			"Post Meta Settings": [ "Impostazioni metadati articolo" ],
+			"Type Scale": [ "Digita scala" ],
+			"Show Excerpt": [ "Mostra estratto" ],
+			"Post Control Settings": [ "Impostazioni controllo articolo" ],
+			"Sets a minimum height for the block, using a percentage of the screen's current height.": [
+				"Imposta un'altezza minima per il blocco usando una percentuale dell'altezza corrente sulla schermata."
+			],
+			"Minimum height": [ "Altezza minima" ],
+			"Featured Image Size": [ "Dimensioni immagine in evidenza" ],
+			"Stack on mobile": [ "Stack su mobile" ],
+			"Show Featured Image Caption": [ "Mostra didascalia immagine in evidenza" ],
+			"Show Featured Image": [ "Mostra immagine in evidenza" ],
+			"Featured Image Settings": [ "Impostazioni immagine in evidenza" ],
+			"Columns": [ "Colonne" ],
+			"Display Settings": [ "Impostazioni di visualizzazione" ],
+			"XL": [ "XL" ],
+			"Extra Large": [ "Molto grande" ],
+			"L": [ "L" ],
+			"Large": [ "Grande" ],
+			"M": [ "M" ],
+			"Medium": [ "Medio" ],
+			"S": [ "S" ],
+			"Small": [ "Piccolo" ],
+			"Tags": [ "Tag" ],
+			"Categories": [ "Categorie" ],
+			"Authors": [ "Autori" ],
+			"(no name)": [ "(nessun nome)" ],
+			"(no title)": [ "(nessun titolo)" ],
+			"Blog Posts": [ "Articoli del blog" ],
+			"block style\u0004Borders": [ "Bordi" ],
+			"block style\u0004Default": [ "Predefinito" ],
+			"A block for displaying homepage posts.": [
+				"Un blocco per la visualizzazione di articoli sulla homepage."
+			],
+			"latest": [ "pi\u00f9 recenti" ],
+			"articles": [ "articoli" ],
+			"posts": [ "articoli" ],
+			"Homepage Posts": [ "Articoli della homepage" ],
+			"post author\u0004 and ": [ " e " ],
+			"post author\u0004by": [ "di" ],
+			"Posts": [ "Articoli" ],
+			"Text Color": [ "Colore del testo" ],
+			"Color Settings": [ "Impostazioni del colore" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/dist/blog-posts-block-editor.js" }
+}

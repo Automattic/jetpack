@@ -1,0 +1,16 @@
+{
+	"translation-revision-date": "2024-06-27 11:21:38+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es" },
+			"Selection here has effect only for editors, regular users will only see published posts.": [
+				"La selecci\u00f3n aqu\u00ed solo tiene efecto para los editores, lo usuarios normales solo ver\u00e1n las entradas publicadas."
+			],
+			"Additional Post Statuses": [ "Estados de publicaci\u00f3n adicionales" ],
+			"Post Types": [ "Tipos de contenido" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/editor-panels.js" }
+}

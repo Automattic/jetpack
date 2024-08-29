@@ -1,0 +1,14 @@
+{
+	"translation-revision-date": "2024-07-05 12:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_TW" },
+			"Build your audience with tags": [
+				"\u4f7f\u7528\u6a19\u7c64\u57f9\u990a\u4f60\u7684\u8b80\u8005\u7fa4"
+			]
+		}
+	},
+	"comment": { "reference": "tags-education/dist/tags-education.js" }
+}

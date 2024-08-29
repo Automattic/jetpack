@@ -1,0 +1,53 @@
+{
+	"translation-revision-date": "2024-07-04 10:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_CN" },
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"\u8be5\u56fe\u50cf\u5c06\u8c03\u6574\u5927\u5c0f\u4ee5\u5951\u5408\u5e7b\u706f\u7247\uff0c\u65e0\u9700\u88c1\u526a\u3002"
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"\u8be5\u56fe\u50cf\u5c06\u586b\u5145\u6574\u4e2a\u5e7b\u706f\u7247\uff0c\u5e76\u4e14\u6839\u636e\u9700\u8981\u8fdb\u884c\u88c1\u526a\u3002"
+			],
+			"Show Title": [ "\u663e\u793a\u6807\u9898" ],
+			"Number of slides to show at once": [
+				"\u4e00\u6b21\u6027\u663e\u793a\u7684\u5e7b\u706f\u7247\u6570\u91cf"
+			],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"\u9690\u85cf\u5e7b\u706f\u7247\u7528\u6237\u754c\u9762 \u4e0e Autoplay \u7ed3\u5408\u4f7f\u7528\u65f6\u6709\u7528\u3002"
+			],
+			"Hide Controls": [ "\u9690\u85cf\u63a7\u5236\u680f" ],
+			"Contain": [ "\u5305\u542b" ],
+			"Cover": [ "\u5c01\u9762" ],
+			"Image Fit": [ "\u56fe\u50cf\u5951\u5408\u5ea6" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"\u6240\u6709\u5e7b\u706f\u7247\u5c06\u91c7\u7528\u76f8\u540c\u7684\u5bbd\u9ad8\u6bd4\uff0c\u4ee5\u4fdd\u6301\u4e00\u81f4\u3002"
+			],
+			"Slide Aspect Ratio": [ "\u5e7b\u706f\u7247\u5bbd\u9ad8\u6bd4" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "\u5b9e\u5fc3\u65b9\u5757" ],
+			"Article Meta Settings": [ "\u6587\u7ae0\u5143\u6570\u636e\u8bbe\u7f6e" ],
+			"Delay between transitions (in seconds)": [
+				"\u8f6c\u6362\u4e4b\u95f4\u7684\u5ef6\u8fdf\uff08\u4ee5\u79d2\u4e3a\u5355\u4f4d\uff09"
+			],
+			"Autoplay between slides": [ "\u5728\u5e7b\u706f\u7247\u4e4b\u95f4\u81ea\u52a8\u64ad\u653e" ],
+			"Autoplay": [ "\u81ea\u52a8\u64ad\u653e" ],
+			"Slideshow Settings": [ "\u5e7b\u706f\u7247\u8bbe\u7f6e" ],
+			"Sorry, no posts were found.": [
+				"\u62b1\u6b49\uff0c\u627e\u4e0d\u5230\u4efb\u4f55\u6587\u7ae0\u3002"
+			],
+			"Show Author Avatar": [ "\u663e\u793a\u4f5c\u8005\u5934\u50cf" ],
+			"Show Author": [ "\u663e\u793a\u4f5c\u8005" ],
+			"Show Category": [ "\u663e\u793a\u7c7b\u522b" ],
+			"Show Date": [ "\u663e\u793a\u65e5\u671f" ],
+			"Display Settings": [ "\u663e\u793a\u8bbe\u7f6e" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/edit.js" }
+}

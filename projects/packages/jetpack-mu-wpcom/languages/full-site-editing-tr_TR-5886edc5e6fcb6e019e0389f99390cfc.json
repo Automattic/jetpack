@@ -1,0 +1,24 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"Bu blo\u011fun geli\u015ftirilmi\u015f bir s\u00fcr\u00fcm\u00fc var. Blog g\u00f6nderisi listelerinizi y\u00f6netmenin daha iyi ve daha do\u011fal y\u00f6ntemini g\u00fcncelleyin. K\u00fc\u00e7\u00fck g\u00f6rsel de\u011fi\u015fiklikler olabilir."
+			],
+			"Update Block": [ "Blo\u011fu G\u00fcncelle" ],
+			"Number of posts": [ "G\u00f6nderi say\u0131s\u0131" ],
+			"Number of posts to show": [ "G\u00f6sterilecek g\u00f6nderi say\u0131s\u0131" ],
+			"Your recent blog posts will be displayed here.": [
+				"Son blog g\u00f6nderileriniz burada g\u00f6sterilecek."
+			],
+			"Displays your latest Blog Posts.": [
+				"En g\u00fcncel Blog G\u00f6nderilerinizi g\u00f6sterir."
+			],
+			"Blog Posts Listing": [ "Blog G\u00f6nderisi Listeleme" ]
+		}
+	},
+	"comment": { "reference": "posts-list-block/blocks/posts-list/index.js" }
+}

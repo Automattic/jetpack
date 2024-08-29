@@ -1,0 +1,28 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Right": [ "\uc624\ub978\ucabd" ],
+			"Left": [ "\uc67c\ucabd" ],
+			"Alternate items": [ "\ub300\uccb4 \uc544\uc774\ud15c" ],
+			"Timeline settings": [ "\ud0c0\uc784\ub77c\uc778 \uc124\uc815" ],
+			"Add entry": [ "\ud56d\ubaa9 \ucd94\uac00" ],
+			"Create a timeline of events.": [
+				"\uc774\ubca4\ud2b8 \ud0c0\uc784\ub77c\uc778\uc744 \ub9cc\ub4ed\ub2c8\ub2e4."
+			],
+			"Timeline": [ "\ud0c0\uc784\ub77c\uc778" ],
+			"An entry on the timeline": [ "\ud0c0\uc784\ub77c\uc778 \ud56d\ubaa9" ],
+			"Timeline Entry": [ "\ud0c0\uc784\ub77c\uc778 \ud56d\ubaa9" ],
+			"Winter": [ "\uaca8\uc6b8" ],
+			"Fall": [ "\uac00\uc744" ],
+			"Summer": [ "\uc5ec\ub984" ],
+			"Spring": [ "\ubd04" ],
+			"Background Color": [ "\ubc30\uacbd \uc0c9\uc0c1" ],
+			"Color Settings": [ "\uc0c9\uc0c1 \uc124\uc815" ]
+		}
+	},
+	"comment": { "reference": "jetpack-timeline/dist/jetpack-timeline.js" }
+}

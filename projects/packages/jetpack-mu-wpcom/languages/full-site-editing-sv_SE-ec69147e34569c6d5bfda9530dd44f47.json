@@ -1,0 +1,47 @@
+{
+	"translation-revision-date": "2024-07-04 16:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "sv_SE" },
+			"You can visit the the Customizer to edit the colors on your site.": [
+				"Du kan bes\u00f6ka Anpassaren f\u00f6r att redigera f\u00e4rgerna p\u00e5 din webbplats."
+			],
+			"You can visit the the <a>Customizer</a> to edit the colors on your site.": [
+				"Du kan bes\u00f6ka <a>Anpassaren</a> f\u00f6r att redigera f\u00e4rgerna p\u00e5 din webbplats."
+			],
+			"color": [ "f\u00e4rg" ],
+			"You can visit the the Customizer to edit your logo and site title.": [
+				"Du kan bes\u00f6ka Anpassaren f\u00f6r att redigera din logotyp och webbplatsrubrik."
+			],
+			"You can visit the the <a>Customizer</a> to edit your logo and site title.": [
+				"Du kan bes\u00f6ka <a>Anpassaren</a> f\u00f6r att redigera din logotyp och webbplatsrubrik."
+			],
+			"header": [ "sidhuvud" ],
+			"You can visit the plugin directory to get started with installing new plugins.": [
+				"Du kan bes\u00f6ka till\u00e4ggskatalogen f\u00f6r att komma ig\u00e5ng med att installera nya till\u00e4gg."
+			],
+			"You can visit the <a>plugin directory</a> to get started with installing new plugins.": [
+				"Du kan bes\u00f6ka <a>till\u00e4ggskatalogen</a> f\u00f6r att komma ig\u00e5ng med att installera nya till\u00e4gg."
+			],
+			"plugin": [ "till\u00e4gg" ],
+			"You can visit the the Customizer to edit the CSS on your site.": [
+				"Du kan bes\u00f6ka Anpassaren f\u00f6r att redigera CSS-koden p\u00e5 din webbplats."
+			],
+			"You can visit the the <a>Customizer</a> to edit the CSS on your site.": [
+				"Du kan bes\u00f6ka <a>Anpassaren</a> f\u00f6r att redigera CSS-koden p\u00e5 din webbplats."
+			],
+			"style": [ "stil" ],
+			"css": [ "css" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Du kan bes\u00f6ka temakatalogen f\u00f6r att v\u00e4lja en annan design f\u00f6r din webbplats."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Du kan bes\u00f6ka <a>temakatalogen</a> f\u00f6r att v\u00e4lja en annan design f\u00f6r din webbplats."
+			],
+			"theme": [ "tema" ]
+		}
+	},
+	"comment": { "reference": "block-inserter-modifications/contextual-tips/list.js" }
+}

@@ -1,0 +1,24 @@
+{
+	"translation-revision-date": "2024-07-05 12:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "zh_TW" },
+			"An improved version of this block is available. Update for a better, more natural way to manage your blog post listings. There may be small visual changes.": [
+				"\u9019\u500b\u5340\u584a\u5df2\u6709\u6539\u9032\u7248\u672c\u53ef\u4f9b\u4f7f\u7528\u3002\u66f4\u65b0\u5340\u584a\u5f8c\u4fbf\u80fd\u4ee5\u66f4\u597d\u3001\u66f4\u81ea\u7136\u7684\u65b9\u5f0f\u7ba1\u7406\u9019\u500b\u7db2\u7ad9\u7684\u7db2\u7ad9\u6587\u7ae0\u6e05\u55ae\u3002\u9019\u9805\u66f4\u65b0\u5305\u542b\u4e9b\u5fae\u5916\u89c0\u4e0a\u7684\u8b8a\u5316\u3002"
+			],
+			"Update Block": [ "\u66f4\u65b0\u5340\u584a" ],
+			"Number of posts": [ "\u6587\u7ae0\u6578\u91cf" ],
+			"Number of posts to show": [ "\u6587\u7ae0\u986f\u793a\u6578\u91cf" ],
+			"Your recent blog posts will be displayed here.": [
+				"\u9019\u88e1\u6703\u986f\u793a\u6700\u65b0\u7db2\u7ad9\u6587\u7ae0\u3002"
+			],
+			"Displays your latest Blog Posts.": [
+				"\u986f\u793a\u6700\u65b0\u7db2\u7ad9\u6587\u7ae0\u3002"
+			],
+			"Blog Posts Listing": [ "\u7db2\u7ad9\u6587\u7ae0\u6e05\u55ae" ]
+		}
+	},
+	"comment": { "reference": "posts-list-block/dist/posts-list-block.js" }
+}

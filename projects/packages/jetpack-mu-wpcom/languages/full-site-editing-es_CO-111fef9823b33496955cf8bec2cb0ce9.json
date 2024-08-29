@@ -1,0 +1,25 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:32+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_CO" },
+			"Excluded Categories": [ "Categor\u00edas excluidas" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Empieza a escribir el t\u00edtulo del post y haz clic en autocompletar para seleccionar un resultado."
+			],
+			"Choose Specific Posts": [ "Elige entradas concretas" ],
+			"Excluded Tags": [ "Etiquetas excluidas" ],
+			"Show Advanced Filters": [ "Mostrar filtros avanzados" ],
+			"Hide Advanced Filters": [ "Ocultar filtros avanzados" ],
+			"Tags": [ "Etiquetas" ],
+			"Categories": [ "Categor\u00edas" ],
+			"Authors": [ "Autores" ],
+			"(no name)": [ "(sin nombre)" ],
+			"(no title)": [ "(sin t\u00edtulo)" ],
+			"Posts": [ "Entradas" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

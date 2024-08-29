@@ -1,0 +1,25 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "id" },
+			"Include subcategories ": [ "Mencakup subkategori " ],
+			"Excluded Categories": [ "Kategori yang Dikecualikan" ],
+			"Begin typing post title, click autocomplete result to select.": [
+				"Mulai ketik judul pos, klik selesaikan otomatis hasil untuk memilih."
+			],
+			"Choose Specific Posts": [ "Pilih Pos Tertentu" ],
+			"Excluded Tags": [ "Tag yang Dikecualikan" ],
+			"Show Advanced Filters": [ "Tampilkan Filter Lanjutan" ],
+			"Hide Advanced Filters": [ "Sembunyikan Filter Lanjutan" ],
+			"Tags": [ "Tag" ],
+			"Categories": [ "Kategori" ],
+			"Authors": [ "Penyusun" ],
+			"(no name)": [ "(tanpa nama)" ],
+			"(no title)": [ "(tanpa judul)" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/components/query-controls.js" }
+}

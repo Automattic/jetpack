@@ -1,0 +1,53 @@
+{
+	"translation-revision-date": "2024-07-03 16:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "tr" },
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"G\u00f6rsel k\u0131rp\u0131lmadan slayt\u0131n i\u00e7ine s\u0131\u011facak \u015fekilde yeniden boyutland\u0131r\u0131l\u0131r."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"G\u00f6rsel t\u00fcm slayt\u0131 doldurur ve gerekirse k\u0131rp\u0131l\u0131r."
+			],
+			"Show Title": [ "Ba\u015fl\u0131\u011f\u0131 G\u00f6ster" ],
+			"Number of slides to show at once": [
+				"Tek seferde g\u00f6sterilecek slayt say\u0131s\u0131"
+			],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"Slayt g\u00f6sterisi kullan\u0131c\u0131 aray\u00fcz\u00fcn\u00fc gizleyin. Otomatik Oynat ile kullan\u0131ld\u0131\u011f\u0131nda \u00e7ok pratiktir."
+			],
+			"Hide Controls": [ "Kontrolleri gizle" ],
+			"Contain": [ "\u0130\u00e7er" ],
+			"Cover": [ "Man\u015fet" ],
+			"Image Fit": [ "G\u00f6r\u00fcnt\u00fc S\u0131\u011fd\u0131rma" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"Tutarl\u0131l\u0131k i\u00e7in t\u00fcm slaytlar ayn\u0131 en boy oran\u0131nda olacakt\u0131r."
+			],
+			"Slide Aspect Ratio": [ "Slayt En Boy Oran\u0131" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Kare" ],
+			"Article Meta Settings": [ "Makale Meta Verileri Ayarlar\u0131" ],
+			"Delay between transitions (in seconds)": [
+				"Ge\u00e7i\u015fler aras\u0131nda gecikme (saniye olarak)"
+			],
+			"Autoplay between slides": [ "Slaytlar aras\u0131nda otomatik oynatma" ],
+			"Autoplay": [ "Otomatik y\u00fcr\u00fctme" ],
+			"Slideshow Settings": [ "Slayt G\u00f6sterisi Ayarlar\u0131" ],
+			"Sorry, no posts were found.": [
+				"\u00dczg\u00fcn\u00fcz, hi\u00e7bir g\u00f6nderi bulunamad\u0131."
+			],
+			"Show Author Avatar": [ "Yazar\u0131n Avatar\u0131n\u0131 G\u00f6ster" ],
+			"Show Author": [ "Yazar\u0131 G\u00f6ster" ],
+			"Show Category": [ "Kategoriyi G\u00f6ster" ],
+			"Show Date": [ "Tarihi G\u00f6ster" ],
+			"Display Settings": [ "G\u00f6r\u00fcnt\u00fcleme Ayarlar\u0131" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/edit.js" }
+}

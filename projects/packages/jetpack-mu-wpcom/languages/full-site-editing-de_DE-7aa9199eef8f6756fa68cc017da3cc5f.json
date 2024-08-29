@@ -1,0 +1,26 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "de" },
+			"Font Selection": [ "Schriftauswahl" ],
+			"You have unsaved changes.": [ "Es sind nicht gespeicherte \u00c4nderungen vorhanden." ],
+			"Any change you make here will apply to the entire website.": [
+				"Alle hier durchgef\u00fchrten \u00c4nderungen werden f\u00fcr die gesamte Website \u00fcbernommen."
+			],
+			"You are customizing %s.": [ "Du passt %s an." ],
+			"Global Styles": [ "Globale Stile" ],
+			"Reset": [ "Zur\u00fccksetzen" ],
+			"custom font selection": [ "Individuelle Schriftauswahl" ],
+			"Base Font": [ "Basisschrift" ],
+			"Heading Font": [ "Schriftart f\u00fcr \u00dcberschriften" ],
+			"font pairings": [ "Schriftpaare" ],
+			"Font Pairings": [ "Schriftpaare" ],
+			"Your active theme doesn't support %s.": [ "Dein aktives Theme unterst\u00fctzt %s nicht." ],
+			"Publish": [ "Ver\u00f6ffentlichen" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}

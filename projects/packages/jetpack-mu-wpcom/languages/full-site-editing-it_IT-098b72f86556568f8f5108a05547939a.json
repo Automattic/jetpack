@@ -1,0 +1,51 @@
+{
+	"translation-revision-date": "2024-07-03 17:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "it" },
+			"The image will be resized to fit inside the slide without being cropped.": [
+				"L'immagine verr\u00e0 ridimensionata per adattarsi all'interno della diapositiva senza essere ritagliata."
+			],
+			"The image will fill the entire slide and will be cropped if necessary.": [
+				"L'immagine riempir\u00e0 l'intera diapositiva e verr\u00e0 ritagliata se necessario."
+			],
+			"Show Title": [ "Mostra titolo" ],
+			"Number of slides to show at once": [
+				"Numero di diapositive da mostrare contemporaneamente"
+			],
+			"Hide the slideshow UI. Useful when used with Autoplay.": [
+				"Nascondi la UI della presentazione. Utile in caso di utilizzo con Autoplay."
+			],
+			"Hide Controls": [ "Nascondi i controlli" ],
+			"Contain": [ "Contiene" ],
+			"Cover": [ "Copertina" ],
+			"Image Fit": [ "Adattamento dell'immagine" ],
+			"All slides will share the same aspect ratio, for consistency.": [
+				"Tutte le diapositive avranno le stesse proporzioni, per congruenza."
+			],
+			"Slide Aspect Ratio": [ "Proporzioni delle diapositive" ],
+			"9:16": [ "9:16" ],
+			"3:4": [ "3:4" ],
+			"16:9": [ "16:9" ],
+			"4:3": [ "4:3" ],
+			"1:1": [ "1:1" ],
+			"Square": [ "Quadrato" ],
+			"Article Meta Settings": [ "Metaimpostazioni articolo" ],
+			"Delay between transitions (in seconds)": [ "Ritardo tra le transizioni (in secondi)" ],
+			"Autoplay between slides": [ "Riproduzione automatica tra diapositive" ],
+			"Autoplay": [ "Riproduzione automatica" ],
+			"Slideshow Settings": [ "Impostazioni presentazione" ],
+			"Sorry, no posts were found.": [
+				"Siamo spiacenti, non \u00e8 stato trovato alcun articolo."
+			],
+			"Show Author Avatar": [ "Mostra avatar autore" ],
+			"Show Author": [ "Mostra autore" ],
+			"Show Category": [ "Mostra categoria" ],
+			"Show Date": [ "Mostra data" ],
+			"Display Settings": [ "Impostazioni di visualizzazione" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/blocks/carousel/edit.js" }
+}

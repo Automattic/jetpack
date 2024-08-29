@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2024-07-02 21:54:08+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n > 1;", "lang": "pt_BR" },
+			"block style\u0004Borders": [ "Margens" ],
+			"block style\u0004Default": [ "Padr\u00e3o" ],
+			"A block for displaying homepage posts.": [
+				"Um bloco para exibir posts da p\u00e1gina inicial."
+			],
+			"latest": [ "mais recentes" ],
+			"articles": [ "artigos" ],
+			"posts": [ "posts" ],
+			"Homepage Posts": [ "Posts da p\u00e1gina inicial" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/index.js"
+	}
+}

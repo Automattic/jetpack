@@ -1,0 +1,32 @@
+{
+	"translation-revision-date": "2021-10-01 13:11:40+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nb_NO" },
+			"color": [ "farge" ],
+			"You can visit the the Customizer to edit your logo and site title.": [
+				"Du kan bes\u00f8ke Tilpass for \u00e5 redigere din logo og nettstedstittel."
+			],
+			"You can visit the the <a>Customizer</a> to edit your logo and site title.": [
+				"Du kan bes\u00f8ke <a>Tilpass</a> for \u00e5 redigere din logo og nettstedstittel."
+			],
+			"header": [ "sidetopp" ],
+			"plugin": [ "utvidelse" ],
+			"You can visit the the <a>Customizer</a> to edit the CSS on your site.": [
+				"Du kan bes\u00f8ke <a>Tilpass</a> for \u00e5 redigere CSS-en for ditt nettsted."
+			],
+			"style": [ "stil" ],
+			"css": [ "css" ],
+			"You can visit the theme directory to select a different design for your site.": [
+				"Du kan bes\u00f8ke temakatalogen for \u00e5 velge en annet utforming av ditt nettsted."
+			],
+			"You can visit the <a>theme directory</a> to select a different design for your site.": [
+				"Du kan bes\u00f8ke <a>temakatalogen</a> for \u00e5 velge en annet utforming av ditt nettsted."
+			],
+			"theme": [ "tema" ]
+		}
+	},
+	"comment": { "reference": "block-inserter-modifications/contextual-tips/list.js" }
+}

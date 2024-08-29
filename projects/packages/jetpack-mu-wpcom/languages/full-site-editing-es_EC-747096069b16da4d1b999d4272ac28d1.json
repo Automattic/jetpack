@@ -1,0 +1,12 @@
+{
+	"translation-revision-date": "2023-11-09 02:13:34+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "es_EC" },
+			"Blog Posts": [ "Entradas del blog" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/blog-posts-block-editor.js" }
+}

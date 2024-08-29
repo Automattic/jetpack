@@ -1,0 +1,15 @@
+{
+	"translation-revision-date": "2024-07-05 14:54:06+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "he_IL" },
+			"Scheduled": [ "\u05de\u05ea\u05d5\u05d6\u05de\u05df \u05dc\u05e4\u05e8\u05e1\u05d5\u05dd" ],
+			"Draft": [ "\u05d8\u05d9\u05d5\u05d8\u05d4" ],
+			"post author\u0004 and ": [ " \u05d5\u05d1\u05e0\u05d5\u05e1\u05e3 " ],
+			"post author\u0004by": [ "\u05de\u05d0\u05ea" ]
+		}
+	},
+	"comment": { "reference": "newspack-blocks/synced-newspack-blocks/shared/js/utils.js" }
+}

@@ -1,0 +1,22 @@
+{
+	"translation-revision-date": "2021-10-01 13:11:40+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=2; plural=n != 1;", "lang": "nb_NO" },
+			"block style\u0004Borders": [ "Kantlinjer" ],
+			"block style\u0004Default": [ "Standard" ],
+			"A block for displaying homepage posts.": [
+				"En blokk for \u00e5 vise innlegg p\u00e5 forsiden."
+			],
+			"latest": [ "siste" ],
+			"articles": [ "artikler" ],
+			"posts": [ "innlegg" ],
+			"Homepage Posts": [ "Forsideinnlegg" ]
+		}
+	},
+	"comment": {
+		"reference": "newspack-blocks/synced-newspack-blocks/blocks/homepage-articles/index.js"
+	}
+}

@@ -1,0 +1,32 @@
+{
+	"translation-revision-date": "2024-07-04 09:54:07+0000",
+	"generator": "GlotPress/4.0.1",
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": { "domain": "messages", "plural-forms": "nplurals=1; plural=0;", "lang": "ko_KR" },
+			"Font Selection": [ "\uae00\uaf34 \uc120\ud0dd" ],
+			"You have unsaved changes.": [
+				"\uc800\uc7a5\ub418\uc9c0 \uc54a\uc740 \ubcc0\uacbd \uc0ac\ud56d\uc774 \uc788\uc2b5\ub2c8\ub2e4."
+			],
+			"Any change you make here will apply to the entire website.": [
+				"\uc5ec\uae30\uc5d0\uc11c \ubcc0\uacbd\ud55c \uc0ac\ud56d\uc740 \uc804\uccb4 \uc6f9\uc0ac\uc774\ud2b8\uc5d0 \uc801\uc6a9\ub429\ub2c8\ub2e4."
+			],
+			"You are customizing %s.": [
+				"%s\uc744(\ub97c) \uc0ac\uc6a9\uc790 \uc815\uc758\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4."
+			],
+			"Global Styles": [ "\uc804\uccb4 \uc2a4\ud0c0\uc77c" ],
+			"Reset": [ "\uc7ac\uc124\uc815" ],
+			"custom font selection": [ "\uc0ac\uc6a9\uc790 \uc815\uc758 \uae00\uaf34 \uc120\ud0dd" ],
+			"Base Font": [ "\uae30\ubcf8 \uae00\uaf34" ],
+			"Heading Font": [ "\uc81c\ubaa9 \uae00\uaf34" ],
+			"font pairings": [ "\uae00\uaf34 \ud398\uc5b4\ub9c1" ],
+			"Font Pairings": [ "\uae00\uaf34 \ud398\uc5b4\ub9c1" ],
+			"Your active theme doesn't support %s.": [
+				"\ud65c\uc131 \ud14c\ub9c8\uac00 %s\uc744(\ub97c) \uc9c0\uc6d0\ud558\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4."
+			],
+			"Publish": [ "\ubc1c\ud589" ]
+		}
+	},
+	"comment": { "reference": "global-styles/dist/global-styles.js" }
+}
