@@ -11,9 +11,9 @@ class Generator {
 
 	public static function init() {
 		$generator = new static();
+		add_action( 'wp_head', array( $generator, 'display_plugin_version_meta' ), 0 );
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
-			add_action( 'wp_head', array( $generator, 'display_plugin_version_meta' ), 0 );
 			$generator->force_logged_out_render();
 		}
 	}
