@@ -25,9 +25,9 @@ function check_dir {
 		return 1
 	elif [[ -d "$1" ]]; then
 		DIR="${1%/}"
-	elif [[ "$1" == "*/composer.json" && -f "$1" ]]; then # DWIM
+	elif [[ "$1" == */composer.json && -f "$1" ]]; then # DWIM
 		DIR="$(dirname "$1")"
-	elif [[ "$1" == "*/composer.lock" && -f "$1" ]]; then # DWIM
+	elif [[ "$1" == */composer.lock && -f "$1" ]]; then # DWIM
 		DIR="$(dirname "$1")"
 	else
 		error "Directory $1 does not exist."
