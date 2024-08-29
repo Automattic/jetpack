@@ -18,7 +18,28 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
 		$svg_icons = __DIR__ . '/social-menu.svg';
 		// If it exists and we use the SVG menu type, include it.
 		if ( file_exists( $svg_icons ) && 'svg' === jetpack_social_menu_get_type() ) {
-			require_once $svg_icons;
+			$svg_contents = file_get_contents( $svg_icons ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Only reading a local file.
+		}
+
+		if ( ! empty( $svg_contents ) ) {
+			$allowed_tags = array(
+				'svg'    => array(
+					'style'       => true,
+					'version'     => true,
+					'xmlns'       => true,
+					'xmlns:xlink' => true,
+				),
+				'defs'   => array(),
+				'symbol' => array(
+					'id'      => true,
+					'viewbox' => true,
+				),
+				'path'   => array(
+					'd'     => true,
+					'style' => true,
+				),
+			);
+			echo wp_kses( $svg_contents, $allowed_tags );
 		}
 	}
 	add_action( 'wp_footer', 'jetpack_social_menu_include_svg_icons', 9999 );
