@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { useCallback } from 'react';
 /**
@@ -16,7 +17,7 @@ const debug = debugFactory( 'my-jetpack:product-interstitial:jetpack-ai' );
 /**
  * JetpackAiInterstitial component
  *
- * @returns {object} JetpackAiInterstitial react component.
+ * @return {object} JetpackAiInterstitial react component.
  */
 export default function JetpackAiInterstitial() {
 	const slug = 'jetpack-ai';
@@ -41,13 +42,14 @@ export default function JetpackAiInterstitial() {
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
-			installsPlugin={ true }
+			installsPlugin={ true } // this here just to trigger the ctaCallback
 			imageContainerClassName={ styles.aiImageContainer }
 			hideTOS={ true }
 			directCheckout={ false }
 			ctaCallback={ ctaClickHandler }
+			ctaButtonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
 		>
-			<img src={ jetpackAiImage } alt="Search" />
+			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
 	);
 }

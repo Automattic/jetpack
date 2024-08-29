@@ -1,5 +1,34 @@
 # Changelog
 
+## 5.6.1 - 2024-08-26
+### Changed
+- Internal updates.
+
+## 5.6.0 - 2024-08-23
+### Added
+- Added social share status feature [#39023]
+
+### Changed
+- SSO: Automatic logic for Calypso users of classic sites [#38996]
+- Updated package dependencies. [#39004]
+
+## 5.5.0 - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
+## 5.4.1 - 2024-08-19
+### Added
+- Incompatible Plugins: Added one-click-ssl [#38918]
+
+### Changed
+- Updated package dependencies. [#38822]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## 5.4.0 - 2024-08-13
 ### Changed
 - rum data: include WooCommerce active status [#38846]

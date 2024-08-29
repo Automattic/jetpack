@@ -115,10 +115,10 @@ const videoPressMediaPlaceholder = createHigherOrderComponent(
  * content that matches the originally saved post content and successfully
  * migrate deprecated blocks to the current version.
  *
- * @param   {object} props      - Additional props applied to the save element.
- * @param   {object} blockType  - Block type definition.
- * @param   {object} attributes - Block's attributes.
- * @returns {object}            - Filtered props applied to the save element.
+ * @param {object} props      - Additional props applied to the save element.
+ * @param {object} blockType  - Block type definition.
+ * @param {object} attributes - Block's attributes.
+ * @return {object}            - Filtered props applied to the save element.
  */
 const preventBlockClassOnDeprecations = ( props, blockType, attributes ) => {
 	// Skip manipulating the block's className prop if:
@@ -421,7 +421,7 @@ addFilter(
  *
  * @param {object} settings - Block settings.
  * @param {string} name     - Block name.
- * @returns {object} Modified block settings.
+ * @return {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
 	// Apply only to videopress/video block.
@@ -486,7 +486,7 @@ addFilter(
  *
  * @param {object} attributes        - core/video block attributes
  * @param {object} defaultAttributes - default core/video block attributes
- * @returns {object}                   The new attributes
+ * @return {object}                   The new attributes
  */
 function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	const attrs = attributes || defaultAttributes;

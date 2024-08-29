@@ -23,8 +23,8 @@ const from: unknown[] = [];
  * Return an AI Assistant block instance from a given block type.
  *
  * @param {ExtendedBlockProp} blockType - Block type.
- * @param {object} attrs                - Block attributes.
- * @returns {object}                      AI Assistant block instance.
+ * @param {object}            attrs     - Block attributes.
+ * @return {object}                      AI Assistant block instance.
  */
 export function transformToAIAssistantBlock(
 	blockType: ExtendedBlockProp | ExtendedInlineBlockProp,

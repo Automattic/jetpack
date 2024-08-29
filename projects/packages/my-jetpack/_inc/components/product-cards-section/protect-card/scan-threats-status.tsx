@@ -2,16 +2,17 @@ import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useMemo, useState, useCallback, useRef } from 'react';
 import useProduct from '../../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
+import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
 import ShieldOff from './assets/shield-off.svg';
 import ShieldPartial from './assets/shield-partial.svg';
 import ShieldSuccess from './assets/shield-success.svg';
-import { InfoTooltip } from './info-tooltip';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { PropsWithChildren, ReactElement } from 'react';
 
@@ -68,11 +69,11 @@ export const ScanAndThreatStatus = () => {
 /**
  * ThreatStatus component
  *
- * @param {PropsWithChildren} props - The component props
- * @param {number} props.numThreats - The number of threats
- * @param {number} props.criticalThreatCount - The number of critical threats
+ * @param {PropsWithChildren} props                     - The component props
+ * @param {number}            props.numThreats          - The number of threats
+ * @param {number}            props.criticalThreatCount - The number of critical threats
  *
- * @returns {ReactElement} rendered component
+ * @return {ReactElement} rendered component
  */
 function ThreatStatus( {
 	numThreats,
@@ -116,36 +117,36 @@ function ThreatStatus( {
 	if ( criticalThreatCount ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
+				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
 					{ __( 'Threats', 'jetpack-my-jetpack' ) }
+					<div className="scan-threats__critical-threat-container">
+						<button
+							className="info-tooltip__button"
+							onClick={ toggleTooltip }
+							ref={ useTooltipRef }
+						>
+							<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
+							<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
+						</button>
+						{ isPopoverVisible && (
+							<Popover
+								placement={ isMobileViewport ? 'top-end' : 'right' }
+								noArrow={ false }
+								offset={ 10 }
+								focusOnMount={ 'container' }
+								onClose={ hideTooltip }
+							>
+								<>
+									<h3>{ scanThreatsTooltip.title }</h3>
+									<p>{ scanThreatsTooltip.text }</p>
+								</>
+							</Popover>
+						) }
+					</div>
 				</div>
 				<div className="value-section__data">
 					<div className="scan-threats__critical-threats">
 						<div className="scan-threats__threat-count">{ numThreats }</div>
-						<div className="scan-threats__critical-threat-container">
-							<button
-								className="info-tooltip__button"
-								onClick={ toggleTooltip }
-								ref={ useTooltipRef }
-							>
-								<Gridicon className="scan_threats__icon-critical" icon="info" size={ 14 } />
-								<span className="scan-threats__critical-threat-count">{ criticalThreatCount }</span>
-							</button>
-							{ isPopoverVisible && (
-								<Popover
-									placement={ isMobileViewport ? 'top-end' : 'right' }
-									noArrow={ false }
-									offset={ 10 }
-									focusOnMount={ 'container' }
-									onClose={ hideTooltip }
-								>
-									<>
-										<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-										<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
-									</>
-								</Popover>
-							) }
-						</div>
 					</div>
 				</div>
 			</>
@@ -167,10 +168,10 @@ function ThreatStatus( {
 /**
  * ScanStatus component
  *
- * @param {PropsWithChildren} props - The component props
+ * @param {PropsWithChildren}             props        - The component props
  * @param {'success' | 'partial' | 'off'} props.status - The number of threats
  *
- * @returns { ReactElement} rendered component
+ * @return { ReactElement} rendered component
  */
 function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	const tooltipContent = useProtectTooltipCopy();
@@ -198,8 +199,23 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 	if ( status === 'partial' ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
+				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
 					{ __( 'Scan', 'jetpack-my-jetpack' ) }
+					<InfoTooltip
+						tracksEventName={ 'protect_card_tooltip_open' }
+						tracksEventProps={ {
+							location: 'scan',
+							status: status,
+							feature: 'jetpack-protect',
+							has_paid_plan: false,
+							threats: 0,
+						} }
+					>
+						<>
+							<h3>{ scanThreatsTooltip.title }</h3>
+							<p>{ scanThreatsTooltip.text }</p>
+						</>
+					</InfoTooltip>
 				</div>
 				<div className="value-section__data">
 					<div>
@@ -212,20 +228,6 @@ function ScanStatus( { status }: { status: 'success' | 'partial' | 'off' } ) {
 					<div className="value-section__status-text">
 						{ __( 'Partial', 'jetpack-my-jetpack' ) }
 					</div>
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
-						tracksEventProps={ {
-							location: 'scan',
-							status: status,
-							has_paid_plan: false,
-							threats: 0,
-						} }
-					>
-						<>
-							<h3 className="value-section__tooltip-heading">{ scanThreatsTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ scanThreatsTooltip.text }</p>
-						</>
-					</InfoTooltip>
 				</div>
 			</>
 		);

@@ -9,6 +9,12 @@
         align-items: flex-start;
     }
 
+    &__heading {
+        display: flex;
+        align-items: center;
+        text-wrap: nowrap;
+    }
+
     &__last-scan {
         display: flex;
         align-items: center;
@@ -29,27 +35,6 @@
     @media ( max-width: 480px ) {
         &__last-scan {
             width: calc(53% - (var(--spacing-base) * 3));
-        }
-    }
-
-    &__tooltip-heading {
-        font-size: var(--font-title-small);
-        line-height: calc(var(--font-title-small) + 6px);;
-        color: var(--jp-black);
-        margin: 0 0 calc(var(--spacing-base) * 2);
-        font-weight: 500;
-    }
-
-    &__tooltip-content {
-        font-size: var(--font-body);
-        line-height: var(--font-title-small);
-        color: var(--jp-gray-70);
-        a {
-            color: var(--jp-black);
-            text-decoration: underline;
-        }
-        a:hover, a:focus {
-            text-decoration: none;
         }
     }
 
@@ -105,7 +90,7 @@
 
 .logins_blocked {
     &__count {
-        font-size: calc(var(--font-title-large) - 4px);
+        font-size: calc(var(--font-headline-small) - 4px);
         line-height: var(--font-title-large);
         font-weight: 400;
         color: var(--jp-black);

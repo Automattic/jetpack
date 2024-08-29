@@ -69,7 +69,7 @@ export const connections = [
  *
  * @param {object} postAttributes - Post attributes.
  *
- * @returns {WPDataRegistry} Registry.
+ * @return {WPDataRegistry} Registry.
  */
 export function createRegistryWithStores( postAttributes = {} ) {
 	// Create a registry.
@@ -104,7 +104,7 @@ export function createRegistryWithStores( postAttributes = {} ) {
  *
  * @param {number} count - Number of active connections to create.
  *
- * @returns {Array} Array of active connections.
+ * @return {Array} Array of active connections.
  */
 export function createActiveConnections( count ) {
 	return [
@@ -117,4 +117,55 @@ export function createActiveConnections( count ) {
 			enabled: false,
 		},
 	];
+}
+
+const getMethod = options =>
+	options.headers?.[ 'X-HTTP-Method-Override' ] || options.method || 'GET';
+
+/**
+ * Get the mocked fetch handler for post publish fetch requests.
+ *
+ * @param {Record<string, any>} postData - Data to be used in the fetch request.
+ *
+ * @return {(options: import('@wordpress/api-fetch/build-types/types').APIFetchOptions) => Promise<any>} Promise resolving to the fetch response
+ */
+export function postPublishFetchHandler( postData ) {
+	/**
+	 * The mocked fetch handler for post publish fetch requests.
+	 *
+	 * @param {import('@wordpress/api-fetch/build-types/types').APIFetchOptions} options - Fetch options.
+	 *
+	 * @return {Promise<any>} Promise resolving to the fetch response
+	 */
+	return async function ( options ) {
+		const method = getMethod( options );
+		const { path, data, parse = true } = options;
+
+		const wrapReturn = parse
+			? v => v
+			: v =>
+					// Ideally we'd do `new Response( JSON.stringify( v ) )` here, but jsdom deletes that. Sigh.
+					// See https://github.com/jsdom/jsdom/issues/1724
+					( {
+						async json() {
+							return v;
+						},
+					} );
+
+		if ( method === 'PUT' && path.startsWith( `/wp/v2/posts/${ testPost.id }` ) ) {
+			return wrapReturn( { ...postData, ...data } );
+		} else if (
+			// This URL is requested by the actions dispatched in this test.
+			// They are safe to ignore and are only listed here to avoid triggeringan error.
+			method === 'GET' &&
+			path.startsWith( '/wp/v2/types/post' )
+		) {
+			return wrapReturn( {} );
+		}
+
+		throw {
+			code: 'unknown_path',
+			message: `Unknown path: ${ method } ${ path }`,
+		};
+	};
 }

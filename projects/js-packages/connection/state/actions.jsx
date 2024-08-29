@@ -72,11 +72,11 @@ const setIsOfflineMode = isOfflineMode => {
 /**
  * Connect site with wp.com user
  *
- * @param {object} Object - contains from and redirectFunc
- * @param {string} Object.from - Value that represents the redirect origin
- * @param {Function} Object.redirectFunc - A function to handle the redirect, defaults to location.assign
- * @param {string} [Object.redirectUri] - A URI that the user will be redirected to
- * @yields {object} Action object that will be yielded
+ * @param {object}   Object               - contains from and redirectFunc
+ * @param {string}   Object.from          - Value that represents the redirect origin
+ * @param {Function} Object.redirectFunc  - A function to handle the redirect, defaults to location.assign
+ * @param {string}   [Object.redirectUri] - A URI that the user will be redirected to
+ * @yield {object} Action object that will be yielded
  */
 function* connectUser( { from, redirectFunc, redirectUri } = {} ) {
 	yield setUserIsConnecting( true );
@@ -87,12 +87,12 @@ function* connectUser( { from, redirectFunc, redirectUri } = {} ) {
  *
  * Register an site into jetpack
  *
- * @param {object} Object - contains registrationNonce and redirectUri
+ * @param {object} Object                   - contains registrationNonce and redirectUri
  * @param {string} Object.registrationNonce - Registration nonce
- * @param {string} Object.redirectUri - URI that user will be redirected
- * @param {string} [Object.from] - Value that represents the origin of the request (optional)
- * @yields {object} Action object that will be yielded
- * @returns {Promise} Resolved or rejected value of registerSite
+ * @param {string} Object.redirectUri       - URI that user will be redirected
+ * @param {string} [Object.from]            - Value that represents the origin of the request (optional)
+ * @yield {object} Action object that will be yielded
+ * @return {Promise} Resolved or rejected value of registerSite
  */
 function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
 	yield clearRegistrationError();
@@ -114,7 +114,7 @@ function* registerSite( { registrationNonce, redirectUri, from = '' } ) {
 /**
  * Side effect action which will fetch a new list of connectedPlugins from the server
  *
- * @returns {Promise} - Promise which resolves when the product status is activated.
+ * @return {Promise} - Promise which resolves when the product status is activated.
  */
 const refreshConnectedPlugins =
 	() =>

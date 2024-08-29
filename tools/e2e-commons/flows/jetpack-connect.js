@@ -21,7 +21,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
 
 /**
  * Do classic connection
- * @param {page} page - Playwright page instance.
+ * @param {page}   page - Playwright page instance.
  * @param {string} plan - Plan slug
  */
 export async function doClassicConnection( page, plan = 'free' ) {
@@ -61,8 +61,8 @@ export async function doSiteLevelConnection( page ) {
 /**
  * Sync Jetpack plan data
  *
- * @param {page} page - Playwright page instance.
- * @param {string} plan - Plan slug.
+ * @param {page}    page         - Playwright page instance.
+ * @param {string}  plan         - Plan slug.
  * @param {boolean} mockPlanData - Whether to mock plan data.
  */
 export async function syncJetpackPlanData( page, plan, mockPlanData = true ) {

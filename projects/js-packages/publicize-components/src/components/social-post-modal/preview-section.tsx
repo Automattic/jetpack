@@ -14,7 +14,7 @@ import styles from './styles.module.scss';
 /**
  * Preview section of the social post modal.
  *
- * @returns {import('react').ReactNode} - Preview section of the social post modal.
+ * @return {import('react').ReactNode} - Preview section of the social post modal.
  */
 export function PreviewSection() {
 	const { recordEvent } = useAnalytics();

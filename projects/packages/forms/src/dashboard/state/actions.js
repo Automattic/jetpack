@@ -18,7 +18,7 @@ import {
  *
  * @param {Function} apply - The function to apply the dispatch to.
  * @param {Array}    args  - Arguments to be passed onto the function.
- * @returns {object} Action object.
+ * @return {object} Action object.
  */
 export const dispatchAsync = ( apply, args = [] ) => ( {
 	type: ASYNC_ROUTINE_DISPATCH,
@@ -29,11 +29,11 @@ export const dispatchAsync = ( apply, args = [] ) => ( {
 /**
  * Handles the entire flow for fetching responses asynchronously.
  *
- * @param {object} query - Query.
- * @param {object} options - Options.
+ * @param {object}  query          - Query.
+ * @param {object}  options        - Options.
  * @param {boolean} options.append - Whether to append the responses to the existing set or replace it. Defaults to false.
- * @yields {object} Action object.
- * @returns {object} Action object.
+ * @yield {object} Action object.
+ * @return {object} Action object.
  */
 export function* fetchResponses( query, options = {} ) {
 	yield { type: RESPONSES_FETCH, append: options.append, query };
@@ -60,9 +60,9 @@ export function* fetchResponses( query, options = {} ) {
 /**
  * Removes the given responses from the current set.
  *
- * @param {Array} responseIds - Response IDs to remove.
- * @param {string} status - Current of the responses to be removed.
- * @returns {object} Action object.
+ * @param {Array}  responseIds - Response IDs to remove.
+ * @param {string} status      - Current of the responses to be removed.
+ * @return {object} Action object.
  */
 export const removeResponses = ( responseIds, status ) => ( {
 	type: RESPONSES_REMOVE,
@@ -73,8 +73,8 @@ export const removeResponses = ( responseIds, status ) => ( {
 /**
  * Updates the currently selected responses.
  *
- * @param  {Array} selectedResponses - Selected responses.
- * @returns {object}                   Action object.
+ * @param {Array} selectedResponses - Selected responses.
+ * @return {object}                   Action object.
  */
 export const selectResponses = selectedResponses => ( {
 	type: RESPONSES_SELECTION_SET,
@@ -85,7 +85,7 @@ export const selectResponses = selectedResponses => ( {
  * Set the application loading state.
  *
  * @param {boolean} loading - The loading state.
- * @returns {object} Action object.
+ * @return {object} Action object.
  */
 export const setLoading = loading => ( {
 	type: RESPONSES_LOADING_SET,
@@ -96,7 +96,7 @@ export const setLoading = loading => ( {
  * Add to current tab total numbers.
  *
  * @param {object} tabTotals - Totals to add.
- * @returns {object} Action object,
+ * @return {object} Action object,
  */
 export const addTabTotals = tabTotals => ( {
 	type: RESPONSES_TAB_TOTALS_ADD,

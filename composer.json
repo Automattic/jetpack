@@ -18,7 +18,7 @@
 		"php-stubs/wordpress-stubs": ">=6.5",
 		"php-stubs/wordpress-tests-stubs": ">=6.5",
 		"php-stubs/wp-cli-stubs": "^2.10",
-		"sirbrillig/phpcs-changed": "2.11.4",
+		"sirbrillig/phpcs-changed": "^2.11.5",
 		"squizlabs/php_codesniffer": "^3.6.2"
 	},
 	"scripts": {

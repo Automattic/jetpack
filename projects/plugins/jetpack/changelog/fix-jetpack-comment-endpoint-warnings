@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+REST API: Avoid PHP warnings in comment endpoint when the parent comment does not exist.

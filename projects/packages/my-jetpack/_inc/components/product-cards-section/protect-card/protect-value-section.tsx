@@ -1,7 +1,6 @@
 import useProduct from '../../../data/products/use-product';
-import baseStyles from '../style.module.scss';
+import { InfoTooltip } from '../../info-tooltip';
 import { AutoFirewallStatus } from './auto-firewall-status';
-import { InfoTooltip } from './info-tooltip';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
 import { useLastScanText } from './use-last-scan-text';
@@ -26,12 +25,13 @@ const ProtectValueSection = () => {
 						tracksEventName={ 'protect_card_tooltip_open' }
 						tracksEventProps={ {
 							location: 'plugins&themes',
+							feature: 'jetpack-protect',
 							status: 'inactive',
 						} }
 					>
 						<>
-							<h3 className="value-section__tooltip-heading">{ pluginsThemesTooltip.title }</h3>
-							<p className="value-section__tooltip-content">{ pluginsThemesTooltip.text }</p>
+							<h3>{ pluginsThemesTooltip.title }</h3>
+							<p>{ pluginsThemesTooltip.text }</p>
 						</>
 					</InfoTooltip>
 				) }
@@ -41,16 +41,10 @@ const ProtectValueSection = () => {
 					<ScanAndThreatStatus />
 				</div>
 				<div className="value-section__auto-firewall">
-					<div className={ baseStyles.valueSectionHeading }>Auto-Firewall</div>
-					<div className="value-section__data">
-						<AutoFirewallStatus />
-					</div>
+					<AutoFirewallStatus />
 				</div>
 				<div className="value-section__logins-blocked">
-					<div className={ baseStyles.valueSectionHeading }>Logins Blocked</div>
-					<div className="value-section__data">
-						<LoginsBlockedStatus />
-					</div>
+					<LoginsBlockedStatus />
 				</div>
 			</div>
 		</>

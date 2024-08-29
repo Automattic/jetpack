@@ -24,6 +24,8 @@ use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Scan_History;
 use Automattic\Jetpack\Protect\Site_Health;
 use Automattic\Jetpack\Protect_Status\Plan;
+use Automattic\Jetpack\Protect_Status\Protect_Status;
+use Automattic\Jetpack\Protect_Status\Scan_Status;
 use Automattic\Jetpack\Protect_Status\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
@@ -154,7 +156,8 @@ class Jetpack_Protect {
 			$menu_label,
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			5
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
@@ -296,7 +299,9 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->remove_connection();
 
-		Status::delete_option();
+		Protect_Status::delete_option();
+		Scan_Status::delete_option();
+		Scan_History::delete_option();
 	}
 
 	/**

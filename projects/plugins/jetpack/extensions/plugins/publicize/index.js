@@ -11,6 +11,8 @@ import {
 	PublicizePanel,
 	SocialImageGeneratorPanel,
 	usePublicizeConfig,
+	PostPublishPanels,
+	GlobalModals,
 } from '@automattic/jetpack-publicize-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { PostTypeSupportCheck } from '@wordpress/editor';
@@ -18,7 +20,6 @@ import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
 import { PublicizePlaceholder } from './components/placeholder';
 import PublicizeSkeletonLoader from './components/skeleton-loader';
 import UpsellNotice from './components/upsell';
-import PostPublishPanels from './post-publish';
 import PrePublishPanels from './pre-publish';
 
 import './editor.scss';
@@ -56,6 +57,7 @@ const PublicizeSettings = () => {
 			<>
 				<PrePublishPanels isSocialImageGeneratorAvailable={ isSocialImageGeneratorAvailable } />
 				<PostPublishPanels />
+				<GlobalModals />
 			</>
 		);
 	}

@@ -24,7 +24,7 @@ import React from 'react';
  * Internal dependencies
  */
 import ConnectPrompt from '../../../../components/connect-prompt';
-import UpgradePrompt from '../../../../components/upgrade-prompt';
+import QuotaExceededMessage from '../../../../components/quota-exceeded-message';
 import useAiFeature from '../../../../hooks/use-ai-feature';
 import { isUserConnected } from '../../../../lib/connection';
 import { getJetpackFormCustomPrompt } from '../../../../lib/prompt';
@@ -49,7 +49,7 @@ const BREAKPOINTS = {
  * Return the serialized content from the childrens block.
  *
  * @param {string} clientId - The block client ID.
- * @returns {string}          The serialized content.
+ * @return {string}          The serialized content.
  */
 function getSerializedContentFromBlock( clientId: string ): string {
 	if ( ! clientId?.length ) {
@@ -267,7 +267,7 @@ export default function AiAssistantBar( {
 					} ) }
 					tabIndex={ -1 }
 				>
-					{ siteRequireUpgrade && <UpgradePrompt placement="jetpack-form-block" /> }
+					{ siteRequireUpgrade && <QuotaExceededMessage placement="jetpack-form-block" /> }
 					{ ! connected && <ConnectPrompt /> }
 					<BlockAIControl
 						ref={ inputRef }

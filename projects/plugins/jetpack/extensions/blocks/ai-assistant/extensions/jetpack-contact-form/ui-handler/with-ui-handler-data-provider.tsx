@@ -39,9 +39,9 @@ type CoreEditorSelect = {
  * based on the block client ID.
  * Then, run the function passed as parameter (optional).
  *
- * @param {string} clientId - The block client ID.
- * @param {Function} fn     - The function to run after selecting the block.
- * @returns {void}
+ * @param {string}   clientId - The block client ID.
+ * @param {Function} fn       - The function to run after selecting the block.
+ * @return {void}
  */
 export function selectFormBlock( clientId: string, fn: () => void ): void {
 	const blockEditorDispatch = dispatch( 'core/block-editor' );
@@ -83,7 +83,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		/**
 		 * Show the AI Assistant
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		const show = useCallback( () => {
 			setAssistantVisibility( true );
@@ -92,7 +92,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		/**
 		 * Hide the AI Assistant
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		const hide = useCallback( () => {
 			setAssistantVisibility( false );
@@ -101,7 +101,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		/**
 		 * Toggle the AI Assistant visibility
 		 *
-		 * @returns {void}
+		 * @return {void}
 		 */
 		const toggle = useCallback( () => {
 			setAssistantVisibility( ! isVisible );
@@ -122,7 +122,7 @@ const withUiHandlerDataProvider = createHigherOrderComponent( BlockListBlock => 
 		 * Show the error notice
 		 *
 		 * @param {RequestingErrorProps} suggestionError
-		 * @returns {void}
+		 * @return {void}
 		 */
 		const showSuggestionError = useCallback(
 			( { severity, message, code }: RequestingErrorProps ) => {

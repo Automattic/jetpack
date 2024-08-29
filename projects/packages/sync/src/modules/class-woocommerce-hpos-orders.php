@@ -15,6 +15,11 @@ use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
 class WooCommerce_HPOS_Orders extends Module {
 
 	/**
+	 * The slug of WooCommerce Subscriptions plugin.
+	 */
+	const WOOCOMMERCE_SUBSCRIPTIONS_PATH = 'woocommerce-subscriptions/woocommerce-subscriptions.php';
+
+	/**
 	 * Order table name. There are four order tables (order, addresses, operational_data and meta), but for sync purposes we only care about the main table since it has the order ID.
 	 *
 	 * @access private
@@ -66,6 +71,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	 */
 	public static function get_order_types_to_sync( $prefixed = false ) {
 		$types = array( 'order', 'order_refund' );
+
+		if ( is_plugin_active( self::WOOCOMMERCE_SUBSCRIPTIONS_PATH ) ) {
+			$types[] = 'subscription';
+		}
+
 		if ( $prefixed ) {
 			$types = array_map(
 				function ( $type ) {
@@ -166,7 +176,7 @@ class WooCommerce_HPOS_Orders extends Module {
 			array(
 				'post__in'    => $ids,
 				'type'        => self::get_order_types_to_sync( true ),
-				'post_status' => $this->get_all_possible_order_status_keys(),
+				'post_status' => self::get_all_possible_order_status_keys(),
 				'limit'       => -1,
 			)
 		);
@@ -301,21 +311,29 @@ class WooCommerce_HPOS_Orders extends Module {
 		if ( '' === $filtered_order_data['status'] ) {
 			$filtered_order_data['status'] = 'pending';
 		}
-		$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
+		$filtered_order_data['status'] = self::get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 
-		return $filtered_order_data;
+		/**
+		 * Filter the order data before syncing.
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param array              $filtered_order_data The Filtered order data.
+		 * @param \WC_Abstract_Order $order_object        The Order object.
+		 */
+		return apply_filters( 'jetpack_sync_filtered_hpos_order_data', $filtered_order_data, $order_object );
 	}
 
 	/**
 	 * Returns all possible order status keys, including 'auto-draft' and 'trash'.
 	 *
-	 * @access protected
+	 * @access public
 	 *
 	 * @return array An array of all possible status keys, including 'auto-draft' and 'trash'.
 	 */
-	protected function get_all_possible_order_status_keys() {
+	public static function get_all_possible_order_status_keys() {
 		$order_statuses    = array( 'auto-draft', 'trash' );
-		$wc_order_statuses = $this->wc_get_order_status_keys();
+		$wc_order_statuses = self::wc_get_order_status_keys();
 
 		return array_unique( array_merge( $wc_order_statuses, $order_statuses ) );
 	}
@@ -327,8 +345,8 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @return string The WC order status with the 'wc-' prefix if it's a valid order status, initial $status otherwise.
 	 */
-	protected function get_wc_order_status_with_prefix( string $status ) {
-		return in_array( 'wc-' . $status, $this->wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
+	protected static function get_wc_order_status_with_prefix( string $status ) {
+		return in_array( 'wc-' . $status, self::wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
 	}
 
 	/**
@@ -338,7 +356,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 *
 	 * @return array Filtered order metadata.
 	 */
-	private function wc_get_order_status_keys() {
+	private static function wc_get_order_status_keys() {
 		$wc_order_statuses = array();
 		if ( function_exists( 'wc_get_order_statuses' ) ) {
 			$wc_order_statuses   = array_keys( wc_get_order_statuses() );

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ExternalLink, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -67,7 +68,7 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @returns {React.ReactElement }    Banner component.
+ * @return {React.ReactElement }    Banner component.
  */
 export default function Message( {
 	severity = MESSAGE_SEVERITY_INFO,
@@ -99,7 +100,7 @@ export default function Message( {
 /**
  * React component to render a guideline message.
  *
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function GuidelineMessage(): React.ReactElement {
 	return (
@@ -115,10 +116,29 @@ export function GuidelineMessage(): React.ReactElement {
 }
 
 /**
+ * React component to render a fair usage limit message.
+ *
+ * @return {React.ReactElement } - Message component.
+ */
+export function FairUsageLimitMessage(): React.ReactElement {
+	const message = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>",
+		'jetpack-ai-client'
+	);
+	const element = createInterpolateElement( message, {
+		link: (
+			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
+		),
+	} );
+
+	return <Message severity={ MESSAGE_SEVERITY_WARNING }>{ element }</Message>;
+}
+
+/**
  * React component to render an upgrade message for free tier users
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function UpgradeMessage( {
 	requestsRemaining,
@@ -157,7 +177,7 @@ export function UpgradeMessage( {
  * React component to render an error message
  *
  * @param {number} requestsRemaining - Number of requests remaining.
- * @returns {React.ReactElement } - Message component.
+ * @return {React.ReactElement } - Message component.
  */
 export function ErrorMessage( {
 	error,
