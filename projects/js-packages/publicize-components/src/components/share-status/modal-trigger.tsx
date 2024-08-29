@@ -1,6 +1,5 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { forwardRef } from 'react';
 import { store as socialStore } from '../../social-store';
@@ -18,15 +17,7 @@ export const ModalTrigger = forwardRef(
 	( { withWrapper = false, ...props }: ModalTriggerProps, ref: unknown ) => {
 		const { openShareStatusModal } = useDispatch( socialStore );
 		const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
-		const { shareStatus } = useSelect( select => {
-			const store = select( socialStore );
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-			const _editorStore = select( editorStore ) as any;
-
-			return {
-				shareStatus: store.getPostShareStatus( _editorStore.getCurrentPostId() ),
-			};
-		}, [] );
+		const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 		// If the post is not shared anywhere, thus there is no share status or no shares, we don't need to show the trigger.
 		if ( ! shareStatus || ! shareStatus.shares || shareStatus.shares.length === 0 ) {
