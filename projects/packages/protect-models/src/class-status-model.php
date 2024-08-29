@@ -54,11 +54,11 @@ class Status_Model {
 	public $status;
 
 	/**
-	 * Fixable threats.
+	 * List of fixable threat IDs.
 	 *
-	 * @var array
+	 * @var number[]
 	 */
-	public $fixable_threats = array();
+	public $fixable_threat_ids = array();
 
 	/**
 	 * WordPress core status.

@@ -144,7 +144,7 @@ class Threats {
 	 * @return bool|array
 	 */
 	public static function fix_threats_status( $threat_ids ) {
-		if ( ! $threat_ids ) {
+		if ( empty( $threat_ids ) ) {
 			return false;
 		}
 
