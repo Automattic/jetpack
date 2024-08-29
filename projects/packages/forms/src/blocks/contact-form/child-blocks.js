@@ -1,5 +1,5 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
-import { createBlock, getBlockType } from '@wordpress/blocks';
+import { createBlock } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -10,10 +10,14 @@ import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDatePicker from './components/jetpack-field-datepicker';
 import JetpackDropdown from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import JetpackFieldMultipleChoice from './components/jetpack-field-multiple-choice';
+import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-choice/item';
 import { JetpackFieldOptionEdit } from './components/jetpack-field-option';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
+import getFieldLabel from './util/get-field-label';
+import mergeSettings from './util/merge-settings';
 import renderMaterialIcon from './util/render-material-icon';
 
 const FieldDefaults = {
@@ -274,10 +278,6 @@ const multiFieldV1 = fieldType => ( {
 	save: () => null,
 } );
 
-const getFieldLabel = ( { attributes, name: blockName } ) => {
-	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
-};
-
 const editField = type => props => {
 	useFormWrapper( props );
 
@@ -285,7 +285,7 @@ const editField = type => props => {
 		<JetpackField
 			clientId={ props.clientId }
 			type={ type }
-			label={ getFieldLabel( props ) }
+			label={ getFieldLabel( props.attributes, props.name ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
@@ -306,7 +306,7 @@ const editMultiField = type => props => {
 		<JetpackFieldMultiple
 			className={ props.className }
 			clientId={ props.clientId }
-			label={ getFieldLabel( props ) }
+			label={ getFieldLabel( props.attributes, props.name ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			options={ props.attributes.options }
@@ -631,22 +631,6 @@ export const childBlocks = [
 		},
 	},
 	{
-		name: 'field-option-checkbox',
-		settings: {
-			...OptionFieldDefaults,
-			parent: [ 'jetpack/field-checkbox-multiple' ],
-			title: __( 'Multiple Choice Option', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<>
-					<Path
-						d="M5.5 10.5H8.5V13.5H5.5V10.5ZM8.5 9H5.5C4.67157 9 4 9.67157 4 10.5V13.5C4 14.3284 4.67157 15 5.5 15H8.5C9.32843 15 10 14.3284 10 13.5V10.5C10 9.67157 9.32843 9 8.5 9ZM12 12.75H20V11.25H12V12.75Z"
-						fill={ getIconColor() }
-					/>
-				</>
-			),
-		},
-	},
-	{
 		name: 'field-option-radio',
 		settings: {
 			...OptionFieldDefaults,
@@ -661,44 +645,12 @@ export const childBlocks = [
 		},
 	},
 	{
-		name: 'field-checkbox-multiple',
-		settings: {
-			...FieldDefaults,
-			title: __( 'Multiple Choice (Checkbox)', 'jetpack-forms' ),
-			keywords: [ __( 'Choose Multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
-			description: __(
-				'Offer users a list of choices, and allow them to select multiple options.',
-				'jetpack-forms'
-			),
-			icon: renderMaterialIcon(
-				<Path
-					fill={ getIconColor() }
-					d="M7.0812 10.1419L10.6001 5.45005L9.40006 4.55005L6.91891 7.85824L5.53039 6.46972L4.46973 7.53038L7.0812 10.1419ZM12 8.5H20V7H12V8.5ZM12 17H20V15.5H12V17ZM8.5 14.5H5.5V17.5H8.5V14.5ZM5.5 13H8.5C9.32843 13 10 13.6716 10 14.5V17.5C10 18.3284 9.32843 19 8.5 19H5.5C4.67157 19 4 18.3284 4 17.5V14.5C4 13.6716 4.67157 13 5.5 13Z"
-				/>
-			),
-			edit: editMultiField( 'checkbox' ),
-			save: () => {
-				const blockProps = useBlockProps.save();
-
-				return (
-					<div { ...blockProps }>
-						<InnerBlocks.Content />
-					</div>
-				);
-			},
-			attributes: {
-				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: 'Choose several options',
-				},
-			},
-			styles: [
-				{ name: 'list', label: 'List', isDefault: true },
-				{ name: 'button', label: 'Button' },
-			],
-			deprecated: [ multiFieldV1( 'checkbox' ) ],
-		},
+		name: JetpackFieldMultipleChoice.name,
+		settings: mergeSettings( FieldDefaults, JetpackFieldMultipleChoice.settings ),
+	},
+	{
+		name: JetpackFieldMultipleChoiceItem.name,
+		settings: mergeSettings( OptionFieldDefaults, JetpackFieldMultipleChoiceItem.settings ),
 	},
 	{
 		name: 'field-radio',

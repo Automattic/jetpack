@@ -41,7 +41,7 @@
 		}
 	}
 
-	.block-editor-inner-blocks .block-editor-block-list__layout {
+	.block-editor-inner-blocks > .block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: flex-start;
@@ -387,13 +387,6 @@
 
 	&.jetpack-field-multiple {
 
-		.block-editor-block-list__layout {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 12px;
-		}
-
 		&.is-style-button {
 			.jetpack-field-option {
 				background: var(--jetpack--contact-form--button-outline--background-color);
@@ -443,7 +436,6 @@
 		}
 	}
 
-
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
 	}
@@ -457,18 +449,19 @@
 			margin: 0 5px 0 0;
 		}
 	}
+	
+	.jetpack-field-option.field-option-checkbox,
+	.jetpack-field-option.field-option-radio,
+	.wp-block-jetpack-field-option-checkbox {
+		display: flex;
+		align-items: baseline; /* Align input with first label line */
+
+		.jetpack-option__type:before {
+			display: block; /* display: flex causes baselines to not align */
+		}
+	}
 
 	.jetpack-field-option {
-		&.field-option-checkbox,
-		&.field-option-radio {
-			display: flex;
-			align-items: baseline; /* Align input with first label line */
-
-			.jetpack-option__type:before {
-				display: block; /* display: flex causes baselines to not align */
-			}
-		}
-
 		&.field-option-radio .jetpack-option__type {
 			transform: translateY(15%); /* Small offset to compensate the slightly odd perceived alignment that's due to the circular shape */
 		}
@@ -814,8 +807,7 @@
 					border-top-color: transparent;
 				}
 
-				.notched-label__label,
-				{
+				.notched-label__label {
 					top: calc(var(--jetpack--contact-form--border-size) * -1);
 					transform: translateY(-50%);
 					font-size: 0.8em;
