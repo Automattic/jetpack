@@ -97,14 +97,13 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 	 * @covers ::youtube_shortcode
 	 * @since 3.9
 	 */
-	public function test_replace_url_with_iframe_in_the_content() {
+	public function test_shortcodes_youtube_replace_url_with_iframe_in_the_content() {
 		global $post;
 
 		$youtube_id = 'JaNH56Vpg-A';
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$post       = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post       = self::factory()->post->create_and_get( array( 'post_content' => "[youtube $url]" ) );
 
-		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );
 		ob_start();
 		// This below is needed since Core inserts "loading=lazy" right after the iframe opener.

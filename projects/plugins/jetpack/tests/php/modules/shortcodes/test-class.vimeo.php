@@ -175,7 +175,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @param string $url      The URL to test.
 	 * @param string $video_id The expected video ID.
 	 */
-	public function test_replace_url_with_iframe_in_the_content( $url, $video_id ) {
+	public function test_shortcodes_vimeo_replace_url_with_iframe_in_the_content( $url, $video_id ) {
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				|| ( defined( 'IS_ATOMIC' ) && IS_ATOMIC )
@@ -186,7 +186,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 		global $post;
 
-		$post = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => "[vimeo $url]" ) );
 
 		do_action( 'init' );
 		setup_postdata( $post );

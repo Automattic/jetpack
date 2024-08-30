@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Embeds: prioritize YouTube and Vimeo embeds provided by WordPress itself, over Jetpack's embedding solution.
