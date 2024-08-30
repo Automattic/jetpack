@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../constants';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
@@ -21,10 +21,18 @@ export default function useFixers() {
 
 	const fixThreats = async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds );
 
+	// List of threat IDs that are currently being fixed.
+	const fixInProgressThreatIds = useMemo(
+		() =>
+			Object.values( fixersStatus?.threats || {} )
+				.filter( ( threat: { status?: string } ) => threat.status === 'in_progress' )
+				.map( ( threat: { id?: string } ) => parseInt( threat.id ) ),
+		[ fixersStatus ]
+	);
+
 	useEffect( () => {
 		if (
-			fixersStatus &&
-			Object.values( fixersStatus.threats ).some(
+			Object.values( fixersStatus?.threats ).some(
 				( threat: { status: string } ) => threat.status !== 'in_progress'
 			)
 		) {
@@ -37,6 +45,7 @@ export default function useFixers() {
 		fixableThreats: status.fixableThreats,
 		fixersStatus,
 		fixThreats,
+		fixInProgressThreatIds,
 		isLoading: fixersMutation.isPending,
 	};
 }
