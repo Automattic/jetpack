@@ -1,5 +1,5 @@
 import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
-import { initializeExPlat } from '@automattic/jetpack-explat';
+import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -47,10 +47,9 @@ const ConnectionStep = ( {
 
 			initializeExPlat();
 
-			// const { variationName } = await loadExperimentAssignment(
-			// 	'jetpack_my_jetpack_post_connection_flow_202408'
-			// );
-			const variationName = 'treatment'; // hardcoding the variationName to 'treatment' for now
+			const { variationName } = await loadExperimentAssignment(
+				'jetpack_my_jetpack_evaluation_recommendations_202409'
+			);
 
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
