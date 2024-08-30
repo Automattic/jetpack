@@ -15,7 +15,7 @@ export default function useFixers() {
 	const { data: status } = useScanStatusQuery();
 	const fixersMutation = useFixersMutation();
 	const { data: fixersStatus } = useFixersQuery( {
-		threatIds: status.fixableThreats,
+		threatIds: status.fixableThreatIds,
 		usePolling: true,
 	} );
 
@@ -47,7 +47,7 @@ export default function useFixers() {
 	}, [ fixersStatus, queryClient ] );
 
 	return {
-		fixableThreats: status.fixableThreats,
+		fixableThreatIds: status.fixableThreatIds,
 		fixersStatus,
 		fixThreats,
 		fixInProgressThreatIds,
