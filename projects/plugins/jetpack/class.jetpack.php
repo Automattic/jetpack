@@ -758,23 +758,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		/*
-		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
-		 * We should make sure to only do this for front end links.
-		 */
-		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
-			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
-
-			/*
-			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
-			 * so they point moderation links on emails to Calypso.
-			 */
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/functions.wp-notify.php';
-			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
-			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
-		}
-
 		add_action(
 			'plugins_loaded',
 			function () {
