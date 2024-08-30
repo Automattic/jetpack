@@ -27,9 +27,11 @@ export default function useFixers() {
 	// List of threat IDs that are currently being fixed.
 	const fixInProgressThreatIds = useMemo(
 		() =>
-			Object.values( fixersStatus?.threats || {} )
-				.filter( ( threat: { status?: string } ) => threat.status === 'in_progress' )
-				.map( ( threat: { id?: string } ) => parseInt( threat.id ) ),
+			Object.entries( fixersStatus?.threats || {} )
+				.filter(
+					( [ , threat ]: [ string, { status?: string } ] ) => threat.status === 'in_progress'
+				)
+				.map( ( [ id ] ) => parseInt( id ) ),
 		[ fixersStatus ]
 	);
 

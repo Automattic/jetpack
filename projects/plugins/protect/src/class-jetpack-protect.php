@@ -220,7 +220,7 @@ class Jetpack_Protect {
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'credentials'        => Credentials::get_credential_array(),
 			'status'             => $status,
-			'fixerStatus'        => Threats::fix_threats_status( $status->fixable_threats ),
+			'fixerStatus'        => Threats::fix_threats_status( $status->fixable_threat_ids ),
 			'scanHistory'        => Scan_History::get_scan_history( $refresh_status_from_wpcom ),
 			'installedPlugins'   => Plugins_Installer::get_plugins(),
 			'installedThemes'    => Sync_Functions::get_themes(),
