@@ -22,7 +22,7 @@ export function getBreveAvailability() {
 	const { currentTier, featuresControl } = getAiAssistantFeature();
 
 	// Disabled remotely.
-	if ( featuresControl?.[ 'write-brief' ]?.enabled !== true ) {
+	if ( featuresControl?.[ 'write-brief' ]?.enabled === false ) {
 		return false;
 	}
 
@@ -48,13 +48,13 @@ export function getBreveAvailability() {
 export function canWriteBriefBeEnabled() {
 	const { featuresControl } = getAiAssistantFeature();
 
-	return featuresControl?.[ 'write-brief' ]?.enabled === true;
+	return featuresControl?.[ 'write-brief' ]?.enabled !== false;
 }
 
 export function canWriteBriefFeatureBeEnabled( feature: string ) {
 	const { featuresControl } = getAiAssistantFeature();
 
-	return ( featuresControl?.[ 'write-brief' ]?.[ feature ] as FeatureControl )?.enabled === true;
+	return ( featuresControl?.[ 'write-brief' ]?.[ feature ] as FeatureControl )?.enabled !== false;
 }
 
 export default getBreveAvailability;
