@@ -24,6 +24,7 @@ import useLogoGenerator from '../hooks/use-logo-generator.js';
 import useRequestErrors from '../hooks/use-request-errors.js';
 import { isLogoHistoryEmpty, clearDeletedMedia } from '../lib/logo-storage.js';
 import { STORE_NAME } from '../store/index.js';
+import { FairUsageNotice } from './fair-usage-notice.js';
 import { FeatureFetchFailureScreen } from './feature-fetch-failure-screen.js';
 import { FirstLoadScreen } from './first-load-screen.js';
 import { HistoryCarousel } from './history-carousel.js';
@@ -61,8 +62,14 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const requestedFeatureData = useRef< boolean >( false );
 	const [ needsFeature, setNeedsFeature ] = useState( false );
 	const [ needsMoreRequests, setNeedsMoreRequests ] = useState( false );
-	const { selectedLogo, getAiAssistantFeature, generateFirstPrompt, generateLogo, setContext } =
-		useLogoGenerator();
+	const {
+		selectedLogo,
+		getAiAssistantFeature,
+		generateFirstPrompt,
+		generateLogo,
+		setContext,
+		requireUpgrade,
+	} = useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
 	const [ logoAccepted, setLogoAccepted ] = useState( false );
@@ -227,6 +234,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		body = (
 			<>
 				{ ! logoAccepted && <Prompt initialPrompt={ initialPrompt } /> }
+				{ requireUpgrade && <FairUsageNotice /> }
 				<LogoPresenter
 					logo={ selectedLogo }
 					onApplyLogo={ handleApplyLogo }
