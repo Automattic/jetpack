@@ -88,7 +88,13 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
-export type FeaturesControl = { [ key: string ]: string | boolean | FeaturesControl };
+export type FeatureControl = {
+	enabled: boolean;
+	'min-jetpack-version': string;
+	[ key: string ]: FeatureControl | boolean | string;
+};
+
+export type FeaturesControl = { [ key: string ]: FeatureControl };
 
 export type AiFeatureProps = {
 	hasFeature: boolean;
