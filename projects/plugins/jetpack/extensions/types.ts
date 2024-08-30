@@ -1,9 +1,7 @@
 /**
  * Types for the AI Assistant feature.
  */
-import type { TierProp, UpgradeTypeProp } from './store/wordpress-com/types';
-
-type FeaturesControl = { [ key: string ]: string | boolean | FeaturesControl };
+import type { TierProp, UpgradeTypeProp, FeaturesControl } from './store/wordpress-com/types';
 
 /*
  * `sites/$site/ai-assistant-feature` endpoint response body props
