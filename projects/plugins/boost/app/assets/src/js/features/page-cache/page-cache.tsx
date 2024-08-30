@@ -99,7 +99,11 @@ const PageCache = () => {
 					{ ( isWpCloudClient() || isWoaHosting() ) && (
 						<Notice
 							level="warning"
-							title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+							title={
+								isWoaHosting()
+									? __( 'Page Cache is running', 'jetpack-boost' )
+									: __( 'Page Cache is unavailable', 'jetpack-boost' )
+							}
 							hideCloseButton={ true }
 						>
 							<p>
