@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed PHP warning for accessing an undefined array key.
