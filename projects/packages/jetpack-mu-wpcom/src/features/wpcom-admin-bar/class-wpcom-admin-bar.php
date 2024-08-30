@@ -55,12 +55,12 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 	 * }
 	 */
 	public function add_node( $args ) {
-		if ( ! is_array( $args ) || empty( $args['href'] ) || ! isset( $args['id'] ) ) {
+		if ( ! is_array( $args ) || empty( $args['href'] ) ) {
 			parent::add_node( $args );
 			return;
 		}
 
-		if ( $args['id'] === 'my-account' ) {
+		if ( isset( $args['id'] ) && $args['id'] === 'my-account' ) {
 			if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
 				$args['href'] = 'https://wordpress.com/me';
 
