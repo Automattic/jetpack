@@ -47,10 +47,10 @@ const WelcomeFlow: FC< PropsWithChildren > = ( { children } ) => {
 		} else if ( ! isProcessingEvaluation ) {
 			if (
 				! recommendedModules &&
-				( welcomeFlowExperiment.variation === 'control' || ! isJetpackUserNew() )
+				( welcomeFlowExperiment.variation === 'treatment' || ! isJetpackUserNew() )
 			) {
 				// If user is not new but doesn't have recommendations, we skip evaluation
-				// If user has recommendations, it means they were already in treatment group and they redo the evaluation
+				// If user has recommendations, it means they redo the evaluation
 				return null;
 			}
 
