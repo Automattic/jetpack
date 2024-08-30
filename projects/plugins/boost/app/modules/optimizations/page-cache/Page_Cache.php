@@ -104,9 +104,13 @@ class Page_Cache implements Pluggable, Has_Deactivate, Optimization {
 	}
 
 	public static function is_available() {
-		// Disable Page Cache on Atomic.
-		// It already has caching enabled.
-		if ( ( new Host() )->is_woa_site() ) {
+		// Disable Page Cache on WoA and WP Cloud clients.
+		// They already have caching enabled.
+		if ( ( new Host() )->is_woa_site() || ( new Host() )->is_atomic_platform() ) {
+			if ( Page_Cache_Setup::can_run_cache() ) {
+				return true;
+			}
+
 			return false;
 		}
 

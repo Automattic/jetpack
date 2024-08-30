@@ -150,6 +150,15 @@ class Page_Cache_Setup {
 	}
 
 	/**
+	 * Get the path to the advanced-cache.php file.
+	 *
+	 * @return string The full path to the advanced-cache.php file.
+	 */
+	public static function get_advanced_cache_path() {
+		return WP_CONTENT_DIR . '/advanced-cache.php';
+	}
+
+	/**
 	 * Creates the advanced-cache.php file.
 	 *
 	 * Returns true if the files were setup correctly, or WP_Error if there was a problem.
@@ -157,7 +166,7 @@ class Page_Cache_Setup {
 	 * @return bool|\WP_Error
 	 */
 	private static function create_advanced_cache() {
-		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+		$advanced_cache_filename = self::get_advanced_cache_path();
 
 		if ( file_exists( $advanced_cache_filename ) ) {
 			$content = file_get_contents( $advanced_cache_filename ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
@@ -265,6 +274,21 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	}
 
 	/**
+	 * Checks if page cache can be run or not.
+	 *
+	 * @return bool True if the advanced-cache.php file doesn't exist or belongs to Boost, false otherwise.
+	 */
+	public static function can_run_cache() {
+		$advanced_cache_path = self::get_advanced_cache_path();
+		if ( ! file_exists( $advanced_cache_path ) ) {
+			return true;
+		}
+
+		$content = file_get_contents( $advanced_cache_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		return strpos( $content, Page_Cache::ADVANCED_CACHE_SIGNATURE ) !== false;
+	}
+
+	/**
 	 * Removes the advanced-cache.php file and the WP_CACHE define from wp-config.php
 	 * Fired when the plugin is deactivated.
 	 */
@@ -300,7 +324,7 @@ define( \'WP_CACHE\', true ); // ' . Page_Cache::ADVANCED_CACHE_SIGNATURE,
 	 * Deletes the file advanced-cache.php if it exists.
 	 */
 	public static function delete_advanced_cache() {
-		$advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
+		$advanced_cache_filename = self::get_advanced_cache_path();
 
 		if ( ! file_exists( $advanced_cache_filename ) ) {
 			return false;
