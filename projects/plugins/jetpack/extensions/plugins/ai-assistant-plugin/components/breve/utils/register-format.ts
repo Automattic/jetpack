@@ -11,7 +11,11 @@ import md5 from 'crypto-js/md5';
 import features from '../features';
 import registerEvents from '../features/events';
 import highlight from '../highlight/highlight';
-import getBreveAvailability from '../utils/get-availability';
+import {
+	getBreveAvailability,
+	canWriteBriefBeEnabled,
+	canWriteBriefFeatureBeEnabled,
+} from '../utils/get-availability';
 /**
  * Types
  */
@@ -53,12 +57,12 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				getReloadFlag,
 			} = select( 'jetpack/ai-breve' ) as BreveSelect;
 
-			const { getAiAssistantFeature } = select( 'wordpress-com/plans' );
-			const isFreePlan = getAiAssistantFeature().currentTier?.value === 0;
+			const canBeEnabled = canWriteBriefBeEnabled();
+			const canFeatureBeEnabled = canWriteBriefFeatureBeEnabled( config.name );
 
 			return {
-				isProofreadEnabled: isProofreadEnabled() && getBreveAvailability( isFreePlan ),
-				isFeatureEnabled: isFeatureEnabled( config.name ),
+				isProofreadEnabled: canBeEnabled && isProofreadEnabled() && getBreveAvailability(),
+				isFeatureEnabled: canFeatureBeEnabled && isFeatureEnabled( config.name ),
 				ignored: getIgnoredSuggestions( { blockId: blockClientId } ),
 				isFeatureDictionaryLoading: isFeatureDictionaryLoading( config.name ),
 				reloadFlag: getReloadFlag(), // Used to force a reload of the highlights

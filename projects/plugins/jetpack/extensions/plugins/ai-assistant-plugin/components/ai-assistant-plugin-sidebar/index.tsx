@@ -23,7 +23,7 @@ import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
 import { PLAN_TYPE_FREE, PLAN_TYPE_UNLIMITED, usePlanType } from '../../../../shared/use-plan-type';
 import { FeaturedImage } from '../ai-image';
 import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import useBreveAvailability from '../breve/hooks/use-breve-availability';
+import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -70,7 +70,7 @@ const JetpackAndSettingsContent = ( {
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
-	const isBreveAvailable = useBreveAvailability();
+	const isBreveAvailable = getBreveAvailability();
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -88,7 +88,7 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ isBreveAvailable && (
+			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl label={ __( 'Write Brief with AI (BETA)', 'jetpack' ) }>
 						<Breve />
@@ -153,7 +153,7 @@ export default function AiAssistantPluginSidebar() {
 		useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
-	const isBreveAvailable = useBreveAvailability();
+	const isBreveAvailable = getBreveAvailability();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
