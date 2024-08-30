@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.6.2 - 2024-08-30
+### Added
+- Added a switch that will enable rolling trunk releases. [#38994]
+
 ## 5.6.1 - 2024-08-26
 ### Changed
 - Internal updates.
