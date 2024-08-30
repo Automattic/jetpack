@@ -1084,6 +1084,9 @@ importers:
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
+      '@types/wordpress__editor':
+        specifier: 13.6.8
+        version: 13.6.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@types/wordpress__media-utils':
         specifier: 4.14.4
         version: 4.14.4(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
