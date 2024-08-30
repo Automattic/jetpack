@@ -36,7 +36,8 @@ const PageCache = () => {
 	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
 		pageCacheSetup.isSuccess && !! moduleState?.active
 	);
-	const showUnavailableNotice = ! moduleState?.available && ( isWoaHosting() || isWpCloudClient() );
+	const showCacheFromHostingNotice =
+		! moduleState?.available && ( isWoaHosting() || isWpCloudClient() );
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
@@ -97,7 +98,7 @@ const PageCache = () => {
 							'jetpack-boost'
 						) }
 					</p>
-					{ showUnavailableNotice &&
+					{ showCacheFromHostingNotice &&
 						( isWoaHosting() ? (
 							<Notice
 								level="success"
