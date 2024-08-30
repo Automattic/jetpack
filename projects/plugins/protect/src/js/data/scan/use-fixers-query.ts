@@ -38,29 +38,34 @@ export default function useFixersQuery( {
 				| undefined;
 
 			// Check if any fixers have completed, by comparing the latest data against the cache.
-			data?.threats.forEach( ( threat: { id: number; status: string } ) => {
-				// Find the specific threat in the cached data.
-				const cachedThreat = Object.values( cachedData?.threats ).find(
-					( t: { id: number } ) => t.id === threat.id
-				);
+			data?.threats &&
+				Object.entries( data.threats ).forEach( ( [ , threat ] ) => {
+					const typedThreat = threat as { id: number; status: string }; // Ensure threat has the correct type
 
-				if (
-					cachedThreat &&
-					cachedThreat.status === 'in_progress' &&
-					threat.status !== 'in_progress'
-				) {
-					// Invalidate related queries.
-					queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
-					queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+					// Find the specific threat in the cached data.
+					const cachedThreat =
+						cachedData?.threats &&
+						Object.values( cachedData.threats ).find(
+							( t: { id: number } ) => t.id === typedThreat.id
+						);
 
-					// Show a relevant notice.
-					if ( threat.status === 'fixed' ) {
-						showSuccessNotice( __( 'Threat fixed successfully.', 'jetpack-protect' ) );
-					} else if ( threat.status === 'not_fixed' ) {
-						showErrorNotice( __( 'Threat could not be fixed.', 'jetpack-protect' ) );
+					if (
+						cachedThreat &&
+						cachedThreat.status === 'in_progress' &&
+						typedThreat.status !== 'in_progress'
+					) {
+						// Invalidate related queries.
+						queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+						queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
+
+						// Show a relevant notice.
+						if ( typedThreat.status === 'fixed' ) {
+							showSuccessNotice( __( 'Threat fixed successfully.', 'jetpack-protect' ) );
+						} else if ( typedThreat.status === 'not_fixed' ) {
+							showErrorNotice( __( 'Threat could not be fixed.', 'jetpack-protect' ) );
+						}
 					}
-				}
-			} );
+				} );
 
 			return data;
 		},
