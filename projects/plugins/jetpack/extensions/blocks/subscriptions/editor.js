@@ -1,7 +1,7 @@
 import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
 import { select } from '@wordpress/data';
-import { PluginPreviewDropdownItem } from '@wordpress/editor';
+import { PluginPreviewMenuItem } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { atSymbol, send } from '@wordpress/icons';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
@@ -81,10 +81,10 @@ registerJetpackPlugin( blockName, {
 				<SubscribePanels />
 				{ shouldShowNewsletterMenu() && <NewsletterMenu /> }
 				<CommandPalette />
-				<PluginPreviewDropdownItem onClick={ () => {} }>Custom Preview</PluginPreviewDropdownItem>
-				<PluginPreviewDropdownItem onClick={ () => {} } icon={ send }>
+				<PluginPreviewMenuItem onClick={ () => {} }>Custom Preview</PluginPreviewMenuItem>
+				<PluginPreviewMenuItem onClick={ () => {} } icon={ send }>
 					Email preview
-				</PluginPreviewDropdownItem>
+				</PluginPreviewMenuItem>
 			</>
 		);
 	},
