@@ -1,5 +1,5 @@
 import { Col, Button, Text, TermsOfService } from '@automattic/jetpack-components';
-import { initializeExPlat, loadExperimentAssignment } from '@automattic/jetpack-explat';
+import { initializeExPlat } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useContext } from 'react';
 import { NoticeContext } from '../../context/notices/noticeContext';
@@ -47,14 +47,10 @@ const ConnectionStep = ( {
 
 			initializeExPlat();
 
-			const { variationName } = await loadExperimentAssignment(
-				'jetpack_my_jetpack_post_connection_flow_202408'
-			);
-
-			if ( variationName !== 'treatment' ) {
-				// For control or default, we redirect to the connection page as described in the experiment.
-				window.location.href = 'admin.php?page=my-jetpack#/connection';
-			}
+			// const { variationName } = await loadExperimentAssignment(
+			// 	'jetpack_my_jetpack_post_connection_flow_202408'
+			// );
+			const variationName = 'treatment'; // hardcoding the variationName to 'treatment' for now
 
 			onUpdateWelcomeFlowExperiment( state => ( {
 				...state,
