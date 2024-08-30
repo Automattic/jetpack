@@ -499,7 +499,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+		return 'admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**
