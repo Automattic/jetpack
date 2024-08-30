@@ -98,7 +98,7 @@ const PageCache = () => {
 					</p>
 					{ ( isWpCloudClient() || isWoaHosting() ) && (
 						<Notice
-							level="warning"
+							level={ isWoaHosting() ? 'success' : 'info' }
 							title={
 								isWoaHosting()
 									? __( 'Page Cache is running', 'jetpack-boost' )
