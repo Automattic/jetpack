@@ -34,8 +34,6 @@ class Jetpack_Forms {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 		}
 
-		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
-
 		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
 	}
 
