@@ -21,6 +21,7 @@ import React, { useState, useEffect, useCallback } from 'react';
  */
 import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
+import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/getPostText';
 import './breve.scss';
 /**
@@ -134,17 +135,20 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 						label={ __( 'Show suggestions', 'jetpack' ) }
 					/>
 					<div className="feature-checkboxes-container">
-						{ features.map( feature => (
-							<CheckboxControl
-								className={ isProofreadEnabled ? '' : 'is-disabled' }
-								disabled={ ! isProofreadEnabled }
-								data-breve-type={ feature.config.name }
-								key={ feature.config.name }
-								label={ feature.config.title }
-								checked={ ! disabledFeatures.includes( feature.config.name ) }
-								onChange={ handleToggleFeature( feature.config.name ) }
-							/>
-						) ) }
+						{ features.map(
+							feature =>
+								canWriteBriefFeatureBeEnabled( feature.config.name ) && (
+									<CheckboxControl
+										className={ isProofreadEnabled ? '' : 'is-disabled' }
+										disabled={ ! isProofreadEnabled }
+										data-breve-type={ feature.config.name }
+										key={ feature.config.name }
+										label={ feature.config.title }
+										checked={ ! disabledFeatures.includes( feature.config.name ) }
+										onChange={ handleToggleFeature( feature.config.name ) }
+									/>
+								)
+						) }
 					</div>
 				</BaseControl>
 			</PanelRow>
