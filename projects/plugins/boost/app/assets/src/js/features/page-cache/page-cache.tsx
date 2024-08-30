@@ -9,6 +9,7 @@ import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import styles from './page-cache.module.scss';
+import { isWpCloudClient, isWoaHosting } from '$lib/utils/hosting';
 
 const DismissableNotice = ( { title, children }: { title: string; children: ReactNode } ) => {
 	const [ dismissed, setDismissed ] = useState( false );
@@ -35,8 +36,6 @@ const PageCache = () => {
 	const showCacheEngineErrorNotice = useShowCacheEngineErrorNotice(
 		pageCacheSetup.isSuccess && !! moduleState?.active
 	);
-
-	const { site } = Jetpack_Boost;
 
 	const [ removePageCacheNotice ] = useMutationNotice(
 		'page-cache-setup',
@@ -97,17 +96,19 @@ const PageCache = () => {
 							'jetpack-boost'
 						) }
 					</p>
-					{ site.isAtomic && (
+					{ ( isWpCloudClient() || isWoaHosting() ) && (
 						<Notice
 							level="warning"
 							title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
 							hideCloseButton={ true }
 						>
 							<p>
-								{ __(
-									'Your website already has a page cache running on it powered by WordPress.com.',
-									'jetpack-boost'
-								) }
+								{ isWoaHosting()
+									? __(
+											'Your website already has a page cache running on it powered by WordPress.com.',
+											'jetpack-boost'
+									  )
+									: __( 'Your hosting provider already provides page caching.', 'jetpack-boost' ) }
 							</p>
 						</Notice>
 					) }
