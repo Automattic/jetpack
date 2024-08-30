@@ -24,9 +24,11 @@ const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
  * @param {string} title   - Issue title.
  * @param {string} body    - Issue body.
  *
- * @return {Promise<Array>} Promise resolving to an array of labels to apply to the issue.
+ * @return {Promise<Object>} Promise resolving to an object of labels to apply to the issue, and their explanations.
  */
 async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
+	const suggestions = { labels: [], explanations: {} };
+
 	// Get all the Feature and Feature Group labels in the repo.
 	const pattern = /^(\[Feature\]|\[Feature Group\])/;
 	const repoLabels = await getAllLabels( octokit, owner, repo, pattern );
@@ -34,7 +36,7 @@ async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body )
 	// If no labels are found, bail.
 	if ( repoLabels.length === 0 ) {
 		debug( 'triage-issues: No labels found in the repository. Aborting OpenAI request.' );
-		return [];
+		return suggestions;
 	}
 
 	const prompt = `Here is the issue title. It is the most important part of the text you must analyse:
@@ -72,7 +74,7 @@ Example response format:
 		debug(
 			`triage-issues: OpenAI did not send back the expected JSON-formatted response. Error: ${ error }`
 		);
-		return [];
+		return suggestions;
 	}
 
 	debug( `triage-issues: OpenAI response: ${ JSON.stringify( parsedResponse ) }` );
@@ -83,10 +85,10 @@ Example response format:
 	debug( `triage-issues: OpenAI suggested the following labels: ${ explanationString }` );
 
 	if ( ! Array.isArray( labels ) ) {
-		return [];
+		return suggestions;
 	}
 
-	return labels;
+	return { labels, explanations };
 }
 
 /**
@@ -228,7 +230,7 @@ async function triageIssues( payload, octokit ) {
 	const isTestIssue = await hasTestLabel( octokit, ownerLogin, name, number, action, label );
 	if ( isTestIssue ) {
 		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
-		const labelsSuggestions = await fetchOpenAiLabelsSuggestions(
+		const { labels, explanations } = await fetchOpenAiLabelsSuggestions(
 			octokit,
 			ownerLogin,
 			name,
@@ -236,14 +238,14 @@ async function triageIssues( payload, octokit ) {
 			body
 		);
 
-		if ( labelsSuggestions.length === 0 ) {
+		if ( labels.length === 0 ) {
 			debug( `triage-issues: No labels suggested by OpenAI for issue #${ number }` );
 			return;
 		}
 
 		// Add the suggested labels to the issue.
 		debug(
-			`triage-issues: Adding the following labels to issue #${ number }, as suggested by OpenAI: ${ labelsSuggestions.join(
+			`triage-issues: Adding the following labels to issue #${ number }, as suggested by OpenAI: ${ labels.join(
 				', '
 			) }`
 		);
@@ -251,7 +253,20 @@ async function triageIssues( payload, octokit ) {
 			owner: ownerLogin,
 			repo: name,
 			issue_number: number,
-			labels: labelsSuggestions,
+			labels,
+		} );
+
+		// During testing, post a comment on the issue with the explanations.
+		const explanationComment = `**OpenAI suggested the following labels for this issue:**
+${ Object.entries( explanations )
+	.map( ( [ labelName, explanation ] ) => `- ${ labelName }: ${ explanation }` )
+	.join( '\n' ) }`;
+
+		await octokit.rest.issues.createComment( {
+			owner: ownerLogin,
+			repo: name,
+			issue_number: number,
+			body: explanationComment,
 		} );
 	}
 
