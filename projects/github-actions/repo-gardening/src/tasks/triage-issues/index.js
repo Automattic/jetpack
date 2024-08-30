@@ -20,11 +20,12 @@ const sendSlackMessage = require( '../../utils/slack/send-slack-message' );
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
+ * @param {string} title   - Issue title.
  * @param {string} body    - Issue body.
  *
  * @return {Promise<Array>} Promise resolving to an array of labels to apply to the issue.
  */
-async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, body ) {
+async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body ) {
 	// Get all the Feature and Feature Group labels in the repo.
 	const pattern = /^(\[Feature\]|\[Feature Group\])/;
 	const repoLabels = await getAllLabels( octokit, owner, repo, pattern );
@@ -35,7 +36,10 @@ async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, body ) {
 		return [];
 	}
 
-	const prompt = `Here is the issue body:
+	const prompt = `Here is the issue title. It is the most important part of the text you must analyse:
+${ title }
+
+Here is the issue body:
 ${ body }
 
 Here are the existing labels and their descriptions:
@@ -100,7 +104,7 @@ Example response format:
  */
 async function triageIssues( payload, octokit ) {
 	const { action, issue, label = {}, repository } = payload;
-	const { number, body } = issue;
+	const { number, body, title } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
 
@@ -195,7 +199,13 @@ async function triageIssues( payload, octokit ) {
 	// and add labels if any matching labels can be found.
 	if ( action === 'opened' ) {
 		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
-		const labelsSuggestions = await fetchOpenAiLabelsSuggestions( octokit, ownerLogin, name, body );
+		const labelsSuggestions = await fetchOpenAiLabelsSuggestions(
+			octokit,
+			ownerLogin,
+			name,
+			title,
+			body
+		);
 
 		if ( labelsSuggestions.length === 0 ) {
 			debug( `triage-issues: No labels suggested by OpenAI for issue #${ number }` );
