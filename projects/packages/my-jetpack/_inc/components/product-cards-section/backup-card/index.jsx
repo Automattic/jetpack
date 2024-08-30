@@ -1,4 +1,4 @@
-import { numberFormat, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { VisuallyHidden } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -17,6 +17,7 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../../hooks/use-analytics';
+import numberFormat from '../../../utils/format-number';
 import ProductCard from '../../connected-product-card';
 import styles from './style.module.scss';
 
@@ -228,8 +229,6 @@ const NoBackupsValueSection = props => {
 		return data;
 	}, [ backupStats ] );
 
-	const shortenedNumberConfig = { maximumFractionDigits: 1, notation: 'compact' };
-
 	return (
 		<ProductCard { ...props } showMenu isDataLoading={ isLoading }>
 			<div className={ styles[ 'no-backup-stats' ] }>
@@ -248,7 +247,7 @@ const NoBackupsValueSection = props => {
 								<>
 									<span className={ clsx( styles[ 'visual-stat' ] ) } aria-hidden="true">
 										{ getIcon( itemSlug ) }
-										<span>{ numberFormat( value, shortenedNumberConfig ) }</span>
+										<span>{ numberFormat( value ) }</span>
 									</span>
 									<VisuallyHidden>{ getStatRenderFn( itemSlug )( value ) }</VisuallyHidden>
 								</>

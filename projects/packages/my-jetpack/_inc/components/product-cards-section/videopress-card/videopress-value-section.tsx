@@ -59,10 +59,6 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 	const { status, hasPaidPlanForProduct } = detail || {};
 	const { videoCount, featuredStats } = data || {};
 	const { inactiveWithVideos, viewsWithoutPlan, viewsWithPlan, watchTime } = useTooltipCopy();
-	const shortenedNumberConfig: Intl.NumberFormatOptions = {
-		maximumFractionDigits: 1,
-		notation: 'compact',
-	};
 
 	if ( ! videoCount ) {
 		return null;
@@ -154,8 +150,8 @@ const VideoPressValueSection: FC< VideoPressValueSectionProps > = ( { isPluginAc
 				<ValueSection
 					value={ currentViews }
 					previousValue={ previousViews }
-					formattedValue={ formatNumber( currentViews, shortenedNumberConfig ) }
-					formattedDifference={ formatNumber( viewsDifference, shortenedNumberConfig ) }
+					formattedValue={ formatNumber( currentViews ) }
+					formattedDifference={ formatNumber( viewsDifference ) }
 					period={ period }
 				/>
 			</div>
