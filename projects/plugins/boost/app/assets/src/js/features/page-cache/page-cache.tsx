@@ -96,26 +96,31 @@ const PageCache = () => {
 							'jetpack-boost'
 						) }
 					</p>
-					{ ( isWpCloudClient() || isWoaHosting() ) && (
-						<Notice
-							level={ isWoaHosting() ? 'success' : 'info' }
-							title={
-								isWoaHosting()
-									? __( 'Page Cache is running', 'jetpack-boost' )
-									: __( 'Page Cache is unavailable', 'jetpack-boost' )
-							}
-							hideCloseButton={ true }
-						>
-							<p>
-								{ isWoaHosting()
-									? __(
-											'Your website already has a page cache running on it powered by WordPress.com.',
-											'jetpack-boost'
-									  )
-									: __( 'Your hosting provider already provides page caching.', 'jetpack-boost' ) }
-							</p>
-						</Notice>
-					) }
+					{ ( isWpCloudClient() || isWoaHosting() ) &&
+						( isWoaHosting() ? (
+							<Notice
+								level="success"
+								title={ __( 'Page Cache is running', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>
+									{ __(
+										'Your website already has a page cache running on it powered by WordPress.com.',
+										'jetpack-boost'
+									) }
+								</p>
+							</Notice>
+						) : (
+							<Notice
+								level="info"
+								title={ __( 'Page Cache is unavailable', 'jetpack-boost' ) }
+								hideCloseButton={ true }
+							>
+								<p>
+									{ __( 'Your hosting provider already provides page caching.', 'jetpack-boost' ) }
+								</p>
+							</Notice>
+						) ) }
 					<Health
 						error={ pageCacheError.data }
 						setError={ pageCacheErrorMutation.mutate }
