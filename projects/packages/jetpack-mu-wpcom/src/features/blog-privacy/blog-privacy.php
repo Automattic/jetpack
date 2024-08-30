@@ -44,6 +44,7 @@ function robots_txt( string $output, $public ): string {
 			'FacebookBot',
 			'Google-Extended',
 			'GPTBot',
+			'meta-externalagent',
 			'omgili',
 			'omgilibot',
 			'PerplexityBot',

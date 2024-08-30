@@ -30,8 +30,8 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 
 	// Whether the post has been published more than one minute ago.
 	const hasBeenMoreThanOneMinute = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		const date = ( select( editorStore ) as any ).getEditedPostAttribute( 'date' );
+		// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
+		const date = select( editorStore ).getEditedPostAttribute( 'date' );
 
 		const oneMinuteAfterPostDate = new Date( Number( getDate( date ) ) + ONE_MINUTE_IN_MS );
 

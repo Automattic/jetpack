@@ -21,9 +21,9 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	};
 
 	const handleIgnoreClick = () => {
-		return async event => {
+		return event => {
 			event.preventDefault();
-			await ignoreThreatMutation.mutateAsync( id );
+			ignoreThreatMutation.mutate( id );
 			setModal( { type: null } );
 		};
 	};

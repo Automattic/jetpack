@@ -88,7 +88,7 @@ const ScanningSection = ( { currentProgress } ) => {
 					<SeventyFiveLayout
 						main={
 							<div className={ styles[ 'main-content' ] }>
-								<Container horizontalSpacing={ 3 } horizontalGap={ 7 }>
+								<Container horizontalSpacing={ 0 } horizontalGap={ 7 } fluid={ true }>
 									<Col className={ styles[ 'loading-content' ] }>
 										<Spinner
 											style={ {
@@ -124,6 +124,7 @@ const ScanningSection = ( { currentProgress } ) => {
 							</div>
 						}
 						preserveSecondaryOnMobile={ false }
+						fluid={ true }
 					/>
 				</Col>
 			</Container>
@@ -172,7 +173,7 @@ const ScanPage = () => {
 
 	const renderSection = useMemo( () => {
 		if ( isScanInProgress( status ) ) {
-			return <ScanningSection currentProgress={ status.currentProgress } />;
+			return <ScanningSection currentProgress={ status.currentProgress || 0 } />;
 		}
 
 		if ( status.error ) {

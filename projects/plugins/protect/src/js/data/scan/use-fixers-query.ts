@@ -6,12 +6,13 @@ import { QUERY_FIXERS_KEY, QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../.
 import useNotices from '../../hooks/use-notices';
 
 /**
- * Use Fixers Query
+ * Fixers Query Hook
  *
- * @param {object}   args            - Object argument
- * @param {number[]} args.threatIds  - Threat IDs
- * @param {boolean}  args.usePolling - Use polling
- * @return {object} Query object
+ * @param {object}   args            - Hook arguments.
+ * @param {number[]} args.threatIds  - The threat IDs to monitor for fixer status.
+ * @param {boolean}  args.usePolling - Whether to continuously poll for fixer status while fixers are in progress.
+ *
+ * @return {object} The query hook.
  */
 export default function useFixersQuery( {
 	threatIds = [],

@@ -241,7 +241,7 @@ class REST_Controller {
 		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
 
 		if ( ! $threat_ignored ) {
-			return new WP_REST_Response( 'An error occured while attempting to ignore the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to ignore the threat.', 500 );
 		}
 
 		return new WP_REST_Response( 'Threat ignored.' );
@@ -262,7 +262,7 @@ class REST_Controller {
 		$threat_ignored = Threats::unignore_threat( $request['threat_id'] );
 
 		if ( ! $threat_ignored ) {
-			return new WP_REST_Response( 'An error occured while attempting to unignore the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to unignore the threat.', 500 );
 		}
 
 		return new WP_REST_Response( 'Threat unignored.' );
@@ -283,7 +283,7 @@ class REST_Controller {
 		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
 
 		if ( ! $threats_fixed ) {
-			return new WP_REST_Response( 'An error occured while attempting to fix the threat.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to fix the threat.', 500 );
 		}
 
 		return new WP_REST_Response( $threats_fixed );
@@ -304,7 +304,7 @@ class REST_Controller {
 		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );
 
 		if ( ! $threats_fixed ) {
-			return new WP_REST_Response( 'An error occured while attempting to get the fixer status of the threats.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to get the fixer status of the threats.', 500 );
 		}
 
 		return new WP_REST_Response( $threats_fixed );
@@ -319,7 +319,7 @@ class REST_Controller {
 		$credential_array = Credentials::get_credential_array();
 
 		if ( ! isset( $credential_array ) ) {
-			return new WP_REST_Response( 'An error occured while attempting to fetch the credentials array', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to fetch the credentials array', 500 );
 		}
 
 		return new WP_REST_Response( $credential_array );
@@ -334,7 +334,7 @@ class REST_Controller {
 		$scan_enqueued = Threats::scan();
 
 		if ( ! $scan_enqueued ) {
-			return new WP_REST_Response( 'An error occured while attempting to enqueue the scan.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to enqueue the scan.', 500 );
 		}
 
 		return new WP_REST_Response( 'Scan enqueued.' );
@@ -351,7 +351,7 @@ class REST_Controller {
 			if ( ! $disabled ) {
 				return new WP_Error(
 					'waf_disable_failed',
-					__( 'An error occured disabling the firewall.', 'jetpack-protect' ),
+					__( 'An error occurred disabling the firewall.', 'jetpack-protect' ),
 					array( 'status' => 500 )
 				);
 			}
@@ -363,7 +363,7 @@ class REST_Controller {
 		if ( ! $enabled ) {
 			return new WP_Error(
 				'waf_enable_failed',
-				__( 'An error occured enabling the firewall.', 'jetpack-protect' ),
+				__( 'An error occurred enabling the firewall.', 'jetpack-protect' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -456,7 +456,7 @@ class REST_Controller {
 		$completed = Onboarding::complete_steps( $request['step_ids'] );
 
 		if ( ! $completed ) {
-			return new WP_REST_Response( 'An error occured completing the onboarding step(s).', 500 );
+			return new WP_REST_Response( 'An error occurred completing the onboarding step(s).', 500 );
 		}
 
 		return new WP_REST_Response( 'Onboarding step(s) completed.' );
