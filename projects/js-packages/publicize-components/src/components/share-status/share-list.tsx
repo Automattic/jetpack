@@ -14,10 +14,10 @@ import styles from './styles.module.scss';
 export function ShareList() {
 	const { shareStatus } = useSelect( select => {
 		const store = select( socialStore );
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		const _editorStore = select( editorStore ) as any;
+		const _editorStore = select( editorStore );
 
 		return {
+			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 			shareStatus: store.getPostShareStatus( _editorStore.getCurrentPostId() ),
 		};
 	}, [] );

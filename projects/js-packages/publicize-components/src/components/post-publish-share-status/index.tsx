@@ -16,12 +16,13 @@ export function PostPublishShareStatus() {
 	const { featureFlags, postId, isPostPublised } = useSelect( select => {
 		const store = select( socialStore );
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		const _editorStore = select( editorStore ) as any;
+		const _editorStore = select( editorStore );
 
 		return {
 			featureFlags: store.featureFlags(),
+			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 			postId: _editorStore.getCurrentPostId(),
+			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
 			isPostPublised: _editorStore.isCurrentPostPublished(),
 		};
 	}, [] );
