@@ -56,15 +56,15 @@ export const settings = {
 		_x( 'contact form', 'block search term', 'jetpack-forms' ),
 	],
 	supports: {
-		color: {
-			link: true,
-			gradients: true,
-		},
+		// 	color: {
+		// 		link: true,
+		// 		gradients: true,
+		// 	},
 		html: false,
-		spacing: {
-			padding: true,
-			margin: true,
-		},
+		// 	spacing: {
+		// 		padding: true,
+		// 		margin: true,
+		// 	},
 		align: [ 'wide', 'full' ],
 	},
 	attributes: defaultAttributes,
@@ -77,30 +77,30 @@ export const settings = {
 			</div>
 		);
 	},
-	example: {
-		innerBlocks: [
-			{
-				name: 'jetpack/field-name',
-				attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
-			},
-			{
-				name: 'jetpack/field-email',
-				attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
-			},
-			{
-				name: 'jetpack/field-textarea',
-				attributes: { label: __( 'Message', 'jetpack-forms' ) },
-			},
-			{
-				name: 'jetpack/button',
-				attributes: {
-					text: __( 'Contact Us', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
-				},
-			},
-		],
-	},
+	// example: {
+	// 	innerBlocks: [
+	// 		{
+	// 			name: 'jetpack/field-name',
+	// 			attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+	// 		},
+	// 		{
+	// 			name: 'jetpack/field-email',
+	// 			attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+	// 		},
+	// 		{
+	// 			name: 'jetpack/field-textarea',
+	// 			attributes: { label: __( 'Message', 'jetpack-forms' ) },
+	// 		},
+	// 		{
+	// 			name: 'jetpack/button',
+	// 			attributes: {
+	// 				text: __( 'Contact Us', 'jetpack-forms' ),
+	// 				element: 'button',
+	// 				lock: { remove: true },
+	// 			},
+	// 		},
+	// 	],
+	// },
 	styles: [
 		{ name: 'default', label: 'Default', isDefault: true },
 		{ name: 'animated', label: 'Animated' },

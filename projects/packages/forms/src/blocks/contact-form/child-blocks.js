@@ -226,7 +226,6 @@ const FieldDefaults = {
 		],
 	},
 	save: () => null,
-	example: {},
 };
 
 const OptionFieldDefaults = {
