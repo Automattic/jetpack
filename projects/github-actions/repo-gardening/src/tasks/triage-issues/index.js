@@ -45,22 +45,18 @@ ${ body }
 Here are the existing labels and their descriptions:
 ${ repoLabels.join( ', ' ) }
 
-Analyze the issue and suggest the most relevant labels for this issue. Follow these rules:
-
-1. Consider the label name and its description when making label suggestions.
-2. Only suggest labels that are in the list of existing labels provided.
-3. Provide at least 1 label that starts with the string '[Feature Group]', but no more than 2.
-4. Provide at least 3 labels that start with the string '[Feature]', but no more than 5.
-5. Include specific [Feature] labels as appropriate.
-6. Always include a [Product] label if applicable.
-7. Explain your reasoning for each label in 1 sentence.
-8. Format your response as a JSON object with 'labels' and 'explanations' keys.
+Analyze the issue and suggest relevant labels. Rules:
+- Don't search for and add more labels if the existing labels match your initial assessment.
+- Use only existing labels provided.
+- Include 1 '[Feature Group]' label.
+- Include 1 to 3 '[Feature]' labels.
+- Briefly explain each label choice in 1 sentence.
+- Format your response as a JSON object with 'labels' and 'explanations' keys.
 
 Example response format:
 {
     "labels": ["[Product] WordPress.com", "[Feature Group] User Interaction & Engagement", "[Feature] Comments"],
     "explanations": {
-        "[Product] WordPress.com": "This issue is related to the WordPress.com platform.",
         "[Feature Group] User Interaction & Engagement": "The issue involves how users interact with the platform.",
         "[Feature] Comments": "Specifically, it's about the commenting functionality."
     }
