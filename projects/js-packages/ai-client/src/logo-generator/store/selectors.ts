@@ -121,6 +121,10 @@ const selectors = {
 	 */
 	getRequireUpgrade( state: LogoGeneratorStateProp ): boolean {
 		const feature = state.features.aiAssistantFeature;
+
+		if ( ! feature?.tierPlansEnabled ) {
+			return feature?.requireUpgrade;
+		}
 		const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 		const currentLimit = feature?.currentTier?.value || 0;
 		const currentUsage = feature?.usagePeriod?.requestsCount || 0;
