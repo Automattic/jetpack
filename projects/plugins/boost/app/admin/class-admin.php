@@ -53,7 +53,8 @@ class Admin {
 			$menu_label,
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			array( $this, 'render_settings' )
+			array( $this, 'render_settings' ),
+			2
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}

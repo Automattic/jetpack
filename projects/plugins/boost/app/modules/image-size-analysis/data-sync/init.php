@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Summary;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Image_Analysis_Action_Fix;

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.4.5-alpha';
+	const PACKAGE_VERSION = '0.4.7';
 
 	/**
 	 * Singleton.
@@ -333,297 +333,360 @@ final class Image_CDN {
 	 * @return string
 	 */
 	public static function filter_the_content( $content ) {
-		$images = self::parse_images_from_html( $content );
+		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
+		$content_width          = null;
+		$image_sizes            = null;
+		$upload_dir             = null;
+		$processor              = new \WP_HTML_Tag_Processor( $content );
+		$nearest_preceding_href = null;
 
-		if ( ! empty( $images ) ) {
-			$content_width = Image_CDN_Core::get_jetpack_content_width();
+		// Visit every image-containing tag in the document.
+		while ( $processor->next_tag( array( 'tag_closers' => 'visit' ) ) ) {
+			/*
+			 * When an image is wrapped by an A element, the goal is to modify
+			 * both elements. Thus it's important to track links that may be
+			 * opened before reaching any image. In normative HTML this detection
+			 * is reliable enough, but it could be confused in cases where other
+			 * tags implicitly close the A. If this additional reliability is
+			 * required, replace the Tag Processor with the HTML Processor.
+			 */
+			if ( 'A' === $processor->get_tag() ) {
+				// If this is a closing tag the attribute will be `null`.
+				$nearest_preceding_href = $processor->get_attribute( 'href' );
+				$processor->set_bookmark( 'link' );
+				continue;
+			}
 
-			$image_sizes = self::image_sizes();
+			/*
+			 * Only examine tags that are considered an image. If encountering
+			 * a closing tag then this is not the image being sought.
+			 */
+			if ( $processor->is_tag_closer() || ! in_array( $processor->get_tag(), $image_tags, true ) ) {
+				continue;
+			}
 
-			$upload_dir = wp_get_upload_dir();
+			$processor->set_bookmark( 'image' );
 
-			foreach ( $images[0] as $index => $tag ) {
-				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained.
-				$transform = 'resize';
+			/*
+			 * At this point a target image has been found. Initialize the
+			 * shared data and then process each image as it appears.
+			 */
+			if ( null === $content_width ) {
+				$content_width = Image_CDN_Core::get_jetpack_content_width();
+				$image_sizes   = self::image_sizes();
+				$upload_dir    = wp_get_upload_dir();
+			}
 
-				// Start with a clean attachment ID each time.
-				$attachment_id = false;
+			/*
+			 * To preserve legacy behaviors for filtering by third-party plugins,
+			 * create a normalized HTML string representing the tag. This will
+			 * present all attributes as double-quoted attributes and include at
+			 * most one copy of each attribute, escaping all values appropriately.
+			 */
+			$tag_name = strtolower( $processor->get_tag() );
+			$tag      = new \WP_HTML_Tag_Processor( "<{$tag_name}>" );
+			$tag->next_tag();
+			foreach ( $processor->get_attribute_names_with_prefix( '' ) ?? array() as $name ) {
+				$tag->set_attribute( $name, $processor->get_attribute( $name ) );
+			}
+			$tag = $tag->get_updated_html();
 
-				// Flag if we need to munge a fullsize URL.
-				$fullsize_url = false;
+			// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained.
+			$transform = 'resize';
 
-				// Identify image source.
-				$src_orig = $images['img_url'][ $index ];
-				$src      = $src_orig;
+			// Flag if we need to munge a fullsize URL.
+			$fullsize_url = false;
 
-				/**
-				 * Allow specific images to be skipped by Photon.
-				 *
-				 * @module photon
-				 *
-				 * @since 2.0.3
-				 *
-				 * @param bool              false Should Photon ignore this image. Default to false.
-				 * @param string            $src  Image URL.
-				 * @param string|array|null $tag  Image Tag (Image HTML output) or array of image details for srcset.
-				 */
-				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
-					continue;
+			// Identify image source.
+			$src_orig = $processor->get_attribute( 'src' );
+			$src      = $src_orig;
+
+			/**
+			 * Allow specific images to be skipped by Photon.
+			 *
+			 * @module photon
+			 *
+			 * @since 2.0.3
+			 *
+			 * @param bool              false Should Photon ignore this image. Default to false.
+			 * @param string            $src  Image URL.
+			 * @param string|array|null $tag  Image Tag (Image HTML output) or array of image details for srcset.
+			 */
+			if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
+				continue;
+			}
+
+			$data_lazy_src      = $processor->get_attribute( 'data-lazy-src' );
+			$data_lazy_original = $processor->get_attribute( 'data-lazy-original' );
+
+			$source_type     = 'src';
+			$chosen_data_src = null;
+
+			// Prefer a URL from the `data-lazy-src` attribute.
+			if ( null === $chosen_data_src && is_string( $data_lazy_src ) && ! empty( $data_lazy_src ) ) {
+				$source_type     = 'data-lazy-src';
+				$chosen_data_src = $data_lazy_src;
+			}
+
+			// Fall back to a URL from the `data-lazy-original` attribute.
+			if ( null === $chosen_data_src && is_string( $data_lazy_original ) && ! empty( $data_lazy_original ) ) {
+				$source_type     = 'data-lazy-original';
+				$chosen_data_src = $data_lazy_original;
+			}
+
+			// Update the src if one was provided in the `data-lazy-` attributes.
+			if ( 'src' !== $source_type ) {
+				$placeholder_src_orig = $src;
+				$placeholder_src      = $placeholder_src_orig;
+				$src_orig             = $chosen_data_src;
+				$src                  = $src_orig;
+			}
+
+			// Check if image URL should be used with Photon.
+			if ( self::validate_image_url( $src ) ) {
+				$width  = $processor->get_attribute( 'width' );
+				$height = $processor->get_attribute( 'height' );
+
+				// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
+				// supported, so we stopped pretending to support them in JP 9.1.0.
+				if ( ! is_string( $width ) || str_contains( $width, '%' ) ) {
+					$width = false;
 				}
 
-				// Support Automattic's Lazy Load plugin.
-				// Can't modify $tag yet as we need unadulterated version later.
-				if ( preg_match( '#data-lazy-src=["\'](.+?)["\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
-					$placeholder_src_orig = $src;
-					$placeholder_src      = $placeholder_src_orig;
-					$src_orig             = $lazy_load_src[1];
-					$src                  = $src_orig;
-				} elseif ( preg_match( '#data-lazy-original=["\'](.+?)["\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
-					$placeholder_src_orig = $src;
-					$placeholder_src      = $placeholder_src_orig;
-					$src_orig             = $lazy_load_src[1];
-					$src                  = $src_orig;
-				}
-
-				// Check if image URL should be used with Photon.
-				if ( self::validate_image_url( $src ) ) {
-					// Find the width and height attributes.
-					$width  = false;
+				if ( ! is_string( $height ) || str_contains( $height, '%' ) ) {
 					$height = false;
+				}
 
-					// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
-					// supported, so we stopped pretending to support them in JP 9.1.0.
-					if ( preg_match( '#[\s"\']width=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
-						$width = str_contains( $width_string[1], '%' ) ? false : $width_string[1];
-					}
+				$needs_sizing = false === $width && false === $height;
+				$size         = null;
 
-					if ( preg_match( '#[\s"\']height=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
-						$height = str_contains( $height_string[1], '%' ) ? false : $height_string[1];
-					}
-
-					// Detect WP registered image size from HTML class.
-					if ( preg_match( '#class=["\']?[^"\']*size-([^"\'\s]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $size ) ) {
-						$size = array_pop( $size );
-
-						if ( false === $width && false === $height && 'full' !== $size && array_key_exists( $size, $image_sizes ) ) {
-							$width     = (int) $image_sizes[ $size ]['width'];
-							$height    = (int) $image_sizes[ $size ]['height'];
-							$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
-						}
-					} else {
-						unset( $size );
-					}
-
-					// WP Attachment ID, if uploaded to this site.
-					if (
-						preg_match( '#class=["\']?[^"\']*wp-image-([\d]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
-						str_starts_with( $src, $upload_dir['baseurl'] ) &&
-						/**
-						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
-						 *
-						 * @module photon
-						 *
-						 * @since 2.0.3
-						 *
-						 * @param bool false Was the image uploaded to the local site. Default to false.
-						 * @param array $args {
-						 *   Array of image details.
-						 *
-						 *   @type $src Image URL.
-						 *   @type tag Image tag (Image HTML output).
-						 *   @type $images Array of information about the image.
-						 *   @type $index Image index.
-						 * }
-						 */
-						apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
-					) {
-						$attachment_id = (int) array_pop( $attachment_id );
-
-						if ( $attachment_id ) {
-							$attachment = get_post( $attachment_id );
-
-							// Basic check on returned post object.
-							if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' === $attachment->post_type ) {
-								$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
-
-								if ( self::validate_image_url( $src_per_wp[0] ) ) {
-									$src          = $src_per_wp[0];
-									$fullsize_url = true;
-
-									// Prevent image distortion if a detected dimension exceeds the image's natural dimensions.
-									if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
-										$width  = false === $width ? false : min( $width, $src_per_wp[1] );
-										$height = false === $height ? false : min( $height, $src_per_wp[2] );
-									}
-
-									// If no width and height are found, max out at source image's natural dimensions.
-									// Otherwise, respect registered image sizes' cropping setting.
-									if ( false === $width && false === $height ) {
-										$width     = $src_per_wp[1];
-										$height    = $src_per_wp[2];
-										$transform = 'fit';
-									} elseif ( isset( $size ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
-										$transform = (bool) $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
-									}
-								}
-							} else {
-								unset( $attachment_id );
-								unset( $attachment );
-							}
+				if ( $needs_sizing ) {
+					// Find the first CSS class listed with a prefix of `size-`, e.g. `size-full-width`
+					foreach ( $processor->class_list() ?? array() as $class_name ) {
+						if ( str_starts_with( $class_name, 'size-' ) ) {
+							$size = substr( $class_name, strlen( 'size-' ) );
+							break;
 						}
 					}
+				}
 
-					// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
-					if ( false === $width && false === $height ) {
-						list( $width, $height ) = self::parse_dimensions_from_filename( $src );
+				if ( $needs_sizing && 'full' !== $size && is_string( $size ) && isset( $image_sizes[ $size ] ) && is_array( $image_sizes[ $size ] ) ) {
+					$width     = (int) $image_sizes[ $size ]['width'];
+					$height    = (int) $image_sizes[ $size ]['height'];
+					$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+				} else {
+					unset( $size );
+				}
+
+				// WP Attachment ID, if uploaded to this site.
+				$attachment_id = null;
+				foreach ( $processor->class_list() ?? array() as $class_name ) {
+					if ( str_starts_with( $class_name, 'wp-image-' ) ) {
+						$attachment_id = substr( $class_name, strlen( 'wp-image-' ) );
+						break;
 					}
+				}
 
-					$width_orig     = $width;
-					$height_orig    = $height;
-					$transform_orig = $transform;
-
-					// If width is available, constrain to $content_width.
-					if ( false !== $width && is_numeric( $content_width ) && $width > $content_width ) {
-						if ( false !== $height ) {
-							$height = round( ( $content_width * $height ) / $width );
-						}
-						$width = $content_width;
-					}
-
-					// Set a width if none is found and $content_width is available.
-					// If width is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing.
-					if ( false === $width && is_numeric( $content_width ) ) {
-						$width = (int) $content_width;
-
-						if ( false !== $height ) {
-							$transform = 'fit';
-						}
-					}
-
-					// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
-						$fullsize_url = true;
-					}
-
-					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon.
-					if ( ! $fullsize_url && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
-						$src = self::strip_image_dimensions_maybe( $src );
-					}
-
-					// Build array of Photon args and expose to filter before passing to Photon URL function.
-					$args = array();
-
-					if ( false !== $width && false !== $height ) {
-						$args[ $transform ] = $width . ',' . $height;
-					} elseif ( false !== $width ) {
-						$args['w'] = $width;
-					} elseif ( false !== $height ) {
-						$args['h'] = $height;
-					}
-
+				// These values have not been used for a very long time, but removing them could break something.
+				$images = array();
+				$index  = 0;
+				if (
+					$attachment_id &&
+					preg_match( '#^[1-9][0-9]*$#', $attachment_id ) &&
+					is_array( $upload_dir ) &&
+					str_starts_with( $src, $upload_dir['baseurl'] ) &&
 					/**
-					 * Filter the array of Photon arguments added to an image when it goes through Photon.
-					 * By default, only includes width and height values.
-					 *
-					 * @see https://developer.wordpress.com/docs/photon/api/
+					 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
 					 *
 					 * @module photon
 					 *
-					 * @since 2.0.0
+					 * @since 2.0.3
 					 *
-					 * @param array $args Array of Photon Arguments.
-					 * @param array $details {
-					 *     Array of image details.
+					 * @param bool false Was the image uploaded to the local site. Default to false.
+					 * @param array $args {
+					 *   Array of image details.
 					 *
-					 *     @type string    $tag            Image tag (Image HTML output).
-					 *     @type string    $src            Image URL.
-					 *     @type string    $src_orig       Original Image URL.
-					 *     @type int|false $width          Image width.
-					 *     @type int|false $height         Image height.
-					 *     @type int|false $width_orig     Original image width before constrained by content_width.
-					 *     @type int|false $height_orig    Original Image height before constrained by content_width.
-					 *     @type string    $transform      Transform.
-					 *     @type string    $transform_orig Original transform before constrained by content_width.
+					 *   @type $src Image URL.
+					 *   @type tag Image tag (Image HTML output).
 					 * }
 					 */
-					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform', 'transform_orig' ) );
+					apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
+				) {
+					$attachment_id = (int) $attachment_id;
+					$attachment    = get_post( $attachment_id );
 
-					$photon_url = Image_CDN_Core::cdn_url( $src, $args );
+					// Basic check on returned post object.
+					if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' === $attachment->post_type ) {
+						$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
 
-					// Modify image tag if Photon function provides a URL
-					// Ensure changes are only applied to the current image by copying and modifying the matched tag, then replacing the entire tag with our modified version.
-					if ( $src !== $photon_url ) {
-						$new_tag = $tag;
+						if ( self::validate_image_url( $src_per_wp[0] ) ) {
+							$src          = $src_per_wp[0];
+							$fullsize_url = true;
 
-						// If present, replace the link href with a Photoned URL for the full-size image.
-						if ( ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-							$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . Image_CDN_Core::cdn_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
-						}
-
-						// Supplant the original source value with our Photon URL.
-						$photon_url = esc_url( $photon_url );
-						$new_tag    = str_replace( $src_orig, $photon_url, $new_tag );
-
-						// If Lazy Load is in use, pass placeholder image through Photon.
-						if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
-							$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
-
-							if ( $placeholder_src !== $placeholder_src_orig ) {
-								$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
+							// Prevent image distortion if a detected dimension exceeds the image's natural dimensions.
+							if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
+								$width  = false === $width ? false : min( $width, $src_per_wp[1] );
+								$height = false === $height ? false : min( $height, $src_per_wp[2] );
 							}
 
-							unset( $placeholder_src );
-						}
-
-						// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
-						// the width and height arguments (including HTML4 percentages) from the image to prevent distortion.
-						// Even if $args['w'] and $args['h'] are present, Photon does not crop to those dimensions. Instead,
-						// it appears to favor height.
-						//
-						// If we are transforming the image via one of those methods, let's update the width and height attributes.
-						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
-							$new_tag = preg_replace( '#(?<=\s)(width|height)=["\']?[\d%]+["\']?\s?#i', '', $new_tag );
-						} else {
-							$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
-							if ( false === $resize_args ) {
-								$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
-									? $args['fit']
-									: false;
+							// If no width and height are found, max out at source image's natural dimensions.
+							// Otherwise, respect registered image sizes' cropping setting.
+							if ( false === $width && false === $height ) {
+								$width     = $src_per_wp[1];
+								$height    = $src_per_wp[2];
+								$transform = 'fit';
+							} elseif ( isset( $size ) && is_array( $image_sizes ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
+								$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
 							}
-							if ( false === $resize_args ) {
-								$resize_args = ( ! $resize_args && isset( $args['lb'] ) )
-									? $args['lb']
-									: false;
-							}
-
-							$resize_args = array_map( 'trim', explode( ',', $resize_args ) );
-
-							// (?<=\s)        - Ensure width or height attribute is preceded by a space
-							// (width=["\']?) - Matches, and captures, width=, width=", or width='
-							// [\d%]+         - Matches 1 or more digits or percent signs
-							// (["\']?)       - Matches, and captures, ", ', or empty string
-							// \s             - Ensures there's a space after the attribute
-							$new_tag = preg_replace( '#(?<=\s)(width=["\']?)[\d%]+(["\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
-							$new_tag = preg_replace( '#(?<=\s)(height=["\']?)[\d%]+(["\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[1] ), $new_tag );
 						}
-
-						// Tag an image for dimension checking.
-						if ( ! self::is_amp_endpoint() ) {
-							$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
-						}
-
-						// Replace original tag with modified version.
-						$content = str_replace( $tag, $new_tag, $content );
+					} else {
+						unset( $attachment_id );
+						unset( $attachment );
 					}
-				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-					$new_tag = preg_replace( '#(href=["\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["\'])#i', '\1' . Image_CDN_Core::cdn_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
-
-					$content = str_replace( $tag, $new_tag, $content );
 				}
+
+				// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
+				if ( false === $width && false === $height ) {
+					list( $width, $height ) = self::parse_dimensions_from_filename( $src );
+				}
+
+				$width_orig     = $width;
+				$height_orig    = $height;
+				$transform_orig = $transform;
+
+				// If width is available, constrain to $content_width.
+				if ( false !== $width && is_numeric( $content_width ) && $width > $content_width ) {
+					if ( false !== $height ) {
+						$height = round( ( $content_width * $height ) / $width );
+					}
+					$width = $content_width;
+				}
+
+				// Set a width if none is found and $content_width is available.
+				// If width is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing.
+				if ( false === $width && is_numeric( $content_width ) ) {
+					$width = (int) $content_width;
+
+					if ( false !== $height ) {
+						$transform = 'fit';
+					}
+				}
+
+				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
+				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode( '|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
+					$fullsize_url = true;
+				}
+
+				// Build URL, first maybe removing WP's resized string so we pass the original image to Photon.
+				if ( ! $fullsize_url && is_array( $upload_dir ) && str_starts_with( $src, $upload_dir['baseurl'] ) ) {
+					$src = self::strip_image_dimensions_maybe( $src );
+				}
+
+				// Build array of Photon args and expose to filter before passing to Photon URL function.
+				$args = array();
+
+				if ( false !== $width && false !== $height ) {
+					$args[ $transform ] = $width . ',' . $height;
+				} elseif ( false !== $width ) {
+					$args['w'] = $width;
+				} elseif ( false !== $height ) {
+					$args['h'] = $height;
+				}
+
+				/**
+				 * Filter the array of Photon arguments added to an image when it goes through Photon.
+				 * By default, only includes width and height values.
+				 *
+				 * @see https://developer.wordpress.com/docs/photon/api/
+				 *
+				 * @module photon
+				 *
+				 * @since 2.0.0
+				 * @since 0.4.7 Passes image tag name instead of full HTML of tag.
+				 *
+				 * @param array $args Array of Photon Arguments.
+				 * @param array $details {
+				 *     Array of image details.
+				 *
+				 *     @type string    $tag            Image tag (Image HTML output).
+				 *     @type string    $src            Image URL.
+				 *     @type string    $src_orig       Original Image URL.
+				 *     @type int|false $width          Image width.
+				 *     @type int|false $height         Image height.
+				 *     @type int|false $width_orig     Original image width before constrained by content_width.
+				 *     @type int|false $height_orig    Original Image height before constrained by content_width.
+				 *     @type string    $transform      Transform.
+				 *     @type string    $transform_orig Original transform before constrained by content_width.
+				 * }
+				 */
+				$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform', 'transform_orig' ) );
+
+				$photon_url = Image_CDN_Core::cdn_url( $src, $args );
+
+				// Modify image tag if Photon function provides a URL
+				// Ensure changes are only applied to the current image by copying and modifying the matched tag, then replacing the entire tag with our modified version.
+				if ( $src !== $photon_url ) {
+					// If present, replace the link href with a Photoned URL for the full-size image.
+					if ( is_string( $nearest_preceding_href ) && self::validate_image_url( $nearest_preceding_href ) ) {
+						$processor->seek( 'link' );
+						$processor->set_attribute( 'href', Image_CDN_Core::cdn_url( $nearest_preceding_href ) );
+						$processor->seek( 'image' );
+					}
+
+					// Supplant the original source value with our Photon URL.
+					$processor->set_attribute( 'src', $photon_url );
+
+					// If Lazy Load is in use, pass placeholder image through Photon.
+					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
+						$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
+
+						if ( $placeholder_src !== $placeholder_src_orig ) {
+							$processor->set_attribute( $source_type, $placeholder_src );
+						}
+
+						unset( $placeholder_src );
+					}
+
+					// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
+					// the width and height arguments (including HTML4 percentages) from the image to prevent distortion.
+					// Even if $args['w'] and $args['h'] are present, Photon does not crop to those dimensions. Instead,
+					// it appears to favor height.
+					//
+					// If we are transforming the image via one of those methods, let's update the width and height attributes.
+					if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
+						$processor->remove_attribute( 'width' );
+						$processor->remove_attribute( 'height' );
+					} else {
+						$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
+						if ( false === $resize_args ) {
+							$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
+								? $args['fit']
+								: false;
+						}
+						if ( false === $resize_args ) {
+							$resize_args = ( ! $resize_args && isset( $args['lb'] ) )
+								? $args['lb']
+								: false;
+						}
+
+						list( $resize_width, $resize_height ) = explode( ',', $resize_args );
+						$processor->set_attribute( 'width', trim( $resize_width ) );
+						$processor->set_attribute( 'height', trim( $resize_height ) );
+					}
+
+					// Tag an image for dimension checking.
+					if ( ! self::is_amp_endpoint() ) {
+						$processor->set_attribute( 'data-recalc-dims', '1' );
+					}
+				}
+			} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && is_string( $nearest_preceding_href ) && self::validate_image_url( $nearest_preceding_href ) ) {
+				$processor->seek( 'link' );
+				$processor->set_attribute( 'href', Image_CDN_Core::cdn_url( $nearest_preceding_href ) );
+				$processor->seek( 'image' );
 			}
 		}
 
-		return $content;
+		return $processor->get_updated_html();
 	}
 
 	/**

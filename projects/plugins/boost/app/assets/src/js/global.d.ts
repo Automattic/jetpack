@@ -28,7 +28,7 @@ declare global {
 			domain: string;
 			url: string;
 			online: boolean;
-			isAtomic: boolean;
+			host: string;
 		};
 		assetPath: string;
 		pluginDirUrl: string;

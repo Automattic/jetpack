@@ -34,6 +34,7 @@ interface ConnectedProductCardProps {
 	primaryActionOverride?: Record< string, AdditionalAction >;
 	onMouseEnter?: () => void;
 	onMouseLeave?: () => void;
+	customLoadTracks?: Record< Lowercase< string >, unknown >;
 }
 
 const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
@@ -49,6 +50,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 	primaryActionOverride,
 	onMouseEnter,
 	onMouseLeave,
+	customLoadTracks,
 } ) => {
 	const { isRegistered, isUserConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
@@ -142,6 +144,7 @@ const ConnectedProductCard: FC< ConnectedProductCardProps > = ( {
 			upgradeInInterstitial={ upgradeInInterstitial }
 			onMouseEnter={ onMouseEnter }
 			onMouseLeave={ onMouseLeave }
+			customLoadTracks={ customLoadTracks }
 		>
 			{ children }
 		</ProductCard>

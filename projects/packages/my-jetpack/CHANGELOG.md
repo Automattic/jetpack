@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.33.1] - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- My Jetpack: reflect tier filters properly on product class and UI. Fix little nuances with date constructor [#39074]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Don't consider user lifecycle status when repeating evaluation [#39069]
+- My Jetpack: Fix the popover and active button of the Bboost card are overlapping [#39067]
+
+## [4.33.0] - 2024-08-26
+### Added
+- Add context switching to videopress card from yearly views to monthly views [#38979]
+
+### Changed
+- My Jetpack: AI product class to handle better disabling tiers [#38989]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- allow user currency in My Jetpack pricing [#38977]
+- Fix tooltip title for videopress card [#39030]
+
+## [4.32.4] - 2024-08-21
+### Changed
+- Removed unnecessary WAF dependency in My Jetpack. [#38942]
+
+### Fixed
+- Notification bubbles: avoid PHP warning when information is missing. [#38963]
+- Revert recent SVG image optimizations. [#38981]
+
+## [4.32.3] - 2024-08-19
+### Added
+- Add stat trends for videopress card. [#38868]
+- Add tooltip to VideoPress card. [#38842]
+- Add value to active card state on VideoPress My Jetpack card. [#38812]
+
+### Changed
+- Updated package dependencies. [#38893]
+
+### Fixed
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+- My Jetpack: ensure product screens redirect to the correct post-checkout URLs. [#38704]
+
 ## [4.32.2] - 2024-08-15
 ### Changed
 - Updated package dependencies. [#38665]
@@ -1636,6 +1679,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.33.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.0...4.33.1
+[4.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.4...4.33.0
+[4.32.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.3...4.32.4
+[4.32.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.2...4.32.3
 [4.32.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.1...4.32.2
 [4.32.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.32.0...4.32.1
 [4.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.31.0...4.32.0

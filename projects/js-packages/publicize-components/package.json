@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.61.0-alpha",
+	"version": "0.64.0",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -32,6 +32,7 @@
 		"@wordpress/components": "28.5.0",
 		"@wordpress/compose": "7.5.0",
 		"@wordpress/data": "10.5.0",
+		"@wordpress/date": "5.5.0",
 		"@wordpress/edit-post": "8.5.0",
 		"@wordpress/editor": "14.5.0",
 		"@wordpress/element": "6.5.0",
@@ -59,6 +60,7 @@
 		"@testing-library/user-event": "14.5.2",
 		"@types/jest": "29.5.12",
 		"@types/react": "18.3.3",
+		"@types/wordpress__editor": "13.6.8",
 		"@types/wordpress__media-utils": "4.14.4",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.5.0",
 		"@wordpress/core-data": "7.5.0",

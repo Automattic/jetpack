@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.60.0] - 2024-08-30
+### Added
+- Add Meta crawler. [#39159]
+
+### Changed
+- Newspack blocks: Updated from 3.5 to 4.0.1 [#39033]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Always rewrite profile.php to /me on Default sites [#39113]
+
+## [5.59.0] - 2024-08-26
+### Added
+- Auto open Upload Theme dialog if query parameter is present [#39045]
+- Fixup project versions. [#38931]
+
+### Changed
+- MU WPCOM: Fix Post Publish Modal checkbox alignment [#38990]
+
+### Fixed
+- Bump package version [#39056]
+- MU WPCOM: Fix the coming soon isn't configured correctly if the settings changes from Coming Soon -> Private -> Coming Soon [#39010]
+
+## [5.58.0] - 2024-08-23
+### Added
+- Sync Calypso locale to Atomic Classic [#39009]
+
+### Changed
+- Jetpack-mu-wpcom admin bar: move the Reader menu item to the secondary admin bar group. [#38976]
+- Replace language selector with a link to WPCOM [#39013]
+- Updated package dependencies. [#39004]
+
+### Fixed
+- Admin bar: fix icon colors on site frontend [#39014]
+- Ensure theme update icon is hidden correctly [#38957]
+- Inconsistent Color Scheme when previewing on Simple Default [#39048]
+
+## [5.57.1] - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Help Center: show disconnected version on frontend [#38941]
+- Revert recent SVG image optimizations. [#38981]
+
+## [5.57.0] - 2024-08-19
+### Added
+- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
+
+### Changed
+- Gutenberg: Include links to support docs for recent blocks. [#38794]
+- Keep the synced-newspack-blocks folder instead of pulling on every install. [#38873]
+- Replace the link of the additional CSS. [#38951]
+- Re-tangle first/last/display name, website, and bio fields in profile.php. [#38854]
+- Temporarily point to wpcalypso.wordpress.com for testing purposes. [#38903]
+- Updated package dependencies. [#38662]
+- Whem Atomic users log out of wp-admin they are also logged out of WPCOM. [#38850]
+
+### Fixed
+- Help Center: Don't load english translations. [#38912]
+- Lossless image optimization for images (should improve performance with no visible changes). [#38750]
+
 ## [5.56.0] - 2024-08-13
 ### Changed
 - WPCOM Block Description Links: add links for embed variations [#38834]
@@ -1138,6 +1200,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[5.60.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.59.0...v5.60.0
+[5.59.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.58.0...v5.59.0
+[5.58.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.1...v5.58.0
+[5.57.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.57.0...v5.57.1
+[5.57.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.56.0...v5.57.0
 [5.56.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.55.0...v5.56.0
 [5.55.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.3...v5.55.0
 [5.54.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v5.54.2...v5.54.3
