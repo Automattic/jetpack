@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove unused JS deps on `autoprefixer`, `postcss-custom-properties`.
