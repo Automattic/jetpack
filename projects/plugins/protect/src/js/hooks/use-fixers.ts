@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../constants';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
@@ -19,7 +19,10 @@ export default function useFixers() {
 		usePolling: true,
 	} );
 
-	const fixThreats = async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds );
+	const fixThreats = useCallback(
+		async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds ),
+		[ fixersMutation ]
+	);
 
 	// List of threat IDs that are currently being fixed.
 	const fixInProgressThreatIds = useMemo(
@@ -32,7 +35,7 @@ export default function useFixers() {
 
 	useEffect( () => {
 		if (
-			Object.values( fixersStatus?.threats ).some(
+			Object.values( fixersStatus?.threats || {} ).some(
 				( threat: { status: string } ) => threat.status !== 'in_progress'
 			)
 		) {
