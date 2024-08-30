@@ -1,6 +1,7 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getAllLabels = require( '../../utils/labels/get-all-labels' );
+const getLabels = require( '../../utils/labels/get-labels' );
 const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
 const isBug = require( '../../utils/labels/is-bug' );
 const sendOpenAiRequest = require( '../../utils/openai/send-request' );
@@ -86,6 +87,35 @@ Example response format:
 	}
 
 	return labels;
+}
+
+/**
+ * Check if the issue has the "[Experiment] Automated labeling" label.
+ *
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
+ *
+ * @return {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasTestLabel( octokit, owner, repo, number, action, eventLabel ) {
+	// Check existing labels.
+	const labels = await getLabels( octokit, owner, repo, number );
+	if ( labels.includes( '[Experiment] Automated labeling' ) ) {
+		return true;
+	}
+
+	// Next, check if the current event was a [Experiment] Automated labeling label being added.
+	if (
+		'labeled' === action &&
+		eventLabel.name &&
+		'[Experiment] Automated labeling' === eventLabel.name
+	) {
+		return true;
+	}
 }
 
 /**
@@ -193,7 +223,10 @@ async function triageIssues( payload, octokit ) {
 
 	// When an issue is first opened, parse its contents, send them to OpenAI,
 	// and add labels if any matching labels can be found.
-	if ( action === 'opened' ) {
+	// During testing, we'll run it for any issues, not just opened,
+	// bug only on issues with the "[Experiment] Automated labeling" label.
+	const isTestIssue = await hasTestLabel( octokit, ownerLogin, name, number, action, label );
+	if ( isTestIssue ) {
 		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
 		const labelsSuggestions = await fetchOpenAiLabelsSuggestions(
 			octokit,
