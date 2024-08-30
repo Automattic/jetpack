@@ -25,7 +25,7 @@ export const ModalTrigger = forwardRef(
 
 		const trigger = (
 			<Button variant="secondary" onClick={ openShareStatusModal } { ...props } ref={ ref }>
-				{ props.children || __( 'Review sharing status', 'jetpack' ) }
+				{ props.children || __( 'View sharing history', 'jetpack' ) }
 			</Button>
 		);
 
