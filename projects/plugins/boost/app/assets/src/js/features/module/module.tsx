@@ -38,9 +38,9 @@ const Module = ( {
 	} );
 	const isModuleActive = status?.active ?? false;
 	const isModuleAvailable = status?.available ?? false;
-	// Even though Page Cache is not available or running on WoA sites,
-	// they have their own caching and we use Page Cache to show that it's active.
-	const isFakeActive = isWoaHosting() && slug === 'page_cache';
+	// Page Cache is not available for WoA sites, but since WoA sites
+	// have their own caching, we want to show that Page Cache is active.
+	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
 
 	const handleToggle = () => {
 		if ( onBeforeToggle ) {
