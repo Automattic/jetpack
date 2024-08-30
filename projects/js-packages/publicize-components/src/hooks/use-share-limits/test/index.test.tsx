@@ -16,7 +16,7 @@ type DeepPartial< T > = T extends object
  *
  * @param {Partial< SocialStoreState >} initialState - Initial state for the store.
  *
- * @returns {WPDataRegistry} Registry.
+ * @return {WPDataRegistry} Registry.
  */
 function createRegistryWithStores( initialState = {} ): WPDataRegistry {
 	// Create a registry.
@@ -35,7 +35,7 @@ function createRegistryWithStores( initialState = {} ): WPDataRegistry {
  *
  * @param {Partial< SocialStoreState >} data - Data to override the default state
  *
- * @returns {SocialStoreState} Initial state for the store
+ * @return {SocialStoreState} Initial state for the store
  */
 function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 	return {
@@ -45,7 +45,6 @@ function getStoreInitialState( data: DeepPartial< SocialStoreState > ) {
 			to_be_publicized_count: 0,
 			share_limit: 30,
 			publicized_count: 0,
-			show_advanced_plan_upgrade_nudge: false,
 			shared_posts_count: 0,
 			...data.sharesData,
 		},

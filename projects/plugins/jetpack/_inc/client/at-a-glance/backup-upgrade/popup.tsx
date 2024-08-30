@@ -7,7 +7,7 @@ import { PopupProps } from './types';
  * The popup is a simple React component that displays a popup with a title, a lock icon, and a message
  *
  * @param {PopupProps} props - Props
- * @returns {React.ReactElement} - JSX Element
+ * @return {React.ReactElement} - JSX Element
  */
 export const Popup: React.FC< PopupProps > = ( { posts, comments, onClosePopup } ) => {
 	return (
