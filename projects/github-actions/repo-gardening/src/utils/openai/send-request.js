@@ -1,4 +1,4 @@
-const { getInput, setFailed } = require( '@actions/core' );
+const { getInput } = require( '@actions/core' );
 const OpenAI = require( 'openai' );
 const debug = require( '../debug' );
 
@@ -12,8 +12,8 @@ const debug = require( '../debug' );
 async function sendOpenAiRequest( message ) {
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
-		setFailed( 'openai: Input openai_api_key is required but missing. Aborting.' );
-		return;
+		debug( 'openai: Input openai_api_key is required but missing. Aborting.' );
+		return '';
 	}
 
 	const client = new OpenAI( {
@@ -21,17 +21,22 @@ async function sendOpenAiRequest( message ) {
 		baseURL: 'https://public-api.wordpress.com/wpcom/v2/openai-proxy/v1',
 	} );
 
-	const chatCompletion = await client.chat.completions.create( {
-		messages: [
-			{ role: 'system', content: 'You are a helpful assistant.' },
-			{ role: 'user', content: message },
-		],
-		model: 'gpt-4',
-	} );
+	debug( 'openai: Sending message to OpenAI.' );
 
-	debug( `openai: Chat completion: ${ JSON.stringify( chatCompletion ) }` );
+	try {
+		const completion = await client.chat.completions.create( {
+			messages: [
+				{ role: 'system', content: 'You are a helpful assistant.' },
+				{ role: 'user', content: message },
+			],
+			model: 'gpt-4',
+		} );
 
-	return chatCompletion.data.choices[ 0 ].message.content;
+		return completion?.choices?.[ 0 ]?.message?.content ?? '';
+	} catch ( error ) {
+		debug( `openai: Failed to send message to OpenAI. Error: ${ error }` );
+		return '';
+	}
 }
 
 module.exports = sendOpenAiRequest;
