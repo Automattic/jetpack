@@ -10,15 +10,15 @@ import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
-const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
+const ScanHistoryDetails = ( { firstDetected, fixedOn, status } ) => {
 	return (
 		<>
-			{ detectedAt && (
+			{ firstDetected && (
 				<Text className={ styles[ 'accordion-header-status' ] }>
 					{ sprintf(
 						/* translators: %s: First detected date */
 						__( 'Threat found %s', 'jetpack-protect' ),
-						dateI18n( 'M j, Y', detectedAt )
+						dateI18n( 'M j, Y', firstDetected )
 					) }
 					{ 'fixed' === status && (
 						<>
@@ -109,9 +109,9 @@ export const PaidAccordionItem = ( {
 					</Text>
 					{ ( 'fixed' === status || 'ignored' === status ) && (
 						<ScanHistoryDetails
-							detectedAt={ firstDetected }
+							firstDetected={ firstDetected }
 							status={ status }
-							fixedAt={ fixedOn }
+							fixedOn={ fixedOn }
 						/>
 					) }
 				</div>
