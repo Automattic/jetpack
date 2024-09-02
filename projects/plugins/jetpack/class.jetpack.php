@@ -3290,6 +3290,7 @@ p {
 	 * This function artificially throws errors for such cases (per a specific list).
 	 *
 	 * @param string $plugin The activated plugin.
+	 * @throws RuntimeException If a conflicting plugin is detected.
 	 */
 	public function throw_error_on_activate_plugin( $plugin ) {
 		$active_modules = self::get_active_modules();
@@ -3313,7 +3314,7 @@ p {
 
 			if ( $throw ) {
 				/* translators: Plugin name to deactivate. */
-				trigger_error( sprintf( esc_html__( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old “%1$s” plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
 			}
 		}
 	}
