@@ -70,7 +70,8 @@ export default function () {
 	const isFree = currentTier?.value === 0;
 	const hasUnlimited = currentTier?.value === 1;
 	const hasPaidTier = ( ! isFree && ! hasUnlimited ) || ( hasUnlimited && ! tierPlansEnabled );
-	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
+	const shouldContactUs =
+		tierPlansEnabled && ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
