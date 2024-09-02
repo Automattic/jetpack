@@ -14,6 +14,7 @@
 
 .modal {
 	width: 60rem;
+	min-height: 20rem;
 }
 
 .share-log-list {
@@ -86,4 +87,8 @@
 
 .share-status-action-wrapper {
 	width: 3rem;
+}
+
+.disconnected-icon{
+	display: block;
 }
