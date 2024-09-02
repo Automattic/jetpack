@@ -6,6 +6,7 @@ import { setJetpackSettings } from './actions/jetpack-settings';
 import { fetchPostShareStatus, receivePostShareStaus } from './actions/share-status';
 import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
 import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
+import { store as socialStore } from './';
 
 /**
  * Yield actions to get the Jetpack settings.
@@ -72,6 +73,12 @@ export function getPostShareStatus( _postId ) {
 	return async ( { dispatch, registry } ) => {
 		// Default to the current post ID if none is provided.
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
+		const featureFlags = registry.select( socialStore ).featureFlags();
+
+		if ( ! featureFlags.useShareStatus ) {
+			dispatch( fetchPostShareStatus( postId, false ) );
+			return;
+		}
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
