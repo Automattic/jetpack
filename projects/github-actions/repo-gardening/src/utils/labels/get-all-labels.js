@@ -10,7 +10,7 @@ const cache = {};
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
- * @param {string} filter  - Optionally filter to only return a subset of labels. Use a regex pattern.
+ * @param {RegExp|string} filter  - Optionally filter to only return a subset of labels. Use a regex pattern.
  * @return {Promise<Array>} Promise resolving to an array of all labels in the repo.
  */
 async function getAllLabels( octokit, owner, repo, filter = '' ) {
