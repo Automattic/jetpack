@@ -7,13 +7,13 @@ const cache = {};
 /**
  * Get all the labels available in the repo.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
+ * @param {GitHub}        octokit - Initialized Octokit REST client.
+ * @param {string}        owner   - Repository owner.
+ * @param {string}        repo    - Repository name.
  * @param {RegExp|string} filter  - Optionally filter to only return a subset of labels. Use a regex pattern.
  * @return {Promise<Array>} Promise resolving to an array of all labels in the repo.
  */
-async function getAllLabels( octokit, owner, repo, filter = '' ) {
+async function getAvailableLabels( octokit, owner, repo, filter = '' ) {
 	const labelList = [];
 	const cacheKey = `${ owner }/${ repo } #${ filter }`;
 	if ( cache[ cacheKey ] ) {
@@ -40,4 +40,4 @@ async function getAllLabels( octokit, owner, repo, filter = '' ) {
 	return labelList;
 }
 
-module.exports = getAllLabels;
+module.exports = getAvailableLabels;

@@ -1,6 +1,6 @@
 const { getInput, setFailed } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
-const getAllLabels = require( '../../utils/labels/get-all-labels' );
+const getAvailableLabels = require( '../../utils/labels/get-available-labels' );
 const getLabels = require( '../../utils/labels/get-labels' );
 const hasPriorityLabels = require( '../../utils/labels/has-priority-labels' );
 const isBug = require( '../../utils/labels/is-bug' );
@@ -31,7 +31,7 @@ async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body )
 
 	// Get all the Feature and Feature Group labels in the repo.
 	const pattern = /^(\[Feature\]|\[Feature Group\])/;
-	const repoLabels = await getAllLabels( octokit, owner, repo, pattern );
+	const repoLabels = await getAvailableLabels( octokit, owner, repo, pattern );
 
 	// If no labels are found, bail.
 	if ( repoLabels.length === 0 ) {
