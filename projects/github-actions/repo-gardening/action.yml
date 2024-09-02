@@ -57,7 +57,7 @@ inputs:
     required: false
     default: ""
   openai_api_key:
-    description: "OpenAI API"
+    description: "OpenAI API key"
     required: false
     default: ""
 runs:
