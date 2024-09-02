@@ -993,12 +993,16 @@ class Jetpack {
 	/**
 	 * Redirect edit post links to Calypso.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $default_url Post edit URL.
 	 * @param int    $post_id Post ID.
 	 *
 	 * @return string
 	 */
 	public function point_edit_post_links_to_calypso( $default_url, $post_id ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) ) {
@@ -1031,11 +1035,15 @@ class Jetpack {
 	/**
 	 * Redirect edit comment links to Calypso.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $url Comment edit URL.
 	 *
 	 * @return string
 	 */
 	public function point_edit_comment_links_to_calypso( $url ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		$query_args = null;
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
