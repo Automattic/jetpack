@@ -104,7 +104,7 @@ const SocialModuleToggle: React.FC = () => {
 						query: 'redirect_to=admin.php?page=jetpack-social',
 					} ) }
 					tooltipText={ __(
-						'Get access to priority support, engagement optimization options like image and video sharing, and Social Image Generator.',
+						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',
 						'jetpack-social'
 					) }
 				/>
