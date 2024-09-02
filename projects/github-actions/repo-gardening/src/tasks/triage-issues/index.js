@@ -58,7 +58,7 @@ Analyze the issue and suggest relevant labels. Rules:
 
 Example response format:
 {
-    "labels": ["[Product] WordPress.com", "[Feature Group] User Interaction & Engagement", "[Feature] Comments"],
+    "labels": ["[Feature Group] User Interaction & Engagement", "[Feature] Comments"],
     "explanations": {
         "[Feature Group] User Interaction & Engagement": "The issue involves how users interact with the platform.",
         "[Feature] Comments": "Specifically, it's about the commenting functionality."
