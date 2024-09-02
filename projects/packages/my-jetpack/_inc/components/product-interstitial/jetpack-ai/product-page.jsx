@@ -208,15 +208,16 @@ export default function () {
 									'jetpack-my-jetpack'
 								) }
 							</div>
-							{ ! shouldContactUs && ! hasUnlimited && (
-								<Button
-									variant="primary"
-									onClick={ upgradeClickHandler }
-									className={ styles[ 'product-interstitial__hero-cta' ] }
-								>
-									{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-								</Button>
-							) }
+							{ ( ! shouldContactUs && ! hasUnlimited ) ||
+								( isFree && ! tierPlansEnabled && (
+									<Button
+										variant="primary"
+										onClick={ upgradeClickHandler }
+										className={ styles[ 'product-interstitial__hero-cta' ] }
+									>
+										{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+									</Button>
+								) ) }
 							{ shouldContactUs && (
 								<Button
 									variant="primary"
