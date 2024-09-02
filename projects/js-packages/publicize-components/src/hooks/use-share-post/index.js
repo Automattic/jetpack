@@ -82,7 +82,7 @@ export default function useSharePost( postId ) {
 	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
-		function ( overrideSkippedConnections = null ) {
+		function ( connectionsToSkip = null ) {
 			const initialState = {
 				isFetching: false,
 				isError: false,
@@ -97,7 +97,7 @@ export default function useSharePost( postId ) {
 				return;
 			}
 
-			const skipped_connections = overrideSkippedConnections || skippedConnections;
+			const skipped_connections = connectionsToSkip || skippedConnections;
 
 			// Start the request.
 			setData( {
