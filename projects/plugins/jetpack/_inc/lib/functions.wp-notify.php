@@ -8,6 +8,8 @@
  *
  * In the past, we used to overwrite the whole pluggable function, but we started using filters to avoid having
  * to check for Jetpack::is_active() too early in the load flow.
+ *
+ * @deprecated $$next-version$$ File became unused.
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
