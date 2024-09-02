@@ -75,6 +75,8 @@ export default function () {
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
 	const showAllTimeUsage = hasPaidTier || hasUnlimited;
+	const canUpgrade =
+		( tierPlansEnabled && ! hasUnlimited && ! shouldContactUs ) || ( ! tierPlansEnabled && isFree );
 	const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
 	const feedbackURL = getRedirectUrl( 'jetpack-ai-feedback' );
 	const videoLinkFeaturedImages = getRedirectUrl( 'jetpack-ai-product-page-featured-image-link' );
@@ -208,16 +210,15 @@ export default function () {
 									'jetpack-my-jetpack'
 								) }
 							</div>
-							{ ( ! shouldContactUs && ! hasUnlimited ) ||
-								( isFree && ! tierPlansEnabled && (
-									<Button
-										variant="primary"
-										onClick={ upgradeClickHandler }
-										className={ styles[ 'product-interstitial__hero-cta' ] }
-									>
-										{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
-									</Button>
-								) ) }
+							{ canUpgrade && (
+								<Button
+									variant="primary"
+									onClick={ upgradeClickHandler }
+									className={ styles[ 'product-interstitial__hero-cta' ] }
+								>
+									{ __( 'Get more requests', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
 							{ shouldContactUs && (
 								<Button
 									variant="primary"
