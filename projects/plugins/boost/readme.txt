@@ -183,9 +183,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.8-beta - 2024-08-29
+### 3.4.8 - 2024-09-02
 #### Changed
 - Admin menu: change order of Jetpack sub-menu items
+- Page Cache: Update notice for WP Cloud clients.
 - React: Changing global JSX namespace to React.JSX
 
 #### Fixed
