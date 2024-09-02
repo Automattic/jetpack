@@ -152,11 +152,6 @@ class Jetpack_Admin {
 			// Add in our new page slug that will redirect to the customizer.
 			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'customizer_redirect' ) );
 			add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
-		} elseif ( class_exists( 'Jetpack' ) && Jetpack::is_connection_ready() ) { // Link to the Jetpack Settings > Writing page, highlighting the Custom CSS setting.
-			add_submenu_page( '', __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'theme_enhancements_redirect' ) );
-
-			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-theme-enhancements-redirect', array( __CLASS__, 'theme_enhancements_redirect' ) );
-			add_action( "load-{$hook}", array( __CLASS__, 'theme_enhancements_redirect' ) );
 		}
 	}
 
@@ -179,20 +174,6 @@ class Jetpack_Admin {
 					'return_url' => wp_get_referer(),
 				)
 			)
-		);
-		exit;
-	}
-
-	/**
-	 * Handle the Additional CSS redirect to the Jetpack settings Theme Enhancements section.
-	 *
-	 * @since 11.0
-	 *
-	 * @return never
-	 */
-	public static function theme_enhancements_redirect() {
-		wp_safe_redirect(
-			'admin.php?page=jetpack#/writing?term=custom-css'
 		);
 		exit;
 	}
