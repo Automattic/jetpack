@@ -95,7 +95,6 @@ class Jetpack_Admin {
 
 				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
 				Admin_Menu::init();
-				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
 
@@ -106,17 +105,6 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
-	}
-
-	/**
-	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-spam logo.
-		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
-	 */
-	public function akismet_logo_replacement_styles() {
-		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
-		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat; min-height: 42px; margin: 20px 0; padding: 0 !important; } .akismet-masthead__logo { display: none; }";
-		$style   .= '@media screen and (max-width: 782px) { .akismet-masthead__logo-container { margin-left: 4px; } }';
-		wp_add_inline_style( 'admin-bar', $style );
 	}
 
 	/**
