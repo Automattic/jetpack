@@ -39,13 +39,26 @@ async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body )
 		return suggestions;
 	}
 
-	const prompt = `Here is the issue title. It is the most important part of the text you must analyse:
-${ title }
+	const prompt = `You must analyse the content below, composed of 3 data points pulled from a GitHub issue:
+
+- a title
+- the issue body
+- a list of labels available to you.
+
+Here is the issue title. It is the most important part of the text you must analyse:
+
+- ${ title }
 
 Here is the issue body:
+
+**********************
+
 ${ body }
 
-Here are the existing labels and their descriptions:
+**********************
+
+And finally, here is a list of the existing labels and their descriptions:
+
 ${ repoLabels
 	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
 	.join( '\n' ) }
