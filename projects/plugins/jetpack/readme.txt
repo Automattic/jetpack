@@ -326,14 +326,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.7 - 2024-08-26
+### 13.8-beta - 2024-09-02
+#### Major Enhancements
+- Custom CSS: Remove feature in favor of WordPress core implementation.
+- Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation.
+
 #### Enhancements
-- Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature.
+- Admin Menu: Update order of Jetpack sub-menu items.
+- AI Assistant: Add spelling mistakes check for English language.
 
 #### Bug fixes
-- Blocks: Ensure that the Contact Info stylesheet is properly loaded.
-- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
-- Blocks: Ensure that the Payment Button stylesheet is properly loaded.
+- Mailchimp Block: Do not attempt to fetch groups when a site is not connected to Mailchimp yet.
+- REST API: Avoid PHP warnings in the comment endpoint when the parent comment does not exist.
 
 --------
 
