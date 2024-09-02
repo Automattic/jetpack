@@ -14,30 +14,30 @@ const cache = {};
  * @return {Promise<Array>} Promise resolving to an array of all labels in the repo.
  */
 async function getAvailableLabels( octokit, owner, repo, filter = '' ) {
-	const labelList = [];
-	const cacheKey = `${ owner }/${ repo } #${ filter }`;
+	let labelList;
+	const cacheKey = `${ owner }/${ repo }`;
 	if ( cache[ cacheKey ] ) {
-		debug( `get-all-labels: Returning list of labels for ${ cacheKey } from cache.` );
-		return cache[ cacheKey ];
-	}
-
-	debug( `get-all-labels: Get list of labels for ${ cacheKey }.` );
-
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listLabelsForRepo, {
-		owner,
-		repo,
-		per_page: 100,
-	} ) ) {
-		for ( const label of response.data ) {
-			if ( filter && ! label.name.match( filter ) ) {
-				continue;
+		debug( `get-all-labels: Using list of labels for ${ cacheKey } from cache.` );
+		labelList = cache[ cacheKey ];
+	} else {
+		debug( `get-all-labels: Get list of labels for ${ cacheKey }.` );
+		labelList = [];
+		for await ( const response of octokit.paginate.iterator(
+			octokit.rest.issues.listLabelsForRepo,
+			{
+				owner,
+				repo,
+				per_page: 100,
 			}
-			labelList.push( label );
+		) ) {
+			for ( const label of response.data ) {
+				labelList.push( label );
+			}
 		}
+		cache[ cacheKey ] = labelList;
 	}
 
-	cache[ cacheKey ] = labelList;
-	return labelList;
+	return filter ? labelList.filter( label => label.name.match( filter ) ) : labelList;
 }
 
 module.exports = getAvailableLabels;
