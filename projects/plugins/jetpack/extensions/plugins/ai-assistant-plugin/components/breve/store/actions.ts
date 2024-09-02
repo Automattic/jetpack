@@ -90,6 +90,12 @@ export function invalidateSingleSuggestion( feature: string, blockId: string, id
 	};
 }
 
+export function reloadDictionary() {
+	return {
+		type: 'RELOAD_DICTIONARY',
+	};
+}
+
 export function setSuggestions( {
 	anchor,
 	id,

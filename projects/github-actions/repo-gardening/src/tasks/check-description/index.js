@@ -67,7 +67,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate = 'none scheduled';
 	let codeFreezeDate;
-	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
+	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.
@@ -157,14 +157,14 @@ async function getCheckComment( octokit, owner, repo, number ) {
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
 	const comments = await getComments( octokit, owner, repo, number );
-	comments.map( comment => {
+	for ( const comment of comments ) {
 		if (
 			comment.user.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
 			commentID = comment.id;
 		}
-	} );
+	}
 
 	return commentID;
 }
