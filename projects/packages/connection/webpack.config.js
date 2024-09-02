@@ -56,7 +56,7 @@ const sharedConfig = {
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {
-			consumer_slug: 'identity_crisis',
+			consumer_slug: 'connection_package',
 		} ),
 	},
 };
