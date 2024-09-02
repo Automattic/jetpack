@@ -228,7 +228,7 @@ async function triageIssues( payload, octokit ) {
 	// When an issue is first opened, parse its contents, send them to OpenAI,
 	// and add labels if any matching labels can be found.
 	// During testing, we'll run it for any issues, not just opened,
-	// bug only on issues with the "[Experiment] Automated labeling" label.
+	// but only on issues with the "[Experiment] Automated labeling" label.
 	const isTestIssue = await hasTestLabel( octokit, ownerLogin, name, number, action, label );
 	if ( isTestIssue ) {
 		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
