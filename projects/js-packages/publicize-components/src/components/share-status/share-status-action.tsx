@@ -22,6 +22,7 @@ type ShareStatusActionProps = {
  * @return {import('react').ReactNode} - React element
  */
 export function ShareStatusAction( { connectionId, status, shareLink }: ShareStatusActionProps ) {
+	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
 
