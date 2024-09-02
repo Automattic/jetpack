@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Jetpack-Tests: No longer exclude `Squiz.Commenting.*.WrongStyle`.

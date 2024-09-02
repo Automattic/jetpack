@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Point "Edit Profile" to profile.php when Site-Level Profile is enabled
