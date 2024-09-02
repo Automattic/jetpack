@@ -686,6 +686,10 @@ class Contact_Form_Plugin {
 			// It's a form embedded in a post
 			$post = get_post( $id );
 
+			if ( $post->post_type === 'feedback' ) {
+				return false;
+			}
+
 			// Process the content to populate Contact_Form::$last
 			if ( $post ) {
 				/** This filter is already documented in core. wp-includes/post-template.php */

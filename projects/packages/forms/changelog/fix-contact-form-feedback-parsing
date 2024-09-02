@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add a safeguard against shortcode handling in contact form feedback.
