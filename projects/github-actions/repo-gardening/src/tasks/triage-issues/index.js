@@ -46,7 +46,9 @@ Here is the issue body:
 ${ body }
 
 Here are the existing labels and their descriptions:
-${ repoLabels.join( ', ' ) }
+${ repoLabels
+	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
+	.join( '\n' ) }
 
 Analyze the issue and suggest relevant labels. Rules:
 - Don't search for and add more labels if the existing labels match your initial assessment.
