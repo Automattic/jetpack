@@ -82,7 +82,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * Remove the main Jetpack submenu if a site is in offline mode or connected.
 	 * At that point, admins can access the Jetpack Dashboard instead.
 	 *
-	 * @since $$next-version$$
+	 * @since 13.8
 	 */
 	public function remove_jetpack_menu() {
 		if (

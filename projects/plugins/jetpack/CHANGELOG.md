@@ -2,6 +2,51 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 13.8-beta - 2024-09-02
+### Major Enhancements
+- Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
+- Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation. [#39096]
+
+### Enhancements
+- Admin Menu: Update order of Jetpack sub-menu items. [#39095]
+- AI Assistant: Add spelling mistakes check for English language. [#39174]
+
+### Bug fixes
+- Mailchimp Block: Do not attempt to fetch groups when a site is not connected to Mailchimp yet. [#38901]
+- REST API: Avoid PHP warnings in the comment endpoint when the parent comment does not exist. [#39102]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add A8c dictionary. [#39105]
+- AI Assistant: Add AI Guidelines link to the AI Assistant sidebar panel. [#39094]
+- AI Assistant: Add FeatureControl to Write Brief. [#39168]
+- AI Assistant: Add option to add word to spelling dictionary. [#39046]
+- AI Assistant: Add retry event for Brief. [#39082]
+- AI Assistant: Do not mark words starting with special characters as spelling mistakes. [#39044]
+- AI Assistant: Fix flickering when adding word to Breve dictionary. [#39087]
+- AI Assistant: Limit popover height and fix anchorless popover. [#39109]
+- AI Assistant: Remove dead Breve code. [#39089]
+- Blocks: Ensure function is loaded even if blocks aren't enabled. [#39070]
+- Button Block: Update to Block API v3. [#38916]
+- Classic Theme Helper: Adding Portfolio custom post type content. [#39134]
+- Content Options: Moving content to Classic Theme Helper package. [#39028]
+- Fix redirecting after comment when subscription modal is disabled. [#39027]
+- Jetpack AI: Add usage policy link and renewal date to fair usage messaging. [#39085]
+- Jetpack AI: Fix bug that showed extra spacing on the AI Assistant block inspector area. [#39142]
+- Jetpack AI: Handle fair usage limit messaging on the UI. [#39043]
+- Jetpack AI: Hide usagepanel when tier plans are disabled. Show QuotaExceededMessage instead of nudges. [#39090]
+- Jetpack AI: Remove hardcoded limit on image generation, it's handled by backend. [#39126]
+- Jetpack AI: Support fair usage messaging on the Extension AI Control component. [#39103]
+- Jetpack AI: Update fair usage messaging on the sidebar. [#39122]
+- Map Block: Allow maps on WordPress.com to be selectable. [#38956]
+- Monetize: Support more currencies. [#38968]
+- Notifications: Use profile locale to match menu language. [#38871]
+- Slideshow Shortcode: Remove deprecated JS functionality and remove majority of jQuery. [#39050]
+- Social Menus: Switch to more appropriate method of calling the SVG icon file. [#39136]
+- Social: Updated the share status modal to render it globally. [#39116]
+- Update Quick Start instructions. [#39059]
+- Updated package dependencies. [#39111]
+- Updated versions. [#38745]
+
 ## 13.8-a.7 - 2024-08-26
 ### Enhancements
 - Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature. [#39039]
