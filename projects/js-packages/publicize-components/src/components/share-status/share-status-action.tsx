@@ -38,7 +38,7 @@ export function ShareStatusAction( { connectionId, status, shareLink }: ShareSta
 			return;
 		}
 
-		doPublicize( skippedConnections.map( connection => connection.id ) );
+		doPublicize( skippedConnections.map( connection => connection.connection_id ) );
 	}, [ connectionId, connections, doPublicize ] );
 
 	const renderActions = () => {
