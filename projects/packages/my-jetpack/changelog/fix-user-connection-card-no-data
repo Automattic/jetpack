@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Gracefully fail when user data fetch failed.
