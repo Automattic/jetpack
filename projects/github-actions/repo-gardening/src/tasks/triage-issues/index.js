@@ -118,6 +118,8 @@ async function hasTestLabel( octokit, owner, repo, number, action, eventLabel ) 
 	) {
 		return true;
 	}
+
+	return false;
 }
 
 /**
