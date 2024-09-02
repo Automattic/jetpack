@@ -429,16 +429,14 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		$has_feature_atomic = wpcom_site_has_feature( WPCOM_Features::ATOMIC );
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+		$has_feature_atomic = wpcom_site_has_feature( \WPCOM_Features::ATOMIC );
 		add_submenu_page(
 			'options-general.php',
 			$has_feature_atomic ? esc_attr__( 'Server Settings', 'jetpack-masterbar' ) : esc_attr__( 'Hosting Features', 'jetpack-masterbar' ),
 			$has_feature_atomic ? __( 'Server Settings', 'jetpack-masterbar' ) : __( 'Hosting Features', 'jetpack-masterbar' ),
 			'manage_options',
 			'https://wordpress.com/hosting-config/' . $this->domain,
-			null,
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			11
 		);
 
