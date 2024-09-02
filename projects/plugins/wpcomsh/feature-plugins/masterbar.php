@@ -102,39 +102,6 @@ function wpcomsh_admin_color_scheme_picker_disabled() {
 }
 
 /**
- * Hides the "Admin Color Scheme" entry on /wp-admin/profile.php,
- * and adds an action that prints a calypso page link.
- * This applies only to WPCOM connected users.
- **/
-function wpcomsh_hide_color_schemes() {
-	// Do nothing if the admin interface is wp-admin.
-	if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' || ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
-		return false;
-	}
-
-	// Do nothing if we can't tell whether the User is connected.
-	if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-		return false;
-	}
-	$connection_manager        = new Connection_Manager( 'jetpack' );
-	$user_id_from_query_string = $_GET['user_id'] ?? false; // phpcs:ignore WordPress.Security
-
-	if ( ! $connection_manager->is_user_connected( $user_id_from_query_string ) ) {
-		// If this is a local user, show the default UX.
-		return;
-	}
-
-	remove_action( 'admin_color_scheme_picker', 'admin_color_scheme_picker' );
-
-	if ( ! $user_id_from_query_string ) {
-		// Show Calypso page link only to a user editing their profile.
-		add_action( 'admin_color_scheme_picker', 'wpcomsh_admin_color_scheme_picker_disabled' );
-	}
-}
-add_action( 'load-profile.php', 'wpcomsh_hide_color_schemes' );
-add_action( 'load-user-edit.php', 'wpcomsh_hide_color_schemes' );
-
-/**
  * Gets data from the `wpcom.getUser` XMLRPC response and set it as user options. This is hooked
  * into the `setted_transient` action that is triggered everytime the XMLRPC response is read.
  *
@@ -333,10 +300,6 @@ add_filter( 'pre_option_wpcom_admin_interface', 'wpcomsh_get_wpcom_admin_interfa
  *    from wp-admin going forward.
  */
 function wpcomsh_unsync_color_schemes_on_save() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' && empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
-		return;
-	}
-
 	// Returns Calypso color scheme (if still exists),
 	// or wp-admin color scheme otherwise.
 	$maybe_synced_color_scheme = get_user_option( 'admin_color' );
