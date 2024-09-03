@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack AI: remove hardcoded limit on image generation, it's handled by backend
