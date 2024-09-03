@@ -56,7 +56,7 @@ class Status_Model {
 	/**
 	 * List of fixable threat IDs.
 	 *
-	 * @var string[]
+	 * @var number[]
 	 */
 	public $fixable_threat_ids = array();
 
