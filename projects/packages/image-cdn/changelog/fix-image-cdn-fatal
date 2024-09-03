@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid a fatal error if an `<img>` tag has width or height that's not an integer or percentage.
