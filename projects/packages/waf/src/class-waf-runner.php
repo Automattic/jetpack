@@ -257,7 +257,7 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			$rules_file_path = self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
+			$rules_file_path = self::get_waf_file_path( self::ENTRYPOINT_FILE );
 			if ( file_exists( $rules_file_path ) ) {
 				// phpcs:ignore
 				include $rules_file_path;
