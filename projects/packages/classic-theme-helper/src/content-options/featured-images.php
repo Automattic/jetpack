@@ -85,7 +85,7 @@ if ( ! function_exists( 'jetpack_featured_images_remove_post_thumbnail' ) ) {
 			return $metadata;
 		}
 	}
-	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', 3 );
+	add_filter( 'get_post_metadata', 'jetpack_featured_images_remove_post_thumbnail', true, 3 ); // @phan-suppress-current-line PhanTypeMismatchArgument.
 
 }
 
