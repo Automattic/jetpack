@@ -286,7 +286,12 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		global $submenu;
 
 		static::$admin_menu->add_options_menu();
-		$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+
+		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
+			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
+		} else {
+			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
+		}
 	}
 
 	/**
