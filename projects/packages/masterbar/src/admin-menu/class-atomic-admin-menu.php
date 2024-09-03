@@ -435,7 +435,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			$has_feature_atomic ? esc_attr__( 'Server Settings', 'jetpack-masterbar' ) : esc_attr__( 'Hosting Features', 'jetpack-masterbar' ),
 			$has_feature_atomic ? __( 'Server Settings', 'jetpack-masterbar' ) : __( 'Hosting Features', 'jetpack-masterbar' ),
 			'manage_options',
-			'https://wordpress.com/hosting-config/' . $this->domain,
+			$has_feature_atomic ? 'https://wordpress.com/hosting-config/' . $this->domain : 'https://wordpress.com/hosting-features/' . $this->domain,
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			11
 		);
