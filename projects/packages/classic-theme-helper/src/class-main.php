@@ -26,6 +26,7 @@ class Main {
 		'site-breadcrumbs.php',
 		'social-menu.php',
 		'jetpack-color.php',
+		'content-options.php',
 	);
 
 	/** Holds the singleton instance of the Loader
