@@ -52,7 +52,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'task_ids'            => array(
 				'plan_selected',
 				'setup_free',
-				'design_selected',
+				'design_completed',
 				'domain_upsell',
 				'first_post_published',
 				'design_edited',
@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_list_definitions() {
 			},
 			'task_ids'            => array(
 				'setup_write',
-				'design_selected',
+				'design_completed',
 				'plan_selected',
 				'first_post_published',
 				'site_launched',
