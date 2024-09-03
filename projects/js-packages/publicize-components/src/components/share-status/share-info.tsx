@@ -36,6 +36,7 @@ export function ShareInfo( { share } ) {
 			<ShareStatusAction
 				connectionId={ connection_id }
 				status={ status }
+				service={ service }
 				shareLink={ 'success' === status ? message : '' }
 			/>
 		</div>
