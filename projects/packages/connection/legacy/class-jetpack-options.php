@@ -40,7 +40,6 @@ class Jetpack_Options {
 					'allowed_xsite_search_ids', // (array) Array of WP.com blog ids that are allowed to search the content of this site
 					'available_modules',
 					'do_activate',
-					'edit_links_calypso_redirect', // (bool) Whether post/page edit links on front end should point to Calypso.
 					'log',
 					'slideshow_background_color',
 					'widget_twitter',
