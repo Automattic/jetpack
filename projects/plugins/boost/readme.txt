@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 3.4.7
+Stable tag: 3.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.8-beta - 2024-08-29
+### 3.4.8 - 2024-09-02
 #### Changed
 - Admin menu: change order of Jetpack sub-menu items
+- Page Cache: Update notice for WP Cloud clients.
 - React: Changing global JSX namespace to React.JSX
 
 #### Fixed
