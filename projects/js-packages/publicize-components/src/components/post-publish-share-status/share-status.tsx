@@ -15,7 +15,7 @@ import styles from './styles.module.scss';
 export function ShareStatus() {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
-	if ( shareStatus.loading ) {
+	if ( shareStatus.loading || ! shareStatus.done ) {
 		return (
 			<div className={ styles[ 'loading-block' ] }>
 				<Spinner />
@@ -50,10 +50,6 @@ export function ShareStatus() {
 				</ShareStatusModalTrigger>
 			</Notice>
 		);
-	}
-
-	if ( ! shareStatus.done ) {
-		return <span>{ __( 'The request to share your post is still in progress.', 'jetpack' ) }</span>;
 	}
 
 	if ( ! shareStatus.shares.length ) {
