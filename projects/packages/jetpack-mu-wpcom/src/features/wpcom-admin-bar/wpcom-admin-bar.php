@@ -166,39 +166,15 @@ add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
-	/**
-	 * The Edit Profile menu should point to /me, instead of the site's profile.php
-	 * if one of the following is true:
-	 * - the user is not a member of the current site
-	 * - the current site uses Default admin interface AND the site-level user profile is disabled
-	 */
-	$should_replace = ! is_user_member_of_blog() || ( empty( get_option( 'wpcom_site_level_user_profile' ) ) && get_option( 'wpcom_admin_interface' ) !== 'wp-admin' );
-
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		if ( $should_replace ) {
-			// Temporarily point to wpcalypso.wordpress.com for testing purposes.
-			$url = 'https://wordpress.com/me';
-			if ( ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
-				$url = 'https://wpcalypso.wordpress.com/me';
-			}
-
-			$edit_profile_node->href = maybe_add_origin_site_id_to_url( $url );
+		/**
+		 * The Edit Profile menu should point to /me, instead of the site's profile.php
+		 * if the user is not a member of the current site
+		 */
+		if ( ! is_user_member_of_blog() ) {
+			$edit_profile_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
 			$wp_admin_bar->add_node( (array) $edit_profile_node );
-		}
-	}
-
-	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
-	if ( $my_account_node ) {
-		if ( $should_replace ) {
-			// Temporarily point to wpcalypso.wordpress.com for testing purposes.
-			$url = 'https://wordpress.com/me/account';
-			if ( ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
-				$url = 'https://wpcalypso.wordpress.com/me/account';
-			}
-
-			$my_account_node->href = maybe_add_origin_site_id_to_url( $url );
-			$wp_admin_bar->add_node( (array) $my_account_node );
 		}
 	}
 }
@@ -217,18 +193,12 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 		$wp_admin_bar->remove_node( 'logout' );
 	}
 
-	// Temporarily point to wpcalypso.wordpress.com for testing purposes.
-	$url = 'https://wordpress.com/me/account';
-	if ( ! empty( get_option( 'wpcom_site_level_user_profile' ) ) ) {
-		$url = 'https://wpcalypso.wordpress.com/me/account';
-	}
-
 	$wp_admin_bar->add_node(
 		array(
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( $url ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
 		)
 	);
 
