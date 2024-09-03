@@ -67,7 +67,7 @@ async function hasProgressLabel( octokit, owner, repo, number ) {
 async function getMilestoneDates( plugin, nextMilestone ) {
 	let releaseDate = 'none scheduled';
 	let codeFreezeDate;
-	if ( nextMilestone && nextMilestone.hasOwnProperty( 'due_on' ) && nextMilestone.due_on ) {
+	if ( nextMilestone && Object.hasOwn( nextMilestone, 'due_on' ) && nextMilestone.due_on ) {
 		releaseDate = moment( nextMilestone.due_on ).format( 'LL' );
 
 		// Look for a code freeze date in the milestone description.

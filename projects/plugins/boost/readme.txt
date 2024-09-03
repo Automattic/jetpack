@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 5.5
 Tested up to: 6.6
 Requires PHP: 7.0
-Stable tag: 3.4.7
+Stable tag: 3.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,9 +183,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.7 - 2024-07-10
-#### Security
-- General: Improved image and CSS proxy functionalities with CDN support, caching, and other enhancements.
+### 3.4.8 - 2024-09-02
+#### Changed
+- Admin menu: change order of Jetpack sub-menu items
+- Page Cache: Update notice for WP Cloud clients.
+- React: Changing global JSX namespace to React.JSX
+
+#### Fixed
+- Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch.
+- Lossless image optimization for images (should improve performance with no visible changes).
+- Misc: Fix PHP warning when generating critical css for some taxonomy pages.
+- Revert recent SVG image optimizations.
+- UI: Fix inconsistencies.
+- Updated package dependencies.
 
 --------
 

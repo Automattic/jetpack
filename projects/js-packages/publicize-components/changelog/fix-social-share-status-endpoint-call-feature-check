@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed unnececarry call to API if feature flag is off

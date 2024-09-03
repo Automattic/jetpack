@@ -362,7 +362,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		parent::add_options_menu();
 
 		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack-masterbar' ), __( 'Hosting Configuration', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
+		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Features', 'jetpack-masterbar' ), __( 'Hosting Features', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/hosting-features/' . $this->domain, null, 10 );
 	}
 
 	/**

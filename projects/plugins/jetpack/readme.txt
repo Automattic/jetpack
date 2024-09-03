@@ -326,14 +326,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.7 - 2024-08-26
+### 13.8-beta - 2024-09-02
+#### Major Enhancements
+- Custom CSS: Remove feature in favor of WordPress core implementation.
+- Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation.
+
 #### Enhancements
+- Admin Menu: Update order of Jetpack sub-menu items.
+- AI Assistant: Add spelling mistakes check for English language.
 - Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature.
+- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection.
+
+#### Improved compatibility
+- AMP: Avoid errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
+- Performance: Optimize the size of included image files.
+- Sharing Block: Improve performance when hooking the block into single post templates.
+- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance.
+- WordPress.com Toolbar: Removed feature from self-hosted Jetpack sites.
 
 #### Bug fixes
+- AI Assistant: Disable Breve for free plan users when AI Assistant block is disabled
 - Blocks: Ensure that the Contact Info stylesheet is properly loaded.
-- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
 - Blocks: Ensure that the Payment Button stylesheet is properly loaded.
+- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
+- Mailchimp Block: Do not attempt to fetch groups when a site is not connected to Mailchimp yet.
+- REST API: Avoid PHP warnings in the comment endpoint when the parent comment does not exist.
+- Social Icons Widget: Ensure the social network icons are displayed properly.
+- Social Menus: Ensure the SVG can be displayed properly.
+- Subscriptions: Prevent saave discussion settings from turning on the subscribe modal.
 
 --------
 

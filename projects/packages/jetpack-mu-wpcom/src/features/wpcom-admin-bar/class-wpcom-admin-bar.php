@@ -59,7 +59,6 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 			parent::add_node( $args );
 			return;
 		}
-
 		$home_url  = home_url( '/' );
 		$site_slug = wp_parse_url( $home_url, PHP_URL_HOST );
 		$href      = str_replace( $home_url, '', $args['href'] );
