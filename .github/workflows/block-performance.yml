@@ -3,6 +3,7 @@ name: Jetpack block performance
 on:
   schedule:
     - cron:  '0 */12 * * *'
+  workflow_dispatch:
 
 env:
   # Work around a bug in node 18.18.0. See https://github.com/webpack-contrib/thread-loader/issues/191 for details.
@@ -18,19 +19,12 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
 
       - uses: actions/checkout@v4
         with:
           repository: 'WordPress/gutenberg'
           path: 'gutenberg'
-
-      - name: Build Gutenberg
-        working-directory: gutenberg
-        run: |
-          npm ci
-          npx playwright install chromium --with-deps
-          npm run build:packages
 
       - uses: actions/cache@v4
         with:
@@ -38,6 +32,13 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('gutenberg/**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+
+      - name: Build Gutenberg
+        working-directory: gutenberg
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+          npm run build:packages
 
       - name: Setup tools for J
         uses: ./.github/actions/tool-setup
@@ -87,6 +88,7 @@ jobs:
         with:
           name: test-output-block-perf
           path: tools/e2e-commons/results
+          include-hidden-files: true
 
   test-reports:
     name: "Trigger test report workflow"

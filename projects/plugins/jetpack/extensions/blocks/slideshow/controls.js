@@ -31,6 +31,7 @@ export function PanelControls( {
 		<Fragment>
 			<PanelBody title={ __( 'Autoplay', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Autoplay', 'jetpack' ) }
 					help={ __( 'Autoplay between slides', 'jetpack' ) }
 					checked={ autoplay }
@@ -40,6 +41,7 @@ export function PanelControls( {
 				/>
 				{ autoplay && (
 					<RangeControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
 						value={ delay }
 						onChange={ value => {
@@ -60,6 +62,7 @@ export function PanelControls( {
 			</PanelBody>
 			<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Transition', 'jetpack' ) }
 					value={ effect }
 					onChange={ value => {
@@ -71,6 +74,7 @@ export function PanelControls( {
 			{ ! isEmpty( images ) && ! isEmpty( imageSizeOptions ) && (
 				<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
 					<SelectControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Size', 'jetpack' ) }
 						value={ sizeSlug }
 						options={ imageSizeOptions }

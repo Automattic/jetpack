@@ -15,6 +15,11 @@ use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
 class WooCommerce_HPOS_Orders extends Module {
 
 	/**
+	 * The slug of WooCommerce Subscriptions plugin.
+	 */
+	const WOOCOMMERCE_SUBSCRIPTIONS_PATH = 'woocommerce-subscriptions/woocommerce-subscriptions.php';
+
+	/**
 	 * Order table name. There are four order tables (order, addresses, operational_data and meta), but for sync purposes we only care about the main table since it has the order ID.
 	 *
 	 * @access private
@@ -65,7 +70,12 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array Order types to sync.
 	 */
 	public static function get_order_types_to_sync( $prefixed = false ) {
-		$types = array( 'order', 'order_refund', 'subscription' );
+		$types = array( 'order', 'order_refund' );
+
+		if ( is_plugin_active( self::WOOCOMMERCE_SUBSCRIPTIONS_PATH ) ) {
+			$types[] = 'subscription';
+		}
+
 		if ( $prefixed ) {
 			$types = array_map(
 				function ( $type ) {

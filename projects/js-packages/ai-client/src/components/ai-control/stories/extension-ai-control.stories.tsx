@@ -112,6 +112,7 @@ const DefaultArgs = {
 	error: null,
 	requestsRemaining: null,
 	showUpgradeMessage: false,
+	showFairUsageMessage: false,
 	onChange: action( 'onChange' ),
 	onSend: action( 'onSend' ),
 	onStop: action( 'onStop' ),
