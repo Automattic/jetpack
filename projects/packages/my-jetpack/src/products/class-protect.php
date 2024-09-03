@@ -22,6 +22,9 @@ class Protect extends Product {
 	const UPGRADED_TIER_SLUG         = 'upgraded';
 	const UPGRADED_TIER_PRODUCT_SLUG = 'jetpack_scan';
 
+	const SCAN_FEATURE_SLUG     = 'scan';
+	const FIREWALL_FEATURE_SLUG = 'firewall';
+
 	/**
 	 * The product slug
 	 *
@@ -310,12 +313,36 @@ class Protect extends Product {
 	}
 
 	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_post_checkout_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
+	}
+
+	/**
 	 * Get the URL where the user manages the product
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-protect' );
+	}
+
+	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return array(
+			self::SCAN_FEATURE_SLUG     => self::get_manage_url(),
+			self::FIREWALL_FEATURE_SLUG => admin_url( 'admin.php?page=jetpack-protect#/firewall' ),
+		);
 	}
 
 	/**

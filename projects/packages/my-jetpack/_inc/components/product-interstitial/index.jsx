@@ -16,6 +16,7 @@ import React, { useCallback, useEffect } from 'react';
 /**
  * Internal dependencies
  */
+import { useParams } from 'react-router-dom';
 import { MyJetpackRoutes } from '../../constants';
 import useActivate from '../../data/products/use-activate';
 import useProduct from '../../data/products/use-product';
@@ -54,7 +55,8 @@ import videoPressImage from './videopress.png';
  * @param {number}          [props.directCheckout]        - Whether to go straight to the checkout page, e.g. for products with usage tiers
  * @param {boolean}         [props.highlightLastFeature]  - Whether to highlight the last feature in the list of features
  * @param {object}          [props.ctaCallback]           - Callback when the product CTA is clicked. Triggered before any activation/checkout process occurs
- * @return {object}                               ProductInterstitial react component.
+ * @param {string}          [props.feature]               - The feature to highlight in the product detail card
+ * @return {object} ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
 	bundle,
@@ -71,10 +73,18 @@ export default function ProductInterstitial( {
 	directCheckout = false,
 	highlightLastFeature = false,
 	ctaCallback = null,
+	feature = null,
 } ) {
 	const { detail } = useProduct( slug );
 	const { detail: bundleDetail } = useProduct( bundle );
 	const { activate, isPending: isActivating } = useActivate( slug );
+
+	// Get the post activation URL for the product.
+	let redirectUri = detail?.postActivationUrl || null;
+	// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+	if ( feature && detail?.postActivationUrlsByFeature?.[ feature ] ) {
+		redirectUri = detail.postActivationUrlsByFeature[ feature ];
+	}
 
 	const { isUpgradableByBundle, tiers, pricingForUi } = detail;
 	const { recordEvent } = useAnalytics();
@@ -82,7 +92,7 @@ export default function ProductInterstitial( {
 	const { myJetpackCheckoutUri = '' } = getMyJetpackWindowInitialState();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
-		redirectUri: detail.postActivationUrl ?? null,
+		redirectUri,
 	} );
 	const showBundledTOS = ! hideTOS && !! bundle;
 	const productName = detail?.title;
@@ -143,7 +153,13 @@ export default function ProductInterstitial( {
 				{ productId: slug },
 				{
 					onSettled: activatedProduct => {
-						const postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+						let postCheckoutUrl = activatedProduct?.post_checkout_url || myJetpackCheckoutUri;
+
+						// If the interstitial is highlighting a specific feature, use the post checkout URL for that feature, if available.
+						if ( feature && activatedProduct?.post_checkout_urls_by_feature?.[ feature ] ) {
+							postCheckoutUrl = activatedProduct.post_checkout_urls_by_feature[ feature ];
+						}
+
 						// there is a separate hasRequiredTier, but it is not implemented
 						const hasPaidPlanForProduct = product?.hasPaidPlanForProduct;
 						const isFree = tier
@@ -164,8 +180,8 @@ export default function ProductInterstitial( {
 						// If no purchase is needed, redirect the user to the product screen.
 						if ( ! needsPurchase ) {
 							// for free products, we still initiate the site connection
-							handleRegisterSite().then( redirectUri => {
-								if ( ! redirectUri ) {
+							handleRegisterSite().then( postRegisterRedirectUri => {
+								if ( ! postRegisterRedirectUri ) {
 									// Fall back to the My Jetpack overview page.
 									return navigateToMyJetpackOverviewPage();
 								}
@@ -181,13 +197,14 @@ export default function ProductInterstitial( {
 			);
 		},
 		[
+			myJetpackCheckoutUri,
+			feature,
+			ctaCallback,
+			slug,
 			directCheckout,
 			activate,
-			navigateToMyJetpackOverviewPage,
-			slug,
-			myJetpackCheckoutUri,
-			ctaCallback,
 			handleRegisterSite,
+			navigateToMyJetpackOverviewPage,
 		]
 	);
 
@@ -225,6 +242,7 @@ export default function ProductInterstitial( {
 							trackProductButtonClick={ trackProductOrBundleClick }
 							preferProductName={ preferProductName }
 							isFetching={ isActivating || siteIsRegistering }
+							feature={ feature }
 						/>
 					) : (
 						<Container
@@ -375,7 +393,10 @@ export { default as JetpackAiInterstitial } from './jetpack-ai';
  * @return {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
+	// Get the feature query parameter from the URL.
+	const { feature } = useParams();
+
+	return <ProductInterstitial slug="protect" feature={ feature } installsPlugin={ true } />;
 }
 
 /**
