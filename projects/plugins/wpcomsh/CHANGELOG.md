@@ -1,5 +1,9 @@
 # Changelog
 
+## 5.7.0 - 2024-09-02
+### Added
+- WPCOM Marketplace: Added software manager to install marketplace products. [#38705]
+
 ## 5.6.2 - 2024-08-30
 ### Added
 - Added a switch that will enable rolling trunk releases. [#38994]

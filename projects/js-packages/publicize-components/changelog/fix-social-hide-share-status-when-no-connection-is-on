@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed share status being shown even if no connection is enabled

@@ -758,23 +758,6 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
-		/*
-		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
-		 * We should make sure to only do this for front end links.
-		 */
-		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
-			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
-
-			/*
-			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
-			 * so they point moderation links on emails to Calypso.
-			 */
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/functions.wp-notify.php';
-			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
-			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
-		}
-
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -1010,12 +993,16 @@ class Jetpack {
 	/**
 	 * Redirect edit post links to Calypso.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $default_url Post edit URL.
 	 * @param int    $post_id Post ID.
 	 *
 	 * @return string
 	 */
 	public function point_edit_post_links_to_calypso( $default_url, $post_id ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) ) {
@@ -1048,11 +1035,15 @@ class Jetpack {
 	/**
 	 * Redirect edit comment links to Calypso.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $url Comment edit URL.
 	 *
 	 * @return string
 	 */
 	public function point_edit_comment_links_to_calypso( $url ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		$query_args = null;
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
@@ -3290,6 +3281,7 @@ p {
 	 * This function artificially throws errors for such cases (per a specific list).
 	 *
 	 * @param string $plugin The activated plugin.
+	 * @throws RuntimeException If a conflicting plugin is detected.
 	 */
 	public function throw_error_on_activate_plugin( $plugin ) {
 		$active_modules = self::get_active_modules();
@@ -3313,7 +3305,7 @@ p {
 
 			if ( $throw ) {
 				/* translators: Plugin name to deactivate. */
-				trigger_error( sprintf( esc_html__( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), 'WordPress.com Stats' ), E_USER_ERROR ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+				throw new RuntimeException( sprintf( __( 'Jetpack contains the most recent version of the old “%1$s” plugin.', 'jetpack' ), 'WordPress.com Stats' ) );
 			}
 		}
 	}
