@@ -6,8 +6,8 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
  */
 const sharedConfig = {
 	entry: {
-		[ 'classic-editor-share-limits' ]: './src/js/classic-editor-share-limits.js',
-		[ 'classic-editor-connections' ]: './src/js/classic-editor-connections.js',
+		'classic-editor-share-limits': './src/js/classic-editor-share-limits.js',
+		'classic-editor-connections': './src/js/classic-editor-connections.js',
 	},
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -71,7 +71,7 @@ module.exports = [
 	{
 		...sharedConfig,
 		entry: {
-			[ 'jetpack-publicize' ]: {
+			'jetpack-publicize': {
 				import: './src/js/jetpack-publicize.js',
 				library: {
 					name: 'JetpackPublicize',
