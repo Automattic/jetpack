@@ -123,13 +123,7 @@ class Modules_Setup implements Has_Setup {
 
 			$submodules = $module->get_submodules();
 			if ( $submodules ) {
-				$submodules_instances = array();
-				foreach ( $submodules as $sub_module ) {
-					if ( $sub_module::is_available() ) {
-						$submodules_instances[] = new Module( new $sub_module() );
-					}
-				}
-				$this->init_modules( $submodules_instances );
+				$this->init_modules( $submodules );
 			}
 
 			$this->register_endpoints( $module->feature );
