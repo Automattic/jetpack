@@ -19,25 +19,23 @@ class Connection_Assets {
 	 */
 	public static function configure() {
 		add_action( 'wp_loaded', array( __CLASS__, 'register_assets' ) );
+
+		add_filter( 'jetpack_admin_js_script_data', array( Initial_State::class, 'set_connection_script_data' ), 10, 1 );
 	}
 
 	/**
 	 * Register assets.
 	 */
 	public static function register_assets() {
-		if ( ! wp_script_is( 'jetpack-connection', 'registered' ) ) {
 
-			Assets::register_script(
-				'jetpack-connection',
-				'../dist/jetpack-connection.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-connection',
-				)
-			);
-
-			Initial_State::render_script( 'jetpack-connection' );
-		}
+		Assets::register_script(
+			'jetpack-connection',
+			'../dist/jetpack-connection.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-connection',
+			)
+		);
 	}
 }

@@ -1,7 +1,10 @@
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
+import { store as editorStore } from '@wordpress/editor';
+import { usePostMeta } from '../../hooks/use-post-meta';
+import { usePostPrePublishValue } from '../../hooks/use-post-pre-publish-value';
 import { store as socialStore } from '../../social-store';
-import { ShareStatusModal } from '../share-status-modal';
+import { ShareStatus } from './share-status';
 
 /**
  * Post publish share status component.
@@ -9,21 +12,34 @@ import { ShareStatusModal } from '../share-status-modal';
  * @return {import('react').ReactNode} - Post publish share status component.
  */
 export function PostPublishShareStatus() {
-	const { featureFlags } = useSelect( select => {
+	const { isPublicizeEnabled } = usePostMeta();
+	const { featureFlags, postId, isPostPublised } = useSelect( select => {
 		const store = select( socialStore );
+
+		const _editorStore = select( editorStore );
+
 		return {
 			featureFlags: store.featureFlags(),
+			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
+			postId: _editorStore.getCurrentPostId(),
+			// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
+			isPostPublised: _editorStore.isCurrentPostPublished(),
 		};
 	}, [] );
 
-	if ( ! featureFlags.useShareStatus ) {
+	const enabledConnections = usePostPrePublishValue(
+		useSelect( select => select( socialStore ).getEnabledConnections(), [] )
+	);
+
+	const willPostBeShared = isPublicizeEnabled && enabledConnections.length > 0;
+
+	if ( ! featureFlags.useShareStatus || ! willPostBeShared || ! isPostPublised ) {
 		return null;
 	}
 
 	return (
 		<PluginPostPublishPanel id="publicize-share-status">
-			Your post was successfully shared in 4 connections.
-			<ShareStatusModal />
+			<ShareStatus postId={ postId } />
 		</PluginPostPublishPanel>
 	);
 }

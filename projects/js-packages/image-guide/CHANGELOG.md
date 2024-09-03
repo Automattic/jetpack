@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.11] - 2024-08-29
+### Changed
+- Updated package dependencies. [#38287]
+
+### Fixed
+- Fix: Handle uncaught exception for images with empty or no src attributes. [#39024]
+- Fixed a bug where image guide would show up for svg images. [#38329]
+
 ## [0.5.10] - 2024-07-10
 ### Changed
 - Updated package dependencies. [#38092]
@@ -113,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[0.5.11]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.10...v0.5.11
 [0.5.10]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.9...v0.5.10
 [0.5.9]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.8...v0.5.9
 [0.5.8]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.7...v0.5.8

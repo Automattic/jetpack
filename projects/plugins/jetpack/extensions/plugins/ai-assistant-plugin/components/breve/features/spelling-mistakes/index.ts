@@ -9,6 +9,7 @@ import nspell from 'nspell';
  * Internal dependencies
  */
 import getDictionary from '../../utils/get-dictionary';
+import a8c from './a8c';
 /**
  * Types
  */
@@ -105,6 +106,9 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 	);
 	exceptions.forEach( exception => spellChecker.add( exception ) );
 
+	// Add the Automattic dictionary
+	spellChecker.personal( a8c );
+
 	spellCheckers[ language ] = spellChecker;
 
 	return spellCheckers[ language ];
@@ -143,7 +147,7 @@ export const addTextToDictionary = (
 	// Recompute the spell checker on the next call
 	delete spellCheckers[ language ];
 
-	reloadDictionary( SPELLING_MISTAKES.name );
+	reloadDictionary();
 
 	debug( 'Added text to the dictionary', text );
 };
@@ -154,8 +158,13 @@ export const suggestSpellingFixes = (
 ) => {
 	const spellChecker = getSpellChecker( { language } );
 
-	if ( ! spellChecker ) {
+	if ( ! spellChecker || ! text ) {
 		return [];
+	}
+
+	// capital_P_dangit
+	if ( text.toLocaleLowerCase() === 'wordpress' ) {
+		return [ 'WordPress' ];
 	}
 
 	const suggestions = spellChecker.suggest( text );

@@ -9,13 +9,18 @@ import { useNavigate } from 'react-router-dom';
 type UpgradeCTAProps = {
 	description: string;
 	identifier: string;
+	eventName?: string;
 };
 
-const UpgradeCTA = ( { description, identifier }: UpgradeCTAProps ) => {
+const UpgradeCTA = ( {
+	description,
+	identifier,
+	eventName = 'upsell_cta_from_settings_page_in_plugin',
+}: UpgradeCTAProps ) => {
 	const navigate = useNavigate();
 
 	const showBenefits = () => {
-		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', { identifier } );
+		recordBoostEvent( eventName, { identifier } );
 		navigate( '/upgrade' );
 	};
 
@@ -34,7 +39,7 @@ const UpgradeCTA = ( { description, identifier }: UpgradeCTAProps ) => {
 				<p className={ styles[ 'action-line' ] }>
 					{ sprintf(
 						/* translators: %s is the price including the currency symbol in front. */
-						__( `Upgrade now only %s`, 'jetpack-boost' ),
+						__( `Upgrade now only %s per month`, 'jetpack-boost' ),
 						priceString
 					) }
 				</p>

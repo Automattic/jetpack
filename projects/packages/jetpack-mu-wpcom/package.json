@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "5.59.1-alpha",
+	"version": "5.61.0",
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
 	"bugs": {
@@ -23,7 +23,7 @@
 		"clean": "rm -rf src/build/",
 		"watch": "pnpm run build-production-js && pnpm webpack watch",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
-		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh --release=v3.5.0"
+		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh"
 	},
 	"optionalDependencies": {
 		"react": "^18.2.0",
@@ -43,7 +43,7 @@
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"typescript": "^5.0.4",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {

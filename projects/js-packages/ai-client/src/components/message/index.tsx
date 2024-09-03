@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ExternalLink, Button } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, arrowRight } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -112,6 +113,25 @@ export function GuidelineMessage(): React.ReactElement {
 			</ExternalLink>
 		</Message>
 	);
+}
+
+/**
+ * React component to render a fair usage limit message.
+ *
+ * @return {React.ReactElement } - Message component.
+ */
+export function FairUsageLimitMessage(): React.ReactElement {
+	const message = __(
+		"You've reached this month's request limit, per our <link>fair usage policy</link>",
+		'jetpack-ai-client'
+	);
+	const element = createInterpolateElement( message, {
+		link: (
+			<ExternalLink href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy" />
+		),
+	} );
+
+	return <Message severity={ MESSAGE_SEVERITY_WARNING }>{ element }</Message>;
 }
 
 /**
