@@ -156,7 +156,7 @@ class Manager {
 		// Initial Partner management.
 		Partner::init();
 
-		add_filter( 'jetpack_admin_js_script_data', array( Initial_State::class, 'set_connection_script_data' ), 10, 1 );
+		Connection_Assets::configure();
 	}
 
 	/**
