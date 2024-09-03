@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Optimized performance by moving the IDC safe mode check after the connection check, reducing unnecessary get_option() requests for jetpack_sync_error_idc
