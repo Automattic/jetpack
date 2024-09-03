@@ -94,6 +94,15 @@ export type BreveDispatch = {
 	} ) => void;
 };
 
+export type PlansSelect = {
+	getAiAssistantFeature: () => {
+		featuresControl: { [ key: string ]: FeatureControl };
+		currentTier?: {
+			value?: number;
+		};
+	};
+};
+
 export type BreveFeatureConfig = {
 	name: string;
 	title: string;
@@ -126,4 +135,10 @@ export type SpellChecker = {
 export type SpellingDictionaryContext = {
 	affix: string;
 	dictionary: string;
+};
+
+export type FeatureControl = {
+	enabled: boolean;
+	'min-jetpack-version': string;
+	[ key: string ]: FeatureControl | boolean | string;
 };

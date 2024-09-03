@@ -56,7 +56,7 @@ export function WidthControl( { align, width, onChange, showLabel = true } ) {
 	}
 
 	return (
-		<BaseControl label={ showLabel && __( 'Width', 'jetpack' ) }>
+		<BaseControl __nextHasNoMarginBottom={ true } label={ showLabel && __( 'Width', 'jetpack' ) }>
 			<div
 				className={ clsx( 'jetpack-block-width-controls', {
 					'is-aligned': isAlignedLeftOrRight,

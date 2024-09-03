@@ -527,21 +527,26 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
  * For bare URLs on their own line of the form
  * http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @deprecated since 13.8
+ *
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  */
 function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 	return youtube_id( $url );
 }
 
 /**
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
+ *
+ * @deprecated since 13.8
  */
 function wpcom_youtube_embed_crazy_url_init() {
+	_deprecated_function( __FUNCTION__, 'jetpack-13.8' );
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
 }
-add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
 if (
 	! is_admin()

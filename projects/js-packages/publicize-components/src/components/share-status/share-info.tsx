@@ -13,7 +13,8 @@ import styles from './styles.module.scss';
  * @return {import('react').ReactNode} - React element
  */
 export function ShareInfo( { share } ) {
-	const { service, external_name, profile_picture, timestamp, status, message } = share;
+	const { service, external_name, profile_picture, timestamp, status, message, connection_id } =
+		share;
 
 	return (
 		<div className={ styles[ 'share-item' ] }>
@@ -32,7 +33,11 @@ export function ShareInfo( { share } ) {
 				}
 			</div>
 			<ShareStatusLabel status={ status } message={ message } />
-			<ShareStatusAction status={ status } shareLink={ 'success' === status ? message : '' } />
+			<ShareStatusAction
+				connectionId={ connection_id }
+				status={ status }
+				shareLink={ 'success' === status ? message : '' }
+			/>
 		</div>
 	);
 }
