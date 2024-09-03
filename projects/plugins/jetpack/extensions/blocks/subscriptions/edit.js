@@ -296,6 +296,7 @@ export function SubscriptionEdit( props ) {
 							<div className="wp-block-jetpack-subscriptions__form-elements">
 								{ activeStyleName !== 'button' && (
 									<TextControl
+										__nextHasNoMarginBottom={ true }
 										placeholder={ subscribePlaceholder }
 										disabled={ true }
 										className={ clsx(

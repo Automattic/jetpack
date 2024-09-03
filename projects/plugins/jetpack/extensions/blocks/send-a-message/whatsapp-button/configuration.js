@@ -74,6 +74,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	const settings = () => (
 		<>
 			<BaseControl
+				__nextHasNoMarginBottom={ true }
 				label={ __( 'Phone Number', 'jetpack' ) }
 				help={ __(
 					'Enter the phone number you use for WhatsApp and would like to be contacted on.',
@@ -82,6 +83,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 				className="jetpack-whatsapp-button__phonenumber"
 			>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Country code', 'jetpack' ) }
 					value={ countryCode }
 					onChange={ value => setAttributes( { countryCode: value } ) }
@@ -90,6 +92,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 				/>
 
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					placeholder={ __( 'Your phone number…', 'jetpack' ) }
 					onChange={ newPhoneNumber => {
 						setAttributes( { phoneNumber: newPhoneNumber } );
@@ -114,6 +117,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 			{ context === 'inspector' && (
 				<>
 					<TextareaControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Default First Message', 'jetpack' ) }
 						help={ __(
 							'The default first message that will be sent by visitors when using this button.',
@@ -124,6 +128,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 					/>
 
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						label={ __( 'Open in new tab', 'jetpack' ) }
 						checked={ openInNewTab }
 						onChange={ newValue => setAttributes( { openInNewTab: newValue } ) }

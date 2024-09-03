@@ -24,6 +24,7 @@ const ManualLicenseKeyInput = props => {
 
 	return (
 		<TextControl
+			__nextHasNoMarginBottom={ true }
 			className={ className }
 			label={ __( 'License key', 'jetpack' ) }
 			value={ value }
@@ -97,6 +98,7 @@ const SelectableLicenseKeyInput = props => {
 	return (
 		<>
 			<SelectControl
+				__nextHasNoMarginBottom={ true }
 				className={ className }
 				disabled={ disabled }
 				label={ __( 'Select a license key', 'jetpack' ) }
@@ -107,6 +109,7 @@ const SelectableLicenseKeyInput = props => {
 
 			{ ! isFetching && ! selectedOption && (
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack' ) }
 					value={ value }

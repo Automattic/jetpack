@@ -89,6 +89,7 @@ export const RepeatVisitorEdit = ( { isSelected, attributes, setAttributes } ) =
 				className="wp-block-jetpack-repeat-visitor-placeholder"
 			>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					className="wp-block-jetpack-repeat-visitor-threshold"
 					defaultValue={ threshold }
 					help={ isThresholdValid ? '' : __( 'Please enter a valid number.', 'jetpack' ) }

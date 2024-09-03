@@ -56,6 +56,7 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 
 	return (
 		<WPToggleControl
+			__nextHasNoMarginBottom={ true }
 			checked={ showChecked }
 			className={ clsx( styles.toggle, className, {
 				[ styles[ 'is-toggling' ] ]: toggling,

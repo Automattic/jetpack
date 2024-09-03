@@ -50,6 +50,7 @@ export const MailChimpBlockControls = ( {
 		<>
 			<PanelBody title={ __( 'Text Elements', 'jetpack' ) }>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Email Placeholder', 'jetpack' ) }
 					value={ emailPlaceholder }
 					onChange={ updateEmailPlaceholder }
@@ -57,16 +58,19 @@ export const MailChimpBlockControls = ( {
 			</PanelBody>
 			<PanelBody title={ __( 'Notifications', 'jetpack' ) }>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Processing text', 'jetpack' ) }
 					value={ processingLabel }
 					onChange={ updateProcessingText }
 				/>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Success text', 'jetpack' ) }
 					value={ successLabel }
 					onChange={ updateSuccessText }
 				/>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Error text', 'jetpack' ) }
 					value={ errorLabel }
 					onChange={ updateErrorText }
@@ -93,12 +97,14 @@ export const MailChimpBlockControls = ( {
 			</PanelBody>
 			<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Signup Field Tag', 'jetpack' ) }
 					placeholder={ __( 'SIGNUP', 'jetpack' ) }
 					value={ signupFieldTag }
 					onChange={ value => setAttributes( { signupFieldTag: value } ) }
 				/>
 				<TextControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Signup Field Value', 'jetpack' ) }
 					placeholder={ __( 'website', 'jetpack' ) }
 					value={ signupFieldValue }

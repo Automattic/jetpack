@@ -23,7 +23,7 @@
 		"semver": "^7.3.5"
 	},
 	"devDependencies": {
-		"@wordpress/browserslist-config": "6.5.0",
+		"@wordpress/browserslist-config": "6.6.0",
 		"eslint": "8.57.0",
 		"eslint-plugin-es-x": "7.8.0",
 		"globals": "15.4.0",

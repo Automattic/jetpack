@@ -6,6 +6,7 @@ import FormatPicker from './format-picker';
 export const AdVisibilityToggle = ( { value, onChange } ) => (
 	<PanelBody title={ __( 'Visibility', 'jetpack' ) }>
 		<ToggleControl
+			__nextHasNoMarginBottom={ true }
 			className="jetpack-wordads__mobile-visibility"
 			checked={ !! value }
 			label={ __( 'Hide on mobile', 'jetpack' ) }

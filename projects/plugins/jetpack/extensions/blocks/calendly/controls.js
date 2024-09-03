@@ -61,6 +61,7 @@ export const CalendlyInspectorControls = props => {
 				</form>
 
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Hide event type details', 'jetpack' ) }
 					checked={ hideEventTypeDetails }
 					onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }

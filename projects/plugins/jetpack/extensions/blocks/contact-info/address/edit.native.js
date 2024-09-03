@@ -84,6 +84,7 @@ const AddressEdit = props => {
 		<InspectorControls>
 			<PanelBody title={ __( 'Address Settings', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Link address to Google Maps', 'jetpack' ) }
 					checked={ linkToGoogleMaps }
 					onChange={ newlinkToGoogleMaps => {

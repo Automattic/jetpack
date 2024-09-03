@@ -39,14 +39,14 @@
 		"@storybook/source-loader": "8.2.9",
 		"@storybook/test-runner": "0.19.1",
 		"@storybook/theming": "8.2.9",
-		"@wordpress/babel-preset-default": "8.5.0",
-		"@wordpress/base-styles": "5.5.0",
-		"@wordpress/block-editor": "14.0.0",
-		"@wordpress/block-library": "9.5.0",
-		"@wordpress/components": "28.5.0",
-		"@wordpress/element": "6.5.0",
-		"@wordpress/format-library": "5.5.0",
-		"@wordpress/postcss-plugins-preset": "5.5.0",
+		"@wordpress/babel-preset-default": "8.6.0",
+		"@wordpress/base-styles": "5.6.0",
+		"@wordpress/block-editor": "14.1.0",
+		"@wordpress/block-library": "9.6.1",
+		"@wordpress/components": "28.6.0",
+		"@wordpress/element": "6.6.0",
+		"@wordpress/format-library": "5.6.0",
+		"@wordpress/postcss-plugins-preset": "5.6.0",
 		"allure-playwright": "2.9.2",
 		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
@@ -71,6 +71,6 @@
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
-		"@wordpress/api-fetch": "7.5.0"
+		"@wordpress/api-fetch": "7.6.0"
 	}
 }

@@ -240,6 +240,7 @@ export function ConfirmationForm( { keyringResult, onComplete, isAdmin }: Confir
 
 						{ isAdmin ? (
 							<BaseControl
+								__nextHasNoMarginBottom={ true }
 								id="mark-connection-as-shared"
 								help={ `${ __(
 									'If enabled, the connection will be available to all administrators, editors, and authors.',
