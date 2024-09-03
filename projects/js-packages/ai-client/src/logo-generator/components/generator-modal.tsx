@@ -116,12 +116,15 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				! isUnlimited &&
 				! hasNoNextTier &&
 				! hasHistory &&
-				currentLimit - currentUsage < logoCost + promptCreationCost;
+				( tierPlansEnabled
+					? currentLimit - currentUsage < logoCost + promptCreationCost
+					: currentLimit < currentUsage );
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
-			setNeedsFeature( ! feature?.hasFeature ?? true );
+			setNeedsFeature( currentLimit === 0 );
 			setNeedsMoreRequests( siteNeedsMoreRequests );
-			if ( ! feature?.hasFeature || siteNeedsMoreRequests ) {
+
+			if ( currentLimit === 0 || siteNeedsMoreRequests ) {
 				setLoadingState( null );
 				return;
 			}
