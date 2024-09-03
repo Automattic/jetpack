@@ -113,7 +113,10 @@ export default function GeneratedImagePreview( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }>
+			<BaseControl
+				__nextHasNoMarginBottom={ true }
+				label={ _x( 'Preview', 'Heading for the generated preview image', 'jetpack' ) }
+			>
 				<div className={ styles.container }>
 					<img
 						className={ clsx( {

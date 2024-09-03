@@ -68,7 +68,11 @@ export default function MediaSection( {
 
 	return (
 		<ThemeProvider>
-			<BaseControl label={ __( 'Attached Media', 'jetpack' ) } className={ styles.wrapper }>
+			<BaseControl
+				__nextHasNoMarginBottom={ true }
+				label={ __( 'Attached Media', 'jetpack' ) }
+				className={ styles.wrapper }
+			>
 				{ renderHeaderSection() }
 				<MediaWrapper { ...mediaWrapperProps }>
 					<MediaPicker
