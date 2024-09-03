@@ -15,6 +15,8 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
+_deprecated_file( __FILE__, 'jetpack-$$next-version$$' );
+
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 // phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 
