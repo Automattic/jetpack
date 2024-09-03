@@ -3,11 +3,12 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Settings;
 use Automattic\Jetpack_Boost\Contracts\Is_Always_On;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
-class Quality_Settings implements Pluggable, Changes_Page_Output, Is_Always_On {
+class Quality_Settings implements Pluggable, Changes_Page_Output, Is_Always_On, Has_Settings {
 
 	public function setup() {
 		add_filter( 'jetpack_photon_pre_args', array( $this, 'add_quality_args' ), 10, 2 );
@@ -62,6 +63,10 @@ class Quality_Settings implements Pluggable, Changes_Page_Output, Is_Always_On {
 		}
 
 		return null;
+	}
+
+	public function get_settings() {
+		return jetpack_boost_ds_get( 'image_cdn_quality' );
 	}
 
 	private function get_quality_for_type( $image_type ) {

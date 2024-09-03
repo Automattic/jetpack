@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Deactivate;
+use Automattic\Jetpack_Boost\Contracts\Has_Settings;
 use Automattic\Jetpack_Boost\Contracts\Has_Submodules;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
@@ -39,7 +40,16 @@ class Module {
 
 	public function get_submodules() {
 		if ( $this->feature instanceof Has_Submodules ) {
-			return $this->feature->get_submodules();
+			$sub_modules = $this->feature->get_submodules();
+			if ( $sub_modules ) {
+				$modules = array();
+				foreach ( $sub_modules as $feature ) {
+					if ( $feature::is_available() ) {
+						$modules[ $feature::get_slug() ] = new Module( new $feature() );
+					}
+				}
+				return $modules;
+			}
 		}
 
 		return false;
@@ -56,6 +66,10 @@ class Module {
 		}
 
 		return $this->status->get();
+	}
+
+	public function get_settings() {
+		return $this->feature instanceof Has_Settings ? $this->feature->get_settings() : array();
 	}
 
 	public function is_available() {

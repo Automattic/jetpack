@@ -3,11 +3,12 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Changes_Page_Output;
+use Automattic\Jetpack_Boost\Contracts\Has_Settings;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
-class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization {
+class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization, Has_Settings {
 
 	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
@@ -34,6 +35,10 @@ class Minify_CSS implements Pluggable, Changes_Page_Output, Optimization {
 	 */
 	public function is_ready() {
 		return true;
+	}
+
+	public function get_settings() {
+		return jetpack_boost_ds_get( 'minify_css_excludes' );
 	}
 
 	public static function is_available() {

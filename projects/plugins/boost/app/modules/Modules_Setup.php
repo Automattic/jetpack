@@ -51,12 +51,29 @@ class Modules_Setup implements Has_Setup {
 		return $working_modules;
 	}
 
-	public function get_status() {
+	private function get_modules_status( $modules ) {
 		$status = array();
-		foreach ( $this->available_modules as $slug => $module ) {
-			$status[ $slug ] = $module->is_enabled();
+		foreach ( $modules as $slug => $module ) {
+			$status[ $slug ] = array(
+				'enabled' => $module->is_enabled(),
+			);
+
+			$settings = $module->get_settings();
+			if ( $settings ) {
+				$status[ $slug ]['settings'] = $settings;
+			}
+
+			$sub_modules = $module->get_submodules();
+			if ( $sub_modules ) {
+				$status[ $slug ]['sub_modules'] = $this->get_modules_status( $sub_modules );
+			}
 		}
+
 		return $status;
+	}
+
+	public function get_status() {
+		return $this->get_modules_status( $this->available_modules );
 	}
 
 	/**
