@@ -93,8 +93,8 @@ class Admin_Sidebar_Link {
 
 		if ( $this->should_show_backup() ) {
 			Admin_Menu::add_menu(
-				__( 'VaultPress', 'jetpack' ),
-				__( 'VaultPress', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				__( 'VaultPress Backup', 'jetpack' ),
+				__( 'VaultPress Backup', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,
