@@ -192,7 +192,7 @@ class Jetpack_Subscribe_Modal {
 		<!-- wp:jetpack/subscriptions {"borderRadius":50,"className":"is-style-compact","appSource":"subscribe-modal"} /-->
 
 		<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"20px"}},"typography":{"fontSize":"14px"}},"className":"jetpack-subscribe-modal__close"} -->
-		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;font-size:14px;margin-bottom:0"><a href="#">$continue_reading</a></p>
+		<p class="has-text-align-center jetpack-subscribe-modal__close" style="margin-top:20px;margin-bottom:0;font-size:14px;"><a href="#">$continue_reading</a></p>
 		<!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
