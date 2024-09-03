@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Address React usage errors found by eslint.
