@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
