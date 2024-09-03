@@ -142,18 +142,24 @@ const getUserConnectionLineData: getUserConnectionLineDataType = ( {
 		};
 	}
 
-	const userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
-		? sprintf(
-				/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
-				__( 'Connected as %1$s%2$s.', 'jetpack-my-jetpack' ),
-				userConnectionData.currentUser?.wpcomUser?.display_name,
-				userConnectionData.currentUser?.isMaster ? __( ' (Owner)', 'jetpack-my-jetpack' ) : ''
-		  )
-		: sprintf(
-				/* translators: first placeholder is either the (Owner) string or an empty string */
-				__( 'User connected%1$s.', 'jetpack-my-jetpack' ),
-				userConnectionData.currentUser?.isMaster ? __( ' (Owner)', 'jetpack-my-jetpack' ) : ''
-		  );
+	let userConnectionText = null;
+	if ( userConnectionData.currentUser?.isMaster ) {
+		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
+			? sprintf(
+					/* translators: placeholder is user name */
+					__( 'Connected as %1$s (Owner).', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+			  )
+			: __( 'User connected (Owner).', 'jetpack-my-jetpack' );
+	} else {
+		userConnectionText = userConnectionData.currentUser?.wpcomUser?.display_name
+			? sprintf(
+					/* translators: placeholder is user name */
+					__( 'Connected as %1$s.', 'jetpack-my-jetpack' ),
+					userConnectionData.currentUser?.wpcomUser?.display_name
+			  )
+			: __( 'User connected.', 'jetpack-my-jetpack' );
+	}
 
 	return {
 		onClick: openManageUserConnectionDialog,
