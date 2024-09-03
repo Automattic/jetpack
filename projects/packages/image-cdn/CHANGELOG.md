@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.8] - 2024-09-03
+### Fixed
+- Avoid a fatal error if an `<img>` tag has width or height that's not an integer or percentage.
+
 ## [0.4.7] - 2024-08-29
 ### Changed
 - Rely on WordPress HTML API to parse HTML instead of Regex [#32700]
@@ -118,6 +122,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add image CDN package. [#29561]
 
+[0.4.8]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.6...v0.4.7
 [0.4.6]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.5...v0.4.6
 [0.4.5]: https://github.com/Automattic/jetpack-image-cdn/compare/v0.4.4...v0.4.5
