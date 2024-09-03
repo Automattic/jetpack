@@ -155,8 +155,6 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
-
-		Connection_Assets::configure();
 	}
 
 	/**
