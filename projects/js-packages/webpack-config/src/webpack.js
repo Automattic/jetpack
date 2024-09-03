@@ -106,17 +106,17 @@ const DefinePlugin = defines => [
 ];
 
 const defaultRequestMap = {
-	'@automattic/jetpack-publicize-components': {
-		external: 'JetpackPublicize',
-		handle: 'jetpack-publicize',
+	'@automattic/jetpack-script-data': {
+		external: 'JetpackScriptDataModule',
+		handle: 'jetpack-script-data',
 	},
 	'@automattic/jetpack-connection': {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
 	},
-	'@automattic/jetpack-script-data': {
-		external: 'JetpackScriptDataModule',
-		handle: 'jetpack-script-data',
+	'@automattic/jetpack-publicize-components': {
+		external: 'JetpackPublicize',
+		handle: 'jetpack-publicize',
 	},
 };
 

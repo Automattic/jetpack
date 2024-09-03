@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 
@@ -317,16 +318,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			// Required for Analytics.
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
-		// The script handle for the initial state.
-		$initial_state_handle = 'jetpack-connection';
 
-		wp_set_script_translations( $initial_state_handle, 'jetpack' );
+		wp_set_script_translations( 'react-plugin', 'jetpack' );
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( $initial_state_handle, 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
 
 		// This will set the default URL of the jp_redirects lib.
-		wp_add_inline_script( $initial_state_handle, 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );
+
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( 'react-plugin' );
 	}
 }

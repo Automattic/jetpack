@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
@@ -667,7 +668,7 @@ class Jetpack_Gutenberg {
 		// wp-edit-post but wp-edit-post's styles break the Widget Editor and
 		// Site Editor) until a real fix gets unblocked.
 		// @todo Remove this once #20357 is properly fixed.
-		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array( 'jetpack-publicize' );
+		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
 
@@ -775,10 +776,13 @@ class Jetpack_Gutenberg {
 		}
 
 		wp_localize_script(
-			'jetpack-publicize',
+			'jetpack-blocks-editor',
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
+
+		// Adds Connection package initial state.
+		Connection_Initial_State::render_script( 'jetpack-blocks-editor' );
 	}
 
 	/**

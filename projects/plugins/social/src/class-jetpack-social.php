@@ -11,6 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Current_Plan;
@@ -76,10 +77,6 @@ class Jetpack_Social {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
-
-				// Assets should be registered regardless of connection status.
-				\Automattic\Jetpack\Publicize\Publicize_Assets::configure();
-				\Automattic\Jetpack\Connection\Connection_Assets::configure();
 
 				if ( ! $this->is_connected() ) {
 					return;
@@ -182,7 +179,9 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social' );
-		wp_add_inline_script( 'jetpack-publicize', $this->render_initial_state(), 'before' );
+		// Initial JS state including JP Connection data.
+		Connection_Initial_State::render_script( 'jetpack-social' );
+		wp_add_inline_script( 'jetpack-social', $this->render_initial_state(), 'before' );
 	}
 
 	/**
@@ -357,7 +356,7 @@ class Jetpack_Social {
 		$initial_state['featureFlags'] = $social_state['featureFlags'];
 
 		wp_localize_script(
-			'jetpack-publicize',
+			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
@@ -366,6 +365,8 @@ class Jetpack_Social {
 			)
 		);
 
+		// Connection initial state is expected when the connection JS package is in the bundle
+		Connection_Initial_State::render_script( 'jetpack-social-editor' );
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
@@ -388,7 +389,7 @@ class Jetpack_Social {
 		);
 
 		wp_add_inline_script(
-			'jetpack-publicize',
+			class_exists( 'Jetpack' ) ? 'jetpack-blocks-editor' : 'jetpack-social-editor',
 			sprintf( 'Object.assign( window.Jetpack_Editor_Initial_State.social, %s )', wp_json_encode( $review_state ) ),
 			'after'
 		);
