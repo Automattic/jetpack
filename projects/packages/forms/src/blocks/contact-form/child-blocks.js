@@ -1,4 +1,3 @@
-import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -9,10 +8,10 @@ import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDatePicker from './components/jetpack-field-datepicker';
 import JetpackDropdown from './components/jetpack-field-dropdown';
-import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldMultipleChoice from './components/jetpack-field-multiple-choice';
 import JetpackFieldMultipleChoiceItem from './components/jetpack-field-multiple-choice/item';
-import { JetpackFieldOptionEdit } from './components/jetpack-field-option';
+import JetpackFieldSingleChoice from './components/jetpack-field-single-choice';
+import JetpackFieldSingleChoiceItem from './components/jetpack-field-single-choice/item';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
@@ -233,26 +232,6 @@ const FieldDefaults = {
 	example: {},
 };
 
-const OptionFieldDefaults = {
-	apiVersion: 3,
-	category: 'contact-form',
-	edit: JetpackFieldOptionEdit,
-	attributes: {
-		label: {
-			type: 'string',
-		},
-		fieldType: {
-			enum: [ 'checkbox', 'radio' ],
-			default: 'checkbox',
-		},
-	},
-	supports: {
-		reusable: false,
-		html: false,
-		splitting: true,
-	},
-};
-
 const multiFieldV1 = fieldType => ( {
 	attributes: {
 		...FieldDefaults.attributes,
@@ -292,27 +271,6 @@ const editField = type => props => {
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
 			placeholder={ props.attributes.placeholder }
-			id={ props.attributes.id }
-			width={ props.attributes.width }
-			attributes={ props.attributes }
-		/>
-	);
-};
-
-const editMultiField = type => props => {
-	useFormWrapper( props );
-
-	return (
-		<JetpackFieldMultiple
-			className={ props.className }
-			clientId={ props.clientId }
-			label={ getFieldLabel( props.attributes, props.name ) }
-			required={ props.attributes.required }
-			requiredText={ props.attributes.requiredText }
-			options={ props.attributes.options }
-			setAttributes={ props.setAttributes }
-			type={ type }
-			isSelected={ props.isSelected }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
 			attributes={ props.attributes }
@@ -631,19 +589,13 @@ export const childBlocks = [
 		},
 	},
 	{
-		name: 'field-option-radio',
-		settings: {
-			...OptionFieldDefaults,
-			parent: [ 'jetpack/field-radio' ],
-			title: __( 'Single Choice Option', 'jetpack-forms' ),
-			icon: renderMaterialIcon(
-				<Path
-					d="M7.5 13.5C6.67157 13.5 6 12.8284 6 12C6 11.1716 6.67157 10.5 7.5 10.5C8.32843 10.5 9 11.1716 9 12C9 12.8284 8.32843 13.5 7.5 13.5ZM4.5 12C4.5 13.6569 5.84315 15 7.5 15C9.15685 15 10.5 13.6569 10.5 12C10.5 10.3431 9.15685 9 7.5 9C5.84315 9 4.5 10.3431 4.5 12ZM12.5 12.75H20.5V11.25H12.5V12.75Z"
-					fill={ getIconColor() }
-				/>
-			),
-		},
+		name: JetpackFieldSingleChoice.name,
+		settings: mergeSettings( FieldDefaults, {
+			...JetpackFieldSingleChoice.settings,
+			deprecated: [ multiFieldV1( 'radio' ) ],
+		} ),
 	},
+	JetpackFieldSingleChoiceItem,
 	{
 		name: JetpackFieldMultipleChoice.name,
 		settings: mergeSettings( FieldDefaults, {
@@ -651,56 +603,7 @@ export const childBlocks = [
 			deprecated: [ multiFieldV1( 'checkbox' ) ],
 		} ),
 	},
-	{
-		name: JetpackFieldMultipleChoiceItem.name,
-		settings: mergeSettings( OptionFieldDefaults, JetpackFieldMultipleChoiceItem.settings ),
-	},
-	{
-		name: 'field-radio',
-		settings: {
-			...FieldDefaults,
-			title: __( 'Single Choice (Radio)', 'jetpack-forms' ),
-			keywords: [
-				__( 'Choose', 'jetpack-forms' ),
-				__( 'Select', 'jetpack-forms' ),
-				__( 'Option', 'jetpack-forms' ),
-			],
-			description: __(
-				'Offer users a list of choices, and allow them to select a single option.',
-				'jetpack-forms'
-			),
-			icon: renderMaterialIcon(
-				<Fragment>
-					<Path
-						fill={ getIconColor() }
-						d="M4 7.75C4 9.40685 5.34315 10.75 7 10.75C8.65685 10.75 10 9.40685 10 7.75C10 6.09315 8.65685 4.75 7 4.75C5.34315 4.75 4 6.09315 4 7.75ZM20 8.5H12V7H20V8.5ZM20 17H12V15.5H20V17ZM7 17.75C6.17157 17.75 5.5 17.0784 5.5 16.25C5.5 15.4216 6.17157 14.75 7 14.75C7.82843 14.75 8.5 15.4216 8.5 16.25C8.5 17.0784 7.82843 17.75 7 17.75ZM4 16.25C4 17.9069 5.34315 19.25 7 19.25C8.65685 19.25 10 17.9069 10 16.25C10 14.5931 8.65685 13.25 7 13.25C5.34315 13.25 4 14.5931 4 16.25Z"
-					/>
-				</Fragment>
-			),
-			edit: editMultiField( 'radio' ),
-			save: () => {
-				const blockProps = useBlockProps.save();
-
-				return (
-					<div { ...blockProps }>
-						<InnerBlocks.Content />
-					</div>
-				);
-			},
-			attributes: {
-				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: 'Choose one option',
-				},
-			},
-			styles: [
-				{ name: 'list', label: 'List', isDefault: true },
-				{ name: 'button', label: 'Button' },
-			],
-			deprecated: [ multiFieldV1( 'radio' ) ],
-		},
-	},
+	JetpackFieldMultipleChoiceItem,
 	{
 		name: 'field-select',
 		settings: {

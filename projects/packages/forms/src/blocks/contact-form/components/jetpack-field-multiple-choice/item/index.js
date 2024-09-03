@@ -2,10 +2,12 @@ import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../util/block-icons';
 import renderMaterialIcon from '../../../util/render-material-icon';
+import choiceItemSettings from '../../jetpack-field-choice/item/settings';
 import edit from './edit';
 
 const name = 'field-option-checkbox';
 const settings = {
+	...choiceItemSettings,
 	title: __( 'Multiple Choice Option', 'jetpack-forms' ),
 	parent: [ 'jetpack/field-checkbox-multiple' ],
 	icon: renderMaterialIcon(
@@ -17,14 +19,6 @@ const settings = {
 		</>
 	),
 	edit,
-	attributes: {
-		placeholder: {
-			type: 'string',
-		},
-	},
-	supports: {
-		splitting: true,
-	},
 };
 
 export default {

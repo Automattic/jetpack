@@ -2,11 +2,13 @@ import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../util/block-icons';
 import renderMaterialIcon from '../../util/render-material-icon';
+import choiceSettings from '../jetpack-field-choice/settings';
 import edit from './edit';
 import save from './save';
 
 const name = 'field-checkbox-multiple';
 const settings = {
+	...choiceSettings,
 	title: __( 'Multiple Choice (Checkbox)', 'jetpack-forms' ),
 	keywords: [ __( 'Choose Multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
 	description: __(
@@ -28,10 +30,6 @@ const settings = {
 			default: 'Choose several options',
 		},
 	},
-	styles: [
-		{ name: 'list', label: 'List', isDefault: true },
-		{ name: 'button', label: 'Button' },
-	],
 };
 
 export default {

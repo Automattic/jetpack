@@ -452,7 +452,8 @@
 	
 	.jetpack-field-option.field-option-checkbox,
 	.jetpack-field-option.field-option-radio,
-	.wp-block-jetpack-field-option-checkbox {
+	.wp-block-jetpack-field-option-checkbox,
+	.wp-block-jetpack-field-option-radio {
 		display: flex;
 		align-items: baseline; /* Align input with first label line */
 
