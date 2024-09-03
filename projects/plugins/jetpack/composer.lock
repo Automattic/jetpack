@@ -4,7 +4,7 @@
 		"Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
 		"This file is @generated automatically"
 	],
-	"content-hash": "21bedcb52ee5d7364b584b76fe704f25",
+	"content-hash": "47e6625f47c483b31e766c05b0b5ff16",
 	"packages": [
 		{
 			"name": "automattic/jetpack-a8c-mc-stats",
@@ -1156,16 +1156,16 @@
 		},
 		{
 			"name": "automattic/jetpack-image-cdn",
-			"version": "v0.4.7",
+			"version": "v0.4.8",
 			"source": {
 				"type": "git",
 				"url": "https://github.com/Automattic/jetpack-image-cdn.git",
-				"reference": "2429348941db0cafcf018e77a1694831568f1b1d"
+				"reference": "a25e26b882d6470246ced49efa46991cdf3ee668"
 			},
 			"dist": {
 				"type": "zip",
-				"url": "https://api.github.com/repos/Automattic/jetpack-image-cdn/zipball/2429348941db0cafcf018e77a1694831568f1b1d",
-				"reference": "2429348941db0cafcf018e77a1694831568f1b1d",
+				"url": "https://api.github.com/repos/Automattic/jetpack-image-cdn/zipball/a25e26b882d6470246ced49efa46991cdf3ee668",
+				"reference": "a25e26b882d6470246ced49efa46991cdf3ee668",
 				"shasum": ""
 			},
 			"require": {
@@ -1207,9 +1207,9 @@
 			],
 			"description": "Serve images through Jetpack's powerful CDN",
 			"support": {
-				"source": "https://github.com/Automattic/jetpack-image-cdn/tree/v0.4.7"
+				"source": "https://github.com/Automattic/jetpack-image-cdn/tree/v0.4.8"
 			},
-			"time": "2024-08-29T08:39:39+00:00"
+			"time": "2024-09-03T17:05:37+00:00"
 		},
 		{
 			"name": "automattic/jetpack-import",
