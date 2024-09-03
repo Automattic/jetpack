@@ -2647,13 +2647,13 @@ importers:
         version: 12.1.7(postcss@8.4.31)
       postcss-loader:
         specifier: 6.2.0
-        version: 6.2.0(postcss@8.4.31)(webpack@5.76.0(webpack-cli@4.9.1))
+        version: 6.2.0(postcss@8.4.31)(webpack@5.94.0(webpack-cli@4.9.1))
       sass:
         specifier: 1.64.1
         version: 1.64.1
       sass-loader:
         specifier: 12.4.0
-        version: 12.4.0(sass@1.64.1)(webpack@5.76.0(webpack-cli@4.9.1))
+        version: 12.4.0(sass@1.64.1)(webpack@5.94.0(webpack-cli@4.9.1))
       webpack:
         specifier: 5.94.0
         version: 5.94.0(webpack-cli@4.9.1)
