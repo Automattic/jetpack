@@ -1,25 +1,55 @@
 import { Button } from '@automattic/jetpack-components';
+import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import React, { useCallback, useEffect, useState, useMemo, memo } from 'react';
 import styles from './styles.module.scss';
 
 const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => {
+	const isCurrentPage = useMemo( () => currentPage === pageNumber, [ currentPage, pageNumber ] );
+
 	const handleClick = useCallback( () => {
 		onPageChange( pageNumber );
 	}, [ onPageChange, pageNumber ] );
 
 	return (
 		<Button
+			className={ isCurrentPage ? null : styles[ 'page-button' ] }
 			onClick={ handleClick }
-			variant={ currentPage === pageNumber ? 'primary' : 'secondary' }
-			aria-current={ currentPage === pageNumber ? 'page' : undefined }
+			aria-current={ isCurrentPage ? 'page' : undefined }
 		>
 			{ pageNumber }
 		</Button>
 	);
 } );
 
+const IconButton = ( { onClick, disabled, direction } ) => {
+	const iconSize = 32;
+	const isLeft = direction === 'left';
+	return (
+		<Button
+			className={ styles[ 'icon-button' ] }
+			onClick={ onClick }
+			disabled={ disabled }
+			variant={ 'link' }
+		>
+			<div className={ isLeft ? styles[ 'first-icon' ] : styles[ 'last-icon' ] }>
+				<Icon
+					className={ `${ styles.icon } ${ styles.outside }` }
+					icon={ isLeft ? chevronLeft : chevronRight }
+					size={ iconSize }
+				/>
+				<Icon
+					className={ `${ styles.icon } ${ styles.inside }` }
+					icon={ isLeft ? chevronLeft : chevronRight }
+					size={ iconSize }
+				/>
+			</div>
+		</Button>
+	);
+};
+
 const Pagination = ( { list, itemPerPage = 10, children } ) => {
 	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const [ isSmall, setIsSmall ] = useState( window.matchMedia( '(max-width: 1220px)' ).matches );
 
 	const totalPages = useMemo( () => Math.ceil( list.length / itemPerPage ), [ list, itemPerPage ] );
 
@@ -33,70 +63,43 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 		setCurrentPage( pageNumber );
 	}, [] );
 
-	const [ isSmall, setIsSmall ] = useState( window.matchMedia( '(max-width: 1220px)' ).matches );
-
 	useEffect( () => {
 		const mediaQuery = window.matchMedia( '(max-width: 1220px)' );
-
 		const handleMediaChange = event => {
 			setIsSmall( event.matches );
 		};
-
-		// Add event listeners
 		mediaQuery.addEventListener( 'change', handleMediaChange );
-
-		// Cleanup listeners on component unmount
 		return () => {
 			mediaQuery.removeEventListener( 'change', handleMediaChange );
 		};
 	}, [] );
 
-	const handleFirstPageClick = useCallback( () => {
-		onPageChange( 1 );
-	}, [ onPageChange ] );
-
-	const handlePreviousPageClick = useCallback( () => {
-		onPageChange( currentPage - 1 );
-	}, [ currentPage, onPageChange ] );
-
-	const handleNextPageClick = useCallback( () => {
-		onPageChange( currentPage + 1 );
-	}, [ currentPage, onPageChange ] );
-
-	const handleLastPageClick = useCallback( () => {
-		onPageChange( totalPages );
-	}, [ onPageChange, totalPages ] );
+	const handleFirstPageClick = useCallback( () => onPageChange( 1 ), [ onPageChange ] );
+	const handlePreviousPageClick = useCallback(
+		() => onPageChange( currentPage - 1 ),
+		[ currentPage, onPageChange ]
+	);
+	const handleNextPageClick = useCallback(
+		() => onPageChange( currentPage + 1 ),
+		[ currentPage, onPageChange ]
+	);
+	const handleLastPageClick = useCallback(
+		() => onPageChange( totalPages ),
+		[ onPageChange, totalPages ]
+	);
 
 	const getPageNumbers = useCallback( () => {
-		const pageNumbers = [];
-
-		if ( ! isSmall ) {
-			pageNumbers.push( 1 );
+		if ( isSmall ) {
+			return [ currentPage ];
 		}
 
-		const start = isSmall ? 1 : 2;
-		const offset = isSmall ? 0 : 2;
-		const end = isSmall ? 0 : 1;
-		const startPage = Math.max( start, currentPage - offset );
-		const endPage = Math.min( totalPages - end, currentPage + offset );
-
-		if ( startPage > 2 && ! isSmall ) {
-			pageNumbers.push( '...' );
+		if ( currentPage === 1 ) {
+			return [ 1, 2, 3 ].filter( page => page <= totalPages );
 		}
-
-		for ( let i = startPage; i <= endPage; i++ ) {
-			pageNumbers.push( i );
+		if ( currentPage === totalPages ) {
+			return [ totalPages - 2, totalPages - 1, totalPages ].filter( page => page >= 1 );
 		}
-
-		if ( endPage < totalPages - 1 && ! isSmall ) {
-			pageNumbers.push( '...' );
-		}
-
-		if ( totalPages > 1 && ! isSmall ) {
-			pageNumbers.push( totalPages );
-		}
-
-		return pageNumbers;
+		return [ currentPage - 1, currentPage, currentPage + 1 ];
 	}, [ currentPage, totalPages, isSmall ] );
 
 	return (
@@ -104,22 +107,19 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 			{ children( { currentItems } ) }
 			{ totalPages > 1 && (
 				<div className={ styles[ 'pagination-container' ] }>
-					{ isSmall && (
-						<Button
-							onClick={ handleFirstPageClick }
-							disabled={ currentPage === 1 }
-							variant={ 'secondary' }
-						>
-							{ 1 }
-						</Button>
-					) }
+					<IconButton
+						onClick={ handleFirstPageClick }
+						disabled={ currentPage === 1 }
+						direction="left"
+					/>
 					<Button
+						className={ styles[ 'icon-button' ] }
 						onClick={ handlePreviousPageClick }
 						disabled={ currentPage === 1 }
-						variant={ 'secondary' }
-					>
-						{ '<' }
-					</Button>
+						variant={ 'link' }
+						icon={ chevronLeft }
+						iconSize={ 32 }
+					></Button>
 					{ getPageNumbers().map( ( pageNumber, index ) =>
 						typeof pageNumber === 'number' ? (
 							<PaginationButton
@@ -135,21 +135,18 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 						)
 					) }
 					<Button
+						className={ styles[ 'icon-button' ] }
 						onClick={ handleNextPageClick }
 						disabled={ currentPage === totalPages }
-						variant={ 'secondary' }
-					>
-						{ '>' }
-					</Button>
-					{ isSmall && (
-						<Button
-							onClick={ handleLastPageClick }
-							disabled={ currentPage === totalPages }
-							variant={ 'secondary' }
-						>
-							{ totalPages }
-						</Button>
-					) }
+						variant={ 'link' }
+						icon={ chevronRight }
+						iconSize={ 32 }
+					></Button>
+					<IconButton
+						onClick={ handleLastPageClick }
+						disabled={ currentPage === totalPages }
+						direction="right"
+					/>
 				</div>
 			) }
 		</>
