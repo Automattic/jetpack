@@ -69,9 +69,14 @@ export function getConnections() {
  * @return {Function} Resolver
  */
 export function getPostShareStatus( _postId ) {
-	return async ( { dispatch, registry } ) => {
+	return async ( { dispatch, registry, select } ) => {
 		// Default to the current post ID if none is provided.
 		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
+		const featureFlags = select.featureFlags();
+
+		if ( ! featureFlags.useShareStatus ) {
+			return;
+		}
 
 		try {
 			dispatch( fetchPostShareStatus( postId ) );
