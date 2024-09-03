@@ -51,7 +51,7 @@ const PrimaryLink = props => {
 
 	if ( productGroup === 'jetpack_scan' ) {
 		const redirectSource = isJetpackProtectActive
-			? siteAdminUrl + 'admin.php?page=jetpack-protect#/scan'
+			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
 			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
