@@ -46,6 +46,7 @@ const useLogoGenerator = () => {
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
 	} = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 
@@ -62,6 +63,7 @@ const useLogoGenerator = () => {
 			getAiAssistantFeature: selectors.getAiAssistantFeature,
 			requireUpgrade: selectors.getRequireUpgrade(),
 			context: selectors.getContext(),
+			tierPlansEnabled: selectors.getTierPlansEnabled(),
 		};
 	}, [] );
 
@@ -383,6 +385,7 @@ User request:${ prompt }`;
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
 	};
 };
 

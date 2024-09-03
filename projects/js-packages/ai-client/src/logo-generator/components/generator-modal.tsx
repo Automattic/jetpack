@@ -68,7 +68,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		generateFirstPrompt,
 		generateLogo,
 		setContext,
-		requireUpgrade,
+		tierPlansEnabled,
 	} = useLogoGenerator();
 	const { featureFetchError, firstLogoPromptFetchError, clearErrors } = useRequestErrors();
 	const siteId = siteDetails?.ID;
@@ -103,7 +103,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 	const initializeModal = useCallback( async () => {
 		try {
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
-			const tierPlansEnabled = feature?.tierPlansEnabled;
+
 			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 			const promptCreationCost = 1;
 			const currentLimit = feature?.currentTier?.value || 0;

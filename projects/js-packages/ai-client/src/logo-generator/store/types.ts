@@ -181,6 +181,7 @@ export type Selectors = {
 	getSaveToLibraryError(): RequestError;
 	getLogoUpdateError(): RequestError;
 	getContext(): string;
+	getTierPlansEnabled(): boolean;
 };
 
 /*

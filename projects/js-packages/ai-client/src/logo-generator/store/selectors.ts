@@ -200,6 +200,16 @@ const selectors = {
 	getContext( state: LogoGeneratorStateProp ): string {
 		return state._meta?.context ?? '';
 	},
+
+	/**
+	 * Get tier plans enabled status.
+	 *
+	 * @param {LogoGeneratorStateProp} state - The app state tree.
+	 * @return {boolean}                      The tier plans enabled status.
+	 */
+	getTierPlansEnabled( state: LogoGeneratorStateProp ): boolean {
+		return state.features.aiAssistantFeature?.tierPlansEnabled ?? false;
+	},
 };
 
 export default selectors;
