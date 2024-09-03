@@ -127,8 +127,11 @@ export function pollForPostShareStatus( {
 		let hasTimeoutPassed = false;
 
 		do {
-			// Invalidate the resolution to get the latest share status.
-			dispatch.invalidateResolution( 'getPostShareStatus', [ postId ] );
+			// Do not invalidate the resolution if the request is still loading.
+			if ( ! select.getPostShareStatus( postId ).loading ) {
+				// Invalidate the resolution to get the latest share status.
+				dispatch.invalidateResolution( 'getPostShareStatus', [ postId ] );
+			}
 
 			// Wait for the polling interval.
 			await new Promise( resolve => setTimeout( resolve, pollingInterval ) );
