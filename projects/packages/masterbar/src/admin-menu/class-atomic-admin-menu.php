@@ -429,7 +429,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 		}
 
-		$has_feature_atomic = wpcom_site_has_feature( \WPCOM_Features::ATOMIC );
+		$has_feature_atomic = function_exists( 'wpcom_site_has_feature' ) ? wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) : true;
 		add_submenu_page(
 			'options-general.php',
 			$has_feature_atomic ? esc_attr__( 'Server Settings', 'jetpack-masterbar' ) : esc_attr__( 'Hosting Features', 'jetpack-masterbar' ),
