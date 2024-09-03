@@ -1,5 +1,5 @@
 export const googlePoint2Mapbox = google_point =>
-	google_point.hasOwnProperty( 'lat' ) && google_point.hasOwnProperty( 'lng' )
+	Object.hasOwn( google_point, 'lat' ) && Object.hasOwn( google_point, 'lng' )
 		? google_point // Already a valid Mapbox point.
 		: {
 				// Legacy point, supported here to avoid block deprecation.

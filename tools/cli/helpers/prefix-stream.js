@@ -20,7 +20,8 @@ export default class PrefixStream extends FilterStream {
 	 */
 	constructor( options = {} ) {
 		const opts = { ...options };
-		delete opts.prefix, opts.time;
+		delete opts.prefix;
+		delete opts.time;
 		super( s => this.#addPrefix( s ), opts );
 
 		this.#prefix = options.prefix || '';

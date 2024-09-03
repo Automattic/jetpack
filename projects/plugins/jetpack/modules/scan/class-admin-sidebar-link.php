@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
@@ -68,22 +69,37 @@ class Admin_Sidebar_Link {
 		}
 
 		if ( $this->should_show_scan() ) {
-			$menu_label = __( 'Scan', 'jetpack' );
-			$url        = Redirect::get_url( 'calypso-scanner' );
-			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
+			Admin_Menu::add_menu(
+				__( 'Scan', 'jetpack' ),
+				__( 'Scan', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				'manage_options',
+				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
+				null,
+				$this->get_link_offset()
+			);
 		}
 
 		// Add scan item which shows history page only. This is mutally exclusive from the scan item above and is only shown for Atomic sitse.
 		if ( $this->should_show_scan_history_only() ) {
-			$menu_label = __( 'Scan', 'jetpack' );
-			$url        = Redirect::get_url( 'cloud-scan-history-wp-menu' );
-			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
+			Admin_Menu::add_menu(
+				__( 'Scan', 'jetpack' ),
+				__( 'Scan', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				'manage_options',
+				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
+				null,
+				$this->get_link_offset()
+			);
 		}
 
 		if ( $this->should_show_backup() ) {
-			$menu_label = __( 'VaultPress', 'jetpack' );
-			$url        = Redirect::get_url( 'calypso-backups' );
-			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
+			Admin_Menu::add_menu(
+				__( 'VaultPress', 'jetpack' ),
+				__( 'VaultPress', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+				'manage_options',
+				esc_url( Redirect::get_url( 'calypso-backups' ) ),
+				null,
+				$this->get_link_offset()
+			);
 		}
 	}
 
@@ -96,7 +112,7 @@ class Admin_Sidebar_Link {
 	 */
 	private function get_link_offset() {
 		global $submenu;
-		$offset = 0;
+		$offset = 9;
 
 		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
 			return $offset;

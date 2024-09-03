@@ -56,7 +56,7 @@ const MarkedLines = ( { context } ) => {
 		<div className={ styles[ 'marked-lines' ] }>
 			<div className={ styles[ 'marked-lines__line-numbers' ] }>
 				{ Object.keys( lines ).map( lineNumber => {
-					const hasMarks = marks.hasOwnProperty( lineNumber );
+					const hasMarks = Object.hasOwn( marks, lineNumber );
 
 					return (
 						<div
@@ -73,7 +73,7 @@ const MarkedLines = ( { context } ) => {
 			<div className={ styles[ 'marked-lines__lines' ] }>
 				{ Object.keys( lines ).map( lineNumber => {
 					const lineContent = lines[ lineNumber ] || ' ';
-					const hasMarks = marks.hasOwnProperty( lineNumber );
+					const hasMarks = Object.hasOwn( marks, lineNumber );
 
 					return (
 						<div

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix: Handle uncaught exception for images with empty or no src attributes.

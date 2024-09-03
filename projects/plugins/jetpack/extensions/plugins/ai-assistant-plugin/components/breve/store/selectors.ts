@@ -39,6 +39,10 @@ export function getDisabledFeatures( state: BreveState ) {
 	return state.configuration?.disabled;
 }
 
+export function getReloadFlag( state: BreveState ) {
+	return state.configuration?.reload;
+}
+
 // Suggestions
 
 export function getBlockMd5( state: BreveState, blockId: string ) {

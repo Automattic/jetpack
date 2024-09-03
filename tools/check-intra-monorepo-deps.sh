@@ -12,7 +12,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-n <name>] [-v] [-R] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-R] [-P] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -28,6 +28,7 @@ function usage {
 		 -n: Set changelogger filename.
 		 -v: Output debug information.
 		 -R: When on a release branch, skip updating the corresponding plugins.
+		 -P: Skip updating pnpm lockfile. Automatically skipped if <slug> is passed.
 	EOH
 	exit 1
 }
@@ -39,7 +40,8 @@ DOCL_EVER=true
 AUTO_SUFFIX=false
 CL_FILENAME=
 RELEASEBRANCH=false
-while getopts ":uUvhHRan:" opt; do
+DO_PNPM_LOCK=true
+while getopts ":uUvhHRPan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -60,6 +62,9 @@ while getopts ":uUvhHRan:" opt; do
 		H|R)
 			# -H is an old name, kept for back compat.
 			RELEASEBRANCH=true
+			;;
+		P)
+			DO_PNPM_LOCK=false
 			;;
 		h)
 			usage
@@ -123,23 +128,15 @@ function get_packages {
 	else
 		PKGS=()
 	fi
-	if [[ "$PACKAGES" == '{}' && -n "$PACKAGE_VERSIONS_CACHE" && -s "$PACKAGE_VERSIONS_CACHE" ]]; then
-		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
-	else
-		for PKG in "${PKGS[@]}"; do
-			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
-		done
-		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
-			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
-		fi
-	fi
+	for PKG in "${PKGS[@]}"; do
+		PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
+	done
 
 	JSPACKAGES=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:*" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 }
 
 get_packages
 
-DO_PNPM_LOCK=true
 SLUGS=()
 if [[ $# -le 0 ]]; then
 	# Use a temp variable so pipefail works
@@ -167,17 +164,7 @@ if $UPDATE; then
 			ARGS+=( --filename-auto-suffix )
 		fi
 
-		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
-		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			changelogger_add "${ARGS[@]}"
-		else
-			changelogger_add "${ARGS[@]}"
-			info "Updating version for $SLUG"
-			local PRERELEASE=$(alpha_tag composer.json 0)
-			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
-			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
-			get_packages "$SLUG"
-		fi
+		changelogger_add "${ARGS[@]}"
 		cd "$OLDDIR"
 	}
 fi

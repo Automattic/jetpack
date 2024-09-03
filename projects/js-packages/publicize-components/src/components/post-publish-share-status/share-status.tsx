@@ -1,4 +1,3 @@
-import { Button } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { getDate, isInTheFuture } from '@wordpress/date';
@@ -7,7 +6,7 @@ import { useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
-import { ShareStatusModal } from '../share-status-modal';
+import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
 export type ShareStatusProps = {
@@ -31,8 +30,8 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 
 	// Whether the post has been published more than one minute ago.
 	const hasBeenMoreThanOneMinute = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		const date = ( select( editorStore ) as any ).getEditedPostAttribute( 'date' );
+		// @ts-expect-error -- `@wordpress/editor` is a nightmare to work with TypeScript
+		const date = select( editorStore ).getEditedPostAttribute( 'date' );
 
 		const oneMinuteAfterPostDate = new Date( Number( getDate( date ) ) + ONE_MINUTE_IN_MS );
 
@@ -86,9 +85,9 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 						numberOfFailedShares
 					) }
 				</p>
-				<Button variant="link" size="small">
+				<ShareStatusModalTrigger variant="link">
 					{ __( 'Review status and try again', 'jetpack' ) }
-				</Button>
+				</ShareStatusModalTrigger>
 			</Notice>
 		);
 	}
@@ -116,7 +115,7 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 					shareStatus.shares.length
 				) }
 			</p>
-			<ShareStatusModal />
+			<ShareStatusModalTrigger />
 		</>
 	);
 }

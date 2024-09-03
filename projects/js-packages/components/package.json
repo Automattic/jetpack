@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.55.10",
+	"version": "0.55.11",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -60,7 +60,7 @@
 		"storybook": "8.2.9",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.0.4",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	},
 	"peerDependencies": {

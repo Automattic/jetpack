@@ -10,7 +10,12 @@ import React, { forwardRef } from 'react';
 /**
  * Internal dependencies
  */
-import { GuidelineMessage, ErrorMessage, UpgradeMessage } from '../message/index.js';
+import {
+	GuidelineMessage,
+	ErrorMessage,
+	UpgradeMessage,
+	FairUsageLimitMessage,
+} from '../message/index.js';
 import AIControl from './ai-control.js';
 import './style.scss';
 /**
@@ -31,6 +36,7 @@ type ExtensionAIControlProps = {
 	error?: RequestingErrorProps;
 	requestsRemaining?: number;
 	showUpgradeMessage?: boolean;
+	showFairUsageMessage?: boolean;
 	upgradeUrl?: string;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	onChange?: ( newValue: string ) => void;
@@ -62,6 +68,7 @@ export function ExtensionAIControl(
 		error,
 		requestsRemaining,
 		showUpgradeMessage = false,
+		showFairUsageMessage = false,
 		upgradeUrl,
 		wrapperRef,
 		onChange,
@@ -215,6 +222,8 @@ export function ExtensionAIControl(
 				upgradeUrl={ upgradeUrl }
 			/>
 		);
+	} else if ( showFairUsageMessage ) {
+		message = <FairUsageLimitMessage />;
 	} else if ( showUpgradeMessage ) {
 		message = (
 			<UpgradeMessage
