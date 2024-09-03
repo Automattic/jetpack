@@ -23,7 +23,7 @@
 		"automattic/jetpack-config": "^2.0.4",
 		"automattic/jetpack-connection": "^2.12.5",
 		"automattic/jetpack-device-detection": "^2.1.4",
-		"automattic/jetpack-image-cdn": "^0.4.7",
+		"automattic/jetpack-image-cdn": "^0.4.8",
 		"automattic/jetpack-my-jetpack": "^4.33.1",
 		"automattic/jetpack-plugin-deactivation": "^0.2.2",
 		"automattic/jetpack-schema": "^0.1.1",
