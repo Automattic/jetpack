@@ -300,9 +300,9 @@ class Test_Atomic_Admin_Menu extends TestCase {
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
+		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
 		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][5][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][6][2] );
+		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 
 	/**
