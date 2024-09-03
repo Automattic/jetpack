@@ -1,9 +1,8 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback } from 'react';
 import API from '../api';
 import { JETPACK_SCAN_SLUG } from '../constants';
 import usePlanQuery from '../data/use-has-plan-query';
-import useUpgradePlanMutation from '../data/use-upgrade-plan-mutation';
 
 type CheckoutContextType = {
 	hasCheckoutStarted: boolean;
@@ -60,14 +59,10 @@ export default function usePlan( { redirectUrl }: { redirectUrl?: string } = {} 
 		hasCheckoutStarted: boolean;
 	};
 
-	const upgradePlanMutation = useUpgradePlanMutation( {
-		mutationFn: async () => checkout(),
-	} );
-
 	const upgradePlan = useCallback( () => {
 		setHasCheckoutStarted( true );
-		upgradePlanMutation.mutate();
-	}, [ upgradePlanMutation, setHasCheckoutStarted ] );
+		checkout();
+	}, [ checkout, setHasCheckoutStarted ] );
 
 	return {
 		hasPlan,

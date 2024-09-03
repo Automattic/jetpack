@@ -1,6 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
+import { useState } from 'react';
 import useUnIgnoreThreatMutation from '../../data/scan/use-unignore-threat-mutation';
 import useModal from '../../hooks/use-modal';
 import ThreatSeverityBadge from '../severity';
@@ -17,11 +18,15 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 		};
 	};
 
+	const [ isUnignoring, setIsUnignoring ] = useState( false );
+
 	const handleUnignoreClick = () => {
 		return async event => {
 			event.preventDefault();
+			setIsUnignoring( true );
 			await unignoreThreatMutation.mutateAsync( id );
 			setModal( { type: null } );
+			setIsUnignoring( false );
 		};
 	};
 
@@ -49,11 +54,7 @@ const UnignoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isDestructive={ true }
-					isLoading={ unignoreThreatMutation.isLoading }
-					onClick={ handleUnignoreClick() }
-				>
+				<Button isDestructive={ true } isLoading={ isUnignoring } onClick={ handleUnignoreClick() }>
 					{ __( 'Unignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>

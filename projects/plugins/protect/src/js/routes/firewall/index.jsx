@@ -75,22 +75,18 @@ const FirewallPage = () => {
 	 * @member {object} formState - Current form values.
 	 */
 	const [ formState, setFormState ] = useState( {
-		jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
-		jetpack_waf_ip_block_list_enabled: jetpackWafIpBlockListEnabled,
-		jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-		brute_force_protection: isBruteForceModuleEnabled,
 	} );
 
 	const canEditFirewallSettings = isWafModuleEnabled && ! isUpdating;
 	const canToggleAutomaticRules = isWafModuleEnabled && ( hasPlan || automaticRulesAvailable );
-	const canEditIpAllowList = ! isUpdating && !! formState.jetpack_waf_ip_allow_list_enabled;
+	const canEditIpAllowList = ! isUpdating && jetpackWafIpAllowListEnabled;
 	const ipBlockListHasChanges = formState.jetpack_waf_ip_block_list !== jetpackWafIpBlockList;
 	const ipAllowListHasChanges = formState.jetpack_waf_ip_allow_list !== jetpackWafIpAllowList;
 	const ipBlockListHasContent = !! formState.jetpack_waf_ip_block_list;
 	const ipAllowListHasContent = !! formState.jetpack_waf_ip_allow_list;
-	const ipBlockListEnabled = isWafModuleEnabled && formState.jetpack_waf_ip_block_list_enabled;
+	const ipBlockListEnabled = isWafModuleEnabled && jetpackWafIpBlockListEnabled;
 
 	/**
 	 * Get Scan
@@ -226,23 +222,11 @@ const FirewallPage = () => {
 	useEffect( () => {
 		if ( ! isUpdating ) {
 			setFormState( {
-				jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
-				jetpack_waf_ip_block_list_enabled: jetpackWafIpBlockListEnabled,
-				jetpack_waf_ip_allow_list_enabled: jetpackWafIpAllowListEnabled,
 				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-				brute_force_protection: isBruteForceModuleEnabled,
 			} );
 		}
-	}, [
-		jetpackWafIpBlockListEnabled,
-		jetpackWafIpAllowListEnabled,
-		jetpackWafIpBlockList,
-		jetpackWafIpAllowList,
-		jetpackWafAutomaticRules,
-		isBruteForceModuleEnabled,
-		isUpdating,
-	] );
+	}, [ jetpackWafIpBlockList, jetpackWafIpAllowList, isUpdating ] );
 
 	/**
 	 * "WAF Seen" useEffect()
@@ -297,7 +281,7 @@ const FirewallPage = () => {
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
-						checked={ canToggleAutomaticRules ? formState.jetpack_waf_automatic_rules : false }
+						checked={ canToggleAutomaticRules ? jetpackWafAutomaticRules : false }
 						onChange={ withFormState( handleAutomaticRulesChange ) }
 						disabled={ ! canEditFirewallSettings || ! canToggleAutomaticRules || isUpdating }
 					/>
@@ -431,7 +415,7 @@ const FirewallPage = () => {
 			<div className={ styles[ 'toggle-section__control' ] }>
 				<FormToggle
 					id="brute_force_protection"
-					checked={ formState.brute_force_protection }
+					checked={ isBruteForceModuleEnabled }
 					onChange={ withFormState( toggleBruteForceProtection ) }
 					disabled={ isUpdating }
 				/>
@@ -507,7 +491,7 @@ const FirewallPage = () => {
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_allow_list_enabled"
-						checked={ formState.jetpack_waf_ip_allow_list_enabled }
+						checked={ jetpackWafIpAllowListEnabled }
 						onChange={ toggleIpAllowList }
 						disabled={ isUpdating }
 					/>
@@ -522,7 +506,7 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
-					{ ( formState.jetpack_waf_ip_allow_list_enabled || ipAllowListHasContent ) && (
+					{ ( jetpackWafIpAllowListEnabled || ipAllowListHasContent ) && (
 						<div className={ styles[ 'manual-rules-section' ] }>
 							<Textarea
 								id="jetpack_waf_ip_allow_list"
@@ -540,7 +524,7 @@ const FirewallPage = () => {
 							</Text>
 						</div>
 					) }
-					{ formState.jetpack_waf_ip_allow_list_enabled && (
+					{ jetpackWafIpAllowListEnabled && (
 						<div className={ styles[ 'allow-list-button-container' ] }>
 							<div>
 								<Text variant="body-small" className={ styles[ 'allow-list-current-ip' ] }>

@@ -1,28 +1,29 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo } from 'react';
-import { QUERY_HISTORY_KEY, QUERY_SCAN_STATUS_KEY } from '../constants';
+import { useMemo } from 'react';
 import useFixersMutation from '../data/scan/use-fixers-mutation';
 import useFixersQuery from '../data/scan/use-fixers-query';
 import useScanStatusQuery from '../data/scan/use-scan-status-query';
+import { FixersStatus } from '../types/fixers';
+
+type UseFixersResult = {
+	fixableThreatIds: number[];
+	fixInProgressThreatIds: number[];
+	fixersStatus: FixersStatus;
+	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
+	isLoading: boolean;
+};
 
 /**
  * Use Fixers Hook
  *
- * @return {object} Fixers object
+ * @return {UseFixersResult} Fixers object
  */
-export default function useFixers() {
-	const queryClient = useQueryClient();
+export default function useFixers(): UseFixersResult {
 	const { data: status } = useScanStatusQuery();
 	const fixersMutation = useFixersMutation();
 	const { data: fixersStatus } = useFixersQuery( {
 		threatIds: status.fixableThreatIds,
 		usePolling: true,
 	} );
-
-	const fixThreats = useCallback(
-		async ( threatIds: number[] ) => fixersMutation.mutateAsync( threatIds ),
-		[ fixersMutation ]
-	);
 
 	// List of threat IDs that are currently being fixed.
 	const fixInProgressThreatIds = useMemo(
@@ -35,22 +36,11 @@ export default function useFixers() {
 		[ fixersStatus ]
 	);
 
-	useEffect( () => {
-		if (
-			Object.values( fixersStatus?.threats || {} ).some(
-				( threat: { status: string } ) => threat.status !== 'in_progress'
-			)
-		) {
-			queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
-			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
-		}
-	}, [ fixersStatus, queryClient ] );
-
 	return {
 		fixableThreatIds: status.fixableThreatIds,
-		fixersStatus,
-		fixThreats,
 		fixInProgressThreatIds,
+		fixersStatus,
+		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,
 	};
 }

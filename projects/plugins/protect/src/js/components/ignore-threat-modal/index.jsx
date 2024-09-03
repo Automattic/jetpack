@@ -1,5 +1,5 @@
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import useIgnoreThreatMutation from '../../data/scan/use-ignore-threat-mutation';
@@ -13,6 +13,8 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	const ignoreThreatMutation = useIgnoreThreatMutation();
 	const codeableURL = getRedirectUrl( 'jetpack-protect-codeable-referral' );
 
+	const [ isIgnoring, setIsIgnoring ] = useState( false );
+
 	const handleCancelClick = () => {
 		return event => {
 			event.preventDefault();
@@ -21,10 +23,12 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 	};
 
 	const handleIgnoreClick = () => {
-		return event => {
+		return async event => {
 			event.preventDefault();
-			ignoreThreatMutation.mutate( id );
+			setIsIgnoring( true );
+			await ignoreThreatMutation.mutateAsync( id );
 			setModal( { type: null } );
+			setIsIgnoring( false );
 		};
 	};
 
@@ -63,11 +67,7 @@ const IgnoreThreatModal = ( { id, title, label, icon, severity } ) => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Cancel', 'jetpack-protect' ) }
 				</Button>
-				<Button
-					isDestructive={ true }
-					isLoading={ ignoreThreatMutation.isLoading }
-					onClick={ handleIgnoreClick() }
-				>
+				<Button isDestructive={ true } isLoading={ isIgnoring } onClick={ handleIgnoreClick() }>
 					{ __( 'Ignore threat', 'jetpack-protect' ) }
 				</Button>
 			</div>

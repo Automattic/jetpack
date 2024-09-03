@@ -1,17 +1,23 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 import API from '../../api';
 import { QUERY_WAF_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
+import { WafStatus } from '../../types/waf';
 
 /**
- * Use WAF Mutatation
+ * WAF Mutatation Hook
  *
- * @return {object} Mutation object
+ * @return {UseMutationResult} useMutation result.
  */
-export default function useWafMutation() {
+export default function useWafMutation(): UseMutationResult<
+	unknown,
+	{ [ key: string ]: unknown },
+	unknown,
+	{ initialValue: WafStatus }
+> {
 	const queryClient = useQueryClient();
 	const { showSuccessNotice, showSavingNotice, showErrorNotice } = useNotices();
 
@@ -38,26 +44,29 @@ export default function useWafMutation() {
 	return useMutation( {
 		mutationFn: API.updateWaf,
 		onMutate: config => {
-			queryClient.setQueryData(
-				[ QUERY_WAF_KEY ],
-				( currentWaf: { [ key: string ]: unknown } ) => ( {
-					...currentWaf,
-					config: {
-						...( currentWaf?.config as { [ key: string ]: unknown } ),
-						...camelize( config ),
-					},
-				} )
-			);
-
 			showSavingNotice();
+
+			// Get the current WAF config.
+			const initialValue = queryClient.getQueryData( [ QUERY_WAF_KEY ] ) as WafStatus;
+
+			// Optimistically update the WAF config.
+			queryClient.setQueryData( [ QUERY_WAF_KEY ], ( wafStatus: WafStatus ) => ( {
+				...wafStatus,
+				config: {
+					...wafStatus.config,
+					...camelize( config ),
+				},
+			} ) );
+
+			return { initialValue };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
-
-			// Show a success notice.
 			showSuccessNotice( __( 'Changes saved.', 'jetpack-protect' ) );
 		},
-		onError: ( error: { [ key: string ]: unknown } ) => {
+		onError: ( error, variables, context ) => {
+			// Reset the WAF config to its previous state.
+			queryClient.setQueryData( [ QUERY_WAF_KEY ], context.initialValue );
+
 			showErrorNotice( getCustomErrorMessage( error ) );
 		},
 	} );

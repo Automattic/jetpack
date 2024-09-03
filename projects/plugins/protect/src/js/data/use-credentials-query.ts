@@ -1,16 +1,19 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import API from '../api';
 import { QUERY_CREDENTIALS_KEY } from '../constants';
 
 /**
  * Credentials Query Hook
  *
- * @param {object}  args            - Args
+ * @param {object}  args            - Args.
  * @param {boolean} args.usePolling - Use polling.
- * @return {object} useQuery Hook
+ *
+ * @return {UseQueryResult} useQuery result.
  */
-export default function useCredentialsQuery( { usePolling }: { usePolling?: boolean } = {} ) {
+export default function useCredentialsQuery( {
+	usePolling,
+}: { usePolling?: boolean } = {} ): UseQueryResult< [ Record< string, unknown > ] > {
 	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',

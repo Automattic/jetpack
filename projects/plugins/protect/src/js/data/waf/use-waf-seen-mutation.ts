@@ -1,13 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
 import API from '../../api';
 import { QUERY_WAF_KEY } from '../../constants';
 
 /**
- * Use WAF Seen Mutation
+ * WAF Seen Mutation Hook
  *
- * @return {object} - Mutation object
+ * @return {UseMutationResult} - Mutation result.
  */
-export default function useWafSeenMutation() {
+export default function useWafSeenMutation(): UseMutationResult {
 	const queryClient = useQueryClient();
 	return useMutation( {
 		mutationFn: API.wafSeen,

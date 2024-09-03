@@ -40,11 +40,6 @@ use Automattic\Jetpack\Waf\Waf_Stats;
  */
 class Jetpack_Protect {
 
-	/**
-	 * Licenses product ID.
-	 *
-	 * @var string
-	 */
 	const JETPACK_SCAN_PRODUCT_IDS                   = array(
 		2010, // JETPACK_SECURITY_DAILY.
 		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.

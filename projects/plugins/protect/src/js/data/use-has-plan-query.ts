@@ -1,14 +1,14 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import API from '../api';
 import { QUERY_HAS_PLAN_KEY } from '../constants';
 
 /**
- * Credentials Query Hook
+ * Plan Query Hook
  *
- * @return {object} useQuery Hook
+ * @return {UseQueryResult} useQuery result.
  */
-export default function usePlanQuery() {
+export default function usePlanQuery(): UseQueryResult {
 	const { isRegistered, isUserConnected } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',

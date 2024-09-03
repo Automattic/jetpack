@@ -1,5 +1,6 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, UseMutationResult, useQueryClient } from '@tanstack/react-query';
+import { __ } from '@wordpress/i18n';
 import {
 	QUERY_CREDENTIALS_KEY,
 	QUERY_HAS_PLAN_KEY,
@@ -8,14 +9,20 @@ import {
 	QUERY_WAF_KEY,
 	SCAN_STATUS_OPTIMISTICALLY_SCANNING,
 } from '../constants';
+import useNotices from '../hooks/use-notices';
+import { ScanStatus } from '../types/scans';
 
 /**
- * Use Site Connection Mutation
+ * Connect Site Mutation
  *
- * @return {unknown} Mutation function
+ * Mutation hook that triggers the Jetpack connection process for a site.
+ *
+ * @return {UseMutationResult} useMutation result.
  */
-export default function useConnectSiteMutation() {
+export default function useConnectSiteMutation(): UseMutationResult {
 	const queryClient = useQueryClient();
+	const { showErrorNotice } = useNotices();
+
 	const { handleRegisterSite } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
@@ -25,20 +32,21 @@ export default function useConnectSiteMutation() {
 
 	return useMutation( {
 		mutationFn: handleRegisterSite,
-		onMutate: () => {
-			queryClient.setQueryData( [ QUERY_SCAN_STATUS_KEY ], ( currentStatus: object ) => {
-				return {
-					...currentStatus,
-					status: SCAN_STATUS_OPTIMISTICALLY_SCANNING,
-				};
-			} );
-		},
 		onSuccess: async () => {
-			queryClient.invalidateQueries( { queryKey: [ QUERY_SCAN_STATUS_KEY ] } );
+			// Optimistically update the scan status to 'scanning'.
+			queryClient.setQueryData( [ QUERY_SCAN_STATUS_KEY ], ( scanStatus: ScanStatus ) => ( {
+				...scanStatus,
+				status: SCAN_STATUS_OPTIMISTICALLY_SCANNING,
+			} ) );
+
+			// Invalidate all queries that depend on the connection status.
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HISTORY_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_WAF_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_HAS_PLAN_KEY ] } );
 			queryClient.invalidateQueries( { queryKey: [ QUERY_CREDENTIALS_KEY ] } );
+		},
+		onError: () => {
+			showErrorNotice( __( 'Could not connect site.', 'jetpack-protect' ) );
 		},
 	} );
 }

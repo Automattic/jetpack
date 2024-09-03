@@ -1,5 +1,5 @@
 import { useConnection } from '@automattic/jetpack-connection';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../../api';
 import {
@@ -7,12 +7,13 @@ import {
 	SCAN_STATUS_IDLE,
 	SCAN_STATUS_UNAVAILABLE,
 } from '../../constants';
+import { ScanStatus } from '../../types/scans';
 import { QUERY_SCAN_STATUS_KEY } from './../../constants';
 
-export const isScanInProgress = status => {
+export const isScanInProgress = ( status: ScanStatus ) => {
 	// If there has never been a scan, and the scan status is idle or unavailable, then we must still be getting set up.
 	const scanIsInitializing =
-		! status.lastChecked &&
+		! status?.lastChecked &&
 		[ SCAN_STATUS_IDLE, SCAN_STATUS_UNAVAILABLE ].includes( status?.status );
 
 	const scanIsInProgress = SCAN_IN_PROGRESS_STATUSES.indexOf( status?.status ) >= 0;
@@ -23,12 +24,14 @@ export const isScanInProgress = status => {
 /**
  * Use Scan Status Query
  *
- * @param {object}  args            - Hook arguments
+ * @param {object}  args            - Hook arguments.
  * @param {boolean} args.usePolling - When enabled, the query will poll for updates when the scan is in progress.
  *
- * @return {object} useQuery object
+ * @return {UseQueryResult} useQuery result.
  */
-export default function useScanStatusQuery( { usePolling }: { usePolling?: boolean } = {} ) {
+export default function useScanStatusQuery( {
+	usePolling,
+}: { usePolling?: boolean } = {} ): UseQueryResult< ScanStatus > {
 	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
@@ -46,11 +49,7 @@ export default function useScanStatusQuery( { usePolling }: { usePolling?: boole
 				return false;
 			}
 
-			if ( ! query.state.data.status ) {
-				return false;
-			}
-
-			// Refetch on a shorter interval, slow down if it is taking a while.
+			// Refetch on a shorter interval for the first few updates.
 			const interval = query.state.dataUpdateCount < 5 ? 5_000 : 15_000;
 
 			// Refetch when scanning.

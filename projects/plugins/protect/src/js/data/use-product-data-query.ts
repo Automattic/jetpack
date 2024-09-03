@@ -1,14 +1,14 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import camelize from 'camelize';
 import API from '../api';
 import { QUERY_PRODUCT_DATA_KEY } from '../constants';
 
 /**
- * Credentials Query Hook
+ * Product Data Query Hook
  *
- * @return {object} useQuery Hook
+ * @return {UseQueryResult} useQuery result.
  */
-export default function useProductDataQuery() {
+export default function useProductDataQuery(): UseQueryResult {
 	return useQuery( {
 		queryKey: [ QUERY_PRODUCT_DATA_KEY ],
 		queryFn: API.getProductData,
