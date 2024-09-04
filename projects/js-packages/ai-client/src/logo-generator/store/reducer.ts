@@ -122,9 +122,6 @@ export default function reducer(
 					aiAssistantFeature: {
 						costs: defaultCosts,
 						...action.feature,
-						// re evaluate requireUpgrade as the logo generator does not allow free usage
-						requireUpgrade:
-							action.feature?.requireUpgrade || action.feature?.currentTier?.value === 0,
 						_meta: {
 							...state?.features?.aiAssistantFeature?._meta,
 							isRequesting: false,
@@ -179,8 +176,7 @@ export default function reducer(
 			const isOverLimit = currentCount >= requestsLimit;
 
 			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
-			const requireUpgrade =
-				isFreeTierPlan || ( isOverLimit && state?.features?.aiAssistantFeature?.nextTier !== null );
+			const requireUpgrade = isOverLimit && state?.features?.aiAssistantFeature?.nextTier !== null;
 
 			return {
 				...state,
