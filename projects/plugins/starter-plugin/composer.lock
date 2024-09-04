@@ -521,7 +521,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "61beeb1eadc51c94a4ba35310bed89a1f15702e3"
+                "reference": "dfb367ef9c0c15e8edbef55aaddec4d17a0881fc"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -566,6 +566,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "legacy",
                     "src/",

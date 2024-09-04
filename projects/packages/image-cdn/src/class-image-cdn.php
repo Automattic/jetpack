@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.4.7';
+	const PACKAGE_VERSION = '0.4.8';
 
 	/**
 	 * Singleton.
@@ -449,11 +449,11 @@ final class Image_CDN {
 
 				// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
 				// supported, so we stopped pretending to support them in JP 9.1.0.
-				if ( ! is_string( $width ) || str_contains( $width, '%' ) ) {
+				if ( ! is_string( $width ) || ! ctype_digit( $width ) ) {
 					$width = false;
 				}
 
-				if ( ! is_string( $height ) || str_contains( $height, '%' ) ) {
+				if ( ! is_string( $height ) || ! ctype_digit( $height ) ) {
 					$height = false;
 				}
 
