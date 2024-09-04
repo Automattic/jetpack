@@ -689,13 +689,6 @@ class Jetpack {
 
 		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
 
-		add_filter(
-			'jetpack_signature_check_token',
-			array( __CLASS__, 'verify_onboarding_token' ),
-			10,
-			3
-		);
-
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 */
