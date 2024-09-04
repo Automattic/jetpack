@@ -4640,9 +4640,11 @@ endif;
 	/**
 	 * Create a random secret for validating onboarding payload
 	 *
+	 * @deprecated since $$next-version$$
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		$token = Jetpack_Options::get_option( 'onboarding' );
 		if ( false === ( $token ) ) {
 			$token = wp_generate_password( 32, false );
