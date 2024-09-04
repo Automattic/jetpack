@@ -51,9 +51,7 @@ domReady( function () {
 	}
 
 	function setOverlayDismissedCookie() {
-		// Expires in 7 days
-		const expires = new Date( Date.now() + 7 * 86400 * 1000 ).toUTCString();
-		document.cookie = `${ overlayDismissedCookie }=true; expires=${ expires }; path=/;`;
+		document.cookie = `${ overlayDismissedCookie }=true; path=/;`;
 	}
 
 	openOverlay();
