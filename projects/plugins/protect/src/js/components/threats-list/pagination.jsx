@@ -12,7 +12,8 @@ const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => 
 
 	return (
 		<Button
-			className={ isCurrentPage ? null : styles[ 'page-button' ] }
+			size={ 'medium' }
+			className={ ! isCurrentPage ? styles.unfocused : null }
 			onClick={ handleClick }
 			aria-current={ isCurrentPage ? 'page' : undefined }
 		>
@@ -26,6 +27,7 @@ const IconButton = ( { onClick, disabled, direction } ) => {
 	const isLeft = direction === 'left';
 	return (
 		<Button
+			size={ 'medium' }
 			className={ styles[ 'icon-button' ] }
 			onClick={ onClick }
 			disabled={ disabled }

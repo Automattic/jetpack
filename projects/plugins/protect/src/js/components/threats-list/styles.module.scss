@@ -105,22 +105,26 @@
 	justify-content: center;
 	align-items: center;
 	margin-top: calc( var( --spacing-base ) * 2 ); // 16px
-	gap: var( --spacing-base ); // 8px
 
-	.page-button {
-		color: var( --jp-black );
-		background: none;
-		box-shadow: none;
+	button {
+		font-size: var( --font-body );
+		padding: var( --spacing-base ) calc( var( --spacing-base ) * 2 ); // 8px | 16px
 
-		&:hover:not(:disabled), &:focus:not(:disabled) {
+		&.unfocused {
 			color: var( --jp-black );
 			background: none;
 			box-shadow: none;
+	
+			&:hover:not(:disabled), &:focus:not(:disabled) {
+				color: var( --jp-black );
+				background: none;
+				box-shadow: none;
+			}
 		}
-	}
 
-	.icon-button:focus:not(:disabled)  {
-		box-shadow: none;
+		&.icon-button:focus:not(:disabled)  {
+			box-shadow: none;
+		}
 	}
 
 	.first-icon,
