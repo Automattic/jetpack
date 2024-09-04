@@ -136,8 +136,6 @@ class Error_Handler {
 
 		add_action( 'rest_api_init', array( $this, 'register_verify_error_endpoint' ) );
 
-		$this->handle_verified_errors();
-
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
 		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_api_errors' ) );
@@ -145,6 +143,7 @@ class Error_Handler {
 		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
 		add_action( 'jetpack_unlinked_user', array( $this, 'delete_all_errors' ) );
 		add_action( 'jetpack_updated_user_token', array( $this, 'delete_all_errors' ) );
+		add_action( 'admin_init', array( $this, 'handle_verified_errors' ) );
 	}
 
 	/**
