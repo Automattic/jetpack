@@ -22,8 +22,7 @@ const PaginationButton = memo( ( { pageNumber, currentPage, onPageChange } ) => 
 	);
 } );
 
-const IconButton = ( { onClick, disabled, direction } ) => {
-	const iconSize = 32;
+const IconButton = ( { onClick, disabled, direction, iconSize } ) => {
 	const isLeft = direction === 'left';
 	return (
 		<Button
@@ -50,6 +49,7 @@ const IconButton = ( { onClick, disabled, direction } ) => {
 };
 
 const Pagination = ( { list, itemPerPage = 10, children } ) => {
+	const iconSize = 24;
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 	const [ isSmall, setIsSmall ] = useState( window.matchMedia( '(max-width: 1220px)' ).matches );
 
@@ -113,6 +113,7 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 						onClick={ handleFirstPageClick }
 						disabled={ currentPage === 1 }
 						direction="left"
+						iconSize={ iconSize }
 					/>
 					<Button
 						className={ styles[ 'icon-button' ] }
@@ -120,7 +121,7 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 						disabled={ currentPage === 1 }
 						variant={ 'link' }
 						icon={ chevronLeft }
-						iconSize={ 32 }
+						iconSize={ iconSize }
 					></Button>
 					{ getPageNumbers().map( ( pageNumber, index ) =>
 						typeof pageNumber === 'number' ? (
@@ -142,12 +143,13 @@ const Pagination = ( { list, itemPerPage = 10, children } ) => {
 						disabled={ currentPage === totalPages }
 						variant={ 'link' }
 						icon={ chevronRight }
-						iconSize={ 32 }
+						iconSize={ iconSize }
 					></Button>
 					<IconButton
 						onClick={ handleLastPageClick }
 						disabled={ currentPage === totalPages }
 						direction="right"
+						iconSize={ iconSize }
 					/>
 				</div>
 			) }
