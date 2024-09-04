@@ -257,7 +257,7 @@ for DS in $( git -c core.quotepath=off diff --name-only projects | sed -e 's!^pr
 	cd "$BASE/projects/$DS"
 	if ! git diff --quiet ./CHANGELOG.md; then
 		debug "  $DS is being released, no change entry needed"
-	elif ! git diff --quiet -- "./$( q -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
+	elif ! git diff --quiet -- "./$( jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
 		debug "  $DS already has an uncommitted change entry file, skipping"
 	elif ! git diff --quiet -- . ":!./composer.lock"; then
 		debug "  $DS has non-lockfile changes"
