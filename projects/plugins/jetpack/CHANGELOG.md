@@ -3,6 +3,11 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 13.8 - 2024-09-04
+### Enhancements
+- Launchpad modal: Apply experiment [#81287]
+
+## 13.8-beta - 2024-09-02
+>>>>>>> 798545c838 (Add changelog manually)
 ### Major Enhancements
 - Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
 - Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation. [#39096]
