@@ -124,7 +124,28 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 		// If it exists, include it.
 		if ( is_file( $svg_icons ) ) {
-			require_once $svg_icons;
+			$svg_contents = file_get_contents( $svg_icons ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Only reading a local file.
+		}
+
+		if ( ! empty( $svg_contents ) ) {
+			$allowed_tags = array(
+				'svg'    => array(
+					'style'       => true,
+					'version'     => true,
+					'xmlns'       => true,
+					'xmlns:xlink' => true,
+				),
+				'defs'   => array(),
+				'symbol' => array(
+					'id'      => true,
+					'viewbox' => true,
+				),
+				'path'   => array(
+					'd'     => true,
+					'style' => true,
+				),
+			);
+			echo wp_kses( $svg_contents, $allowed_tags );
 		}
 	}
 

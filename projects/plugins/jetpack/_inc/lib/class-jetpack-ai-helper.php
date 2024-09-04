@@ -366,6 +366,17 @@ class Jetpack_AI_Helper {
 				}
 			}
 
+			if ( ! class_exists( 'WPCOM\Jetpack_AI\Feature_Control' ) ) {
+				if ( is_readable( WP_CONTENT_DIR . '/lib/jetpack-ai/feature-control.php' ) ) {
+					require_once WP_CONTENT_DIR . '/lib/jetpack-ai/feature-control.php';
+				} else {
+					return new WP_Error(
+						'jetpack_ai_feature_control_not_found',
+						__( 'WPCOM\Jetpack_AI\Feature_Control class not found.', 'jetpack' )
+					);
+				}
+			}
+
 			// Determine the upgrade type
 			$upgrade_type = wpcom_is_vip( $blog_id ) ? 'vip' : 'default';
 
@@ -383,6 +394,7 @@ class Jetpack_AI_Helper {
 				'tier-plans'           => WPCOM\Jetpack_AI\Usage\Helper::get_tier_plans_list(),
 				'tier-plans-enabled'   => WPCOM\Jetpack_AI\Usage\Helper::ai_tier_plans_enabled(),
 				'costs'                => WPCOM\Jetpack_AI\Usage\Helper::get_costs(),
+				'features-control'     => WPCOM\Jetpack_AI\Feature_Control::get_features(),
 			);
 		}
 

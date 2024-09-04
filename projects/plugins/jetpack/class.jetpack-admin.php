@@ -95,7 +95,6 @@ class Jetpack_Admin {
 
 				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
 				Admin_Menu::init();
-				add_action( 'admin_enqueue_scripts', array( $this, 'akismet_logo_replacement_styles' ) );
 			}
 		}
 
@@ -106,17 +105,6 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
-	}
-
-	/**
-	 * Generate styles to replace Akismet logo for the Jetpack Akismet Anti-spam logo.
-		Without this, we would have to change the logo from Akismet codebase and we want to avoid that.
-	 */
-	public function akismet_logo_replacement_styles() {
-		$logo_url = esc_url( plugins_url( 'images/products/logo-anti-spam.svg', JETPACK__PLUGIN_FILE ) );
-		$style    = ".akismet-masthead__logo-container { background: url({$logo_url}) no-repeat; min-height: 42px; margin: 20px 0; padding: 0 !important; } .akismet-masthead__logo { display: none; }";
-		$style   .= '@media screen and (max-width: 782px) { .akismet-masthead__logo-container { margin-left: 4px; } }';
-		wp_add_inline_style( 'admin-bar', $style );
 	}
 
 	/**
@@ -152,11 +140,6 @@ class Jetpack_Admin {
 			// Add in our new page slug that will redirect to the customizer.
 			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-customizer-redirect', array( __CLASS__, 'customizer_redirect' ) );
 			add_action( "load-{$hook}", array( __CLASS__, 'customizer_redirect' ) );
-		} elseif ( class_exists( 'Jetpack' ) && Jetpack::is_connection_ready() ) { // Link to the Jetpack Settings > Writing page, highlighting the Custom CSS setting.
-			add_submenu_page( '', __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss', array( __CLASS__, 'theme_enhancements_redirect' ) );
-
-			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-theme-enhancements-redirect', array( __CLASS__, 'theme_enhancements_redirect' ) );
-			add_action( "load-{$hook}", array( __CLASS__, 'theme_enhancements_redirect' ) );
 		}
 	}
 
@@ -179,20 +162,6 @@ class Jetpack_Admin {
 					'return_url' => wp_get_referer(),
 				)
 			)
-		);
-		exit;
-	}
-
-	/**
-	 * Handle the Additional CSS redirect to the Jetpack settings Theme Enhancements section.
-	 *
-	 * @since 11.0
-	 *
-	 * @return never
-	 */
-	public static function theme_enhancements_redirect() {
-		wp_safe_redirect(
-			'admin.php?page=jetpack#/writing?term=custom-css'
 		);
 		exit;
 	}
