@@ -110,7 +110,7 @@ class WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_REST_Controller
 		$skip_connection_ids = $request->get_param( 'skipped_connections' );
 		$async               = $request->get_param( 'async' );
 
-		$is_async_share = isset( $async ) && 'true' === $async;
+		$is_async_share = isset( $async ) && true === $async;
 
 		if ( $this->is_wpcom ) {
 			$post = get_post( $post_id );

@@ -454,6 +454,9 @@ class REST_Controller {
 		$post_id             = $request->get_param( 'postId' );
 		$message             = trim( $request->get_param( 'message' ) );
 		$skip_connection_ids = $request->get_param( 'skipped_connections' );
+		$async               = $request->get_param( 'async' );
+
+		$is_async_share = isset( $async ) && true === $async;
 
 		/*
 		 * Publicize endpoint on WPCOM:
@@ -477,6 +480,7 @@ class REST_Controller {
 			array(
 				'message'             => $message,
 				'skipped_connections' => $skip_connection_ids,
+				'async'               => $is_async_share,
 			)
 		);
 

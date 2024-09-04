@@ -33,7 +33,7 @@ function showErrorNotice( message = __( 'Unable to share the Post', 'jetpack' ) 
  */
 function showSuccessNotice() {
 	const { createSuccessNotice } = dispatch( noticesStore );
-	createSuccessNotice( __( 'Post shared', 'jetpack' ), {
+	createSuccessNotice( __( 'Your post will be shared on the selected accounts.', 'jetpack' ), {
 		id: 'publicize-post-share-message',
 		type: 'snackbar',
 	} );
