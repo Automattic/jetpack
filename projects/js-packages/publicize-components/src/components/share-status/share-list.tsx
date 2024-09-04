@@ -14,7 +14,7 @@ export function ShareList() {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 	return (
-		<div className="connection-management">
+		<div>
 			{ shareStatus.loading && (
 				<div className={ styles.spinner }>
 					<Spinner /> { __( 'Loading…', 'jetpack' ) }
