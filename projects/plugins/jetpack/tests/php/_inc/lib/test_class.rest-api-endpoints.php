@@ -198,7 +198,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		// Setup a new current user with specified capability
-		$user = $this->create_and_get_user();
+		$user = $this->create_and_get_user( 'contributor' );
 
 		// Add Jetpack capability
 		$user->add_cap( 'jetpack_admin_page' );
