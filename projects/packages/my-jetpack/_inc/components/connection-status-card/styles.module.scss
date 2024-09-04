@@ -7,6 +7,7 @@
 
 		.avatar-wrapper {
 			position: relative;
+			width: 64px; // width an icon and an avatar
 		}
 
 		.cloud {
@@ -42,6 +43,10 @@
 
 	.info {
 		transform: rotate( 180deg );
+	}
+
+	.connect-action {
+		margin-left: 16px;
 	}
 
 	.list-item {
