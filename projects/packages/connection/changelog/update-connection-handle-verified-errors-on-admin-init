@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Connection: Restrict handling verified errors on admin pages only
