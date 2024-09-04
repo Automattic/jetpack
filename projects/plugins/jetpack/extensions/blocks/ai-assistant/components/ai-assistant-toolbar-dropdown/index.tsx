@@ -21,7 +21,7 @@ import './style.scss';
  * Types and constants
  */
 import type { AiAssistantDropdownOnChangeOptionsArgProps } from './dropdown-content';
-import type { ExtendedBlockProp } from '../../inline-extensions/constants';
+import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ReactElement } from 'react';
 

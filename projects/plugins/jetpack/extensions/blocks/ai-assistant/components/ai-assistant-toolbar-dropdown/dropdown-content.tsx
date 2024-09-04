@@ -9,7 +9,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import { EXTENDED_BLOCKS } from '../../inline-extensions/constants';
+import { EXTENDED_BLOCKS } from '../../extensions/constants';
 import {
 	PROMPT_TYPE_CHANGE_TONE,
 	PROMPT_TYPE_CORRECT_SPELLING,
@@ -27,7 +27,7 @@ import './style.scss';
 /**
  * Types and constants
  */
-import type { ExtendedBlockProp } from '../../inline-extensions/constants';
+import type { ExtendedBlockProp } from '../../extensions/constants';
 import type { PromptTypeProp } from '../../lib/prompt';
 import type { ToneProp } from '../tone-dropdown-control';
 import type { ReactElement } from 'react';
