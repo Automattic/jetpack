@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack menu: only register Jetpack admin page for contributor roles and above.
