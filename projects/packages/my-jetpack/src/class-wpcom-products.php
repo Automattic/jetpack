@@ -350,6 +350,15 @@ class Wpcom_Products {
 	}
 
 	/**
+	 * Reset the request failures to retry the API requests.
+	 *
+	 * @return void
+	 */
+	public static function reset_request_failures() {
+		static::$wpcom_request_failures = array();
+	}
+
+	/**
 	 * Record the request failure to prevent repeated requests.
 	 *
 	 * @param string   $request_label The request label.
