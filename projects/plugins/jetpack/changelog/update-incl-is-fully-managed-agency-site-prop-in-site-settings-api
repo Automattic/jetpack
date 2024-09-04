@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Site Settings API: Include is_fully_managed_agency_site site option in the response, and allow for its modification
