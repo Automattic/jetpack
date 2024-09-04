@@ -1,4 +1,4 @@
-import wpcomRequest from 'wpcom-proxy-request';
+import apiFetch from '@wordpress/api-fetch';
 
 type HasAddedTagsResult = {
 	added_tags: number;
@@ -13,11 +13,10 @@ const useAddTagsToPost = ( postId: number, tags: string[], onSaveTags: OnSaveTag
 	async function saveTags() {
 		let addedTags = 0;
 		try {
-			const result = await wpcomRequest< HasAddedTagsResult >( {
+			const result: HasAddedTagsResult = await apiFetch( {
 				method: 'POST',
-				path: `read/sites/${ postId }/tags/add`,
-				apiNamespace: 'wpcom/v2',
-				body: { tags },
+				path: `/wpcom/v2/read/sites/${ window._currentSiteId }/posts/${ postId }/tags/add`,
+				data: { tags },
 			} );
 			addedTags = result.added_tags ?? 0;
 		} catch ( error ) {
