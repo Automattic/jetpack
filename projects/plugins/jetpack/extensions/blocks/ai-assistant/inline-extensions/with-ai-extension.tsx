@@ -69,7 +69,8 @@ type CoreEditorSelect = { getCurrentPostId: () => number };
 // HOC to populate the block's edit component with the AI Assistant control inpuit and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 	return props => {
-		const { clientId, isSelected, name: blockName } = props;
+		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
+		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
 		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlHeight = useRef< number >( 0 );
@@ -390,13 +391,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Focus the input when the AI Control is displayed and set the ownerDocument.
 		useEffect( () => {
-			if ( inputRef.current ) {
+			// Do not focus the input if the block is a preview.
+			if ( inputRef.current && isSelectionEnabled ) {
 				// Save the block's ownerDocument to use it later, as the editor can be in an iframe.
 				ownerDocument.current = inputRef.current.ownerDocument;
 				// Focus the input when the AI Control is displayed.
 				focusInput();
 			}
-		}, [ showAiControl, focusInput ] );
+		}, [ showAiControl, focusInput, isSelectionEnabled ] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
