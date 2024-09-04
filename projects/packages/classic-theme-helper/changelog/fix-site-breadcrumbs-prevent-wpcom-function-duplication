@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Site Breadcrumbs: Ensure main function is not created when host is WordPress.com.

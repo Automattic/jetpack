@@ -7,7 +7,8 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
-if ( ! function_exists( 'jetpack_breadcrumbs' ) ) {
+$host = new Automattic\Jetpack\Status\Host();
+if ( ! function_exists( 'jetpack_breadcrumbs' ) && ! $host->is_wpcom_simple() ) {
 	/**
 	 * Echos a set of breadcrumbs.
 	 *
