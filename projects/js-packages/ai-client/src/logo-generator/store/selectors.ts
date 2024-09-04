@@ -210,6 +210,16 @@ const selectors = {
 	getTierPlansEnabled( state: LogoGeneratorStateProp ): boolean {
 		return state.features.aiAssistantFeature?.tierPlansEnabled ?? false;
 	},
+
+	/**
+	 * Get tier plans enabled status.
+	 *
+	 * @param {LogoGeneratorStateProp} state - The app state tree.
+	 * @return {boolean}                      The loading logo history status.
+	 */
+	getIsLoadingHistory( state: LogoGeneratorStateProp ): boolean {
+		return state._meta?.isLoadingHistory ?? false;
+	},
 };
 
 export default selectors;
