@@ -4668,12 +4668,15 @@ endif;
 	/**
 	 * Validate an onboarding token for a specific action
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param string $token Onboarding token.
 	 * @param string $action Action name.
 	 *
 	 * @return boolean True if token/action pair is accepted, false if not
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		// Compare tokens, bail if tokens do not match.
 		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
 			return false;
