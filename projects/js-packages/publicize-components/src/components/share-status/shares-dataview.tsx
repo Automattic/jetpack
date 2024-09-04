@@ -1,9 +1,7 @@
-import { useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { getDate, humanTimeDiff } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { store as socialStore } from '../../social-store';
-import { ShareStatusItem } from '../../social-store/types';
+import { PostShareStatus, ShareStatusItem } from '../../social-store/types';
 import ConnectionIcon from '../connection-icon';
 import { ShareStatusAction } from './share-status-action';
 import { ShareStatusLabel } from './share-status-label';
@@ -15,17 +13,22 @@ const getItemId = ( item: ShareStatusItem ) => {
 
 const noop = () => {};
 
+type SharesDataViewProps = {
+	postShareStatus: PostShareStatus;
+};
+
 /**
  * The component for the shares data view.
  *
+ * @param {SharesDataViewProps} props - The component props.
+ *
  * @return {import('react').ReactNode} - The shares data view component.
  */
-export function SharesDataView() {
-	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
-
+export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 	return (
 		<div className={ styles[ 'dataview-wrapper' ] }>
 			<DataViews
+				isLoading={ postShareStatus.loading }
 				getItemId={ getItemId }
 				fields={ [
 					{
@@ -82,12 +85,12 @@ export function SharesDataView() {
 						enableHiding: false,
 					},
 				] }
-				data={ shareStatus.shares }
+				data={ postShareStatus.shares }
 				view={ { type: 'table' } }
 				defaultLayouts={ { table: {} } }
 				onChangeView={ noop }
 				paginationInfo={ {
-					totalItems: shareStatus.shares.length,
+					totalItems: postShareStatus.shares.length,
 					totalPages: 1,
 				} }
 			/>

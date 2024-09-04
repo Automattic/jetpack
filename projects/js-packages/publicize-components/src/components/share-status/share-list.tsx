@@ -20,7 +20,7 @@ export function ShareList() {
 					<Spinner /> { __( 'Loading…', 'jetpack' ) }
 				</div>
 			) }
-			<SharesDataView />
+			<SharesDataView postShareStatus={ shareStatus } />
 		</div>
 	);
 }
