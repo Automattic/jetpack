@@ -52,7 +52,8 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 } ) => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
-	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory } = useDispatch( STORE_NAME );
+	const { setSiteDetails, fetchAiAssistantFeature, loadLogoHistory, setIsLoadingHistory } =
+		useDispatch( STORE_NAME );
 	const { getIsRequestingAiAssistantFeature } = select( STORE_NAME );
 	const [ loadingState, setLoadingState ] = useState<
 		'loadingFeature' | 'analyzing' | 'generating' | null
@@ -129,6 +130,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 				return;
 			}
 
+			setIsLoadingHistory( true );
 			// Load the logo history and clear any deleted media.
 			await clearDeletedMedia( String( siteId ) );
 			loadLogoHistory( siteId );
@@ -136,6 +138,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 			// If there is any logo, we do not need to generate a first logo again.
 			if ( ! isLogoHistoryEmpty( String( siteId ) ) ) {
 				setLoadingState( null );
+				setIsLoadingHistory( false );
 				return;
 			}
 
@@ -144,6 +147,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		} catch ( error ) {
 			debug( 'Error fetching feature', error );
 			setLoadingState( null );
+			setIsLoadingHistory( false );
 		}
 	}, [
 		feature,
@@ -170,6 +174,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 		setNeedsMoreRequests( false );
 		clearErrors();
 		setLogoAccepted( false );
+		setIsLoadingHistory( false );
 		recordTracksEvent( EVENT_MODAL_CLOSE, { context, placement } );
 	};
 
