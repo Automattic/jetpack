@@ -184,7 +184,8 @@ class Backup extends Hybrid_Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 2 ), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'rewind_state_fetch_failed' );
+			$status = new WP_Error( 'rewind_state_fetch_failed' );
+			return $status;
 		}
 
 		$body   = wp_remote_retrieve_body( $response );
