@@ -684,6 +684,17 @@ class Contact_Form_Plugin {
 			do_blocks( '<!-- wp:template-part ' . wp_json_encode( $attributes ) . ' /-->' );
 		} else {
 			// It's a form embedded in a post
+
+			if ( ! is_post_publicly_viewable( $id ) && ! current_user_can( 'read_post', $id ) ) {
+				// The user can't see the post.
+				return false;
+			}
+
+			if ( post_password_required( $id ) ) {
+				// The post is password-protected and the password is not provided.
+				return false;
+			}
+
 			$post = get_post( $id );
 
 			// Process the content to populate Contact_Form::$last
