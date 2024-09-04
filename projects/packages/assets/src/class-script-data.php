@@ -40,6 +40,7 @@ class Script_Data {
 		 */
 		$hook = is_admin() ? 'admin_print_scripts' : 'wp_print_scripts';
 		add_action( $hook, array( self::class, 'render_script_data' ), 1 );
+		add_action( 'enqueue_block_editor_assets', array( self::class, 'render_script_data' ), 1 );
 	}
 
 	/**
@@ -68,6 +69,11 @@ class Script_Data {
 	 * @return void
 	 */
 	public static function render_script_data() {
+
+		// Avoid rendering the script data multiple times.
+		if ( current_filter() !== 'enqueue_block_editor_assets' && did_action( 'enqueue_block_editor_assets' ) ) {
+			return;
+		}
 
 		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
 
