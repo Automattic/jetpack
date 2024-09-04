@@ -82,7 +82,7 @@ class Admin_Menu {
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
-				'read',
+				'edit_posts',
 				'jetpack',
 				'__return_null',
 				$icon,
