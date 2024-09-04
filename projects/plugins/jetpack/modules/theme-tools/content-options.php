@@ -49,9 +49,11 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 		/**
 		 * Activate the Content Options plugin.
 		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 * @uses current_theme_supports()
 		 */
 		function jetpack_content_options_init() {
+			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 			// If the theme doesn't support 'jetpack-content-options', don't continue.
 			if ( ! current_theme_supports( 'jetpack-content-options' ) ) {
 				return;
@@ -87,8 +89,11 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
 		/**
 		 * Get featured images settings using the jetpack-content-options theme support.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		function jetpack_featured_images_get_settings() {
+			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 			$options = get_theme_support( 'jetpack-content-options' );
 
 			$featured_images = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
@@ -126,8 +131,11 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
 		/**
 		 * Determine if the Jetpack Featured Images should be load.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		function jetpack_featured_images_should_load() {
+			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 			// If the theme doesn't support post thumbnails, don't continue.
 			if ( ! current_theme_supports( 'post-thumbnails' ) ) {
 				return false;
@@ -152,8 +160,11 @@ if ( ! class_exists( '\Automattic\Jetpack\Classic_Theme_Helper\Main' ) ) {
 
 		/**
 		 * Determine if the Jetpack Featured Images fallback should load.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
 		 */
 		function jetpack_featured_images_fallback_should_load() {
+			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
 			// If the theme doesn't support post thumbnails, don't continue.
 			if ( ! current_theme_supports( 'post-thumbnails' ) ) {
 				return false;
