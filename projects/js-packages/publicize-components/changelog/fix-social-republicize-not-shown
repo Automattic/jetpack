@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed resharing for jetpack sites when only social plugin is active

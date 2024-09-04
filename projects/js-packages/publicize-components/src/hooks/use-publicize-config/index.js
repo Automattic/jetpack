@@ -5,6 +5,7 @@ import {
 	getJetpackData,
 	getSiteFragment,
 	isSimpleSite,
+	isAtomicSite,
 } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -21,9 +22,10 @@ const republicizeFeatureName = 'republicize';
  * for toggling support for the current post.
  */
 export default function usePublicizeConfig() {
+	const isJetpackSite = ! isAtomicSite() && ! isSimpleSite();
 	const blogID = getJetpackData()?.wpcomBlogId;
 	const isRePublicizeFeatureAvailable =
-		getJetpackExtensionAvailability( republicizeFeatureName )?.available;
+		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	const currentPostType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { isUserConnected } = useConnection();
