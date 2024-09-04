@@ -4657,9 +4657,11 @@ endif;
 	/**
 	 * Remove the onboarding token
 	 *
+	 * @deprecated since $$next-version$$
 	 * @return bool True on success, false on failure
 	 */
 	public static function invalidate_onboarding_token() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		return Jetpack_Options::delete_option( 'onboarding' );
 	}
 
