@@ -185,6 +185,12 @@ function GlobalStylesEditNotice() {
 				: 'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external wpcom-global-styles-action-is-support',
 		} );
 
+		actions.push( {
+			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
+			onClick: window.open( 'https://wordpress.com/support/using-styles/#access-to-styles' ),
+			variant: 'link',
+		} );
+
 		const planName = wpcomGlobalStyles.planName;
 		createWarningNotice(
 			sprintf(
