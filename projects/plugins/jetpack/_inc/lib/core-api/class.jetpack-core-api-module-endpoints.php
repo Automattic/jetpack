@@ -1110,11 +1110,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Add or update Business Address widget.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param array $address Array of business address fields.
 	 *
 	 * @return WP_Error|true True if the data was saved correctly.
 	 */
 	private static function handle_business_address( $address ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
