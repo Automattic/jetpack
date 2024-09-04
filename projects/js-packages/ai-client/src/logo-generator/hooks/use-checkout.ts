@@ -20,10 +20,11 @@ import type { Selectors } from '../store/types.js';
 const debug = debugFactory( 'ai-client:logo-generator:use-checkout' );
 
 export const useCheckout = () => {
-	const { nextTier } = useSelect( select => {
+	const { nextTier, tierPlansEnabled } = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 		return {
 			nextTier: selectors.getAiAssistantFeature().nextTier,
+			tierPlansEnabled: selectors.getAiAssistantFeature().tierPlansEnabled,
 		};
 	}, [] );
 
@@ -33,7 +34,11 @@ export const useCheckout = () => {
 	const wpcomCheckoutUrl = new URL( `https://jetpack.com/redirect/` );
 	wpcomCheckoutUrl.searchParams.set( 'source', 'jetpack-ai-yearly-tier-upgrade-nudge' );
 	wpcomCheckoutUrl.searchParams.set( 'site', getSiteFragment() as string );
-	wpcomCheckoutUrl.searchParams.set( 'path', `jetpack_ai_yearly:-q-${ nextTier?.limit }` );
+
+	wpcomCheckoutUrl.searchParams.set(
+		'path',
+		tierPlansEnabled ? `jetpack_ai_yearly:-q-${ nextTier?.limit }` : 'jetpack_ai_yearly'
+	);
 
 	/**
 	 * Open the product interstitial page

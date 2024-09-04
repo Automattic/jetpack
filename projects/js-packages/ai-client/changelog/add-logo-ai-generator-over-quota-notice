@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Logo generator: add over quota notice, handle disabling tiers on checkout
