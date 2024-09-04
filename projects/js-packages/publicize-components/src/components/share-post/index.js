@@ -1,5 +1,5 @@
 import { Button, PanelRow } from '@wordpress/components';
-import { dispatch, useSelect } from '@wordpress/data';
+import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -49,6 +49,8 @@ export function SharePostButton() {
 	const { isPublicizeEnabled } = usePublicizeConfig();
 	const { isFetching, isError, isSuccess, doPublicize } = useSharePost();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const featureFlags = useSelect( select => select( socialStore ).featureFlags(), [] );
+	const { pollForPostShareStatus } = useDispatch( socialStore );
 
 	useEffect( () => {
 		if ( isFetching ) {
@@ -76,7 +78,7 @@ export function SharePostButton() {
 	const isButtonDisabled =
 		! isPublicizeEnabled || ! hasEnabledConnections || ! isPostPublished || isFetching;
 
-	const sharePost = useCallback( () => {
+	const sharePost = useCallback( async () => {
 		if ( ! isPostPublished ) {
 			return showErrorNotice(
 				__( 'You must publish your post before you can share it.', 'jetpack' )
@@ -84,8 +86,13 @@ export function SharePostButton() {
 		}
 
 		cleanNotice( 'publicize-post-share-message' );
-		doPublicize();
-	}, [ doPublicize, isPostPublished ] );
+
+		await doPublicize();
+
+		if ( featureFlags.useShareStatus ) {
+			pollForPostShareStatus();
+		}
+	}, [ doPublicize, isPostPublished, featureFlags.useShareStatus, pollForPostShareStatus ] );
 
 	return (
 		<Button
