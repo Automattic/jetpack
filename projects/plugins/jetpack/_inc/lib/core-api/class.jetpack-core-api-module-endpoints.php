@@ -486,22 +486,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
-				case 'onboarding':
-					$business_address = get_option( 'jpo_business_address' );
-					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
-
-					$response[ $setting ] = array(
-						'siteTitle'          => $this->decode_special_characters( get_option( 'blogname' ) ),
-						'siteDescription'    => $this->decode_special_characters( get_option( 'blogdescription' ) ),
-						'siteType'           => get_option( 'jpo_site_type' ),
-						'homepageFormat'     => get_option( 'jpo_homepage_format' ),
-						'addContactForm'     => (int) get_option( 'jpo_contact_page' ),
-						'businessAddress'    => $business_address,
-						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-						'stats'              => Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ),
-					);
-					break;
-
 				case 'search_auto_config':
 					// Only writable.
 					$response[ $setting ] = 1;
@@ -962,22 +946,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support bools or strings saved by update_option.
 						? update_option( $option, (bool) $value )
 						: true;
-					break;
-
-				case 'onboarding':
-					require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
-					// Break apart and set Jetpack onboarding options.
-					$result = $this->process_onboarding( (array) $value );
-					if ( empty( $result ) ) {
-						$updated = true;
-					} else {
-						$error = sprintf(
-							/* Translators: placeholder is a list of error codes. */
-							esc_html__( 'Onboarding failed to process: %s', 'jetpack' ),
-							$result
-						);
-						$updated = false;
-					}
 					break;
 
 				case 'jetpack_subscriptions_reply_to':
