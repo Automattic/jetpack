@@ -4582,6 +4582,8 @@ endif;
 	/**
 	 * Verify the onboarding token.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param array  $token_data Token data.
 	 * @param string $token Token value.
 	 * @param string $request_data JSON-encoded request data.
@@ -4589,6 +4591,7 @@ endif;
 	 * @return mixed
 	 */
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		// Default to a blog token.
 		$token_type = 'blog';
 
