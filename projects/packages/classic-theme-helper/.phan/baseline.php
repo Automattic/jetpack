@@ -10,7 +10,7 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgumentInternal : 10+ occurrences
-    // PhanUndeclaredClassMethod : 9 occurrences
+    // PhanUndeclaredClassMethod : 10+ occurrences
     // PhanTypePossiblyInvalidDimOffset : 8 occurrences
     // PhanUndeclaredClassReference : 4 occurrences
     // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
@@ -29,8 +29,8 @@ return [
         'src/content-options/featured-images-fallback.php' => ['PhanTypePossiblyInvalidDimOffset'],
         'src/custom-content-types.php' => ['PhanUndeclaredClassMethod'],
         'src/custom-post-types/class-jetpack-portfolio.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeSuspiciousNonTraversableForeach'],
-		'src/site-breadcrumbs.php' => ['PhanUndeclaredClassMethod'],
-	],
+        'src/site-breadcrumbs.php' => ['PhanUndeclaredClassMethod'],
+    ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)
 ];
