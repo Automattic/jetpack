@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Make dashboard gracefully fail when user data fetch failed.
