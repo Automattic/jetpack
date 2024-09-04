@@ -28,6 +28,7 @@ import {
 	ACTION_SET_LOGO_UPDATE_ERROR,
 	ACTION_SET_SAVE_TO_LIBRARY_ERROR,
 	ACTION_SET_CONTEXT,
+	ACTION_SET_IS_LOADING_HISTORY,
 } from './constants.js';
 import type {
 	AiFeatureProps,
@@ -245,6 +246,13 @@ const actions = {
 		return {
 			type: ACTION_SET_CONTEXT,
 			context,
+		};
+	},
+
+	setIsLoadingHistory( isLoadingHistory: boolean ) {
+		return {
+			type: ACTION_SET_IS_LOADING_HISTORY,
+			isLoadingHistory,
 		};
 	},
 };
