@@ -139,7 +139,7 @@ class Threats {
 	/**
 	 * Fix Threats Status
 	 *
-	 * @param array<number> $threat_ids Threat IDs.
+	 * @param array<int> $threat_ids Threat IDs.
 	 *
 	 * @return bool|array
 	 */
