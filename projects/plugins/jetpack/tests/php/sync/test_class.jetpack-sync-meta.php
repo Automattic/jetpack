@@ -200,12 +200,23 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
+			if ( $meta_key === 'footnotes' ) {
+				// WordPress would filter non-array into an empty string, and fail the test
+				// See sanitize_post_meta_footnotes filter
+				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array() ) );
+				continue;
+			}
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}
 
 		$this->sender->do_sync();
 
 		foreach ( $white_listed_post_meta as $meta_key ) {
+			if ( $meta_key === 'footnotes' ) {
+				$this->assertOptionIsSynced( $meta_key, '[]', 'post', $this->post_id );
+				continue;
+			}
+
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
 		}
 		$whitelist = Settings::get_setting( 'post_meta_whitelist' );
