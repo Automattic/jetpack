@@ -183,19 +183,9 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 3.4.8 - 2024-09-02
-#### Changed
-- Admin menu: change order of Jetpack sub-menu items
-- Page Cache: Update notice for WP Cloud clients.
-- React: Changing global JSX namespace to React.JSX
-
+### 3.4.9 - 2024-09-03
 #### Fixed
-- Cloud CSS: Fixed not properly storing CSS returned from the cloud after a theme switch.
-- Lossless image optimization for images (should improve performance with no visible changes).
-- Misc: Fix PHP warning when generating critical css for some taxonomy pages.
-- Revert recent SVG image optimizations.
-- UI: Fix inconsistencies.
-- Updated package dependencies.
+- Update `automattic/jetpack-image-cdn` package to resolve a PHP fatal error.
 
 --------
 
