@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { loadExperimentAssignment } from '@automattic/jetpack-explat';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
@@ -40,8 +40,10 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 };
 
 export const settings = {
-	render: function LaunchpadSaveModal() {
-		const { variationName } = await loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' );
+	render: async function LaunchpadSaveModal() {
+		const { variationName } = await loadExperimentAssignment(
+			'calypso_onboarding_launchpad_removal_test_2024_08'
+		);
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
 				const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( coreStore );
