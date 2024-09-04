@@ -72,7 +72,7 @@ function getHumanReadableError( result ) {
 export default function useSharePost( postId ) {
 	// Sharing data.
 	const { message } = useSocialMediaMessage();
-	const { skippedConnections: skipped_connections } = useSocialMediaConnections();
+	const { skippedConnections } = useSocialMediaConnections();
 
 	// Get post ID to share.
 	const currentPostId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
@@ -82,7 +82,7 @@ export default function useSharePost( postId ) {
 	const path = getSocialScriptData().api_paths.resharePost.replace( '{postId}', postId );
 
 	const doPublicize = useCallback(
-		function () {
+		async function ( connectionsToSkip = null ) {
 			const initialState = {
 				isFetching: false,
 				isError: false,
@@ -97,13 +97,15 @@ export default function useSharePost( postId ) {
 				return;
 			}
 
+			const skipped_connections = connectionsToSkip || skippedConnections;
+
 			// Start the request.
 			setData( {
 				...initialState,
 				isFetching: true,
 			} );
 
-			apiFetch( {
+			await apiFetch( {
 				path,
 				method: 'POST',
 				data: {
@@ -149,7 +151,7 @@ export default function useSharePost( postId ) {
 				setData( initialState ); // clean the state.
 			};
 		},
-		[ postId, message, skipped_connections, data.isFetching, path ]
+		[ postId, message, skippedConnections, data.isFetching, path ]
 	);
 
 	return { ...data, doPublicize };

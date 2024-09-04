@@ -4,7 +4,7 @@
 	margin-bottom: 24px;
 
 	.components-checkbox-control {
-		&__input:not(:disabled) {
+		&__input:not( :disabled ) {
 			@include features-colors( ( 'border-color' ) );
 			&:checked {
 				@include features-colors( ( 'background-color' ) );
@@ -24,6 +24,11 @@
 	&__grade-label {
 		color: #757575;
 		margin-left: 12px;
+	}
+
+	&__help-text {
+		font-size: 12px;
+		color: #757575;
 	}
 
 	.feature-checkboxes-container {
