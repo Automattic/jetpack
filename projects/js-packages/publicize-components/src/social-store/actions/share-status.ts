@@ -1,4 +1,4 @@
-import { SocialStoreState } from '../types';
+import { PostShareStatus, SocialStoreState } from '../types';
 import {
 	FETCH_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
@@ -69,4 +69,79 @@ export function openShareStatusModal() {
  */
 export function closeShareStatusModal() {
 	return toggleShareStatusModal( false );
+}
+
+type IsRequestComplete = ( options: {
+	lastTimestamp: number;
+	postShareStatus: PostShareStatus;
+} ) => boolean;
+
+/**
+ * Default implementation to check if the request is complete.
+ *
+ * @param {IsRequestComplete} options - Options.
+ *
+ * @return {boolean} - Whether the request is complete.
+ */
+export const defaultIsRequestComplete: IsRequestComplete = ( {
+	lastTimestamp,
+	postShareStatus,
+} ) => {
+	// If the last timestamp is present, check if there are newer timestamps.
+	// otherwise check if we have any shares.
+	return lastTimestamp
+		? postShareStatus.shares.some( share => share.timestamp > lastTimestamp )
+		: postShareStatus.shares.length > 0;
+};
+
+type PollForPostShareStatusOptions = {
+	postId?: number;
+	timeout?: number;
+	isRequestComplete?: IsRequestComplete;
+	pollingInterval?: number;
+};
+
+const ONE_MINUTE_IN_MS = 60 * 1000;
+
+const POLLING_INTERVAL = 3 * 1000; // milliseconds
+
+/**
+ * Poll for share status.
+ *
+ * @param {PollForPostShareStatusOptions} options - Options.
+ *
+ * @return {Promise<void>} - Function to start polling.
+ */
+export function pollForPostShareStatus( {
+	pollingInterval = POLLING_INTERVAL,
+	postId,
+	isRequestComplete = defaultIsRequestComplete,
+	timeout = ONE_MINUTE_IN_MS,
+}: PollForPostShareStatusOptions = {} ) {
+	return async function ( { dispatch, select } ) {
+		const startedAt = Date.now();
+
+		const lastTimestamp = select.getPostShareStatus( postId ).shares[ 0 ]?.timestamp || 0;
+
+		let isTheRequestComplete = false;
+		let hasTimeoutPassed = false;
+
+		do {
+			// Do not invalidate the resolution if the request is still loading.
+			if ( ! select.getPostShareStatus( postId ).loading ) {
+				// Invalidate the resolution to get the latest share status.
+				dispatch.invalidateResolution( 'getPostShareStatus', [ postId ] );
+			}
+
+			// Wait for the polling interval.
+			await new Promise( resolve => setTimeout( resolve, pollingInterval ) );
+
+			isTheRequestComplete = isRequestComplete( {
+				lastTimestamp,
+				postShareStatus: select.getPostShareStatus( postId ),
+			} );
+
+			hasTimeoutPassed = Date.now() - startedAt > timeout;
+		} while ( ! isTheRequestComplete && ! hasTimeoutPassed );
+	};
 }
