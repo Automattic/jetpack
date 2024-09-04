@@ -254,7 +254,14 @@ debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P"
 "$BASE"/tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P
 info "Adding changelog entries for unreleased projects..."
 for DS in $( git -c core.quotepath=off diff --name-only projects | sed -e 's!^projects/\([^/]\+/[^/]\+\)/.*$!\1!' | sort -u ); do
-	cd "$BASE/projects/$DS"
+	if [[ "$DS" = projects* ]]; then
+
+		# sed on MacOS returns the whole pattern instead of the matched part
+		cd "$BASE/$DS"
+	else
+		cd "$BASE/projects/$DS"
+	fi
+
 	if ! git diff --quiet ./CHANGELOG.md; then
 		debug "  $DS is being released, no change entry needed"
 	elif ! git diff --quiet -- "./$( jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
