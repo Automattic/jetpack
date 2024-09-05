@@ -109,6 +109,29 @@ add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 
 /**
+ * Render the admin bar in user locale even on frontend screens.
+ */
+function wpcom_always_use_user_locale() {
+	if ( is_admin() || ! is_admin_bar_showing() ) {
+		return;
+	}
+
+	$site_locale = get_locale();
+	$user_locale = get_user_locale();
+
+	if ( $site_locale !== $user_locale ) {
+		switch_to_locale( $user_locale );
+		add_action(
+			'wp_after_admin_bar_render',
+			function () use ( $site_locale ) {
+				switch_to_locale( $site_locale );
+			}
+		);
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
+
+/**
  * Replaces the WP logo as a link to /sites.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
