@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import camelize from 'camelize';
 import { useMemo } from 'react';
 import useHistoryQuery from '../../data/scan/use-history-query';
 import useScanStatusQuery from '../../data/scan/use-scan-status-query';
@@ -58,7 +57,7 @@ export default function useProtectData(
 
 	const { counts, results, error, lastChecked, hasUncheckedItems } = useMemo( () => {
 		// This hook can provide data from two sources: the current scan or the scan history.
-		const data = camelize( sourceType === 'history' ? { ...scanHistory } : { ...status } );
+		const data = sourceType === 'history' ? { ...scanHistory } : { ...status };
 
 		// Prepare the result object.
 		const result = {
