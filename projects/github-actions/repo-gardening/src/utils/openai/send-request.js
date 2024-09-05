@@ -5,11 +5,12 @@ const debug = require( '../debug' );
 /**
  * Send a message to OpenAI.
  *
- * @param {string} message - Message to send to OpenAI.
+ * @param {string} message        - Message to send to OpenAI.
+ * @param {string} responseFormat - Response format to use (plain by default, can be 'object').
  *
  * @return {Promise<string|void>} Promise resolving to the response from OpenAI, or void if an error occurred.
  */
-async function sendOpenAiRequest( message ) {
+async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
 		setFailed( 'openai: Input openai_api_key is required but missing.' );
@@ -29,6 +30,7 @@ async function sendOpenAiRequest( message ) {
 				{ role: 'user', content: message },
 			],
 			model: 'gpt-4o-mini',
+			response_format: responseFormat === 'object' ? { type: 'json_object' } : undefined,
 		} );
 
 		return completion?.choices?.[ 0 ]?.message?.content ?? '';
