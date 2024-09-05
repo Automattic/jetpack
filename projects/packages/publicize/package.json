@@ -31,7 +31,7 @@
 		"@automattic/color-studio": "2.6.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@csstools/postcss-global-data": "2.1.1",
-		"@wordpress/browserslist-config": "6.5.0",
+		"@wordpress/browserslist-config": "6.6.0",
 		"autoprefixer": "10.4.14",
 		"concurrently": "7.6.0",
 		"postcss": "8.4.31",
@@ -44,6 +44,6 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-publicize-components": "workspace:*",
-		"@wordpress/i18n": "5.5.0"
+		"@wordpress/i18n": "5.6.0"
 	}
 }

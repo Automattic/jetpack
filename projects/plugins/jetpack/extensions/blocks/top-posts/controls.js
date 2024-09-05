@@ -55,6 +55,7 @@ export function TopPostsInspectorControls( {
 		<>
 			<PanelBody title={ __( 'Block settings', 'jetpack' ) }>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Number of items', 'jetpack' ) }
 					value={ postsToShow }
 					onChange={ value => setAttributes( { postsToShow: Math.min( value, 10 ) } ) }
@@ -62,6 +63,7 @@ export function TopPostsInspectorControls( {
 					max={ 10 }
 				/>
 				<SelectControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Stats period', 'jetpack' ) }
 					value={ period }
 					onChange={ value => setAttributes( { period: value } ) }
@@ -71,6 +73,7 @@ export function TopPostsInspectorControls( {
 			<PanelBody title={ __( 'Items to display', 'jetpack' ) }>
 				{ postTypesData.map( toggle => (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						key={ toggle.id }
 						label={ sprintf(
 							/* translators: %s: Content type (eg. post/page). */
@@ -89,21 +92,25 @@ export function TopPostsInspectorControls( {
 			</PanelBody>
 			<PanelBody title={ __( 'Metadata settings', 'jetpack' ) }>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display date', 'jetpack' ) }
 					checked={ displayDate }
 					onChange={ value => setAttributes( { displayDate: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display author', 'jetpack' ) }
 					checked={ displayAuthor }
 					onChange={ value => setAttributes( { displayAuthor: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display context', 'jetpack' ) }
 					checked={ displayContext }
 					onChange={ value => setAttributes( { displayContext: value } ) }
 				/>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Display thumbnail', 'jetpack' ) }
 					checked={ displayThumbnail }
 					onChange={ value => setAttributes( { displayThumbnail: value } ) }

@@ -218,26 +218,37 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * Determine if users who are already logged in to WordPress.com are automatically logged in to wp-admin.
+ * Determine if users should be enforced to log in with their WP.com account.
+ *
+ * Sites without local users:
+ * - WP.com login, always.
+ *
+ * Sites with local users:
+ * - If user comes from Calypso: WP.com login
+ * - Otherwise: Jetpack SSO login, so they can decide whether to use a WP.com account or a local account.
  */
 function wpcomsh_bypass_jetpack_sso_login() {
-	/**
-	 * Sites with the classic interface:
-	 * - Automatic login if they come from Calypso.
-	 * - Otherwise we display the login form, so they can decide whether to use a WP.com account or a local account.
-	 */
-	if ( 'wp-admin' === get_option( 'wpcom_admin_interface' ) ) {
-		$calypso_domains = array(
-			'https://wordpress.com/',
-			'https://horizon.wordpress.com/',
-			'https://wpcalypso.wordpress.com/',
-			'http://calypso.localhost:3000/',
-			'http://127.0.0.1:41050/', // Desktop App.
-		);
-		return in_array( wp_get_referer(), $calypso_domains, true );
+	$calypso_domains = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	if ( in_array( wp_get_referer(), $calypso_domains, true ) ) {
+		return true;
 	}
 
-	// Users of sites with the default interface are always logged in automatically.
+	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
+		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+		foreach ( $users as $user ) {
+			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+				return false;
+			}
+		}
+	}
+
 	return true;
 }
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
