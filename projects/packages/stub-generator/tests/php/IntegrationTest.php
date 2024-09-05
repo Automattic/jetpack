@@ -53,7 +53,7 @@ class IntegrationTest extends TestCase {
 
 					public function stream_open( $path, $mode, $options ) {
 						if ( $options & STREAM_REPORT_ERRORS ) {
-							trigger_error( 'Open fail from dummy stream wrapper', E_USER_ERROR );
+							trigger_error( 'Open fail from dummy stream wrapper', E_USER_WARNING );
 						}
 						return false;
 					}

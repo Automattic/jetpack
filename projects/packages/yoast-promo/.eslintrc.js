@@ -1,4 +1,5 @@
 module.exports = {
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	rules: {
 		'jsdoc/check-tag-names': [ 1, { definedTags: [ 'jest-environment' ] } ],
 		// Enforce use of the correct textdomain.

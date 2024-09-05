@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Fixed a deadlock with media validation and media picker

@@ -10,7 +10,6 @@ usage () {
 	--user=wp_user_id \
 	[--wp-cli-path=/usr/local/bin/wp]
 	[--plan=plan_name] \
-	[--onboarding=1] \
 	[--wpcom_user_id=1234] \
 	[--wpcom_user_email=wpcom_user_email] \
 	[--url=http://example.com] \
@@ -69,10 +68,6 @@ for i in "$@"; do
 			;;
 		-p=* | --plan=* )
 			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form plan=${i#*=}"
-			shift
-			;;
-		-o=* | --onboarding=* )
-			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form onboarding=${i#*=}"
 			shift
 			;;
 		-u=* | --url=* )

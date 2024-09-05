@@ -121,6 +121,10 @@ const selectors = {
 	 */
 	getRequireUpgrade( state: LogoGeneratorStateProp ): boolean {
 		const feature = state.features.aiAssistantFeature;
+
+		if ( ! feature?.tierPlansEnabled ) {
+			return feature?.requireUpgrade;
+		}
 		const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
 		const currentLimit = feature?.currentTier?.value || 0;
 		const currentUsage = feature?.usagePeriod?.requestsCount || 0;
@@ -195,6 +199,26 @@ const selectors = {
 	 */
 	getContext( state: LogoGeneratorStateProp ): string {
 		return state._meta?.context ?? '';
+	},
+
+	/**
+	 * Get tier plans enabled status.
+	 *
+	 * @param {LogoGeneratorStateProp} state - The app state tree.
+	 * @return {boolean}                      The tier plans enabled status.
+	 */
+	getTierPlansEnabled( state: LogoGeneratorStateProp ): boolean {
+		return state.features.aiAssistantFeature?.tierPlansEnabled ?? false;
+	},
+
+	/**
+	 * Get tier plans enabled status.
+	 *
+	 * @param {LogoGeneratorStateProp} state - The app state tree.
+	 * @return {boolean}                      The loading logo history status.
+	 */
+	getIsLoadingHistory( state: LogoGeneratorStateProp ): boolean {
+		return state._meta?.isLoadingHistory ?? false;
 	},
 };
 

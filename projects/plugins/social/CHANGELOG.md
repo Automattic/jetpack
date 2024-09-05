@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 5.3.0 - 2024-09-05
+### Changed
+- Updated connection js to load its bundle via connection package [#38877]
+- Updated package dependencies. [#39176]
+
+### Fixed
+- Updated pricing table to clarify features [#39182]
+
+## 5.2.0 - 2024-08-29
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Moved PostPublishPanels component to publicize-components package [#39049]
+- Social: Migrated shares data to the new script data [#38988]
+- Social: Updated intial state logic to use the new consolidated initial state [#38606]
+- Social: Updated the share status modal to render it globally [#39116]
+- Update composer lock file [#38942]
+- Updated package dependencies. [#38662] [#38665] [#38822] [#38822] [#39111]
+
+### Removed
+- Remove the unused Advanced plan nudge [#38926]
+- Social: Removed share limits UI and data logic [#38904]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
 ## 5.1.0 - 2024-08-08
 ### Added
 - Added feature flag management for social [#38669]

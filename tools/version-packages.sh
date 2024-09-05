@@ -35,7 +35,7 @@ function check_dir {
 			error "$DIR does not contain composer.json."
 			return 1
 		fi
-	elif [[ "$1" == "*/composer.json" && -f "$1" ]]; then # DWIM
+	elif [[ "$1" == */composer.json && -f "$1" ]]; then # DWIM
 		DIR="$(dirname "$1")"
 	else
 		error "Directory $1 does not exist."

@@ -102,12 +102,13 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 5.1.0 - 2024-08-08
-#### Added
-- Added feature flag management for social
+### 5.3.0 - 2024-09-05
+#### Changed
+- Updated connection js to load its bundle via connection package
+- Updated package dependencies.
 
 #### Fixed
-- Lossless image optimization of images in projects/plugins [subdirectories from a* through social]
+- Updated pricing table to clarify features
 
 == Upgrade Notice ==
 

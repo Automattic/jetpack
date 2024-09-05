@@ -154,7 +154,11 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 	const accessLevel = useAccessLevel( postType );
 	const { tracks } = useAnalytics();
 
-	const isPaidOptionDisabled = ! accessLevel || accessLevel !== accessOptions.paid_subscribers.key;
+	const isPaidAccess = accessLevel === accessOptions.paid_subscribers.key;
+
+	if ( ! isPaidAccess ) {
+		return null;
+	}
 
 	const accessOptionsList = [
 		{ label: accessOptions.subscribers.label, value: accessOptions.subscribers.key, icon: people },
@@ -162,20 +166,13 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 			label: accessOptions.paid_subscribers.label,
 			value: accessOptions.paid_subscribers.key,
 			icon: currencyDollar,
-			disabled: isPaidOptionDisabled,
 		},
 	];
 
 	const handleChange = value => {
-		if ( ! isPaidOptionDisabled ) {
-			tracks.recordEvent( 'jetpack_newsletter_preview_access_change', { access: value } );
-			setSelectedAccess( value );
-		}
+		tracks.recordEvent( 'jetpack_newsletter_preview_access_change', { access: value } );
+		setSelectedAccess( value );
 	};
-
-	if ( isSmall && isPaidOptionDisabled ) {
-		return null;
-	}
 
 	return (
 		<ToggleGroupControl
@@ -198,7 +195,6 @@ const PreviewAccessSelector = ( { selectedAccess, setSelectedAccess } ) => {
 						key={ access.value }
 						value={ access.value }
 						label={ access.label }
-						disabled={ access.disabled }
 					/>
 				)
 			) }

@@ -18,7 +18,7 @@ export const getPostShareStatus = createRegistrySelector(
 
 			return state.shareStatus?.[ id ] ?? { shares: [] };
 		}
-);
+) as ( state: SocialStoreState, postId?: number ) => PostShareStatus;
 
 /**
  * Whether the share status modal is open.
