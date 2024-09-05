@@ -202,9 +202,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders two manage buttons', () => {
+		it( 'renders one manage button', () => {
 			setup();
-			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 2 );
+			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 1 );
 		} );
 	} );
 } );
