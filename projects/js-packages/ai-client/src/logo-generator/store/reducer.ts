@@ -27,6 +27,7 @@ import {
 	ACTION_SET_SAVE_TO_LIBRARY_ERROR,
 	ACTION_SET_LOGO_UPDATE_ERROR,
 	ACTION_SET_CONTEXT,
+	ACTION_SET_IS_LOADING_HISTORY,
 } from './constants.js';
 import INITIAL_STATE from './initial-state.js';
 import type {
@@ -61,6 +62,7 @@ import type { SiteDetails } from '../types.js';
  * @param {Array< { url: string; description: string; mediaId?: number } >} action.history               - The logo history
  * @param {RequestError}                                                    action.error                 - The error to set
  * @param {string}                                                          action.context               - The context where the tool is being used
+ * @param {boolean}                                                         action.isLoadingHistory      - Whether the history is being loaded
  * @return {LogoGeneratorStateProp} The new state
  */
 export default function reducer(
@@ -83,6 +85,7 @@ export default function reducer(
 		history?: Array< { url: string; description: string; mediaId?: number } >;
 		error?: RequestError;
 		context?: string;
+		isLoadingHistory?: boolean;
 	}
 ) {
 	switch ( action.type ) {
@@ -379,6 +382,15 @@ export default function reducer(
 				_meta: {
 					...( state._meta ?? {} ),
 					context: action.context,
+				},
+			};
+
+		case ACTION_SET_IS_LOADING_HISTORY:
+			return {
+				...state,
+				_meta: {
+					...( state._meta ?? {} ),
+					isLoadingHistory: action.isLoadingHistory,
 				},
 			};
 	}

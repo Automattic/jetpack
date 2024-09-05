@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Checks an array key before attempting to read it.

@@ -93,7 +93,11 @@ const SocialImageGeneratorSettingsModal = ( { onClose } ) => {
 						'jetpack'
 					) }
 				/>
-				<BaseControl label={ __( 'Templates', 'jetpack' ) } className={ styles.templateControl }>
+				<BaseControl
+					__nextHasNoMarginBottom={ true }
+					label={ __( 'Templates', 'jetpack' ) }
+					className={ styles.templateControl }
+				>
 					<TemplatePicker value={ localTemplate } onTemplateSelected={ setEditedTemplate } />
 				</BaseControl>
 				<Button onClick={ onClose } variant="tertiary">
