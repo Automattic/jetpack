@@ -95,10 +95,6 @@ Example response format:
 
 	const { labels, explanations } = parsedResponse;
 
-	// Display the explanations in the action logs.
-	const explanationString = Object.entries( explanations ).join( ' // ' );
-	debug( `triage-issues: OpenAI suggested the following labels: ${ explanationString }` );
-
 	if ( ! Array.isArray( labels ) ) {
 		return suggestions;
 	}
