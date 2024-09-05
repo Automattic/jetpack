@@ -8,9 +8,6 @@ module.exports = {
 		// Some configs currently don't load this otherwise. Sigh.
 		'./base.js',
 	],
-	parserOptions: {
-		requireConfigFile: true,
-	},
 	settings: {
 		react: {
 			version: 'detect', // React version. "detect" automatically picks the version you have installed.

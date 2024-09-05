@@ -1,9 +1,6 @@
 // .eslintrc.js
 module.exports = {
 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/playwright' ) ],
-	parserOptions: {
-		requireConfigFile: false,
-	},
 	env: {
 		node: true,
 	},
