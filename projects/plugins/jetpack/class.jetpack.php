@@ -689,13 +689,6 @@ class Jetpack {
 
 		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
 
-		add_filter(
-			'jetpack_signature_check_token',
-			array( __CLASS__, 'verify_onboarding_token' ),
-			10,
-			3
-		);
-
 		/**
 		 * Prepare Gutenberg Editor functionality
 		 */
@@ -1582,27 +1575,6 @@ class Jetpack {
 		 * @param Automattic\Jetpack\Connection\Manager $connection_manager Instance of the Manager class, can be used to check the connection status.
 		 */
 		return apply_filters( 'jetpack_is_connection_ready', self::connection()->is_connected(), self::connection() );
-	}
-
-	/**
-	 * Whether the site is currently onboarding or not.
-	 * A site is considered as being onboarded if it currently has an onboarding token.
-	 *
-	 * @since 5.8
-	 * @deprecated Use \Automattic\Jetpack\Status()->is_onboarding()
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @return bool True if the site is currently onboarding, false otherwise
-	 */
-	public static function is_onboarding() {
-		_deprecated_function( __METHOD__, 'jetpack-10.9', 'Automattic\\Jetpack\\Status\\is_onboarding' );
-
-		if ( ! method_exists( 'Automattic\Jetpack\Status', 'is_onboarding' ) ) {
-			return Jetpack_Options::get_option( 'onboarding' ) !== false;
-		}
-		return ( new Status() )->is_onboarding();
 	}
 
 	/**
@@ -3834,10 +3806,6 @@ p {
 
 					$url = $this->build_connect_url( true, $redirect, $from );
 
-					if ( ! empty( $_GET['onboarding'] ) ) {
-						$url = add_query_arg( 'onboarding', rawurlencode_deep( wp_unslash( $_GET['onboarding'] ) ), $url ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-					}
-
 					if ( ! empty( $_GET['auth_approved'] ) && 'true' === $_GET['auth_approved'] ) {
 						$url = add_query_arg( 'auth_approved', 'true', $url );
 					}
@@ -3921,29 +3889,6 @@ p {
 						wp_safe_redirect( admin_url() );
 					} else {
 						wp_safe_redirect( self::admin_url( array( 'page' => rawurlencode( $redirect ) ) ) );
-					}
-					exit;
-				case 'onboard':
-					if ( ! current_user_can( 'manage_options' ) ) {
-						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
-					} else {
-						self::create_onboarding_token();
-						$url = $this->build_connect_url( true );
-
-						$token = Jetpack_Options::get_option( 'onboarding' );
-
-						if ( false !== ( $token ) ) {
-							$url = add_query_arg( 'onboarding', $token, $url );
-						}
-
-						$calypso_env = ( new Host() )->get_calypso_env();
-						if ( ! empty( $calypso_env ) ) {
-							$url = add_query_arg( 'calypso_env', $calypso_env, $url );
-						}
-
-						add_filter( 'allowed_redirect_hosts', array( Host::class, 'allow_wpcom_environments' ) );
-						wp_safe_redirect( $url );
-						exit;
 					}
 					exit;
 				default:
@@ -4486,9 +4431,6 @@ endif;
 	 * @param array $data The request data.
 	 */
 	public static function authorize_ending_authorized( $data ) {
-		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token.
-		self::invalidate_onboarding_token();
-
 		// If redirect_uri is SSO, ensure SSO module is enabled.
 		parse_str( wp_parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
@@ -4640,6 +4582,8 @@ endif;
 	/**
 	 * Verify the onboarding token.
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @param array  $token_data Token data.
 	 * @param string $token Token value.
 	 * @param string $request_data JSON-encoded request data.
@@ -4647,6 +4591,7 @@ endif;
 	 * @return mixed
 	 */
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		// Default to a blog token.
 		$token_type = 'blog';
 
@@ -4695,9 +4640,11 @@ endif;
 	/**
 	 * Create a random secret for validating onboarding payload
 	 *
+	 * @deprecated since $$next-version$$
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		$token = Jetpack_Options::get_option( 'onboarding' );
 		if ( false === ( $token ) ) {
 			$token = wp_generate_password( 32, false );
@@ -4710,14 +4657,18 @@ endif;
 	/**
 	 * Remove the onboarding token
 	 *
+	 * @deprecated since $$next-version$$
 	 * @return bool True on success, false on failure
 	 */
 	public static function invalidate_onboarding_token() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		return Jetpack_Options::delete_option( 'onboarding' );
 	}
 
 	/**
 	 * Validate an onboarding token for a specific action
+	 *
+	 * @deprecated since $$next-version$$
 	 *
 	 * @param string $token Onboarding token.
 	 * @param string $action Action name.
@@ -4725,6 +4676,7 @@ endif;
 	 * @return boolean True if token/action pair is accepted, false if not
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 		// Compare tokens, bail if tokens do not match.
 		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
 			return false;
