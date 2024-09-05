@@ -19,7 +19,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Data_Sync_Actions\Set_Provider_Err
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Status;
-use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Liar;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
@@ -325,11 +324,6 @@ jetpack_boost_register_option(
 );
 
 /**
- * Register Super Cache Notice Disabled store.
- */
-jetpack_boost_register_option( 'super_cache_notice_disabled', Schema::as_boolean()->fallback( false ) );
-
-/**
  * Entry to store alerts that shouldn't be shown again.
  */
 jetpack_boost_register_option(
@@ -353,7 +347,6 @@ jetpack_boost_register_option(
 jetpack_boost_register_readonly_option( 'connection', array( new Connection(), 'get_connection_api_response' ) );
 jetpack_boost_register_readonly_option( 'pricing', array( Premium_Pricing::class, 'get_yearly_pricing' ) );
 jetpack_boost_register_readonly_option( 'premium_features', array( Premium_Features::class, 'get_features' ) );
-jetpack_boost_register_readonly_option( 'super_cache', array( Super_Cache_Info::class, 'get_info' ) );
 jetpack_boost_register_readonly_option( 'cache_debug_log', array( Logger::class, 'read' ) );
 jetpack_boost_register_readonly_option( 'cache_engine_loading', array( Boost_Cache::class, 'is_loaded' ) );
 
