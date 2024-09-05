@@ -40,10 +40,9 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 };
 
 export const settings = {
-	render: async function LaunchpadSaveModal() {
-		const experiment = await loadExperimentAssignment(
-			'calypso_onboarding_launchpad_removal_test_2024_08'
-		);
+	render: function LaunchpadSaveModal() {
+		const [ variationName, setVariationName ] = useState();
+
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
 				const { __experimentalGetDirtyEntityRecords, isSavingEntityRecord } = select( coreStore );
@@ -63,8 +62,19 @@ export const settings = {
 			}
 		);
 
-		console.log( 'experiment', experiment );
-		alert( 'variationName', experiment?.variationName );
+		// Fetch the experiment data once when the component mounts
+		useEffect( () => {
+			loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' )
+				.then( experiment => {
+					console.log( 'experiment', experiment );
+					setVariationName( experiment.variationName );
+				} )
+				.catch( error => {
+					console.error( 'Error loading experiment assignment:', error );
+				} );
+		}, [] );
+
+		console.log( 'experimentName', variationName );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
