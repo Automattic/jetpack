@@ -17,6 +17,13 @@ class Script_Data {
 	const SCRIPT_HANDLE = 'jetpack-script-data';
 
 	/**
+	 * Whether the script data has been rendered.
+	 *
+	 * @var bool
+	 */
+	private static $did_render_script_data = false;
+
+	/**
 	 * Configure.
 	 */
 	public static function configure() {
@@ -69,11 +76,12 @@ class Script_Data {
 	 * @return void
 	 */
 	public static function render_script_data() {
-
-		// Avoid rendering the script data multiple times.
-		if ( current_filter() !== 'enqueue_block_editor_assets' && did_action( 'enqueue_block_editor_assets' ) ) {
+		// In case of 'enqueue_block_editor_assets' action, this can be called multiple times.
+		if ( self::$did_render_script_data ) {
 			return;
 		}
+
+		self::$did_render_script_data = true;
 
 		$script_data = is_admin() ? self::get_admin_script_data() : self::get_public_script_data();
 
