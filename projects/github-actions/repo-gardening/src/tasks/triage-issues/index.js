@@ -69,15 +69,12 @@ Analyze the issue and suggest relevant labels. Rules:
 - Include 1 '[Feature Group]' label.
 - Include 1 to 3 '[Feature]' labels.
 - Briefly explain each label choice in 1 sentence.
-- Format your response as a JSON object with 'labels' and 'explanations' keys.
+- Format your response as a JSON object, with each suggested label as a key, and its explanation as the value.
 
 Example response format:
 {
-    "labels": ["[Feature Group] User Interaction & Engagement", "[Feature] Comments"],
-    "explanations": {
-        "[Feature Group] User Interaction & Engagement": "The issue involves how users interact with the platform.",
-        "[Feature] Comments": "Specifically, it's about the commenting functionality."
-    }
+    "[Feature Group] User Interaction & Engagement": "The issue involves how users interact with the platform.",
+    "[Feature] Comments": "Specifically, it's about the commenting functionality."
 }`;
 
 	const response = await sendOpenAiRequest( prompt );
@@ -93,13 +90,13 @@ Example response format:
 		return suggestions;
 	}
 
-	const { labels, explanations } = parsedResponse;
+	const labels = Object.keys( parsedResponse );
 
 	if ( ! Array.isArray( labels ) ) {
 		return suggestions;
 	}
 
-	return { labels, explanations };
+	return { labels, explanations: parsedResponse };
 }
 
 /**
