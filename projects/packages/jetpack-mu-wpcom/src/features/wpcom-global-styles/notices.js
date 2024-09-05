@@ -150,6 +150,11 @@ function GlobalStylesEditNotice() {
 		trackEvent( 'calypso_global_styles_gating_notice_reset_support_click', isSiteEditor );
 	}, [ isSiteEditor ] );
 
+	const openLearnMoreAboutStylesDialog = useCallback( () => {
+		window.open( wpcomGlobalStyles.learnMoreAboutStylesUrl, '_blank' ).focus();
+		trackEvent( 'calypso_global_styles_gating_learn_more_click', isSiteEditor );
+	}, [ isSiteEditor ] );
+
 	const showNotice = useCallback( () => {
 		const actions = [
 			{
@@ -187,8 +192,11 @@ function GlobalStylesEditNotice() {
 
 		actions.push( {
 			label: __( 'Learn more', 'jetpack-mu-wpcom' ),
-			onClick: window.open( 'https://wordpress.com/support/using-styles/#access-to-styles' ),
+			onClick: openLearnMoreAboutStylesDialog,
 			variant: 'link',
+			noDefaultClasses: true,
+			className:
+				'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external wpcom-global-styles-action-is-support',
 		} );
 
 		const planName = wpcomGlobalStyles.planName;
@@ -214,6 +222,7 @@ function GlobalStylesEditNotice() {
 		isPostEditor,
 		isSiteEditor,
 		openResetGlobalStylesSupport,
+		openLearnMoreAboutStylesDialog,
 		previewPost,
 		resetGlobalStyles,
 		upgradePlan,
