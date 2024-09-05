@@ -253,11 +253,12 @@ info "Updating dependencies..."
 debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P"
 "$BASE"/tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U -P
 info "Adding changelog entries for unreleased projects..."
-for DS in $( git -c core.quotepath=off diff --name-only projects | sed -e 's!^projects/\([^/]\+/[^/]\+\)/.*$!\1!' | sort -u ); do
+for DS in $( git -c core.quotepath=off diff --name-only projects | sed -E -e 's!^projects/([^/]+/[^/]+)/.*$!\1!' | sort -u ); do
 	cd "$BASE/projects/$DS"
+
 	if ! git diff --quiet ./CHANGELOG.md; then
 		debug "  $DS is being released, no change entry needed"
-	elif ! git diff --quiet -- "./$( q -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
+	elif ! git diff --quiet -- "./$( jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json )/"; then
 		debug "  $DS already has an uncommitted change entry file, skipping"
 	elif ! git diff --quiet -- . ":!./composer.lock"; then
 		debug "  $DS has non-lockfile changes"

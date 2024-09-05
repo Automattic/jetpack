@@ -5,6 +5,7 @@ import React, { useCallback } from 'react';
 import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
+import Pagination from './pagination';
 import styles from './styles.module.scss';
 
 const ThreatAccordionItem = ( {
@@ -85,38 +86,42 @@ const ThreatAccordionItem = ( {
 
 const FreeList = ( { list } ) => {
 	return (
-		<FreeAccordion>
-			{ list.map(
-				( {
-					description,
-					fixedIn,
-					icon,
-					id,
-					label,
-					name,
-					source,
-					table,
-					title,
-					type,
-					version,
-				} ) => (
-					<ThreatAccordionItem
-						description={ description }
-						fixedIn={ fixedIn }
-						icon={ icon }
-						id={ id }
-						label={ label }
-						key={ id }
-						name={ name }
-						source={ source }
-						table={ table }
-						title={ title }
-						type={ type }
-						version={ version }
-					/>
-				)
+		<Pagination list={ list }>
+			{ ( { currentItems } ) => (
+				<FreeAccordion>
+					{ currentItems.map(
+						( {
+							description,
+							fixedIn,
+							icon,
+							id,
+							label,
+							name,
+							source,
+							table,
+							title,
+							type,
+							version,
+						} ) => (
+							<ThreatAccordionItem
+								description={ description }
+								fixedIn={ fixedIn }
+								icon={ icon }
+								id={ id }
+								label={ label }
+								key={ id }
+								name={ name }
+								source={ source }
+								table={ table }
+								title={ title }
+								type={ type }
+								version={ version }
+							/>
+						)
+					) }
+				</FreeAccordion>
 			) }
-		</FreeAccordion>
+		</Pagination>
 	);
 };
 
