@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack REST API: Fix missing requirement in admin-menu endpoint
