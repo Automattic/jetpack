@@ -250,34 +250,33 @@ async function triageIssues( payload, octokit ) {
 
 		if ( labels.length === 0 ) {
 			debug( `triage-issues: No labels suggested by OpenAI for issue #${ number }` );
-			return;
-		}
+		} else {
+			// Add the suggested labels to the issue.
+			debug(
+				`triage-issues: Adding the following labels to issue #${ number }, as suggested by OpenAI: ${ labels.join(
+					', '
+				) }`
+			);
+			await octokit.rest.issues.addLabels( {
+				owner: ownerLogin,
+				repo: name,
+				issue_number: number,
+				labels,
+			} );
 
-		// Add the suggested labels to the issue.
-		debug(
-			`triage-issues: Adding the following labels to issue #${ number }, as suggested by OpenAI: ${ labels.join(
-				', '
-			) }`
-		);
-		await octokit.rest.issues.addLabels( {
-			owner: ownerLogin,
-			repo: name,
-			issue_number: number,
-			labels,
-		} );
-
-		// During testing, post a comment on the issue with the explanations.
-		const explanationComment = `**OpenAI suggested the following labels for this issue:**
+			// During testing, post a comment on the issue with the explanations.
+			const explanationComment = `**OpenAI suggested the following labels for this issue:**
 ${ Object.entries( explanations )
 	.map( ( [ labelName, explanation ] ) => `- ${ labelName }: ${ explanation }` )
 	.join( '\n' ) }`;
 
-		await octokit.rest.issues.createComment( {
-			owner: ownerLogin,
-			repo: name,
-			issue_number: number,
-			body: explanationComment,
-		} );
+			await octokit.rest.issues.createComment( {
+				owner: ownerLogin,
+				repo: name,
+				issue_number: number,
+				body: explanationComment,
+			} );
+		}
 	}
 
 	// Send a Slack notification if the issue is important.
