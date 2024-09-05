@@ -1140,7 +1140,7 @@ class Jetpack {
 					$caps = array( 'manage_options' );
 					break;
 				} else {
-					$caps = array( 'read' );
+					$caps = array( 'edit_posts' );
 				}
 				break;
 		}
