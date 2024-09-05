@@ -41,7 +41,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const [ variationName, setVariationName ] = useState();
+		const [ experimentVariationName, setExperimentVariationName ] = useState();
 
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
@@ -67,14 +67,12 @@ export const settings = {
 			loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' )
 				.then( experiment => {
 					console.log( 'experiment', experiment );
-					setVariationName( experiment.variationName );
+					setExperimentVariationName( experiment.variationName );
 				} )
 				.catch( error => {
 					console.error( 'Error loading experiment assignment:', error );
 				} );
 		}, [] );
-
-		console.log( 'experimentName', variationName );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
@@ -106,6 +104,10 @@ export const settings = {
 			path: siteIntentOption,
 			query: `siteSlug=${ siteFragment }`,
 		} );
+		const calypsoHomeUrl = getRedirectUrl( 'calypso-home', {
+			site: siteFragment,
+		} );
+		const primaryActionHref = experimentVariationName === 'control' ? launchPadUrl : calypsoHomeUrl;
 		const { tracks } = useAnalytics();
 
 		const recordTracksEvent = eventName =>
@@ -123,7 +125,7 @@ export const settings = {
 					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
 					'jetpack'
 				),
-				actionButtonHref: launchPadUrl,
+				actionButtonHref: primaryActionHref,
 				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
 				actionButtonText: 'Bogdan Test',
 			};
