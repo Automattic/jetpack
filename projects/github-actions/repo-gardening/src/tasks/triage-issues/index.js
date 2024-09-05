@@ -77,7 +77,7 @@ Example response format:
     "[Feature] Comments": "Specifically, it's about the commenting functionality."
 }`;
 
-	const response = await sendOpenAiRequest( prompt );
+	const response = await sendOpenAiRequest( prompt, 'json_object' );
 	debug( `triage-issues: OpenAI response: ${ response }` );
 
 	let parsedResponse;

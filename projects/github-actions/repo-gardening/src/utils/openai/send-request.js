@@ -6,7 +6,7 @@ const debug = require( '../debug' );
  * Send a message to OpenAI.
  *
  * @param {string} message        - Message to send to OpenAI.
- * @param {string} responseFormat - Response format to use (plain by default, can be 'object').
+ * @param {string} responseFormat - Response format to use (plain by default, can be 'json_object').
  *
  * @return {Promise<string|void>} Promise resolving to the response from OpenAI, or void if an error occurred.
  */
@@ -30,7 +30,7 @@ async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 				{ role: 'user', content: message },
 			],
 			model: 'gpt-4o-mini',
-			response_format: responseFormat === 'object' ? { type: 'json_object' } : undefined,
+			response_format: responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
 		} );
 
 		return completion?.choices?.[ 0 ]?.message?.content ?? '';
