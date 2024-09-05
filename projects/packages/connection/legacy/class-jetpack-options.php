@@ -65,7 +65,6 @@ class Jetpack_Options {
 					'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 					'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 					'ab_connect_banner_green_bar', // (int) Version displayed of the A/B test for the green bar at the top of the connect banner.
-					'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 					'tos_agreed',                  // (bool)   Whether or not the TOS for connection has been agreed upon.
 					'static_asset_cdn_files',      // (array) An nested array of files that we can swap out for cdn versions.
 					'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
@@ -85,7 +84,6 @@ class Jetpack_Options {
 
 			case 'network':
 				return array(
-					'onboarding',                   // (string) Auth token to be used in the onboarding connection flow
 					'file_data',                     // (array) List of absolute paths to all Jetpack modules
 				);
 		}
@@ -638,10 +636,6 @@ class Jetpack_Options {
 			'jetpack_sso_require_two_step',
 			'jetpack_sso_remove_login_form',
 			'jetpack_last_connect_url_check',
-			'jpo_business_address',
-			'jpo_site_type',
-			'jpo_homepage_format',
-			'jpo_contact_page',
 			'jetpack_excluded_extensions',
 		);
 	}

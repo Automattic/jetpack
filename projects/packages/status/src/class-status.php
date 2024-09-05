@@ -326,12 +326,15 @@ class Status {
 	 *
 	 * @since-jetpack 5.8
 	 *
+	 * @deprecated since $$next-version$$
+	 *
 	 * @access public
 	 * @static
 	 *
 	 * @return bool True if the site is currently onboarding, false otherwise
 	 */
 	public function is_onboarding() {
+		_deprecated_function( __FUNCTION__, '$$next-version$$' );
 		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
 	}
 

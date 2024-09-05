@@ -578,21 +578,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test onboarding token and make sure it's a network option.
-	 *
-	 * @since 5.4.0
-	 */
-	public function test_check_onboarding_token() {
-		$this->assertFalse( Jetpack_Options::get_option( 'onboarding' ) );
-
-		Jetpack::create_onboarding_token();
-
-		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
-		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
-		$this->assertContains( 'onboarding', Jetpack_Options::get_option_names( 'network' ) );
-	}
-
-	/**
 	 * Test connection url build when there's a blog token or id.
 	 *
 	 * @since 4.4.0
