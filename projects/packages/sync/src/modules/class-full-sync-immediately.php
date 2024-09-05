@@ -85,7 +85,7 @@ class Full_Sync_Immediately extends Module {
 			 *
 			 * @param array $full_sync_config Sync configuration for all sync modules.
 			 *
-			 * @since x.x.x
+			 * @since $$next-version$$
 			 */
 			$full_sync_config = apply_filters( 'jetpack_full_sync_config', Defaults::$default_full_sync_config );
 			if ( is_multisite() ) {
