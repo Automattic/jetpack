@@ -222,6 +222,14 @@ for PROJECT in projects/*/*; do
 		fi
 	fi
 
+	# - If a project uses react, it should include the react linting rules too.
+	if [[ -e "$PROJECT/package.json" ]] && jq -e '.dependencies.react // .devDependencies.react' "$PROJECT/package.json" >/dev/null && ! git grep eslintrc/react "$PROJECT"/.eslintrc.* &>/dev/null; then
+		EXIT=1
+		TMP=$( git ls-files "$PROJECT"/.eslintrc.* | head -n 1 ) || true
+		[[ -n "$TMP" ]] && TMP=" file=$TMP"
+		echo "::error${TMP}::Project $SLUG appears to use React but does not extend jetpack-js-tools/eslintrc/react in its eslint config. Please add that."
+	fi
+
 	# - composer.json must exist.
 	if [[ ! -e "$PROJECT/composer.json" ]]; then
 		EXIT=1

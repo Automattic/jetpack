@@ -43,7 +43,7 @@ const BlazePostPublishPanel = () => {
 	const blazeUrl = blazeUrlTemplate.link.replace( '__POST_ID__', postId );
 
 	// Decide when the panel should appear, and be tracked.
-	const shouldDisplayPanel = () => {
+	const shouldDisplayPanel = useCallback( () => {
 		// Only show the panel for Posts, Pages, and Products.
 		if ( ! [ 'page', 'post', 'product' ].includes( postType ) ) {
 			return false;
@@ -55,7 +55,7 @@ const BlazePostPublishPanel = () => {
 		}
 
 		return true;
-	};
+	}, [ postType, isPostPublished, postVisibility ] );
 
 	// Tracks event for the display of the panel.
 	useEffect( () => {
@@ -72,7 +72,7 @@ const BlazePostPublishPanel = () => {
 		}
 
 		tracks.recordEvent( 'jetpack_editor_blaze_post_publish_panel_view' );
-	}, [ tracks, isPublishingPost, isPostPublished, wasPublishing ] );
+	}, [ tracks, isPublishingPost, isPostPublished, wasPublishing, shouldDisplayPanel ] );
 
 	if ( ! shouldDisplayPanel() ) {
 		return null;

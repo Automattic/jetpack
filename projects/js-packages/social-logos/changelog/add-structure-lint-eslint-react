@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Address React usage issues found by eslint in example.tsx.
