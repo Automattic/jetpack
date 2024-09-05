@@ -81,7 +81,7 @@ class Full_Sync_Immediately extends Module {
 
 		if ( ! is_array( $full_sync_config ) ) {
 			/*
-			 * Filer defualt sync config to allow injecting custom configuration.
+			 * Filter default sync config to allow injecting custom configuration.
 			 *
 			 * @param array $full_sync_config Sync configuration for all sync modules.
 			 *
