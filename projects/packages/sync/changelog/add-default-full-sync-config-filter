@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync: add a filter that allows modification of the default modules list used for full sync procedure.
