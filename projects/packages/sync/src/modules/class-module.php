@@ -49,7 +49,7 @@ abstract class Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
@@ -57,6 +57,29 @@ abstract class Module {
 	 */
 	public function table_name() {
 		return false;
+	}
+
+	/**
+	 * The table in the database. This can be overridden to allow tables not present in the $wpdb global.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->{$this->table_name()};
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_' . $this->name();
 	}
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -298,7 +321,7 @@ abstract class Module {
 		return $wpdb->get_col(
 			"
 			SELECT {$this->id_field()}
-			FROM {$wpdb->{$this->table_name()}}
+			FROM {$this->table()}
 			WHERE {$this->get_where_sql( $config )}
 			AND {$this->id_field()} < {$status['last_sent']}
 			ORDER BY {$this->id_field()}
@@ -321,7 +344,7 @@ abstract class Module {
 		return $wpdb->get_var(
 			"
 			SELECT {$this->id_field()}
-			FROM {$wpdb->{$this->table_name()}}
+			FROM {$this->table()}
 			WHERE {$this->get_where_sql( $config )}
 			ORDER BY {$this->id_field()}
 			LIMIT 1
@@ -375,7 +398,7 @@ abstract class Module {
 				$status['finished'] = true;
 				return $status;
 			}
-			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
+			$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ) );
 			if ( is_wp_error( $result ) || $wpdb->last_error ) {
 				$status['error'] = true;
 				return $status;
@@ -571,14 +594,13 @@ abstract class Module {
 	 * @return array|bool An array of min and max ids for each batch. FALSE if no table can be found.
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
-		global $wpdb;
 
 		if ( ! $this->table_name() ) {
 			return false;
 		}
 
 		$results      = array();
-		$table        = $wpdb->{$this->table_name()};
+		$table        = $this->table();
 		$current_max  = 0;
 		$current_min  = 1;
 		$id_field     = $this->id_field();
@@ -628,7 +650,7 @@ abstract class Module {
 	 */
 	public function total( $config ) {
 		global $wpdb;
-		$table = $wpdb->{$this->table_name()};
+		$table = $this->table();
 		$where = $this->get_where_sql( $config );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching

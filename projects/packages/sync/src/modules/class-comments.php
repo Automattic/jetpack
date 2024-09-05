@@ -37,7 +37,7 @@ class Comments extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *

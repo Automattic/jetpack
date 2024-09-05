@@ -56,7 +56,7 @@ class Term_Relationships extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *

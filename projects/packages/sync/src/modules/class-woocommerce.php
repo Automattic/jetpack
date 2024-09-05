@@ -61,7 +61,7 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
@@ -69,6 +69,40 @@ class WooCommerce extends Module {
 	 */
 	public function table_name() {
 		return $this->order_item_table_name;
+	}
+
+	/**
+	 * The table in the database. This can be overridden to allow tables not present in the $wpdb global.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->prefix . 'woocommerce_order_items';
+	}
+
+	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_woocommerce_order_items';
 	}
 
 	/**
