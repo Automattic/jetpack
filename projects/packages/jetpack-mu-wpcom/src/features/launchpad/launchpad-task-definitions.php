@@ -105,7 +105,28 @@ function wpcom_launchpad_get_task_definitions() {
 				add_action( 'publish_post', 'wpcom_launchpad_track_publish_first_post_task' );
 			},
 			'get_calypso_path'      => function ( $task, $default, $data ) {
-				$base_path = wpcom_launchpad_should_use_wp_admin_link()
+				$use_wp_admin_link = wpcom_launchpad_should_use_wp_admin_link();
+				// Query for the latest draft post
+				$args = array(
+					'posts_per_page' => 1,
+					'post_status'    => 'draft',
+					'post_type'      => 'post',
+					'orderby'        => 'date',
+					'order'          => 'DESC',
+					'fields'         => 'ids',
+				);
+				// Fetch the latest draft post ID
+				// if there is a draft post, redirect the user to the draft otherwise to a new post.
+				$latest_draft_id = get_posts( $args );
+				if ( ! empty( $latest_draft_id ) ) {
+					$draft_post_id = reset( $latest_draft_id );
+					if ( $use_wp_admin_link && is_int( $draft_post_id ) ) {
+						return admin_url( 'post.php?action=edit&post=' . rawurlencode( $draft_post_id ) );
+					}
+					return '/post/' . $data['site_slug_encoded'] . '/' . rawurlencode( $draft_post_id );
+				}
+
+				$base_path = $use_wp_admin_link
 					? admin_url( 'post-new.php' )
 					: '/post/' . $data['site_slug_encoded'];
 
