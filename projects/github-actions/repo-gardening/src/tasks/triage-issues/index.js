@@ -81,6 +81,7 @@ Example response format:
 }`;
 
 	const response = await sendOpenAiRequest( prompt );
+	debug( `triage-issues: OpenAI response: ${ response }` );
 
 	let parsedResponse;
 	try {
@@ -92,7 +93,6 @@ Example response format:
 		return suggestions;
 	}
 
-	debug( `triage-issues: OpenAI response: ${ JSON.stringify( parsedResponse ) }` );
 	const { labels, explanations } = parsedResponse;
 
 	// Display the explanations in the action logs.
