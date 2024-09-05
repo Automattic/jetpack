@@ -209,9 +209,33 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 yellow "Checking out prerelease branch."
+# Is there an upstream prerelease branch already?
+R=$( git ls-remote --heads origin prerelease )
+if [[ -n "$R" ]]; then
+	error "There's an existing prerelease branch on GitHub!"
+	R=${R%%[ $'\t']*}
+	TMP=$( gh pr list --head=prerelease --state=open --json number,author,url,createdAt,title --jq '.[] | "\( .url ) - \( .createdAt | fromdateiso8601 | strftime( "%F %H:%IZ" ) ) - \( .title ) [\( .author.name )]"' )
+	if [[ -n "$TMP" ]]; then
+		echo "Someone probably needs to merge the following PR:"
+		echo "$TMP"
+		exit 1
+	fi
+	git fetch -q origin trunk "$R" || die "Something unexpected went wrong fetching the commit from GitHub"
+	if git diff --quiet origin/trunk..."$R"; then
+		echo "There don't seem to be any changes between that and trunk, if whoever created it has abandoned the release it should be safe to delete the branch."
+		exit 1
+	fi
+	if ! git diff --quiet origin/trunk..."$R" '*/CHANGELOG.md'; then
+		echo "Looks like someone is in the middle of a release! Wait for them merge the changes back into trunk."
+		exit 1
+	fi
+	echo "Looks like someone may be in the middle of a release! Wait for them merge the changes back into trunk, or to abandon the release."
+	exit 1
+fi
+
 # Check out and push pre-release branch
 if git rev-parse --verify prerelease &>/dev/null; then
-	proceed_p "Existing prerelease branch found." "Delete it?" Y
+	proceed_p "Existing local prerelease branch found." "Delete it?" Y
 	git branch -D prerelease
 fi
 
