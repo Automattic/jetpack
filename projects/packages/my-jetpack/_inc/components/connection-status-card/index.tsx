@@ -20,6 +20,7 @@ import type {
 	getSiteConnectionLineDataType,
 	getUserConnectionLineDataType,
 	ConnectionStatusCardType,
+	ConnectionItemButtonType,
 } from './types';
 import type { MouseEvent } from 'react';
 
@@ -58,12 +59,18 @@ const ConnectionListItem: ConnectionListItemType = ( {
 				<Icon icon={ icon } />
 				{ text }
 			</Text>
-			{ actionText && (
-				<Button variant="link" weight="regular" onClick={ onClick }>
-					{ actionText }
-				</Button>
+			{ actionText && status !== 'success' && (
+				<ConnectionItemButton actionText={ actionText } onClick={ onClick } />
 			) }
 		</div>
+	);
+};
+
+const ConnectionItemButton: ConnectionItemButtonType = ( { actionText, onClick } ) => {
+	return (
+		<Button variant="link" weight="regular" onClick={ onClick }>
+			{ actionText }
+		</Button>
 	);
 };
 
@@ -319,6 +326,14 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 						/>
 					) }
 				</div>
+				{ siteConnectionLineData?.status === 'success' && siteConnectionLineData?.actionText && (
+					<div className={ styles[ 'connect-action' ] }>
+						<ConnectionItemButton
+							onClick={ siteConnectionLineData?.onClick }
+							actionText={ siteConnectionLineData?.actionText }
+						/>
+					</div>
+				) }
 			</div>
 
 			<div>
