@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed script data not available in block editor iframe
