@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Boost: removed WP Super Cache promos from settings page as well as related code
