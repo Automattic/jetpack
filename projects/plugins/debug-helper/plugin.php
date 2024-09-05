@@ -109,6 +109,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'XMLRPC Logger',
 		'description' => 'Logs incoming XMLRPC requests into the debug.log file.',
 	),
+	'xmlrpc-blocker'            => array(
+		'file'        => 'class-xmlrpc-blocker.php',
+		'name'        => 'Broken XML-RPC',
+		'description' => 'Break XML-RPC API any way you want.',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';
