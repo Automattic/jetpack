@@ -1,4 +1,4 @@
-const { getInput } = require( '@actions/core' );
+const { getInput, setFailed } = require( '@actions/core' );
 const OpenAI = require( 'openai' );
 const debug = require( '../debug' );
 
@@ -7,13 +7,12 @@ const debug = require( '../debug' );
  *
  * @param {string} message - Message to send to OpenAI.
  *
- * @return {Promise<string>} Promise resolving to the response from OpenAI.
+ * @return {Promise<string|void>} Promise resolving to the response from OpenAI, or void if an error occurred.
  */
 async function sendOpenAiRequest( message ) {
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
-		debug( 'openai: Input openai_api_key is required but missing. Aborting.' );
-		return '';
+		setFailed( 'openai: Input openai_api_key is required but missing.' );
 	}
 
 	const client = new OpenAI( {
@@ -34,8 +33,7 @@ async function sendOpenAiRequest( message ) {
 
 		return completion?.choices?.[ 0 ]?.message?.content ?? '';
 	} catch ( error ) {
-		debug( `openai: Failed to send message to OpenAI. Error: ${ error }` );
-		return '';
+		setFailed( `openai: Error sending message to OpenAI: ${ error }` );
 	}
 }
 
