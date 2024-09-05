@@ -111,6 +111,7 @@ export default function useSharePost( postId ) {
 				data: {
 					message,
 					skipped_connections,
+					async: true,
 				},
 			} )
 				.then( ( result = {} ) => {
