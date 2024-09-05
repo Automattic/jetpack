@@ -41,7 +41,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 
 export const settings = {
 	render: async function LaunchpadSaveModal() {
-		const { variationName } = await loadExperimentAssignment(
+		const experiment = await loadExperimentAssignment(
 			'calypso_onboarding_launchpad_removal_test_2024_08'
 		);
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
@@ -63,7 +63,8 @@ export const settings = {
 			}
 		);
 
-		console.log( 'variationName', variationName );
+		console.log( 'experiment', experiment );
+		alert( 'variationName', experiment?.variationName );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
@@ -77,6 +78,8 @@ export const settings = {
 			hideFSENextStepsModal,
 			siteIntentOption,
 		} = window?.Jetpack_LaunchpadSaveModal || {};
+
+		console.log( 'Jetpack_LaunchpadSaveModal', window?.Jetpack_LaunchpadSaveModal );
 
 		const hideFSENextStepsModalBool = !! hideFSENextStepsModal;
 
@@ -112,7 +115,7 @@ export const settings = {
 				),
 				actionButtonHref: launchPadUrl,
 				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
-				actionButtonText: __( 'Next Steps', 'jetpack' ),
+				actionButtonText: 'Bogdan Test',
 			};
 
 			if ( siteIntentOption === 'newsletter' ) {
