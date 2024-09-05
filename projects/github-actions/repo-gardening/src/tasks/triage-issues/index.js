@@ -39,11 +39,10 @@ async function fetchOpenAiLabelsSuggestions( octokit, owner, repo, title, body )
 		return suggestions;
 	}
 
-	const prompt = `You must analyse the content below, composed of 3 data points pulled from a GitHub issue:
+	const prompt = `You must analyse the content below, composed of 2 data points pulled from a GitHub issue:
 
 - a title
 - the issue body
-- a list of labels available to you.
 
 Here is the issue title. It is the most important part of the text you must analyse:
 
@@ -57,14 +56,14 @@ ${ body }
 
 **********************
 
-And finally, here is a list of the existing labels and their descriptions:
+You must analyze this content, and suggest labels related to the content.
+The labels you will suggest must all come from the list below:
 
 ${ repoLabels
 	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
 	.join( '\n' ) }
 
 Analyze the issue and suggest relevant labels. Rules:
-- Don't search for and add more labels if the existing labels match your initial assessment.
 - Use only existing labels provided.
 - Include 1 '[Feature Group]' label.
 - Include 1 to 3 '[Feature]' labels.
