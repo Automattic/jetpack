@@ -26,6 +26,16 @@ jobs:
         with:
           checkout: false
 
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        with:
+          php: ${{ matrix.php }}
+          node: ${{ matrix.node }}
+      - name: Monorepo install
+        run: |
+          echo "::group::Pnpm"
+          pnpm install
+          echo "::endgroup::"
       - name: Detect if wpcomsh has changed
         id: changed
         run: |
