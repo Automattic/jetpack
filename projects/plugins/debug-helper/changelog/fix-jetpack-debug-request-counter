@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix WPCOM request counter for repeated requests.

@@ -141,6 +141,18 @@ export class DashConnections extends Component {
 			);
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
+		} else if ( ! this.props.wpComConnectedUser?.email ) {
+			// Couldn't fetch the data for some reason.
+			cardContent = (
+				<div>
+					<div className="jp-connection-settings__info">
+						<Gridicon icon="user" size={ 64 } />
+						<div className="jp-connection-settings__text">
+							{ __( 'Failed to fetch connection data, please try again later.', 'jetpack' ) }
+						</div>
+					</div>
+				</div>
+			);
 		} else {
 			cardContent = (
 				<div>

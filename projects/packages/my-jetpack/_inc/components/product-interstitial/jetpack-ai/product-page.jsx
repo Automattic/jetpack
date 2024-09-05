@@ -11,6 +11,7 @@ import {
 	Notice,
 } from '@automattic/jetpack-components';
 import { Button, Card, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -68,8 +69,8 @@ export default function () {
 	} = aiAssistantFeature || {};
 
 	const isFree = currentTier?.value === 0;
-	const hasUnlimited = currentTier?.value === 1 || ( ! tierPlansEnabled && ! isFree );
-	const hasPaidTier = ! isFree && ! hasUnlimited;
+	const hasUnlimited = currentTier?.value === 1;
+	const hasPaidTier = ( ! isFree && ! hasUnlimited ) || ( hasUnlimited && ! tierPlansEnabled );
 	const shouldContactUs = ! hasUnlimited && hasPaidTier && ! nextTier && currentTier;
 	const freeRequestsLeft = isFree && 20 - allTimeRequests >= 0 ? 20 - allTimeRequests : 0;
 	const showCurrentUsage = hasPaidTier && ! isFree && usage;
@@ -100,18 +101,23 @@ export default function () {
 	const showRenewalNotice = isOverLimit && hasPaidTier;
 	const showUpgradeNotice = isOverLimit && isFree;
 
-	const currentTierValue = currentTier?.value || 0;
-	const currentUsage = usage?.[ 'requests-count' ] || 0;
-	const tierRequestsLeft =
-		currentTierValue - currentUsage >= 0 ? currentTierValue - currentUsage : 0;
+	const currentTierLimit = currentTier?.limit || 0;
+	const currentUsage = usage?.requestsCount || 0;
 
+	const tierRequestsLeft =
+		currentTierLimit - currentUsage >= 0 ? currentTierLimit - currentUsage : 0;
+	const requestCardNumber = tierPlansEnabled ? tierRequestsLeft : currentUsage;
+
+	const currentUsageLabel = __( 'Requests this month', 'jetpack-my-jetpack' );
+	const currentRemainingLabel = __( 'Requests for this month', 'jetpack-my-jetpack' );
+	// You've reached this month's request limit, per our fair usage policy. Requests will reset on
 	const renewalNoticeTitle = __(
 		"You've reached your request limit for this month",
 		'jetpack-my-jetpack'
 	);
 	const upgradeNoticeTitle = __( "You've used all your free requests", 'jetpack-my-jetpack' );
 
-	const renewalNoticeBody = sprintf(
+	const renewalNoticeBodyTeaser = sprintf(
 		// translators: %d is the number of days left in the month.
 		__(
 			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
@@ -119,6 +125,30 @@ export default function () {
 		),
 		Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
 	);
+
+	const renewalNoticeBodyFairUsage = createInterpolateElement(
+		sprintf(
+			// translators: %d is the number of days left in the month.
+			__(
+				'Wait for %d days to reset your limit, per our <link>fair usage</link> policy.',
+				'jetpack-my-jetpack'
+			),
+			Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		),
+		{
+			link: (
+				<a
+					href={ getRedirectUrl( 'ai-product-page-fair-usage-policy' ) }
+					target="_blank"
+					rel="noreferrer"
+				/>
+			),
+		}
+	);
+
+	const renewalNoticeBody = ! tierPlansEnabled
+		? renewalNoticeBodyFairUsage
+		: renewalNoticeBodyTeaser;
 
 	const upgradeNoticeBody = __(
 		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',
@@ -222,10 +252,10 @@ export default function () {
 									<AiIcon />
 									<div>
 										<div className={ styles[ 'product-interstitial__stats-card-text' ] }>
-											{ __( 'Requests for this month', 'jetpack-my-jetpack' ) }
+											{ tierPlansEnabled ? currentRemainingLabel : currentUsageLabel }
 										</div>
 										<div className={ styles[ 'product-interstitial__stats-card-value' ] }>
-											{ tierRequestsLeft }
+											{ requestCardNumber }
 										</div>
 									</div>
 								</Card>
@@ -264,11 +294,15 @@ export default function () {
 						{ showNotice && (
 							<div className={ styles[ 'product-interstitial__ai-notice' ] }>
 								<Notice
-									actions={ [
-										<Button isPrimary onClick={ upgradeClickHandler }>
-											{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
-										</Button>,
-									] }
+									actions={
+										tierPlansEnabled
+											? [
+													<Button isPrimary onClick={ upgradeClickHandler }>
+														{ showRenewalNotice ? renewalNoticeCta : upgradeNoticeCta }
+													</Button>,
+											  ]
+											: {}
+									}
 									onClose={ onNoticeClose }
 									level={ showRenewalNotice ? 'warning' : 'error' }
 									title={ showRenewalNotice ? renewalNoticeTitle : upgradeNoticeTitle }

@@ -32,11 +32,11 @@
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/typography": "1.0.0",
-		"@wordpress/components": "28.5.0",
-		"@wordpress/data": "10.5.0",
-		"@wordpress/date": "5.5.0",
-		"@wordpress/element": "6.5.0",
-		"@wordpress/i18n": "5.5.0",
+		"@wordpress/components": "28.6.0",
+		"@wordpress/data": "10.6.0",
+		"@wordpress/date": "5.6.0",
+		"@wordpress/element": "6.6.0",
+		"@wordpress/i18n": "5.6.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},
@@ -45,11 +45,11 @@
 		"@babel/core": "7.24.7",
 		"@babel/preset-env": "7.24.7",
 		"@babel/runtime": "7.24.7",
-		"@wordpress/browserslist-config": "6.5.0",
+		"@wordpress/browserslist-config": "6.6.0",
 		"concurrently": "7.6.0",
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	}
 }
