@@ -109,4 +109,10 @@
 		display: flex;
 		align-items: center;
 	}
+
+	// Reset link styles
+	:global(.components-external-link) {
+		color: #2271b1;
+		font-weight: normal;
+	}
 }
