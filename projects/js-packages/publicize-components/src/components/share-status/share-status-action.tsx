@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 type ShareStatusActionProps = {
 	status: string;
 	shareLink: string;
-	connectionId: number;
+	connectionId: number | string;
 };
 
 /**
@@ -67,5 +67,5 @@ export function ShareStatusAction( { connectionId, status, shareLink }: ShareSta
 		);
 	};
 
-	return <div className={ styles[ 'share-status-action-wrapper' ] }>{ renderActions() }</div>;
+	return <div>{ renderActions() }</div>;
 }
