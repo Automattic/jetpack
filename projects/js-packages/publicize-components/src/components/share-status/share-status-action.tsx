@@ -11,7 +11,7 @@ import styles from './styles.module.scss';
 type ShareStatusActionProps = {
 	status: string;
 	shareLink: string;
-	connectionId: number;
+	connectionId: number | string;
 };
 
 /**
