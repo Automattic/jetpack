@@ -302,7 +302,7 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test that the Waf_Request class returns $_POST data correctly decoded from JSON via Waf_Request::get_post_vars().
+	 * Test that the Waf_Request class returns POST-ed data correctly decoded from JSON via Waf_Request::get_post_vars().
 	 */
 	public function testGetVarsPostWithJson() {
 		$_SERVER['CONTENT_TYPE'] = 'application/json';
@@ -330,9 +330,22 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Test that the Waf_Request class returns POST data correctly when the content is XML
+	 */
+	public function testGetVarsPostWithXml() {
+		$_SERVER['CONTENT_TYPE'] = 'text/xml';
+		$request                 = $this->mock_request(
+			array(
+				'body' => '<?xml version="1.0"?><methodCall><methodName>methodName</methodName><params><param><value><string>AB</string></value></param></params></methodCall>',
+			)
+		);
+		$this->assertEmpty( $request->get_post_vars() );
+	}
+
+	/**
 	 * Test that the Waf_Request class returns any parameters when HTTP method isn't POST.
 	 */
-	public function testGetVarsPostHttpMethodNotPost() {
+	public function testGetVarsPostWithUrlEncoded() {
 		$_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
 		$request                 = $this->mock_request(
 			array(
