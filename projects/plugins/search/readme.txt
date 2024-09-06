@@ -122,9 +122,9 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 3.0.0 - 2024-09-05
+### 3.0.1 - 2024-09-06
 #### Changed
-- General: Update WordPress version requirements to WordPress 6.5 and indicate compatibility with WordPress 6.6.
+- Internal updates.
 
 == Testimonials ==
 
