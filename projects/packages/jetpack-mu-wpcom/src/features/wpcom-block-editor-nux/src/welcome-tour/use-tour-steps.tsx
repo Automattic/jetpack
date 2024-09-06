@@ -101,7 +101,7 @@ function useTourSteps(
 			meta: {
 				heading: isPatternAssembler
 					? __( 'Nice job! Your new page is set up.', 'jetpack-mu-wpcom' )
-					: _x( 'Welcome to WordPress!', 'jetpack-mu-wpcom', 'jetpack-mu-wpcom' ),
+					: __( 'Welcome to WordPress!', 'jetpack-mu-wpcom' ),
 				descriptions: {
 					desktop: ( () => {
 						if ( isPatternAssembler ) {
