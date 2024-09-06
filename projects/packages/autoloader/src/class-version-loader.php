@@ -52,7 +52,7 @@ class Version_Loader {
 	/**
 	 * Fetch the classmap.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 * @return array<string, array>
 	 */
 	public function get_class_map() {
@@ -62,7 +62,7 @@ class Version_Loader {
 	/**
 	 * Fetch the psr-4 mappings.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 * @return array<string, array>
 	 */
 	public function get_psr4_map() {

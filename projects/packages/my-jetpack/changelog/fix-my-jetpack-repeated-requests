@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Optimize repeated requests for unavailable WPCOM.

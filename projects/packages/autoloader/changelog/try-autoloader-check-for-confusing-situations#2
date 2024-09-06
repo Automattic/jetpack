@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add logic for debugging issues caused by conflicting Composer autoloaders, enabled by setting the `JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS` constant.
