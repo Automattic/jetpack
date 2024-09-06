@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Removed usage of _deprecated_function when deprecating Status::is_onboarding
