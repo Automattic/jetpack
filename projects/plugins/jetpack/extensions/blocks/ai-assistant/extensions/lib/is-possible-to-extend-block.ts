@@ -6,12 +6,18 @@ import { select } from '@wordpress/data';
 /*
  * Internal dependencies
  */
-import { EXTENDED_INLINE_BLOCKS, isAiAssistantSupportEnabled } from '../../extensions/ai-assistant';
+import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
+import { EXTENDED_BLOCKS } from '../constants';
+
+export const AI_ASSISTANT_SUPPORT_NAME = 'ai-assistant-support';
+
+// Check if the AI Assistant support is enabled.
+export const isAiAssistantSupportEnabled = getFeatureAvailability( AI_ASSISTANT_SUPPORT_NAME );
 
 /**
  * Check if it is possible to extend the block as an inline extension.
  * @param {string} blockName - The block name.
- * @return {boolean}          Whether it is possible to extend the block.
+ * @return {boolean}           Whether it is possible to extend the block.
  */
 export function isPossibleToExtendBlock( blockName: string ): boolean {
 	// Check if the AI Assistant block is registered. If not, we understand that Jetpack AI is not active.
@@ -27,7 +33,7 @@ export function isPossibleToExtendBlock( blockName: string ): boolean {
 	}
 
 	// Only extend the blocks in the inline blocks list
-	if ( ! EXTENDED_INLINE_BLOCKS.includes( blockName ) ) {
+	if ( ! EXTENDED_BLOCKS.includes( blockName ) ) {
 		return false;
 	}
 

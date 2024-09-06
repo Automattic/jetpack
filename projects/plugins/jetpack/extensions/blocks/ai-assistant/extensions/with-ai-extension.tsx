@@ -27,11 +27,11 @@ import { isPossibleToExtendBlock } from './lib/is-possible-to-extend-block';
 /*
  * Types
  */
+import type { ExtendedBlockProp } from './constants';
 import type {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	OnRequestSuggestion,
 } from '../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import type { ExtendedInlineBlockProp } from '../extensions/ai-assistant';
 import type { PromptTypeProp } from '../lib/prompt';
 import type {
 	PromptMessagesProp,
@@ -547,7 +547,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
  * @param {string} name     - The block name.
  * @return {object}          The extended block settings.
  */
-function blockWithInlineExtension( settings, name: ExtendedInlineBlockProp ) {
+function blockWithInlineExtension( settings, name: ExtendedBlockProp ) {
 	// Only extend the allowed block types and when AI is enabled
 	const possibleToExtendBlock = isPossibleToExtendBlock( name );
 
@@ -558,6 +558,12 @@ function blockWithInlineExtension( settings, name: ExtendedInlineBlockProp ) {
 	return {
 		...settings,
 		edit: blockEditWithAiComponents( settings.edit ),
+		supports: {
+			...settings.supports,
+			'jetpack/ai': {
+				assistant: true,
+			},
+		},
 	};
 }
 

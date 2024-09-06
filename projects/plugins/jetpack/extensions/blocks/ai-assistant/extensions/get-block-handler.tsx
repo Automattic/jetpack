@@ -6,11 +6,8 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_FORM_CHILDREN_BLOCKS,
-	type ExtendedInlineBlockProp,
-} from '../extensions/ai-assistant';
 import { BlockHandler } from './block-handler';
+import { ExtendedBlockProp, JETPACK_FORM_CHILDREN_BLOCKS } from './constants';
 import { HeadingHandler } from './heading';
 import { JetpackFormHandler, JetpackChildrenFormHandler } from './jetpack-form';
 import { ListHandler } from './list';
@@ -43,14 +40,11 @@ export const InlineExtensionsContext = createContext( {} );
 /**
  * Gets the block handler based on the block type.
  * The block handler is used to handle the request suggestions.
- * @param {ExtendedInlineBlockProp} blockType - The block type.
- * @param {string}                  clientId  - The block client ID.
- * @return {IBlockHandler}                     The block handler.
+ * @param {ExtendedBlockProp} blockType - The block type.
+ * @param {string}            clientId  - The block client ID.
+ * @return {IBlockHandler}                The block handler.
  */
-export function getBlockHandler(
-	blockType: ExtendedInlineBlockProp,
-	clientId: string
-): IBlockHandler {
+export function getBlockHandler( blockType: ExtendedBlockProp, clientId: string ): IBlockHandler {
 	let HandlerClass = handlers[ blockType ];
 
 	if ( ! HandlerClass ) {

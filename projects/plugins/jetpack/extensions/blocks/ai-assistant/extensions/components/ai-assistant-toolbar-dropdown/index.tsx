@@ -19,13 +19,13 @@ import type {
 	AiAssistantDropdownOnChangeOptionsArgProps,
 	OnRequestSuggestion,
 } from '../../../components/ai-assistant-toolbar-dropdown/dropdown-content';
-import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
 import type { PromptTypeProp } from '../../../lib/prompt';
+import type { ExtendedBlockProp } from '../../constants';
 import type { BlockBehavior } from '../../types';
 import type { ReactElement } from 'react';
 
 type AiAssistantExtensionToolbarDropdownContentProps = {
-	blockType: ExtendedInlineBlockProp;
+	blockType: ExtendedBlockProp;
 	onClose: () => void;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;
@@ -101,7 +101,7 @@ function AiAssistantExtensionToolbarDropdownContent( {
 
 type AiAssistantExtensionToolbarDropdownProps = {
 	behavior: BlockBehavior;
-	blockType: ExtendedInlineBlockProp;
+	blockType: ExtendedBlockProp;
 	label?: string;
 	onAskAiAssistant: () => void;
 	onRequestSuggestion: OnRequestSuggestion;

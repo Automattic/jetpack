@@ -16,7 +16,7 @@ import './style.scss';
 /*
  * Types
  */
-import type { ExtendedInlineBlockProp } from '../../../extensions/ai-assistant';
+import type { ExtendedBlockProp } from '../../constants';
 import type { RequestingErrorProps, RequestingStateProp } from '@automattic/jetpack-ai-client';
 import type { ReactElement } from 'react';
 
@@ -27,7 +27,7 @@ export type AiAssistantInputProps = {
 	inputRef?: React.MutableRefObject< HTMLInputElement | null >;
 	wrapperRef?: React.MutableRefObject< HTMLDivElement | null >;
 	action?: string;
-	blockType: ExtendedInlineBlockProp;
+	blockType: ExtendedBlockProp;
 	feature: string;
 	request: ( question: string ) => void;
 	stopSuggestion?: () => void;
