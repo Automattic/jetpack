@@ -42,6 +42,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 export const settings = {
 	render: function LaunchpadSaveModal() {
 		const [ experimentVariationName, setExperimentVariationName ] = useState();
+		const sessionVariationName = window.sessionStorage.getItem( 'launchpad_experiment_variation' );
 
 		const { isSavingSite, isSavingPost, isCurrentPostPublished, postLink, postType } = useSelect(
 			select => {
@@ -64,15 +65,14 @@ export const settings = {
 
 		// Fetch the experiment data once when the component mounts
 		useEffect( () => {
-			loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' )
-				.then( experiment => {
-					console.log( 'experiment', experiment );
-					setExperimentVariationName( experiment.variationName );
-				} )
-				.catch( error => {
-					console.error( 'Error loading experiment assignment:', error );
-				} );
-		}, [] );
+			loadExperimentAssignment( 'calypso_onboarding_launchpad_removal_test_2024_08' ).then(
+				experiment => {
+					sessionVariationName
+						? setExperimentVariationName( sessionVariationName )
+						: setExperimentVariationName( experiment.variationName );
+				}
+			);
+		}, [ sessionVariationName ] );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
@@ -86,8 +86,6 @@ export const settings = {
 			hideFSENextStepsModal,
 			siteIntentOption,
 		} = window?.Jetpack_LaunchpadSaveModal || {};
-
-		console.log( 'Jetpack_LaunchpadSaveModal', window?.Jetpack_LaunchpadSaveModal );
 
 		const hideFSENextStepsModalBool = !! hideFSENextStepsModal;
 
@@ -107,7 +105,8 @@ export const settings = {
 		const calypsoHomeUrl = getRedirectUrl( 'calypso-home', {
 			site: siteFragment,
 		} );
-		const primaryActionHref = experimentVariationName === 'control' ? launchPadUrl : calypsoHomeUrl;
+		const primaryActionHref =
+			experimentVariationName === 'treatment' ? calypsoHomeUrl : launchPadUrl;
 		const { tracks } = useAnalytics();
 
 		const recordTracksEvent = eventName =>
@@ -127,7 +126,7 @@ export const settings = {
 				),
 				actionButtonHref: primaryActionHref,
 				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
-				actionButtonText: 'Bogdan Test',
+				actionButtonText: __( 'Next Steps', 'jetpack' ),
 			};
 
 			if ( siteIntentOption === 'newsletter' ) {
