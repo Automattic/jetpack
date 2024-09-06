@@ -71,6 +71,7 @@ class Jetpack_Options {
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
 					'dismissed_wizard_banner',     // (int) (DEPRECATED) True if the Wizard banner has been dismissed.
+					'edit_links_calypso_redirect', // (bool) (DEPRECATED) Whether post/page edit links on front end should point to Calypso.
 				);
 
 			case 'private':
@@ -85,6 +86,7 @@ class Jetpack_Options {
 			case 'network':
 				return array(
 					'file_data',                     // (array) List of absolute paths to all Jetpack modules
+					'onboarding',                    // (string) (DEPRECATED) Auth token to be used in the onboarding connection flow
 				);
 		}
 
@@ -128,6 +130,7 @@ class Jetpack_Options {
 			'recommendations_evaluation',          // (object) Catalog of recommended modules with corresponding score following successful site evaluation in Welcome Banner.
 			'dismissed_recommendations',           // (bool) Determines if the recommendations have been dismissed or not.
 			'historically_active_modules',         // (array) List of installed plugins/enabled modules that have at one point in time been active and working
+			'onboarding',                          // (string) (DEPRECATED) Auth token to be used in the onboarding connection flow
 		);
 	}
 
