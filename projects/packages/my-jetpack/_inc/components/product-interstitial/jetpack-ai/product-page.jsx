@@ -11,6 +11,7 @@ import {
 	Notice,
 } from '@automattic/jetpack-components';
 import { Button, Card, ExternalLink } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, plus, help, check } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -109,27 +110,45 @@ export default function () {
 
 	const currentUsageLabel = __( 'Requests this month', 'jetpack-my-jetpack' );
 	const currentRemainingLabel = __( 'Requests for this month', 'jetpack-my-jetpack' );
-
+	// You've reached this month's request limit, per our fair usage policy. Requests will reset on
 	const renewalNoticeTitle = __(
 		"You've reached your request limit for this month",
 		'jetpack-my-jetpack'
 	);
 	const upgradeNoticeTitle = __( "You've used all your free requests", 'jetpack-my-jetpack' );
 
-	const renewalNoticeBodyInfo = sprintf(
+	const renewalNoticeBodyTeaser = sprintf(
 		// translators: %d is the number of days left in the month.
-		__( 'Wait for %d days to reset your limit', 'jetpack-my-jetpack' ),
+		__(
+			'Wait for %d days to reset your limit, or upgrade now to a higher tier for additional requests and keep your work moving forward.',
+			'jetpack-my-jetpack'
+		),
 		Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
 	);
 
-	const renewalNoticeBodyTeaser = __(
-		', or upgrade now to a higher tier for additional requests and keep your work moving forward.',
-		'jetpack-my-jetpack'
+	const renewalNoticeBodyFairUsage = createInterpolateElement(
+		sprintf(
+			// translators: %d is the number of days left in the month.
+			__(
+				'Wait for %d days to reset your limit, per our <link>fair usage</link> policy.',
+				'jetpack-my-jetpack'
+			),
+			Math.floor( ( new Date( usage?.nextStart || null ) - new Date() ) / ( 1000 * 60 * 60 * 24 ) )
+		),
+		{
+			link: (
+				<a
+					href={ getRedirectUrl( 'ai-product-page-fair-usage-policy' ) }
+					target="_blank"
+					rel="noreferrer"
+				/>
+			),
+		}
 	);
 
 	const renewalNoticeBody = ! tierPlansEnabled
-		? renewalNoticeBodyInfo + '.'
-		: renewalNoticeBodyInfo + renewalNoticeBodyTeaser;
+		? renewalNoticeBodyFairUsage
+		: renewalNoticeBodyTeaser;
 
 	const upgradeNoticeBody = __(
 		'Reach for More with Jetpack AI! Upgrade now for additional requests and keep your momentum going.',

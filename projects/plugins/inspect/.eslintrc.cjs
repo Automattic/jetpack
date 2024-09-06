@@ -10,10 +10,6 @@ module.exports = {
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
 	parserOptions: {
-		babelOptions: {
-			configFile: require.resolve( './babel.config.js' ),
-		},
-		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: [ './tsconfig.json' ],
 	},

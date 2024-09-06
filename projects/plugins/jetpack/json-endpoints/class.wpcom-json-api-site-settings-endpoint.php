@@ -496,6 +496,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_share_data'           => (bool) get_option( 'jetpack_waf_share_data' ),
 						'jetpack_waf_share_debug_data'     => (bool) get_option( 'jetpack_waf_share_debug_data' ),
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
+						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1172,6 +1173,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					update_option( 'migration_source_site_domain', $value );
 					$updated[ $key ] = $value;
+					break;
+
+				case 'is_fully_managed_agency_site':
+					$coerce_value = (int) (bool) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = (bool) $coerce_value;
+					}
 					break;
 
 				default:

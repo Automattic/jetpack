@@ -13,7 +13,7 @@ type ShareStatusActionProps = {
 	status: string;
 	service: string;
 	shareLink: string;
-	connectionId: number;
+	connectionId: number | string;
 };
 
 /**
@@ -85,5 +85,5 @@ export function ShareStatusAction( {
 		);
 	};
 
-	return <div className={ styles[ 'share-status-action-wrapper' ] }>{ renderActions() }</div>;
+	return <div>{ renderActions() }</div>;
 }
