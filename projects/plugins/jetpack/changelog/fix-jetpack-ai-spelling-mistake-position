@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Write Brief: Fix highlight position on spelling mistake following ignored special word
