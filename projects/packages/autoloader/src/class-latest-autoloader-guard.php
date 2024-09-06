@@ -85,7 +85,7 @@ class Latest_Autoloader_Guard {
 	 *
 	 * Called from the plugins_loaded hook.
 	 *
-	 * @since $$next-version$$
+	 * @since 3.1.0
 	 * @return void
 	 */
 	public function check_for_conflicting_autoloaders() {
