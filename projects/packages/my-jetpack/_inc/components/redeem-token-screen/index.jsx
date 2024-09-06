@@ -24,11 +24,11 @@ export default function RedeemTokenScreen() {
 		},
 	} );
 
-	const tokenRedeemed = includesLifetimePurchase( purchases );
-
 	if ( isLoading ) {
 		return <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</>;
 	}
+
+	const tokenRedeemed = includesLifetimePurchase( purchases );
 
 	return (
 		<>

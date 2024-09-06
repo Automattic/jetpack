@@ -174,6 +174,12 @@ export const suggestSpellingFixes = (
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
+	const spellChecker = getSpellChecker();
+
+	if ( ! spellChecker ) {
+		return highlightedTexts;
+	}
+
 	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
 	// \p{L} is a Unicode property that matches any letter in any language
 	// \p{M} is a Unicode property that matches any character intended to be combined with another character
@@ -184,11 +190,6 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		// Split hyphenated words into separate words as nspell doesn't work well with them
 		.map( word => word.split( '-' ) )
 		.flat();
-	const spellChecker = getSpellChecker();
-
-	if ( ! spellChecker ) {
-		return highlightedTexts;
-	}
 
 	// To avoid highlighting the same word occurrence multiple times
 	let searchStartIndex = 0;

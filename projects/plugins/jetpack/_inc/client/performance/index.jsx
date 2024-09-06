@@ -19,13 +19,13 @@ class Performance extends Component {
 			hasConnectedOwner: this.props.hasConnectedOwner,
 		};
 
-		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
-			this.props.isModuleFound
-		);
-
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
+
+		const found = [ 'photon', 'videopress', 'photon-cdn', 'search' ].some(
+			this.props.isModuleFound
+		);
 
 		if ( ! found ) {
 			return null;

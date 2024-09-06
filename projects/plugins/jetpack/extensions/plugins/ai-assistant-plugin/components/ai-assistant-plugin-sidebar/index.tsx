@@ -153,7 +153,6 @@ export default function AiAssistantPluginSidebar() {
 		useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 	const { tracks } = useAnalytics();
-	const isBreveAvailable = getBreveAvailability();
 
 	const isViewable = useSelect( select => {
 		const postTypeName = ( select( editorStore ) as typeof EditorSelectors ).getCurrentPostType();
@@ -182,6 +181,7 @@ export default function AiAssistantPluginSidebar() {
 	const showUsagePanel =
 		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
+	const isBreveAvailable = getBreveAvailability();
 
 	return (
 		<>

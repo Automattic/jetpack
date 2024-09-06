@@ -213,6 +213,5 @@ module.exports = {
 		'@wordpress/no-base-control-with-label-without-id': 'off',
 		'@wordpress/no-global-active-element': 'off',
 		'@wordpress/no-global-get-selection': 'off',
-		'@wordpress/no-unused-vars-before-return': 'off',
 	},
 };

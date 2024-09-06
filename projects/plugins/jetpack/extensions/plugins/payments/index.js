@@ -9,15 +9,16 @@ import { currencyDollar } from '@wordpress/icons';
 
 const PaymentsPostPublish = () => {
 	const { tracks } = useAnalytics();
-	const paymentInfoUrl = getRedirectUrl( 'wpcom-payments-donations' );
-	const trackClick = () => {
-		tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
-	};
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 
 	if ( 'page' !== postType ) {
 		return null;
 	}
+
+	const paymentInfoUrl = getRedirectUrl( 'wpcom-payments-donations' );
+	const trackClick = () => {
+		tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
+	};
 
 	return (
 		<PluginPostPublishPanel

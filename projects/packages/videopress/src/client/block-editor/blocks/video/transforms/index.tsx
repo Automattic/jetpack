@@ -75,8 +75,6 @@ const transformToCoreEmbed = {
 	blocks: [ 'core/embed' ],
 	isMatch: ( attrs: VideoBlockAttributes ) => attrs?.src || attrs?.guid,
 	transform: ( attrs: VideoBlockAttributes ) => {
-		const { updateBlockAttributes } = dispatch( blockEditorStore );
-		const { getBlockAttributes } = select( blockEditorStore );
 		const { guid, src: srcFromAttr, className } = attrs;
 
 		// Build the source (URL) in case it isn't defined.
@@ -86,6 +84,9 @@ const transformToCoreEmbed = {
 		if ( ! src ) {
 			return createBlock( 'core/embed' );
 		}
+
+		const { updateBlockAttributes } = dispatch( blockEditorStore );
+		const { getBlockAttributes } = select( blockEditorStore );
 
 		const block = createBlock( 'core/embed', {
 			allowResponsive: true,
@@ -130,11 +131,11 @@ const transformFromPastingVideoPressURL = {
 
 		const url = textContent.trim();
 		const guid = pickGUIDFromUrl( url );
-		const attrs = pickVideoBlockAttributesFromUrl( url );
 		if ( ! guid ) {
 			return false;
 		}
 
+		const attrs = pickVideoBlockAttributesFromUrl( url );
 		return createBlock( 'videopress/video', { guid, ...attrs } );
 	},
 };

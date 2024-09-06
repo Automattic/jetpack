@@ -9,7 +9,6 @@ import { SCAN_IN_PROGRESS_STATUSES, SCAN_STATUS_OPTIMISTICALLY_SCANNING } from '
  */
 const scanInProgress = state => {
 	const { status, lastChecked, error } = selectors.getStatus( state );
-	const unavailable = selectors.getScanIsUnavailable( state );
 
 	// When "optimistically" scanning, ignore any other status or error.
 	if ( SCAN_STATUS_OPTIMISTICALLY_SCANNING === status ) {
@@ -17,6 +16,7 @@ const scanInProgress = state => {
 	}
 
 	// If the scan is unavailable, scanning is not in progress.
+	const unavailable = selectors.getScanIsUnavailable( state );
 	if ( unavailable ) {
 		return false;
 	}
@@ -47,8 +47,6 @@ const scanInProgress = state => {
  */
 const scanError = state => {
 	const { status, error, errorCode, errorMessage } = selectors.getStatus( state );
-	const unavailable = selectors.getScanIsUnavailable( state );
-	const isFetching = selectors.getStatusIsFetching( state );
 
 	// If the scan results include an error, return it.
 	if ( error ) {
@@ -56,6 +54,7 @@ const scanError = state => {
 	}
 
 	// If the scan is unavailable, return an error.
+	const unavailable = selectors.getScanIsUnavailable( state );
 	if ( unavailable ) {
 		return {
 			code: 'scan_unavailable',
@@ -64,6 +63,7 @@ const scanError = state => {
 	}
 
 	// If there is no status and we are not requesting it, return an error.
+	const isFetching = selectors.getStatusIsFetching( state );
 	if ( ! status && ! isFetching ) {
 		return {
 			code: 'scan_unavailable',

@@ -65,13 +65,13 @@ function activateSubscription( block, blogId ) {
 	emailField.addEventListener( 'input', handleEmailValidation( form, emailField ) );
 	form.addEventListener( 'submit', e => {
 		e.preventDefault();
+		if ( ! validateEmail( form, emailField ) ) {
+			return;
+		}
 		const email = emailField.value;
 		const params = [].slice
 			.call( form.querySelectorAll( 'input[type=hidden].mc-submit-param' ) )
 			.reduce( ( accumulator, node ) => ( { ...accumulator, [ node.name ]: node.value } ), {} );
-		if ( ! validateEmail( form, emailField ) ) {
-			return;
-		}
 		block.classList.add( 'is-processing' );
 		emailField.removeEventListener( 'input', handleEmailValidation( form, emailField ) );
 		processingEl.classList.add( 'is-visible' );

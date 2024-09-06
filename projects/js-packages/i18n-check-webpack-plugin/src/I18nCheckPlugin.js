@@ -214,6 +214,7 @@ class I18nCheckPlugin {
 	 * @param {Map}                 moduleCache - Cache for processed modules.
 	 */
 	async #processAsset( compilation, filename, moduleCache ) {
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- Grabbing current timestamp for timing.
 		const t0 = Date.now();
 		const asset = compilation.getAsset( filename );
 

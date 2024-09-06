@@ -35,18 +35,23 @@ export const Publicize = withModuleSettingsFormHelpers(
 		}
 
 		render() {
+			const isActive = this.props.getOptionValue( 'publicize' ),
+				userCanManageModules = this.props.userCanManageModules;
+
+			if ( ! userCanManageModules && ! isActive ) {
+				return null;
+			}
+
 			const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'publicize' ),
 				isLinked = this.props.isLinked,
 				isOfflineMode = this.props.isOfflineMode,
 				siteRawUrl = this.props.siteRawUrl,
 				blogID = this.props.blogID,
 				siteAdminUrl = this.props.siteAdminUrl,
-				isActive = this.props.getOptionValue( 'publicize' ),
 				hasPaidFeatures = this.props.hasPaidFeatures,
 				hasSocialImageGenerator = this.props.hasSocialImageGenerator,
 				isAtomicSite = this.props.isAtomicSite,
 				activeFeatures = this.props.activeFeatures,
-				userCanManageModules = this.props.userCanManageModules,
 				useAdminUiV1 = this.props.useAdminUiV1;
 
 			const showUpgradeLink =
@@ -83,10 +88,6 @@ export const Publicize = withModuleSettingsFormHelpers(
 					)
 				);
 			};
-
-			if ( ! userCanManageModules && ! isActive ) {
-				return null;
-			}
 
 			return (
 				<SettingsCard

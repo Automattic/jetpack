@@ -53,11 +53,8 @@ function syncWithMediaElement( action, store ) {
 	const { getState } = store;
 	const playerId = action.playerId;
 
-	const muted = isMuted( getState(), playerId );
-	const playing = isPlaying( getState(), playerId );
 	const mediaElement = getCurrentMediaElement( getState(), playerId );
 	const previousMediaElement = getPreviousSlideMediaElement( getState(), playerId );
-	const settings = getSettings( getState(), playerId );
 
 	if ( isVideo( previousMediaElement ) ) {
 		previousMediaElement.currentTime = 0;
@@ -69,6 +66,10 @@ function syncWithMediaElement( action, store ) {
 	if ( ! isVideo( mediaElement ) ) {
 		return;
 	}
+
+	const muted = isMuted( getState(), playerId );
+	const playing = isPlaying( getState(), playerId );
+	const settings = getSettings( getState(), playerId );
 
 	if ( muted !== mediaElement.muted ) {
 		mediaElement.muted = muted;

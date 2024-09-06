@@ -22,11 +22,11 @@ import './style.scss';
 function Subscriptions( props ) {
 	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
 
-	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
-
 	if ( ! searchTerm && ! active ) {
 		return null;
 	}
+
+	const foundSubscriptions = isModuleFound( SUBSCRIPTIONS_MODULE_NAME );
 
 	if ( ! foundSubscriptions ) {
 		return null;

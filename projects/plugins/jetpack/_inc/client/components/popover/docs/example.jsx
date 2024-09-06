@@ -142,11 +142,11 @@ class Popovers extends React.PureComponent {
 
 	handleClick( i, positions ) {
 		return event => {
-			const index = parseInt( event.currentTarget.innerText );
 			if ( i === 4 ) {
 				return null;
 			}
 
+			const index = parseInt( event.currentTarget.innerText );
 			this.setState( {
 				showRubicPopover: ! this.state.showRubicPopover,
 				rubicPosition: positions[ index ],

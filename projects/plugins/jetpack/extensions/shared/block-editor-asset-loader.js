@@ -124,6 +124,7 @@ export function loadBlockEditorAssets( resources, callbacks, elementRef ) {
 	const currentHead = currentDoc.getElementsByTagName( 'head' )[ 0 ];
 
 	resources.forEach( resource => {
+		// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- https://github.com/WordPress/gutenberg/issues/45049
 		const [ filename, fileExtension ] = resource.file.split( '/' ).pop().split( '.' );
 
 		if ( fileExtension === 'css' ) {

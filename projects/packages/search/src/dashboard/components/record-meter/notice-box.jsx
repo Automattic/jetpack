@@ -70,7 +70,6 @@ const getNotices = ( tierMaximumRecords = null ) => {
  */
 export function NoticeBox( props ) {
 	const activeNoticeIds = [];
-	const NOTICES = getNotices( props.tierMaximumRecords );
 
 	const DATA_NOT_VALID = '1',
 		HAS_NOT_BEEN_INDEXED = '2',
@@ -96,6 +95,7 @@ export function NoticeBox( props ) {
 		return null;
 	}
 
+	const NOTICES = getNotices( props.tierMaximumRecords );
 	const notice = NOTICES[ activeNoticeIds[ 0 ] ];
 
 	const noticeBoxClassName = notice.isImportant

@@ -184,8 +184,6 @@ export const SimplePaymentsEdit = ( {
 	 * @return {boolean} True when valid, false when invalid
 	 */
 	const validatePrice = () => {
-		const { precision } = getCurrencyDefaults( currency );
-
 		if ( ! price || parseFloat( price ) === 0 ) {
 			setFieldPriceError(
 				__( 'If you’re selling something, you need a price tag. Add yours here.', 'jetpack' )
@@ -208,6 +206,7 @@ export const SimplePaymentsEdit = ( {
 			return false;
 		}
 
+		const { precision } = getCurrencyDefaults( currency );
 		if ( decimalPlaces( price ) > precision ) {
 			if ( precision === 0 ) {
 				setFieldPriceError(

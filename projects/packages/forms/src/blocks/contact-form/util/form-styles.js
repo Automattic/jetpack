@@ -40,12 +40,12 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 			</div>
 		`;
 
-	const _document = window[ 'editor-canvas' ] ? window[ 'editor-canvas' ].document : document;
-	const bodyNode = _document.querySelector( 'body' );
-
 	if ( ! formNode ) {
 		return;
 	}
+
+	const _document = window[ 'editor-canvas' ] ? window[ 'editor-canvas' ].document : document;
+	const bodyNode = _document.querySelector( 'body' );
 
 	const styleProbe = _document.createElement( 'div' );
 	styleProbe.className = STYLE_PROBE_CLASS;

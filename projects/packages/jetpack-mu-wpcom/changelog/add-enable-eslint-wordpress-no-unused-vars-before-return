@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Call `useState` instead of `React.useState` in one place, so it can be seen as a hook call by `@wordpress/no-unused-vars-before-return`. Should be the same function, just returned through `@wordpress/elements`.
+
+

@@ -14,12 +14,6 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
 	const siteSlug = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteData().adminUrl );
-	const storageUpgradeUrl = getProductCheckoutUrl(
-		addonSlug,
-		siteSlug,
-		`${ adminUrl }admin.php?page=jetpack-backup`,
-		true
-	);
 
 	const popover = useRef( null );
 
@@ -43,6 +37,13 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 	if ( ! forecastInDays ) {
 		return null;
 	}
+
+	const storageUpgradeUrl = getProductCheckoutUrl(
+		addonSlug,
+		siteSlug,
+		`${ adminUrl }admin.php?page=jetpack-backup`,
+		true
+	);
 
 	const forecastStatement = sprintf(
 		/* translators: %d: is number of days of the forecast */

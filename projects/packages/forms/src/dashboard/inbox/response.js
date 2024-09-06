@@ -32,15 +32,15 @@ const InboxResponse = ( { loading, response } ) => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
+	if ( ! loading && ! response ) {
+		return null;
+	}
+
 	const titleClasses = clsx( 'jp-forms__inbox-response-title', {
 		'is-email': response && ! response.author_name && response.author_email,
 		'is-ip': response && ! response.author_name && ! response.author_email,
 		'is-name': response && response.author_name,
 	} );
-
-	if ( ! loading && ! response ) {
-		return null;
-	}
 
 	return (
 		<SwitchTransition

@@ -47,6 +47,10 @@ export class Traffic extends React.Component {
 			siteUsesWpAdminInterface: this.props.siteUsesWpAdminInterface,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
 			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
@@ -55,10 +59,6 @@ export class Traffic extends React.Component {
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
 			foundAnalytics = this.props.isWoASite,
 			foundBlaze = this.props.isModuleFound( 'blaze' );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if (
 			! foundSeo &&

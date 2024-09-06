@@ -27,7 +27,6 @@ function responsiveVideos() {
 				video.style.margin = videoMargin;
 			}
 
-			const videoWidth = video.getAttribute( 'data-width' );
 			const videoHeight = video.getAttribute( 'data-height' );
 			const videoRatio = video.getAttribute( 'data-ratio' );
 			const containerWidth = video.parentElement.clientWidth;
@@ -40,6 +39,8 @@ function responsiveVideos() {
 				video.style.height = videoHeight + 'px';
 				return;
 			}
+
+			const videoWidth = video.getAttribute( 'data-width' );
 
 			if ( parseInt( videoWidth, 10 ) > containerWidth ) {
 				video.style.width = containerWidth + 'px';
