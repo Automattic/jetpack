@@ -39,7 +39,7 @@
 		"react-dom": "18.3.1",
 		"jetpack-js-tools": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@testing-library/dom": "10.1.0",
+		"@testing-library/dom": "10.4.0",
 		"@testing-library/react": "15.0.7",
 		"@testing-library/user-event": "14.5.2",
 		"@babel/plugin-transform-react-jsx": "7.24.7",
