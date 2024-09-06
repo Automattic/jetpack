@@ -52,8 +52,8 @@ export function ShareStatusAction( {
 	}, [ connectionId, connections, doPublicize, recordEvent, service ] );
 
 	const recordViewEvent = useCallback( () => {
-		recordEvent( 'jetpack_social_share_status_view', { location: 'modal' } );
-	}, [ recordEvent ] );
+		recordEvent( 'jetpack_social_share_status_view', { service, location: 'modal' } );
+	}, [ recordEvent, service ] );
 
 	const renderActions = () => {
 		if ( 'success' === status ) {
