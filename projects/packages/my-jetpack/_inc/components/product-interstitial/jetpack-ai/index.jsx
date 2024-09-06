@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import { useCallback } from 'react';
@@ -24,6 +25,8 @@ export default function JetpackAiInterstitial() {
 	const { detail } = useProduct( slug );
 	debug( detail );
 
+	const tierPlansEnabled = detail?.aiAssistantFeature?.tierPlansEnabled || false;
+
 	const { userConnectionData } = useMyJetpackConnection();
 	const { currentUser } = userConnectionData;
 	const { wpcomUser } = currentUser;
@@ -39,6 +42,22 @@ export default function JetpackAiInterstitial() {
 		[ userOptKey ]
 	);
 
+	const fairUsageSupportingInfo = createInterpolateElement(
+		__(
+			'* Limits apply for high request capacity. <link>Learn more about it here</link>.',
+			'jetpack-my-jetpack'
+		),
+		{
+			link: (
+				<a
+					href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+					target="_blank"
+					rel="noreferrer"
+				/>
+			),
+		}
+	);
+
 	return (
 		<ProductInterstitial
 			slug="jetpack-ai"
@@ -48,6 +67,7 @@ export default function JetpackAiInterstitial() {
 			directCheckout={ false }
 			ctaCallback={ ctaClickHandler }
 			ctaButtonLabel={ __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			supportingInfo={ ! tierPlansEnabled ? fairUsageSupportingInfo : null }
 		>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
