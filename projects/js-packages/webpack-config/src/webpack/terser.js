@@ -59,6 +59,9 @@ const defaultOptions = {
 				`${ isTranslatorsComment }; return isTranslatorsComment( comment )`
 			),
 		},
+		compress: {
+			conditionals: false,
+		},
 	},
 	// Same.
 	extractComments: new Function(

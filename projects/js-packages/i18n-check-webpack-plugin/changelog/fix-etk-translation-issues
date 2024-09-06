@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Updated tests now that Terser's conditionals' optimization is disabled

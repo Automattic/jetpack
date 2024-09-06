@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevents an optimization of conditionals which breaks translatable strings

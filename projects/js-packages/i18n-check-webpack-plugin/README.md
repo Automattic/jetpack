@@ -102,37 +102,6 @@ Instead put it inside the property:
 />
 ```
 
-### Conditional function call compaction
-
-When a conditional calls the same function in each branch with only one argument different, Terser will transform it to a single call with the condition inside the argument. For example, either of these
-```js
-example = flag ? __( 'Flag is set', 'domain' ) : __( 'Flag is not set', 'domain' );
-```
-```js
-if ( flag ) {
-	example = __( 'Flag is set', 'domain' );
-} else {
-	example = __( 'Flag is not set', 'domain' );
-}
-```
-will become
-```js
-example = __( flag ? 'Flag is set' : 'Flag is not set', 'domain' );
-```
-which will result in neither string being detected for translation.
-
-You can fix this by making the calls less similar, for example by adding a dummy argument to one call
-```js
-example = flag ? __( 'Flag is set', 'domain' ) : __( 'Flag is not set', 'domain', /* dummy arg to avoid bad minification */ 0 );
-```
-or by specifying an unnecessary context in one call (or a different context in both)
-```js
-example = flag ? __( 'Flag is set', 'domain' ) : _x( 'Flag is not set', '', 'domain' );
-```
-```js
-example = flag ? _x( 'Flag is set', 'Something', 'domain' ) : _x( 'Flag is not set', 'Something different', 'domain' );
-```
-
 ### Pruned branches and common strings
 
 In some cases, such as when `process.env.NODE_ENV` is tested or when ES module tree-shaking is done, code paths can be known to be unreachable. For example, only one branch in the following will be kept:
