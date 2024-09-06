@@ -8,7 +8,7 @@ const debug = require( '../debug' );
  * @param {string} message        - Message to send to OpenAI.
  * @param {string} responseFormat - Response format to use (plain by default, can be 'json_object').
  *
- * @return {Promise<string|void>} Promise resolving to the response from OpenAI, or void if an error occurred.
+ * @return {Promise<string|undefined>} Promise resolving to the response from OpenAI, or undefined if an error occurred.
  */
 async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 	const apiKey = getInput( 'openai_api_key' );
