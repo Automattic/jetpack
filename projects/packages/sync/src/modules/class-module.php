@@ -54,21 +54,22 @@ abstract class Module {
 	 * @access public
 	 *
 	 * @return string|bool
+	 * @deprecated since $$next-version$$ Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\Module->table' );
 		return false;
 	}
 
 	/**
-	 * The table in the database. This can be overridden to allow tables not present in the $wpdb global.
+	 * The table in the database with the prefix.
 	 *
 	 * @access public
 	 *
 	 * @return string|bool
 	 */
 	public function table() {
-		global $wpdb;
-		return $wpdb->{$this->table_name()};
+		return false;
 	}
 
 	/**
@@ -595,7 +596,7 @@ abstract class Module {
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 
-		if ( ! $this->table_name() ) {
+		if ( ! $this->table() ) {
 			return false;
 		}
 

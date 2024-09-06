@@ -45,8 +45,21 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since $$next-version$$ Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCOmmerce_HPOS_Orders->table' );
+		return $this->order_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
 		return $this->order_table_name;
 	}
 
@@ -403,7 +416,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- We return all order count for full sync, so confit is not required.
 		global $wpdb;
 
-		$query = "SELECT count(*) FROM {$this->table_name()} WHERE {$this->get_where_sql( $config ) }";
+		$query = "SELECT count(*) FROM {$this->table()} WHERE {$this->get_where_sql( $config ) }";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
 		$count = (int) $wpdb->get_var( $query );
 
@@ -421,7 +434,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		return $this->enqueue_all_ids_as_action( 'full_sync_orders', $this->table_name(), 'id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
+		return $this->enqueue_all_ids_as_action( 'full_sync_orders', $this->table(), 'id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
 	/**

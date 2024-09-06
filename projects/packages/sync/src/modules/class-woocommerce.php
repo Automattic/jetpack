@@ -66,13 +66,15 @@ class WooCommerce extends Module {
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since $$next-version$$ Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCommerce->table' );
 		return $this->order_item_table_name;
 	}
 
 	/**
-	 * The table in the database. This can be overridden to allow tables not present in the $wpdb global.
+	 * The table in the database with the prefix.
 	 *
 	 * @access public
 	 *
