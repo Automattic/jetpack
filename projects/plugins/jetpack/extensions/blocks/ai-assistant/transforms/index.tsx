@@ -7,15 +7,13 @@ import { createBlock, getSaveContent } from '@wordpress/blocks';
  * Internal dependencies
  */
 import metadata from '../block.json';
-import {
-	EXTENDED_TRANSFORMATIVE_BLOCKS,
-	isPossibleToExtendBlock,
-} from '../extensions/ai-assistant';
 /**
  * Types
  */
-import type { ExtendedBlockProp, ExtendedInlineBlockProp } from '../extensions/ai-assistant';
+import type { ExtendedBlockProp } from '../extensions/constants';
 import type { PromptItemProps } from '../lib/prompt';
+
+export const TRANSFORMABLE_BLOCKS = [ 'core/heading', 'core/paragraph', 'core/list' ];
 
 const from: unknown[] = [];
 
@@ -26,10 +24,7 @@ const from: unknown[] = [];
  * @param {object}            attrs     - Block attributes.
  * @return {object}                      AI Assistant block instance.
  */
-export function transformToAIAssistantBlock(
-	blockType: ExtendedBlockProp | ExtendedInlineBlockProp,
-	attrs
-) {
+export function transformToAIAssistantBlock( blockType: ExtendedBlockProp, attrs ) {
 	const { content, ...restAttrs } = attrs;
 	let htmlContent = content;
 
@@ -65,11 +60,11 @@ export function transformToAIAssistantBlock(
 /*
  * Create individual transform handler for each block type.
  */
-for ( const blockType of EXTENDED_TRANSFORMATIVE_BLOCKS ) {
+for ( const blockType of TRANSFORMABLE_BLOCKS ) {
 	from.push( {
 		type: 'block',
 		blocks: [ blockType ],
-		isMatch: () => isPossibleToExtendBlock(),
+		isMatch: () => TRANSFORMABLE_BLOCKS.includes( blockType ),
 		transform: ( attrs, innerBlocks ) => {
 			const content = getSaveContent( blockType, attrs, innerBlocks );
 			return transformToAIAssistantBlock( blockType as ExtendedBlockProp, { ...attrs, content } );
