@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Button } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -49,10 +50,12 @@ export default function JetpackAiInterstitial() {
 		),
 		{
 			link: (
-				<a
+				<Button
 					href="https://jetpack.com/redirect/?source=ai-assistant-fair-usage-policy"
+					variant="link"
+					weight="regular"
+					size="small"
 					target="_blank"
-					rel="noreferrer"
 				/>
 			),
 		}
