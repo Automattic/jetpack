@@ -68,8 +68,6 @@ class Jetpack_Mu_Wpcom {
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'load_translations' ) );
-
 		// Load the Map block settings.
 		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_jetpack_mu_wpcom_settings' ), 999 );
 
@@ -124,20 +122,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
 			Scheduled_Updates::init();
 		}
-	}
-
-	/**
-	 * Load translations for the Jetpack_Mu_Wpcom class.
-	 */
-	public static function load_translations() {
-		wp_enqueue_script(
-			'jetpack-mu-wpcom-translations',
-			plugins_url( 'languages/', __FILE__ ),
-			array( 'wp-i18n' ),
-			self::PACKAGE_VERSION,
-			true
-		);
-		wp_set_script_translations( 'jetpack-mu-wpcom-translations', 'jetpack-mu-wpcom' );
 	}
 
 	/**
