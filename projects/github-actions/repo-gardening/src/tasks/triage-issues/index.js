@@ -70,7 +70,7 @@ Analyze the issue and suggest relevant labels. Rules:
 - Include 1 '[Feature Group]' label.
 - Include 1 to 3 '[Feature]' labels.
 - Briefly explain each label choice in 1 sentence.
-- Format your response as a JSON object, with each suggested label as a key, and its explanation as the value.
+- Format your response as a JSON object, with each suggested label as a key, and your explanation of the label choice as the value.
 
 Example response format:
 {
