@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixes the fixedOn prop in the ScanHistoryDetails component
