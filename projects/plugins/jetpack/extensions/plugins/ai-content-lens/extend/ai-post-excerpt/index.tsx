@@ -298,14 +298,26 @@ ${ postContent }
 	);
 }
 
-export const PluginDocumentSettingPanelAiExcerpt = () => (
-	<PostTypeSupportCheck supportKeys="excerpt">
-		<PluginDocumentSettingPanel
-			className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
-			name="ai-content-lens-plugin"
-			title={ __( 'Excerpt', 'jetpack' ) }
-		>
-			<AiPostExcerpt />
-		</PluginDocumentSettingPanel>
-	</PostTypeSupportCheck>
-);
+export const PluginDocumentSettingPanelAiExcerpt = () => {
+	const isExcerptUsedAsDescription = useSelect( select => {
+		const { getCurrentPostType } = select( editorStore ) as typeof EditorSelectors;
+		const postType = getCurrentPostType();
+		const isTemplateOrTemplatePart = postType === 'wp_template' || postType === 'wp_template_part';
+		const isPattern = postType === 'wp_block';
+		return isTemplateOrTemplatePart || isPattern;
+	}, [] );
+	if ( isExcerptUsedAsDescription ) {
+		return null;
+	}
+	return (
+		<PostTypeSupportCheck supportKeys="excerpt">
+			<PluginDocumentSettingPanel
+				className={ isBetaExtension( 'ai-content-lens' ) ? 'is-beta-extension inset-shadow' : '' }
+				name="ai-content-lens-plugin"
+				title={ __( 'Excerpt', 'jetpack' ) }
+			>
+				<AiPostExcerpt />
+			</PluginDocumentSettingPanel>
+		</PostTypeSupportCheck>
+	);
+};
