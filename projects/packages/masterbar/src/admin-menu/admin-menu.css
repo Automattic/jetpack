@@ -239,8 +239,10 @@
 .site__info .site__title,
 .site__info .site__domain {
 	overflow: hidden;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
 .site__info .site__title::after,
 .site__info .site__domain::after {
 	content: "";

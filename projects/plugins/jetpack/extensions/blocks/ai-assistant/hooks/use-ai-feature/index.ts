@@ -2,11 +2,7 @@
  * External dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import {
-	PLAN_TYPE_FREE,
-	PLAN_TYPE_TIERED,
-	usePlanType as getPlanType,
-} from '../../../../shared/use-plan-type';
+import { PLAN_TYPE_FREE, usePlanType as getPlanType } from '../../../../shared/use-plan-type';
 import type { WordPressPlansSelectors } from 'extensions/store/wordpress-com';
 
 export default function useAiFeature() {
@@ -22,17 +18,14 @@ export default function useAiFeature() {
 			usagePeriod,
 			requestsCount: allTimeRequestsCount,
 			requestsLimit: freeRequestsLimit,
-			tierPlansEnabled,
 		} = featureData;
 
 		const planType = getPlanType( currentTier );
 
-		// TODO: mind this hardcoded value (3000),
-		// maybe provide it from the backend but we'd be replacing the 9 Billion limit with 3k
-		const currentTierLimit = tierPlansEnabled ? currentTier?.limit || freeRequestsLimit : 3000;
+		const currentTierLimit = currentTier?.limit || freeRequestsLimit;
 
 		const actualRequestsCount =
-			planType === PLAN_TYPE_TIERED ? usagePeriod?.requestsCount : allTimeRequestsCount;
+			planType === PLAN_TYPE_FREE ? allTimeRequestsCount : usagePeriod?.requestsCount;
 		const actualRequestsLimit = planType === PLAN_TYPE_FREE ? freeRequestsLimit : currentTierLimit;
 
 		return {

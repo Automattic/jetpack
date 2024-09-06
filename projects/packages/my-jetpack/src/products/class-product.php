@@ -150,35 +150,37 @@ abstract class Product {
 			throw new \Exception( 'Product classes must declare the $slug attribute.' );
 		}
 		return array(
-			'slug'                      => static::$slug,
-			'plugin_slug'               => static::$plugin_slug,
-			'name'                      => static::get_name(),
-			'title'                     => static::get_title(),
-			'description'               => static::get_description(),
-			'long_description'          => static::get_long_description(),
-			'tiers'                     => static::get_tiers(),
-			'features'                  => static::get_features(),
-			'features_by_tier'          => static::get_features_by_tier(),
-			'disclaimers'               => static::get_disclaimers(),
-			'status'                    => static::get_status(),
-			'pricing_for_ui'            => static::get_pricing_for_ui(),
-			'is_bundle'                 => static::is_bundle_product(),
-			'is_plugin_active'          => static::is_plugin_active(),
-			'is_upgradable'             => static::is_upgradable(),
-			'is_upgradable_by_bundle'   => static::is_upgradable_by_bundle(),
-			'supported_products'        => static::get_supported_products(),
-			'wpcom_product_slug'        => static::get_wpcom_product_slug(),
-			'requires_user_connection'  => static::$requires_user_connection,
-			'has_any_plan_for_product'  => static::has_any_plan_for_product(),
-			'has_free_plan_for_product' => static::has_free_plan_for_product(),
-			'has_paid_plan_for_product' => static::has_paid_plan_for_product(),
-			'has_free_offering'         => static::$has_free_offering,
-			'manage_url'                => static::get_manage_url(),
-			'purchase_url'              => static::get_purchase_url(),
-			'post_activation_url'       => static::get_post_activation_url(),
-			'standalone_plugin_info'    => static::get_standalone_info(),
-			'class'                     => static::class,
-			'post_checkout_url'         => static::get_post_checkout_url(),
+			'slug'                            => static::$slug,
+			'plugin_slug'                     => static::$plugin_slug,
+			'name'                            => static::get_name(),
+			'title'                           => static::get_title(),
+			'description'                     => static::get_description(),
+			'long_description'                => static::get_long_description(),
+			'tiers'                           => static::get_tiers(),
+			'features'                        => static::get_features(),
+			'features_by_tier'                => static::get_features_by_tier(),
+			'disclaimers'                     => static::get_disclaimers(),
+			'status'                          => static::get_status(),
+			'pricing_for_ui'                  => static::get_pricing_for_ui(),
+			'is_bundle'                       => static::is_bundle_product(),
+			'is_plugin_active'                => static::is_plugin_active(),
+			'is_upgradable'                   => static::is_upgradable(),
+			'is_upgradable_by_bundle'         => static::is_upgradable_by_bundle(),
+			'supported_products'              => static::get_supported_products(),
+			'wpcom_product_slug'              => static::get_wpcom_product_slug(),
+			'requires_user_connection'        => static::$requires_user_connection,
+			'has_any_plan_for_product'        => static::has_any_plan_for_product(),
+			'has_free_plan_for_product'       => static::has_free_plan_for_product(),
+			'has_paid_plan_for_product'       => static::has_paid_plan_for_product(),
+			'has_free_offering'               => static::$has_free_offering,
+			'manage_url'                      => static::get_manage_url(),
+			'purchase_url'                    => static::get_purchase_url(),
+			'post_activation_url'             => static::get_post_activation_url(),
+			'post_activation_urls_by_feature' => static::get_manage_urls_by_feature(),
+			'standalone_plugin_info'          => static::get_standalone_info(),
+			'class'                           => static::class,
+			'post_checkout_url'               => static::get_post_checkout_url(),
+			'post_checkout_urls_by_feature'   => static::get_post_checkout_urls_by_feature(),
 		);
 	}
 
@@ -198,7 +200,8 @@ abstract class Product {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'site_features_fetch_failed' );
+			$features = new WP_Error( 'site_features_fetch_failed' );
+			return $features;
 		}
 
 		$body           = wp_remote_retrieve_body( $response );
@@ -306,6 +309,15 @@ abstract class Product {
 	abstract public static function get_manage_url();
 
 	/**
+	 * Get the URL where the user manages the product for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_manage_urls_by_feature() {
+		return null;
+	}
+
+	/**
 	 * Get the URL the user is taken after activating the product
 	 *
 	 * @return ?string
@@ -320,6 +332,15 @@ abstract class Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
+		return null;
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout for each product feature
+	 *
+	 * @return ?array
+	 */
+	public static function get_post_checkout_urls_by_feature() {
 		return null;
 	}
 

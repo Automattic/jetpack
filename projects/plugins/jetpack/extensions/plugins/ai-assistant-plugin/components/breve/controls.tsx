@@ -21,6 +21,7 @@ import React, { useState, useEffect, useCallback } from 'react';
  */
 import features from './features';
 import calculateFleschKincaid from './utils/FleschKincaidUtils';
+import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/getPostText';
 import './breve.scss';
 /**
@@ -107,10 +108,8 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 				<BaseControl>
 					<div className="grade-level-container">
 						{ gradeLevel === null ? (
-							<p>
-								<em className="breve-help-text">
-									{ __( 'Write to see your grade level.', 'jetpack' ) }
-								</em>
+							<p className="jetpack-ai-proofread__help-text">
+								{ __( 'Write to see your grade level.', 'jetpack' ) }
 							</p>
 						) : (
 							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>
@@ -134,17 +133,20 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 						label={ __( 'Show suggestions', 'jetpack' ) }
 					/>
 					<div className="feature-checkboxes-container">
-						{ features.map( feature => (
-							<CheckboxControl
-								className={ isProofreadEnabled ? '' : 'is-disabled' }
-								disabled={ ! isProofreadEnabled }
-								data-breve-type={ feature.config.name }
-								key={ feature.config.name }
-								label={ feature.config.title }
-								checked={ ! disabledFeatures.includes( feature.config.name ) }
-								onChange={ handleToggleFeature( feature.config.name ) }
-							/>
-						) ) }
+						{ features.map(
+							feature =>
+								canWriteBriefFeatureBeEnabled( feature.config.name ) && (
+									<CheckboxControl
+										className={ isProofreadEnabled ? '' : 'is-disabled' }
+										disabled={ ! isProofreadEnabled }
+										data-breve-type={ feature.config.name }
+										key={ feature.config.name }
+										label={ feature.config.title }
+										checked={ ! disabledFeatures.includes( feature.config.name ) }
+										onChange={ handleToggleFeature( feature.config.name ) }
+									/>
+								)
+						) }
 					</div>
 				</BaseControl>
 			</PanelRow>

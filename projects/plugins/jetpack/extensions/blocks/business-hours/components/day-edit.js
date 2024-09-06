@@ -19,6 +19,7 @@ class DayEdit extends Component {
 					</div>
 					<div className={ clsx( day.name, 'business-hours__hours' ) }>
 						<TextControl
+							__nextHasNoMarginBottom={ true }
 							type="time"
 							label={ __( 'Opening', 'jetpack' ) }
 							value={ opening }
@@ -29,6 +30,7 @@ class DayEdit extends Component {
 							} }
 						/>
 						<TextControl
+							__nextHasNoMarginBottom={ true }
 							type="time"
 							label={ __( 'Closing', 'jetpack' ) }
 							value={ closing }
@@ -168,6 +170,7 @@ class DayEdit extends Component {
 			<Fragment>
 				<span className="business-hours__day-name">{ localization.days[ day.name ] }</span>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ this.isClosed() ? __( 'Closed', 'jetpack' ) : __( 'Open', 'jetpack' ) }
 					checked={ ! this.isClosed() }
 					onChange={ this.toggleClosed }

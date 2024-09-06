@@ -436,6 +436,7 @@ export const SimplePaymentsEdit = ( {
 				/>
 				<div>
 					<TextControl
+						__nextHasNoMarginBottom={ true }
 						aria-describedby={ `${ instanceId }-title-error` }
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-title', {
 							'simple-payments__field-has-error': fieldTitleError,
@@ -452,6 +453,7 @@ export const SimplePaymentsEdit = ( {
 					</HelpMessage>
 
 					<TextareaControl
+						__nextHasNoMarginBottom={ true }
 						className="simple-payments__field simple-payments__field-content"
 						label={ __( 'Describe your item in a few words', 'jetpack' ) }
 						onChange={ handleContentChange }
@@ -462,6 +464,7 @@ export const SimplePaymentsEdit = ( {
 
 					<div className="simple-payments__price-container">
 						<SelectControl
+							__nextHasNoMarginBottom={ true }
 							className="simple-payments__field simple-payments__field-currency"
 							label={ __( 'Currency', 'jetpack' ) }
 							onChange={ handleCurrencyChange }
@@ -469,6 +472,7 @@ export const SimplePaymentsEdit = ( {
 							value={ currency }
 						/>
 						<TextControl
+							__nextHasNoMarginBottom={ true }
 							aria-describedby={ `${ instanceId }-price-error` }
 							className={ clsx( 'simple-payments__field', 'simple-payments__field-price', {
 								'simple-payments__field-has-error': fieldPriceError,
@@ -488,6 +492,7 @@ export const SimplePaymentsEdit = ( {
 
 					<div className="simple-payments__field-multiple">
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ Boolean( multiple ) }
 							label={ __( 'Allow people to buy more than one item at a time', 'jetpack' ) }
 							onChange={ handleMultipleChange }
@@ -495,6 +500,7 @@ export const SimplePaymentsEdit = ( {
 					</div>
 
 					<TextControl
+						__nextHasNoMarginBottom={ true }
 						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
 						className={ clsx( 'simple-payments__field', 'simple-payments__field-email', {
 							'simple-payments__field-has-error': fieldEmailError,

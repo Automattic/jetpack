@@ -190,7 +190,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "8e9867c7b1f5bac0c5652f87946fd2cd41a88f70"
+                "reference": "0f56ec98bb673d1b6fe8129b1bbdc0ab7eb30879"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -213,7 +213,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 }
             },
             "autoload": {
@@ -383,7 +383,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "61beeb1eadc51c94a4ba35310bed89a1f15702e3"
+                "reference": "ba6b4c5a04498f466aea16c82dd43f4563c0c859"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -418,7 +418,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -428,6 +428,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "legacy",
                     "src/",
@@ -801,7 +804,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "7ff2e0454b5d9dafdd6ddd7c1917065f739408e0"
+                "reference": "fb9d7919368d5fcea47f659fa2a7532ada3477a0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -826,7 +829,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -862,7 +865,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "64ed9303f16e3377d99091c67842f3c4b07b71eb"
+                "reference": "57b44f5733993fc13ee01f04b351e569fdab4522"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -895,7 +898,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.8.x-dev"
+                    "dev-trunk": "3.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

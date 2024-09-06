@@ -206,3 +206,23 @@ function wpcomsh_woa_post_clone_set_staging_environment_type( $args, $assoc_args
 	WP_CLI::success( 'Staging environment set' );
 }
 add_action( 'wpcomsh_woa_post_clone', 'wpcomsh_woa_post_clone_set_staging_environment_type', 10, 2 );
+
+/**
+ * Install marketplace software after a site transfer.
+ *
+ * @param array $args       Arguments.
+ * @param array $assoc_args Associated arguments.
+ */
+function wpcomsh_woa_post_transfer_install_marketplace_software( $args, $assoc_args ) {
+	$install_marketplace_software = WP_CLI\Utils\get_flag_value( $assoc_args, 'install-marketplace-software', false );
+	if ( ! $install_marketplace_software ) {
+		return;
+	}
+
+	$result = ( new Marketplace_Software_Manager() )->install_marketplace_software();
+	if ( is_wp_error( $result ) ) {
+		WP_CLI::error( $result->get_error_message() );
+		WPCOMSH_Log::unsafe_direct_log( $result->get_error_message() );
+	}
+}
+add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_transfer_install_marketplace_software', 10, 2 );

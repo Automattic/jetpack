@@ -41,12 +41,23 @@ export type ShareStatusItem = Pick<
 	timestamp: number;
 	service: string;
 	external_name: string;
+	external_id: string;
 };
 
 export type PostShareStatus = {
 	shares: Array< ShareStatusItem >;
 	done?: boolean;
+	/**
+	 * Whether an API request is in flight.
+	 */
 	loading?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
 };
 
 export type ShareStatus = {

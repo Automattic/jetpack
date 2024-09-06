@@ -50,6 +50,26 @@ class Version_Loader {
 	}
 
 	/**
+	 * Fetch the classmap.
+	 *
+	 * @since 3.1.0
+	 * @return array<string, array>
+	 */
+	public function get_class_map() {
+		return $this->classmap;
+	}
+
+	/**
+	 * Fetch the psr-4 mappings.
+	 *
+	 * @since 3.1.0
+	 * @return array<string, array>
+	 */
+	public function get_psr4_map() {
+		return $this->psr4_map;
+	}
+
+	/**
 	 * Finds the file path for the given class.
 	 *
 	 * @param string $class_name The class to find.

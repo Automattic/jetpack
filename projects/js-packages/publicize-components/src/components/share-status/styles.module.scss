@@ -1,4 +1,118 @@
+@import '@wordpress/dataviews/build-style/style.css';
+
 .trigger-wrapper {
 	margin-top: 1rem;
 	padding-block: 1rem;
+}
+
+.wrapper {
+	margin-top: 1rem;
+	padding-block: 1rem;
+}
+
+.spinner {
+	margin: 0 1rem 1rem 1rem;
+}
+
+.modal {
+	width: 60rem;
+	min-height: 20rem;
+}
+
+.share-log-list {
+	outline: 1px solid var(--jp-gray-5);
+	border-radius: 4px;
+	margin: 0;
+	width: 100%;
+
+	.share-log-list-item {
+		margin-bottom: 0px;
+		padding: 0.8rem 1rem;
+
+		&:not(:last-child) {
+			border-bottom: 1px solid var(--jp-gray-5);
+		}
+	}
+}
+
+.share-item-name-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	flex: 1;
+	overflow: auto;
+}
+
+.share-item-name {
+	display: flex;
+	align-items: center;
+}
+
+.share-status-wrapper {
+	display: flex;
+	align-items: center;
+
+	&.share-status-success {
+		color: var(--jp-green-50);
+	}
+
+	&.share-status-failure {
+		color: var(--jp-red-50);
+		height: 29px;
+	}
+}
+
+.share-status-label {
+	flex: 1;
+}
+
+.share-status-icon-tooltip {
+	width: 24px;
+	top: 2px;
+	margin-inline-start: 2px;
+
+	> button {
+		color: var(--jp-red-50) !important;
+	}
+}
+
+.share-status-icon {
+	fill: var(--jp-green-50);
+}
+
+.disconnected-icon {
+	display: block;
+}
+
+.dataview-wrapper {
+
+	// Hide the table actions
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	// Make the table header buttons unclickable
+	:global(.dataviews-view-table-header-button) {
+		pointer-events: none;
+	}
+
+	// Make the actions column right-aligned
+	:global(.dataviews-view-table__row th:last-child),
+	:global(.dataviews-view-table__row td:last-child) {
+		text-align: end;
+	}
+	:global(.dataviews-view-table__row td:last-child) {
+		width: 1%;
+	}
+
+	.connection-name {
+		display: flex;
+		align-items: center;
+	}
+
+	// Reset link styles
+	:global(.components-external-link) {
+		color: #2271b1; // $blue-50 from WP common CSS.
+		font-weight: normal;
+	}
 }

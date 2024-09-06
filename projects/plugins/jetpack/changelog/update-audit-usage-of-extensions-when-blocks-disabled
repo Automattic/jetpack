@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Blocks: Ensure function is loaded even if blocks aren't enabled
