@@ -342,7 +342,7 @@ class Waf_Request {
 			// Attempt to decode JSON requests.
 			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
 			return flatten_array( $decoded_json, 'json', true );
-		} elseif ( 'application/x-www-form-urlencoded' === $content_type ) {
+		} elseif ( strpos( $content_type, 'application/x-www-form-urlencoded' ) !== false ) {
 			// Attempt to decode url-encoded data
 			parse_str( $this->get_body(), $params );
 			return flatten_array( $params );
