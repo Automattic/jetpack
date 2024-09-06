@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.35.2] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [4.35.1] - 2024-09-05
+### Changed
+- Internal updates.
+
 ## [4.35.0] - 2024-09-05
 ### Added
 - My Jetpack: add support for feature-specific handling to product interstitials. [#38661]
@@ -1698,6 +1706,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[4.35.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.1...4.35.2
+[4.35.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.35.0...4.35.1
 [4.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.34.0...4.35.0
 [4.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.1...4.34.0
 [4.33.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/4.33.0...4.33.1

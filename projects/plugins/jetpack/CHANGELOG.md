@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.8 - 2024-09-02
+## 13.8 - 2024-09-04
 ### Major Enhancements
 - Custom CSS: Remove feature in favor of WordPress core implementation. [#38865]
 - Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation. [#39096]
@@ -48,9 +48,9 @@
 - AI Assistant: Limit popover height and fix anchorless popover. [#39109]
 - AI Assistant: Load dictionaries from CDN. [#38943]
 - AI Assistant: Recompute Write Brief highlights when dictionary is loaded. [#38999]
-- AI Assistant: Remove Write Brief highlight popover when feature is disabled. [#38814]
 - AI Assistant: Remove dead Write Brief code. [#39089]
 - AI Assistant: Remove unique-id sass function call from animation name. [#38922]
+- AI Assistant: Remove Write Brief highlight popover when feature is disabled. [#38814]
 - AI Assistant: Update connection button text. [#39031]
 - Blocks: Ensure function is loaded even if blocks aren't enabled. [#39070]
 - Blocks: Update the button block to v3 API. [#38916]
@@ -98,11 +98,11 @@
 - Site Breadcrumbs: Requiring the feature from the Classic Theme Helper package. [#38931]
 - Site Breadcrumbs: Wrapping functions in function_exists as part of functionality move to package. [#38880]
 - Slideshow Shortcode: Remove deprecated JS functionality and remove majority of jQuery. [#39050]
-- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
-- Social Menus: Switch to more appropriate method of calling the SVG icon file. [#39136]
 - Social: Moved PostPublishPanels component to publicize-coomponents package. [#39049]
 - Social: Updated intial state logic to use the new consolidated initial state. [#38606]
 - Social: Updated the share status modal to render it globally. [#39116]
+- Social Links: Requiring feature from Classic Theme Helper package instead of Jetpack module. [#38730]
+- Social Menus: Switch to more appropriate method of calling the SVG icon file. [#39136]
 - Stats: Moved stats to the top of the Jetpack menu. [#39061]
 - Subscribe Block: p tag styles leaking in from theme. [#38840]
 - Subscriptions: Render the close button lower than the marketing bar. [#39065]
@@ -114,8 +114,8 @@
 - Title Optimization: Change UI labels when keywords beta flag is enabled. [#38911]
 - Title Optimization: Include feedback link on the footer. [#38940]
 - Top Posts & Pages Block: Ensure deleted content does not display. [#37251]
-- Update Quick Start instructions. [#39059]
 - Updated package dependencies. [#38662] [#38665] [#38822] [#39111] [#38745]
+- Update Quick Start instructions. [#39059]
 - WP.com: Hide the Customizer link on WP.com sites. [#38852]
 
 ## 13.7 - 2024-08-06
