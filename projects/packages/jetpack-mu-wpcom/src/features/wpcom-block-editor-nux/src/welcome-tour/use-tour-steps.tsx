@@ -3,7 +3,7 @@ import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { getQueryArg } from '@wordpress/url';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import { getEditorType } from './get-editor-type';
@@ -127,9 +127,8 @@ function useTourSteps(
 									'Take this short, interactive tour to learn the fundamentals of the WordPress Site Editor.',
 									'jetpack-mu-wpcom'
 							  )
-							: _x(
+							: __(
 									'Take this short, interactive tour to learn the fundamentals of the WordPress editor.',
-									'jetpack-mu-wpcom',
 									'jetpack-mu-wpcom'
 							  );
 					} )(),
