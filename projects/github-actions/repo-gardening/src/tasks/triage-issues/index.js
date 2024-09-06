@@ -57,7 +57,9 @@ ${ body }
 **********************
 
 You must analyze this content, and suggest labels related to the content.
-The labels you will suggest must all come from the list below:
+The labels you will suggest must all come from the list below.
+Each item on the list of labels below follows the following format: - <label name>: <label description if it exists>
+
 
 ${ repoLabels
 	.map( label => `- ${ label.name }${ label?.description ? `: ${ label.description }` : '' }` )
