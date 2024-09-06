@@ -178,21 +178,18 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 3.0.0-beta - 2024-08-09
+### 3.0.1 - 2024-09-06
 #### Added
-- Firewall: add dedicated WAF allow and block list toggles
-- General: add "contact support" links
-- Security Scanning: add threats history view
+- Threats List: Add pagination.
 
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-
-#### Removed
-- General: update WordPress version requirements to WordPress 6.5.
+- Admin menu: change order of Jetpack sub-menu items.
+- Updated package dependencies.
 
 #### Fixed
-- Fix an issue where the connection error hook was always resetting the notice
-- Fix image optimization
-- Fix in-progress threat fixer loading indicator
-- Fix threat fix modal title
+- Security Scanning: Adds a background to the scan progress bar.
+- General: Delete relevant Protect options on deactivation.
+- Auto Fixers: Disable the unignore threats button when a fixer is in progress.
+- Security Scanning: Fix the threat fixed on date in the history view.
+- General: Improves the manual scan link button loading state.
 

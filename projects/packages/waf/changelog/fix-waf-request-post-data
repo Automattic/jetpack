@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Waf: Ensure that request body is parsed correctly
