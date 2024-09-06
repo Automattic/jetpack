@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reintroduced onboarding and edit_links_calypso_redirect options to avoid warnings with plugins using the old version of the connection package'
