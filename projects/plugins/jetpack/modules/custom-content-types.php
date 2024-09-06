@@ -16,14 +16,20 @@
 use Automattic\Jetpack\Redirect;
 
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
-	/**
-	 * Load Portfolio CPT.
-	 *
-	 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
-	 */
-	function jetpack_load_custom_post_types() {
-		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio' ) ) {
+		// Temporarily require the file here to prevent possible deprecation notices for a short period of time.
+		// @todo: Can remove this if check after the subsequent release.
 		include __DIR__ . '/custom-post-types/portfolios.php';
+	} else {
+		/**
+		 * Load Portfolio CPT.
+		 *
+		 * @deprecated $$next-version$$ Moved to Classic Theme Helper package.
+		 */
+		function jetpack_load_custom_post_types() {
+			_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+			include __DIR__ . '/custom-post-types/portfolios.php';
+		}
 	}
 }
 
