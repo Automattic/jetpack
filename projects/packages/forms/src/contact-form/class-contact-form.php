@@ -1102,8 +1102,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		if ( isset( $field_ids['textarea'] ) ) {
-			$field           = $this->fields[ $field_ids['textarea'] ];
-			$comment_content = trim( Contact_Form_Plugin::strip_tags( $field->value ) );
+			$field = $this->fields[ $field_ids['textarea'] ];
+
+			if ( is_string( $field->value ) ) {
+				$comment_content = trim( Contact_Form_Plugin::strip_tags( $field->value ) );
+			} else {
+				$field->value = '';
+			}
 		}
 
 		if ( isset( $field_ids['subject'] ) ) {
