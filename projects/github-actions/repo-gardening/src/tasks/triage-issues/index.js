@@ -99,68 +99,6 @@ Example response format:
 }
 
 /**
- * Check if the issue has the "[Experiment] Automated labeling" label.
- *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
- *
- * @return {Promise<boolean>} Promise resolving to boolean.
- */
-async function hasTestLabel( octokit, owner, repo, number, action, eventLabel ) {
-	// Check existing labels.
-	const labels = await getLabels( octokit, owner, repo, number );
-	if ( labels.includes( '[Experiment] Automated labeling' ) ) {
-		return true;
-	}
-
-	// Next, check if the current event was a [Experiment] Automated labeling label being added.
-	if (
-		'labeled' === action &&
-		eventLabel.name &&
-		'[Experiment] Automated labeling' === eventLabel.name
-	) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
- * Check if the issue has the "Experiment] AI labels added" label.
- *
- * @param {GitHub} octokit    - Initialized Octokit REST client.
- * @param {string} owner      - Repository owner.
- * @param {string} repo       - Repository name.
- * @param {string} number     - Issue number.
- * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} eventLabel - Label that was added to the issue.
- *
- * @return {Promise<boolean>} Promise resolving to boolean.
- */
-async function hasProcessedLabel( octokit, owner, repo, number, action, eventLabel ) {
-	// Check existing labels.
-	const labels = await getLabels( octokit, owner, repo, number );
-	if ( labels.includes( '[Experiment] AI labels added' ) ) {
-		return true;
-	}
-
-	// Next, check if the current event was a [Experiment] AI labels added label being added.
-	if (
-		'labeled' === action &&
-		eventLabel.name &&
-		'[Experiment] AI labels added' === eventLabel.name
-	) {
-		return true;
-	}
-
-	return false;
-}
-
-/**
  * Automatically add labels to issues, and send Slack notifications.
  *
  * This task can send 2 different types of Slack notifications:
@@ -268,17 +206,13 @@ async function triageIssues( payload, octokit ) {
 	// During testing, we'll run it for any issues, not just opened,
 	// but only on issues with the "[Experiment] Automated labeling" label.
 	// In that situation, we'll add a label to note that the issue was processed.
-	const isTestIssue = await hasTestLabel( octokit, ownerLogin, name, number, action, label );
-	const alreadyProcessed = await hasProcessedLabel(
-		octokit,
-		ownerLogin,
-		name,
-		number,
-		action,
-		label
-	);
+	const issueLabels = await getLabels( octokit, ownerLogin, name, number );
 	const apiKey = getInput( 'openai_api_key' );
-	if ( isTestIssue && ! alreadyProcessed && apiKey ) {
+	if (
+		issueLabels.includes( '[Experiment] Automated labeling' ) &&
+		! issueLabels.includes( '[Experiment] AI labels added' ) &&
+		apiKey
+	) {
 		debug( `triage-issues: Fetching labels suggested by OpenAI for issue #${ number }` );
 		const { labels, explanations } = await fetchOpenAiLabelsSuggestions(
 			octokit,
