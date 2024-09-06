@@ -32,6 +32,7 @@
 		"@wordpress/components": "28.6.0",
 		"@wordpress/compose": "7.6.0",
 		"@wordpress/data": "10.6.0",
+		"@wordpress/dataviews": "4.2.0",
 		"@wordpress/date": "5.6.0",
 		"@wordpress/edit-post": "8.6.1",
 		"@wordpress/editor": "14.6.0",
