@@ -272,6 +272,7 @@ class Jetpack_Ai extends Product {
 		}
 
 		$features = array(
+			__( 'High request capacity *', 'jetpack-my-jetpack' ),
 			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 			__( 'Easily refine content to your liking', 'jetpack-my-jetpack' ),
 			__( 'Make your content easier to read', 'jetpack-my-jetpack' ),
