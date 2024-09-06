@@ -108,10 +108,8 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 				<BaseControl>
 					<div className="grade-level-container">
 						{ gradeLevel === null ? (
-							<p>
-								<em className="breve-help-text">
-									{ __( 'Write to see your grade level.', 'jetpack' ) }
-								</em>
+							<p className="jetpack-ai-proofread__help-text">
+								{ __( 'Write to see your grade level.', 'jetpack' ) }
 							</p>
 						) : (
 							<Tooltip text={ __( 'To make it easy to read, aim for level 8-12', 'jetpack' ) }>

@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.4.4';
+	const PACKAGE_VERSION = '0.4.5';
 
 	/**
 	 * Whether this class has been initialized
@@ -82,7 +82,7 @@ class Admin_Menu {
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
-				'read',
+				'edit_posts',
 				'jetpack',
 				'__return_null',
 				$icon,

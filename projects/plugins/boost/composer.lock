@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c2eacb3d7a1fb66fa975acc4522b1230",
+    "content-hash": "709f3a097b03b2e8817ed1b01ccd6942",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -521,7 +521,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "61beeb1eadc51c94a4ba35310bed89a1f15702e3"
+                "reference": "b5f7c6732e10f0a4827e26a273ef103078fb6340"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -556,7 +556,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -566,6 +566,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "legacy",
                     "src/",
@@ -1079,7 +1082,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "c0f1d2f6bee157a82e523f9ca73b15825aca3720"
+                "reference": "bd64433575233a1be4480fcbd6a8113bfa29ccc0"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1117,7 +1120,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.34.x-dev"
+                    "dev-trunk": "4.35.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

@@ -31,6 +31,7 @@ const useLogoGenerator = () => {
 		increaseAiAssistantRequestsCount,
 		addLogoToHistory,
 		setContext,
+		setIsLoadingHistory,
 	} = useDispatch( STORE_NAME );
 
 	const {
@@ -46,6 +47,8 @@ const useLogoGenerator = () => {
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
+		isLoadingHistory,
 	} = useSelect( select => {
 		const selectors: Selectors = select( STORE_NAME );
 
@@ -62,6 +65,8 @@ const useLogoGenerator = () => {
 			getAiAssistantFeature: selectors.getAiAssistantFeature,
 			requireUpgrade: selectors.getRequireUpgrade(),
 			context: selectors.getContext(),
+			tierPlansEnabled: selectors.getTierPlansEnabled(),
+			isLoadingHistory: selectors.getIsLoadingHistory(),
 		};
 	}, [] );
 
@@ -383,6 +388,9 @@ User request:${ prompt }`;
 		getAiAssistantFeature,
 		requireUpgrade,
 		context,
+		tierPlansEnabled,
+		isLoadingHistory,
+		setIsLoadingHistory,
 	};
 };
 
