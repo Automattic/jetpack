@@ -47,6 +47,13 @@ class Jetpack_AI_Helper {
 	public static $post_meta_with_ai_generation_number = '_jetpack_ai_calls';
 
 	/**
+	 * Storing the error to prevent repeated requests to WPCOM after failure.
+	 *
+	 * @var null|WP_Error
+	 */
+	private static $ai_assistant_failed_request = null;
+
+	/**
 	 * Checks if a given request is allowed to get AI data from WordPress.com.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -408,6 +415,10 @@ class Jetpack_AI_Helper {
 			return $cache;
 		}
 
+		if ( null !== static::$ai_assistant_failed_request ) {
+			return static::$ai_assistant_failed_request;
+		}
+
 		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
@@ -432,11 +443,14 @@ class Jetpack_AI_Helper {
 
 			return $ai_assistant_feature_data;
 		} else {
-			return new WP_Error(
+			$error                               = new WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
 				array( 'status' => $response_code )
 			);
+			static::$ai_assistant_failed_request = $error;
+
+			return $error;
 		}
 	}
 }
