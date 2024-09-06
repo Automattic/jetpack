@@ -1,9 +1,3 @@
-export type SharesData = {
-	to_be_publicized_count: number;
-	publicized_count: number;
-	shared_posts_count: number;
-};
-
 export type ConnectionStatus = 'ok' | 'broken';
 
 export type Connection = {
@@ -38,16 +32,49 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
+export type ShareStatusItem = Pick<
+	Connection,
+	'connection_id' | 'profile_link' | 'profile_picture'
+> & {
+	status: 'success' | 'failure';
+	message: string;
+	timestamp: number;
+	service: string;
+	external_name: string;
+	external_id: string;
+};
+
+export type PostShareStatus = {
+	shares: Array< ShareStatusItem >;
+	done?: boolean;
+	/**
+	 * Whether an API request is in flight.
+	 */
+	loading?: boolean;
+
+	/**
+	 * Whether the polling is in progress, which includes
+	 * - the API request wait time
+	 * - the polling interval/delay
+	 */
+	polling?: boolean;
+};
+
+export type ShareStatus = {
+	isModalOpen?: boolean;
+	[ PostId: number ]: PostShareStatus;
+};
+
 // TODO we should have a consistent structure across all the pages - editor, dashboard, admin page etc.
 export type SocialStoreState = {
 	connectionData: ConnectionData;
-	sharesData: SharesData;
 	// on post editor
 	hasPaidPlan?: boolean;
 	// on Jetack Social admin page
 	jetpackSettings?: JetpackSettings;
 	useAdminUiV1?: boolean;
 	featureFlags?: Record< string, boolean >;
+	shareStatus?: ShareStatus;
 };
 
 export interface KeyringAdditionalUser {

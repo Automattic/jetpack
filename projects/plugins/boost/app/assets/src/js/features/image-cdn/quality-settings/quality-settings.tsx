@@ -116,10 +116,11 @@ const Header = () => (
 	<div className={ styles[ 'section-title' ] }>
 		<h4>{ __( 'Image Quality', 'jetpack-boost' ) }</h4>
 		<IconTooltip
-			offset={ 8 }
+			offset={ 12 }
 			placement={ 'bottom' }
 			className={ styles[ 'info-icon' ] }
 			title={ __( 'Image Quality', 'jetpack-boost' ) }
+			iconSize={ 22 }
 		>
 			{ __(
 				'Select the quality for images served by the CDN. Choosing a lower quality will compress your images and load them faster. If you choose lossless, we will not compress your images.',

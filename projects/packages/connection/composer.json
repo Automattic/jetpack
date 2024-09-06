@@ -15,7 +15,7 @@
 	},
 	"require-dev": {
 		"automattic/wordbless": "@dev",
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"brain/monkey": "2.6.1",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-licensing": "@dev",
@@ -25,6 +25,9 @@
 		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
+		"files": [
+			"actions.php"
+		],
 		"classmap": [
 			"legacy",
 			"src/",
@@ -70,7 +73,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.12.x-dev"
+			"dev-trunk": "4.0.x-dev"
 		},
 		"dependencies": {
 			"test-only": [

@@ -1,5 +1,32 @@
 # Changelog
 
+## 5.7.0 - 2024-09-02
+### Added
+- WPCOM Marketplace: Added software manager to install marketplace products. [#38705]
+
+## 5.6.2 - 2024-08-30
+### Added
+- Added a switch that will enable rolling trunk releases. [#38994]
+
+## 5.6.1 - 2024-08-26
+### Changed
+- Internal updates.
+
+## 5.6.0 - 2024-08-23
+### Added
+- Added social share status feature [#39023]
+
+### Changed
+- SSO: Automatic logic for Calypso users of classic sites [#38996]
+- Updated package dependencies. [#39004]
+
+## 5.5.0 - 2024-08-21
+### Changed
+- Site Level User Profile: expose all relevant fields on profile.php [#38949]
+
+### Fixed
+- Revert recent SVG image optimizations. [#38981]
+
 ## 5.4.1 - 2024-08-19
 ### Added
 - Incompatible Plugins: Added one-click-ssl [#38918]

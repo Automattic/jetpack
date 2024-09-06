@@ -68,8 +68,7 @@ registerJetpackBlockFromMetadata( metadata, {
 const shouldShowNewsletterMenu = () => {
 	const postType = select( 'core/editor' ).getCurrentPostType();
 	const isPost = postType === 'post';
-	// TODO: Remove the query param check once the feature is stable.
-	return isPost && new URLSearchParams( window.location.search ).has( 'showNewsletterMenu' );
+	return isPost;
 };
 
 // Registers slot/fill panels defined via settings.render and command palette commands

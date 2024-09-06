@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "451c331dfdfe52c66a2b7987f81b9301",
+    "content-hash": "7818c6b0a2b6404c7939a9b16bd8bd93",
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "da1f91e7bcfb0743b01f4b0e19e426b382a902f2"
+                "reference": "8e9867c7b1f5bac0c5652f87946fd2cd41a88f70"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -21,7 +21,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "composer/composer": "^1.1 || ^2.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "composer-plugin",
             "extra": {
@@ -35,7 +35,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -76,14 +76,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "e152a4c83d1f952442d40260c559c4880757b298"
+                "reference": "0cbca46f49b19ea8f252cba7a7c67cf2b222824f"
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -128,7 +128,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
+                "reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
             },
             "require": {
                 "php": ">=7.0",
@@ -137,7 +137,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "bin": [
                 "bin/changelogger"
@@ -2701,16 +2701,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "224e4a1329c03d8bad520e3fc4ec980034a4b212"
+                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/224e4a1329c03d8bad520e3fc4ec980034a4b212",
-                "reference": "224e4a1329c03d8bad520e3fc4ec980034a4b212",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/a0f7d708794a738f328d7b6c94380fd1d6c40446",
+                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446",
                 "shasum": ""
             },
             "require": {
@@ -2718,7 +2718,9 @@
                 "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
             },
             "require-dev": {
-                "yoast/yoastcs": "^2.3.0"
+                "php-parallel-lint/php-console-highlighter": "^1.0.0",
+                "php-parallel-lint/php-parallel-lint": "^1.4.0",
+                "yoast/yoastcs": "^3.1.0"
             },
             "type": "library",
             "extra": {
@@ -2755,9 +2757,10 @@
             ],
             "support": {
                 "issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
+                "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2023-08-19T14:25:08+00:00"
+            "time": "2024-04-05T16:01:51+00:00"
         }
     ],
     "aliases": [],

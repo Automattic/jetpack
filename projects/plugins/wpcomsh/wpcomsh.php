@@ -2,14 +2,14 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 5.5.0-alpha
+ * Version: 5.7.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '5.5.0-alpha' );
+define( 'WPCOMSH_VERSION', '5.7.0' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -21,6 +21,7 @@ if ( ! class_exists( 'Atomic_Persistent_Data' ) ) {
 
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/wpcom-features/functions-wpcom-features.php';
+require_once __DIR__ . '/wpcom-marketplace/software/class-marketplace-software-manager.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/lib/require-lib.php';
@@ -217,9 +218,40 @@ function wpcomsh_jetpack_sso_auth_cookie_expiration( $seconds ) {
 add_filter( 'jetpack_sso_auth_cookie_expiration', 'wpcomsh_jetpack_sso_auth_cookie_expiration' );
 
 /**
- * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ * Determine if users should be enforced to log in with their WP.com account.
+ *
+ * Sites without local users:
+ * - WP.com login, always.
+ *
+ * Sites with local users:
+ * - If user comes from Calypso: WP.com login
+ * - Otherwise: Jetpack SSO login, so they can decide whether to use a WP.com account or a local account.
  */
-add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+function wpcomsh_bypass_jetpack_sso_login() {
+	$calypso_domains = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	if ( in_array( wp_get_referer(), $calypso_domains, true ) ) {
+		return true;
+	}
+
+	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
+		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+		foreach ( $users as $user ) {
+			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', 'wpcomsh_bypass_jetpack_sso_login' );
 
 /**
  * Overwrite the default value of SSO "Match by Email" setting.

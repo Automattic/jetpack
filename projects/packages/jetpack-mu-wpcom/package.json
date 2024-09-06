@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-mu-wpcom",
-	"version": "5.57.1-alpha",
+	"version": "5.61.0",
 	"description": "Enhances your site with features powered by WordPress.com",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jetpack-mu-wpcom/#readme",
 	"bugs": {
@@ -23,7 +23,7 @@
 		"clean": "rm -rf src/build/",
 		"watch": "pnpm run build-production-js && pnpm webpack watch",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
-		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh --release=v3.5.0"
+		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh"
 	},
 	"optionalDependencies": {
 		"react": "^18.2.0",
@@ -43,7 +43,7 @@
 		"sass": "1.64.1",
 		"sass-loader": "12.4.0",
 		"typescript": "^5.0.4",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	},
 	"dependencies": {
@@ -58,19 +58,19 @@
 		"@preact/signals": "^1.2.2",
 		"@sentry/browser": "7.80.1",
 		"@tanstack/react-query": "^5.15.5",
-		"@wordpress/api-fetch": "7.5.0",
-		"@wordpress/base-styles": "5.5.0",
-		"@wordpress/blocks": "13.5.0",
-		"@wordpress/components": "28.5.0",
-		"@wordpress/data": "10.5.0",
+		"@wordpress/api-fetch": "7.6.0",
+		"@wordpress/base-styles": "5.6.0",
+		"@wordpress/blocks": "13.6.0",
+		"@wordpress/components": "28.6.0",
+		"@wordpress/data": "10.6.0",
 		"@wordpress/dom-ready": "^4.0.0",
-		"@wordpress/element": "6.5.0",
-		"@wordpress/hooks": "4.5.0",
-		"@wordpress/i18n": "5.5.0",
-		"@wordpress/icons": "10.5.0",
-		"@wordpress/plugins": "7.5.0",
+		"@wordpress/element": "6.6.0",
+		"@wordpress/hooks": "4.6.0",
+		"@wordpress/i18n": "5.6.0",
+		"@wordpress/icons": "10.6.0",
+		"@wordpress/plugins": "7.6.0",
 		"@wordpress/private-apis": "^1.2.0",
-		"@wordpress/url": "4.5.0",
+		"@wordpress/url": "4.6.0",
 		"clsx": "2.1.1",
 		"debug": "4.3.4",
 		"preact": "^10.13.1",

@@ -32,7 +32,7 @@ const updateLaunchpadSaveModalBrowserConfig = config => {
 	}
 
 	for ( const editableProp of LAUNCHPAD_SAVE_MODAL_EDITABLE_PROPS ) {
-		if ( config.hasOwnProperty( editableProp ) ) {
+		if ( Object.hasOwn( config, editableProp ) ) {
 			window.Jetpack_LaunchpadSaveModal[ editableProp ] = config[ editableProp ];
 		}
 	}
@@ -145,7 +145,6 @@ export const settings = {
 				isInsidePostEditor
 			) {
 				setIsModalOpen( false );
-				return;
 			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )

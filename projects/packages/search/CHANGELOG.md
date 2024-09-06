@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.45.1] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+## [0.45.0] - 2024-09-02
+### Added
+- Search: allow customizing highlighted fields [#39053]
+
+### Changed
+- Admin menu: change order of Jetpack sub-menu items [#39095]
+- Updated package dependencies. [#39111]
+
+### Fixed
+- Search: Use the user's locale when formatting request limits. [#38946]
+
+## [0.44.17] - 2024-08-26
+### Changed
+- Updated package dependencies. [#39004]
+
+## [0.44.16] - 2024-08-21
+### Changed
+- Internal updates.
+
 ## [0.44.15] - 2024-08-19
 ### Changed
 - Update dependencies. [#38861] [#38662]
@@ -1003,6 +1026,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.45.1]: https://github.com/Automattic/jetpack-search/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-search/compare/v0.44.17...v0.45.0
+[0.44.17]: https://github.com/Automattic/jetpack-search/compare/v0.44.16...v0.44.17
+[0.44.16]: https://github.com/Automattic/jetpack-search/compare/v0.44.15...v0.44.16
 [0.44.15]: https://github.com/Automattic/jetpack-search/compare/v0.44.14...v0.44.15
 [0.44.14]: https://github.com/Automattic/jetpack-search/compare/v0.44.13...v0.44.14
 [0.44.13]: https://github.com/Automattic/jetpack-search/compare/v0.44.12...v0.44.13

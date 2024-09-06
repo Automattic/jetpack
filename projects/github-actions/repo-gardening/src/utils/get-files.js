@@ -29,12 +29,12 @@ async function getFiles( octokit, owner, repo, number ) {
 		pull_number: +number,
 		per_page: 100,
 	} ) ) {
-		response.data.map( file => {
+		for ( const file of response.data ) {
 			fileList.push( file.filename );
 			if ( file.previous_filename ) {
 				fileList.push( file.previous_filename );
 			}
-		} );
+		}
 	}
 
 	cache[ cacheKey ] = fileList;

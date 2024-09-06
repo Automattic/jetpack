@@ -62,6 +62,7 @@ Backups are essential for eCommerce stores. New orders come in at any moment, so
 Save hours of time developing and maintaining sites by restoring to any point. Just one change pays for itself. Real‑time backups go beyond a snapshot to give you total power and flexibility. The activity log lets you know exactly what action (and who) broke the site, so you can look like a pro for your clients.
 
 * Full, incremental, and differential backups in real-time
+* Start a backup anytime with the **Back up now** button
 * Complete list of all site changes
 * Quickly restore from any point
 * Be empowered to experiment with the look and feel of your site
@@ -124,6 +125,8 @@ For plans with daily backups, a new backup will take place approximately 24 hour
 
 For plans with real-time backups, a new backup will be performed each time a change is made to WordPress core's database tables, WooCommerce database tables, and any associated file changes. All other changes are backed up daily.
 
+You can also initiate a backup on-demand by clicking the **Back up now** button.
+
 You’ll know your WordPress backup has been created if you see a **Backup complete** event in the activity log.
 
 = Don’t see your WordPress backup in the activity log? =
@@ -172,15 +175,10 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 2.7 - 2024-06-27
-#### Added
-- On-demand backups feature
-
+### 2.8 - 2024-09-05
 #### Changed
-- General: indicate compatibility with the upcoming version of WordPress - 6.6.
-- Remove the explicit Plugin Install package dependency.
-- Updated package dependencies.
-- Updated backup header layout for responsive design
+- General: Update WordPress version requirements to WordPress 6.5.
+- Docs: Update README to include on-demand backups reference.
 
 --------
 

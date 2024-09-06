@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "700fde8d8373ed5610bfc08d87e10fc2",
+    "content-hash": "c9fc8342729e916410c963d050a22782",
     "packages": [],
     "packages-dev": [
         {
@@ -13,14 +13,14 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "8bec1af06b593110bf4aeca06b05c1ba1841960c"
+                "reference": "3ac0481862de59f65856b3ac2e086d9cdc86a8fd"
             },
             "require": {
                 "php": ">=7.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
@@ -60,7 +60,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "a717fa4e4939a9aa751bc7601a1ca2d5ece799c7"
+                "reference": "891b1551e10d864bc4654bd034ce0487ad849425"
             },
             "require": {
                 "automattic/vipwpcs": "^3.0",
@@ -73,7 +73,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -124,7 +124,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phan-plugins",
-                "reference": "17f7a7b60e88906fb6efe77474cebf2214ba6b53"
+                "reference": "d7a0268045b235a3158435f2b83179d7fecada39"
             },
             "require": {
                 "phan/phan": "^5.4",
@@ -132,7 +132,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
@@ -178,7 +178,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "f1db07c15d87025728fe8c7ceffed4a2dea848b4"
+                "reference": "8eec63259d8259729921c7ce48393890cb9babdd"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -187,7 +187,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "library",
             "extra": {
@@ -1969,16 +1969,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.11.4",
+            "version": "v2.11.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "acc946731ec65053e49cb0d3185c8ffe74895f93"
+                "reference": "aaa144eb4f14697b6b06e3dcf74081b5a02f85f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/acc946731ec65053e49cb0d3185c8ffe74895f93",
-                "reference": "acc946731ec65053e49cb0d3185c8ffe74895f93",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/aaa144eb4f14697b6b06e3dcf74081b5a02f85f6",
+                "reference": "aaa144eb4f14697b6b06e3dcf74081b5a02f85f6",
                 "shasum": ""
             },
             "require": {
@@ -2017,9 +2017,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.11.4"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.11.5"
             },
-            "time": "2023-09-29T21:27:51+00:00"
+            "time": "2024-05-23T20:01:41+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

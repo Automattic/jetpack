@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.10.0] - 2024-09-05
+### Added
+- Sync: Add a filter that allows modification of the default modules list used for full sync procedure. [#39117]
+
+## [3.9.1] - 2024-09-05
+### Changed
+- Optimized performance by moving the IDC safe mode check after the connection check, reducing unnecessary get_option() requests for jetpack_sync_error_idc [#39205]
+
+### Fixed
+- Jetpack sync: Gutenberg footnotes meta [#38878]
+
+## [3.9.0] - 2024-08-30
+### Added
+- Add share status log modal to published posts [#39051]
+
+## [3.8.1] - 2024-08-29
+### Changed
+- Sync: Add subscription type for HPOS orders only if WooCommerce Subscriptions plugin exists [#39118]
+
+## [3.8.0] - 2024-08-26
+### Changed
+- Sync: Updated allowed order types in HPOS Module [#39022]
+
+### Fixed
+- Sync: Ensure filtering orders by status when doing HPOS Checksums [#39020]
+
+## [3.7.1] - 2024-08-23
+### Changed
+- Updated package dependencies. [#39004]
+
+## [3.7.0] - 2024-08-21
+### Added
+- Synced Order Data: adds filtering to the filtered order data [#38955]
+
 ## [3.6.0] - 2024-08-15
 ### Added
 - Sync: Add a new callable for Sync Active Modules [#38831]
@@ -1239,6 +1273,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[3.10.0]: https://github.com/Automattic/jetpack-sync/compare/v3.9.1...v3.10.0
+[3.9.1]: https://github.com/Automattic/jetpack-sync/compare/v3.9.0...v3.9.1
+[3.9.0]: https://github.com/Automattic/jetpack-sync/compare/v3.8.1...v3.9.0
+[3.8.1]: https://github.com/Automattic/jetpack-sync/compare/v3.8.0...v3.8.1
+[3.8.0]: https://github.com/Automattic/jetpack-sync/compare/v3.7.1...v3.8.0
+[3.7.1]: https://github.com/Automattic/jetpack-sync/compare/v3.7.0...v3.7.1
+[3.7.0]: https://github.com/Automattic/jetpack-sync/compare/v3.6.0...v3.7.0
 [3.6.0]: https://github.com/Automattic/jetpack-sync/compare/v3.5.1...v3.6.0
 [3.5.1]: https://github.com/Automattic/jetpack-sync/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/Automattic/jetpack-sync/compare/v3.4.1...v3.5.0

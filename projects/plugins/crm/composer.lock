@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "865135122fc93afe20ff360fce38e054",
+    "content-hash": "bfd4738d720476b4bef81b56eb5817cb",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "9a9e8b6703e074750408f276c14011262b388ddc"
+                "reference": "58de4ea5a64ffa0899cd5903840499c76d253f4b"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -22,7 +22,7 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -78,7 +78,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "da1f91e7bcfb0743b01f4b0e19e426b382a902f2"
+                "reference": "8e9867c7b1f5bac0c5652f87946fd2cd41a88f70"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -87,7 +87,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "composer/composer": "^1.1 || ^2.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "composer-plugin",
             "extra": {
@@ -101,7 +101,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.1.x-dev"
+                    "dev-trunk": "3.0.x-dev"
                 }
             },
             "autoload": {
@@ -142,7 +142,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "9dd2a092b3de5ed00ee778f1f40704f7d913a836"
+                "reference": "b6fe2427cac6dd3bbef0a7e915c16bef55ad7c9b"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0",
@@ -151,7 +151,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "composer/composer": "^2.2 || ^2.4",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "type": "composer-plugin",
             "extra": {
@@ -199,7 +199,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "3fd2bf1d1ba0bb374918e6b7dd670735ce554c2b"
+                "reference": "e58ffa801a8e816c562f15bdc4731824f8f9c64a"
             },
             "require": {
                 "php": ">=7.0"
@@ -207,7 +207,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -589,7 +589,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "d945e0cd8dec218ab24445d5ddc95894c9f24534"
+                "reference": "8489a82ca328626854da99e29f3cb0f017529cb5"
             },
             "require": {
                 "php": ">=7.0",
@@ -598,7 +598,7 @@
             },
             "require-dev": {
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0 || ^3.0",
-                "yoast/phpunit-polyfills": "1.1.0"
+                "yoast/phpunit-polyfills": "^1.1.1"
             },
             "bin": [
                 "bin/changelogger"
@@ -5176,16 +5176,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "224e4a1329c03d8bad520e3fc4ec980034a4b212"
+                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/224e4a1329c03d8bad520e3fc4ec980034a4b212",
-                "reference": "224e4a1329c03d8bad520e3fc4ec980034a4b212",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/a0f7d708794a738f328d7b6c94380fd1d6c40446",
+                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446",
                 "shasum": ""
             },
             "require": {
@@ -5193,7 +5193,9 @@
                 "phpunit/phpunit": "^4.8.36 || ^5.7.21 || ^6.0 || ^7.0 || ^8.0 || ^9.0"
             },
             "require-dev": {
-                "yoast/yoastcs": "^2.3.0"
+                "php-parallel-lint/php-console-highlighter": "^1.0.0",
+                "php-parallel-lint/php-parallel-lint": "^1.4.0",
+                "yoast/yoastcs": "^3.1.0"
             },
             "type": "library",
             "extra": {
@@ -5230,9 +5232,10 @@
             ],
             "support": {
                 "issues": "https://github.com/Yoast/PHPUnit-Polyfills/issues",
+                "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2023-08-19T14:25:08+00:00"
+            "time": "2024-04-05T16:01:51+00:00"
         }
     ],
     "aliases": [],

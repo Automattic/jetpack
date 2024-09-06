@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "4.32.4-alpha",
+	"version": "4.35.2",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -32,15 +32,15 @@
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
 		"@tanstack/react-query": "5.20.5",
-		"@wordpress/api-fetch": "7.5.0",
-		"@wordpress/components": "28.5.0",
-		"@wordpress/compose": "7.5.0",
-		"@wordpress/data": "10.5.0",
-		"@wordpress/date": "5.5.0",
-		"@wordpress/element": "6.5.0",
-		"@wordpress/i18n": "5.5.0",
-		"@wordpress/icons": "10.5.0",
-		"@wordpress/url": "4.5.0",
+		"@wordpress/api-fetch": "7.6.0",
+		"@wordpress/components": "28.6.0",
+		"@wordpress/compose": "7.6.0",
+		"@wordpress/data": "10.6.0",
+		"@wordpress/date": "5.6.0",
+		"@wordpress/element": "6.6.0",
+		"@wordpress/i18n": "5.6.0",
+		"@wordpress/icons": "10.6.0",
+		"@wordpress/url": "4.6.0",
 		"clsx": "2.1.1",
 		"debug": "4.3.4",
 		"gridicons": "3.4.1",
@@ -75,7 +75,7 @@
 		"sass-loader": "12.4.0",
 		"storybook": "8.2.9",
 		"typescript": "5.0.4",
-		"webpack": "5.76.0",
+		"webpack": "5.94.0",
 		"webpack-cli": "4.9.1"
 	}
 }

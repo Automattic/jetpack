@@ -40,7 +40,6 @@ describe( 'SettingsCard', () => {
 			'markdown',
 			'infinite-scroll',
 			'gravatar-hovercards',
-			'custom-css',
 			'sharedaddy',
 			'widgets',
 			'shortcodes',

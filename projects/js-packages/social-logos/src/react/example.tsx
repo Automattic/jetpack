@@ -1,7 +1,31 @@
-import React, { useState } from 'react';
+/* eslint-disable no-alert -- ok for demo */
+import React, { useCallback, useState } from 'react';
 import { SocialLogo } from './social-logo';
 import { SocialLogoData } from './social-logo-data';
 import '../css/example.css';
+
+/**
+ * An example React component that displays a single social logo.
+ *
+ * @param {object}  props               - The properties.
+ * @param {string}  props.name          - Logo name.
+ * @param {number}  props.iconSize      - Icon size.
+ * @param {boolean} props.showIconNames - Whether to show icon names.
+ * @return {React.Component} The `SocialLogoItemExample` component.
+ */
+function SocialLogoItemExample( { name, iconSize, showIconNames } ) {
+	const handleClick = useCallback( () => {
+		const code = `<SocialLogo icon="${ name }" size="${ iconSize }" />`;
+		window.prompt( 'Copy component code:', code );
+	}, [ iconSize, name ] );
+
+	return (
+		<div key={ name }>
+			<SocialLogo icon={ name } size={ iconSize } onClick={ handleClick } />
+			{ showIconNames && <p>{ name }</p> }
+		</div>
+	);
+}
 
 /**
  * An example React component that displays all the social logos.
@@ -14,31 +38,27 @@ function SocialLogosExample() {
 
 	const iconSize = useSmallIcons ? 24 : 48;
 
-	const handleClick = name => {
-		const code = `<SocialLogo icon="${ name }" size="${ iconSize }" />`;
-		window.prompt( 'Copy component code:', code );
-	};
+	const handleSmallIconsToggle = useCallback(
+		e => {
+			setUseSmallIcons( e.target.checked );
+		},
+		[ setUseSmallIcons ]
+	);
 
-	const handleSmallIconsToggle = e => {
-		setUseSmallIcons( e.target.checked );
-	};
+	const handleIconNamesToggle = useCallback(
+		e => {
+			setShowIconNames( e.target.checked );
+		},
+		[ setShowIconNames ]
+	);
 
-	const handleIconNamesToggle = e => {
-		setShowIconNames( e.target.checked );
-	};
-
-	const allSocialLogos = SocialLogoData.map( logo => {
-		return (
-			<div key={ logo.name }>
-				<SocialLogo
-					icon={ logo.name }
-					size={ iconSize }
-					onClick={ handleClick.bind( this, logo.name ) }
-				/>
-				{ showIconNames && <p>{ logo.name }</p> }
-			</div>
-		);
-	} );
+	const allSocialLogos = SocialLogoData.map( logo => (
+		<SocialLogoItemExample
+			name={ logo.name }
+			iconSize={ iconSize }
+			showIconNames={ showIconNames }
+		/>
+	) );
 
 	return (
 		<div className="social-logos-example">

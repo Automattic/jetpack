@@ -17,7 +17,7 @@
 	},
 	"require-dev": {
 		"composer/composer": "^1.1 || ^2.0",
-		"yoast/phpunit-polyfills": "1.1.0",
+		"yoast/phpunit-polyfills": "^1.1.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
@@ -58,7 +58,7 @@
 			"::VERSION": "src/AutoloadGenerator.php"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.1.x-dev"
+			"dev-trunk": "3.0.x-dev"
 		}
 	}
 }

@@ -1,6 +1,6 @@
 import * as connectionDataSelectors from './connection-data';
 import jetpackSettingSelectors from './jetpack-settings';
-import * as sharesData from './shares-data';
+import * as shareStatusSelectors from './share-status';
 import siteDataSelectors from './site-data';
 import socialImageGeneratorSettingsSelectors from './social-image-generator-settings';
 
@@ -8,8 +8,8 @@ const selectors = {
 	...siteDataSelectors,
 	...connectionDataSelectors,
 	...jetpackSettingSelectors,
-	...sharesData,
 	...socialImageGeneratorSettingsSelectors,
+	...shareStatusSelectors,
 	userConnectionUrl: state => state.userConnectionUrl,
 	useAdminUiV1: state => state.useAdminUiV1,
 	featureFlags: state => state.featureFlags,
