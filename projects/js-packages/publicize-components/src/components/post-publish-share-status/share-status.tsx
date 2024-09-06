@@ -55,7 +55,13 @@ export function ShareStatus() {
 	if ( ! shareStatus.done ) {
 		// If we are here, it means that polling has finished/timedout
 		// but we don't know the share status yet.
-		return <span>{ __( 'The request to share your post is still in progress.', 'jetpack' ) }</span>;
+		return (
+			<span>
+				{ __( 'The request to share your post is still in progress.', 'jetpack' ) }
+				&nbsp;
+				{ __( 'Please refresh and check again in a few minutes.', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( ! shareStatus.shares.length ) {
