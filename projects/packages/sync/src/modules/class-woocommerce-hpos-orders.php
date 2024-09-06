@@ -48,7 +48,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @deprecated since $$next-version$$ Use table() instead.
 	 */
 	public function table_name() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCOmmerce_HPOS_Orders->table' );
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCommerce_HPOS_Orders->table' );
 		return $this->order_table_name;
 	}
 
