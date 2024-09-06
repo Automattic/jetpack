@@ -28,14 +28,14 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
 
 	const validatePhoneNumber = newPhoneNumber => {
+		if ( undefined === newPhoneNumber || newPhoneNumber.length < 1 ) {
+			return false;
+		}
+
 		// No alphabetical characters but allow dots, dashes, and brackets.
 		// These will be stripped for the WhatsApp API (only numbers), but retain
 		// them in the UI for a more readable number for the user.
 		const phoneNumberRegEx = RegExp( /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/, 'g' );
-
-		if ( undefined === newPhoneNumber || newPhoneNumber.length < 1 ) {
-			return false;
-		}
 
 		return phoneNumberRegEx.test( countryCode.replace( /\D/g, '' ) + newPhoneNumber );
 	};

@@ -147,16 +147,16 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 		};
 
 		getCardText() {
+			if ( this.props.isOfflineMode ) {
+				return __( 'Unavailable in Offline Mode.', 'jetpack' );
+			}
+
 			const backupsEnabled = get(
 					this.props.vaultPressData,
 					[ 'data', 'features', 'backups' ],
 					false
 				),
 				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
-
-			if ( this.props.isOfflineMode ) {
-				return __( 'Unavailable in Offline Mode.', 'jetpack' );
-			}
 
 			// We check if the features are active first, rather than the plan because it's possible the site is on a
 			// VP-only plan, purchased before Jetpack plans existed.
