@@ -228,8 +228,6 @@ class Jetpack_Options {
 			}
 		}
 
-		trigger_error( sprintf( 'Invalid Jetpack option name: %s', esc_html( $name ) ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- Don't wish to change legacy behavior.
-
 		return $default;
 	}
 
