@@ -14,6 +14,7 @@ async function sendOpenAiRequest( message, responseFormat = 'plain' ) {
 	const apiKey = getInput( 'openai_api_key' );
 	if ( ! apiKey ) {
 		setFailed( 'openai: Input openai_api_key is required but missing.' );
+		return;
 	}
 
 	const client = new OpenAI( {
