@@ -121,6 +121,9 @@ function GlobalStylesEditNotice() {
 
 	const { createWarningNotice, removeNotice } = useDispatch( 'core/notices' );
 	const { editEntityRecord } = useDispatch( 'core' );
+	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
+	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
+	const setShowSupportDoc = helpCenterDispatch?.setShowSupportDoc;
 
 	const upgradePlan = useCallback( () => {
 		window.open( wpcomGlobalStyles.upgradeUrl, '_blank' ).focus();
@@ -151,9 +154,18 @@ function GlobalStylesEditNotice() {
 	}, [ isSiteEditor ] );
 
 	const openLearnMoreAboutStylesDialog = useCallback( () => {
-		window.open( wpcomGlobalStyles.learnMoreAboutStylesUrl, '_blank' ).focus();
+		if ( setShowHelpCenter && setShowSupportDoc ) {
+			setShowHelpCenter( true );
+			setShowSupportDoc(
+				wpcomGlobalStyles.learnMoreAboutStylesUrl,
+				wpcomGlobalStyles.learnMoreAboutStylesPostId
+			);
+		} else {
+			window.open( wpcomGlobalStyles.learnMoreAboutStylesUrl, '_blank' ).focus();
+		}
+
 		trackEvent( 'calypso_global_styles_gating_learn_more_click', isSiteEditor );
-	}, [ isSiteEditor ] );
+	}, [ isSiteEditor, setShowHelpCenter, setShowSupportDoc ] );
 
 	const showNotice = useCallback( () => {
 		const actions = [
@@ -195,8 +207,6 @@ function GlobalStylesEditNotice() {
 			onClick: openLearnMoreAboutStylesDialog,
 			variant: 'link',
 			noDefaultClasses: true,
-			className:
-				'wpcom-global-styles-action-has-icon wpcom-global-styles-action-is-external wpcom-global-styles-action-is-support',
 		} );
 
 		const planName = wpcomGlobalStyles.planName;

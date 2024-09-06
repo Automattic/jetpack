@@ -171,6 +171,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 
 	$reset_global_styles_support_url     = 'https://wordpress.com/support/using-styles/#reset-all-styles';
 	$learn_more_about_styles_support_url = 'https://wordpress.com/support/using-styles/#access-to-styles';
+	$learn_more_about_styles_post_id     = 192200;
 	if ( class_exists( 'WPCom_Languages' ) ) {
 		$reset_global_styles_support_url = WPCom_Languages::localize_url( $reset_global_styles_support_url );
 	}
@@ -184,6 +185,7 @@ function wpcom_global_styles_enqueue_block_editor_assets() {
 			'planName'                    => Plans::get_plan( 'value_bundle' )->product_name_short,
 			'modalImage'                  => plugins_url( 'image.svg', __FILE__ ),
 			'learnMoreAboutStylesUrl'     => $learn_more_about_styles_support_url,
+			'learnMoreAboutStylesPostId'  => $learn_more_about_styles_post_id,
 		)
 	);
 	wp_enqueue_style(
