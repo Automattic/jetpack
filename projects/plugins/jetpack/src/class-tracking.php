@@ -25,22 +25,24 @@ class Tracking {
 	 * @access private
 	 */
 	private $tracking;
+
 	/**
-	 * Prevents the Tracking from being intialized more then once.
+	 * Prevents the Tracking from being initialized more than once.
 	 *
 	 * @var bool
 	 */
-	private $initalized = false;
+	private static $initialized = false;
 
 	/**
 	 * Initialization function.
 	 */
 	public function init() {
-		if ( $this->initalized ) {
+		if ( static::$initialized ) {
 			return;
 		}
-		$this->initalized = true;
-		$this->tracking   = new Tracks( 'jetpack' );
+
+		static::$initialized = true;
+		$this->tracking      = new Tracks( 'jetpack' );
 
 		// For tracking stuff via js/ajax.
 		add_action( 'admin_enqueue_scripts', array( $this->tracking, 'enqueue_tracks_scripts' ) );

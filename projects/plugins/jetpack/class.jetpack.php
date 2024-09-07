@@ -923,15 +923,8 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
-			add_action( 'init', array( new Plugin_Tracking(), 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 * Use a proxy method for lazy class instantiation.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'initialize_tracking' ) );
-		}
+		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
+		add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'after_agreed_to_tos' ) );
 	}
 
 	/**
@@ -6309,7 +6302,27 @@ endif;
 	 * @return void
 	 */
 	public function initialize_tracking() {
-		( new Plugin_Tracking() )->init();
+		if ( did_action( 'jetpack_initialize_tracking' ) > 1 ) {
+			// Only need to run once.
+			return;
+		}
+
+		if ( ( new Tracking( 'jetpack', $this->connection_manager ) )->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+			( new Plugin_Tracking() )->init();
+		}
+	}
+
+	/**
+	 * Initialize tracking right after the user agrees to the terms of service.
+	 */
+	public function after_agreed_to_tos() {
+		/**
+		 * Fires when the tracking needs to be initialized.
+		 * Doesn't necessarily mean that will actually happen, depends on the 'jetpack_tos_agreed' option.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_initialize_tracking' );
 	}
 
 	/**
