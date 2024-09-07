@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Tracking as Tracks;
 use IXR_Error;
 use WP_Error;
@@ -49,7 +48,6 @@ class Tracking {
 		add_action( 'jetpack_activate_module', array( $this, 'jetpack_activate_module' ), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( $this, 'jetpack_deactivate_module' ), 1, 1 );
 		add_action( 'jetpack_user_authorized', array( $this, 'jetpack_user_authorized' ) );
-		add_action( 'wp_login_failed', array( $this, 'wp_login_failed' ) );
 
 		// Tracking XMLRPC server events.
 		add_action( 'jetpack_xmlrpc_server_event', array( $this, 'jetpack_xmlrpc_server_event' ), 10, 4 );
@@ -159,18 +157,10 @@ class Tracking {
 	/**
 	 * Track a failed login attempt.
 	 *
-	 * @access public
-	 *
-	 * @param string $login Username or email address.
+	 * @deprecated $$next-version$$ Method is not longer in use.
 	 */
-	public function wp_login_failed( $login ) {
-		$this->tracking->record_user_event(
-			'failed_login',
-			array(
-				'origin_ip' => IP_Utils::get_ip(),
-				'login'     => $login,
-			)
-		);
+	public function wp_login_failed() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 	}
 
 	/**
