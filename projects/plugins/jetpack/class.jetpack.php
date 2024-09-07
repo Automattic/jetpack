@@ -928,8 +928,9 @@ class Jetpack {
 		} else {
 			/**
 			 * Initialize tracking right after the user agrees to the terms of service.
+			 * Use a proxy method for lazy class instantiation.
 			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'initialize_tracking' ) );
 		}
 	}
 
@@ -6300,6 +6301,15 @@ endif;
 			. '</a>';
 
 		return $plugin_meta;
+	}
+
+	/**
+	 * Lazy instantiation of the Plugin_Tracking object.
+	 *
+	 * @return void
+	 */
+	public function initialize_tracking() {
+		( new Plugin_Tracking() )->init();
 	}
 
 	/**
