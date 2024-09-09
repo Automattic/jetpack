@@ -36,7 +36,7 @@ export default function useFixersQuery( {
 		queryFn: async () => {
 			const data = await API.getFixersStatus( threatIds );
 			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
-				| { threats: object }
+				| FixersStatus
 				| undefined;
 
 			// Check if any fixers have completed, by comparing the latest data against the cache.
