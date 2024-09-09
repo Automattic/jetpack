@@ -887,18 +887,6 @@ class Jetpack {
 		}
 
 		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
-		add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
-		add_action( 'jetpack_is_connection_ready', array( $this, 'run_initialize_tracking_action' ) );
-		add_action( 'rest_api_init', array( $this, 'run_initialize_tracking_action' ) );
-
-		add_filter(
-			'xmlrpc_methods',
-			function ( $methods ) {
-				$this->run_initialize_tracking_action();
-				return $methods;
-			},
-			1
-		);
 
 		/*
 		 * Load things that should only be in Network Admin.
@@ -916,12 +904,24 @@ class Jetpack {
 
 		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
+			$this->run_initialize_tracking_action();
 
 			Jetpack_Heartbeat::init();
 			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
 				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
 				Jetpack_Search_Performance_Logger::init();
 			}
+		} else {
+			add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
+			add_action( 'rest_api_init', array( $this, 'run_initialize_tracking_action' ) );
+			add_filter(
+				'xmlrpc_methods',
+				function ( $methods ) {
+					$this->run_initialize_tracking_action();
+					return $methods;
+				},
+				1
+			);
 		}
 
 		// Initialize remote file upload request handlers.
