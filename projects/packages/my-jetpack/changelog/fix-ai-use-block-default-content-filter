@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Jetpack AI: fix default_content filter so it doesn't enforce parameter type

@@ -3127,7 +3127,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 5.4.0
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 13.9
 	 *
 	 * @param array           $onboarding_data Values to check.
 	 * @param WP_REST_Request $request         The request sent to the WP REST API.
@@ -3136,7 +3136,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_onboarding( $onboarding_data, $request, $param ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '13.9' );
 		return true;
 	}
 
