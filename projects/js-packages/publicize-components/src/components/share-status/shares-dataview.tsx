@@ -67,12 +67,7 @@ export function SharesDataView( { postShareStatus }: SharesDataViewProps ) {
 								</td>
 								<td>
 									<div className="dataviews-view-table__cell-content-wrapper">
-										<ShareStatusAction
-											service={ item.service }
-											connectionId={ item.connection_id }
-											status={ item.status }
-											shareLink={ 'success' === item.status ? item.message : '' }
-										/>
+										<ShareStatusAction shareItem={ item } />
 									</div>
 								</td>
 							</tr>
