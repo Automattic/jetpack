@@ -20,7 +20,7 @@ export function ShareStatus( { reShareTimestamp = null }: ShareStatusProps ) {
 	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
 	const currentShares = reShareTimestamp
-		? shareStatus.shares.filter( share => share.timestamp * 1000 > reShareTimestamp )
+		? shareStatus.shares.filter( share => share.timestamp > reShareTimestamp )
 		: shareStatus.shares;
 
 	if ( shareStatus.polling ) {

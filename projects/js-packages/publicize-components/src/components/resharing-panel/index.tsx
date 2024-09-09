@@ -14,7 +14,7 @@ export const ReSharingPanel = () => {
 	useEffect( () => {
 		if ( shareStatus.polling ) {
 			// Update the timestamp whenever polling becomes true
-			setReShareTimestamp( Date.now() );
+			setReShareTimestamp( Date.now() / 1000 );
 		}
 	}, [ shareStatus.polling ] );
 
@@ -22,15 +22,11 @@ export const ReSharingPanel = () => {
 		return null;
 	}
 
-	return (
-		<>
-			{ reShareTimestamp ? (
-				<div className={ styles.wrapper }>
-					<ShareStatus reShareTimestamp={ reShareTimestamp } />
-				</div>
-			) : (
-				<ShareStatusModalTrigger withWrapper analyticsData={ { location: 'editor' } } />
-			) }
-		</>
+	return reShareTimestamp ? (
+		<div className={ styles.wrapper }>
+			<ShareStatus reShareTimestamp={ reShareTimestamp } />
+		</div>
+	) : (
+		<ShareStatusModalTrigger withWrapper analyticsData={ { location: 'editor' } } />
 	);
 };
