@@ -6,6 +6,7 @@ import { select } from '@wordpress/data';
 /*
  * Internal dependencies
  */
+import { isUserConnected } from '../../lib/connection';
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { EXTENDED_BLOCKS } from '../constants';
 
@@ -29,6 +30,18 @@ export function isPossibleToExtendBlock( blockName: string ): boolean {
 
 	// Check if AI Assistant support is enabled
 	if ( ! isAiAssistantSupportEnabled ) {
+		return false;
+	}
+
+	// Do not extend the block if the site is not connected.
+	const connected = isUserConnected();
+	if ( ! connected ) {
+		return false;
+	}
+
+	// Do not extend if there is an error getting the feature.
+	const { errorCode } = select( 'wordpress-com/plans' )?.getAiAssistantFeature?.() || {};
+	if ( errorCode ) {
 		return false;
 	}
 

@@ -32,7 +32,7 @@ function extendAiContentLensFeatures( settings, name ) {
 	 * Bail early when the AI Assistant block is not registered.
 	 * It will handle with the site requires an upgrade.
 	 */
-	if ( ! isPossibleToExtendBlock() ) {
+	if ( ! isPossibleToExtendBlock( 'jetpack/ai-assistant' ) ) {
 		return settings;
 	}
 
