@@ -6,11 +6,10 @@ import {
 	useBreakpointMatch,
 	Text,
 } from '@automattic/jetpack-components';
-import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback, useState } from 'react';
-import useProtectData from '../../hooks/use-protect-data';
-import { STORE_ID } from '../../state/store';
+import useModal from '../../hooks/use-modal';
+import usePlan from '../../hooks/use-plan';
 import OnboardingPopover from '../onboarding-popover';
 import ScanButton from '../scan-button';
 import EmptyList from './empty';
@@ -21,7 +20,7 @@ import styles from './styles.module.scss';
 import useThreatsList from './use-threats-list';
 
 const ThreatsList = () => {
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
 	const fixableList = list.filter( obj => obj.fixable );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -30,7 +29,7 @@ const ThreatsList = () => {
 	const [ yourScanResultsPopoverAnchor, setYourScanResultsPopoverAnchor ] = useState( null );
 	const [ understandSeverityPopoverAnchor, setUnderstandSeverityPopoverAnchor ] = useState( null );
 
-	const { setModal } = useDispatch( STORE_ID );
+	const { setModal } = useModal();
 
 	const [ fixAllThreatsPopoverAnchor, setFixAllThreatsPopoverAnchor ] = useState( null );
 	const [ dailyAndManualScansPopoverAnchor, setDailyAndManualScansPopoverAnchor ] =
@@ -97,7 +96,7 @@ const ThreatsList = () => {
 					<ThreatsNavigation selected={ selected } onSelect={ setSelected } />
 				</div>
 				<OnboardingPopover
-					id={ hasRequiredPlan ? 'paid-scan-results' : 'free-scan-results' }
+					id={ hasPlan ? 'paid-scan-results' : 'free-scan-results' }
 					position="top"
 					anchor={ yourScanResultsPopoverAnchor }
 				/>
@@ -107,7 +106,7 @@ const ThreatsList = () => {
 					<>
 						<div className={ styles[ 'list-header' ] }>
 							<Title className={ styles[ 'list-title' ] }>{ getTitle() }</Title>
-							{ hasRequiredPlan && (
+							{ hasPlan && (
 								<div className={ styles[ 'list-header__controls' ] }>
 									{ fixableList.length > 0 && (
 										<>
@@ -140,7 +139,7 @@ const ThreatsList = () => {
 								</div>
 							) }
 						</div>
-						{ hasRequiredPlan ? (
+						{ hasPlan ? (
 							<>
 								<div ref={ setUnderstandSeverityPopoverAnchor }>
 									<PaidList list={ list } />
