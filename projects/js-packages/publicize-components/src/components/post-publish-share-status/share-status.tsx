@@ -45,7 +45,10 @@ export function ShareStatus() {
 						numberOfFailedShares
 					) }
 				</p>
-				<ShareStatusModalTrigger variant="link">
+				<ShareStatusModalTrigger
+					variant="link"
+					analyticsData={ { location: 'post-publish-panel' } }
+				>
 					{ __( 'Review status and try again', 'jetpack' ) }
 				</ShareStatusModalTrigger>
 			</Notice>
@@ -84,7 +87,7 @@ export function ShareStatus() {
 					shareStatus.shares.length
 				) }
 			</p>
-			<ShareStatusModalTrigger />
+			<ShareStatusModalTrigger analyticsData={ { location: 'post-publish-panel' } } />
 		</>
 	);
 }
