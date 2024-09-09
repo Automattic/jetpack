@@ -20,7 +20,6 @@ export const EXTENDED_BLOCKS = [
 	'core/paragraph',
 	'core/list-item',
 	'core/list',
-	'jetpack/ai-assistant',
 	'jetpack/contact-form',
 	...JETPACK_FORM_CHILDREN_BLOCKS,
 ];
