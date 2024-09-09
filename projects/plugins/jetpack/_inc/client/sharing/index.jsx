@@ -48,13 +48,13 @@ class Sharing extends Component {
 			useAdminUiV1: this.props.useAdminUiV1,
 		};
 
-		const foundPublicize = this.props.isModuleFound( 'publicize' ),
-			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
-			foundLikes = this.props.isModuleFound( 'likes' );
-
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
+
+		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
+			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! foundPublicize && ! foundSharing && ! foundLikes ) {
 			return null;

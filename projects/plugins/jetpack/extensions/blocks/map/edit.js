@@ -149,10 +149,10 @@ const MapEdit = ( {
 	};
 
 	const addPoint = point => {
-		const newPoints = points.slice( 0 );
 		if ( points.some( existingPoint => existingPoint.id === point.id ) ) {
 			return;
 		}
+		const newPoints = points.slice( 0 );
 		newPoints.push( point );
 		setAttributes( { points: newPoints } );
 		setAddPointVisibility( false );

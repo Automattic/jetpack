@@ -496,7 +496,7 @@ return [
         'tests/php/_inc/lib/test-class-jetpack-blogging-prompts.php' => ['PhanTypeMismatchArgumentNullable'],
         'tests/php/_inc/lib/test-class-jetpack-podcast-helper.php' => ['PhanDeprecatedFunction'],
         'tests/php/_inc/lib/test_class.rest-api-authentication.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing'],
-        'tests/php/_inc/lib/test_class.rest-api-endpoints.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'tests/php/_inc/lib/test_class.rest-api-endpoints.php' => ['PhanParamTooMany', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeInvalidLeftOperandOfAdd', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/core-api/test_class-wpcom-rest-field-controller.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/core-api/test_class.jetpack-core-api-xmlrpc-consumer-endpoint.php' => ['PhanDeprecatedFunction'],
         'tests/php/core-api/wpcom-endpoints/test-class-wpcom-rest-api-v2-endpoint-admin-menu.php' => ['PhanPluginMixedKeyNoKey', 'PhanTypeArraySuspiciousNullable', 'PhanTypeMismatchReturn'],

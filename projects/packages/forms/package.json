@@ -64,7 +64,7 @@
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.24.7",
 		"@babel/runtime": "7.24.7",
-		"@testing-library/dom": "10.1.0",
+		"@testing-library/dom": "10.4.0",
 		"@wordpress/api-fetch": "7.6.0",
 		"@wordpress/babel-plugin-import-jsx-pragma": "5.6.0",
 		"@wordpress/browserslist-config": "6.6.0",

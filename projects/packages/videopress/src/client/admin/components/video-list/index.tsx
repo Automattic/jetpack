@@ -96,11 +96,10 @@ const VideoList = ( {
 						loading={ loading }
 						onSelect={ check =>
 							setSelected( current => {
-								const indexOf = current.indexOf( index );
-
 								if ( check ) {
 									return [ ...current, index ];
 								} else if ( ! check && indexOf > -1 ) {
+									const indexOf = current.indexOf( index );
 									return [ ...current.slice( 0, indexOf ), ...current.slice( indexOf + 1 ) ];
 								}
 

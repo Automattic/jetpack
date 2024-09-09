@@ -1,6 +1,8 @@
+import { store as editorStore } from '@wordpress/editor';
 import { PostShareStatus, SocialStoreState } from '../types';
 import {
 	FETCH_POST_SHARE_STATUS,
+	POLLING_FOR_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
 	TOGGLE_SHARE_STATUS_MODAL,
 } from './constants';
@@ -106,6 +108,22 @@ const ONE_MINUTE_IN_MS = 60 * 1000;
 const POLLING_INTERVAL = 3 * 1000; // milliseconds
 
 /**
+ * Returns an action object used in signalling that polling for post share status
+ * is in progress.
+ *
+ * @param {number}  postId    - Post ID.
+ * @param {boolean} [polling] - Polling status.
+ * @return {object} Action object.
+ */
+export function pollingForPostShareStatus( postId: number, polling = true ) {
+	return {
+		type: POLLING_FOR_POST_SHARE_STATUS,
+		postId,
+		polling,
+	};
+}
+
+/**
  * Poll for share status.
  *
  * @param {PollForPostShareStatusOptions} options - Options.
@@ -114,17 +132,21 @@ const POLLING_INTERVAL = 3 * 1000; // milliseconds
  */
 export function pollForPostShareStatus( {
 	pollingInterval = POLLING_INTERVAL,
-	postId,
+	postId: _postId,
 	isRequestComplete = defaultIsRequestComplete,
 	timeout = ONE_MINUTE_IN_MS,
 }: PollForPostShareStatusOptions = {} ) {
-	return async function ( { dispatch, select } ) {
+	return async function ( { dispatch, select, registry } ) {
 		const startedAt = Date.now();
+
+		const postId = _postId || registry.select( editorStore ).getCurrentPostId();
 
 		const lastTimestamp = select.getPostShareStatus( postId ).shares[ 0 ]?.timestamp || 0;
 
 		let isTheRequestComplete = false;
 		let hasTimeoutPassed = false;
+
+		dispatch( pollingForPostShareStatus( postId ) );
 
 		do {
 			// Do not invalidate the resolution if the request is still loading.
@@ -143,5 +165,7 @@ export function pollForPostShareStatus( {
 
 			hasTimeoutPassed = Date.now() - startedAt > timeout;
 		} while ( ! isTheRequestComplete && ! hasTimeoutPassed );
+
+		dispatch( pollingForPostShareStatus( postId, false ) );
 	};
 }

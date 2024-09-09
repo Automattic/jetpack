@@ -49,8 +49,6 @@ export default async function requestJwt( {
 	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 	expirationTime = expirationTime || JWT_TOKEN_EXPIRATION_TIME;
 
-	const isSimple = isSimpleSite();
-
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
 	let tokenData: TokenDataProps | null = null;
@@ -70,6 +68,7 @@ export default async function requestJwt( {
 
 	let data: TokenDataEndpointResponseProps;
 
+	const isSimple = isSimpleSite();
 	if ( ! isSimple ) {
 		data = await apiFetch( {
 			/*

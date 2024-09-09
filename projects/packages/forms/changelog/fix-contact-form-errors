@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Forms: added checks for unexpected contents of textarea elements.
