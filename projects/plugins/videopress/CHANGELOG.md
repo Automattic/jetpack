@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.1 - 2024-09-06
+### Changed
+- Internal updates.
+
+## 2.0 - 2024-09-05
+### Changed
+- General: Dependency updates. [#38942] [#38822] [#39004] [#39111] [#39176]
+
 ## 1.9 - 2024-08-15
 ### Changed
 - General: indicate compatibility with the upcoming version of WordPress - 6.6.

@@ -782,6 +782,7 @@ class Defaults {
 		'videopress_guid',
 		'vimeo_poster_image',
 		'_jetpack_blogging_prompt_key',
+		'footnotes', // Core footnotes block
 	);
 
 	/**
@@ -1325,6 +1326,10 @@ class Defaults {
 			'max_chunks' => 10,
 		),
 		'users'              => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce'        => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),

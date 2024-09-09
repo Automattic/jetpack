@@ -109,6 +109,29 @@ add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_bar_assets' );
 
 /**
+ * Render the admin bar in user locale even on frontend screens.
+ */
+function wpcom_always_use_user_locale() {
+	if ( is_admin() || ! is_admin_bar_showing() ) {
+		return;
+	}
+
+	$site_locale = get_locale();
+	$user_locale = get_user_locale();
+
+	if ( $site_locale !== $user_locale ) {
+		switch_to_locale( $user_locale );
+		add_action(
+			'wp_after_admin_bar_render',
+			function () use ( $site_locale ) {
+				switch_to_locale( $site_locale );
+			}
+		);
+	}
+}
+add_action( 'admin_bar_menu', 'wpcom_always_use_user_locale', -1 );
+
+/**
  * Replaces the WP logo as a link to /sites.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
@@ -161,35 +184,28 @@ function wpcom_add_reader_menu( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
 
 /**
- * Points the (Profile) -> Edit Profile menu to /me when appropriate.
+ * Points the "Edit Profile" and "Howdy,..." to /me when appropriate.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
 function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		// If one of the following is true:
-		// - the user is not a member of the current site
-		// - the current site uses Default admin interface
-		//
-		// Then, the Edit Profile menu should point to /me, instead of the site's profile.php.
-		if ( ! is_user_member_of_blog() || get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
-
-			// Temporarily point to wpcalypso.wordpress.com for testing purposes.
-			$url = 'https://wordpress.com/me';
-			if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
-				$url = 'https://wpcalypso.wordpress.com/me';
-			}
-
-			$edit_profile_node->href = maybe_add_origin_site_id_to_url( $url );
+		/**
+		 * The Edit Profile menu should point to /me, instead of the site's profile.php
+		 * if the user is not a member of the current site
+		 */
+		if ( ! is_user_member_of_blog() ) {
+			$edit_profile_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
 			$wp_admin_bar->add_node( (array) $edit_profile_node );
 		}
 	}
 }
-add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 1 );
+// Run this function later than Core: https://github.com/WordPress/wordpress-develop/blob/5a30482419f1b0bcc713a7fdee3a14afd67a1bca/src/wp-includes/class-wp-admin-bar.php#L651
+add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 9999 );
 
 /**
- * Adds (Profile) -> My Account menu pointing to /me/account.
+ * Adds (Profile) -> My Account menu pointing to /me.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
@@ -200,18 +216,12 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 		$wp_admin_bar->remove_node( 'logout' );
 	}
 
-	// Temporarily point to wpcalypso.wordpress.com for testing purposes.
-	$url = 'https://wordpress.com/me/account';
-	if ( get_option( 'wpcom_site_level_user_profile' ) === '1' ) {
-		$url = 'https://wpcalypso.wordpress.com/me/account';
-	}
-
 	$wp_admin_bar->add_node(
 		array(
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( $url ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' ),
 		)
 	);
 

@@ -237,7 +237,7 @@ class Search extends Hybrid_Product {
 			// If available in the user data, set the user's currency as one of the params
 			if ( $connection->is_user_connected() ) {
 				$user_details = $connection->get_connected_user_data();
-				if ( $user_details['user_currency'] && $user_details['user_currency'] !== 'USD' ) {
+				if ( ! empty( $user_details['user_currency'] ) && $user_details['user_currency'] !== 'USD' ) {
 					$endpoint .= sprintf( '&currency=%s', $user_details['user_currency'] );
 				}
 			}

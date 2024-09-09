@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [0.55.13] - 2024-09-05
+### Changed
+- Internal updates.
+
+## [0.55.12] - 2024-09-05
+### Changed
+- Updated package dependencies. [#39176]
+
+### Fixed
+- ToggleControl: Update styles for WordPress/gutenberg#63490. [#39176]
+
+## [0.55.11] - 2024-08-29
+### Changed
+- Updated package dependencies. [#39111]
+
 ## [0.55.10] - 2024-08-23
 ### Changed
 - Internal updates.
@@ -1137,6 +1152,9 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[0.55.13]: https://github.com/Automattic/jetpack-components/compare/0.55.12...0.55.13
+[0.55.12]: https://github.com/Automattic/jetpack-components/compare/0.55.11...0.55.12
+[0.55.11]: https://github.com/Automattic/jetpack-components/compare/0.55.10...0.55.11
 [0.55.10]: https://github.com/Automattic/jetpack-components/compare/0.55.9...0.55.10
 [0.55.9]: https://github.com/Automattic/jetpack-components/compare/0.55.8...0.55.9
 [0.55.8]: https://github.com/Automattic/jetpack-components/compare/0.55.7...0.55.8

@@ -177,6 +177,7 @@ export default function SubscriptionControls( {
 				className="wp-block-jetpack-subscriptions__borderpanel"
 			>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					value={ borderRadius }
 					label={ __( 'Border Radius', 'jetpack' ) }
 					min={ MIN_BORDER_RADIUS_VALUE }
@@ -187,6 +188,7 @@ export default function SubscriptionControls( {
 				/>
 
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					value={ borderWeight }
 					label={ __( 'Border Weight', 'jetpack' ) }
 					min={ MIN_BORDER_WEIGHT_VALUE }
@@ -202,6 +204,7 @@ export default function SubscriptionControls( {
 				className="wp-block-jetpack-subscriptions__spacingpanel"
 			>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					value={ padding }
 					label={ __( 'Space Inside', 'jetpack' ) }
 					min={ MIN_PADDING_VALUE }
@@ -211,6 +214,7 @@ export default function SubscriptionControls( {
 					onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 				/>
 				<RangeControl
+					__nextHasNoMarginBottom={ true }
 					value={ spacing }
 					label={ __( 'Space Between', 'jetpack' ) }
 					min={ MIN_SPACING_VALUE }
@@ -231,6 +235,7 @@ export default function SubscriptionControls( {
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Show subscriber count', 'jetpack' ) }
 					checked={ showSubscribersTotal }
 					onChange={ () => {
@@ -255,6 +260,7 @@ export default function SubscriptionControls( {
 				/>
 				{ isPublicizeEnabled && (
 					<ToggleControl
+						__nextHasNoMarginBottom={ true }
 						disabled={ ! showSubscribersTotal }
 						label={ __( 'Include social followers in count', 'jetpack' ) }
 						checked={
@@ -270,6 +276,7 @@ export default function SubscriptionControls( {
 				) }
 
 				<ToggleControl
+					__nextHasNoMarginBottom={ true }
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }
 					onChange={ () => {
@@ -278,12 +285,14 @@ export default function SubscriptionControls( {
 				/>
 
 				<TextareaControl
+					__nextHasNoMarginBottom={ true }
 					value={ subscribePlaceholder }
 					label={ __( 'Input placeholder text', 'jetpack' ) }
 					help={ __( 'Edit the placeholder text of the email address input.', 'jetpack' ) }
 					onChange={ placeholder => setAttributes( { subscribePlaceholder: placeholder } ) }
 				/>
 				<TextareaControl
+					__nextHasNoMarginBottom={ true }
 					value={ submitButtonText }
 					label={ __( 'Submit button label', 'jetpack' ) }
 					help={ __( 'Edit the label of the button a user clicks to subscribe.', 'jetpack' ) }
@@ -291,6 +300,7 @@ export default function SubscriptionControls( {
 				/>
 				{ ! isSimpleSite() && (
 					<TextareaControl
+						__nextHasNoMarginBottom={ true }
 						value={ successMessage }
 						label={ __( 'Success message', 'jetpack' ) }
 						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }

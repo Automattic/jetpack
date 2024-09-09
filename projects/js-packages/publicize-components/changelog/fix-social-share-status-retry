@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Social: Fixed multiple issues in share status retry UI and logic

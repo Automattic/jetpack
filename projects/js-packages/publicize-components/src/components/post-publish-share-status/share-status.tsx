@@ -1,61 +1,21 @@
 import { Spinner } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { getDate, isInTheFuture } from '@wordpress/date';
-import { store as editorStore } from '@wordpress/editor';
-import { useEffect } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import Notice from '../notice';
 import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 
-export type ShareStatusProps = {
-	postId: number;
-};
-
-const ONE_MINUTE_IN_MS = 60 * 1000;
-
 /**
  * Share status component.
  *
- * @param {ShareStatusProps} props - Component props.
  *
  * @return {import('react').ReactNode} - Share status UI.
  */
-export function ShareStatus( { postId }: ShareStatusProps ) {
-	const shareStatus = useSelect(
-		select => select( socialStore ).getPostShareStatus( postId ),
-		[ postId ]
-	);
+export function ShareStatus() {
+	const shareStatus = useSelect( select => select( socialStore ).getPostShareStatus(), [] );
 
-	// Whether the post has been published more than one minute ago.
-	const hasBeenMoreThanOneMinute = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any -- `@wordpress/editor` is a nightmare to work with TypeScript
-		const date = ( select( editorStore ) as any ).getEditedPostAttribute( 'date' );
-
-		const oneMinuteAfterPostDate = new Date( Number( getDate( date ) ) + ONE_MINUTE_IN_MS );
-
-		// @ts-expect-error isInTheFuture is typed incorrectly as it should accept a Date object apart from a string.
-		return ! isInTheFuture( oneMinuteAfterPostDate );
-	}, [] );
-
-	// @ts-expect-error `invalidateResolution` exists in every store
-	const { invalidateResolution } = useDispatch( socialStore );
-
-	useEffect( () => {
-		if ( ! hasBeenMoreThanOneMinute && ! shareStatus.loading && ! shareStatus.done ) {
-			// Fire the next request as soon as the previous one is done but we are not done yet.
-			invalidateResolution( 'getPostShareStatus', [ postId ] );
-		}
-	}, [
-		hasBeenMoreThanOneMinute,
-		invalidateResolution,
-		postId,
-		shareStatus.loading,
-		shareStatus.done,
-	] );
-
-	if ( shareStatus.loading ) {
+	if ( shareStatus.polling ) {
 		return (
 			<div className={ styles[ 'loading-block' ] }>
 				<Spinner />
@@ -85,7 +45,10 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 						numberOfFailedShares
 					) }
 				</p>
-				<ShareStatusModalTrigger variant="link">
+				<ShareStatusModalTrigger
+					variant="link"
+					analyticsData={ { location: 'post-publish-panel' } }
+				>
 					{ __( 'Review status and try again', 'jetpack' ) }
 				</ShareStatusModalTrigger>
 			</Notice>
@@ -93,10 +56,19 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 	}
 
 	if ( ! shareStatus.done ) {
-		return <span>{ __( 'The request to share your post is still in progress.', 'jetpack' ) }</span>;
+		// If we are here, it means that polling has finished/timedout
+		// but we don't know the share status yet.
+		return (
+			<span>
+				{ __( 'The request to share your post is still in progress.', 'jetpack' ) }
+				&nbsp;
+				{ __( 'Please refresh and check again in a few minutes.', 'jetpack' ) }
+			</span>
+		);
 	}
 
 	if ( ! shareStatus.shares.length ) {
+		// We should ideally never reach here but just in case.
 		return <span>{ __( 'Your post was not shared.', 'jetpack' ) }</span>;
 	}
 
@@ -115,7 +87,7 @@ export function ShareStatus( { postId }: ShareStatusProps ) {
 					shareStatus.shares.length
 				) }
 			</p>
-			<ShareStatusModalTrigger />
+			<ShareStatusModalTrigger analyticsData={ { location: 'post-publish-panel' } } />
 		</>
 	);
 }

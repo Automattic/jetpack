@@ -129,6 +129,17 @@ const LogoLoading: React.FC = () => {
 	);
 };
 
+const LogoFetching: React.FC = () => {
+	return (
+		<>
+			<ImageLoader className="jetpack-ai-logo-generator-modal-presenter__logo" />
+			<span className="jetpack-ai-logo-generator-modal-presenter__loading-text">
+				{ __( 'Fetching previous logos…', 'jetpack-ai-client' ) }
+			</span>
+		</>
+	);
+};
+
 const LogoReady: React.FC< {
 	siteId: string;
 	logo: Logo;
@@ -177,16 +188,16 @@ export const LogoPresenter: React.FC< LogoPresenterProps > = ( {
 	logoAccepted = false,
 	siteId,
 } ) => {
+	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { isRequestingImage } = useLogoGenerator();
 	const { saveToLibraryError, logoUpdateError } = useRequestErrors();
 
-	if ( ! logo ) {
-		return null;
-	}
-
 	let logoContent: React.ReactNode;
 
-	if ( loading || isRequestingImage ) {
+	if ( ! logo ) {
+		debug( 'No logo provided, history still loading or logo being generated' );
+		logoContent = <LogoFetching />;
+	} else if ( loading || isRequestingImage ) {
 		logoContent = <LogoLoading />;
 	} else if ( logoAccepted ) {
 		logoContent = <LogoUpdated logo={ logo } />;

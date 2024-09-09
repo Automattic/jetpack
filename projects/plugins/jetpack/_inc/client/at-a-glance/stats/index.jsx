@@ -58,6 +58,10 @@ export class DashStats extends Component {
 		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
+		if ( 'object' !== typeof statsData[ unit ] ) {
+			return { chartData: s, totalViews: false };
+		}
+
 		let totalViews = 0;
 
 		const /* translators: short date format, such as: Jan 12. */
@@ -66,10 +70,6 @@ export class DashStats extends Component {
 			longMonthFormat = __( 'F jS', 'jetpack' ),
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
-
-		if ( 'object' !== typeof statsData[ unit ] ) {
-			return { chartData: s, totalViews: false };
-		}
 
 		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];

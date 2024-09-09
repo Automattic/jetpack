@@ -266,17 +266,36 @@ const VIPUpgradePrompt = ( {
 	);
 };
 
+type FairUsageNoticeProps = {
+	variant?: 'error' | 'muted';
+};
+
 /**
  * The fair usage notice component.
+ * @param {FairUsageNoticeProps}         props         - Fair usage notice component props.
+ * @param {FairUsageNoticeProps.variant} props.variant - The variant of the notice to render.
  * @return {ReactElement} the Notice component with the fair usage message.
  */
-const FairUsageNotice = () => {
+export const FairUsageNotice = ( { variant = 'error' }: FairUsageNoticeProps ) => {
 	const useFairUsageNoticeMessageElement = useFairUsageNoticeMessage();
-	return (
-		<Notice status="error" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
-			{ useFairUsageNoticeMessageElement }
-		</Notice>
-	);
+
+	if ( variant === 'muted' ) {
+		return (
+			<span className="jetpack-ai-fair-usage-notice-muted-variant">
+				{ useFairUsageNoticeMessageElement }
+			</span>
+		);
+	}
+
+	if ( variant === 'error' ) {
+		return (
+			<Notice status="error" isDismissible={ false } className="jetpack-ai-fair-usage-notice">
+				{ useFairUsageNoticeMessageElement }
+			</Notice>
+		);
+	}
+
+	return null;
 };
 
 const QuotaExceededMessage = props => {

@@ -494,7 +494,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "61beeb1eadc51c94a4ba35310bed89a1f15702e3"
+                "reference": "ba6b4c5a04498f466aea16c82dd43f4563c0c859"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -529,7 +529,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.12.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -539,6 +539,9 @@
                 }
             },
             "autoload": {
+                "files": [
+                    "actions.php"
+                ],
                 "classmap": [
                     "legacy",
                     "src/",
@@ -1005,7 +1008,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "7fc7349f067c70f35ec09b2028354537372ba24a"
+                "reference": "3c85793f3ce5609dbb8a644ee6a31f3ac08face4"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1039,7 +1042,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "5.59.x-dev"
+                    "dev-trunk": "5.61.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -1445,7 +1448,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "7ff2e0454b5d9dafdd6ddd7c1917065f739408e0"
+                "reference": "fb9d7919368d5fcea47f659fa2a7532ada3477a0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -1470,7 +1473,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.3.x-dev"
+                    "dev-trunk": "4.0.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1506,11 +1509,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-<<<<<<< HEAD
-                "reference": "5d71e613ed54856799d620de9336ba8dfe795382"
-=======
-                "reference": "64ed9303f16e3377d99091c67842f3c4b07b71eb"
->>>>>>> origin/trunk
+                "reference": "57b44f5733993fc13ee01f04b351e569fdab4522"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1543,11 +1542,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-<<<<<<< HEAD
-                    "dev-trunk": "3.7.x-dev"
-=======
-                    "dev-trunk": "3.8.x-dev"
->>>>>>> origin/trunk
+                    "dev-trunk": "3.10.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -4311,16 +4306,16 @@
         },
         {
             "name": "yoast/phpunit-polyfills",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Yoast/PHPUnit-Polyfills.git",
-                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446"
+                "reference": "e9c8413de4c8ae03d2923a44f17d0d7dad1b96be"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/a0f7d708794a738f328d7b6c94380fd1d6c40446",
-                "reference": "a0f7d708794a738f328d7b6c94380fd1d6c40446",
+                "url": "https://api.github.com/repos/Yoast/PHPUnit-Polyfills/zipball/e9c8413de4c8ae03d2923a44f17d0d7dad1b96be",
+                "reference": "e9c8413de4c8ae03d2923a44f17d0d7dad1b96be",
                 "shasum": ""
             },
             "require": {
@@ -4335,7 +4330,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.x-dev"
+                    "dev-main": "3.x-dev"
                 }
             },
             "autoload": {
@@ -4370,7 +4365,7 @@
                 "security": "https://github.com/Yoast/PHPUnit-Polyfills/security/policy",
                 "source": "https://github.com/Yoast/PHPUnit-Polyfills"
             },
-            "time": "2024-04-05T16:01:51+00:00"
+            "time": "2024-09-06T22:03:10+00:00"
         }
     ],
     "aliases": [],

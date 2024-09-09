@@ -11,6 +11,11 @@ interface ConnectionListItemProps {
 
 export type ConnectionListItemType = FC< ConnectionListItemProps >;
 
+export type ConnectionItemButtonType = FC< {
+	actionText: string;
+	onClick: ( e: MouseEvent ) => void;
+} >;
+
 interface getSiteConnectionLineDataProps {
 	isRegistered: boolean;
 	hasSiteConnectionBrokenModules: boolean;

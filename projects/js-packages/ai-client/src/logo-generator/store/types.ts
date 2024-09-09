@@ -88,6 +88,14 @@ export type TierValueProp =
 	| Tier750Props[ 'value' ]
 	| Tier1000Props[ 'value' ];
 
+export type FeatureControl = {
+	enabled: boolean;
+	'min-jetpack-version': string;
+	[ key: string ]: FeatureControl | boolean | string;
+};
+
+export type FeaturesControl = { [ key: string ]: FeatureControl };
+
 export type AiFeatureProps = {
 	hasFeature: boolean;
 	isOverLimit: boolean;
@@ -110,6 +118,7 @@ export type AiFeatureProps = {
 			logo: number;
 		};
 	};
+	featuresControl?: FeaturesControl;
 };
 
 // Type used in the `wordpress-com/plans` store.
@@ -143,6 +152,7 @@ export type LogoGeneratorStateProp = {
 		saveToLibraryError?: RequestError;
 		logoUpdateError?: RequestError;
 		context: string;
+		isLoadingHistory: boolean;
 	};
 	siteDetails?: SiteDetails | Record< string, never >;
 	features: {
@@ -172,6 +182,8 @@ export type Selectors = {
 	getSaveToLibraryError(): RequestError;
 	getLogoUpdateError(): RequestError;
 	getContext(): string;
+	getTierPlansEnabled(): boolean;
+	getIsLoadingHistory(): boolean;
 };
 
 /*
@@ -202,6 +214,7 @@ export type AiAssistantFeatureEndpointResponseProps = {
 			logo: number;
 		};
 	};
+	'features-control'?: FeaturesControl;
 };
 
 export type SaveLogo = ( logo: Logo ) => Promise< { mediaId: number; mediaURL: string } >;

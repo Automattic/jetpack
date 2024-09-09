@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+SSO: Show wp-admin login form if site has local users
