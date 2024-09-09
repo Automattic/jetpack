@@ -4,6 +4,7 @@ export type FixersStatus = {
 	threats: {
 		[ key: number ]: {
 			status: FixerStatus;
+			last_updated: string;
 		};
 	};
 };

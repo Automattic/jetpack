@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import API from '../../api';
 import { QUERY_FIXERS_KEY } from '../../constants';
 import useNotices from '../../hooks/use-notices';
+import { FixersStatus } from '../../types/fixers';
 
 /**
  * Fixers Mutatation Hook
@@ -15,38 +16,32 @@ export default function useFixersMutation(): UseMutationResult {
 
 	return useMutation( {
 		mutationFn: API.fixThreats,
-		onSuccess: ( data, threatIds ) => {
+		onSuccess: async ( data, threatIds ) => {
+			// Get the current cached data for threats
+			const cachedData = queryClient.getQueryData( [ QUERY_FIXERS_KEY ] ) as
+				| FixersStatus
+				| undefined;
+
 			// Optimistically update the fixer status to 'in_progress' for the selected threats.
-			queryClient.setQueryData(
-				[ QUERY_FIXERS_KEY ],
-				(
-					currentFixers:
-						| { ok: boolean; threats: { [ key: number ]: { status: string } } }
-						| undefined
-				) => {
-					if ( ! currentFixers ) {
-						currentFixers = { ok: true, threats: {} };
+			if ( cachedData && cachedData.threats ) {
+				// Create a copy of the threats data
+				const updatedData = { ...cachedData.threats };
+
+				threatIds.forEach( id => {
+					if ( updatedData[ id ] ) {
+						updatedData[ id ] = {
+							...updatedData[ id ],
+							status: 'in_progress',
+						};
 					}
+				} );
 
-					const updatedThreats = {
-						...currentFixers.threats,
-						...threatIds.reduce(
-							( acc, threatId ) => {
-								acc[ threatId ] = { status: 'in_progress' };
-								return acc;
-							},
-							{} as { [ key: number ]: { status: string } }
-						),
-					};
-
-					const newFixers = {
-						...currentFixers,
-						threats: updatedThreats,
-					};
-
-					return newFixers;
-				}
-			);
+				// Set the updated data back in the cache
+				queryClient.setQueryData( [ QUERY_FIXERS_KEY ], {
+					...cachedData,
+					threats: updatedData, // Replace the threats with the updated version
+				} );
+			}
 
 			// Show a success notice.
 			showSuccessNotice(
