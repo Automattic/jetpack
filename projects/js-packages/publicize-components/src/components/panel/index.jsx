@@ -14,8 +14,8 @@ import { usePostJustPublished } from '../../hooks/use-saving-post';
 import useSelectSocialMediaConnections from '../../hooks/use-social-media-connections';
 import PublicizeForm from '../form';
 import { ManualSharing } from '../manual-sharing';
+import { ReSharingPanel } from '../resharing-panel';
 import { SharePostRow } from '../share-post';
-import { ShareStatusModalTrigger } from '../share-status';
 import styles from './styles.module.scss';
 import './global.scss';
 
@@ -74,7 +74,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					<ShareStatusModalTrigger withWrapper analyticsData={ { location: 'editor' } } />
+					<ReSharingPanel />
 					<ManualSharing />
 				</>
 			) }
