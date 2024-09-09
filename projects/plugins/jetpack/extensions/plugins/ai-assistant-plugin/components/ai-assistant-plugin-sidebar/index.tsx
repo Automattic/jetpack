@@ -178,8 +178,7 @@ export default function AiAssistantPluginSidebar() {
 		tracks.recordEvent( 'jetpack_ai_panel_open', { placement } );
 	};
 
-	const showUsagePanel =
-		planType === PLAN_TYPE_FREE || ( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED );
+	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
 	const isBreveAvailable = getBreveAvailability();
 
@@ -237,6 +236,8 @@ export default function AiAssistantPluginSidebar() {
 						busy={ false }
 						disabled={ requireUpgrade }
 					/>
+
+					{ /* check this for removal, it will never be true */ }
 					{ requireUpgrade && tierPlansEnabled && (
 						<Upgrade
 							placement={ PLACEMENT_PRE_PUBLISH }

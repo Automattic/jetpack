@@ -113,6 +113,8 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			let requestsLimit = state.features.aiAssistant.currentTier?.limit;
 
 			if ( isUnlimitedTierPlan ) {
+				// since the introduction of the unlimited plan limit, we could take it from there instead
+				// of a fixed constant
 				requestsLimit = UNLIMITED_PLAN_REQUESTS_LIMIT;
 			} else if ( isFreeTierPlan ) {
 				requestsLimit = state.features.aiAssistant.requestsLimit as TierLimitProp;
@@ -132,6 +134,7 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			const isOverLimit = currentCount >= requestsLimit;
 
 			// highest tier holds a soft limit so requireUpgrade is false on that case (nextTier null means highest tier)
+			// we shouldn't need this anymore, use requireUpgrade as it comes from backend
 			const requireUpgrade = isOverLimit && state.features.aiAssistant.nextTier !== null;
 
 			return {
