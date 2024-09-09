@@ -15,7 +15,7 @@ const useAddTagsToPost = ( postId: number, tags: string[], onSaveTags: OnSaveTag
 		try {
 			const result: HasAddedTagsResult = await apiFetch( {
 				method: 'POST',
-				path: `/wpcom/v2/read/posts/${ postId }/tags/add`,
+				path: `/wpcom/v2/read/sites/${ window._currentSiteId }/posts/${ postId }/tags/add`,
 				data: { tags },
 			} );
 			addedTags = result.added_tags ?? 0;
