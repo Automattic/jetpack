@@ -32,10 +32,8 @@ export type JetpackSettings = {
 	showNudge?: boolean;
 };
 
-export type ShareStatusItem = Pick<
-	Connection,
-	'connection_id' | 'profile_link' | 'profile_picture'
-> & {
+export type ShareStatusItem = Pick< Connection, 'profile_link' | 'profile_picture' > & {
+	connection_id: number;
 	status: 'success' | 'failure';
 	message: string;
 	timestamp: number;
