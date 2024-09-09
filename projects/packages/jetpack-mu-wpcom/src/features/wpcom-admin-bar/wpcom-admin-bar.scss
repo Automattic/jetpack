@@ -152,6 +152,38 @@
 			}
 		}
 
+		#wp-admin-bar-card {
+			.cart-icon__dot {
+				border: 1px solid black;
+				margin-left: 17px;
+				position: absolute;
+				margin-top: -28px;
+				width: 6px;
+				height: 6px;
+				background: var(--color-masterbar-unread-dot-background);
+				border-radius: 50px;
+			}
+
+			.cart-icon {
+				align-items: center;
+				display: flex;
+				height: 100%;
+				margin: 0;
+
+				&:before{
+					background-color: currentColor;
+					content: "";
+					display: flex;
+					height: 20px;
+					margin: 0;
+					mask-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Zz48cGF0aAoJCQkJCWZpbGw9InZhciggLS1jb2xvci1tYXN0ZXJiYXItaWNvbiApIgoJCQkJCWQ9Ik05LDIwYzAsMS4xLTAuOSwyLTIsMnMtMi0wLjktMi0yczAuOS0yLDItMiAgIFM5LDE4LjksOSwyMHogTTE3LDE4Yy0xLjEsMC0yLDAuOS0yLDJzMC45LDIsMiwyczItMC45LDItMlMxOC4xLDE4LDE3LDE4eiBNMTcuNCwxM2MwLjksMCwxLjctMC43LDItMS42TDIxLDVIN1Y0YzAtMS4xLTAuOS0yLTItMiAgIEgzdjJoMnYxdjh2MmMwLDEuMSwwLjksMiwyLDJoMTJjMC0xLjEtMC45LTItMi0ySDd2LTJIMTcuNHoiLz48L2c+PC9zdmc+');
+					mask-position: center;
+					mask-repeat: no-repeat;
+					width: 24px
+				}
+			}
+		}
+
 		@media (max-width: 782px) {
 			height: 45px;
 
@@ -170,6 +202,32 @@
 						height: 36px;
 						margin: 0px;
 						mask-size: contain;
+					}
+				}
+			}
+
+			#wp-admin-bar-cart {
+				display: block;
+				min-width: 52px;
+				padding: 0;
+				width: auto !important;
+
+				.cart-icon__dot {
+					margin-left: 33px;
+					margin-top: -38px;
+					width: 8px;
+					height: 8px;
+				}
+
+				.cart-icon {
+					justify-content: center;
+					padding: 0 10px;
+
+					&:before{
+						height: 32px;
+						margin: 0;
+						mask-size: contain;
+						width: 32px
 					}
 				}
 			}
