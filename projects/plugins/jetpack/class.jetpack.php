@@ -886,6 +886,10 @@ class Jetpack {
 			$config->ensure( 'publicize' );
 		}
 
+		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
+		add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'run_initialize_tracking_action' ) );
+		add_action( 'jetpack_is_connection_ready', array( $this, 'run_initialize_tracking_action' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -922,9 +926,6 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-
-		add_action( 'jetpack_initialize_tracking', array( $this, 'initialize_tracking' ) );
-		add_action( 'jetpack_agreed_to_terms_of_service', array( $this, 'after_agreed_to_tos' ) );
 	}
 
 	/**
@@ -6313,9 +6314,9 @@ endif;
 	}
 
 	/**
-	 * Initialize tracking right after the user agrees to the terms of service.
+	 * Run the "initialize tracking" hook.
 	 */
-	public function after_agreed_to_tos() {
+	public function run_initialize_tracking_action() {
 		/**
 		 * Fires when the tracking needs to be initialized.
 		 * Doesn't necessarily mean that will actually happen, depends if the 'jetpack_tos_agreed' option is set.
