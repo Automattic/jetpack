@@ -1304,32 +1304,45 @@ class Defaults {
 	);
 
 	/**
+	 * Default Full Sync limits for one module.
+	 *
+	 * @var array list of limits.
+	 */
+	public static $default_full_sync_limits_per_module = array(
+		'chunk_size' => 100,
+		'max_chunks' => 10,
+	);
+	/**
 	 * Default Full Sync max objects to send on a single request.
 	 *
 	 * @var array list of module => max.
 	 */
 	public static $default_full_sync_limits = array(
-		'comments'           => array(
+		'comments'                => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
-		'posts'              => array(
+		'posts'                   => array(
 			'chunk_size' => 100,
 			'max_chunks' => 1,
 		),
-		'term_relationships' => array(
+		'term_relationships'      => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'terms'              => array(
+		'terms'                   => array(
 			'chunk_size' => 1000,
 			'max_chunks' => 10,
 		),
-		'users'              => array(
+		'users'                   => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
-		'woocommerce'        => array(
+		'woocommerce'             => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
+		'woocommerce_hpos_orders' => array(
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
