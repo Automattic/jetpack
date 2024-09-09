@@ -19,9 +19,8 @@ function fixDeps( pkg ) {
 
 	// Missing dep or peer dep on react.
 	// https://github.com/WordPress/gutenberg/issues/55171
-	// https://github.com/WordPress/gutenberg/issues/62250
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/primitives' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
