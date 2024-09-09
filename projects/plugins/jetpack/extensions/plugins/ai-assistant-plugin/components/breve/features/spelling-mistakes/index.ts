@@ -180,32 +180,39 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		return highlightedTexts;
 	}
 
-	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
-	// \p{L} is a Unicode property that matches any letter in any language
-	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/, 'gu' );
-	const words = ( text.match( wordRegex ) || [] )
-		// Filter out words that start with special characters
-		.filter( word => [ '@', '#', '+', '$' ].indexOf( word[ 0 ] ) === -1 )
-		// Split hyphenated words into separate words as nspell doesn't work well with them
-		.map( word => word.split( '-' ) )
-		.flat();
+	// Regex to match words, including contractions, hyphenated words, and words separated by slashes
+	// \p{L} matches any Unicode letter in any language
+	// \p{M} matches any Unicode mark (combining characters)
+	// The regex has three main parts:
+	// 1. [@#+$/]{0,1} - Optionally matches a single special character at the start
+	// 2. [\p{L}\p{M}'-]+ - Matches one or more letters, marks, apostrophes, or hyphens
+	// 3. (?:\/[\p{L}\p{M}'-]+)* - Optionally matches additional parts separated by slashes
+	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}'-]+(?:\/[\p{L}\p{M}'-]+)*/gu );
+	const matches = Array.from( text.matchAll( wordRegex ) );
 
-	// To avoid highlighting the same word occurrence multiple times
-	let searchStartIndex = 0;
+	matches.forEach( match => {
+		const word = match[ 0 ];
+		const startIndex = match.index as number;
 
-	words.forEach( ( word: string ) => {
-		const wordIndex = text.indexOf( word, searchStartIndex );
-
-		if ( ! spellChecker.correct( word ) ) {
-			highlightedTexts.push( {
-				text: word,
-				startIndex: wordIndex,
-				endIndex: wordIndex + word.length,
-			} );
+		// Skip words that start with special characters
+		if ( [ '@', '#', '+', '$', '/' ].indexOf( word[ 0 ] ) !== -1 ) {
+			return;
 		}
 
-		searchStartIndex = wordIndex + word.length;
+		// Split words by hyphens and slashes
+		const subWords = word.split( /[-/]/ );
+
+		subWords.forEach( subWord => {
+			if ( ! spellChecker.correct( subWord ) ) {
+				const subWordStartIndex = startIndex + word.indexOf( subWord );
+
+				highlightedTexts.push( {
+					text: subWord,
+					startIndex: subWordStartIndex,
+					endIndex: subWordStartIndex + subWord.length,
+				} );
+			}
+		} );
 	} );
 
 	return highlightedTexts;
