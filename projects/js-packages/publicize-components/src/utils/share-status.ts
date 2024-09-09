@@ -52,10 +52,15 @@ export function areShareItemsForSameConnection( a: ShareStatusItem, b: ShareStat
 		return false;
 	}
 
+	// If the connection_id matches, they are definitely for the same connection
+	if ( a.connection_id === b.connection_id ) {
+		return true;
+	}
+
 	// external_id may not be present in old data, so we need to check for it
 	if ( a.external_id || b.external_id ) {
 		return a.external_id === b.external_id;
 	}
 
-	return a.connection_id === b.connection_id;
+	return false;
 }
