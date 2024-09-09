@@ -38,3 +38,24 @@ export function connectionMatchesShareItem( shareItem: ShareStatusItem ) {
 		return connection.connection_id === shareItem.connection_id.toString();
 	};
 }
+
+/**
+ * Check if two share items are for the same connection.
+ *
+ * @param {ShareStatusItem} a - The first share item.
+ * @param {ShareStatusItem} b - The second share item.
+ *
+ * @return {boolean} - Whether the share items are for the same connection.
+ */
+export function areShareItemsForSameConnection( a: ShareStatusItem, b: ShareStatusItem ) {
+	if ( a.service !== b.service ) {
+		return false;
+	}
+
+	// external_id may not be present in old data, so we need to check for it
+	if ( a.external_id || b.external_id ) {
+		return a.external_id === b.external_id;
+	}
+
+	return a.connection_id === b.connection_id;
+}
