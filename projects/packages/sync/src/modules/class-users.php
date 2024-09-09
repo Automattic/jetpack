@@ -58,14 +58,28 @@ class Users extends Module {
 	}
 
 	/**
-	 * The table in the database.
+	 * The table name.
 	 *
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since $$next-version$$ Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\Users->table' );
 		return 'usermeta';
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->usermeta;
 	}
 
 	/**

@@ -61,14 +61,50 @@ class WooCommerce extends Module {
 	private $order_item_table_name;
 
 	/**
-	 * The table in the database.
+	 * The table name.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 * @deprecated since $$next-version$$ Use table() instead.
+	 */
+	public function table_name() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\WooCommerce->table' );
+		return $this->order_item_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
+		global $wpdb;
+		return $wpdb->prefix . 'woocommerce_order_items';
+	}
+
+	/**
+	 * The id field in the database.
 	 *
 	 * @access public
 	 *
 	 * @return string
 	 */
-	public function table_name() {
-		return $this->order_item_table_name;
+	public function id_field() {
+		return 'order_item_id';
+	}
+
+	/**
+	 * The full sync action name for this module.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function full_sync_action_name() {
+		return 'jetpack_full_sync_woocommerce_order_items';
 	}
 
 	/**
