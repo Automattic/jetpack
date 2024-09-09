@@ -205,7 +205,7 @@ function wpcom_maybe_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 add_action( 'admin_bar_menu', 'wpcom_maybe_replace_edit_profile_menu_to_me', 9999 );
 
 /**
- * Adds (Profile) -> My Account menu pointing to /me/account.
+ * Adds (Profile) -> My Account menu pointing to /me.
  *
  * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
  */
@@ -221,7 +221,7 @@ function wpcom_add_my_account_item_to_profile_menu( $wp_admin_bar ) {
 			'id'     => 'wpcom-profile',
 			'parent' => 'user-actions',
 			'title'  => __( 'My Account', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
+			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' ),
 		)
 	);
 
