@@ -62,7 +62,7 @@ const NoGoodBackups = () => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							' <a>Get in touch with us</a> to get your site backups going again.',
+							'<a>Get in touch with us</a> to get your site backups going again.',
 							'jetpack-backup-pkg'
 						),
 						{

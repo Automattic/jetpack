@@ -48,19 +48,20 @@ export const createPrompt = (
 
 	if ( categoriesNames ) {
 		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
-		prompt += sprintf( __( ", published in categories '%1$s'", 'jetpack' ), categoriesNames );
+		prompt += ', ' + sprintf( __( "published in categories '%1$s'", 'jetpack' ), categoriesNames );
 	}
 
 	if ( tagsNames ) {
 		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
-		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
+		prompt += ' ' + sprintf( __( "and tagged '%1$s'", 'jetpack' ), tagsNames );
 	}
 
-	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
+	prompt += '. ' + __( 'Please only output generated content ready for publishing.', 'jetpack' );
 
 	if ( shorter_content ) {
-		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-		prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+		prompt +=
+			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+			' ' + sprintf( __( 'Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
 
 	return prompt.trim();
