@@ -326,31 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8 - 2024-09-04
-#### Major Enhancements
-- Custom CSS: Remove feature in favor of WordPress core implementation.
-- Embeds: Remove YouTube and Vimeo embeds in favor of WordPress core implementation.
-- WordPress.com Toolbar: The feature has been removed.
-
-#### Enhancements
-- Admin Menu: Update order of Jetpack sub-menu items.
-- AI Assistant: Add spelling mistakes check for English language.
-- Newsletters: Add the plugin icon to the Block Editor header, with a dedicated sidebar with an email preview feature.
-- Social: Display Fediverse creator meta tag when a post has an active Mastodon connection.
-
-#### Improved compatibility
-- Sharing Block: Improve performance when hooking the block into single post templates.
-- Tiled Galleries: Defer loading of the Tiled Gallery script for improved performance.
-
+### 13.9-a.1 - 2024-09-09
 #### Bug fixes
-- AI Assistant: Disable Write Brief for free plan users when AI Assistant block is disabled.
-- AMP: Avoid fatal errors when using Jetpack's classic slideshows on a site where Jetpack blocks are disabled.
-- Blocks: Ensure the stylesheets for Contact Info and Payment Button blocks are loaded correctly.
-- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
-- Mailchimp Block: Do not attempt to fetch groups when a site is not connected to Mailchimp yet.
-- REST API: Avoid PHP warnings in the comment endpoint when the parent comment does not exist.
-- Social Icons Widget: Ensure the social network icons display correctly.
-- Subscriptions: Prevent the subscribe modal from automatically turning on when discussion settings are saved.
+- AI Assistant: Remove autofocus on extended blocks while previewing.
+- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context.
+- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word.
+- AI Content Lens: Fix the feature of the AI Content Lens is gone.
+- Hosting Configuration: Make the menu title under the settings the same as the destination.
+- Jetpack REST API: Fix missing requirement in admin-menu endpoint.
+- Sidebar: Show correct product name for "VaultPress Backup".
 
 --------
 

@@ -63,10 +63,10 @@ class Users extends Module {
 	 * @access public
 	 *
 	 * @return string
-	 * @deprecated since $$next-version$$ Use table() instead.
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'Automattic\\Jetpack\\Sync\\Users->table' );
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\Users->table' );
 		return 'usermeta';
 	}
 
