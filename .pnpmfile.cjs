@@ -100,6 +100,12 @@ function fixDeps( pkg ) {
 		delete pkg.peerDependenciesMeta?.ajv;
 	}
 
+	// Gutenberg is intending to get rid of this. For now, let's just not upgrade it.
+	// https://github.com/WordPress/gutenberg/issues/60975
+	if ( pkg.name === '@wordpress/components' && pkg.dependencies?.[ 'framer-motion' ] ) {
+		pkg.dependencies[ 'framer-motion' ] += ' <11.5.0';
+	}
+
 	// Types packages have outdated deps. Reset all their `@wordpress/*` deps to star-version,
 	// which pnpm should 🤞 dedupe to match whatever is in use elsewhere in the monorepo.
 	// https://github.com/Automattic/jetpack/pull/35904#discussion_r1508681777
