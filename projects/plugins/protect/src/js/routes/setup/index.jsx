@@ -7,22 +7,14 @@ import {
 } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import Logo from '../../components/logo';
+import ConnectedPricingTable from '../../components/pricing-table';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import Logo from '../logo';
-import ConnectedPricingTable from '../pricing-table';
 import styles from './styles.module.scss';
 
 const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
-/**
- * Interstitial Page
- *
- * @param {object}   props           - Component props
- * @param {Function} props.onScanAdd - Callback when adding paid protect product successfully
- * @return {React.Component}              Interstitial react component.
- */
-const InterstitialPage = ( { onScanAdd } ) => {
+const SetupRoute = () => {
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
 		pageViewEventName: 'protect_interstitial',
@@ -51,7 +43,7 @@ const InterstitialPage = ( { onScanAdd } ) => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<ConnectedPricingTable onScanAdd={ onScanAdd } />
+						<ConnectedPricingTable />
 					</Col>
 				</Container>
 			</AdminSectionHero>
@@ -59,4 +51,4 @@ const InterstitialPage = ( { onScanAdd } ) => {
 	);
 };
 
-export default InterstitialPage;
+export default SetupRoute;
