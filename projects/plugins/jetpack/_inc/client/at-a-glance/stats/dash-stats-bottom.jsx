@@ -70,9 +70,11 @@ class DashStatsBottom extends Component {
 										numberFormat( s.bestDay.count )
 								  ) }
 						</h3>
-						<p className="jp-at-a-glance__stat-details">
-							{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
-						</p>
+						{ s.bestDay.day && (
+							<p className="jp-at-a-glance__stat-details">
+								{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
+							</p>
+						) }
 					</div>
 					<div className="jp-at-a-glance__stats-summary-alltime-views">
 						<p className="jp-at-a-glance__stat-details">
