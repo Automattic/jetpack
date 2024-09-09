@@ -87,11 +87,6 @@ while [[ $# -gt 0 ]]; do
 	shift "$SHIFT"
 done
 
-# If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
-if [[ -v PROJECTS["jetpack"] && ! -v PROJECTS["mu-wpcom-plugin"] ]]; then
-	PROJECTS["mu-wpcom-plugin"]=''
-fi
-
 # Check that the projects are valid.
 for PLUGIN in "${!PROJECTS[@]}"; do
 	# Get the project slug.
