@@ -11,7 +11,7 @@ const Template = args => <FirewallHeader { ...args } />;
 export const FirewallOnFree = Template.bind( {} );
 FirewallOnFree.args = {
 	status: 'on',
-	hasRequiredPlan: false,
+	hasPlan: false,
 	automaticRulesAvailable: false,
 	jetpackWafIpList: true,
 	jetpackWafAutomaticRules: false,
@@ -25,7 +25,7 @@ FirewallOnFree.args = {
 export const FirewallOffFree = Template.bind( {} );
 FirewallOffFree.args = {
 	status: 'off',
-	hasRequiredPlan: false,
+	hasPlan: false,
 	automaticRulesAvailable: false,
 	jetpackWafIpList: false,
 	jetpackWafAutomaticRules: false,
@@ -39,7 +39,7 @@ FirewallOffFree.args = {
 export const FirewallOnPaid = Template.bind( {} );
 FirewallOnPaid.args = {
 	status: 'on',
-	hasRequiredPlan: true,
+	hasPlan: true,
 	automaticRulesAvailable: true,
 	jetpackWafIpList: true,
 	jetpackWafAutomaticRules: true,
@@ -53,7 +53,7 @@ FirewallOnPaid.args = {
 export const FirewallOffPaid = Template.bind( {} );
 FirewallOffPaid.args = {
 	status: 'off',
-	hasRequiredPlan: true,
+	hasPlan: true,
 	automaticRulesAvailable: true,
 	jetpackWafIpList: false,
 	jetpackWafAutomaticRules: false,
@@ -67,7 +67,7 @@ FirewallOffPaid.args = {
 export const FirewallOnStandalone = Template.bind( {} );
 FirewallOnStandalone.args = {
 	status: 'on',
-	hasRequiredPlan: true,
+	hasPlan: true,
 	automaticRulesAvailable: true,
 	jetpackWafIpList: true,
 	jetpackWafAutomaticRules: true,
@@ -81,7 +81,7 @@ FirewallOnStandalone.args = {
 export const FirewallLoading = Template.bind( {} );
 FirewallLoading.args = {
 	status: 'loading',
-	hasRequiredPlan: true,
+	hasPlan: true,
 	automaticRulesAvailable: true,
 	jetpackWafIpList: false,
 	jetpackWafAutomaticRules: false,
