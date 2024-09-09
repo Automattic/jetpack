@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2024-09-06
+### Added
+- Add logic for debugging issues caused by conflicting Composer autoloaders, enabled by setting the `JETPACK_AUTOLOAD_DEBUG_CONFLICTING_LOADERS` constant. [#38995]
+- Add logic for debugging issues caused by early class loads, enabled by setting the `JETPACK_AUTOLOAD_DEBUG_EARLY_LOADS` constant. [#38995]
+
 ## [3.0.10] - 2024-08-26
 ### Changed
 - Updated package dependencies. [#39004]
@@ -372,6 +377,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[3.1.0]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.10...v3.1.0
 [3.0.10]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.8...v3.0.9
 [3.0.8]: https://github.com/Automattic/jetpack-autoloader/compare/v3.0.7...v3.0.8

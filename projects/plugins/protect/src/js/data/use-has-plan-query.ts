@@ -9,7 +9,7 @@ import { QUERY_HAS_PLAN_KEY } from '../constants';
  * @return {UseQueryResult} useQuery result.
  */
 export default function usePlanQuery(): UseQueryResult {
-	const { isRegistered, isUserConnected } = useConnection( {
+	const { isRegistered } = useConnection( {
 		autoTrigger: false,
 		from: 'protect',
 		redirectUri: null,
@@ -20,6 +20,6 @@ export default function usePlanQuery(): UseQueryResult {
 		queryKey: [ QUERY_HAS_PLAN_KEY ],
 		queryFn: API.checkPlan,
 		initialData: !! window?.jetpackProtectInitialState?.hasPlan,
-		enabled: isRegistered && isUserConnected,
+		enabled: isRegistered,
 	} );
 }

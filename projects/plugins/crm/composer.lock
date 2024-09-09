@@ -78,7 +78,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "8e9867c7b1f5bac0c5652f87946fd2cd41a88f70"
+                "reference": "0f56ec98bb673d1b6fe8129b1bbdc0ab7eb30879"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0",
@@ -101,7 +101,7 @@
                     "::VERSION": "src/AutoloadGenerator.php"
                 },
                 "branch-alias": {
-                    "dev-trunk": "3.0.x-dev"
+                    "dev-trunk": "3.1.x-dev"
                 }
             },
             "autoload": {

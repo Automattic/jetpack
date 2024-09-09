@@ -4,7 +4,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import debugFactory from 'debug';
 import metadata from '../../blocks/ai-assistant/block.json';
-import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/ai-assistant';
+import { isPossibleToExtendBlock } from '../../blocks/ai-assistant/extensions/lib/is-possible-to-extend-block';
 import { aiExcerptPluginName, aiExcerptPluginSettings } from '.';
 
 const debug = debugFactory( 'jetpack-ai-content-lens:registration' );
