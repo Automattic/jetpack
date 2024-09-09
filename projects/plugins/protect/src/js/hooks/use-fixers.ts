@@ -6,7 +6,8 @@ import { FixersStatus } from '../types/fixers';
 
 type UseFixersResult = {
 	fixableThreatIds: number[];
-	fixInProgressThreatIds: number[];
+	activefixInProgressThreatIds: number[];
+	stalefixInProgressThreatIds: number[];
 	fixersStatus: FixersStatus;
 	fixThreats: ( threatIds: number[] ) => Promise< unknown >;
 	isLoading: boolean;
@@ -25,20 +26,45 @@ export default function useFixers(): UseFixersResult {
 		usePolling: true,
 	} );
 
-	// List of threat IDs that are currently being fixed.
-	const fixInProgressThreatIds = useMemo(
-		() =>
-			Object.entries( fixersStatus?.threats || {} )
-				.filter(
-					( [ , threat ]: [ string, { status?: string } ] ) => threat.status === 'in_progress'
-				)
-				.map( ( [ id ] ) => parseInt( id ) ),
-		[ fixersStatus ]
-	);
+	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useMemo( () => {
+		const now = new Date();
+
+		return Object.entries( fixersStatus?.threats || {} ).reduce(
+			( acc, [ id, threat ]: [ string, { status?: string; last_updated?: string } ] ) => {
+				if ( threat.status === 'in_progress' ) {
+					let isStale = false;
+
+					// Check if 'last_updated' exists
+					if ( threat.last_updated ) {
+						const lastUpdatedDate = new Date( threat.last_updated );
+						const timeDifferenceInHours =
+							( now.getTime() - lastUpdatedDate.getTime() ) / ( 1000 * 60 * 60 );
+
+						// If more than 24 hours have passed, mark as stale
+						if ( timeDifferenceInHours > 24 ) {
+							isStale = true;
+						}
+					}
+
+					if ( isStale ) {
+						acc.stalefixInProgressThreatIds.push( parseInt( id ) );
+					} else {
+						acc.activefixInProgressThreatIds.push( parseInt( id ) );
+					}
+				}
+				return acc;
+			},
+			{
+				activefixInProgressThreatIds: [] as number[],
+				stalefixInProgressThreatIds: [] as number[],
+			}
+		);
+	}, [ fixersStatus ] );
 
 	return {
 		fixableThreatIds: status.fixableThreatIds,
-		fixInProgressThreatIds,
+		activefixInProgressThreatIds,
+		stalefixInProgressThreatIds,
 		fixersStatus,
 		fixThreats: fixersMutation.mutateAsync,
 		isLoading: fixersMutation.isPending,

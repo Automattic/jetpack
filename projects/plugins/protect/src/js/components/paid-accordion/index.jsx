@@ -1,10 +1,11 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
-import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
+import { Icon, check, chevronDown, chevronUp, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
 import useFixers from '../../hooks/use-fixers';
+import IconTooltip from '../icon-tooltip';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
@@ -80,7 +81,9 @@ export const PaidAccordionItem = ( {
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );
 
-	const { fixInProgressThreatIds } = useFixers();
+	const { activefixInProgressThreatIds, stalefixInProgressThreatIds } = useFixers();
+	const isActiveFixInProgress = activefixInProgressThreatIds.includes( id );
+	const isStaleFixInProgress = stalefixInProgressThreatIds.includes( id );
 
 	const handleClick = useCallback( () => {
 		if ( ! open ) {
@@ -122,10 +125,24 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ fixInProgressThreatIds.includes( id ) ? (
-									<Spinner color="black" />
-								) : (
-									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+								{ isActiveFixInProgress && ! isStaleFixInProgress && <Spinner color="black" /> }
+
+								{ isStaleFixInProgress && (
+									<IconTooltip
+										icon={ info }
+										iconClassName={ styles[ 'icon-info' ] }
+										iconSize={ 24 }
+										text={ __(
+											'The fixer taking longer than expected. Please try again or contact support.',
+											'jetpack-protect'
+										) }
+									/>
+								) }
+
+								{ ! isActiveFixInProgress && ! isStaleFixInProgress && (
+									<>
+										<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />
+									</>
 								) }
 								{ isSmall && <span>{ __( 'Auto-fix', 'jetpack-protect' ) }</span> }
 							</>
