@@ -6318,7 +6318,7 @@ endif;
 	public function after_agreed_to_tos() {
 		/**
 		 * Fires when the tracking needs to be initialized.
-		 * Doesn't necessarily mean that will actually happen, depends on the 'jetpack_tos_agreed' option.
+		 * Doesn't necessarily mean that will actually happen, depends if the 'jetpack_tos_agreed' option is set.
 		 *
 		 * @since $$next-version$$
 		 */
