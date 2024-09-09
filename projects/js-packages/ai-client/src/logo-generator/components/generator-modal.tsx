@@ -13,7 +13,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
  * Internal dependencies
  */
 import {
-	DEFAULT_LOGO_COST,
 	EVENT_MODAL_OPEN,
 	EVENT_FEEDBACK,
 	EVENT_MODAL_CLOSE,
@@ -117,8 +116,6 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 			const hasHistory = ! isLogoHistoryEmpty( String( siteId ) );
 
-			const logoCost = feature?.costs?.[ 'jetpack-ai-logo-generator' ]?.logo ?? DEFAULT_LOGO_COST;
-			const promptCreationCost = 1;
 			const currentLimit = feature?.currentTier?.limit || 0;
 			const currentValue = feature?.currentTier?.value || 0;
 			const currentUsage = feature?.usagePeriod?.requestsCount || 0;
@@ -127,12 +124,7 @@ export const GeneratorModal: React.FC< GeneratorModalProps > = ( {
 
 			// The user needs an upgrade immediately if they have no logos and not enough requests remaining for one prompt and one logo generation.
 			const siteNeedsMoreRequests =
-				! isUnlimited &&
-				! hasNoNextTier &&
-				! hasHistory &&
-				( tierPlansEnabled
-					? currentLimit - currentUsage < logoCost + promptCreationCost
-					: currentLimit < currentUsage );
+				! isUnlimited && ! hasNoNextTier && ! hasHistory && currentLimit < currentUsage;
 
 			// If the site requires an upgrade, show the upgrade screen immediately.
 			setNeedsFeature( currentValue === 0 );

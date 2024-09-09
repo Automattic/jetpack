@@ -61,7 +61,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 		requestsLimit,
 		currentTier,
 		loading: loadingAiFeature,
-		tierPlansEnabled,
 	} = useAiFeature();
 	const requestsRemaining = Math.max( requestsLimit - requestsCount, 0 );
 
@@ -370,8 +369,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId, 
 							{ __( 'Discover all features', 'jetpack' ) }
 						</ExternalLink>
 					</div>
-					{ ( planType === PLAN_TYPE_FREE ||
-						( tierPlansEnabled && planType !== PLAN_TYPE_UNLIMITED ) ) && (
+					{ planType === PLAN_TYPE_FREE && (
 						<PanelBody initialOpen={ true }>
 							<PanelRow>
 								<UsagePanel placement={ USAGE_PANEL_PLACEMENT_BLOCK_SETTINGS_SIDEBAR } />

@@ -1,7 +1,6 @@
 /*
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Notice } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
@@ -97,7 +96,7 @@ const DefaultUpgradePrompt = ( {
 
 	const { checkoutUrl } = useAICheckout();
 	const canUpgrade = canUserPurchasePlan();
-	const { nextTier, tierPlansEnabled, currentTier, requestsCount } = useAiFeature();
+	const { currentTier, requestsCount } = useAiFeature();
 
 	const { tracks } = useAnalytics();
 
@@ -109,13 +108,6 @@ const DefaultUpgradePrompt = ( {
 			placement: placement,
 		} );
 	}, [ currentTier, requestsCount, tracks, placement ] );
-
-	const handleContactUsClick = useCallback( () => {
-		debug( 'contact us', placement );
-		tracks.recordEvent( 'jetpack_ai_upgrade_contact_us', {
-			placement: placement,
-		} );
-	}, [ tracks, placement ] );
 
 	if ( ! canUpgrade ) {
 		const cantUpgradeDescription = createInterpolateElement(
@@ -137,64 +129,6 @@ const DefaultUpgradePrompt = ( {
 				align={ null }
 				title={ null }
 				context={ null }
-			/>
-		);
-	}
-
-	if ( tierPlansEnabled ) {
-		if ( ! nextTier ) {
-			const contactHref = getRedirectUrl( 'jetpack-ai-tiers-more-requests-contact' );
-			const contactUsDescription = __(
-				'You have reached the request limit for your current plan.',
-				'jetpack'
-			);
-
-			return (
-				<Nudge
-					buttonText={ __( 'Contact Us', 'jetpack' ) }
-					description={ description || contactUsDescription }
-					className={ 'jetpack-ai-upgrade-banner' }
-					checkoutUrl={ contactHref }
-					visible={ true }
-					align={ null }
-					title={ null }
-					context={ null }
-					goToCheckoutPage={ handleContactUsClick }
-					target="_blank"
-				/>
-			);
-		}
-
-		const upgradeDescription = createInterpolateElement(
-			sprintf(
-				/* Translators: number of requests */
-				__(
-					'You have reached the requests limit for your current plan. <strong>Upgrade now to increase your requests limit to %d.</strong>',
-					'jetpack'
-				),
-				nextTier.limit
-			),
-			{
-				strong: <strong />,
-			}
-		);
-
-		return (
-			<Nudge
-				buttonText={ sprintf(
-					/* Translators: number of requests */
-					__( 'Upgrade to %d requests', 'jetpack' ),
-					nextTier.limit
-				) }
-				checkoutUrl={ checkoutUrl }
-				className={ 'jetpack-ai-upgrade-banner' }
-				description={ description || upgradeDescription }
-				goToCheckoutPage={ handleUpgradeClick }
-				visible={ true }
-				align={ 'center' }
-				title={ null }
-				context={ null }
-				target="_blank"
 			/>
 		);
 	}
