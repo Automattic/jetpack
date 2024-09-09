@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
@@ -381,7 +382,12 @@ abstract class Module {
 			$status['last_sent'] = $this->get_initial_last_sent();
 		}
 
-		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ] ??
+			Defaults::get_default_setting( 'full_sync_limits' )[ $this->name() ] ??
+			array(
+				'max_chunks' => 10,
+				'chunk_size' => 100,
+			);
 
 		$chunks_sent = 0;
 
