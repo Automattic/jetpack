@@ -1,18 +1,8 @@
-import { Button, ExternalLink, Tooltip } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, linkOff } from '@wordpress/icons';
-import { useCallback } from 'react';
-import useSharePost from '../../hooks/use-share-post';
-import { store as socialStore } from '../../social-store';
-import styles from './styles.module.scss';
+import { Retry, RetryProps } from './retry';
 
-type ShareStatusActionProps = {
-	status: string;
-	shareLink: string;
-	connectionId: number | string;
-};
+type ShareStatusActionProps = RetryProps;
 
 /**
  *
@@ -21,51 +11,10 @@ type ShareStatusActionProps = {
  * @param {ShareStatusActionProps} props - component props
  * @return {import('react').ReactNode} - React element
  */
-export function ShareStatusAction( { connectionId, status, shareLink }: ShareStatusActionProps ) {
-	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
-	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
-	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
+export function ShareStatusAction( { shareItem }: ShareStatusActionProps ) {
+	if ( 'success' === shareItem.status ) {
+		return <ExternalLink href={ shareItem.message }>{ __( 'View', 'jetpack' ) }</ExternalLink>;
+	}
 
-	const { doPublicize } = useSharePost( postId );
-
-	const onRetry = useCallback( () => {
-		const skippedConnections = connections.filter(
-			connection => connection.connection_id !== connectionId.toString()
-		);
-
-		// This means that the connection that failed is not in the list of connections anymore.
-		if ( skippedConnections.length === connections.length ) {
-			return;
-		}
-
-		doPublicize( skippedConnections.map( connection => connection.connection_id ) );
-	}, [ connectionId, connections, doPublicize ] );
-
-	const renderActions = () => {
-		if ( 'success' === status ) {
-			return (
-				<ExternalLink className={ styles[ 'profile-link' ] } href={ shareLink }>
-					{ __( 'View', 'jetpack' ) }
-				</ExternalLink>
-			);
-		}
-
-		if (
-			! connections.find( connection => connection.connection_id === connectionId.toString() )
-		) {
-			return (
-				<Tooltip text={ __( 'This connection has been removed.', 'jetpack' ) }>
-					<Icon icon={ linkOff } size={ 20 } className={ styles[ 'disconnected-icon' ] } />
-				</Tooltip>
-			);
-		}
-
-		return (
-			<Button variant="link" onClick={ onRetry }>
-				{ __( 'Retry', 'jetpack' ) }
-			</Button>
-		);
-	};
-
-	return <div>{ renderActions() }</div>;
+	return <Retry shareItem={ shareItem } />;
 }
