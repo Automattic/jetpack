@@ -180,10 +180,14 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 		return highlightedTexts;
 	}
 
-	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
-	// \p{L} is a Unicode property that matches any letter in any language
-	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/gu );
+	// Regex to match words, including contractions, hyphenated words, and words separated by slashes
+	// \p{L} matches any Unicode letter in any language
+	// \p{M} matches any Unicode mark (combining characters)
+	// The regex has three main parts:
+	// 1. [@#+$/]{0,1} - Optionally matches a single special character at the start
+	// 2. [\p{L}\p{M}'-]+ - Matches one or more letters, marks, apostrophes, or hyphens
+	// 3. (?:\/[\p{L}\p{M}'-]+)* - Optionally matches additional parts separated by slashes
+	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}'-]+(?:\/[\p{L}\p{M}'-]+)*/gu );
 	const matches = Array.from( text.matchAll( wordRegex ) );
 
 	matches.forEach( match => {
@@ -195,12 +199,12 @@ export default function spellingMistakes( text: string ): Array< HighlightedText
 			return;
 		}
 
-		// Split hyphenated words into separate words as nspell doesn't work well with them
-		const subWords = word.split( '-' );
+		// Split words by hyphens and slashes
+		const subWords = word.split( /[-/]/ );
 
-		subWords.forEach( ( subWord, index ) => {
+		subWords.forEach( subWord => {
 			if ( ! spellChecker.correct( subWord ) ) {
-				const subWordStartIndex = startIndex + ( index > 0 ? word.indexOf( subWord ) : 0 );
+				const subWordStartIndex = startIndex + word.indexOf( subWord );
 
 				highlightedTexts.push( {
 					text: subWord,
