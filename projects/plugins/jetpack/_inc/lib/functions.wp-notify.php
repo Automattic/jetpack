@@ -8,10 +8,14 @@
  *
  * In the past, we used to overwrite the whole pluggable function, but we started using filters to avoid having
  * to check for Jetpack::is_active() too early in the load flow.
+ *
+ * @deprecated 13.9 File became unused.
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+
+_deprecated_file( __FILE__, 'jetpack-13.9' );
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: Code copied from Core, so using Core strings.
 // phpcs:disable WordPress.Utils.I18nTextDomainFixer.MissingArgDomain --reason: Code copied from Core, so using Core strings.

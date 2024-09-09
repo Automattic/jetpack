@@ -1,7 +1,8 @@
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { STORE_ID } from '../../state/store';
+import useHistoryQuery from '../../data/scan/use-history-query';
+import useScanStatusQuery from '../../data/scan/use-scan-status-query';
+import useProductDataQuery from '../../data/use-product-data-query';
 
 // Valid "key" values for filtering.
 const KEY_FILTERS = [ 'all', 'core', 'plugins', 'themes', 'files', 'database' ];
@@ -50,12 +51,9 @@ export default function useProtectData(
 		filter: { status: null, key: null },
 	}
 ) {
-	const { status, scanHistory, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
-		status: select( STORE_ID ).getStatus(),
-		scanHistory: select( STORE_ID ).getScanHistory(),
-		jetpackScan: select( STORE_ID ).getJetpackScan(),
-		hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
-	} ) );
+	const { data: status } = useScanStatusQuery();
+	const { data: scanHistory } = useHistoryQuery();
+	const { data: jetpackScan } = useProductDataQuery();
 
 	const { counts, results, error, lastChecked, hasUncheckedItems } = useMemo( () => {
 		// This hook can provide data from two sources: the current scan or the scan history.
@@ -166,6 +164,5 @@ export default function useProtectData(
 		lastChecked,
 		hasUncheckedItems,
 		jetpackScan,
-		hasRequiredPlan,
 	};
 }

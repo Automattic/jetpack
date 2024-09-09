@@ -272,6 +272,7 @@ class Jetpack_Ai extends Product {
 		}
 
 		$features = array(
+			__( 'High request capacity *', 'jetpack-my-jetpack' ),
 			__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 			__( 'Easily refine content to your liking', 'jetpack-my-jetpack' ),
 			__( 'Make your content easier to read', 'jetpack-my-jetpack' ),
@@ -499,7 +500,7 @@ class Jetpack_Ai extends Product {
 	 * @return ?string
 	 */
 	public static function get_post_checkout_url() {
-		return '/wp-admin/admin.php?page=my-jetpack#/jetpack-ai';
+		return 'admin.php?page=my-jetpack#/jetpack-ai';
 	}
 
 	/**
@@ -648,9 +649,11 @@ class Jetpack_Ai extends Product {
 	 * @param WP_Post $post The post object.
 	 * @return string
 	 */
-	public static function add_ai_block( $content, WP_Post $post ) {
+	public static function add_ai_block( $content, $post ) {
 		if ( isset( $_GET['use_ai_block'] ) && isset( $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'ai-assistant-content-nonce' )
+			&& ! empty( $post )
+			&& ! is_wp_error( $post )
 			&& current_user_can( 'edit_post', $post->ID )
 			&& '' === $content
 		) {

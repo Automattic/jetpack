@@ -33,6 +33,10 @@ export class Writing extends React.Component {
 			getModuleOverride: this.props.getModuleOverride,
 		};
 
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
 		const found = [
 			'carousel',
 			'copy-post',
@@ -47,10 +51,6 @@ export class Writing extends React.Component {
 			'widget-visibility',
 			'blocks',
 		].some( this.props.isModuleFound );
-
-		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return null;
-		}
 
 		if ( ! found ) {
 			return null;

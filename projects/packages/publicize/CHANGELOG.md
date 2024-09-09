@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.52.2] - 2024-09-09
+### Changed
+- Internal updates.
+
+## [0.52.1] - 2024-09-06
+### Changed
+- Internal updates.
+
+## [0.52.0] - 2024-09-05
+### Changed
+- Made resharing async [#39227]
+- Updated package dependencies. [#39176]
+
+## [0.51.0] - 2024-09-02
+### Added
+- Add share status log modal to published posts [#39051]
+
+## [0.50.1] - 2024-08-29
+### Added
+- Added share status info to Jetpack sidebar [#39073]
+
+### Changed
+- Updated package dependencies. [#39111]
+
 ## [0.50.0] - 2024-08-26
 ### Added
 - Added the new feature flag for the social share status [#39015]
@@ -666,6 +690,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.52.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.1...v0.52.2
+[0.52.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.52.0...v0.52.1
+[0.52.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.51.0...v0.52.0
+[0.51.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.1...v0.51.0
+[0.50.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.2...v0.50.0
 [0.49.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.1...v0.49.2
 [0.49.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.49.0...v0.49.1

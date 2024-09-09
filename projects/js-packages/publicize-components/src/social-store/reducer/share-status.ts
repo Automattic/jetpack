@@ -1,9 +1,24 @@
-import { FETCH_POST_SHARE_STATUS, RECEIVE_POST_SHARE_STATUS } from '../actions/constants';
-import { fetchPostShareStatus, receivePostShareStaus } from '../actions/share-status';
+import {
+	FETCH_POST_SHARE_STATUS,
+	POLLING_FOR_POST_SHARE_STATUS,
+	RECEIVE_POST_SHARE_STATUS,
+	TOGGLE_SHARE_STATUS_MODAL,
+} from '../actions/constants';
+import {
+	fetchPostShareStatus,
+	pollingForPostShareStatus,
+	receivePostShareStaus,
+	toggleShareStatusModal,
+} from '../actions/share-status';
 import { SocialStoreState } from '../types';
 
 type Action =
-	| ReturnType< typeof fetchPostShareStatus | typeof receivePostShareStaus >
+	| ReturnType<
+			| typeof fetchPostShareStatus
+			| typeof receivePostShareStaus
+			| typeof toggleShareStatusModal
+			| typeof pollingForPostShareStatus
+	  >
 	| { type: 'default' };
 
 /**
@@ -28,13 +43,28 @@ export function shareStatus(
 					loading: action.loading ?? true,
 				},
 			};
+		case POLLING_FOR_POST_SHARE_STATUS:
+			return {
+				...state,
+				[ action.postId ]: {
+					shares: [],
+					...state?.[ action.postId ],
+					polling: action.polling ?? true,
+				},
+			};
 		case RECEIVE_POST_SHARE_STATUS:
 			return {
 				...state,
 				[ action.postId ]: {
+					...state?.[ action.postId ],
 					...action.shareStatus,
 					loading: false,
 				},
+			};
+		case TOGGLE_SHARE_STATUS_MODAL:
+			return {
+				...state,
+				isModalOpen: action.isOpen,
 			};
 	}
 

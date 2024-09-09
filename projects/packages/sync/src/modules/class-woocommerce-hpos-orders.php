@@ -15,6 +15,11 @@ use Automattic\WooCommerce\Internal\DataStores\Orders\OrdersTableDataStore;
 class WooCommerce_HPOS_Orders extends Module {
 
 	/**
+	 * The slug of WooCommerce Subscriptions plugin.
+	 */
+	const WOOCOMMERCE_SUBSCRIPTIONS_PATH = 'woocommerce-subscriptions/woocommerce-subscriptions.php';
+
+	/**
 	 * Order table name. There are four order tables (order, addresses, operational_data and meta), but for sync purposes we only care about the main table since it has the order ID.
 	 *
 	 * @access private
@@ -40,8 +45,21 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @access public
 	 *
 	 * @return string
+	 * @deprecated since 3.11.0 Use table() instead.
 	 */
 	public function table_name() {
+		_deprecated_function( __METHOD__, '3.11.0', 'Automattic\\Jetpack\\Sync\\WooCommerce_HPOS_Orders->table' );
+		return $this->order_table_name;
+	}
+
+	/**
+	 * The table in the database with the prefix.
+	 *
+	 * @access public
+	 *
+	 * @return string|bool
+	 */
+	public function table() {
 		return $this->order_table_name;
 	}
 
@@ -65,7 +83,12 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array Order types to sync.
 	 */
 	public static function get_order_types_to_sync( $prefixed = false ) {
-		$types = array( 'order', 'order_refund', 'subscription' );
+		$types = array( 'order', 'order_refund' );
+
+		if ( is_plugin_active( self::WOOCOMMERCE_SUBSCRIPTIONS_PATH ) ) {
+			$types[] = 'subscription';
+		}
+
 		if ( $prefixed ) {
 			$types = array_map(
 				function ( $type ) {
@@ -393,7 +416,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- We return all order count for full sync, so confit is not required.
 		global $wpdb;
 
-		$query = "SELECT count(*) FROM {$this->table_name()} WHERE {$this->get_where_sql( $config ) }";
+		$query = "SELECT count(*) FROM {$this->table()} WHERE {$this->get_where_sql( $config ) }";
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hardcoded query, no user variable
 		$count = (int) $wpdb->get_var( $query );
 
@@ -411,7 +434,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
-		return $this->enqueue_all_ids_as_action( 'full_sync_orders', $this->table_name(), 'id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
+		return $this->enqueue_all_ids_as_action( 'full_sync_orders', $this->table(), 'id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
 	/**

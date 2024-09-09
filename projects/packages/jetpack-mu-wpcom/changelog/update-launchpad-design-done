@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Launchpad: Require a design is selected before marking the step as complete in both the Write and Free flows

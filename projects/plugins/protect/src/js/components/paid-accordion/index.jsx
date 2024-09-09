@@ -1,25 +1,24 @@
 import { Spinner, Text, useBreakpointMatch } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, check, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import React, { useState, useCallback, useContext } from 'react';
-import { STORE_ID } from '../../state/store';
+import useFixers from '../../hooks/use-fixers';
 import ThreatSeverityBadge from '../severity';
 import styles from './styles.module.scss';
 
 const PaidAccordionContext = React.createContext();
 
-const ScanHistoryDetails = ( { detectedAt, fixedOn, status } ) => {
+const ScanHistoryDetails = ( { firstDetected, fixedOn, status } ) => {
 	return (
 		<>
-			{ detectedAt && (
+			{ firstDetected && (
 				<Text className={ styles[ 'accordion-header-status' ] }>
 					{ sprintf(
 						/* translators: %s: First detected date */
 						__( 'Threat found %s', 'jetpack-protect' ),
-						dateI18n( 'M j, Y', detectedAt )
+						dateI18n( 'M j, Y', firstDetected )
 					) }
 					{ 'fixed' === status && (
 						<>
@@ -75,12 +74,13 @@ export const PaidAccordionItem = ( {
 	const accordionData = useContext( PaidAccordionContext );
 	const open = accordionData?.open === id;
 	const setOpen = accordionData?.setOpen;
-	const threatsAreFixing = useSelect( select => select( STORE_ID ).getThreatsAreFixing() );
 
 	const bodyClassNames = clsx( styles[ 'accordion-body' ], {
 		[ styles[ 'accordion-body-open' ] ]: open,
 		[ styles[ 'accordion-body-close' ] ]: ! open,
 	} );
+
+	const { fixersStatus } = useFixers();
 
 	const handleClick = useCallback( () => {
 		if ( ! open ) {
@@ -109,9 +109,9 @@ export const PaidAccordionItem = ( {
 					</Text>
 					{ ( 'fixed' === status || 'ignored' === status ) && (
 						<ScanHistoryDetails
-							detectedAt={ firstDetected }
+							firstDetected={ firstDetected }
 							status={ status }
-							fixedAt={ fixedOn }
+							fixedOn={ fixedOn }
 						/>
 					) }
 				</div>
@@ -122,7 +122,7 @@ export const PaidAccordionItem = ( {
 					<div>
 						{ fixable && (
 							<>
-								{ threatsAreFixing.indexOf( id ) >= 0 ? (
+								{ fixersStatus?.threats?.[ id ]?.status === 'in_progress' ? (
 									<Spinner color="black" />
 								) : (
 									<Icon icon={ check } className={ styles[ 'icon-check' ] } size={ 28 } />

@@ -6,11 +6,6 @@
 // 	root: true,
 // 	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/base' ) ],
 // 	ignorePatterns: loadIgnorePatterns( __dirname ),
-// 	parserOptions: {
-// 		babelOptions: {
-// 			configFile: require.resolve( './babel.config.js' ),
-// 		},
-// 	},
 // };
 // ```
 
@@ -52,7 +47,6 @@ module.exports = {
 		ecmaFeatures: {
 			jsx: true,
 		},
-		requireConfigFile: false,
 	},
 	settings: {
 		'import/resolver': {
@@ -210,16 +204,14 @@ module.exports = {
 		],
 		strict: [ 'error', 'never' ],
 
+		// We may want to keep these overrides. To decide later.
+		eqeqeq: [ 'error', 'always', { null: 'ignore' } ],
+		'no-unused-expressions': [ 'error', { allowShortCircuit: true, allowTernary: true } ],
 		// Temporarily override plugin:@wordpress/* so we can clean up failing stuff in separate PRs.
-		eqeqeq: [ 'error', 'allow-null' ],
 		'jsx-a11y/label-has-associated-control': [ 'error', { assert: 'either' } ],
-		'no-prototype-builtins': 'off',
-		'no-undef-init': 'off',
-		'no-unused-expressions': 'off',
 		'object-shorthand': 'off',
 		'@wordpress/no-base-control-with-label-without-id': 'off',
 		'@wordpress/no-global-active-element': 'off',
 		'@wordpress/no-global-get-selection': 'off',
-		'@wordpress/no-unused-vars-before-return': 'off',
 	},
 };

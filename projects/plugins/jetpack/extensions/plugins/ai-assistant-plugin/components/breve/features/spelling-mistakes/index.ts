@@ -9,6 +9,7 @@ import nspell from 'nspell';
  * Internal dependencies
  */
 import getDictionary from '../../utils/get-dictionary';
+import a8c from './a8c';
 /**
  * Types
  */
@@ -105,6 +106,9 @@ export const getSpellChecker = ( { language = 'en' }: { language?: string } = {}
 	);
 	exceptions.forEach( exception => spellChecker.add( exception ) );
 
+	// Add the Automattic dictionary
+	spellChecker.personal( a8c );
+
 	spellCheckers[ language ] = spellChecker;
 
 	return spellCheckers[ language ];
@@ -143,7 +147,7 @@ export const addTextToDictionary = (
 	// Recompute the spell checker on the next call
 	delete spellCheckers[ language ];
 
-	reloadDictionary( SPELLING_MISTAKES.name );
+	reloadDictionary();
 
 	debug( 'Added text to the dictionary', text );
 };
@@ -154,8 +158,13 @@ export const suggestSpellingFixes = (
 ) => {
 	const spellChecker = getSpellChecker( { language } );
 
-	if ( ! spellChecker ) {
+	if ( ! spellChecker || ! text ) {
 		return [];
+	}
+
+	// capital_P_dangit
+	if ( text.toLocaleLowerCase() === 'wordpress' ) {
+		return [ 'WordPress' ];
 	}
 
 	const suggestions = spellChecker.suggest( text );
@@ -165,37 +174,45 @@ export const suggestSpellingFixes = (
 
 export default function spellingMistakes( text: string ): Array< HighlightedText > {
 	const highlightedTexts: Array< HighlightedText > = [];
-	// Regex to match words, including contractions and hyphenated words, possibly prefixed with special characters
-	// \p{L} is a Unicode property that matches any letter in any language
-	// \p{M} is a Unicode property that matches any character intended to be combined with another character
-	const wordRegex = new RegExp( /[@#+$]{0,1}[\p{L}\p{M}'-]+/, 'gu' );
-	const words = ( text.match( wordRegex ) || [] )
-		// Filter out words that start with special characters
-		.filter( word => [ '@', '#', '+', '$' ].indexOf( word[ 0 ] ) === -1 )
-		// Split hyphenated words into separate words as nspell doesn't work well with them
-		.map( word => word.split( '-' ) )
-		.flat();
 	const spellChecker = getSpellChecker();
 
 	if ( ! spellChecker ) {
 		return highlightedTexts;
 	}
 
-	// To avoid highlighting the same word occurrence multiple times
-	let searchStartIndex = 0;
+	// Regex to match words, including contractions, hyphenated words, and words separated by slashes
+	// \p{L} matches any Unicode letter in any language
+	// \p{M} matches any Unicode mark (combining characters)
+	// The regex has three main parts:
+	// 1. [@#+$/]{0,1} - Optionally matches a single special character at the start
+	// 2. [\p{L}\p{M}'-]+ - Matches one or more letters, marks, apostrophes, or hyphens
+	// 3. (?:\/[\p{L}\p{M}'-]+)* - Optionally matches additional parts separated by slashes
+	const wordRegex = new RegExp( /[@#+$/]{0,1}[\p{L}\p{M}'-]+(?:\/[\p{L}\p{M}'-]+)*/gu );
+	const matches = Array.from( text.matchAll( wordRegex ) );
 
-	words.forEach( ( word: string ) => {
-		const wordIndex = text.indexOf( word, searchStartIndex );
+	matches.forEach( match => {
+		const word = match[ 0 ];
+		const startIndex = match.index as number;
 
-		if ( ! spellChecker.correct( word ) ) {
-			highlightedTexts.push( {
-				text: word,
-				startIndex: wordIndex,
-				endIndex: wordIndex + word.length,
-			} );
+		// Skip words that start with special characters
+		if ( [ '@', '#', '+', '$', '/' ].indexOf( word[ 0 ] ) !== -1 ) {
+			return;
 		}
 
-		searchStartIndex = wordIndex + word.length;
+		// Split words by hyphens and slashes
+		const subWords = word.split( /[-/]/ );
+
+		subWords.forEach( subWord => {
+			if ( ! spellChecker.correct( subWord ) ) {
+				const subWordStartIndex = startIndex + word.indexOf( subWord );
+
+				highlightedTexts.push( {
+					text: subWord,
+					startIndex: subWordStartIndex,
+					endIndex: subWordStartIndex + subWord.length,
+				} );
+			}
+		} );
 	} );
 
 	return highlightedTexts;

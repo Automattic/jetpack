@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.12.29 - 2024-09-09
+### Changed
+- Updated package dependencies. [#39278]
+
+## 0.12.28 - 2024-09-05
+### Changed
+- Internal updates.
+
+## 0.12.27 - 2024-09-05
+### Changed
+- Adds a conditional Protect redirect post scan license activation [#39007]
+- Updated package dependencies. [#39176]
+
 ## 0.12.26 - 2024-08-26
 ### Changed
 - Updated package dependencies. [#39004]

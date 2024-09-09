@@ -18,7 +18,7 @@ function readJson( project, packageManager, output ) {
 	try {
 		data = fs.readFileSync( `projects/${ project }/${ file }`, 'utf8' );
 	} catch ( err ) {
-		output ? log( chalk.yellow( `This project does not have a ${ file } file.` ) ) : null;
+		output && log( chalk.yellow( `This project does not have a ${ file } file.` ) );
 		return undefined;
 	}
 
@@ -40,7 +40,7 @@ function writeJson( project, packageManager, json, pkgDir, output ) {
 	try {
 		fs.writeFileSync( pkgDir + '/' + file, createJSON( json ) );
 	} catch ( err ) {
-		output ? console.error( chalk.red( `Could not write the json file.` ), err ) : null;
+		output && console.error( chalk.red( `Could not write the json file.` ), err );
 	}
 }
 
@@ -103,9 +103,7 @@ function parseJSON( data, output = false ) {
 	try {
 		return JSON.parse( data );
 	} catch ( parseError ) {
-		output
-			? log( chalk.red( 'Could not parse JSON. Something is pretty wrong.' ), parseError )
-			: null;
+		output && log( chalk.red( 'Could not parse JSON. Something is pretty wrong.' ), parseError );
 		return undefined;
 	}
 }
@@ -121,9 +119,8 @@ function createJSON( data, output = false ) {
 	try {
 		return JSON.stringify( data, null, 2 );
 	} catch ( parseError ) {
-		output
-			? log( chalk.red( 'Could not stringify JSON. Something is pretty wrong.' ), parseError )
-			: null;
+		output &&
+			log( chalk.red( 'Could not stringify JSON. Something is pretty wrong.' ), parseError );
 		return undefined;
 	}
 }

@@ -705,7 +705,6 @@ export const getInitialStepForOnboarding = onboarding => getStepsForOnboarding( 
 // Gets the step to show when one has not been set in the state yet.
 export const getInitialStep = state => {
 	// Gets new recommendations from initial state.
-	const newRecommendations = getNewRecommendations( state );
 	const initialStep = getInitialRecommendationsStep( state );
 	const onboardingData = getOnboardingData( state );
 
@@ -720,6 +719,7 @@ export const getInitialStep = state => {
 	}
 
 	// Jump to a new recommendation if there is one to show.
+	const newRecommendations = getNewRecommendations( state );
 	if ( newRecommendations.length > 0 ) {
 		return newRecommendations[ 0 ];
 	}

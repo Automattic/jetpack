@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
 const severityClassNames = severity => {
@@ -11,16 +11,12 @@ const severityClassNames = severity => {
 };
 
 const severityText = severity => {
-	const critical = __( 'Critical', 'jetpack-protect' );
-	const high = __( 'High', 'jetpack-protect' );
-	const low = __( 'Low', 'jetpack-protect' );
-
 	if ( severity >= 5 ) {
-		return critical;
+		return _x( 'Critical', 'Severity label for issues rated 5 or higher.', 'jetpack-protect' );
 	} else if ( severity >= 3 && severity < 5 ) {
-		return high;
+		return _x( 'High', 'Severity label for issues rated between 3 and 5.', 'jetpack-protect' );
 	}
-	return low;
+	return _x( 'Low', 'Severity label for issues rated below 3.', 'jetpack-protect' );
 };
 
 const ThreatSeverityBadge = ( { severity } ) => {

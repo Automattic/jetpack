@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 13.7
+Stable tag: 13.8
 Requires at least: 6.5
 Requires PHP: 7.0
 Tested up to: 6.6
@@ -326,14 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 13.8-a.7 - 2024-08-26
-#### Enhancements
-- Newsletters: Adds Gutenberg plugin icon to the header, with a plugin sidebar with email preview feature.
-
+### 13.9-a.1 - 2024-09-09
 #### Bug fixes
-- Blocks: Ensure that the Contact Info stylesheet is properly loaded.
-- Blocks: Fix the editor freeze after inserting a pattern with the Donations block.
-- Blocks: Ensure that the Payment Button stylesheet is properly loaded.
+- AI Assistant: Remove autofocus on extended blocks while previewing.
+- Ai Assistant: Do not show Jetpack AI excerpt UI outside of correct context.
+- AI Assistant: Fix Write Brief highlight position on spelling mistake following ignored special word.
+- AI Content Lens: Fix the feature of the AI Content Lens is gone.
+- Hosting Configuration: Make the menu title under the settings the same as the destination.
+- Jetpack REST API: Fix missing requirement in admin-menu endpoint.
+- Sidebar: Show correct product name for "VaultPress Backup".
 
 --------
 

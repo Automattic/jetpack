@@ -87,7 +87,16 @@ class SearchResultMinimal extends Component {
 				className="jetpack-instant-search__search-result-minimal-content"
 				//eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={ {
-					__html: this.props.result.highlight.content.join( ' ... ' ),
+					__html:
+						this.props.result.highlight && typeof this.props.result.highlight === 'object'
+							? Object.entries( this.props.result.highlight )
+									.filter(
+										( [ key, value ] ) =>
+											key !== 'comments' && key !== 'title' && Array.isArray( value )
+									)
+									.map( ( [ , array ] ) => array.join( ' ... ' ) )
+									.join( ' ... ' )
+							: '',
 				} }
 			/>
 		);
@@ -98,7 +107,13 @@ class SearchResultMinimal extends Component {
 		if ( result_type !== 'post' ) {
 			return null;
 		}
-		const noMatchingContent = ! highlight.content || highlight.content[ 0 ] === '';
+		const noMatchingContent =
+			! highlight ||
+			typeof highlight !== 'object' ||
+			Object.entries( highlight ).every(
+				( [ key, value ] ) =>
+					key === 'comments' || key === 'title' || ! Array.isArray( value ) || value[ 0 ] === ''
+			);
 
 		return (
 			<li

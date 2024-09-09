@@ -1,8 +1,7 @@
 import { AdminSectionHero, Container, Col, Text, H3, Status } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import useProtectData from '../../hooks/use-protect-data';
+import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import FirewallStatCards from './firewall-statcards';
 import FirewallSubheading from './firewall-subheading';
@@ -10,7 +9,7 @@ import styles from './styles.module.scss';
 
 const FirewallHeader = ( {
 	status,
-	hasRequiredPlan,
+	hasPlan,
 	automaticRulesAvailable,
 	jetpackWafIpBlockListEnabled,
 	jetpackWafIpAllowListEnabled,
@@ -55,7 +54,7 @@ const FirewallHeader = ( {
 								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
+								hasPlan={ hasPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 								wafSupported={ wafSupported }
 							/>
@@ -80,7 +79,7 @@ const FirewallHeader = ( {
 								jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }
 								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
 								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
+								hasPlan={ hasPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 								wafSupported={ wafSupported }
 							/>
@@ -102,7 +101,7 @@ const FirewallHeader = ( {
 					{ wafSupported && (
 						<FirewallStatCards
 							status={ status }
-							hasRequiredPlan={ hasRequiredPlan }
+							hasPlan={ hasPlan }
 							oneDayStats={ oneDayStats }
 							thirtyDayStats={ thirtyDayStats }
 						/>
@@ -128,7 +127,7 @@ const ConnectedFirewallHeader = () => {
 		stats,
 		isEnabled,
 	} = useWafData();
-	const { hasRequiredPlan } = useProtectData();
+	const { hasPlan } = usePlan();
 	const isSupportedWafFeatureEnabled = wafSupported ? isEnabled : bruteForceProtection;
 	const currentStatus = isSupportedWafFeatureEnabled ? 'on' : 'off';
 	const { oneDayStats, thirtyDayStats } = stats
@@ -138,7 +137,7 @@ const ConnectedFirewallHeader = () => {
 	return (
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
-			hasRequiredPlan={ hasRequiredPlan }
+			hasPlan={ hasPlan }
 			automaticRulesAvailable={ automaticRulesAvailable }
 			jetpackWafIpBlockListEnabled={ jetpackWafIpBlockListEnabled }
 			jetpackWafIpAllowListEnabled={ jetpackWafIpAllowListEnabled }

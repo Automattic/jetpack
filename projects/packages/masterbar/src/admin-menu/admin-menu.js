@@ -8,13 +8,14 @@ import './admin-menu.css';
 	 */
 	function init() {
 		const adminbar = document.querySelector( '#wpadminbar' );
-		const wpwrap = document.querySelector( '#wpwrap' );
-		const adminMenu = document.querySelector( '#adminmenu' );
-		const dismissClass = 'dismissible-card__close-icon';
 
 		if ( ! adminbar ) {
 			return;
 		}
+
+		const wpwrap = document.querySelector( '#wpwrap' );
+		const adminMenu = document.querySelector( '#adminmenu' );
+		const dismissClass = 'dismissible-card__close-icon';
 
 		/**
 		 *
