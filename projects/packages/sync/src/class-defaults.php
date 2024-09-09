@@ -1329,6 +1329,10 @@ class Defaults {
 			'chunk_size' => 100,
 			'max_chunks' => 10,
 		),
+		'woocommerce'        => array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		),
 	);
 
 	/**
