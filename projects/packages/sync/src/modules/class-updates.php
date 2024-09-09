@@ -103,8 +103,6 @@ class Updates extends Module {
 			2
 		);
 
-		add_action( 'automatic_updates_complete', $callable );
-
 		if ( is_multisite() ) {
 			add_filter( 'pre_update_site_option_wpmu_upgrade_site', array( $this, 'update_core_network_event' ), 10, 2 );
 			add_action( 'jetpack_sync_core_update_network', $callable, 10, 3 );
