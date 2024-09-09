@@ -62,10 +62,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			// If portfolio cpt is enabled, hook into init to register the CPT, otherwise run maybe_register_cpt immediately to deregister.
 			if ( get_option( self::OPTION_NAME, '0' ) ) {
 				$this->maybe_register_cpt();
-
 			} else {
 				add_action( 'init', array( $this, 'maybe_register_cpt' ) );
-
 			}
 		}
 
