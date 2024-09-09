@@ -74,7 +74,7 @@ const PublicizePanel = ( { prePublish, children } ) => {
 			) }
 			{ isPostPublished && (
 				<>
-					<ShareStatusModalTrigger withWrapper />
+					<ShareStatusModalTrigger withWrapper analyticsData={ { location: 'editor' } } />
 					<ManualSharing />
 				</>
 			) }

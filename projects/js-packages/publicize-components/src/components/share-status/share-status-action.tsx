@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -10,6 +11,7 @@ import styles from './styles.module.scss';
 
 type ShareStatusActionProps = {
 	status: string;
+	service: string;
 	shareLink: string;
 	connectionId: number | string;
 };
@@ -21,7 +23,13 @@ type ShareStatusActionProps = {
  * @param {ShareStatusActionProps} props - component props
  * @return {import('react').ReactNode} - React element
  */
-export function ShareStatusAction( { connectionId, status, shareLink }: ShareStatusActionProps ) {
+export function ShareStatusAction( {
+	connectionId,
+	status,
+	shareLink,
+	service,
+}: ShareStatusActionProps ) {
+	const { recordEvent } = useAnalytics();
 	// @ts-expect-error -- `@wordpress/editor` is badly typed, causes issue in CI
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId(), [] );
 	const connections = useSelect( select => select( socialStore ).getConnections(), [] );
@@ -29,6 +37,8 @@ export function ShareStatusAction( { connectionId, status, shareLink }: ShareSta
 	const { doPublicize } = useSharePost( postId );
 
 	const onRetry = useCallback( () => {
+		recordEvent( 'jetpack_social_share_status_retry', { service, location: 'modal' } );
+
 		const skippedConnections = connections.filter(
 			connection => connection.connection_id !== connectionId.toString()
 		);
@@ -39,12 +49,20 @@ export function ShareStatusAction( { connectionId, status, shareLink }: ShareSta
 		}
 
 		doPublicize( skippedConnections.map( connection => connection.connection_id ) );
-	}, [ connectionId, connections, doPublicize ] );
+	}, [ connectionId, connections, doPublicize, recordEvent, service ] );
+
+	const recordViewEvent = useCallback( () => {
+		recordEvent( 'jetpack_social_share_status_view', { service, location: 'modal' } );
+	}, [ recordEvent, service ] );
 
 	const renderActions = () => {
 		if ( 'success' === status ) {
 			return (
-				<ExternalLink className={ styles[ 'profile-link' ] } href={ shareLink }>
+				<ExternalLink
+					className={ styles[ 'profile-link' ] }
+					href={ shareLink }
+					onClick={ recordViewEvent }
+				>
 					{ __( 'View', 'jetpack' ) }
 				</ExternalLink>
 			);
